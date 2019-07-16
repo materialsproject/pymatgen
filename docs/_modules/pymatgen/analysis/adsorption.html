@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.adsorption &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.analysis.adsorption &#8212; pymatgen 2019.7.2 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -420,21 +420,35 @@
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">([</span><span class="n">site_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">],</span>
                               <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="AdsorbateSiteFinder.add_adsorbate"><a class="viewcode-back" href="../../../pymatgen.analysis.adsorption.html#pymatgen.analysis.adsorption.AdsorbateSiteFinder.add_adsorbate">[docs]</a>    <span class="k">def</span> <span class="nf">add_adsorbate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">ads_coord</span><span class="p">,</span> <span class="n">repeat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reorient</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="AdsorbateSiteFinder.add_adsorbate"><a class="viewcode-back" href="../../../pymatgen.analysis.adsorption.html#pymatgen.analysis.adsorption.AdsorbateSiteFinder.add_adsorbate">[docs]</a>    <span class="k">def</span> <span class="nf">add_adsorbate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">ads_coord</span><span class="p">,</span> <span class="n">repeat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">translate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                      <span class="n">reorient</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adds an adsorbate at a particular coordinate.  Adsorbate</span>
-<span class="sd">        represented by a Molecule object, and is positioned relative</span>
-<span class="sd">        to the input adsorbate coordinate.</span>
+<span class="sd">        represented by a Molecule object and is translated to (0, 0, 0) if </span>
+<span class="sd">        translate is True, or positioned relative to the input adsorbate</span>
+<span class="sd">        coordinate if translate is False.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            molecule (Molecule): molecule object representing the adsorbate</span>
 <span class="sd">            ads_coord (array): coordinate of adsorbate position</span>
 <span class="sd">            repeat (3-tuple or list): input for making a supercell of slab</span>
 <span class="sd">                prior to placing the adsorbate</span>
+<span class="sd">            translate (bool): flag on whether to translate the molecule so</span>
+<span class="sd">                that its CoM is at the origin prior to adding it to the surface</span>
 <span class="sd">            reorient (bool): flag on whether to reorient the molecule to</span>
 <span class="sd">                have its z-axis concurrent with miller index</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">reorient</span><span class="p">:</span>
+        <span class="n">molecule</span> <span class="o">=</span> <span class="n">molecule</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">translate</span><span class="p">:</span>
+            <span class="c1"># Translate the molecule so that the center of mass of the atoms</span>
+            <span class="c1"># that have the most negative z coordinate is at (0, 0, 0)</span>
+            <span class="n">front_atoms</span> <span class="o">=</span> <span class="n">molecule</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">front_atoms</span><span class="o">.</span><span class="n">_sites</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">molecule</span><span class="o">.</span><span class="n">sites</span>
+                                  <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="nb">min</span><span class="p">([</span><span class="n">s</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                                  <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">molecule</span><span class="o">.</span><span class="n">sites</span><span class="p">])]</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">front_atoms</span><span class="o">.</span><span class="n">center_of_mass</span>
+            <span class="n">molecule</span><span class="o">.</span><span class="n">translate_sites</span><span class="p">(</span><span class="n">vector</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="n">y</span><span class="p">,</span> <span class="o">-</span><span class="n">z</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">reorient</span><span class="p">:</span>    
             <span class="c1"># Reorient the molecule along slab m_index</span>
             <span class="n">sop</span> <span class="o">=</span> <span class="n">get_rot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slab</span><span class="p">)</span>
             <span class="n">molecule</span><span class="o">.</span><span class="n">apply_operation</span><span class="p">(</span><span class="n">sop</span><span class="o">.</span><span class="n">inverse</span><span class="p">)</span>
@@ -468,7 +482,7 @@
         <span class="k">return</span> <span class="n">slab</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">site_properties</span><span class="o">=</span><span class="n">new_sp</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AdsorbateSiteFinder.generate_adsorption_structures"><a class="viewcode-back" href="../../../pymatgen.analysis.adsorption.html#pymatgen.analysis.adsorption.AdsorbateSiteFinder.generate_adsorption_structures">[docs]</a>    <span class="k">def</span> <span class="nf">generate_adsorption_structures</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">repeat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_lw</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
-                                       <span class="n">reorient</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">find_args</span><span class="o">=</span><span class="p">{}):</span>
+                                       <span class="n">translate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">reorient</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">find_args</span><span class="o">=</span><span class="p">{}):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Function that generates all adsorption structures for a given</span>
 <span class="sd">        molecular adsorbate.  Can take repeat argument or minimum</span>
@@ -491,12 +505,12 @@
         <span class="n">structs</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">for</span> <span class="n">coords</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_adsorption_sites</span><span class="p">(</span><span class="o">**</span><span class="n">find_args</span><span class="p">)[</span><span class="s1">&#39;all&#39;</span><span class="p">]:</span>
-            <span class="n">structs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">add_adsorbate</span><span class="p">(</span>
-                <span class="n">molecule</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">repeat</span><span class="o">=</span><span class="n">repeat</span><span class="p">,</span> <span class="n">reorient</span><span class="o">=</span><span class="n">reorient</span><span class="p">))</span>
+            <span class="n">structs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">add_adsorbate</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> 
+                <span class="n">repeat</span><span class="o">=</span><span class="n">repeat</span><span class="p">,</span> <span class="n">translate</span><span class="o">=</span><span class="n">translate</span><span class="p">,</span> <span class="n">reorient</span><span class="o">=</span><span class="n">reorient</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">structs</span></div>
 
 <div class="viewcode-block" id="AdsorbateSiteFinder.adsorb_both_surfaces"><a class="viewcode-back" href="../../../pymatgen.analysis.adsorption.html#pymatgen.analysis.adsorption.AdsorbateSiteFinder.adsorb_both_surfaces">[docs]</a>    <span class="k">def</span> <span class="nf">adsorb_both_surfaces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">repeat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_lw</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
-                             <span class="n">reorient</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">find_args</span><span class="o">=</span><span class="p">{}):</span>
+                             <span class="n">translate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">reorient</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">find_args</span><span class="o">=</span><span class="p">{}):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Function that generates all adsorption structures for a given</span>
 <span class="sd">        molecular adsorbate on both surfaces of a slab. This is useful</span>
@@ -517,6 +531,7 @@
         <span class="c1"># Get the adsorbed surfaces first</span>
         <span class="n">adslabs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_adsorption_structures</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">repeat</span><span class="o">=</span><span class="n">repeat</span><span class="p">,</span>
                                                       <span class="n">min_lw</span><span class="o">=</span><span class="n">min_lw</span><span class="p">,</span>
+                                                      <span class="n">translate</span><span class="o">=</span><span class="n">translate</span><span class="p">,</span>
                                                       <span class="n">reorient</span><span class="o">=</span><span class="n">reorient</span><span class="p">,</span>
                                                       <span class="n">find_args</span><span class="o">=</span><span class="n">find_args</span><span class="p">)</span>
 
@@ -739,10 +754,10 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
+  <h3>Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -761,7 +776,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -769,7 +784,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

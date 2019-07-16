@@ -156,7 +156,7 @@ class Flow(Node, NodeContainer, MSONable):
         if isinstance(obj, cls): return obj
         if is_string(obj):
             return cls.pickle_load(obj)
-        elif isinstance(obj, collections.Mapping):
+        elif isinstance(obj, collections.abc.Mapping):
             return cls.from_dict(obj)
         else:
             raise TypeError("Don't know how to convert type %s into a Flow" % type(obj))

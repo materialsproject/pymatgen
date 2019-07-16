@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.substrate_analyzer &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.analysis.substrate_analyzer &#8212; pymatgen 2019.7.2 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -77,9 +77,7 @@
 <span class="sd">    of lattice vector matching for heterostructural interfaces proposed by</span>
 <span class="sd">    Zur and McGill:</span>
 <span class="sd">    Journal of Applied Physics 55 (1984), 378 ; doi: 10.1063/1.333084</span>
-
 <span class="sd">    The process of generating all possible matching super lattices is:</span>
-
 <span class="sd">    1.) Reduce the surface lattice vectors and calculate area for the surfaces</span>
 <span class="sd">    2.) Generate all super lattice transformations within a maximum allowed area</span>
 <span class="sd">        limit that give nearly equal area super-lattices for the two</span>
@@ -97,7 +95,6 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Intialize a Zur Super Lattice Generator for a specific film and</span>
 <span class="sd">            substrate</span>
-
 <span class="sd">        Args:</span>
 <span class="sd">            max_area_ratio_tol(float): Max tolerance on ratio of</span>
 <span class="sd">                super-lattices to consider equal</span>
@@ -116,7 +113,6 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Determine if two sets of vectors are the same within length and angle</span>
 <span class="sd">        tolerances</span>
-
 <span class="sd">        Args:</span>
 <span class="sd">            vec_set1(array[array]): an array of two vectors</span>
 <span class="sd">            vec_set2(array[array]): second array of two vectors</span>
@@ -139,11 +135,9 @@
 <span class="sd">        area of the unit cell area for the film and substrate. The</span>
 <span class="sd">        transformation sets map the film and substrate unit cells to super</span>
 <span class="sd">        lattices with a maximum area</span>
-
 <span class="sd">        Args:</span>
 <span class="sd">            film_area(int): the unit cell area for the film</span>
 <span class="sd">            substrate_area(int): the unit cell area for the substrate</span>
-
 <span class="sd">        Returns:</span>
 <span class="sd">            transformation_sets: a set of transformation_sets defined as:</span>
 <span class="sd">                1.) the transformation matricies for the film to create a</span>
@@ -168,7 +162,6 @@
 <span class="sd">        Applies the transformation_sets to the film and substrate vectors</span>
 <span class="sd">        to generate super-lattices and checks if they matches.</span>
 <span class="sd">        Returns all matching vectors sets.</span>
-
 <span class="sd">        Args:</span>
 <span class="sd">            transformation_sets(array): an array of transformation sets:</span>
 <span class="sd">                each transformation set is an array with the (i,j)</span>
@@ -176,7 +169,6 @@
 <span class="sd">                corresponds to, an array with all possible transformations</span>
 <span class="sd">                for the film area multiple i and another array for the</span>
 <span class="sd">                substrate area multiple j.</span>
-
 <span class="sd">            film_vectors(array): film vectors to generate super lattices</span>
 <span class="sd">            substrate_vectors(array): substrate vectors to generate super</span>
 <span class="sd">                lattices</span>
@@ -189,10 +181,11 @@
 
             <span class="n">substrates</span> <span class="o">=</span> <span class="p">[</span><span class="n">reduce_vectors</span><span class="p">(</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">substrate_vectors</span><span class="p">))</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">substrate_transformations</span><span class="p">]</span>
 
-            <span class="c1"># Check if equivelant super lattices</span>
-            <span class="k">for</span> <span class="n">f</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">product</span><span class="p">(</span><span class="n">films</span><span class="p">,</span> <span class="n">substrates</span><span class="p">):</span>
+            <span class="c1"># Check if equivalant super lattices</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">f_trans</span><span class="p">,</span> <span class="n">s_trans</span><span class="p">),</span> <span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">product</span><span class="p">(</span><span class="n">film_transformations</span><span class="p">,</span> <span class="n">substrate_transformations</span><span class="p">),</span>
+                                                  <span class="n">product</span><span class="p">(</span><span class="n">films</span><span class="p">,</span> <span class="n">substrates</span><span class="p">)):</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_same_vectors</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
-                    <span class="k">yield</span> <span class="p">[</span><span class="n">f</span><span class="p">,</span> <span class="n">s</span><span class="p">]</span></div>
+                    <span class="k">yield</span> <span class="p">[</span><span class="n">f</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">f_trans</span><span class="p">,</span> <span class="n">s_trans</span><span class="p">]</span></div>
 
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">film_vectors</span><span class="p">,</span> <span class="n">substrate_vectors</span><span class="p">,</span> <span class="n">lowest</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -212,16 +205,17 @@
                                                     <span class="n">film_vectors</span><span class="p">,</span>
                                                     <span class="n">substrate_vectors</span><span class="p">):</span>
             <span class="c1"># Yield the match area, the miller indicies,</span>
-            <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">match_as_dict</span><span class="p">(</span><span class="n">match</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">match</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">film_vectors</span><span class="p">,</span> <span class="n">substrate_vectors</span><span class="p">,</span> <span class="n">vec_area</span><span class="p">(</span><span class="o">*</span><span class="n">match</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">match_as_dict</span><span class="p">(</span><span class="n">match</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">match</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">film_vectors</span><span class="p">,</span> <span class="n">substrate_vectors</span><span class="p">,</span> <span class="n">vec_area</span><span class="p">(</span><span class="o">*</span><span class="n">match</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> \
+                                     <span class="n">match</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">match</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
 
             <span class="c1"># Just want lowest match per direction</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">lowest</span><span class="p">):</span>
                 <span class="k">break</span>
 
-<div class="viewcode-block" id="ZSLGenerator.match_as_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.substrate_analyzer.html#pymatgen.analysis.substrate_analyzer.ZSLGenerator.match_as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">match_as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">film_sl_vectors</span><span class="p">,</span> <span class="n">substrate_sl_vectors</span><span class="p">,</span> <span class="n">film_vectors</span><span class="p">,</span> <span class="n">substrate_vectors</span><span class="p">,</span> <span class="n">match_area</span><span class="p">):</span>
+<div class="viewcode-block" id="ZSLGenerator.match_as_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.substrate_analyzer.html#pymatgen.analysis.substrate_analyzer.ZSLGenerator.match_as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">match_as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">film_sl_vectors</span><span class="p">,</span> <span class="n">substrate_sl_vectors</span><span class="p">,</span> <span class="n">film_vectors</span><span class="p">,</span> <span class="n">substrate_vectors</span><span class="p">,</span> <span class="n">match_area</span><span class="p">,</span>
+                      <span class="n">film_transformation</span><span class="p">,</span> <span class="n">substrate_transformation</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns dict which contains ZSL match</span>
-
 <span class="sd">        Args:</span>
 <span class="sd">            film_miller(array)</span>
 <span class="sd">            substrate_miller(array)</span>
@@ -232,6 +226,8 @@
         <span class="n">d</span><span class="p">[</span><span class="s2">&quot;match_area&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">match_area</span>
         <span class="n">d</span><span class="p">[</span><span class="s2">&quot;film_vecs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">film_vectors</span><span class="p">)</span>
         <span class="n">d</span><span class="p">[</span><span class="s2">&quot;sub_vecs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">substrate_vectors</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;film_transformation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">film_transformation</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;substrate_transformation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">substrate_transformation</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">d</span></div></div>
 
@@ -491,10 +487,10 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
+  <h3>Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -513,7 +509,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -521,7 +517,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

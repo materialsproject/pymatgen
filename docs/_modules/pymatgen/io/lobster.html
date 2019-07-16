@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.lobster &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.io.lobster &#8212; pymatgen 2019.7.2 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -1311,9 +1311,9 @@
                     <span class="n">different_param</span><span class="p">[</span><span class="n">k2</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;lobsterin1&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;lobsterin2&quot;</span><span class="p">:</span> <span class="n">v2</span><span class="p">}</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;Same&quot;</span><span class="p">:</span> <span class="n">similar_param</span><span class="p">,</span> <span class="s2">&quot;Different&quot;</span><span class="p">:</span> <span class="n">different_param</span><span class="p">}</span></div>
 
-    <span class="k">def</span> <span class="nf">_get_nbands</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_get_nbands</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">:</span> <span class="n">Structure</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        get basis functions from a file</span>
+<span class="sd">        get number of nbands</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;basisfunctions&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;No basis functions are provided. The program cannot calculate nbands.&quot;</span><span class="p">)</span>
@@ -1324,7 +1324,8 @@
                 <span class="n">string_basis_raw</span> <span class="o">=</span> <span class="n">string_basis</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
                 <span class="k">while</span> <span class="s2">&quot;&quot;</span> <span class="ow">in</span> <span class="n">string_basis_raw</span><span class="p">:</span>
                     <span class="n">string_basis_raw</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-                <span class="n">basis_functions</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">string_basis_raw</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">element_composition</span><span class="p">[</span><span class="n">string_basis_raw</span><span class="p">[</span><span class="mi">0</span><span class="p">]])):</span>
+                    <span class="n">basis_functions</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">string_basis_raw</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
 
         <span class="n">no_basis_functions</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">basis</span> <span class="ow">in</span> <span class="n">basis_functions</span><span class="p">:</span>
@@ -1395,13 +1396,15 @@
         <span class="k">return</span> <span class="n">Lobsterin</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;@module&quot;</span><span class="p">,</span>
                                                                   <span class="s2">&quot;@class&quot;</span><span class="p">]})</span></div>
 
-<div class="viewcode-block" id="Lobsterin.write_INCAR"><a class="viewcode-back" href="../../../pymatgen.io.lobster.html#pymatgen.io.lobster.Lobsterin.write_INCAR">[docs]</a>    <span class="k">def</span> <span class="nf">write_INCAR</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">incar_input</span><span class="o">=</span><span class="s2">&quot;INCAR&quot;</span><span class="p">,</span> <span class="n">incar_output</span><span class="o">=</span><span class="s2">&quot;INCAR.lobster&quot;</span><span class="p">,</span> <span class="n">further_settings</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Lobsterin.write_INCAR"><a class="viewcode-back" href="../../../pymatgen.io.lobster.html#pymatgen.io.lobster.Lobsterin.write_INCAR">[docs]</a>    <span class="k">def</span> <span class="nf">write_INCAR</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">incar_input</span><span class="o">=</span><span class="s2">&quot;INCAR&quot;</span><span class="p">,</span> <span class="n">incar_output</span><span class="o">=</span><span class="s2">&quot;INCAR.lobster&quot;</span><span class="p">,</span> <span class="n">poscar_input</span><span class="o">=</span><span class="s2">&quot;POSCAR&quot;</span><span class="p">,</span>
+                    <span class="n">further_settings</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Will only make the run static, insert nbands, make ISYM=-1, and write a new INCAR.</span>
+<span class="sd">        Will only make the run static, insert nbands, make ISYM=-1, set LWAVE=True and write a new INCAR.</span>
 <span class="sd">        You have to check for the rest.</span>
 <span class="sd">        Args:</span>
 <span class="sd">            incar_input (str): path to input INCAR</span>
 <span class="sd">            incar_output (str): path to output INCAR</span>
+<span class="sd">            poscar_input (str) path to input POSCAR</span>
 <span class="sd">            further_settings (dict): A dict can be used to include further settings, e.g. {&quot;ISMEAR&quot;:-5}</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># reads old incar from file, this one will be modified</span>
@@ -1409,8 +1412,9 @@
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Please check your incar_input before using it. This method only changes three settings!&quot;</span><span class="p">)</span>
         <span class="n">incar</span><span class="p">[</span><span class="s2">&quot;ISYM&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
         <span class="n">incar</span><span class="p">[</span><span class="s2">&quot;NSW&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">incar</span><span class="p">[</span><span class="s2">&quot;LWAVE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="c1"># get nbands from _get_nbands (use basis set that is inserted)</span>
-        <span class="n">incar</span><span class="p">[</span><span class="s2">&quot;NBANDS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_nbands</span><span class="p">()</span>
+        <span class="n">incar</span><span class="p">[</span><span class="s2">&quot;NBANDS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_nbands</span><span class="p">(</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">poscar_input</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">further_settings</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">further_settings</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="n">incar</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">further_settings</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
@@ -1714,10 +1718,10 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
+  <h3>Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -1736,7 +1740,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1744,7 +1748,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

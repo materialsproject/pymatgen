@@ -19,7 +19,8 @@ from monty.json import MSONable
 from pymatgen.core.periodic_table import Element, Specie, get_el_sp, DummySpecie
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.transformations.standard_transformations import \
-    SubstitutionTransformation, OrderDisorderedStructureTransformation
+    SubstitutionTransformation, OrderDisorderedStructureTransformation, \
+    SupercellTransformation
 from pymatgen.command_line.enumlib_caller import EnumlibAdaptor, EnumError
 from pymatgen.analysis.ewald import EwaldSummation
 from pymatgen.core.structure import Structure
@@ -1266,8 +1267,8 @@ class GrainBoundaryTransformation(AbstractTransformation):
     """
 
     def __init__(self, rotation_axis, rotation_angle, expand_times=4, vacuum_thickness=0.0,
-                 ab_shift=[0, 0], normal=False, ratio=None, plane=None, max_search=50,
-                 tol_coi=1.e-3):
+                 ab_shift=[0, 0], normal=False, ratio=None, plane=None, max_search=20,
+                 tol_coi=1.e-8, rm_ratio=0.7, quick_gen=False):
         """
         Args:
             rotation_axis (list): Rotation axis of GB in the form of a list of integer
@@ -1315,8 +1316,13 @@ class GrainBoundaryTransformation(AbstractTransformation):
                 obtain the correct number of coincidence sites. To check the number of coincidence
                 sites are correct or not, you can compare the generated Gb object's sigma with enum*
                 sigma values (what user expected by input).
+            rm_ratio (float): the criteria to remove the atoms which are too close with each other.
+                rm_ratio * bond_length of bulk system is the criteria of bond length, below which the atom
+                will be removed. Default to 0.7.
+            quick_gen (bool): whether to quickly generate a supercell, if set to true, no need to
+                find the smallest cell.
         Returns:
-           Grain boundary structure (Gb (Structure) object).
+           Grain boundary structure (gb (Structure) object).
         """
         self.rotation_axis = rotation_axis
         self.rotation_angle = rotation_angle
@@ -1328,6 +1334,8 @@ class GrainBoundaryTransformation(AbstractTransformation):
         self.plane = plane
         self.max_search = max_search
         self.tol_coi = tol_coi
+        self.rm_ratio = rm_ratio
+        self.quick_gen = quick_gen
 
     def apply_transformation(self, structure):
         gbg = GrainBoundaryGenerator(structure)
@@ -1341,7 +1349,9 @@ class GrainBoundaryTransformation(AbstractTransformation):
             self.ratio,
             self.plane,
             self.max_search,
-            self.tol_coi)
+            self.tol_coi,
+            self.rm_ratio,
+            self.quick_gen)
         return gb_struct
       
     @property
@@ -1351,3 +1361,359 @@ class GrainBoundaryTransformation(AbstractTransformation):
     @property
     def is_one_to_many(self):
         return False
+
+class CubicSupercellTransformation(AbstractTransformation):
+    """
+    A transformation that aims to generate a nearly cubic supercell structure from a structure.
+
+    The algorithm solves for a transformation matrix that makes the supercell cubic. The matrix
+    must have integer entries, so entries are rounded (in such a way that forces the matrix to be
+    nonsingular). From the supercell resulting from this transformation matrix, vector projections
+    are used to determine the side length of the largest cube that can fit inside the supercell.
+    The algorithm will iteratively increase the size of the supercell until the largest inscribed
+    cube's side length is at least 'num_nn_dists' times the nearest neighbor distance and the
+    number of atoms in the supercell falls in the range ['min_atoms', 'max_atoms'].
+    """
+
+    def __init__(self, min_atoms=-np.Inf, max_atoms=np.Inf, num_nn_dists=5):
+        """
+        Returns a supercell structure given a Pymatgen structure suitable for
+        Compressed Sensing Lattice Dynamics (CSLD). See papers below for details
+        on CSLD.
+
+        doi: 10.1103/PhysRevLett.113.185501
+        https://arxiv.org/abs/1805.08904
+        https://arxiv.org/abs/1805.08903
+
+        Args:
+            structure (Structure): input structure.
+            max_atoms (int): maximum number of atoms allowed in the supercell
+            min_atoms (int): minimum number of atoms allowed in the supercell
+            num_nn_dists (int): number of multiples of atomic nearest neighbor
+                distances to force all directions of the supercell to be at
+                least as large
+        Returns:
+            Supercell structure (Structure)
+        """
+        self.min_atoms = min_atoms
+        self.max_atoms = max_atoms
+        self.num_nn_cutoff = num_nn_dists
+
+        # Variables to be solved for by 'apply_transformation()'
+        self.smallest_dim = None # smallest direction of the resulting supercell
+        self.trans_mat = None # transformation matrix
+        self.nn_dist = None
+
+    def _round_away_from_zero(self, x):
+        """
+        Returns 'x' rounded to the next integer away from 0.
+        If 'x' is zero, then returns zero.
+        E.g. -1.2 rounds to -2.0. 1.2 rounds to 2.0.
+
+        Args:
+            x (float): Number to be rounded to the next
+                integer away from 0.
+        Returns:
+            Number (float) rounded away from zero.
+        """
+        aX = abs(x)
+        return math.ceil(aX) * (aX / x) if x != 0 else 0
+
+    def _round_and_make_arr_singular(self, arr):
+        """
+        This function rounds all elements of a matrix to the nearest integer,
+        unless the rounding scheme causes the matrix to be singular, in which
+        case elements of zero rows or columns in the rounded matrix with the
+        largest absolute valued magnitude in the unrounded matrix will be
+        rounded to the next integer away from zero rather than to the
+        nearest integer.
+
+        Args:
+            array (np.ndarray): Matrix to be transformed
+        Returns:
+            transformed array (np.ndarray): Transformed matrix. The transformation
+                is as follows. First, all entries in 'arr' will be rounded to the
+                nearest integer to yield 'arr_rounded'. If 'arr_rounded' has any
+                zero rows, then one element in each zero row of 'arr_rounded'
+                corresponding to the element in 'arr' of that row with the
+                largest absolute valued magnitude will be rounded to the next
+                integer away from zero (see the '_round_away_from_zero(x)'
+                function) rather than the nearest integer. This process is then
+                repeated for zero columns. Also note that if 'arr' already has
+                zero rows or columns, then this function will not change those
+                rows/columns.
+        """
+        arr_rounded = np.around(arr)
+
+        # Zero rows in 'arr_rounded' make the array singular,
+        #   so force zero rows to be nonzero
+        if (~arr_rounded.any(axis=1)).any():  # Check for zero rows in T_rounded
+            # indices of zero rows
+            zero_row_idxs = np.where(~arr_rounded.any(axis=1))[0]
+
+            for zero_row_idx in zero_row_idxs: # loop over zero rows
+                zero_row = arr[zero_row_idx, :]
+
+                # Find the element of the zero row with the largest absolute
+                #   magnitude in the original (non-rounded) array (i.e. 'arr')
+                col_idx_to_fix = np.where(np.absolute(zero_row) == np.amax(np.absolute(zero_row)))[0]
+
+                # Break ties for the largest absolute magnitude
+                col_idx_to_fix = col_idx_to_fix[np.random.randint(len(col_idx_to_fix))]
+
+                # Round the chosen element away from zero
+                arr_rounded[zero_row_idx, col_idx_to_fix] = self._round_away_from_zero(arr[zero_row_idx, col_idx_to_fix])
+
+        # Repeat process for zero columns
+        if (~arr_rounded.any(axis=0)).any():  # Check for zero columns in T_rounded
+            zero_col_idxs = np.where(~arr_rounded.any(axis=0))[0]
+            for zero_col_idx in zero_col_idxs:
+                zero_col = arr[:, zero_col_idx]
+                row_idx_to_fix = np.where(np.absolute(zero_col) == np.amax(np.absolute(zero_col)))[0]
+                for i in row_idx_to_fix:
+                    arr_rounded[i, zero_col_idx] = self._round_away_from_zero(arr[i, zero_col_idx])
+        return arr_rounded
+
+    def apply_transformation(self, structure):
+        """
+        The algorithm solves for a transformation matrix that makes the
+        supercell cubic. The matrix must have integer entries, so entries are
+        rounded (in such a way that forces the matrix to be nonsingular). From
+        the supercell resulting from this transformation matrix, vector
+        projections are used to determine the side length of the largest cube
+        that can fit inside the supercell. The algorithm will iteratively
+        increase the size of the supercell until the largest inscribed cube's
+        side length is at least 'num_nn_dists' times the nearest neighbor
+        distance and the number of atoms in the supercell falls in the range
+        ['min_atoms', 'max_atoms'].
+
+        Returns:
+            supercell (Structure)
+        """
+
+        lat_vecs = structure.lattice.matrix
+        bond_matrix = structure.distance_matrix
+        np.fill_diagonal(bond_matrix, np.Inf)
+        self.nn_dist = np.amin(bond_matrix)
+
+        if not structure:
+            raise AttributeError('No structure was passed into gen_scaling_matrix()')
+        else:
+            # boolean for if a sufficiently large supercell has been created
+            sc_not_found = True
+
+            # minimum distance any direction of the supercell must be as large as
+            hard_sc_size_threshold = self.nn_dist * self.num_nn_cutoff
+
+            # target_threshold is used as the desired cubic side lengths of the supercell
+            target_sc_size = hard_sc_size_threshold
+
+            while sc_not_found:
+                target_sc_lat_vecs = np.eye(3, 3) * target_sc_size
+
+                self.trans_mat = np.linalg.inv(lat_vecs) @ target_sc_lat_vecs
+
+                # round the entries of T and force T to be nonsingular
+                self.trans_mat = self._round_and_make_arr_singular(self.trans_mat)
+
+                proposed_sc_lat_vecs = self.trans_mat @ lat_vecs
+
+                # Check how many nearest neighbors the proposed supercell allows
+                scBasesNorms = [np.linalg.norm(proposed_sc_lat_vecs[0]),
+                                np.linalg.norm(proposed_sc_lat_vecs[1]),
+                                np.linalg.norm(proposed_sc_lat_vecs[2])]
+                maxNorm = max(scBasesNorms)
+                maxIndex = scBasesNorms.index(maxNorm)
+                idx = list(range(3))
+                idx.remove(maxIndex)
+                a = proposed_sc_lat_vecs[maxIndex]
+                b = proposed_sc_lat_vecs[idx[0]]
+                c = proposed_sc_lat_vecs[idx[1]]
+                projb_a = _proj(b, a)
+                projc_a = _proj(c, a)
+
+                if np.linalg.norm(projb_a) > np.linalg.norm(projc_a):
+                    length = np.linalg.norm(a - projb_a)
+                else:
+                    length = np.linalg.norm(a - projc_a)
+                width = math.sqrt(np.linalg.norm(b) ** 2 - np.linalg.norm(projb_a) ** 2)
+                ab_normal = np.cross(a, b)  # get normal direction from AB plane
+                height = np.linalg.norm(_proj(c, ab_normal))  # project c onto AB plane normal
+
+                self.smallest_dim = min([length, width, height])
+
+                # Get number of atoms
+                superstructure = SupercellTransformation(self.trans_mat).apply_transformation(structure)
+                num_at = superstructure.num_sites
+
+                # Check if constraints are satisfied
+                if self.smallest_dim >= hard_sc_size_threshold \
+                        and num_at >= self.min_atoms and num_at <= self.max_atoms:
+                    return superstructure
+                else:
+                    # Increase threshold until proposed supercell meets requirements
+                    target_sc_size += 0.1
+                    if num_at > self.max_atoms:
+                        raise AttributeError('While trying to solve for the '
+                                             'supercell, the max number of atoms'
+                                             ' was exceeded. Try lowering the '
+                                             'number of nearest neighbor '
+                                             'distances.')
+
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return False
+
+class PerturbSitesTransformation(AbstractTransformation):
+    """
+    Generates supercells where the atoms have been displaced around their
+    ideal sites.
+
+    The algorithm is as follows:
+    - Generate a list of distances between 'min_displacement' and
+      'max_displacement'.
+    - If 'min_random_distance' is None, a structure is generated for each of
+      the displacement distances where all atoms are displaced in random
+      directions from their original locations by the displacement distance.
+    - If 'structures_per_displacement_distance' is greater than 1, multiple
+      structures per displacement distance will be generated.
+    - If 'min_random_distance' is a number (float less than 'min_displacement'),
+      for each displacement distance, the atoms will be perturbed in a random
+      direction and by a random amount sample uniformly between
+      'min_random_distance' and the displacement distance.
+    """
+
+    def __init__(self,
+                 max_displacement=0.30,
+                 min_displacement=0.01,
+                 num_displacements=10,
+                 structures_per_displacement_distance=1,
+                 min_random_distance=None):
+        """
+        Args:
+            max_displacement (float): maximum displacement distance for
+                perturbing the structure (Angstroms)
+            min_displacement (float): minimum displacement distance for
+                perturbing the structure (Angstroms)
+            num_displacements (int): number of unique displacement distances to
+                try, uniformly distributed between 'min_displacement' and
+                'max_displacement'.
+            structures_per_displacement_distance (int): number of perturbed
+                structures to generate for each unique displacement distance.
+            min_random_distance (Optional float): If None (default), then for a
+                given perturbed structure, all atoms will move the same distance
+                from their original locations. If float, then for a given
+                perturbed structure, the distances that atoms move will be
+                uniformly distributed from a minimum distance of
+                'min_random_distance' to one of the displacement distances
+                uniformly sampled between 'min_displacement' and
+                'max_displacement'.
+        Returns:
+            List of randomly displaced structures (List of Structures)
+        """
+
+        self.max_disp = max_displacement
+        self.min_disp = min_displacement
+        self.num_disps = num_displacements
+        self.structures_per_disp = structures_per_displacement_distance
+
+        if min_random_distance is not None:
+            self.min_random_distance = float(min_random_distance)
+        else:
+            self.min_random_distance = None
+
+        self.disps = np.linspace(min_displacement, max_displacement,
+                                 num=num_displacements)
+
+    def _random_displacements(self, natom, rmax, rmin):
+        """
+        ***Adapted from csld.util.mathtool
+        This function is not meant to be called directly.
+        Generates matrix of size (natom, 3) where each row vector has
+            Gaussian-sampled coordinates.
+        If 'rmin'=None, then all row vectors will have magnitude 'rmax'.
+        Else, magnitudes are uniformly distributed between 'rmin' and 'rmax'.
+
+        Args:
+            natom (int): number of atoms to be displaced (i.e. number of displacement
+                vectors to generate)
+            rmax (float): max displacement distance that each atom can move
+            rmin (float): min displacement distance that each atom can move
+
+        Returns:
+            Matrix of size (natom, 3) where each row is a displacement
+                vector for a single atom (np.ndarray)
+        """
+
+        # Gaussian sampled displacements. Size: (natom, 3)
+        dx = np.random.normal(size=(natom, 3))
+
+        # Norms of each row
+        dx_norms = np.linalg.norm(dx, axis=1)
+
+        # Displacement distances
+        disp_dists = np.full(natom, rmax) if rmin is None else np.random.uniform(rmin, rmax, natom)
+
+        if 0 not in dx_norms:
+            # Renormalize Gaussian vectors with 'disp_dists'
+            return dx * (disp_dists / dx_norms)[:, None]
+        else:
+            # Protect against dividing by 0
+            self._random_displacements(natom, rmax, rmin)
+
+    def _perturb_structure(self, structure, max_disp, floor_disp):
+        """
+        *** Adapted from CSLD's 'polaron_main' file
+        All atoms move in a random direction (with each coordinate sampled
+        from the Normal distribution - see '_random_displacements()').
+        If 'floor_disp' is None, all atoms will move a distance of 'max_disp'.
+        Else, atoms will move with distances uniformly distributed in the range,
+        ['floor_disp', 'max_disp'].
+        """
+
+        na = structure.num_sites
+        max_disp = float(max_disp)
+        if isinstance(max_disp, float):
+            # generate random displacements
+            dr = self._random_displacements(na, max_disp, floor_disp)
+
+            # Perturb structure with the random displacements
+            for i in range(len(structure._sites)):
+                structure.translate_sites([i], dr[i], frac_coords=False,
+                                          to_unit_cell=True)
+            return structure
+        else:
+            raise AttributeError('Displacement entered is not a float.')
+
+    def apply_transformation(self, structure):
+        # Return a list of perturbed structures
+
+        perturbed_structures = []
+        for disp_val in self.disps:
+            for cell in range(self.structures_per_disp):
+                perturbed_structure = structure.copy()
+                perturbed_structure = self._perturb_structure(perturbed_structure,
+                                                              disp_val,
+                                                              self.min_random_distance)
+                perturbed_structures += [perturbed_structure]
+        return perturbed_structures
+
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return True
+
+
+def _proj(b, a):
+    """
+    Returns vector projection (np.ndarray) of vector b (np.ndarray)
+    onto vector a (np.ndarray)
+    """
+    return (b.T @ (a / np.linalg.norm(a))) * (a / np.linalg.norm(a))

@@ -700,7 +700,7 @@ class Node(metaclass=abc.ABCMeta):
             deps: List of :class:`Dependency` objects specifying the dependencies of the node.
                   or dictionary mapping nodes to file extensions e.g. {task: "DEN"}
         """
-        if isinstance(deps, collections.Mapping):
+        if isinstance(deps, collections.abc.Mapping):
             # Convert dictionary into list of dependencies.
             deps = [Dependency(node, exts) for node, exts in deps.items()]
 

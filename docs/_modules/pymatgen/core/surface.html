@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.surface &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.core.surface &#8212; pymatgen 2019.7.2 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -831,6 +831,14 @@
 <span class="sd">                the c direction is the third vector of the lattice matrix</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Add Wyckoff symbols of the bulk, will help with</span>
+        <span class="c1"># identfying types of sites in the slab system</span>
+        <span class="n">sg</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">initial_structure</span><span class="p">)</span>
+        <span class="n">initial_structure</span><span class="o">.</span><span class="n">add_site_property</span><span class="p">(</span><span class="s2">&quot;bulk_wyckoff&quot;</span><span class="p">,</span>
+                                            <span class="n">sg</span><span class="o">.</span><span class="n">get_symmetry_dataset</span><span class="p">()[</span><span class="s1">&#39;wyckoffs&#39;</span><span class="p">])</span>
+        <span class="n">initial_structure</span><span class="o">.</span><span class="n">add_site_property</span><span class="p">(</span><span class="s2">&quot;bulk_equivalent&quot;</span><span class="p">,</span>
+                                            <span class="n">sg</span><span class="o">.</span><span class="n">get_symmetry_dataset</span><span class="p">()[</span><span class="s1">&#39;equivalent_atoms&#39;</span><span class="p">])</span>
         <span class="n">latt</span> <span class="o">=</span> <span class="n">initial_structure</span><span class="o">.</span><span class="n">lattice</span>
         <span class="n">miller_index</span> <span class="o">=</span> <span class="n">reduce_vector</span><span class="p">(</span><span class="n">miller_index</span><span class="p">)</span>
         <span class="c1"># Calculate the surface normal using the reciprocal lattice vector.</span>
@@ -942,7 +950,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proj_height</span>
-        <span class="n">p</span> <span class="o">=</span> <span class="n">h</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">d_hkl</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">miller_index</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">h</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">d_hkl</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">miller_index</span><span class="p">),</span> <span class="mi">8</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_unit_planes</span><span class="p">:</span>
             <span class="n">nlayers_slab</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min_slab_size</span> <span class="o">/</span> <span class="n">p</span><span class="p">))</span>
             <span class="n">nlayers_vac</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min_vac_size</span> <span class="o">/</span> <span class="n">p</span><span class="p">))</span>
@@ -1688,7 +1696,7 @@
 
 
 <div class="viewcode-block" id="generate_all_slabs"><a class="viewcode-back" href="../../../pymatgen.core.surface.html#pymatgen.core.surface.generate_all_slabs">[docs]</a><span class="k">def</span> <span class="nf">generate_all_slabs</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">max_index</span><span class="p">,</span> <span class="n">min_slab_size</span><span class="p">,</span> <span class="n">min_vacuum_size</span><span class="p">,</span>
-                       <span class="n">bonds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">max_broken_bonds</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                       <span class="n">bonds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">ftol</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">max_broken_bonds</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                        <span class="n">lll_reduce</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">center_slab</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">primitive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                        <span class="n">max_normal_search</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">symmetrize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">repair</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                        <span class="n">include_reconstructions</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">in_unit_planes</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -1755,7 +1763,7 @@
                             <span class="n">center_slab</span><span class="o">=</span><span class="n">center_slab</span><span class="p">,</span> <span class="n">primitive</span><span class="o">=</span><span class="n">primitive</span><span class="p">,</span>
                             <span class="n">max_normal_search</span><span class="o">=</span><span class="n">max_normal_search</span><span class="p">,</span>
                             <span class="n">in_unit_planes</span><span class="o">=</span><span class="n">in_unit_planes</span><span class="p">)</span>
-        <span class="n">slabs</span> <span class="o">=</span> <span class="n">gen</span><span class="o">.</span><span class="n">get_slabs</span><span class="p">(</span><span class="n">bonds</span><span class="o">=</span><span class="n">bonds</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span> <span class="n">symmetrize</span><span class="o">=</span><span class="n">symmetrize</span><span class="p">,</span>
+        <span class="n">slabs</span> <span class="o">=</span> <span class="n">gen</span><span class="o">.</span><span class="n">get_slabs</span><span class="p">(</span><span class="n">bonds</span><span class="o">=</span><span class="n">bonds</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span> <span class="n">ftol</span><span class="o">=</span><span class="n">ftol</span><span class="p">,</span> <span class="n">symmetrize</span><span class="o">=</span><span class="n">symmetrize</span><span class="p">,</span>
                               <span class="n">max_broken_bonds</span><span class="o">=</span><span class="n">max_broken_bonds</span><span class="p">,</span> <span class="n">repair</span><span class="o">=</span><span class="n">repair</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">slabs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -1943,10 +1951,10 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
+  <h3>Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -1965,7 +1973,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1973,7 +1981,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

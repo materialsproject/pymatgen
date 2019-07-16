@@ -1937,6 +1937,10 @@ class IStructure(SiteCollection, MSONable):
                 with zopen(fname, "wt", encoding='ascii') as f:
                     f.write(s)
             return s
+        elif fmt == 'prismatic' or fnmatch(fname, "*prismatic*"):
+            from pymatgen.io.prismatic import Prismatic
+            s = Prismatic(self).to_string()
+            return s
         else:
             import ruamel.yaml as yaml
             if filename:

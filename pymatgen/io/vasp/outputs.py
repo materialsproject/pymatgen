@@ -414,9 +414,10 @@ class Vasprun(MSONable):
                     elif tag == "incar":
                         self.incar = self._parse_params(elem)
                     elif tag == "kpoints":
-                        self.kpoints, self.actual_kpoints, \
-                        self.actual_kpoints_weights = self._parse_kpoints(
-                            elem)
+                        if not hasattr(self, 'kpoints'):
+                            self.kpoints, self.actual_kpoints, \
+                            self.actual_kpoints_weights = self._parse_kpoints(
+                                elem)
                     elif tag == "parameters":
                         self.parameters = self._parse_params(elem)
                     elif tag == "structure" and elem.attrib.get("name") == \
@@ -447,20 +448,36 @@ class Vasprun(MSONable):
                     self.projected_eigenvalues = self._parse_projected_eigen(
                         elem)
                 elif tag == "dielectricfunction":
-                    if ("comment" not in elem.attrib) or \
-                            elem.attrib[
-                                "comment"] == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))":
-                        if not 'density' in self.dielectric_data:
-                            self.dielectric_data['density'] = self._parse_diel(elem)
-                            # "velocity-velocity" is also named "current-current"
-                            # in OUTCAR
-                        elif not 'velocity' in self.dielectric_data:
-                            self.dielectric_data['velocity'] = self._parse_diel(elem)
+                    if ("comment" not in elem.attrib or
+                            elem.attrib["comment"] ==
+                            "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including "
+                            "local field effects in RPA (Hartree))"):
+                        if 'density' not in self.dielectric_data:
+                            self.dielectric_data['density'] = self._parse_diel(
+                                elem)
+                        elif 'velocity' not in self.dielectric_data:
+                            # "velocity-velocity" is also named
+                            # "current-current" in OUTCAR
+                            self.dielectric_data['velocity'] = self._parse_diel(
+                                elem)
                         else:
-                            raise NotImplementedError('This vasprun.xml has >2 unlabelled dielectric functions')
+                            raise NotImplementedError(
+                                'This vasprun.xml has >2 unlabelled dielectric '
+                                'functions')
                     else:
                         comment = elem.attrib["comment"]
-                        self.other_dielectric[comment] = self._parse_diel(elem)
+                        # VASP 6+ has labels for the density and current
+                        # derived dielectric constants
+                        if comment == "density-density":
+                            self.dielectric_data["density"] = self._parse_diel(
+                                elem)
+                        elif comment == "current-current":
+                            self.dielectric_data["velocity"] = self._parse_diel(
+                                elem)
+                        else:
+                            self.other_dielectric[comment] = self._parse_diel(
+                                elem)
+
                 elif tag == "varray" and elem.attrib.get("name") == 'opticaltransitions':
                     self.optical_transition = np.array(_parse_varray(elem))
                 elif tag == "structure" and elem.attrib.get("name") == \
@@ -1690,6 +1707,13 @@ class Outcar:
             self.read_nmr_efg()
             self.read_nmr_efg_tensor()
 
+        self.has_onsite_density_matrices = False
+        self.read_pattern({"has_onsite_density_matrices": r"onsite density matrix"},
+                          terminate_on_match=True)
+        if "has_onsite_density_matrices" in self.data:
+            self.has_onsite_density_matrices = True
+            self.read_onsite_density_matrices()
+
         # Store the individual contributions to the final total energy
         final_energy_contribs = {}
         for k in ["PSCENC", "TEWEN", "DENC", "EXHF", "XCENC", "PAW double counting",
@@ -2575,27 +2599,29 @@ class Outcar:
         Create pseudopotential ZVAL dictionary.
         """
         try:
-            def poscar_line(results, match):
-                poscar_line = match.group(1)
-                results.poscar_line = re.findall(r'[A-Z][a-z]?', poscar_line)
+            def atom_symbols(results, match):
+                element_symbol = match.group(1)
+                if not hasattr(results, 'atom_symbols'):
+                    results.atom_symbols = [] 
+                results.atom_symbols.append(element_symbol.strip())
 
             def zvals(results, match):
                 zvals = match.group(1)
                 results.zvals = map(float, re.findall(r'-?\d+\.\d*', zvals))
 
-            search = []
-            search.append([r'^.*POSCAR.*=(.*)', None, poscar_line])
+            search = [] 
+            search.append([r'(?<=VRHFIN =)(.*)(?=:)', None, atom_symbols])
             search.append([r'^\s+ZVAL.*=(.*)', None, zvals])
 
             micro_pyawk(self.filename, search, self)
 
-            zval_dict = {}
-            for x, y in zip(self.poscar_line, self.zvals):
+            zval_dict = {} 
+            for x, y in zip(self.atom_symbols, self.zvals):
                 zval_dict.update({x: y})
             self.zval_dict = zval_dict
 
             # Clean-up
-            del (self.poscar_line)
+            del (self.atom_symbols)
             del (self.zvals)
         except:
             raise Exception("ZVAL dict could not be parsed.")
@@ -2721,6 +2747,13 @@ class Outcar:
         if self.nmr_efg:
             d.update({"nmr_efg": {"raw": self.data["unsym_efg_tensor"],
                                   "parameters": self.data["efg"]}})
+
+        if self.has_onsite_density_matrices:
+            # cast Spin to str for consistency with electronic_structure
+            # TODO: improve handling of Enum (de)serialization in monty
+            onsite_density_matrices = [{str(k): v for k, v in d.items()}
+                                       for d in self.data["onsite_density_matrices"]]
+            d.update({"onsite_density_matrices": onsite_density_matrices})
 
         return d
 
@@ -4505,17 +4538,35 @@ class Waveder:
     """
 
     def __init__(self, filename, gamma_only = False):
-        with FortranFile(filename, "r") as f:
-            val = (f.read_reals(dtype=np.int32))
-            nbands = int(val[0])
-            nelect = int(val[1])
-            nk = int(val[2])
-            ispin = int(val[3])
-            nodes_in_dielectric_function = (f.read_reals(dtype=np.float))
-            wplasmon = (f.read_reals(dtype=np.float))
-            cder_dtype = np.float if gamma_only else np.complex64
-            cder = np.array((f.read_reals(dtype=cder_dtype)))
+        with open(filename, 'rb') as fp:
+            def readData(dtype):
+                """ Read records from Fortran binary file and convert to
+                np.array of given dtype. """
+                data = b''
+                while 1:
+                    prefix = np.fromfile(fp, dtype=np.int32, count=1)[0]
+                    data += fp.read(abs(prefix))
+                    suffix = np.fromfile(fp, dtype=np.int32, count=1)[0]
+                    if abs(prefix) - abs(suffix):
+                        raise RuntimeError(f"""Read wrong amount of bytes.
+                        Expected: {prefix:d}, read: {len(data):d}, suffix: {suffix:d}.""")
+                    if prefix > 0:
+                        break
+                return np.frombuffer(data, dtype=dtype)
+
+            nbands, nelect, nk, ispin = readData(np.int32)
+
+            nodes_in_dielectric_function = readData(np.float)
+
+            wplasmon = readData(np.float)
+
+            if gamma_only:
+                cder = readData(np.float)
+            else:
+                cder = readData(np.complex64)
+
             cder_data = cder.reshape((3, ispin, nk, nelect, nbands)).T
+
             self._cder_data = cder_data
             self._nkpoints = nk
             self._ispin = ispin

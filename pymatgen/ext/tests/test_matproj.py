@@ -347,6 +347,9 @@ class MPResterTest(PymatgenTest):
 
     def test_get_surface_data(self):
         data = self.rester.get_surface_data("mp-126") # Pt
+        one_surf = self.rester.get_surface_data('mp-129', miller_index=[-2, -3, 1])
+        self.assertAlmostEqual(one_surf['surface_energy'], 2.99156963, places=2)
+        self.assertArrayAlmostEqual(one_surf['miller_index'], [3, 2, 1])
         self.assertIn("surfaces", data)
         surfaces = data["surfaces"]
         self.assertTrue(len(surfaces) > 0)
@@ -364,6 +367,22 @@ class MPResterTest(PymatgenTest):
     def test_get_cohesive_energy(self):
         ecoh = self.rester.get_cohesive_energy("mp-13")
         self.assertTrue(ecoh, 5.04543279)
+
+    def test_get_gb_data(self):
+        mo_gbs = self.rester.get_gb_data(chemsys='Mo')
+        self.assertEqual(len(mo_gbs), 10)
+        mo_gbs_s5 = self.rester.get_gb_data(pretty_formula='Mo', sigma=5)
+        self.assertEqual(len(mo_gbs_s5), 3)
+        mo_s3_112 = self.rester.get_gb_data(material_id='mp-129', sigma=3,
+                                            gb_plane=[1, -1, -2],
+                                            include_work_of_separation=True)
+        self.assertEqual(len(mo_s3_112), 1)
+        gb_f = mo_s3_112[0]['final_structure']
+        self.assertArrayAlmostEqual(gb_f.rotation_axis, [1, 1, 0])
+        self.assertAlmostEqual(gb_f.rotation_angle, 109.47122, places=4)
+        self.assertAlmostEqual(mo_s3_112[0]['gb_energy'], 0.47965, places=2)
+        self.assertAlmostEqual(mo_s3_112[0]['work_of_separation'], 6.318144, places=2)
+        self.assertIn("Mo24", gb_f.formula)
 
     def test_get_interface_reactions(self):
         kinks = self.rester.get_interface_reactions("LiCoO2", "Li3PS4")

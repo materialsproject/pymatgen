@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.transformations.advanced_transformations &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.transformations.advanced_transformations &#8212; pymatgen 2019.7.2 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -1313,8 +1313,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rotation_axis</span><span class="p">,</span> <span class="n">rotation_angle</span><span class="p">,</span> <span class="n">expand_times</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">vacuum_thickness</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
-                 <span class="n">ab_shift</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">normal</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ratio</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plane</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_search</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
-                 <span class="n">tol_coi</span><span class="o">=</span><span class="mf">1.e-3</span><span class="p">):</span>
+                 <span class="n">ab_shift</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">normal</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ratio</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plane</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_search</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+                 <span class="n">tol_coi</span><span class="o">=</span><span class="mf">1.e-8</span><span class="p">,</span> <span class="n">rm_ratio</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">quick_gen</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            rotation_axis (list): Rotation axis of GB in the form of a list of integer</span>
@@ -1362,8 +1362,13 @@
 <span class="sd">                obtain the correct number of coincidence sites. To check the number of coincidence</span>
 <span class="sd">                sites are correct or not, you can compare the generated Gb object&#39;s sigma with enum*</span>
 <span class="sd">                sigma values (what user expected by input).</span>
+<span class="sd">            rm_ratio (float): the criteria to remove the atoms which are too close with each other.</span>
+<span class="sd">                rm_ratio * bond_length of bulk system is the criteria of bond length, below which the atom</span>
+<span class="sd">                will be removed. Default to 0.7.</span>
+<span class="sd">            quick_gen (bool): whether to quickly generate a supercell, if set to true, no need to</span>
+<span class="sd">                find the smallest cell.</span>
 <span class="sd">        Returns:</span>
-<span class="sd">           Grain boundary structure (Gb (Structure) object).</span>
+<span class="sd">           Grain boundary structure (gb (Structure) object).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rotation_axis</span> <span class="o">=</span> <span class="n">rotation_axis</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rotation_angle</span> <span class="o">=</span> <span class="n">rotation_angle</span>
@@ -1375,6 +1380,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">plane</span> <span class="o">=</span> <span class="n">plane</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_search</span> <span class="o">=</span> <span class="n">max_search</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tol_coi</span> <span class="o">=</span> <span class="n">tol_coi</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rm_ratio</span> <span class="o">=</span> <span class="n">rm_ratio</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">quick_gen</span> <span class="o">=</span> <span class="n">quick_gen</span>
 
 <div class="viewcode-block" id="GrainBoundaryTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.GrainBoundaryTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
         <span class="n">gbg</span> <span class="o">=</span> <span class="n">GrainBoundaryGenerator</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
@@ -1388,7 +1395,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">ratio</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">plane</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">max_search</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">tol_coi</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tol_coi</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rm_ratio</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">quick_gen</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">gb_struct</span></div>
       
     <span class="nd">@property</span>
@@ -1406,10 +1415,10 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
+  <h3>Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -1428,7 +1437,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1436,7 +1445,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

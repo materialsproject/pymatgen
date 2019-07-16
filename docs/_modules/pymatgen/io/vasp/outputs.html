@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.vasp.outputs &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.io.vasp.outputs &#8212; pymatgen 2019.7.2 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -461,9 +461,10 @@
                     <span class="k">elif</span> <span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;incar&quot;</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">incar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_params</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
                     <span class="k">elif</span> <span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;kpoints&quot;</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">actual_kpoints</span><span class="p">,</span> \
-                        <span class="bp">self</span><span class="o">.</span><span class="n">actual_kpoints_weights</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_kpoints</span><span class="p">(</span>
-                            <span class="n">elem</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;kpoints&#39;</span><span class="p">):</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">actual_kpoints</span><span class="p">,</span> \
+                            <span class="bp">self</span><span class="o">.</span><span class="n">actual_kpoints_weights</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_kpoints</span><span class="p">(</span>
+                                <span class="n">elem</span><span class="p">)</span>
                     <span class="k">elif</span> <span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;parameters&quot;</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_params</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
                     <span class="k">elif</span> <span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;structure&quot;</span> <span class="ow">and</span> <span class="n">elem</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span> <span class="o">==</span> \
@@ -696,24 +697,39 @@
 
 <span class="sd">        TODO: Fix for other functional types like PW91, other vdW types, etc.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">GGA_TYPES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;RE&quot;</span><span class="p">:</span> <span class="s2">&quot;revPBE&quot;</span><span class="p">,</span> <span class="s2">&quot;PE&quot;</span><span class="p">:</span> <span class="s2">&quot;PBE&quot;</span><span class="p">,</span> <span class="s2">&quot;PS&quot;</span><span class="p">:</span> <span class="s2">&quot;PBESol&quot;</span><span class="p">,</span> <span class="s2">&quot;RP&quot;</span><span class="p">:</span> <span class="s2">&quot;RevPBE+PADE&quot;</span><span class="p">,</span> <span class="s2">&quot;AM&quot;</span><span class="p">:</span> <span class="s2">&quot;AM05&quot;</span><span class="p">,</span> <span class="s2">&quot;OR&quot;</span><span class="p">:</span> <span class="s2">&quot;optPBE&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;BO&quot;</span><span class="p">:</span> <span class="s2">&quot;optB88&quot;</span><span class="p">,</span> <span class="s2">&quot;MK&quot;</span><span class="p">:</span> <span class="s2">&quot;optB86b&quot;</span><span class="p">,</span> <span class="s2">&quot;--&quot;</span><span class="p">:</span> <span class="s2">&quot;None or LDA&quot;</span><span class="p">}</span>
 
-        <span class="n">METAGGA_TYPES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;TPSS&quot;</span><span class="p">,</span> <span class="s2">&quot;RTPSS&quot;</span><span class="p">,</span> <span class="s2">&quot;M06L&quot;</span><span class="p">,</span> <span class="s2">&quot;MBJL&quot;</span><span class="p">,</span> <span class="s2">&quot;SCAN&quot;</span><span class="p">,</span> <span class="s2">&quot;MS0&quot;</span><span class="p">,</span> <span class="s2">&quot;MS1&quot;</span><span class="p">,</span> <span class="s2">&quot;MS2&quot;</span><span class="p">}</span>
+        <span class="n">METAGGA_TYPES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;TPSS&quot;</span><span class="p">:</span> <span class="s2">&quot;TPSS&quot;</span><span class="p">,</span> <span class="s2">&quot;RTPSS&quot;</span><span class="p">:</span> <span class="s2">&quot;revTPSS&quot;</span><span class="p">,</span> <span class="s2">&quot;M06L&quot;</span><span class="p">:</span> <span class="s2">&quot;M06-L&quot;</span><span class="p">,</span> <span class="s2">&quot;MBJ&quot;</span><span class="p">:</span> <span class="s2">&quot;modified Becke-Johnson&quot;</span><span class="p">,</span>
+                         <span class="s2">&quot;SCAN&quot;</span><span class="p">:</span> <span class="s2">&quot;SCAN&quot;</span><span class="p">,</span> <span class="s2">&quot;MS0&quot;</span><span class="p">:</span> <span class="s2">&quot;MadeSimple0&quot;</span><span class="p">,</span> <span class="s2">&quot;MS1&quot;</span><span class="p">:</span> <span class="s2">&quot;MadeSimple1&quot;</span><span class="p">,</span> <span class="s2">&quot;MS2&quot;</span><span class="p">:</span> <span class="s2">&quot;MadeSimple2&quot;</span><span class="p">}</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LHFCALC&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;AEXX&quot;</span><span class="p">,</span> <span class="mf">1.00</span><span class="p">)</span> <span class="o">==</span> <span class="mf">1.00</span><span class="p">:</span>
             <span class="n">rt</span> <span class="o">=</span> <span class="s2">&quot;HF&quot;</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;METAGGA&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="ow">in</span> <span class="n">METAGGA_TYPES</span><span class="p">:</span>
-            <span class="n">rt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;METAGGA&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LUSE_VDW&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
-            <span class="n">vdw_gga</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;RE&quot;</span><span class="p">:</span> <span class="s2">&quot;DF&quot;</span><span class="p">,</span> <span class="s2">&quot;OR&quot;</span><span class="p">:</span> <span class="s2">&quot;optPBE&quot;</span><span class="p">,</span> <span class="s2">&quot;BO&quot;</span><span class="p">:</span> <span class="s2">&quot;optB88&quot;</span><span class="p">,</span>
-                       <span class="s2">&quot;MK&quot;</span><span class="p">:</span> <span class="s2">&quot;optB86b&quot;</span><span class="p">,</span> <span class="s2">&quot;ML&quot;</span><span class="p">:</span> <span class="s2">&quot;DF2&quot;</span><span class="p">}</span>
-            <span class="n">gga</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GGA&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
-            <span class="n">rt</span> <span class="o">=</span> <span class="s2">&quot;vdW-&quot;</span> <span class="o">+</span> <span class="n">vdw_gga</span><span class="p">[</span><span class="n">gga</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;HFSCREEN&quot;</span><span class="p">,</span> <span class="mf">0.30</span><span class="p">)</span> <span class="o">==</span> <span class="mf">0.30</span><span class="p">:</span>
+            <span class="n">rt</span> <span class="o">=</span> <span class="s2">&quot;HSE03&quot;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;HFSCREEN&quot;</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">)</span> <span class="o">==</span> <span class="mf">0.20</span><span class="p">:</span>
+            <span class="n">rt</span> <span class="o">=</span> <span class="s2">&quot;HSE06&quot;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;AEXX&quot;</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">)</span> <span class="o">==</span> <span class="mf">0.20</span><span class="p">:</span>
+            <span class="n">rt</span> <span class="o">=</span> <span class="s2">&quot;B3LYP&quot;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LHFCALC&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+            <span class="n">rt</span> <span class="o">=</span> <span class="s2">&quot;PBEO or other Hybrid Functional&quot;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;BPARAM&quot;</span><span class="p">,</span> <span class="mf">15.70</span><span class="p">)</span> <span class="o">==</span> <span class="mf">15.70</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LUSE_VDW&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;METAGGA&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="ow">in</span> <span class="n">METAGGA_TYPES</span><span class="p">:</span>
+                <span class="n">rt</span> <span class="o">=</span> <span class="n">GGA_TYPES</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GGA&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span><span class="o">+</span><span class="s2">&quot;+&quot;</span><span class="o">+</span>\
+                     <span class="n">METAGGA_TYPES</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">incar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;METAGGA&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span><span class="o">+</span><span class="s2">&quot;+rVV10&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">rt</span> <span class="o">=</span> <span class="n">GGA_TYPES</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GGA&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span><span class="o">+</span><span class="s2">&quot;+rVV10&quot;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;METAGGA&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="ow">in</span> <span class="n">METAGGA_TYPES</span><span class="p">:</span>
+            <span class="n">rt</span> <span class="o">=</span> <span class="n">GGA_TYPES</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GGA&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span><span class="o">+</span><span class="s2">&quot;+&quot;</span><span class="o">+</span>\
+                 <span class="n">METAGGA_TYPES</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">incar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;METAGGA&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_hubbard</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LDAU&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+                <span class="n">rt</span> <span class="o">+=</span> <span class="s2">&quot;+U&quot;</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">potcar_symbols</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;PAW&#39;</span><span class="p">:</span>
             <span class="n">rt</span> <span class="o">=</span> <span class="s2">&quot;LDA&quot;</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">rt</span> <span class="o">=</span> <span class="s2">&quot;GGA&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_hubbard</span><span class="p">:</span>
-            <span class="n">rt</span> <span class="o">+=</span> <span class="s2">&quot;+U&quot;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GGA&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="ow">in</span> <span class="n">GGA_TYPES</span><span class="p">:</span>
+            <span class="n">rt</span> <span class="o">=</span> <span class="n">GGA_TYPES</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GGA&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_hubbard</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LDAU&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+                <span class="n">rt</span> <span class="o">+=</span> <span class="s2">&quot;+U&quot;</span>
         <span class="k">return</span> <span class="n">rt</span>
 
     <span class="nd">@property</span>
@@ -1722,6 +1738,13 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">read_nmr_efg</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">read_nmr_efg_tensor</span><span class="p">()</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">has_onsite_density_matrices</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">read_pattern</span><span class="p">({</span><span class="s2">&quot;has_onsite_density_matrices&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;onsite density matrix&quot;</span><span class="p">},</span>
+                          <span class="n">terminate_on_match</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;has_onsite_density_matrices&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">has_onsite_density_matrices</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">read_onsite_density_matrices</span><span class="p">()</span>
+
         <span class="c1"># Store the individual contributions to the final total energy</span>
         <span class="n">final_energy_contribs</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;PSCENC&quot;</span><span class="p">,</span> <span class="s2">&quot;TEWEN&quot;</span><span class="p">,</span> <span class="s2">&quot;DENC&quot;</span><span class="p">,</span> <span class="s2">&quot;EXHF&quot;</span><span class="p">,</span> <span class="s2">&quot;XCENC&quot;</span><span class="p">,</span> <span class="s2">&quot;PAW double counting&quot;</span><span class="p">,</span>
@@ -1813,6 +1836,9 @@
             <span class="n">table_contents</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">table_body_text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
                 <span class="n">ml</span> <span class="o">=</span> <span class="n">rp</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                <span class="c1"># skip empty lines</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">ml</span><span class="p">:</span>
+                    <span class="k">continue</span>
                 <span class="n">d</span> <span class="o">=</span> <span class="n">ml</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">processed_line</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">postprocess</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
@@ -2091,6 +2117,44 @@
         <span class="n">pt_table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_table_pattern</span><span class="p">(</span><span class="n">header_pattern</span><span class="p">,</span> <span class="n">row_pattern</span><span class="p">,</span>
                                            <span class="n">footer_pattern</span><span class="p">,</span> <span class="n">postprocess</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;piezo_tensor&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pt_table</span></div>
+
+<div class="viewcode-block" id="Outcar.read_onsite_density_matrices"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Outcar.read_onsite_density_matrices">[docs]</a>    <span class="k">def</span> <span class="nf">read_onsite_density_matrices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse the onsite density matrices, returns list with index corresponding</span>
+<span class="sd">        to atom index in Structure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># matrix size will vary depending on if d or f orbitals are present</span>
+        <span class="c1"># therefore regex assumes f, but filter out None values if d</span>
+
+        <span class="n">header_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;spin component  1\n&quot;</span>
+        <span class="n">row_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;[^\S\r\n]*(?:([\d.-]+)[^\S\r\n]*)&#39;</span> <span class="o">+</span> <span class="sa">r</span><span class="s1">&#39;(?:([\d.-]+)[^\S\r\n]*)?&#39;</span><span class="o">*</span><span class="mi">6</span> <span class="o">+</span> <span class="sa">r</span><span class="s1">&#39;.*?&#39;</span>
+        <span class="n">footer_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\nspin component  2&quot;</span>
+        <span class="n">spin1_component</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_table_pattern</span><span class="p">(</span><span class="n">header_pattern</span><span class="p">,</span> <span class="n">row_pattern</span><span class="p">,</span>
+                                                  <span class="n">footer_pattern</span><span class="p">,</span> <span class="n">postprocess</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                                                  <span class="n">last_one_only</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># filter out None values</span>
+        <span class="n">spin1_component</span> <span class="o">=</span> <span class="p">[[[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">row</span> <span class="k">if</span> <span class="n">e</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">matrix</span><span class="p">]</span> <span class="k">for</span> <span class="n">matrix</span> <span class="ow">in</span> <span class="n">spin1_component</span><span class="p">]</span>
+
+        <span class="c1"># and repeat for Spin.down</span>
+
+        <span class="n">header_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;spin component  2\n&quot;</span>
+        <span class="n">row_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;[^\S\r\n]*(?:([\d.-]+)[^\S\r\n]*)&#39;</span> <span class="o">+</span> <span class="sa">r</span><span class="s1">&#39;(?:([\d.-]+)[^\S\r\n]*)?&#39;</span><span class="o">*</span><span class="mi">6</span> <span class="o">+</span> <span class="sa">r</span><span class="s1">&#39;.*?&#39;</span>
+        <span class="n">footer_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\n occupancies and eigenvectors&quot;</span>
+        <span class="n">spin2_component</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_table_pattern</span><span class="p">(</span><span class="n">header_pattern</span><span class="p">,</span> <span class="n">row_pattern</span><span class="p">,</span>
+                                                  <span class="n">footer_pattern</span><span class="p">,</span> <span class="n">postprocess</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                                                  <span class="n">last_one_only</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">spin2_component</span> <span class="o">=</span> <span class="p">[[[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">row</span> <span class="k">if</span> <span class="n">e</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">matrix</span><span class="p">]</span> <span class="k">for</span> <span class="n">matrix</span> <span class="ow">in</span> <span class="n">spin2_component</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;onsite_density_matrices&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">:</span> <span class="n">spin1_component</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span>
+                <span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">:</span> <span class="n">spin2_component</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+            <span class="p">}</span>
+            <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">spin1_component</span><span class="p">))</span>
+        <span class="p">]</span></div>
 
 <div class="viewcode-block" id="Outcar.read_corrections"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Outcar.read_corrections">[docs]</a>    <span class="k">def</span> <span class="nf">read_corrections</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">terminate_on_match</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="n">patterns</span> <span class="o">=</span> <span class="p">{</span>
@@ -2712,6 +2776,13 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nmr_efg</span><span class="p">:</span>
             <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;nmr_efg&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;raw&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;unsym_efg_tensor&quot;</span><span class="p">],</span>
                                   <span class="s2">&quot;parameters&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;efg&quot;</span><span class="p">]}})</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_onsite_density_matrices</span><span class="p">:</span>
+            <span class="c1"># cast Spin to str for consistency with electronic_structure</span>
+            <span class="c1"># TODO: improve handling of Enum (de)serialization in monty</span>
+            <span class="n">onsite_density_matrices</span> <span class="o">=</span> <span class="p">[{</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+                                       <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;onsite_density_matrices&quot;</span><span class="p">]]</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;onsite_density_matrices&quot;</span><span class="p">:</span> <span class="n">onsite_density_matrices</span><span class="p">})</span>
 
         <span class="k">return</span> <span class="n">d</span></div>
 
@@ -4495,43 +4566,69 @@
 <span class="sd">        filename: Name of file containing WAVEDER.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-        <span class="k">with</span> <span class="n">FortranFile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">val</span> <span class="o">=</span> <span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read_reals</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">))</span>
-            <span class="n">nbands</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-            <span class="n">nelect</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-            <span class="n">nk</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-            <span class="n">ispin</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
-            <span class="n">nodes_in_dielectric_function</span> <span class="o">=</span> <span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read_reals</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">))</span>
-            <span class="n">wplasmon</span> <span class="o">=</span> <span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read_reals</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">))</span>
-            <span class="n">cder</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">f</span><span class="o">.</span><span class="n">read_reals</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)))</span>
-            <span class="n">cder_data</span> <span class="o">=</span> <span class="n">cder</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">nbands</span><span class="p">,</span> <span class="n">nelect</span><span class="p">,</span> <span class="n">nk</span><span class="p">,</span> <span class="n">ispin</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">cder_data</span> <span class="o">=</span> <span class="n">cder_data</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">nkpoints</span> <span class="o">=</span> <span class="n">nk</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ispin</span> <span class="o">=</span> <span class="n">ispin</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">nelect</span> <span class="o">=</span> <span class="n">nelect</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">nbands</span> <span class="o">=</span> <span class="n">nbands</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">gamma_only</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+            <span class="k">def</span> <span class="nf">readData</span><span class="p">(</span><span class="n">dtype</span><span class="p">):</span>
+                <span class="sd">&quot;&quot;&quot; Read records from Fortran binary file and convert to</span>
+<span class="sd">                np.array of given dtype. &quot;&quot;&quot;</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span>
+                <span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">prefix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">data</span> <span class="o">+=</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">prefix</span><span class="p">))</span>
+                    <span class="n">suffix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="o">-</span> <span class="nb">abs</span><span class="p">(</span><span class="n">suffix</span><span class="p">):</span>
+                        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;&quot;&quot;Read wrong amount of bytes.</span>
+<span class="s2">                        Expected: </span><span class="si">{prefix:d}</span><span class="s2">, read: {len(data):d}, suffix: </span><span class="si">{suffix:d}</span><span class="s2">.&quot;&quot;&quot;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">prefix</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="k">break</span>
+                <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
 
+            <span class="n">nbands</span><span class="p">,</span> <span class="n">nelect</span><span class="p">,</span> <span class="n">nk</span><span class="p">,</span> <span class="n">ispin</span> <span class="o">=</span> <span class="n">readData</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+
+            <span class="n">nodes_in_dielectric_function</span> <span class="o">=</span> <span class="n">readData</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+
+            <span class="n">wplasmon</span> <span class="o">=</span> <span class="n">readData</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">gamma_only</span><span class="p">:</span>
+                <span class="n">cder</span> <span class="o">=</span> <span class="n">readData</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">cder</span> <span class="o">=</span> <span class="n">readData</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">complex64</span><span class="p">)</span>
+
+            <span class="n">cder_data</span> <span class="o">=</span> <span class="n">cder</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="n">ispin</span><span class="p">,</span> <span class="n">nk</span><span class="p">,</span> <span class="n">nelect</span><span class="p">,</span> <span class="n">nbands</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cder_data</span> <span class="o">=</span> <span class="n">cder_data</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_nkpoints</span> <span class="o">=</span> <span class="n">nk</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ispin</span> <span class="o">=</span> <span class="n">ispin</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_nelect</span> <span class="o">=</span> <span class="n">nelect</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_nbands</span> <span class="o">=</span> <span class="n">nbands</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cder_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the orbital derivative between states</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cder_data</span>
+            
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">nbands</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the number of bands in the calculation</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nbands</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nbands</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">nkpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the number of k-points in the calculation</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nkpoints</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nkpoints</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">nelect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the number of electrons in the calculation</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nelect</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nelect</span>
 
 <div class="viewcode-block" id="Waveder.get_orbital_derivative_between_states"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Waveder.get_orbital_derivative_between_states">[docs]</a>    <span class="k">def</span> <span class="nf">get_orbital_derivative_between_states</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">band_i</span><span class="p">,</span> <span class="n">band_j</span><span class="p">,</span> <span class="n">kpoint</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="n">cart_dir</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -4554,7 +4651,7 @@
         <span class="k">if</span> <span class="n">cart_dir</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">cart_dir</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;cart_dir index out of bounds&quot;</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cder_data</span><span class="p">[</span><span class="n">band_i</span><span class="p">,</span> <span class="n">band_j</span><span class="p">,</span> <span class="n">kpoint</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="n">cart_dir</span><span class="p">]</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cder_data</span><span class="p">[</span><span class="n">band_i</span><span class="p">,</span> <span class="n">band_j</span><span class="p">,</span> <span class="n">kpoint</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="n">cart_dir</span><span class="p">]</span></div></div>
 
 
 <div class="viewcode-block" id="UnconvergedVASPWarning"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.UnconvergedVASPWarning">[docs]</a><span class="k">class</span> <span class="nc">UnconvergedVASPWarning</span><span class="p">(</span><span class="ne">Warning</span><span class="p">):</span>
@@ -4570,10 +4667,10 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
+  <h3>Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -4592,7 +4689,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -4600,7 +4697,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

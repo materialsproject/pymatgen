@@ -1,6 +1,27 @@
 Change log
 ==========
 
+v2019.7.2
+---------
+* Improvements to grain boundary transformations and Rester (@Tinaatucsd)
+* Improvements to AdsorbateSiteFinder (@oxana-a)
+* Improvements to Waveder support (@JRSuckert)
+* Improvements to run type detection (@darnoceloc)
+* Add XAS data to Rester (@yimingchen95)
+* Fix to ATAT input/output (@dongsenfo)
+* Initial support for Prismatic input (@mkhorton)
+
+v2019.6.20
+----------
+* New interface class (@sivonxay, @kylebystrom, @shyamd)
+* Updates to SlabGenerator (@richardtran415)
+* Updates to PiezoTensor (@dongsenfo)
+* Add support for parsing on-site density matrix to Outcar (@mkhorton, @mhsiron, @clegaspi)
+* Fixes for magnetic space groups (@simonward86)
+* Fixes for Lobster class (@JaGeo)
+* Fix for FEFF (@stevetorr)
+* Fix for Waveder (@JRSuckert)
+
 v2019.6.5
 ---------
 * Linear scaling get_all_neighbors. Tested to be faster for > 100 atoms (@chc273). 
