@@ -1600,6 +1600,7 @@ def get_symmetrically_equivalent_miller_indices(structure, miller_index):
         if any([i != 0 for i in miller]):
             if is_already_analyzed(miller, equivalent_millers, symm_ops):
                 equivalent_millers.append(miller)
+                
             # include larger Miller indices in the family of planes
             if all([mmi > i for i in np.abs(miller)]) and \
                     not in_coord_list(equivalent_millers, miller):
