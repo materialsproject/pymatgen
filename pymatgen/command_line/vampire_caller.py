@@ -10,7 +10,6 @@ import os
 
 from monty.dev import requires
 from monty.os.path import which
-from monty.tempfile import ScratchDir
 
 from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper
 from pymatgen.analysis.magnetism.analyzer import CollinearMagneticStructureAnalyzer
@@ -50,15 +49,21 @@ class VampireCaller:
         self,
         ordered_structures,
         energies,
-        mc_box_size=5.0,
-        equil_timesteps=10000,
-        mc_timesteps=10000,
+        mc_box_size=4.0,
+        equil_timesteps=2000,
+        mc_timesteps=4000,
         save_inputs=False,
         hm=None,
+        user_input_settings=None,
     ):
 
         """
         Run Vampire on a material with magnetic ordering and exchange parameter information to compute the critical temperature with classical Monte Carlo.
+
+        user_input_settings is a dictionary that can contain:
+        * start_t (int): Start MC sim at this temp, defaults to 0 K.
+        * end_t (int): End MC sim at this temp, defaults to 1500 K.
+        * temp_increment (int): Temp step size, defaults to 25 K.
         
         Args:
             ordered_structures (list): Structure objects with magmoms.
@@ -69,6 +74,7 @@ class VampireCaller:
             save_inputs (bool): if True, save scratch dir of vampire input files
             hm (HeisenbergMapper): object already fit to low energy
                 magnetic orderings.
+            user_input_settings (dict): optional commands for VAMPIRE Monte Carlo
 
         Parameters:
             sgraph (StructureGraph): Ground state graph.
@@ -90,6 +96,7 @@ class VampireCaller:
         self.equil_timesteps = equil_timesteps
         self.mc_timesteps = mc_timesteps
         self.save_inputs = save_inputs
+        self.user_input_settings = user_input_settings
 
         # Sort by energy if not already sorted
         ordered_structures = [
@@ -112,11 +119,6 @@ class VampireCaller:
         self.tol = hm.tol
         self.ex_params = hm.get_exchange()
 
-        # Get mean field estimate of critical temp
-        # xx - This isn't actually useful...
-        # j_avg = hm.estimate_exchange()
-        # self.mft_t = hm.get_mft_temperature(j_avg)
-
         # Full structure name before reducing to only magnetic ions
         self.mat_name = str(hm.ordered_structures_[0].composition.reduced_formula)
 
@@ -138,8 +140,9 @@ class VampireCaller:
         stdout = stdout.decode()
 
         if stderr:
-            stderr = stderr.decode()
-            logging.warning(stderr)
+            vanhelsing = stderr.decode()
+            if len(vanhelsing) > 27:  # Suppress blank warning msg
+                logging.warning(vanhelsing)
 
         if process.returncode != 0:
             raise RuntimeError(
@@ -220,9 +223,10 @@ class VampireCaller:
                 mat_file += ["material[%d]:material-element=%s" % (mat_id, atom)]
                 mat_file += [
                     "material[%d]:damping-constant=1.0" % (mat_id),
-                    "material[%d]:uniaxial-anisotropy-constant=1.0e-24" % (mat_id),  # xx - do we need this?
+                    "material[%d]:uniaxial-anisotropy-constant=1.0e-24"
+                    % (mat_id),  # xx - do we need this?
                     "material[%d]:atomic-spin-moment=%.2f !muB" % (mat_id, m_magnitude),
-                    "material[%d]:initial-spin-direction=0,0,%d" % (mat_id, spin)
+                    "material[%d]:initial-spin-direction=0,0,%d" % (mat_id, spin),
                 ]
 
         mat_file = "\n".join(mat_file)
@@ -282,24 +286,26 @@ class VampireCaller:
             "sim:time-steps-increment = 1",
         ]
 
-        # xx - Do Monte Carlo between +- 400 K from MFT estimate
-        # mft_t = self.mft_t
-        # delta_t = 400
-        # max_t = round(mft_t + delta_t)
-        # if mft_t - delta_t > 0:
-        #     min_t = round(mft_t - delta_t)
-        # else:
-        #     min_t = 0
+        # Set temperature range and step size of simulation
+        if "start_t" in self.user_input_settings:
+            start_t = self.user_input_settings["start_t"]
+        else:
+            start_t = 0
 
-        # xx - Temperature range of simulation
-        min_t = 0
-        max_t = 500
+        if "end_t" in self.user_input_settings:
+            end_t = self.user_input_settings["end_t"]
+        else:
+            end_t = 1500
 
-        # xx - Temp increment
+        if "temp_increment" in self.user_input_settings:
+            temp_increment = self.user_input_settings["temp_increment"]
+        else:
+            temp_increment = 25
+
         input_script += [
-            "sim:minimum-temperature = %d" % (min_t),
-            "sim:maximum-temperature = %d" % (max_t),
-            "sim:temperature-increment = 25",
+            "sim:minimum-temperature = %d" % (start_t),
+            "sim:maximum-temperature = %d" % (end_t),
+            "sim:temperature-increment = %d" % (temp_increment),
         ]
 
         # Output to save

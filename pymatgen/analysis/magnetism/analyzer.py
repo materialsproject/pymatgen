@@ -84,7 +84,7 @@ class CollinearMagneticStructureAnalyzer:
         default_magmoms: bool = None,
         set_net_positive: bool = True,
         threshold: float = 0.00,
-        threshold_nonmag: float = 0.5,
+        threshold_nonmag: float = 0.1
     ):
         """
         A class which provides a few helpful methods to analyze
