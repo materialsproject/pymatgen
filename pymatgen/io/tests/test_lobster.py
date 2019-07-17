@@ -9,16 +9,16 @@ import warnings
 import numpy as np
 import tempfile
 from pymatgen import Structure
-from pymatgen.io.lobster import Cohpcar, Icohplist, Doscar, Charge, Lobsterout, Fatband, Lobsterin
+from pymatgen.io.lobster import Cohpcar, Icohplist, Doscar, Charge, Lobsterout, Fatband, Lobsterin, Bandoverlaps
 from pymatgen.io.vasp import Vasprun
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.vasp.inputs import Incar, Kpoints
 
-__author__ = "Marco Esters, Janine George"
+__author__ = "Janine George, Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
 __version__ = "0.2"
-__email__ = "esters@uoregon.edu, janine.george@uclouvain.be"
+__email__ = "janine.george@uclouvain.be, esters@uoregon.edu"
 __date__ = "Dec 10, 2017"
 
 test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -1306,6 +1306,45 @@ class LobsterinTest(unittest.TestCase):
 
     def tearDown(self):
         warnings.simplefilter("default")
+
+
+class BandoverlapsTest(unittest.TestCase):
+    def setUp(self):
+        warnings.simplefilter("ignore")
+        #test spin polarlized calc and non spinpolarized calc
+
+        self.bandoverlaps1 = Bandoverlaps(os.path.join(test_dir, "bandOverlaps.lobster.1"))
+        self.bandoverlaps2 = Bandoverlaps(os.path.join(test_dir, "bandOverlaps.lobster.2"))
+
+
+    def test_attributes(self):
+        #bandoverlapsdict
+        self.assertAlmostEqual(self.bandoverlaps1.bandoverlapsdict[Spin.up]["0.5 0 0"]["maxDeviation"],0.000278953)
+        self.assertAlmostEqual(self.bandoverlaps1.bandoverlapsdict[Spin.up]["0.5 0 0"]["matrix"][-1][-1],0.0188058)
+        self.assertAlmostEqual(self.bandoverlaps1.bandoverlapsdict[Spin.up]["0.5 0 0"]["matrix"][0][0],1)
+
+        self.assertAlmostEqual(self.bandoverlaps1.bandoverlapsdict[Spin.down]["0.0261194 0.0261194 0.473881"]["maxDeviation"],4.31567e-05)
+        self.assertAlmostEqual(self.bandoverlaps1.bandoverlapsdict[Spin.down]["0.0261194 0.0261194 0.473881"]["matrix"][0][-1],4.0066e-07)
+
+
+        #maxDeviation
+        self.assertAlmostEqual(self.bandoverlaps1.maxDeviation[0],0.000278953)
+        self.assertAlmostEqual(self.bandoverlaps1.maxDeviation[-1],4.31567e-05)
+
+        self.assertAlmostEqual(self.bandoverlaps2.maxDeviation[0],0.000473319)
+        self.assertAlmostEqual(self.bandoverlaps2.maxDeviation[-1],1.48451e-05)
+
+    def test_has_good_quality(self):
+        self.assertFalse(self.bandoverlaps1.has_good_quality_maxDeviation(limit_maxDeviation=0.1))
+        self.assertFalse(self.bandoverlaps1.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=9,number_occ_bands_spin_down=5,limit_deviation=0.1,spin_polarized=True))
+        self.assertTrue(self.bandoverlaps1.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=4,number_occ_bands_spin_down=0,limit_deviation=0.001,spin_polarized=True))
+        self.assertFalse(self.bandoverlaps1.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=4,number_occ_bands_spin_down=4,limit_deviation=0.001,spin_polarized=True))
+        self.assertTrue(self.bandoverlaps1.has_good_quality_maxDeviation(limit_maxDeviation=100))
+        self.assertTrue(self.bandoverlaps2.has_good_quality_maxDeviation())
+        self.assertFalse(self.bandoverlaps2.has_good_quality_maxDeviation(limit_maxDeviation=0.0000001))
+        self.assertFalse(self.bandoverlaps2.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=10,limit_deviation=0.0000001))
+        self.assertTrue(self.bandoverlaps2.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=10,limit_deviation=0.1))
+
 
 
 if __name__ == "__main__":
