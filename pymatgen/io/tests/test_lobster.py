@@ -1350,21 +1350,42 @@ class BandoverlapsTest(unittest.TestCase):
                                                                                   number_occ_bands_spin_down=5,
                                                                                   limit_deviation=0.1,
                                                                                   spin_polarized=True))
-        self.assertTrue(self.bandoverlaps1.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=4,
+        self.assertTrue(self.bandoverlaps1.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=3,
                                                                                  number_occ_bands_spin_down=0,
                                                                                  limit_deviation=0.001,
                                                                                  spin_polarized=True))
+        self.assertFalse(self.bandoverlaps1.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=1,
+                                                                                  number_occ_bands_spin_down=1,
+                                                                                  limit_deviation=0.000001,
+                                                                                  spin_polarized=True))
+        self.assertFalse(self.bandoverlaps1.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=1,
+                                                                                  number_occ_bands_spin_down=0,
+                                                                                  limit_deviation=0.000001,
+                                                                                  spin_polarized=True))
+        self.assertFalse(self.bandoverlaps1.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=0,
+                                                                                  number_occ_bands_spin_down=1,
+                                                                                  limit_deviation=0.000001,
+                                                                                  spin_polarized=True))
         self.assertFalse(self.bandoverlaps1.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=4,
                                                                                   number_occ_bands_spin_down=4,
                                                                                   limit_deviation=0.001,
                                                                                   spin_polarized=True))
+
         self.assertTrue(self.bandoverlaps1.has_good_quality_maxDeviation(limit_maxDeviation=100))
         self.assertTrue(self.bandoverlaps2.has_good_quality_maxDeviation())
         self.assertFalse(self.bandoverlaps2.has_good_quality_maxDeviation(limit_maxDeviation=0.0000001))
         self.assertFalse(self.bandoverlaps2.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=10,
                                                                                   limit_deviation=0.0000001))
         self.assertTrue(
+            self.bandoverlaps2.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=1, limit_deviation=0.1))
+
+        self.assertFalse(
+            self.bandoverlaps2.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=1, limit_deviation=1e-8))
+        self.assertTrue(
             self.bandoverlaps2.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=10, limit_deviation=0.1))
+
+        self.assertTrue(
+            self.bandoverlaps2.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=1, limit_deviation=0.1))
 
 
 if __name__ == "__main__":

@@ -1770,7 +1770,8 @@ class Bandoverlaps:
                 for iband2, band2 in enumerate(band1):
                     if iband1 < number_occ_bands_spin_up and iband2 < number_occ_bands_spin_up:
                         if iband1 == iband2:
-                            band2 - 1.0 > limit_deviation
+                            if abs(band2 - 1.0) > limit_deviation:
+                                return False
                         else:
                             if band2 > limit_deviation:
                                 return False
@@ -1781,7 +1782,8 @@ class Bandoverlaps:
                     for iband2, band2 in enumerate(band1):
                         if iband1 < number_occ_bands_spin_down and iband2 < number_occ_bands_spin_down:
                             if iband1 == iband2:
-                                band2 - 1.0 > limit_deviation
+                                if abs(band2 - 1.0) > limit_deviation:
+                                    return False
                             else:
                                 if band2 > limit_deviation:
                                     return False
