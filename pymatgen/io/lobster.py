@@ -1375,25 +1375,17 @@ class Lobsterin(dict, MSONable):
         incar.write_file(incar_output)
 
     @staticmethod
-    def _get_basis(structure: Structure, POTCAR: str):
+    def _get_basis(structure: Structure, potcar_symbols: list):
         """
-        will get the basis from a file for a given POTCAR. 
+        will get the basis from given potcar_symbols (e.g., ["Fe_pv","Si"]
+        #include this in lobsterin class
         Args:
             structure (Structure): Structure object
-            POTCAR (str): address to POSCAR
+            potcar_symbols: list of potcar symbols
         Returns:
             returns basis
         """
-        potcar = Potcar.from_file(POTCAR)
-
-        for pot in potcar:
-            if pot.potential_type != "PAW":
-                raise IOError("Lobster only works with PAW! Use different POTCARs")
-
-        if potcar.functional != "PBE":
-            raise IOError("We only have BASIS options for PBE so far")
-
-        Potcar_names = [name["symbol"] for name in potcar.spec]
+        Potcar_names = [name for name in potcar_symbols]
 
         AtomTypes_Potcar = [name.split('_')[0] for name in Potcar_names]
 
@@ -1565,6 +1557,26 @@ class Lobsterin(dict, MSONable):
 
         return cls(Lobsterindict)
 
+    @staticmethod
+    def _get_potcar_symbols(POTCAR_input: str) -> list:
+        """
+        will return the name of the species in the POTCAR
+        Args:
+         POTCAR_input(str): string to potcar file
+        Returns:
+            list of the names of the species in string format
+        """
+        potcar = Potcar.from_file(POTCAR_input)
+        for pot in potcar:
+            if pot.potential_type != "PAW":
+                raise IOError("Lobster only works with PAW! Use different POTCARs")
+
+        if potcar.functional != "PBE":
+            raise IOError("We only have BASIS options for PBE so far")
+
+        Potcar_names = [name["symbol"] for name in potcar.spec]
+        return Potcar_names
+
     @classmethod
     def standard_calculations_from_vasp_files(cls, POSCAR_input="POSCAR", INCAR_input="INCAR", POTCAR_input=None,
                                               dict_for_basis=None,
@@ -1656,8 +1668,11 @@ class Lobsterin(dict, MSONable):
             # will just insert this basis and not check with poscar
             basis = [key + ' ' + value for key, value in dict_for_basis.items()]
         else:
+            # get basis from POTCAR
+            potcar_names = Lobsterin._get_potcar_symbols(POTCAR_input=POTCAR_input)
+
             basis = Lobsterin._get_basis(structure=Structure.from_file(POSCAR_input),
-                                         POTCAR=POTCAR_input)
+                                         potcar_symbols=potcar_names)
         Lobsterindict["basisfunctions"] = basis
         if option == 'standard_with_fatband':
             Lobsterindict['createFatband'] = basis
@@ -1693,7 +1708,7 @@ class Bandoverlaps:
         """
         self.bandoverlapsdict = {}
         self.maxDeviation = []
-        #This has to be done like this because there can be different numbers of problematic k-points per spin
+        # This has to be done like this because there can be different numbers of problematic k-points per spin
         for line in contents:
             if "Overlap Matrix (abs) of the orthonormalized projected bands for spin 0" in line:
                 spin = Spin.up
@@ -1731,31 +1746,33 @@ class Bandoverlaps:
         Returns:
              Boolean that will give you information about the quality of the projection
         """
-        
+
         for deviation in self.maxDeviation:
             if deviation > limit_maxDeviation:
                 return False
         return True
 
-    def has_good_quality_check_occupied_bands(self,number_occ_bands_spin_up,number_occ_bands_spin_down=None,spin_polarized=False,limit_deviation=0.1) -> bool:
+    def has_good_quality_check_occupied_bands(self, number_occ_bands_spin_up, number_occ_bands_spin_down=None,
+                                              spin_polarized=False, limit_deviation=0.1) -> bool:
         """
         will check if the deviation from the ideal bandoverlap of all occupied bands is smaller or equal to limit_deviation
-
-        :param number_occ_bands_spin_up: number of occupied bands of spin up
-        :param number_occ_bands_spin_down: number of occupied bands of spin down
-        :param spin_polarized:  If True, then it was a spin polarized calculation
-        :param limit_deviation: limit of the maxDeviation
-        :return: that will give you information about the quality of the projection
+        Args:
+        number_occ_bands_spin_up (int): number of occupied bands of spin up
+        number_occ_bands_spin_down (int): number of occupied bands of spin down
+        spin_polarized (bool):  If True, then it was a spin polarized calculation
+        limit_deviation (float): limit of the maxDeviation
+        Returns:
+             Boolean that will give you information about the quality of the projection
         """
 
         for matrix in self.bandoverlapsdict[Spin.up].values():
-            for iband1,band1 in enumerate(matrix["matrix"]):
+            for iband1, band1 in enumerate(matrix["matrix"]):
                 for iband2, band2 in enumerate(band1):
-                    if iband1<number_occ_bands_spin_up and iband2<number_occ_bands_spin_up:
-                        if iband1==iband2:
-                            band2-1.0>limit_deviation
+                    if iband1 < number_occ_bands_spin_up and iband2 < number_occ_bands_spin_up:
+                        if iband1 == iband2:
+                            band2 - 1.0 > limit_deviation
                         else:
-                            if band2>limit_deviation:
+                            if band2 > limit_deviation:
                                 return False
 
         if spin_polarized:
