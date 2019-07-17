@@ -11,8 +11,8 @@ import numpy as np
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.surface import Slab, SlabGenerator, generate_all_slabs, \
-    get_symmetrically_distinct_miller_indices, ReconstructionGenerator, \
-    miller_index_from_sites, get_d, get_slab_regions
+    get_symmetrically_distinct_miller_indices, get_symmetrically_equivalent_miller_indices, \
+    ReconstructionGenerator, miller_index_from_sites, get_d, get_slab_regions
 from pymatgen.symmetry.groups import SpaceGroup
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
@@ -629,6 +629,10 @@ class MillerIndexFinderTests(PymatgenTest):
         self.Fe = Structure.from_spacegroup( \
             "Im-3m", Lattice.cubic(2.82), ["Fe"],
             [[0, 0, 0]])
+        mglatt = Lattice.from_parameters(3.2, 3.2, 5.13, 90, 90, 120)
+        self.Mg = Structure(mglatt, ["Mg", "Mg"],
+                            [[1 / 3, 2 / 3, 1 / 4],
+                             [2 / 3, 1 / 3, 3 / 4]])
         self.lifepo4 = self.get_structure("LiFePO4")
         self.tei = Structure.from_file(get_path("icsd_TeI.cif"),
                                        primitive=False)
@@ -675,6 +679,20 @@ class MillerIndexFinderTests(PymatgenTest):
         # Now try a trigonal system.
         indices = get_symmetrically_distinct_miller_indices(self.trigBi, 2)
         self.assertEqual(len(indices), 17)
+
+    def test_get_symmetrically_equivalent_miller_indices(self):
+
+        # Tests to see if the function obtains all equivalent hkl for cubic (100)
+        indices001 = [(1, 0, 0), (0, 1, 0), (0, 0, 1), (0, 0, -1), (0, -1, 0), (-1, 0, 0)]
+        indices = get_symmetrically_equivalent_miller_indices(self.cscl, (1,0,0))
+        self.assertTrue(all([hkl in indices for hkl in indices001]))
+
+        # Tests to see if it captures expanded Miller indices in the family e.g. (001) == (002)
+        hcp_indices_100 = get_symmetrically_equivalent_miller_indices(self.Mg, (1,0,0))
+        hcp_indices_200 = get_symmetrically_equivalent_miller_indices(self.Mg, (2,0,0))
+        self.assertEqual(len(hcp_indices_100)*2, len(hcp_indices_200))
+        self.assertEqual(len(hcp_indices_100), 6)
+
 
     def test_generate_all_slabs(self):
 

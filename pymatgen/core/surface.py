@@ -1542,7 +1542,6 @@ def get_d(slab):
     return slab.lattice.get_cartesian_coords([0, 0, d])[2]
 
 
-
 def get_recp_symmetry_operation(structure, symprec=0.01):
     """
     Find the symmetric operations of the reciprocal lattice,
@@ -1564,6 +1563,52 @@ def get_recp_symmetry_operation(structure, symprec=0.01):
     recp_symmops = analyzer.get_symmetry_operations()
 
     return recp_symmops
+
+
+def is_already_analyzed(miller_index, miller_list, symm_ops):
+    for op in symm_ops:
+        if in_coord_list(miller_list, op.operate(miller_index)):
+            return True
+    return False
+
+
+def get_symmetrically_equivalent_miller_indices(structure, miller_index):
+    """
+    Returns all symmetrically equivalent indices for a given structure. Analysis
+    is based on the symmetry of the reciprocal lattice of the structure.
+
+    Args:
+        miller_index (tuple): Designates the family of Miller indices to find.
+    """
+
+    mmi = max(np.abs(miller_index))
+    r = list(range(-mmi, mmi + 1))
+    r.reverse()
+
+    sg = SpacegroupAnalyzer(structure)
+    # Get distinct hkl planes from the rhombohedral setting if trigonal
+    if sg.get_crystal_system() == "trigonal":
+        prim_structure = SpacegroupAnalyzer(structure).get_primitive_standard_structure()
+        symm_ops = get_recp_symmetry_operation(prim_structure)
+    else:
+        symm_ops = get_recp_symmetry_operation(structure)
+
+    equivalent_millers = [miller_index]
+    for miller in itertools.product(r, r, r):
+        if miller == miller_index:
+            continue
+        if any([i != 0 for i in miller]):
+            if is_already_analyzed(miller, equivalent_millers, symm_ops):
+                equivalent_millers.append(miller)
+                
+            # include larger Miller indices in the family of planes
+            if all([mmi > i for i in np.abs(miller)]) and \
+                    not in_coord_list(equivalent_millers, miller):
+                if is_already_analyzed(mmi * np.array(miller),
+                                       equivalent_millers, symm_ops):
+                    equivalent_millers.append(miller)
+
+    return equivalent_millers
 
 
 def get_symmetrically_distinct_miller_indices(structure, max_index):
@@ -1597,16 +1642,10 @@ def get_symmetrically_distinct_miller_indices(structure, max_index):
 
     unique_millers, unique_millers_conv = [], []
 
-    def is_already_analyzed(miller_index):
-        for op in symm_ops:
-            if in_coord_list(unique_millers, op.operate(miller_index)):
-                return True
-        return False
-
     for i, miller in enumerate(miller_list):
         d = abs(reduce(gcd, miller))
         miller = tuple([int(i / d) for i in miller])
-        if not is_already_analyzed(miller):
+        if not is_already_analyzed(miller, unique_millers, symm_ops):
             if sg.get_crystal_system() == "trigonal":
                 # Now we find the distinct primitive hkls using
                 # the primitive symmetry operations and their
