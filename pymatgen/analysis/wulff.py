@@ -231,7 +231,7 @@ class WulffShape:
         color_ind = self.color_ind
         planes = []
         recp = self.structure.lattice.reciprocal_lattice_crystallographic
-        recp_symmops = self.structure.get_recp_symmetry_operation(self.symprec)
+        recp_symmops = self.lattice.get_recp_symmetry_operation(self.symprec)
 
         for i, (hkl, energy) in enumerate(zip(self.hkl_list,
                                               self.e_surf_list)):

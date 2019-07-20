@@ -1566,11 +1566,15 @@ def get_symmetrically_equivalent_miller_indices(structure, miller_index, return_
     is based on the symmetry of the reciprocal lattice of the structure.
 
     Args:
-        miller_index (tuple): Designates the family of Miller indices to find.
+        miller_index (tuple): Designates the family of Miller indices
+            to find. Can be hkl or hkil for hexagonal systems
         return_hkil (bool): If true, return hkil form of Miller
             index for hexagonal systems, otherwise return hkl
     """
 
+    # Change to hkl if hkil because in_coord_list only handles tuples of 3
+    miller_index = (miller_index[0], miller_index[1], miller_index[3]) \
+        if len(miller_index) == 4 else miller_index
     mmi = max(np.abs(miller_index))
     r = list(range(-mmi, mmi + 1))
     r.reverse()
@@ -1598,7 +1602,7 @@ def get_symmetrically_equivalent_miller_indices(structure, miller_index, return_
                                        equivalent_millers, symm_ops):
                     equivalent_millers.append(miller)
 
-    if return_hkil and sg.crystal_system in ["trigonal", "hexagonal"]:
+    if return_hkil and sg.get_crystal_system() in ["trigonal", "hexagonal"]:
         return [(hkl[0], hkl[1], -1*hkl[0]-hkl[1],
                  hkl[2]) for hkl in equivalent_millers]
     return equivalent_millers
@@ -1653,7 +1657,7 @@ def get_symmetrically_distinct_miller_indices(structure, max_index, return_hkil=
                 unique_millers.append(miller)
                 unique_millers_conv.append(miller)
 
-    if return_hkil and sg.crystal_system in ["trigonal", "hexagonal"]:
+    if return_hkil and sg.get_crystal_system() in ["trigonal", "hexagonal"]:
         return [(hkl[0], hkl[1], -1*hkl[0]-hkl[1],
                  hkl[2]) for hkl in unique_millers_conv]
     return unique_millers_conv
