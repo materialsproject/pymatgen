@@ -1541,14 +1541,34 @@ def get_d(slab):
             break
     return slab.lattice.get_cartesian_coords([0, 0, d])[2]
 
+def is_already_analyzed(
+        miller_index: tuple, miller_list: list, symm_ops: list)-> bool:
+    """
+    Helper function to check if a given Miller index is
+    part of the family of indices of any index in a list
 
-def get_symmetrically_equivalent_miller_indices(structure, miller_index):
+    Args:
+        miller_index (tuple): The Miller index to analyze
+        miller_list (list): List of Miller indices. If the given
+            Miller index belongs in the same family as any of the
+            indices in this list, return True, else return False
+        symm_ops (list): Symmetry operations of a
+            lattice, used to define family of indices
+    """
+    for op in symm_ops:
+        if in_coord_list(miller_list, op.operate(miller_index)):
+            return True
+    return False
+
+def get_symmetrically_equivalent_miller_indices(structure, miller_index, return_hkil=True):
     """
     Returns all symmetrically equivalent indices for a given structure. Analysis
     is based on the symmetry of the reciprocal lattice of the structure.
 
     Args:
         miller_index (tuple): Designates the family of Miller indices to find.
+        return_hkil (bool): If true, return hkil form of Miller
+            index for hexagonal systems, otherwise return hkl
     """
 
     mmi = max(np.abs(miller_index))
@@ -1578,10 +1598,13 @@ def get_symmetrically_equivalent_miller_indices(structure, miller_index):
                                        equivalent_millers, symm_ops):
                     equivalent_millers.append(miller)
 
+    if return_hkil and sg.crystal_system in ["trigonal", "hexagonal"]:
+        return [(hkl[0], hkl[1], -1*hkl[0]-hkl[1],
+                 hkl[2]) for hkl in equivalent_millers]
     return equivalent_millers
 
 
-def get_symmetrically_distinct_miller_indices(structure, max_index):
+def get_symmetrically_distinct_miller_indices(structure, max_index, return_hkil=False):
     """
     Returns all symmetrically distinct indices below a certain max-index for
     a given structure. Analysis is based on the symmetry of the reciprocal
@@ -1591,6 +1614,8 @@ def get_symmetrically_distinct_miller_indices(structure, max_index):
         max_index (int): The maximum index. For example, a max_index of 1
             means that (100), (110), and (111) are returned for the cubic
             structure. All other indices are equivalent to one of these.
+        return_hkil (bool): If true, return hkil form of Miller
+            index for hexagonal systems, otherwise return hkl
     """
 
     r = list(range(-max_index, max_index + 1))
@@ -1628,6 +1653,9 @@ def get_symmetrically_distinct_miller_indices(structure, max_index):
                 unique_millers.append(miller)
                 unique_millers_conv.append(miller)
 
+    if return_hkil and sg.crystal_system in ["trigonal", "hexagonal"]:
+        return [(hkl[0], hkl[1], -1*hkl[0]-hkl[1],
+                 hkl[2]) for hkl in unique_millers_conv]
     return unique_millers_conv
 
 

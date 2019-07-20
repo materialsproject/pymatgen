@@ -1297,26 +1297,6 @@ class Lattice(MSONable):
         return recp_symmops
 
 
-def is_already_analyzed(
-        miller_index: tuple, miller_list: list, symm_ops: list)-> bool:
-    """
-    Helper function to check if a given Miller index is
-    part of the family of indices of any index in a list
-
-    Args:
-        miller_index (tuple): The Miller index to analyze
-        miller_list (list): List of Miller indices. If the given
-            Miller index belongs in the same family as any of the
-            indices in this list, return True, else return False
-        symm_ops (list): Symmetry operations of a
-            lattice, used to define family of indices
-    """
-    for op in symm_ops:
-        if in_coord_list(miller_list, op.operate(miller_index)):
-            return True
-    return False
-
-
 def get_integer_index(
     miller_index: bool, round_dp: int = 4, verbose: bool = True
 ) -> Tuple[int, int, int]:
