@@ -19,9 +19,9 @@ from numpy.linalg import inv
 from numpy import pi, dot, transpose, radians
 
 from monty.json import MSONable
-from pymatgen.util.coord import pbc_shortest_vectors
+from pymatgen.util.coord import pbc_shortest_vectors, in_coord_list
 from pymatgen.util.num import abs_cap
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
 
 """
 This module defines the classes relating to 3D lattices.
@@ -1287,6 +1287,7 @@ class Lattice(MSONable):
         # need a localized import of structure to build a
         # pseudo empty lattice for SpacegroupAnalyzer
         from pymatgen import Structure
+        from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
         recp = Structure(recp_lattice, ["H"], [[0, 0, 0]])
         # Creates a function that uses the symmetry operations in the
         # structure to find Miller indices that might give repetitive slabs
@@ -1297,7 +1298,7 @@ class Lattice(MSONable):
 
 
 def is_already_analyzed(
-        miller_index: tuple, miller_list: list, symm_ops: list)-> Bool:
+        miller_index: tuple, miller_list: list, symm_ops: list)-> bool:
     """
     Helper function to check if a given Miller index is
     part of the family of indices of any index in a list
