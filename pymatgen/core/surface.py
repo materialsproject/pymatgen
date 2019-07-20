@@ -1542,29 +1542,6 @@ def get_d(slab):
     return slab.lattice.get_cartesian_coords([0, 0, d])[2]
 
 
-def get_recp_symmetry_operation(structure, symprec=0.01):
-    """
-    Find the symmetric operations of the reciprocal lattice,
-    to be used for hkl transformations
-    Args:
-        structure (Structure): conventional unit cell
-        symprec: default is 0.001
-
-    """
-    recp_lattice = structure.lattice.reciprocal_lattice_crystallographic
-    # get symmetry operations from input conventional unit cell
-    # Need to make sure recp lattice is big enough, otherwise symmetry
-    # determination will fail. We set the overall volume to 1.
-    recp_lattice = recp_lattice.scale(1)
-    recp = Structure(recp_lattice, ["H"], [[0, 0, 0]])
-    # Creates a function that uses the symmetry operations in the
-    # structure to find Miller indices that might give repetitive slabs
-    analyzer = SpacegroupAnalyzer(recp, symprec=symprec)
-    recp_symmops = analyzer.get_symmetry_operations()
-
-    return recp_symmops
-
-
 def get_symmetrically_equivalent_miller_indices(structure, miller_index):
     """
     Returns all symmetrically equivalent indices for a given structure. Analysis
@@ -1582,9 +1559,9 @@ def get_symmetrically_equivalent_miller_indices(structure, miller_index):
     # Get distinct hkl planes from the rhombohedral setting if trigonal
     if sg.get_crystal_system() == "trigonal":
         prim_structure = SpacegroupAnalyzer(structure).get_primitive_standard_structure()
-        symm_ops = get_recp_symmetry_operation(prim_structure)
+        symm_ops = prim_structure.lattice.get_recp_symmetry_operation()
     else:
-        symm_ops = get_recp_symmetry_operation(structure)
+        symm_ops = structure.lattice.get_recp_symmetry_operation()
 
     equivalent_millers = [miller_index]
     for miller in itertools.product(r, r, r):
@@ -1593,7 +1570,7 @@ def get_symmetrically_equivalent_miller_indices(structure, miller_index):
         if any([i != 0 for i in miller]):
             if is_already_analyzed(miller, equivalent_millers, symm_ops):
                 equivalent_millers.append(miller)
-                
+
             # include larger Miller indices in the family of planes
             if all([mmi > i for i in np.abs(miller)]) and \
                     not in_coord_list(equivalent_millers, miller):
@@ -1628,10 +1605,10 @@ def get_symmetrically_distinct_miller_indices(structure, max_index):
         transf = sg.get_conventional_to_primitive_transformation_matrix()
         miller_list = [hkl_transformation(transf, hkl) for hkl in conv_hkl_list]
         prim_structure = SpacegroupAnalyzer(structure).get_primitive_standard_structure()
-        symm_ops = get_recp_symmetry_operation(prim_structure)
+        symm_ops = prim_structure.lattice.get_recp_symmetry_operation()
     else:
         miller_list = conv_hkl_list
-        symm_ops = get_recp_symmetry_operation(structure)
+        symm_ops = structure.lattice.get_recp_symmetry_operation()
 
     unique_millers, unique_millers_conv = [], []
 
