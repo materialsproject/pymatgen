@@ -677,8 +677,9 @@ class MillerIndexFinderTests(PymatgenTest):
         self.assertEqual(len(indices), 12)
 
         # Now try a trigonal system.
-        indices = get_symmetrically_distinct_miller_indices(self.trigBi, 2)
+        indices = get_symmetrically_distinct_miller_indices(self.trigBi, 2, return_hkil=True)
         self.assertEqual(len(indices), 17)
+        self.assertTrue(all([len(hkl) == 4 for hkl in indices]))
 
     def test_get_symmetrically_equivalent_miller_indices(self):
 
@@ -692,7 +693,7 @@ class MillerIndexFinderTests(PymatgenTest):
         hcp_indices_200 = get_symmetrically_equivalent_miller_indices(self.Mg, (2,0,0))
         self.assertEqual(len(hcp_indices_100)*2, len(hcp_indices_200))
         self.assertEqual(len(hcp_indices_100), 6)
-
+        self.assertTrue(all([len(hkl) == 4 for hkl in hcp_indices_100]))
 
     def test_generate_all_slabs(self):
 

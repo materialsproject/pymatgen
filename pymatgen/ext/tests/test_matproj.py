@@ -383,6 +383,11 @@ class MPResterTest(PymatgenTest):
         self.assertAlmostEqual(mo_s3_112[0]['gb_energy'], 0.47965, places=2)
         self.assertAlmostEqual(mo_s3_112[0]['work_of_separation'], 6.318144, places=2)
         self.assertIn("Mo24", gb_f.formula)
+        hcp_s7 = self.rester.get_gb_data(material_id='mp-87', gb_plane=[0, 0, 0, 1],
+                                         include_work_of_separation=True)
+        self.assertAlmostEqual(hcp_s7[0]['gb_energy'], 1.12, places=2)
+        self.assertAlmostEqual(hcp_s7[0]['work_of_separation'], 2.46, places=2)
+
 
     def test_get_interface_reactions(self):
         kinks = self.rester.get_interface_reactions("LiCoO2", "Li3PS4")
