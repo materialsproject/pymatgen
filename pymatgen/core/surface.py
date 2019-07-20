@@ -20,7 +20,7 @@ from monty.fractions import lcm
 
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Structure
-from pymatgen.core.lattice import Lattice, is_already_analyzed
+from pymatgen.core.lattice import Lattice
 from pymatgen.core.sites import PeriodicSite
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
