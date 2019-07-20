@@ -20,7 +20,7 @@ from monty.fractions import lcm
 
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Structure
-from pymatgen.core.lattice import Lattice
+from pymatgen.core.lattice import Lattice, is_already_analyzed
 from pymatgen.core.sites import PeriodicSite
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -1563,13 +1563,6 @@ def get_recp_symmetry_operation(structure, symprec=0.01):
     recp_symmops = analyzer.get_symmetry_operations()
 
     return recp_symmops
-
-
-def is_already_analyzed(miller_index, miller_list, symm_ops):
-    for op in symm_ops:
-        if in_coord_list(miller_list, op.operate(miller_index)):
-            return True
-    return False
 
 
 def get_symmetrically_equivalent_miller_indices(structure, miller_index):
