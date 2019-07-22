@@ -9,6 +9,7 @@ v2019.7.21
 * Improved Lobster interface (@JaGeo)
 * Bug fixes (@sthartman, @dwinston, @utf)
 * New functionality for calculation of Heisenberg exchange parameters (@ncfrey)
+* Improvements to Miller indices handling and Lattice (@richardtran415)
 
 
 v2019.7.2
