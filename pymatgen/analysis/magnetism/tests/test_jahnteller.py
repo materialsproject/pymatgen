@@ -100,12 +100,7 @@ class JahnTellerTest(unittest.TestCase):
                 {
                     'ligand': 'O2-',
                     'ligand_bond_length_spread': 0.2111,
-                    'ligand_bond_lengths': [2.1382,
-                                            2.0840,
-                                            2.0863,
-                                            2.2383,
-                                            2.2951,
-                                            2.2215],
+                    'ligand_bond_lengths': [2.2951, 2.2215, 2.2383, 2.1382, 2.084, 2.0863],
                     'strength': 'weak',
                     'motif': 'oct',
                     'motif_order_parameter': 0.1441,
@@ -115,7 +110,6 @@ class JahnTellerTest(unittest.TestCase):
                 }
             ]
         }
-
         self.assertDictEqual(LiFePO4_analysis, self.jt.get_analysis(LiFePO4))
 
     def test_mu_so(self):

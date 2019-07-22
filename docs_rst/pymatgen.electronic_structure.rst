@@ -24,6 +24,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.electronic_structure
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

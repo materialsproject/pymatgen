@@ -18,6 +18,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.analysis.cost
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -414,9 +414,10 @@ class Vasprun(MSONable):
                     elif tag == "incar":
                         self.incar = self._parse_params(elem)
                     elif tag == "kpoints":
-                        self.kpoints, self.actual_kpoints, \
-                        self.actual_kpoints_weights = self._parse_kpoints(
-                            elem)
+                        if not hasattr(self, 'kpoints'):
+                            self.kpoints, self.actual_kpoints, \
+                            self.actual_kpoints_weights = self._parse_kpoints(
+                                elem)
                     elif tag == "parameters":
                         self.parameters = self._parse_params(elem)
                     elif tag == "structure" and elem.attrib.get("name") == \
@@ -447,20 +448,36 @@ class Vasprun(MSONable):
                     self.projected_eigenvalues = self._parse_projected_eigen(
                         elem)
                 elif tag == "dielectricfunction":
-                    if ("comment" not in elem.attrib) or \
-                            elem.attrib[
-                                "comment"] == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))":
-                        if not 'density' in self.dielectric_data:
-                            self.dielectric_data['density'] = self._parse_diel(elem)
-                            # "velocity-velocity" is also named "current-current"
-                            # in OUTCAR
-                        elif not 'velocity' in self.dielectric_data:
-                            self.dielectric_data['velocity'] = self._parse_diel(elem)
+                    if ("comment" not in elem.attrib or
+                            elem.attrib["comment"] ==
+                            "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including "
+                            "local field effects in RPA (Hartree))"):
+                        if 'density' not in self.dielectric_data:
+                            self.dielectric_data['density'] = self._parse_diel(
+                                elem)
+                        elif 'velocity' not in self.dielectric_data:
+                            # "velocity-velocity" is also named
+                            # "current-current" in OUTCAR
+                            self.dielectric_data['velocity'] = self._parse_diel(
+                                elem)
                         else:
-                            raise NotImplementedError('This vasprun.xml has >2 unlabelled dielectric functions')
+                            raise NotImplementedError(
+                                'This vasprun.xml has >2 unlabelled dielectric '
+                                'functions')
                     else:
                         comment = elem.attrib["comment"]
-                        self.other_dielectric[comment] = self._parse_diel(elem)
+                        # VASP 6+ has labels for the density and current
+                        # derived dielectric constants
+                        if comment == "density-density":
+                            self.dielectric_data["density"] = self._parse_diel(
+                                elem)
+                        elif comment == "current-current":
+                            self.dielectric_data["velocity"] = self._parse_diel(
+                                elem)
+                        else:
+                            self.other_dielectric[comment] = self._parse_diel(
+                                elem)
+
                 elif tag == "varray" and elem.attrib.get("name") == 'opticaltransitions':
                     self.optical_transition = np.array(_parse_varray(elem))
                 elif tag == "structure" and elem.attrib.get("name") == \
@@ -649,24 +666,39 @@ class Vasprun(MSONable):
 
         TODO: Fix for other functional types like PW91, other vdW types, etc.
         """
+        GGA_TYPES = {"RE": "revPBE", "PE": "PBE", "PS": "PBESol", "RP": "RevPBE+PADE", "AM": "AM05", "OR": "optPBE",
+                     "BO": "optB88", "MK": "optB86b", "--": "None or LDA"}
 
-        METAGGA_TYPES = {"TPSS", "RTPSS", "M06L", "MBJL", "SCAN", "MS0", "MS1", "MS2"}
+        METAGGA_TYPES = {"TPSS": "TPSS", "RTPSS": "revTPSS", "M06L": "M06-L", "MBJ": "modified Becke-Johnson",
+                         "SCAN": "SCAN", "MS0": "MadeSimple0", "MS1": "MadeSimple1", "MS2": "MadeSimple2"}
 
-        if self.parameters.get("LHFCALC", False):
+        if self.parameters.get("AEXX", 1.00) == 1.00:
             rt = "HF"
-        elif self.parameters.get("METAGGA", "").strip().upper() in METAGGA_TYPES:
-            rt = self.parameters["METAGGA"].strip().upper()
-        elif self.parameters.get("LUSE_VDW", False):
-            vdw_gga = {"RE": "DF", "OR": "optPBE", "BO": "optB88",
-                       "MK": "optB86b", "ML": "DF2"}
-            gga = self.parameters.get("GGA").upper()
-            rt = "vdW-" + vdw_gga[gga]
+        elif self.parameters.get("HFSCREEN", 0.30) == 0.30:
+            rt = "HSE03"
+        elif self.parameters.get("HFSCREEN", 0.20) == 0.20:
+            rt = "HSE06"
+        elif self.parameters.get("AEXX", 0.20) == 0.20:
+            rt = "B3LYP"
+        elif self.parameters.get("LHFCALC", True):
+            rt = "PBEO or other Hybrid Functional"
+        elif self.parameters.get("BPARAM", 15.70) == 15.70 and self.parameters.get("LUSE_VDW", True):
+            if self.incar.get("METAGGA", "").strip().upper() in METAGGA_TYPES:
+                rt = GGA_TYPES[self.parameters.get("GGA", "").strip().upper()]+"+"+\
+                     METAGGA_TYPES[self.incar.get("METAGGA", "").strip().upper()]+"+rVV10"
+            else:
+                rt = GGA_TYPES[self.parameters.get("GGA", "").strip().upper()]+"+rVV10"
+        elif self.incar.get("METAGGA", "").strip().upper() in METAGGA_TYPES:
+            rt = GGA_TYPES[self.parameters.get("GGA", "").strip().upper()]+"+"+\
+                 METAGGA_TYPES[self.incar.get("METAGGA", "").strip().upper()]
+            if self.is_hubbard or self.parameters.get("LDAU", True):
+                rt += "+U"
         elif self.potcar_symbols[0].split()[0] == 'PAW':
             rt = "LDA"
-        else:
-            rt = "GGA"
-        if self.is_hubbard:
-            rt += "+U"
+        elif self.parameters.get("GGA", "").strip().upper() in GGA_TYPES:
+            rt = GGA_TYPES[self.parameters.get("GGA", "").strip().upper()]
+            if self.is_hubbard or self.parameters.get("LDAU", True):
+                rt += "+U"
         return rt
 
     @property
@@ -1675,6 +1707,13 @@ class Outcar:
             self.read_nmr_efg()
             self.read_nmr_efg_tensor()
 
+        self.has_onsite_density_matrices = False
+        self.read_pattern({"has_onsite_density_matrices": r"onsite density matrix"},
+                          terminate_on_match=True)
+        if "has_onsite_density_matrices" in self.data:
+            self.has_onsite_density_matrices = True
+            self.read_onsite_density_matrices()
+
         # Store the individual contributions to the final total energy
         final_energy_contribs = {}
         for k in ["PSCENC", "TEWEN", "DENC", "EXHF", "XCENC", "PAW double counting",
@@ -1766,6 +1805,9 @@ class Outcar:
             table_contents = []
             for line in table_body_text.split("\n"):
                 ml = rp.search(line)
+                # skip empty lines
+                if not ml:
+                    continue
                 d = ml.groupdict()
                 if len(d) > 0:
                     processed_line = {k: postprocess(v) for k, v in d.items()}
@@ -2044,6 +2086,44 @@ class Outcar:
         pt_table = self.read_table_pattern(header_pattern, row_pattern,
                                            footer_pattern, postprocess=float)
         self.data["piezo_tensor"] = pt_table
+
+    def read_onsite_density_matrices(self):
+        """
+        Parse the onsite density matrices, returns list with index corresponding
+        to atom index in Structure.
+        """
+
+        # matrix size will vary depending on if d or f orbitals are present
+        # therefore regex assumes f, but filter out None values if d
+
+        header_pattern = r"spin component  1\n"
+        row_pattern = r'[^\S\r\n]*(?:([\d.-]+)[^\S\r\n]*)' + r'(?:([\d.-]+)[^\S\r\n]*)?'*6 + r'.*?'
+        footer_pattern = r"\nspin component  2"
+        spin1_component = self.read_table_pattern(header_pattern, row_pattern,
+                                                  footer_pattern, postprocess=lambda x: float(x) if x else None,
+                                                  last_one_only=False)
+
+        # filter out None values
+        spin1_component = [[[e for e in row if e is not None] for row in matrix] for matrix in spin1_component]
+
+        # and repeat for Spin.down
+
+        header_pattern = r"spin component  2\n"
+        row_pattern = r'[^\S\r\n]*(?:([\d.-]+)[^\S\r\n]*)' + r'(?:([\d.-]+)[^\S\r\n]*)?'*6 + r'.*?'
+        footer_pattern = r"\n occupancies and eigenvectors"
+        spin2_component = self.read_table_pattern(header_pattern, row_pattern,
+                                                  footer_pattern, postprocess=lambda x: float(x) if x else None,
+                                                  last_one_only=False)
+
+        spin2_component = [[[e for e in row if e is not None] for row in matrix] for matrix in spin2_component]
+
+        self.data["onsite_density_matrices"] = [
+            {
+                Spin.up: spin1_component[idx],
+                Spin.down: spin2_component[idx]
+            }
+            for idx in range(len(spin1_component))
+        ]
 
     def read_corrections(self, reverse=True, terminate_on_match=True):
         patterns = {
@@ -2519,27 +2599,29 @@ class Outcar:
         Create pseudopotential ZVAL dictionary.
         """
         try:
-            def poscar_line(results, match):
-                poscar_line = match.group(1)
-                results.poscar_line = re.findall(r'[A-Z][a-z]?', poscar_line)
+            def atom_symbols(results, match):
+                element_symbol = match.group(1)
+                if not hasattr(results, 'atom_symbols'):
+                    results.atom_symbols = [] 
+                results.atom_symbols.append(element_symbol.strip())
 
             def zvals(results, match):
                 zvals = match.group(1)
                 results.zvals = map(float, re.findall(r'-?\d+\.\d*', zvals))
 
-            search = []
-            search.append([r'^.*POSCAR.*=(.*)', None, poscar_line])
+            search = [] 
+            search.append([r'(?<=VRHFIN =)(.*)(?=:)', None, atom_symbols])
             search.append([r'^\s+ZVAL.*=(.*)', None, zvals])
 
             micro_pyawk(self.filename, search, self)
 
-            zval_dict = {}
-            for x, y in zip(self.poscar_line, self.zvals):
+            zval_dict = {} 
+            for x, y in zip(self.atom_symbols, self.zvals):
                 zval_dict.update({x: y})
             self.zval_dict = zval_dict
 
             # Clean-up
-            del (self.poscar_line)
+            del (self.atom_symbols)
             del (self.zvals)
         except:
             raise Exception("ZVAL dict could not be parsed.")
@@ -2665,6 +2747,13 @@ class Outcar:
         if self.nmr_efg:
             d.update({"nmr_efg": {"raw": self.data["unsym_efg_tensor"],
                                   "parameters": self.data["efg"]}})
+
+        if self.has_onsite_density_matrices:
+            # cast Spin to str for consistency with electronic_structure
+            # TODO: improve handling of Enum (de)serialization in monty
+            onsite_density_matrices = [{str(k): v for k, v in d.items()}
+                                       for d in self.data["onsite_density_matrices"]]
+            d.update({"onsite_density_matrices": onsite_density_matrices})
 
         return d
 
@@ -3178,6 +3267,42 @@ class Chgcar(VolumetricData):
             return np.sum(self.data['diff'])
         else:
             return None
+
+
+class Elfcar(VolumetricData):
+    """
+    Read an ELFCAR file which contains the Electron Localization Function (ELF)
+    as calculated by VASP.
+
+    For ELF, "total" key refers to Spin.up, and "diff" refers to Spin.down.
+
+    This also contains information on the kinetic energy density.
+    """
+
+    def __init__(self, poscar, data):
+        super().__init__(poscar.structure, data)
+        # TODO: modify VolumetricData so that the correct keys can be used.
+        # for ELF, instead of "total" and "diff" keys we have
+        # "Spin.up" and "Spin.down" keys
+        # I believe this is correct, but there's not much documentation -mkhorton
+        self.data = data
+
+    @classmethod
+    def from_file(cls, filename):
+        (poscar, data, data_aug) = VolumetricData.parse_file(filename)
+        return cls(poscar, data)
+
+    def get_alpha(self):
+        """
+        Get the parameter alpha where ELF = 1/(1+alpha^2).
+        """
+        alpha_data = {}
+        for k, v in self.data.items():
+            alpha = 1/v
+            alpha = alpha - 1
+            alpha = np.sqrt(alpha)
+            alpha_data[k] = alpha
+        return VolumetricData(self.structure, alpha_data)
 
 
 class Procar:
@@ -4412,43 +4537,69 @@ class Waveder:
         filename: Name of file containing WAVEDER.
     """
 
-    def __init__(self, filename):
-        with FortranFile(filename, "r") as f:
-            val = (f.read_reals(dtype=np.int32))
-            nbands = int(val[0])
-            nelect = int(val[1])
-            nk = int(val[2])
-            ispin = int(val[3])
-            nodes_in_dielectric_function = (f.read_reals(dtype=np.float))
-            wplasmon = (f.read_reals(dtype=np.float))
-            cder = np.array((f.read_reals(dtype=np.float)))
-            cder_data = cder.reshape((nbands, nelect, nk, ispin, 3))
-            self.cder_data = cder_data
-            self.nkpoints = nk
-            self.ispin = ispin
-            self.nelect = nelect
-            self.nbands = nbands
+    def __init__(self, filename, gamma_only = False):
+        with open(filename, 'rb') as fp:
+            def readData(dtype):
+                """ Read records from Fortran binary file and convert to
+                np.array of given dtype. """
+                data = b''
+                while 1:
+                    prefix = np.fromfile(fp, dtype=np.int32, count=1)[0]
+                    data += fp.read(abs(prefix))
+                    suffix = np.fromfile(fp, dtype=np.int32, count=1)[0]
+                    if abs(prefix) - abs(suffix):
+                        raise RuntimeError(f"""Read wrong amount of bytes.
+                        Expected: {prefix:d}, read: {len(data):d}, suffix: {suffix:d}.""")
+                    if prefix > 0:
+                        break
+                return np.frombuffer(data, dtype=dtype)
 
+            nbands, nelect, nk, ispin = readData(np.int32)
+
+            nodes_in_dielectric_function = readData(np.float)
+
+            wplasmon = readData(np.float)
+
+            if gamma_only:
+                cder = readData(np.float)
+            else:
+                cder = readData(np.complex64)
+
+            cder_data = cder.reshape((3, ispin, nk, nelect, nbands)).T
+
+            self._cder_data = cder_data
+            self._nkpoints = nk
+            self._ispin = ispin
+            self._nelect = nelect
+            self._nbands = nbands
+
+    @property
+    def cder_data(self):
+        """
+        Returns the orbital derivative between states
+        """
+        return self._cder_data
+            
     @property
     def nbands(self):
         """
         Returns the number of bands in the calculation
         """
-        return self.nbands
+        return self._nbands
 
     @property
     def nkpoints(self):
         """
         Returns the number of k-points in the calculation
         """
-        return self.nkpoints
+        return self._nkpoints
 
     @property
     def nelect(self):
         """
         Returns the number of electrons in the calculation
         """
-        return self.nelect
+        return self._nelect
 
     def get_orbital_derivative_between_states(self, band_i, band_j, kpoint, spin, cart_dir):
         """
@@ -4471,7 +4622,7 @@ class Waveder:
         if cart_dir > 2 or cart_dir < 0:
             raise ValueError("cart_dir index out of bounds")
 
-        return self.cder_data[band_i, band_j, kpoint, spin, cart_dir]
+        return self._cder_data[band_i, band_j, kpoint, spin, cart_dir]
 
 
 class UnconvergedVASPWarning(Warning):

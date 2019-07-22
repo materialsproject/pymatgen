@@ -498,6 +498,35 @@ class CompositionTest(PymatgenTest):
         cmp2 = Composition.from_dict(sym_dict)
         self.assertEqual(cmp, cmp2)
 
+    def test_contains_element_type(self):
+
+        formula = "EuTiO3"
+        cmp = Composition(formula)
+        self.assertTrue(cmp.contains_element_type("lanthanoid"))
+        self.assertFalse(cmp.contains_element_type("noble_gas"))
+        self.assertTrue(cmp.contains_element_type("f-block"))
+        self.assertFalse(cmp.contains_element_type("s-block"))
+
+    def test_chemical_system(self):
+
+        formula = "NaCl"
+        cmp = Composition(formula)
+        self.assertEqual(cmp.chemical_system, "Cl-Na")
+
+    def test_is_valid(self):
+
+        formula = "NaCl"
+        cmp = Composition(formula)
+        self.assertTrue(cmp.valid)
+
+        formula = "NaClX"
+        cmp = Composition(formula)
+        self.assertFalse(cmp.valid)
+
+        self.assertRaises(ValueError,
+                          Composition,
+                          "NaClX", strict=True)
+
 
 class ChemicalPotentialTest(unittest.TestCase):
 

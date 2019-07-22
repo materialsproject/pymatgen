@@ -15,6 +15,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.analysis.elasticity
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

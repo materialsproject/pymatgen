@@ -31,6 +31,9 @@ class PiezoTest(PymatgenTest):
         self.voigt_matrix = np.array([[0., 0., 0., 0., 0.03839, 0.],
                                       [0., 0., 0., 0.03839, 0., 0.],
                                       [6.89822, 6.89822, 27.46280, 0., 0., 0.]])
+        self.vasp_matrix = np.array([[0., 0., 0., 0., 0., 0.03839],
+                                      [0., 0., 0., 0., 0.03839, 0., 0.],
+                                      [6.89822, 6.89822, 27.46280, 0., 0., 0.]])
         self.full_tensor_array = [[[0., 0., 0.03839],
                                    [0., 0., 0.],
                                    [0.03839, 0., 0.]],
@@ -50,6 +53,13 @@ class PiezoTest(PymatgenTest):
     def test_from_voigt(self):
         bad_voigt = np.zeros((3, 7))
         pt = PiezoTensor.from_voigt(self.voigt_matrix)
+        self.assertArrayEqual(pt, self.full_tensor_array)
+        self.assertRaises(ValueError, PiezoTensor.from_voigt, bad_voigt)
+        self.assertArrayEqual(self.voigt_matrix, pt.voigt)
+
+    def test_from_vasp_voigt(self):
+        bad_voigt = np.zeros((3, 7))
+        pt = PiezoTensor.from_vasp_voigt(self.vasp_matrix)
         self.assertArrayEqual(pt, self.full_tensor_array)
         self.assertRaises(ValueError, PiezoTensor.from_voigt, bad_voigt)
         self.assertArrayEqual(self.voigt_matrix, pt.voigt)

@@ -19,8 +19,9 @@ from numpy.linalg import inv
 from numpy import pi, dot, transpose, radians
 
 from monty.json import MSONable
-from pymatgen.util.coord import pbc_shortest_vectors
+from pymatgen.util.coord import pbc_shortest_vectors, in_coord_list
 from pymatgen.util.num import abs_cap
+
 
 """
 This module defines the classes relating to 3D lattices.
@@ -1269,6 +1270,31 @@ class Lattice(MSONable):
         # get unitary normal vector
         u_norm = vh[2, :]
         return get_integer_index(u_norm, round_dp=round_dp, verbose=verbose)
+
+    def get_recp_symmetry_operation(
+            self, symprec: float=0.01)-> List:
+        """
+        Find the symmetric operations of the reciprocal lattice,
+        to be used for hkl transformations
+        Args:
+            symprec: default is 0.001
+        """
+        recp_lattice = self.reciprocal_lattice_crystallographic
+        # get symmetry operations from input conventional unit cell
+        # Need to make sure recp lattice is big enough, otherwise symmetry
+        # determination will fail. We set the overall volume to 1.
+        recp_lattice = recp_lattice.scale(1)
+        # need a localized import of structure to build a
+        # pseudo empty lattice for SpacegroupAnalyzer
+        from pymatgen import Structure
+        from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+        recp = Structure(recp_lattice, ["H"], [[0, 0, 0]])
+        # Creates a function that uses the symmetry operations in the
+        # structure to find Miller indices that might give repetitive slabs
+        analyzer = SpacegroupAnalyzer(recp, symprec=symprec)
+        recp_symmops = analyzer.get_symmetry_operations()
+
+        return recp_symmops
 
 
 def get_integer_index(

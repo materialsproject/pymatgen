@@ -19,7 +19,6 @@ Tran, R.; Xu, Z.; Radhakrishnan, B.; Winston, D.; Persson, K. A.; Ong, S. P.
 """
 
 from pymatgen.core.structure import Structure
-from pymatgen.core.surface import get_recp_symmetry_operation
 from pymatgen.util.coord import get_angle
 import numpy as np
 import scipy as sp
@@ -232,7 +231,7 @@ class WulffShape:
         color_ind = self.color_ind
         planes = []
         recp = self.structure.lattice.reciprocal_lattice_crystallographic
-        recp_symmops = get_recp_symmetry_operation(self.structure, self.symprec)
+        recp_symmops = self.lattice.get_recp_symmetry_operation(self.symprec)
 
         for i, (hkl, energy) in enumerate(zip(self.hkl_list,
                                               self.e_surf_list)):

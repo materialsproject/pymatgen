@@ -21,6 +21,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.io.lammps
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
