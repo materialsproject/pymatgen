@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.lattice &#8212; pymatgen 2019.7.2 documentation</title>
+    <title>pymatgen.core.lattice &#8212; pymatgen 2019.7.21 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -66,8 +66,9 @@
 <span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="n">pi</span><span class="p">,</span> <span class="n">dot</span><span class="p">,</span> <span class="n">transpose</span><span class="p">,</span> <span class="n">radians</span>
 
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="k">import</span> <span class="n">pbc_shortest_vectors</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="k">import</span> <span class="n">pbc_shortest_vectors</span><span class="p">,</span> <span class="n">in_coord_list</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.num</span> <span class="k">import</span> <span class="n">abs_cap</span>
+
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module defines the classes relating to 3D lattices.</span>
@@ -1315,7 +1316,32 @@
 
         <span class="c1"># get unitary normal vector</span>
         <span class="n">u_norm</span> <span class="o">=</span> <span class="n">vh</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]</span>
-        <span class="k">return</span> <span class="n">get_integer_index</span><span class="p">(</span><span class="n">u_norm</span><span class="p">,</span> <span class="n">round_dp</span><span class="o">=</span><span class="n">round_dp</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">get_integer_index</span><span class="p">(</span><span class="n">u_norm</span><span class="p">,</span> <span class="n">round_dp</span><span class="o">=</span><span class="n">round_dp</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Lattice.get_recp_symmetry_operation"><a class="viewcode-back" href="../../../pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice.get_recp_symmetry_operation">[docs]</a>    <span class="k">def</span> <span class="nf">get_recp_symmetry_operation</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">symprec</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span><span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find the symmetric operations of the reciprocal lattice,</span>
+<span class="sd">        to be used for hkl transformations</span>
+<span class="sd">        Args:</span>
+<span class="sd">            symprec: default is 0.001</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">recp_lattice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reciprocal_lattice_crystallographic</span>
+        <span class="c1"># get symmetry operations from input conventional unit cell</span>
+        <span class="c1"># Need to make sure recp lattice is big enough, otherwise symmetry</span>
+        <span class="c1"># determination will fail. We set the overall volume to 1.</span>
+        <span class="n">recp_lattice</span> <span class="o">=</span> <span class="n">recp_lattice</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># need a localized import of structure to build a</span>
+        <span class="c1"># pseudo empty lattice for SpacegroupAnalyzer</span>
+        <span class="kn">from</span> <span class="nn">pymatgen</span> <span class="k">import</span> <span class="n">Structure</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
+        <span class="n">recp</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="n">recp_lattice</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
+        <span class="c1"># Creates a function that uses the symmetry operations in the</span>
+        <span class="c1"># structure to find Miller indices that might give repetitive slabs</span>
+        <span class="n">analyzer</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">recp</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="n">symprec</span><span class="p">)</span>
+        <span class="n">recp_symmops</span> <span class="o">=</span> <span class="n">analyzer</span><span class="o">.</span><span class="n">get_symmetry_operations</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">recp_symmops</span></div></div>
 
 
 <div class="viewcode-block" id="get_integer_index"><a class="viewcode-back" href="../../../pymatgen.core.lattice.html#pymatgen.core.lattice.get_integer_index">[docs]</a><span class="k">def</span> <span class="nf">get_integer_index</span><span class="p">(</span>
@@ -1383,10 +1409,10 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -1405,7 +1431,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1413,7 +1439,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

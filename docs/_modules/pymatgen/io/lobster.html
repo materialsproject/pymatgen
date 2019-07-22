@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.lobster &#8212; pymatgen 2019.7.2 documentation</title>
+    <title>pymatgen.io.lobster &#8212; pymatgen 2019.7.21 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -80,10 +80,10 @@
 <span class="sd">on LOBSTER see www.cohp.de.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Marco Esters, Janine George&quot;</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Janine George, Marco Esters&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2017, The Materials Project&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.2&quot;</span>
-<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Marco Esters, Janine George&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Janine George, Marco Esters &quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;esters@uoregon.edu, janine.george@uclouvain.be&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Dec 13, 2017&quot;</span>
 
@@ -1422,25 +1422,17 @@
         <span class="n">incar</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">incar_output</span><span class="p">)</span></div>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_get_basis</span><span class="p">(</span><span class="n">structure</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">POTCAR</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_get_basis</span><span class="p">(</span><span class="n">structure</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">potcar_symbols</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        will get the basis from a file for a given POTCAR. </span>
+<span class="sd">        will get the basis from given potcar_symbols (e.g., [&quot;Fe_pv&quot;,&quot;Si&quot;]</span>
+<span class="sd">        #include this in lobsterin class</span>
 <span class="sd">        Args:</span>
 <span class="sd">            structure (Structure): Structure object</span>
-<span class="sd">            POTCAR (str): address to POSCAR</span>
+<span class="sd">            potcar_symbols: list of potcar symbols</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            returns basis</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">potcar</span> <span class="o">=</span> <span class="n">Potcar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">POTCAR</span><span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">pot</span> <span class="ow">in</span> <span class="n">potcar</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">pot</span><span class="o">.</span><span class="n">potential_type</span> <span class="o">!=</span> <span class="s2">&quot;PAW&quot;</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Lobster only works with PAW! Use different POTCARs&quot;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">potcar</span><span class="o">.</span><span class="n">functional</span> <span class="o">!=</span> <span class="s2">&quot;PBE&quot;</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;We only have BASIS options for PBE so far&quot;</span><span class="p">)</span>
-
-        <span class="n">Potcar_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span><span class="p">[</span><span class="s2">&quot;symbol&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">potcar</span><span class="o">.</span><span class="n">spec</span><span class="p">]</span>
+        <span class="n">Potcar_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">potcar_symbols</span><span class="p">]</span>
 
         <span class="n">AtomTypes_Potcar</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">Potcar_names</span><span class="p">]</span>
 
@@ -1612,6 +1604,26 @@
 
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">Lobsterindict</span><span class="p">)</span></div>
 
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_potcar_symbols</span><span class="p">(</span><span class="n">POTCAR_input</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        will return the name of the species in the POTCAR</span>
+<span class="sd">        Args:</span>
+<span class="sd">         POTCAR_input(str): string to potcar file</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            list of the names of the species in string format</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">potcar</span> <span class="o">=</span> <span class="n">Potcar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">POTCAR_input</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">pot</span> <span class="ow">in</span> <span class="n">potcar</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">pot</span><span class="o">.</span><span class="n">potential_type</span> <span class="o">!=</span> <span class="s2">&quot;PAW&quot;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Lobster only works with PAW! Use different POTCARs&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">potcar</span><span class="o">.</span><span class="n">functional</span> <span class="o">!=</span> <span class="s2">&quot;PBE&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;We only have BASIS options for PBE so far&quot;</span><span class="p">)</span>
+
+        <span class="n">Potcar_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span><span class="p">[</span><span class="s2">&quot;symbol&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">potcar</span><span class="o">.</span><span class="n">spec</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">Potcar_names</span>
+
 <div class="viewcode-block" id="Lobsterin.standard_calculations_from_vasp_files"><a class="viewcode-back" href="../../../pymatgen.io.lobster.html#pymatgen.io.lobster.Lobsterin.standard_calculations_from_vasp_files">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">standard_calculations_from_vasp_files</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">POSCAR_input</span><span class="o">=</span><span class="s2">&quot;POSCAR&quot;</span><span class="p">,</span> <span class="n">INCAR_input</span><span class="o">=</span><span class="s2">&quot;INCAR&quot;</span><span class="p">,</span> <span class="n">POTCAR_input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                               <span class="n">dict_for_basis</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1703,13 +1715,127 @@
             <span class="c1"># will just insert this basis and not check with poscar</span>
             <span class="n">basis</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">dict_for_basis</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
         <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># get basis from POTCAR</span>
+            <span class="n">potcar_names</span> <span class="o">=</span> <span class="n">Lobsterin</span><span class="o">.</span><span class="n">_get_potcar_symbols</span><span class="p">(</span><span class="n">POTCAR_input</span><span class="o">=</span><span class="n">POTCAR_input</span><span class="p">)</span>
+
             <span class="n">basis</span> <span class="o">=</span> <span class="n">Lobsterin</span><span class="o">.</span><span class="n">_get_basis</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">POSCAR_input</span><span class="p">),</span>
-                                         <span class="n">POTCAR</span><span class="o">=</span><span class="n">POTCAR_input</span><span class="p">)</span>
+                                         <span class="n">potcar_symbols</span><span class="o">=</span><span class="n">potcar_names</span><span class="p">)</span>
         <span class="n">Lobsterindict</span><span class="p">[</span><span class="s2">&quot;basisfunctions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">basis</span>
         <span class="k">if</span> <span class="n">option</span> <span class="o">==</span> <span class="s1">&#39;standard_with_fatband&#39;</span><span class="p">:</span>
             <span class="n">Lobsterindict</span><span class="p">[</span><span class="s1">&#39;createFatband&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">basis</span>
 
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">Lobsterindict</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="Bandoverlaps"><a class="viewcode-back" href="../../../pymatgen.io.lobster.html#pymatgen.io.lobster.Bandoverlaps">[docs]</a><span class="k">class</span> <span class="nc">Bandoverlaps</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class to read in bandOverlaps.lobster files. These files are not created during every Lobster run.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        filename: filename of the &quot;bandOverlaps.lobster&quot; file</span>
+
+<span class="sd">    .. attribute: bandoverlapsdict is a dict of the following form:</span>
+<span class="sd">                 {spin:{&quot;kpoint as string&quot;: {&quot;maxDeviation&quot;: float that describes the max deviation, &quot;matrix&quot;: 2D array of the size number of bands times number of bands including the overlap matrices with } }}</span>
+
+<span class="sd">    .. attribute: maxDeviation is a list of floats describing the maximal Deviation for each problematic kpoint</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;bandOverlaps.lobster&quot;</span><span class="p">):</span>
+
+        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">contents</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_read</span><span class="p">(</span><span class="n">contents</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">contents</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        will read in all contents of the file</span>
+<span class="sd">        Args:</span>
+<span class="sd">         contents: list of strings</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bandoverlapsdict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxDeviation</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># This has to be done like this because there can be different numbers of problematic k-points per spin</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">contents</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;Overlap Matrix (abs) of the orthonormalized projected bands for spin 0&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">spin</span> <span class="o">=</span> <span class="n">Spin</span><span class="o">.</span><span class="n">up</span>
+            <span class="k">elif</span> <span class="s2">&quot;Overlap Matrix (abs) of the orthonormalized projected bands for spin 1&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">spin</span> <span class="o">=</span> <span class="n">Spin</span><span class="o">.</span><span class="n">down</span>
+            <span class="k">elif</span> <span class="s2">&quot;k-point&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">kpoint</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+                <span class="n">kpoint_array</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">kpointel</span> <span class="ow">in</span> <span class="n">kpoint</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">kpointel</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;at&quot;</span><span class="p">,</span> <span class="s2">&quot;k-point&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">]:</span>
+                        <span class="n">kpoint_array</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">kpointel</span><span class="p">))</span>
+
+            <span class="k">elif</span> <span class="s2">&quot;maxDeviation&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">spin</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bandoverlapsdict</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">bandoverlapsdict</span><span class="p">[</span><span class="n">spin</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">kpoint_array</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bandoverlapsdict</span><span class="p">[</span><span class="n">spin</span><span class="p">]:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">bandoverlapsdict</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">kpoint_array</span><span class="p">)]</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">maxdev</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">bandoverlapsdict</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">kpoint_array</span><span class="p">)][</span><span class="s2">&quot;maxDeviation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">maxdev</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">maxDeviation</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">maxdev</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">bandoverlapsdict</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">kpoint_array</span><span class="p">)][</span><span class="s2">&quot;matrix&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">overlaps</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)):</span>
+                    <span class="k">if</span> <span class="n">el</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">]:</span>
+                        <span class="n">overlaps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">el</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">bandoverlapsdict</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">kpoint_array</span><span class="p">)][</span><span class="s2">&quot;matrix&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">overlaps</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Bandoverlaps.has_good_quality_maxDeviation"><a class="viewcode-back" href="../../../pymatgen.io.lobster.html#pymatgen.io.lobster.Bandoverlaps.has_good_quality_maxDeviation">[docs]</a>    <span class="k">def</span> <span class="nf">has_good_quality_maxDeviation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limit_maxDeviation</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        will check if the maxDeviation from the ideal bandoverlap is smaller or equal to limit_maxDeviation</span>
+<span class="sd">        Args:</span>
+<span class="sd">         limit_maxDeviation: limit of the maxDeviation</span>
+<span class="sd">        Returns:</span>
+<span class="sd">             Boolean that will give you information about the quality of the projection</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">deviation</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxDeviation</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">deviation</span> <span class="o">&gt;</span> <span class="n">limit_maxDeviation</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Bandoverlaps.has_good_quality_check_occupied_bands"><a class="viewcode-back" href="../../../pymatgen.io.lobster.html#pymatgen.io.lobster.Bandoverlaps.has_good_quality_check_occupied_bands">[docs]</a>    <span class="k">def</span> <span class="nf">has_good_quality_check_occupied_bands</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number_occ_bands_spin_up</span><span class="p">,</span> <span class="n">number_occ_bands_spin_down</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                              <span class="n">spin_polarized</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">limit_deviation</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        will check if the deviation from the ideal bandoverlap of all occupied bands is smaller or equal to limit_deviation</span>
+<span class="sd">        Args:</span>
+<span class="sd">        number_occ_bands_spin_up (int): number of occupied bands of spin up</span>
+<span class="sd">        number_occ_bands_spin_down (int): number of occupied bands of spin down</span>
+<span class="sd">        spin_polarized (bool):  If True, then it was a spin polarized calculation</span>
+<span class="sd">        limit_deviation (float): limit of the maxDeviation</span>
+<span class="sd">        Returns:</span>
+<span class="sd">             Boolean that will give you information about the quality of the projection</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">matrix</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bandoverlapsdict</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">iband1</span><span class="p">,</span> <span class="n">band1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">matrix</span><span class="p">[</span><span class="s2">&quot;matrix&quot;</span><span class="p">]):</span>
+                <span class="k">for</span> <span class="n">iband2</span><span class="p">,</span> <span class="n">band2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">band1</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">iband1</span> <span class="o">&lt;</span> <span class="n">number_occ_bands_spin_up</span> <span class="ow">and</span> <span class="n">iband2</span> <span class="o">&lt;</span> <span class="n">number_occ_bands_spin_up</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">iband1</span> <span class="o">==</span> <span class="n">iband2</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">band2</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">limit_deviation</span><span class="p">:</span>
+                                <span class="k">return</span> <span class="kc">False</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">band2</span> <span class="o">&gt;</span> <span class="n">limit_deviation</span><span class="p">:</span>
+                                <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">spin_polarized</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">matrix</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bandoverlapsdict</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">iband1</span><span class="p">,</span> <span class="n">band1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">matrix</span><span class="p">[</span><span class="s2">&quot;matrix&quot;</span><span class="p">]):</span>
+                    <span class="k">for</span> <span class="n">iband2</span><span class="p">,</span> <span class="n">band2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">band1</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="n">iband1</span> <span class="o">&lt;</span> <span class="n">number_occ_bands_spin_down</span> <span class="ow">and</span> <span class="n">iband2</span> <span class="o">&lt;</span> <span class="n">number_occ_bands_spin_down</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">iband1</span> <span class="o">==</span> <span class="n">iband2</span><span class="p">:</span>
+                                <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">band2</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">limit_deviation</span><span class="p">:</span>
+                                    <span class="k">return</span> <span class="kc">False</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="k">if</span> <span class="n">band2</span> <span class="o">&gt;</span> <span class="n">limit_deviation</span><span class="p">:</span>
+                                    <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="kc">True</span></div></div>
 </pre></div>
 
           </div>
@@ -1718,10 +1844,10 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -1740,7 +1866,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1748,7 +1874,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

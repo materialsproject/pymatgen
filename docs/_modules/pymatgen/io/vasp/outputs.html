@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.vasp.outputs &#8212; pymatgen 2019.7.2 documentation</title>
+    <title>pymatgen.io.vasp.outputs &#8212; pymatgen 2019.7.21 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -495,20 +495,36 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">projected_eigenvalues</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_projected_eigen</span><span class="p">(</span>
                         <span class="n">elem</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;dielectricfunction&quot;</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;comment&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">elem</span><span class="o">.</span><span class="n">attrib</span><span class="p">)</span> <span class="ow">or</span> \
-                            <span class="n">elem</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span>
-                                <span class="s2">&quot;comment&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))&quot;</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="ow">not</span> <span class="s1">&#39;density&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dielectric_data</span><span class="p">:</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">dielectric_data</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_diel</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
-                            <span class="c1"># &quot;velocity-velocity&quot; is also named &quot;current-current&quot;</span>
-                            <span class="c1"># in OUTCAR</span>
-                        <span class="k">elif</span> <span class="ow">not</span> <span class="s1">&#39;velocity&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dielectric_data</span><span class="p">:</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">dielectric_data</span><span class="p">[</span><span class="s1">&#39;velocity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_diel</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;comment&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">elem</span><span class="o">.</span><span class="n">attrib</span> <span class="ow">or</span>
+                            <span class="n">elem</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;comment&quot;</span><span class="p">]</span> <span class="o">==</span>
+                            <span class="s2">&quot;INVERSE MACROSCOPIC DIELECTRIC TENSOR (including &quot;</span>
+                            <span class="s2">&quot;local field effects in RPA (Hartree))&quot;</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="s1">&#39;density&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dielectric_data</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">dielectric_data</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_diel</span><span class="p">(</span>
+                                <span class="n">elem</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="s1">&#39;velocity&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dielectric_data</span><span class="p">:</span>
+                            <span class="c1"># &quot;velocity-velocity&quot; is also named</span>
+                            <span class="c1"># &quot;current-current&quot; in OUTCAR</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">dielectric_data</span><span class="p">[</span><span class="s1">&#39;velocity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_diel</span><span class="p">(</span>
+                                <span class="n">elem</span><span class="p">)</span>
                         <span class="k">else</span><span class="p">:</span>
-                            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;This vasprun.xml has &gt;2 unlabelled dielectric functions&#39;</span><span class="p">)</span>
+                            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                                <span class="s1">&#39;This vasprun.xml has &gt;2 unlabelled dielectric &#39;</span>
+                                <span class="s1">&#39;functions&#39;</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">comment</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;comment&quot;</span><span class="p">]</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">other_dielectric</span><span class="p">[</span><span class="n">comment</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_diel</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
+                        <span class="c1"># VASP 6+ has labels for the density and current</span>
+                        <span class="c1"># derived dielectric constants</span>
+                        <span class="k">if</span> <span class="n">comment</span> <span class="o">==</span> <span class="s2">&quot;density-density&quot;</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">dielectric_data</span><span class="p">[</span><span class="s2">&quot;density&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_diel</span><span class="p">(</span>
+                                <span class="n">elem</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">comment</span> <span class="o">==</span> <span class="s2">&quot;current-current&quot;</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">dielectric_data</span><span class="p">[</span><span class="s2">&quot;velocity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_diel</span><span class="p">(</span>
+                                <span class="n">elem</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">other_dielectric</span><span class="p">[</span><span class="n">comment</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_diel</span><span class="p">(</span>
+                                <span class="n">elem</span><span class="p">)</span>
+
                 <span class="k">elif</span> <span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;varray&quot;</span> <span class="ow">and</span> <span class="n">elem</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;opticaltransitions&#39;</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">optical_transition</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">_parse_varray</span><span class="p">(</span><span class="n">elem</span><span class="p">))</span>
                 <span class="k">elif</span> <span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;structure&quot;</span> <span class="ow">and</span> <span class="n">elem</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span> <span class="o">==</span> \
@@ -2630,27 +2646,29 @@
 <span class="sd">        Create pseudopotential ZVAL dictionary.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">def</span> <span class="nf">poscar_line</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">match</span><span class="p">):</span>
-                <span class="n">poscar_line</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-                <span class="n">results</span><span class="o">.</span><span class="n">poscar_line</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[A-Z][a-z]?&#39;</span><span class="p">,</span> <span class="n">poscar_line</span><span class="p">)</span>
+            <span class="k">def</span> <span class="nf">atom_symbols</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">match</span><span class="p">):</span>
+                <span class="n">element_symbol</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="s1">&#39;atom_symbols&#39;</span><span class="p">):</span>
+                    <span class="n">results</span><span class="o">.</span><span class="n">atom_symbols</span> <span class="o">=</span> <span class="p">[]</span> 
+                <span class="n">results</span><span class="o">.</span><span class="n">atom_symbols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">element_symbol</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
 
             <span class="k">def</span> <span class="nf">zvals</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">match</span><span class="p">):</span>
                 <span class="n">zvals</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
                 <span class="n">results</span><span class="o">.</span><span class="n">zvals</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;-?\d+\.\d*&#39;</span><span class="p">,</span> <span class="n">zvals</span><span class="p">))</span>
 
-            <span class="n">search</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">search</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="sa">r</span><span class="s1">&#39;^.*POSCAR.*=(.*)&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">poscar_line</span><span class="p">])</span>
+            <span class="n">search</span> <span class="o">=</span> <span class="p">[]</span> 
+            <span class="n">search</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="sa">r</span><span class="s1">&#39;(?&lt;=VRHFIN =)(.*)(?=:)&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">atom_symbols</span><span class="p">])</span>
             <span class="n">search</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="sa">r</span><span class="s1">&#39;^\s+ZVAL.*=(.*)&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">zvals</span><span class="p">])</span>
 
             <span class="n">micro_pyawk</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">search</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
 
-            <span class="n">zval_dict</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">poscar_line</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">zvals</span><span class="p">):</span>
+            <span class="n">zval_dict</span> <span class="o">=</span> <span class="p">{}</span> 
+            <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atom_symbols</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">zvals</span><span class="p">):</span>
                 <span class="n">zval_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">x</span><span class="p">:</span> <span class="n">y</span><span class="p">})</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">zval_dict</span> <span class="o">=</span> <span class="n">zval_dict</span>
 
             <span class="c1"># Clean-up</span>
-            <span class="k">del</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">poscar_line</span><span class="p">)</span>
+            <span class="k">del</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atom_symbols</span><span class="p">)</span>
             <span class="k">del</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zvals</span><span class="p">)</span>
         <span class="k">except</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;ZVAL dict could not be parsed.&quot;</span><span class="p">)</span></div>
@@ -4667,10 +4685,10 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -4689,7 +4707,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -4697,7 +4715,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

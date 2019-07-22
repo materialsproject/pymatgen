@@ -23,6 +23,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.cli
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

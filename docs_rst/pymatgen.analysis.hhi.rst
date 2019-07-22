@@ -18,6 +18,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.analysis.hhi
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

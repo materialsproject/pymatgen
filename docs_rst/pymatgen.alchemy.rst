@@ -20,6 +20,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.alchemy
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
