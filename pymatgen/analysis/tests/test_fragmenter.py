@@ -50,14 +50,24 @@ class TestFragmentMolecule(PymatgenTest):
         self.assertEqual(fragmenter.total_unique_fragments, 12)
 
     @unittest.skipIf(not ob, "OpenBabel not present. Skipping...")
-    def test_babel_PC_defaults(self):
-        fragmenter = Fragmenter(molecule=self.pc)
+    def test_babel_PC_old_defaults(self):
+        fragmenter = Fragmenter(molecule=self.pc,open_rings=True)
         self.assertEqual(fragmenter.open_rings,True)
         self.assertEqual(fragmenter.opt_steps,10000)
         default_mol_graph = MoleculeGraph.with_local_env_strategy(self.pc, OpenBabelNN(),
                                                                   reorder=False, extend_structure=False)
         self.assertEqual(fragmenter.mol_graph,default_mol_graph)
         self.assertEqual(fragmenter.total_unique_fragments, 13)
+
+    @unittest.skipIf(not ob, "OpenBabel not present. Skipping...")
+    def test_babel_PC_defaults(self):
+        fragmenter = Fragmenter(molecule=self.pc)
+        self.assertEqual(fragmenter.open_rings,False)
+        self.assertEqual(fragmenter.opt_steps,10000)
+        default_mol_graph = MoleculeGraph.with_local_env_strategy(self.pc, OpenBabelNN(),
+                                                                  reorder=False, extend_structure=False)
+        self.assertEqual(fragmenter.mol_graph,default_mol_graph)
+        self.assertEqual(fragmenter.total_unique_fragments, 8)
 
     def test_edges_given_PC_not_defaults(self):
         fragmenter = Fragmenter(molecule=self.pc, edges=self.pc_edges, depth=2, open_rings=False, opt_steps=0)
