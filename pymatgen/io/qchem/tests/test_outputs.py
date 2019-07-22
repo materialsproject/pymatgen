@@ -72,7 +72,19 @@ property_list = {"errors",
                  "vib_entropy",
                  "rot_entropy",
                  "total_entropy",
-                 "total_enthalpy"}
+                 "total_enthalpy",
+                 "warnings",
+                 "SCF_energy_in_the_final_basis_set",
+                 "Total_energy_in_the_final_basis_set",
+                 "solvent_method",
+                 "solvent_data",
+                 "using_dft_d3",
+                 "single_point_job",
+                 "force_job",
+                 "pcm_gradients",
+                 "CDS_gradients",
+                 "RESP",
+                 "trans_dip"}
 
 if have_babel:
     property_list.add("structure_change")
@@ -129,7 +141,8 @@ single_job_out_names = {"unable_to_determine_lambda_in_geom_opt.qcout",
                         "new_qchem_files/1746.qout",
                         "new_qchem_files/1570.qout",
                         "new_qchem_files/1570_2.qout",
-                        "new_qchem_files/single_point.qout"}
+                        "new_qchem_files/single_point.qout",
+                        "new_qchem_files/roothaan_diis_gdm.qout"}
 
 multi_job_out_names = {"not_enough_total_memory.qcout",
                        "new_qchem_files/VC_solv_eps10.qcout",
