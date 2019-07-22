@@ -6,13 +6,13 @@ Subpackages
 
 .. toctree::
 
-    pymatgen.apps.battery
-    pymatgen.apps.borg
+   pymatgen.apps.battery
+   pymatgen.apps.borg
 
 Module contents
 ---------------
 
 .. automodule:: pymatgen.apps
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

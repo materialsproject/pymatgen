@@ -21,6 +21,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.analysis.structure_prediction
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -20,6 +20,7 @@ from pymatgen import SETTINGS, __version__ as pmg_version
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
+from pymatgen.core.surface import get_symmetrically_equivalent_miller_indices
 
 from pymatgen.entries.computed_entries import ComputedEntry, \
     ComputedStructureEntry
@@ -257,6 +258,31 @@ class MPRester:
         """
         return self._make_request("/materials/%s/doc" % materials_id,
                                   mp_decode=False)
+    
+    def get_xas_data(self, material_id, absorbing_element):
+        """
+        Get X-ray absorption spectroscopy data for absorbing element in the 
+        structure corresponding to a material_id. Only X-ray Absorption Near Edge 
+        Structure (XANES) for K-edge is supported.
+        
+        REST Endpoint: 
+        https://www.materialsproject.org/materials/<mp-id>/xas/<absorbing_element>.
+
+        Args:
+            material_id (str): E.g., mp-1143 for Al2O3
+            absorbing_element (str): The absorbing element in the corresponding
+                structure. E.g., Al in Al2O3
+        """
+        element_list = self.get_data(material_id,
+                                     prop="elements")[0]["elements"]
+        if absorbing_element not in element_list:
+            raise ValueError(
+                "{} element not contained in corresponding structure with "\
+                "mp_id: {}".format(absorbing_element, material_id))
+        data = self._make_request(
+            "/materials/{}/xas/{}".format(material_id, absorbing_element),
+            mp_decode=False)
+        return data[0]
 
     def get_task_data(self, chemsys_formula_id, prop=""):
         """
@@ -1081,7 +1107,7 @@ class MPRester:
         for el in comp_dict.keys():
             e = self._make_request("/element/%s/tasks/isolated_atom" % (el),
                                   mp_decode=False)[0]
-            isolated_atom_e_sum += e['output']["final_energy"] * comp_dict[el]
+            isolated_atom_e_sum += e['output']["final_energy_per_atom"] * comp_dict[el]
             n += comp_dict[el]
         ecoh_per_formula = isolated_atom_e_sum - ebulk
         return ecoh_per_formula/n if per_atom else ecoh_per_formula
@@ -1132,7 +1158,7 @@ class MPRester:
 
         return self._make_request("/materials/all_substrate_ids")
 
-    def get_surface_data(self, material_id, inc_structures=False):
+    def get_surface_data(self, material_id, miller_index=None, inc_structures=False):
         """
         Gets surface data for a material. Useful for Wulff shapes.
 
@@ -1145,6 +1171,9 @@ class MPRester:
 
         Args:
             material_id (str): Materials Project material_id, e.g. 'mp-123'.
+            miller_index (list of integer): The miller index of the surface.
+            e.g., [3, 2, 1]. If miller_index is provided, only one dictionary
+            of this specific plane will be returned.
             inc_structures (bool): Include final surface slab structures.
                 These are unnecessary for Wulff shape construction.
         Returns:
@@ -1153,7 +1182,18 @@ class MPRester:
         req = "/materials/{}/surfaces".format(material_id)
         if inc_structures:
             req += "?include_structures=true"
-        return self._make_request(req)
+
+        if miller_index:
+            surf_data_dict = self._make_request(req)
+            surf_list = surf_data_dict['surfaces']
+            ucell = self.get_structure_by_material_id(material_id,
+                                                      conventional_unit_cell=True)
+            eq_indices = get_symmetrically_equivalent_miller_indices(ucell, miller_index)
+            for one_surf in surf_list:
+                if tuple(one_surf['miller_index']) in eq_indices:
+                    return one_surf
+        else:
+            return self._make_request(req)
 
     def get_wulff_shape(self, material_id):
         """
@@ -1179,6 +1219,61 @@ class MPRester:
                 miller_energy_map[miller] = surf["surface_energy"]
         millers, energies = zip(*miller_energy_map.items())
         return WulffShape(lattice, millers, energies)
+
+    def get_gb_data(self, material_id=None, pretty_formula=None,
+                    chemsys=None, sigma=None, gb_plane=None,
+                    rotation_axis=None, include_work_of_separation=False):
+        """
+        Gets grain boundary data for a material.
+
+        Args:
+            material_id (str): Materials Project material_id, e.g., 'mp-129'.
+            pretty_formula (str): The formula of metals. e.g., 'Fe'
+            sigma(int): The sigma value of a certain type of grain boundary
+            gb_plane(list of integer): The Miller index of grain
+            boundary plane. e.g., [1, 1, 1]
+            rotation_axis(list of integer): The Miller index of rotation
+            axis. e.g., [1, 0, 0], [1, 1, 0], and [1, 1, 1]
+            Sigma value is determined by the combination of rotation axis and
+            rotation angle. The five degrees of freedom (DOF) of one grain boundary
+            include: rotation axis (2 DOFs), rotation angle (1 DOF), and grain
+            boundary plane (2 DOFs).
+            include_work_of_separation (bool): whether to include the work of separation
+            (in unit of (J/m^2)). If you want to query the work of separation, please
+            specify the material_id.
+
+
+        Returns:
+            A list of grain boundaries that satisfy the query conditions (sigma, gb_plane).
+            Energies are given in SI units (J/m^2).
+        """
+        if gb_plane:
+            gb_plane = ','.join([str(i) for i in gb_plane])
+        if rotation_axis:
+            rotation_axis = ','.join([str(i) for i in rotation_axis])
+
+        payload = {"material_id": material_id,
+                   "pretty_formula": pretty_formula,
+                   "chemsys": chemsys,
+                   "sigma": sigma,
+                   "gb_plane": gb_plane,
+                   "rotation_axis":rotation_axis}
+
+        if include_work_of_separation and material_id:
+            list_of_gbs = self._make_request("/grain_boundaries",
+                               payload=payload)
+            for i, gb_dict in enumerate(list_of_gbs):
+                gb_energy = gb_dict['gb_energy']
+                gb_plane_int = gb_dict['gb_plane']
+                surface_energy = self.get_surface_data(material_id=material_id,
+                                                       miller_index=gb_plane_int)['surface_energy']
+                wsep = 2 * surface_energy - gb_energy # calculate the work of separation
+                gb_dict['work_of_separation'] = wsep
+            return list_of_gbs
+
+        else:
+            return self._make_request("/grain_boundaries",
+                                  payload=payload)
 
     def get_interface_reactions(self, reactant1, reactant2,
                                 open_el=None, relative_mu=None,

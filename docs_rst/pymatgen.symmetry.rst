@@ -23,6 +23,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.symmetry
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

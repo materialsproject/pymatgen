@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.vis.structure_vtk module &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.vis.structure_vtk module &#8212; pymatgen 2019.7.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -47,63 +47,63 @@
 <p>This module contains classes to wrap Python VTK to make nice molecular plots.</p>
 <dl class="class">
 <dt id="pymatgen.vis.structure_vtk.MultiStructuresInteractorStyle">
-<em class="property">class </em><code class="descname">MultiStructuresInteractorStyle</code><span class="sig-paren">(</span><em>parent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#MultiStructuresInteractorStyle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresInteractorStyle" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">MultiStructuresInteractorStyle</code><span class="sig-paren">(</span><em class="sig-param">parent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#MultiStructuresInteractorStyle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresInteractorStyle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.vis.structure_vtk.StructureInteractorStyle" title="pymatgen.vis.structure_vtk.StructureInteractorStyle"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.vis.structure_vtk.StructureInteractorStyle</span></code></a></p>
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.MultiStructuresInteractorStyle.keyPressEvent">
-<code class="descname">keyPressEvent</code><span class="sig-paren">(</span><em>obj</em>, <em>event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#MultiStructuresInteractorStyle.keyPressEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresInteractorStyle.keyPressEvent" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">keyPressEvent</code><span class="sig-paren">(</span><em class="sig-param">obj</em>, <em class="sig-param">event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#MultiStructuresInteractorStyle.keyPressEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresInteractorStyle.keyPressEvent" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.vis.structure_vtk.MultiStructuresVis">
-<em class="property">class </em><code class="descname">MultiStructuresVis</code><span class="sig-paren">(</span><em>element_color_mapping=None</em>, <em>show_unit_cell=True</em>, <em>show_bonds=False</em>, <em>show_polyhedron=False</em>, <em>poly_radii_tol_factor=0.5</em>, <em>excluded_bonding_elements=None</em>, <em>animated_movie_options={'looping_type': 'restart'</em>, <em>'number_of_loops': 1</em>, <em>'time_between_frames': 0.1</em>, <em>'time_between_loops': 1.0}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#MultiStructuresVis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">MultiStructuresVis</code><span class="sig-paren">(</span><em class="sig-param">element_color_mapping=None</em>, <em class="sig-param">show_unit_cell=True</em>, <em class="sig-param">show_bonds=False</em>, <em class="sig-param">show_polyhedron=False</em>, <em class="sig-param">poly_radii_tol_factor=0.5</em>, <em class="sig-param">excluded_bonding_elements=None</em>, <em class="sig-param">animated_movie_options={'looping_type': 'restart'</em>, <em class="sig-param">'number_of_loops': 1</em>, <em class="sig-param">'time_between_frames': 0.1</em>, <em class="sig-param">'time_between_loops': 1.0}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#MultiStructuresVis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.vis.structure_vtk.StructureVis" title="pymatgen.vis.structure_vtk.StructureVis"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.vis.structure_vtk.StructureVis</span></code></a></p>
 <dl class="attribute">
 <dt id="pymatgen.vis.structure_vtk.MultiStructuresVis.DEFAULT_ANIMATED_MOVIE_OPTIONS">
-<code class="descname">DEFAULT_ANIMATED_MOVIE_OPTIONS</code><em class="property"> = {'looping_type': 'restart', 'number_of_loops': 1, 'time_between_frames': 0.1, 'time_between_loops': 1.0}</em><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.DEFAULT_ANIMATED_MOVIE_OPTIONS" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">DEFAULT_ANIMATED_MOVIE_OPTIONS</code><em class="property"> = {'looping_type': 'restart', 'number_of_loops': 1, 'time_between_frames': 0.1, 'time_between_loops': 1.0}</em><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.DEFAULT_ANIMATED_MOVIE_OPTIONS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.MultiStructuresVis.apply_tags">
-<code class="descname">apply_tags</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#MultiStructuresVis.apply_tags"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.apply_tags" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">apply_tags</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#MultiStructuresVis.apply_tags"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.apply_tags" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.MultiStructuresVis.display_help">
-<code class="descname">display_help</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#MultiStructuresVis.display_help"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.display_help" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">display_help</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#MultiStructuresVis.display_help"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.display_help" title="Permalink to this definition">¶</a></dt>
 <dd><p>Display the help for various keyboard shortcuts.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.MultiStructuresVis.display_info">
-<code class="descname">display_info</code><span class="sig-paren">(</span><em>info</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#MultiStructuresVis.display_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.display_info" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">display_info</code><span class="sig-paren">(</span><em class="sig-param">info</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#MultiStructuresVis.display_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.display_info" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.MultiStructuresVis.display_warning">
-<code class="descname">display_warning</code><span class="sig-paren">(</span><em>warning</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#MultiStructuresVis.display_warning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.display_warning" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">display_warning</code><span class="sig-paren">(</span><em class="sig-param">warning</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#MultiStructuresVis.display_warning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.display_warning" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.MultiStructuresVis.erase_info">
-<code class="descname">erase_info</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#MultiStructuresVis.erase_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.erase_info" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">erase_info</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#MultiStructuresVis.erase_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.erase_info" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.MultiStructuresVis.erase_warning">
-<code class="descname">erase_warning</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#MultiStructuresVis.erase_warning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.erase_warning" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">erase_warning</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#MultiStructuresVis.erase_warning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.erase_warning" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.MultiStructuresVis.set_animated_movie_options">
-<code class="descname">set_animated_movie_options</code><span class="sig-paren">(</span><em>animated_movie_options=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#MultiStructuresVis.set_animated_movie_options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.set_animated_movie_options" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_animated_movie_options</code><span class="sig-paren">(</span><em class="sig-param">animated_movie_options=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#MultiStructuresVis.set_animated_movie_options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.set_animated_movie_options" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.MultiStructuresVis.set_structure">
-<code class="descname">set_structure</code><span class="sig-paren">(</span><em>structure</em>, <em>reset_camera=True</em>, <em>to_unit_cell=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#MultiStructuresVis.set_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.set_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_structure</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">reset_camera=True</em>, <em class="sig-param">to_unit_cell=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#MultiStructuresVis.set_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.set_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a structure to the visualizer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -119,41 +119,41 @@ determined based on the structure.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.MultiStructuresVis.set_structures">
-<code class="descname">set_structures</code><span class="sig-paren">(</span><em>structures</em>, <em>tags=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#MultiStructuresVis.set_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.set_structures" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_structures</code><span class="sig-paren">(</span><em class="sig-param">structures</em>, <em class="sig-param">tags=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#MultiStructuresVis.set_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.set_structures" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.vis.structure_vtk.StructureInteractorStyle">
-<em class="property">class </em><code class="descname">StructureInteractorStyle</code><span class="sig-paren">(</span><em>parent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureInteractorStyle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureInteractorStyle" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">StructureInteractorStyle</code><span class="sig-paren">(</span><em class="sig-param">parent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureInteractorStyle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureInteractorStyle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A custom interactor style for visualizing structures.</p>
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.StructureInteractorStyle.keyPressEvent">
-<code class="descname">keyPressEvent</code><span class="sig-paren">(</span><em>obj</em>, <em>event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureInteractorStyle.keyPressEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureInteractorStyle.keyPressEvent" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">keyPressEvent</code><span class="sig-paren">(</span><em class="sig-param">obj</em>, <em class="sig-param">event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureInteractorStyle.keyPressEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureInteractorStyle.keyPressEvent" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.StructureInteractorStyle.leftButtonPressEvent">
-<code class="descname">leftButtonPressEvent</code><span class="sig-paren">(</span><em>obj</em>, <em>event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureInteractorStyle.leftButtonPressEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureInteractorStyle.leftButtonPressEvent" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">leftButtonPressEvent</code><span class="sig-paren">(</span><em class="sig-param">obj</em>, <em class="sig-param">event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureInteractorStyle.leftButtonPressEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureInteractorStyle.leftButtonPressEvent" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.StructureInteractorStyle.leftButtonReleaseEvent">
-<code class="descname">leftButtonReleaseEvent</code><span class="sig-paren">(</span><em>obj</em>, <em>event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureInteractorStyle.leftButtonReleaseEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureInteractorStyle.leftButtonReleaseEvent" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">leftButtonReleaseEvent</code><span class="sig-paren">(</span><em class="sig-param">obj</em>, <em class="sig-param">event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureInteractorStyle.leftButtonReleaseEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureInteractorStyle.leftButtonReleaseEvent" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.StructureInteractorStyle.mouseMoveEvent">
-<code class="descname">mouseMoveEvent</code><span class="sig-paren">(</span><em>obj</em>, <em>event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureInteractorStyle.mouseMoveEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureInteractorStyle.mouseMoveEvent" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">mouseMoveEvent</code><span class="sig-paren">(</span><em class="sig-param">obj</em>, <em class="sig-param">event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureInteractorStyle.mouseMoveEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureInteractorStyle.mouseMoveEvent" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.vis.structure_vtk.StructureVis">
-<em class="property">class </em><code class="descname">StructureVis</code><span class="sig-paren">(</span><em>element_color_mapping=None</em>, <em>show_unit_cell=True</em>, <em>show_bonds=False</em>, <em>show_polyhedron=True</em>, <em>poly_radii_tol_factor=0.5</em>, <em>excluded_bonding_elements=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">StructureVis</code><span class="sig-paren">(</span><em class="sig-param">element_color_mapping=None</em>, <em class="sig-param">show_unit_cell=True</em>, <em class="sig-param">show_bonds=False</em>, <em class="sig-param">show_polyhedron=True</em>, <em class="sig-param">poly_radii_tol_factor=0.5</em>, <em class="sig-param">excluded_bonding_elements=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Provides Structure object visualization using VTK.</p>
 <p>Constructs a Structure Visualization.</p>
@@ -199,7 +199,7 @@ clock/anticlockwise</p>
 </dl>
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.add_bonds">
-<code class="descname">add_bonds</code><span class="sig-paren">(</span><em>neighbors</em>, <em>center</em>, <em>color=None</em>, <em>opacity=None</em>, <em>radius=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.add_bonds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_bonds" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_bonds</code><span class="sig-paren">(</span><em class="sig-param">neighbors</em>, <em class="sig-param">center</em>, <em class="sig-param">color=None</em>, <em class="sig-param">opacity=None</em>, <em class="sig-param">radius=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.add_bonds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_bonds" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds bonds for a site.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -216,17 +216,17 @@ clock/anticlockwise</p>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.add_edges">
-<code class="descname">add_edges</code><span class="sig-paren">(</span><em>edges, type='line', linewidth=2, color=[0.0, 0.0, 0.0]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.add_edges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_edges" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_edges</code><span class="sig-paren">(</span><em class="sig-param">edges, type='line', linewidth=2, color=[0.0, 0.0, 0.0]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.add_edges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_edges" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.add_faces">
-<code class="descname">add_faces</code><span class="sig-paren">(</span><em>faces</em>, <em>color</em>, <em>opacity=0.35</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.add_faces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_faces" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_faces</code><span class="sig-paren">(</span><em class="sig-param">faces</em>, <em class="sig-param">color</em>, <em class="sig-param">opacity=0.35</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.add_faces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_faces" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.add_line">
-<code class="descname">add_line</code><span class="sig-paren">(</span><em>start</em>, <em>end</em>, <em>color=(0.5</em>, <em>0.5</em>, <em>0.5)</em>, <em>width=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.add_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_line" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_line</code><span class="sig-paren">(</span><em class="sig-param">start</em>, <em class="sig-param">end</em>, <em class="sig-param">color=(0.5</em>, <em class="sig-param">0.5</em>, <em class="sig-param">0.5)</em>, <em class="sig-param">width=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.add_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_line" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a line.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -242,22 +242,22 @@ clock/anticlockwise</p>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.add_partial_sphere">
-<code class="descname">add_partial_sphere</code><span class="sig-paren">(</span><em>coords</em>, <em>radius</em>, <em>color</em>, <em>start=0</em>, <em>end=360</em>, <em>opacity=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.add_partial_sphere"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_partial_sphere" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_partial_sphere</code><span class="sig-paren">(</span><em class="sig-param">coords</em>, <em class="sig-param">radius</em>, <em class="sig-param">color</em>, <em class="sig-param">start=0</em>, <em class="sig-param">end=360</em>, <em class="sig-param">opacity=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.add_partial_sphere"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_partial_sphere" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.add_picker">
-<code class="descname">add_picker</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.add_picker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_picker" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_picker</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.add_picker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_picker" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.add_picker_fixed">
-<code class="descname">add_picker_fixed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.add_picker_fixed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_picker_fixed" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_picker_fixed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.add_picker_fixed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_picker_fixed" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.add_polyhedron">
-<code class="descname">add_polyhedron</code><span class="sig-paren">(</span><em>neighbors, center, color, opacity=1.0, draw_edges=False, edges_color=[0.0, 0.0, 0.0], edges_linewidth=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.add_polyhedron"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_polyhedron" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_polyhedron</code><span class="sig-paren">(</span><em class="sig-param">neighbors, center, color, opacity=1.0, draw_edges=False, edges_color=[0.0, 0.0, 0.0], edges_linewidth=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.add_polyhedron"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_polyhedron" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a polyhedron.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -276,7 +276,7 @@ clock/anticlockwise</p>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.add_site">
-<code class="descname">add_site</code><span class="sig-paren">(</span><em>site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.add_site"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_site" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_site</code><span class="sig-paren">(</span><em class="sig-param">site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.add_site"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_site" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a site to the render window. The site is displayed as a sphere, the
 color of which is determined based on the element. Partially occupied
 sites are displayed as a single element color, though the site info
@@ -290,7 +290,7 @@ still shows the partial occupancy.</p>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.add_text">
-<code class="descname">add_text</code><span class="sig-paren">(</span><em>coords</em>, <em>text</em>, <em>color=(0</em>, <em>0</em>, <em>0)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.add_text"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_text" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_text</code><span class="sig-paren">(</span><em class="sig-param">coords</em>, <em class="sig-param">text</em>, <em class="sig-param">color=(0</em>, <em class="sig-param">0</em>, <em class="sig-param">0)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.add_text"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_text" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add text at a coordinate.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -305,7 +305,7 @@ still shows the partial occupancy.</p>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.add_triangle">
-<code class="descname">add_triangle</code><span class="sig-paren">(</span><em>neighbors, color, center=None, opacity=0.4, draw_edges=False, edges_color=[0.0, 0.0, 0.0], edges_linewidth=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.add_triangle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_triangle" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_triangle</code><span class="sig-paren">(</span><em class="sig-param">neighbors, color, center=None, opacity=0.4, draw_edges=False, edges_color=[0.0, 0.0, 0.0], edges_linewidth=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.add_triangle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_triangle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a triangular surface between three atoms.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -324,18 +324,18 @@ still shows the partial occupancy.</p>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.display_help">
-<code class="descname">display_help</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.display_help"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.display_help" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">display_help</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.display_help"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.display_help" title="Permalink to this definition">¶</a></dt>
 <dd><p>Display the help for various keyboard shortcuts.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.orthongonalize_structure">
-<code class="descname">orthongonalize_structure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.orthongonalize_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.orthongonalize_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">orthongonalize_structure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.orthongonalize_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.orthongonalize_structure" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.redraw">
-<code class="descname">redraw</code><span class="sig-paren">(</span><em>reset_camera=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.redraw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.redraw" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">redraw</code><span class="sig-paren">(</span><em class="sig-param">reset_camera=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.redraw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.redraw" title="Permalink to this definition">¶</a></dt>
 <dd><p>Redraw the render window.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -347,7 +347,7 @@ pre-determined default for each structure.  Defaults to False.</p>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.rotate_view">
-<code class="descname">rotate_view</code><span class="sig-paren">(</span><em>axis_ind=0</em>, <em>angle=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.rotate_view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.rotate_view" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">rotate_view</code><span class="sig-paren">(</span><em class="sig-param">axis_ind=0</em>, <em class="sig-param">angle=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.rotate_view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.rotate_view" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rotate the camera view.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -361,7 +361,7 @@ pre-determined default for each structure.  Defaults to False.</p>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.set_structure">
-<code class="descname">set_structure</code><span class="sig-paren">(</span><em>structure</em>, <em>reset_camera=True</em>, <em>to_unit_cell=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.set_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.set_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_structure</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">reset_camera=True</em>, <em class="sig-param">to_unit_cell=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.set_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.set_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a structure to the visualizer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -377,13 +377,13 @@ determined based on the structure.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.show">
-<code class="descname">show</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.show" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">show</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.show" title="Permalink to this definition">¶</a></dt>
 <dd><p>Display the visualizer.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.write_image">
-<code class="descname">write_image</code><span class="sig-paren">(</span><em>filename='image.png'</em>, <em>magnification=1</em>, <em>image_format='png'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.write_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.write_image" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_image</code><span class="sig-paren">(</span><em class="sig-param">filename='image.png'</em>, <em class="sig-param">magnification=1</em>, <em class="sig-param">image_format='png'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.write_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.write_image" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save render window to an image.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -398,7 +398,7 @@ determined based on the structure.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.zoom">
-<code class="descname">zoom</code><span class="sig-paren">(</span><em>factor</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.zoom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.zoom" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">zoom</code><span class="sig-paren">(</span><em class="sig-param">factor</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.zoom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.zoom" title="Permalink to this definition">¶</a></dt>
 <dd><p>Zoom the camera view by a factor.</p>
 </dd></dl>
 
@@ -406,7 +406,7 @@ determined based on the structure.</p></li>
 
 <dl class="function">
 <dt id="pymatgen.vis.structure_vtk.make_movie">
-<code class="descname">make_movie</code><span class="sig-paren">(</span><em>structures</em>, <em>output_filename='movie.mp4'</em>, <em>zoom=1.0</em>, <em>fps=20</em>, <em>bitrate='10000k'</em>, <em>quality=1</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#make_movie"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.make_movie" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">make_movie</code><span class="sig-paren">(</span><em class="sig-param">structures</em>, <em class="sig-param">output_filename='movie.mp4'</em>, <em class="sig-param">zoom=1.0</em>, <em class="sig-param">fps=20</em>, <em class="sig-param">bitrate='10000k'</em>, <em class="sig-param">quality=1</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#make_movie"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.make_movie" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a movie from a sequence of structures using vtk and ffmpeg.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -442,10 +442,10 @@ generated.</p></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -464,13 +464,13 @@ generated.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.5.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
