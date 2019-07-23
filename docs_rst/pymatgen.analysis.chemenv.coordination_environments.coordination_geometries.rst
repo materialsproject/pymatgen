@@ -2,6 +2,6 @@ pymatgen.analysis.chemenv.coordination\_environments.coordination\_geometries mo
 ====================================================================================
 
 .. automodule:: pymatgen.analysis.chemenv.coordination_environments.coordination_geometries
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

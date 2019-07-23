@@ -46,7 +46,7 @@ class NthOrderElasticTensor(Tensor):
     symbol = "C"
 
     def __new__(cls, input_array, check_rank=None, tol=1e-4):
-        obj = super(NthOrderElasticTensor, cls).__new__(
+        obj = super().__new__(
             cls, input_array, check_rank=check_rank)
         if obj.rank % 2 != 0:
             raise ValueError("ElasticTensor must have even rank")
@@ -130,7 +130,7 @@ class ElasticTensor(NthOrderElasticTensor):
             tol (float): tolerance for initial symmetry test of tensor
         """
 
-        obj = super(ElasticTensor, cls).__new__(cls, input_array,
+        obj = super().__new__(cls, input_array,
                                                 check_rank=4, tol=tol)
         return obj.view(cls)
 
@@ -509,7 +509,7 @@ class ComplianceTensor(Tensor):
         vscale = np.ones((6, 6))
         vscale[3:] *= 2
         vscale[:, 3:] *= 2
-        obj = super(ComplianceTensor, cls).__new__(cls, s_array, vscale=vscale)
+        obj = super().__new__(cls, s_array, vscale=vscale)
         return obj.view(cls)
 
 
@@ -532,7 +532,7 @@ class ElasticTensorExpansion(TensorCollection):
         """
         c_list = [NthOrderElasticTensor(c, check_rank=4+i*2)
                   for i, c in enumerate(c_list)]
-        super(ElasticTensorExpansion, self).__init__(c_list)
+        super().__init__(c_list)
 
     @classmethod
     def from_diff_fit(cls, strains, stresses, eq_stress=None,

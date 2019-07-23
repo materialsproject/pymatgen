@@ -28,6 +28,7 @@ jobs:
             export CFLAGS=$CFLAGS" -std=gnu++11"
             pip install BoltzTraP2
             export CFLAGS=${CFLAGS%% -std=gnu++11}
+            pip install --force-reinstall phonopy==1.11.12.121
             rm -r coverage_reports
       - save_cache: # special step to save dependency cache
           key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}
@@ -44,12 +45,11 @@ jobs:
             export LANG=en_US.UTF-8
             # Only do matproj and other ext API tests once every five random runs or so.
             # The parallelism is 4. If 1/20 we have to run, that measn the probability of a matproj test running is 1-(1-0.05)**4 = 0.18.
-            if [ "$(( RANDOM % 20 ))" -ne "0" ]; then export NOSE_EXCLUDE_TESTS="pymatgen.ext.tests.test_matproj.MPResterTest;pymatgen.analysis.tests.test_pourbaix_diagram.PourbaixDiagramTest;pymatgen.tests.test_init.SettingsTestCase"; fi
-            export NOSE_EXCLUDE_TESTS="pymatgen.ext.tests.test_matproj.MPResterTest;pymatgen.analysis.tests.test_pourbaix_diagram.PourbaixDiagramTest;pymatgen.tests.test_init.SettingsTestCase"
-            echo "NOSE_EXCLUDE_TESTS=$NOSE_EXCLUDE_TESTS"
+            if [ "$(( RANDOM % 20 ))" -ne "0" ]; then export EXCLUDE_TESTS="--ignore=pymatgen/ext/tests/test_matproj.py --ignore=pymatgen/analysis/tests/test_pourbaix_diagram.py --ignore=pymatgen/tests/test_init.py"; fi
+            export EXCLUDE_TESTS="--ignore=pymatgen/ext/tests/test_matproj.py --ignore=pymatgen/analysis/tests/test_pourbaix_diagram.py --ignore=pymatgen/tests/test_init.py"
             source activate test_env
             pip install --quiet -e .
-            nosetests --config=nose.cfg --cover-html --cover-html-dir=coverage_reports --with-timer --timer-top-n 30
+            pytest --cov=pymatgen --cov-report html:coverage_reports $EXCLUDE_TESTS pymatgen
             # Command line tests
             pmg structure --convert --filenames test_files/Li2O.cif POSCAR.pmg
             pmg structure --convert --filenames POSCAR.pmg pmg.cif

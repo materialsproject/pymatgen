@@ -302,12 +302,12 @@ loop_
                 self.assertEqual(sum(s.site_properties['implicit_hydrogens']), 20)
             self.assertIn("Structure has implicit hydrogens defined, "
                           "parsed structure unlikely to be suitable for use "
-                          "in calculations unless hydrogens added.", parser.errors)
+                          "in calculations unless hydrogens added.", parser.warnings)
             parser = CifParser(self.TEST_FILES_DIR / 'cif_implicit_hydrogens_cod_1011130.cif')
             s = parser.get_structures()[0]
             self.assertIn("Structure has implicit hydrogens defined, "
                           "parsed structure unlikely to be suitable for use "
-                          "in calculations unless hydrogens added.", parser.errors)
+                          "in calculations unless hydrogens added.", parser.warnings)
 
 
     def test_CifParserSpringerPauling(self):
@@ -495,11 +495,11 @@ loop_
  _atom_site_fract_y
  _atom_site_fract_z
  _atom_site_occupancy
-  Fe  Fe1  4  0.218728  0.250000  0.525133  1
-  P  P2  4  0.094613  0.750000  0.581757  1
-  O  O3  8  0.165710  0.546072  0.714616  1
-  O  O4  4  0.043372  0.250000  0.292862  1
-  O  O5  4  0.096642  0.750000  0.258680  1"""
+  Fe  Fe0  4  0.218728  0.250000  0.525133  1
+  P  P1  4  0.094613  0.750000  0.581757  1
+  O  O2  8  0.165710  0.546072  0.714616  1
+  O  O3  4  0.043372  0.250000  0.292862  1
+  O  O4  4  0.096642  0.750000  0.258680  1"""
         for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
             self.assertEqual(l1.strip(), l2.strip())
 
@@ -642,9 +642,9 @@ _atom_site_fract_x
 _atom_site_fract_y
 _atom_site_fract_z
 _atom_site_occupancy
-Si  Si1  1  0.000000  0.000000  0.000000  1
-Si  Si2  1  0.750000  0.500000  0.750000  0.5
-N  N3  1  0.750000  0.500000  0.750000  0.5
+Si  Si0  1  0.000000  0.000000  0.000000  1
+Si  Si1  1  0.750000  0.500000  0.750000  0.5
+N  N2  1  0.750000  0.500000  0.750000  0.5
 
     """
         for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
@@ -695,10 +695,10 @@ loop_
   _atom_site_fract_y
   _atom_site_fract_z
   _atom_site_occupancy
-   X3-  X1  1  0.500000  0.500000  0.500000  1
-   X3-  X2  1  0.750000  0.500000  0.750000  0.5
-   Si3+  Si3  1  0.750000  0.500000  0.750000  0.5
-   Si4+  Si4  1  0.000000  0.000000  0.000000  1
+   X3-  X0  1  0.500000  0.500000  0.500000  1
+   X3-  X1  1  0.750000  0.500000  0.750000  0.5
+   Si3+  Si2  1  0.750000  0.500000  0.750000  0.5
+   Si4+  Si3  1  0.000000  0.000000  0.000000  1
 
 """
         for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
@@ -873,8 +873,8 @@ loop_
             p = CifParser(f)
             s = p.get_structures()[0]
             self.assertEqual(str(s.composition), "N5+24")
-            self.assertIn("Some fractional co-ordinates rounded to ideal values to "
-                          "avoid finite precision errors.", p.errors)
+            self.assertIn("Some fractional co-ordinates rounded to ideal "
+                          "values to avoid issues with finite precision.", p.warnings)
 
     def test_empty_deque(self):
         s = """data_1526655
@@ -1047,35 +1047,35 @@ loop_
  _atom_site_fract_y
  _atom_site_fract_z
  _atom_site_occupancy
-  Gd  Gd1  1  0.317460  0.817460  0.000000  1.0
-  Gd  Gd2  1  0.182540  0.317460  0.000000  1.0
-  Gd  Gd3  1  0.817460  0.682540  0.000000  1.0
-  Gd  Gd4  1  0.682540  0.182540  0.000000  1.0
-  B  B5  1  0.000000  0.000000  0.202900  1.0
-  B  B6  1  0.500000  0.500000  0.797100  1.0
-  B  B7  1  0.000000  0.000000  0.797100  1.0
-  B  B8  1  0.500000  0.500000  0.202900  1.0
-  B  B9  1  0.175900  0.038000  0.500000  1.0
-  B  B10  1  0.962000  0.175900  0.500000  1.0
-  B  B11  1  0.038000  0.824100  0.500000  1.0
-  B  B12  1  0.675900  0.462000  0.500000  1.0
-  B  B13  1  0.324100  0.538000  0.500000  1.0
-  B  B14  1  0.824100  0.962000  0.500000  1.0
-  B  B15  1  0.538000  0.675900  0.500000  1.0
-  B  B16  1  0.462000  0.324100  0.500000  1.0
-  B  B17  1  0.086700  0.586700  0.500000  1.0
-  B  B18  1  0.413300  0.086700  0.500000  1.0
-  B  B19  1  0.586700  0.913300  0.500000  1.0
-  B  B20  1  0.913300  0.413300  0.500000  1.0
+  Gd  Gd0  1  0.317460  0.817460  0.000000  1.0
+  Gd  Gd1  1  0.182540  0.317460  0.000000  1.0
+  Gd  Gd2  1  0.817460  0.682540  0.000000  1.0
+  Gd  Gd3  1  0.682540  0.182540  0.000000  1.0
+  B  B4  1  0.000000  0.000000  0.202900  1.0
+  B  B5  1  0.500000  0.500000  0.797100  1.0
+  B  B6  1  0.000000  0.000000  0.797100  1.0
+  B  B7  1  0.500000  0.500000  0.202900  1.0
+  B  B8  1  0.175900  0.038000  0.500000  1.0
+  B  B9  1  0.962000  0.175900  0.500000  1.0
+  B  B10  1  0.038000  0.824100  0.500000  1.0
+  B  B11  1  0.675900  0.462000  0.500000  1.0
+  B  B12  1  0.324100  0.538000  0.500000  1.0
+  B  B13  1  0.824100  0.962000  0.500000  1.0
+  B  B14  1  0.538000  0.675900  0.500000  1.0
+  B  B15  1  0.462000  0.324100  0.500000  1.0
+  B  B16  1  0.086700  0.586700  0.500000  1.0
+  B  B17  1  0.413300  0.086700  0.500000  1.0
+  B  B18  1  0.586700  0.913300  0.500000  1.0
+  B  B19  1  0.913300  0.413300  0.500000  1.0
 loop_
  _atom_site_moment_label
  _atom_site_moment_crystalaxis_x
  _atom_site_moment_crystalaxis_y
  _atom_site_moment_crystalaxis_z
-  Gd1  5.05000  5.05000  0.00000
-  Gd2  -5.05000  5.05000  0.00000
-  Gd3  5.05000  -5.05000  0.00000
-  Gd4  -5.05000  -5.05000  0.00000
+  Gd0  5.05000  5.05000  0.00000
+  Gd1  -5.05000  5.05000  0.00000
+  Gd2  5.05000  -5.05000  0.00000
+  Gd3  -5.05000  -5.05000  0.00000
 """
         s_ncl = self.mcif_ncl.get_structures(primitive=False)[0]
 
@@ -1121,35 +1121,35 @@ loop_
  _atom_site_fract_y
  _atom_site_fract_z
  _atom_site_occupancy
-  Gd  Gd1  1  0.317460  0.817460  0.000000  1.0
-  Gd  Gd2  1  0.182540  0.317460  0.000000  1.0
-  Gd  Gd3  1  0.817460  0.682540  0.000000  1.0
-  Gd  Gd4  1  0.682540  0.182540  0.000000  1.0
-  B  B5  1  0.000000  0.000000  0.202900  1.0
-  B  B6  1  0.500000  0.500000  0.797100  1.0
-  B  B7  1  0.000000  0.000000  0.797100  1.0
-  B  B8  1  0.500000  0.500000  0.202900  1.0
-  B  B9  1  0.175900  0.038000  0.500000  1.0
-  B  B10  1  0.962000  0.175900  0.500000  1.0
-  B  B11  1  0.038000  0.824100  0.500000  1.0
-  B  B12  1  0.675900  0.462000  0.500000  1.0
-  B  B13  1  0.324100  0.538000  0.500000  1.0
-  B  B14  1  0.824100  0.962000  0.500000  1.0
-  B  B15  1  0.538000  0.675900  0.500000  1.0
-  B  B16  1  0.462000  0.324100  0.500000  1.0
-  B  B17  1  0.086700  0.586700  0.500000  1.0
-  B  B18  1  0.413300  0.086700  0.500000  1.0
-  B  B19  1  0.586700  0.913300  0.500000  1.0
-  B  B20  1  0.913300  0.413300  0.500000  1.0
+  Gd  Gd0  1  0.317460  0.817460  0.000000  1.0
+  Gd  Gd1  1  0.182540  0.317460  0.000000  1.0
+  Gd  Gd2  1  0.817460  0.682540  0.000000  1.0
+  Gd  Gd3  1  0.682540  0.182540  0.000000  1.0
+  B  B4  1  0.000000  0.000000  0.202900  1.0
+  B  B5  1  0.500000  0.500000  0.797100  1.0
+  B  B6  1  0.000000  0.000000  0.797100  1.0
+  B  B7  1  0.500000  0.500000  0.202900  1.0
+  B  B8  1  0.175900  0.038000  0.500000  1.0
+  B  B9  1  0.962000  0.175900  0.500000  1.0
+  B  B10  1  0.038000  0.824100  0.500000  1.0
+  B  B11  1  0.675900  0.462000  0.500000  1.0
+  B  B12  1  0.324100  0.538000  0.500000  1.0
+  B  B13  1  0.824100  0.962000  0.500000  1.0
+  B  B14  1  0.538000  0.675900  0.500000  1.0
+  B  B15  1  0.462000  0.324100  0.500000  1.0
+  B  B16  1  0.086700  0.586700  0.500000  1.0
+  B  B17  1  0.413300  0.086700  0.500000  1.0
+  B  B18  1  0.586700  0.913300  0.500000  1.0
+  B  B19  1  0.913300  0.413300  0.500000  1.0
 loop_
  _atom_site_moment_label
  _atom_site_moment_crystalaxis_x
  _atom_site_moment_crystalaxis_y
  _atom_site_moment_crystalaxis_z
+  Gd0  0.00000  0.00000  7.14178
   Gd1  0.00000  0.00000  7.14178
-  Gd2  0.00000  0.00000  7.14178
+  Gd2  0.00000  0.00000  -7.14178
   Gd3  0.00000  0.00000  -7.14178
-  Gd4  0.00000  0.00000  -7.14178
 """
         self.assertEqual(cw.__str__(), cw_ref_string_magnitudes)
 
@@ -1198,8 +1198,8 @@ loop_
  _atom_site_fract_y
  _atom_site_fract_z
  _atom_site_occupancy
-  Cs+  Cs1  1  0.000000  0.000000  0.000000  1
-  Cl+  Cl2  1  0.500000  0.500000  0.500000  1
+  Cs+  Cs0  1  0.000000  0.000000  0.000000  1
+  Cl+  Cl1  1  0.500000  0.500000  0.500000  1
 loop_
  _atom_site_moment_label
  _atom_site_moment_crystalaxis_x

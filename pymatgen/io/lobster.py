@@ -6,25 +6,41 @@
 import re
 import numpy as np
 import warnings
-
+import collections
+import os
 from monty.io import zopen
+from monty.serialization import loadfn
+from monty.json import MSONable
+import fnmatch
+import itertools
+import warnings
+import spglib
 from collections import defaultdict
+from collections import OrderedDict
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.electronic_structure.dos import Dos, LobsterCompleteDos
 from pymatgen.core.structure import Structure
+from pymatgen.electronic_structure.bandstructure import Kpoint
+from pymatgen.io.vasp.inputs import Kpoints
+from pymatgen.electronic_structure.bandstructure import LobsterBandStructureSymmLine
+from pymatgen.core.structure import Structure
+from pymatgen.io.vasp.inputs import Incar, Kpoints, Potcar
+from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 """
 Module for reading Lobster output files. For more information
 on LOBSTER see www.cohp.de.
 """
 
-__author__ = "Marco Esters, Janine George"
+__author__ = "Janine George, Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
 __version__ = "0.2"
-__maintainer__ = "Marco Esters"
-__email__ = "esters@uoregon.edu"
+__maintainer__ = "Janine George, Marco Esters "
+__email__ = "esters@uoregon.edu, janine.george@uclouvain.be"
 __date__ = "Dec 13, 2017"
+
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class Cohpcar:
@@ -350,6 +366,7 @@ class Doscar:
     Args:
         doscar: DOSCAR filename, typically "DOSCAR.lobster"
         vasprun: vasprun filename, typically "vasprun.xml"
+        dftprogram: so far only "vasp" is implemented
 
     .. attribute:: completedos
 
@@ -377,17 +394,19 @@ class Doscar:
 
     """
 
-    def __init__(self, doscar="DOSCAR.lobster", vasprun="vasprun.xml"):
+    def __init__(self, doscar="DOSCAR.lobster", vasprun="vasprun.xml", dftprogram="Vasp"):
 
         self._doscar = doscar
-        self._vasprun = vasprun
-        self._VASPRUN = Vasprun(filename=self._vasprun, ionic_step_skip=None,
-                                ionic_step_offset=0, parse_dos=False,
-                                parse_eigen=False, parse_projected_eigen=False,
-                                parse_potcar_file=False, occu_tol=1e-8,
-                                exception_on_bad_xml=True)
-        self._final_structure = self._VASPRUN.final_structure
-        self._is_spin_polarized = self._VASPRUN.is_spin
+        if dftprogram == "Vasp":
+            self._vasprun = vasprun
+            self._VASPRUN = Vasprun(filename=self._vasprun, ionic_step_skip=None,
+                                    ionic_step_offset=0, parse_dos=False,
+                                    parse_eigen=False, parse_projected_eigen=False,
+                                    parse_potcar_file=False, occu_tol=1e-8,
+                                    exception_on_bad_xml=True)
+            self._final_structure = self._VASPRUN.final_structure
+            self._is_spin_polarized = self._VASPRUN.is_spin
+
         self._parse_doscar()
 
     def _parse_doscar(self):
@@ -534,3 +553,1239 @@ class Charge:
         site_properties = {"Mulliken Charges": Mulliken, "Loewdin Charges": Loewdin}
         new_struct = struct.copy(site_properties=site_properties)
         return new_struct
+
+
+class Lobsterout:
+    """
+    Class to read in the lobsterout and evaluate the spilling, save the basis, save warnings, save infos
+    Args:
+      filename: filename of lobsterout
+
+      .. attribute: basis_functions
+        list of basis functions that were used in lobster run as strings
+
+      .. attribute: basis_type
+         list of basis type that were used in lobster run as strings
+
+      .. attribute: chargespilling
+         list of charge spilling (first entry: result for spin 1, second entry: result for spin 2 or not present)
+
+      .. attribute: dftprogram
+         string representing the dft program used for the calculation of the wave function
+
+      .. attribute: elements
+         list of strings of elements that were present in lobster calculation
+
+      .. attribute: has_CHARGE
+         Boolean, indicates that CHARGE.lobster is present
+
+      .. attribute: has_COHPCAR
+        Boolean, indicates that COHPCAR.lobster and ICOHPLIST.lobster are present
+
+      .. attribute: has_COOPCAR
+        Boolean, indicates that COOPCAR.lobster and ICOOPLIST.lobster are present
+
+      .. attribute: has_DOSCAR
+        Boolean, indicates that DOSCAR.lobster is present
+
+      .. attribute: has_Projection
+        Boolean, indcates that projectionData.lobster is present
+
+      .. attribute: has_bandoverlaps
+        Boolean, indcates that bandOverlaps.lobster is present
+
+      .. attribute: has_density_of_energies
+        Boolean, indicates that DensityOfEnergy.lobster is present
+
+      .. attribute: has_fatbands
+        Boolean, indicates that fatband calculation was performed
+
+      .. attribute: has_grosspopulation
+        Boolean, indicates that GROSSPOP.lobster is present
+
+      .. attribute: info_lines
+        string with additional infos on the run
+
+      .. attribute: info_orthonormalization
+        string with infos on orthonormalization
+
+      .. attribute: is_restart_from_projection
+        Boolean that indicates that calculation was restartet from existing projection file
+
+      .. attribute: lobster_version
+        string that indicates Lobster version
+
+      .. attribute: number_of_spins
+        Integer indicating the number of spins
+
+      .. attribute: number_of_threads
+       integer that indicates how many threads were used
+
+      .. attribute: timing
+        dict with infos on timing
+
+      .. attribute: totalspilling
+        list of values indicating the total spilling for spin channel 1 (and spin channel 2)
+
+      .. attribute: warninglines
+        string with all warnings
+
+
+    """
+
+    def __init__(self, filename="lobsterout"):
+
+        warnings.warn("Make sure the lobsterout is read in correctly. This is a brand new class.")
+        # read in file
+        with zopen(filename) as f:
+            data = f.read().split("\n")  # [3:-3]
+        if len(data) == 0:
+            raise IOError("lobsterout does not contain any data")
+
+        LobsterDict = {}
+        # check if Lobster starts from a projection
+        self.is_restart_from_projection = self._starts_from_projection(data=data)
+
+        self.lobster_version = self._get_lobster_version(data=data)
+
+        self.number_of_threads = int(self._get_threads(data=data))
+        self.dftprogram = self._get_dft_program(data=data)
+
+        self.number_of_spins = self._get_number_of_spins(data=data)
+        chargespilling, totalspilling = self._get_spillings(data=data, number_of_spins=self.number_of_spins)
+        self.chargespilling = chargespilling
+        self.totalspilling = totalspilling
+
+        elements, basistype, basisfunctions = self._get_elements_basistype_basisfunctions(data=data)
+        self.elements = elements
+        self.basis_type = basistype
+        self.basis_functions = basisfunctions
+
+        wall_time, user_time, sys_time = self._get_timing(data=data)
+        timing = {}
+        timing['walltime'] = wall_time
+        timing['usertime'] = user_time
+        timing['sys_time'] = sys_time
+        self.timing = timing
+
+        warninglines = self._get_all_warning_lines(data=data)
+        self.warninglines = warninglines
+
+        orthowarning = self._get_warning_orthonormalization(data=data)
+        self.info_orthonormalization = orthowarning
+        # print(orthowarning)
+
+        infos = self._get_all_info_lines(data=data)
+        self.info_lines = infos
+
+        self.has_DOSCAR = self._has_DOSCAR(data=data)
+        self.has_COHPCAR = self._has_COOPCAR(data=data)
+        self.has_COOPCAR = self._has_COHPCAR(data=data)
+        self.has_CHARGE = self._has_CHARGE(data=data)
+        self.has_Projection = self._has_projection(data=data)
+        self.has_bandoverlaps = self._has_bandoverlaps(data=data)
+        self.has_fatbands = self._has_fatband(data=data)
+        self.has_grosspopulation = self._has_grosspopulation(data=data)
+        self.has_density_of_energies = self._has_density_of_energies(data=data)
+
+    def get_doc(self):
+        """
+
+        Returns: LobsterDict with all the information stored in lobsterout
+        """
+
+        LobsterDict = {}
+        # check if Lobster starts from a projection
+        LobsterDict['restart_from_projection'] = self.is_restart_from_projection
+        LobsterDict['lobster_version'] = self.lobster_version
+        LobsterDict['threads'] = self.number_of_threads
+        LobsterDict['Dftprogram'] = self.dftprogram
+
+        number_of_spins = self.number_of_spins
+        LobsterDict['chargespilling'] = self.chargespilling
+        LobsterDict['totalspilling'] = self.totalspilling
+
+        LobsterDict['elements'] = self.elements
+        LobsterDict['basistype'] = self.basis_type
+        LobsterDict['basisfunctions'] = self.basis_functions
+
+        LobsterDict['timing'] = self.timing
+
+        LobsterDict['warnings'] = self.warninglines
+
+        LobsterDict['orthonormalization'] = self.info_orthonormalization
+
+        LobsterDict['infos'] = self.info_lines
+
+        LobsterDict['hasDOSCAR'] = self.has_DOSCAR
+        LobsterDict['hasCOHPCAR'] = self.has_COHPCAR
+        LobsterDict['hasCOOPCAR'] = self.has_COOPCAR
+        LobsterDict['hasCHARGE'] = self.has_CHARGE
+        LobsterDict['hasProjection'] = self.has_Projection
+        LobsterDict['hasbandoverlaps'] = self.has_bandoverlaps
+        LobsterDict['hasfatband'] = self.has_fatbands
+        LobsterDict['hasGrossPopuliation'] = self.has_grosspopulation
+        LobsterDict['hasDensityOfEnergies'] = self.has_density_of_energies
+
+        return LobsterDict
+
+    def _get_lobster_version(self, data):
+        for row in data:
+            splitrow = row.split()
+            if len(splitrow) > 1:
+                if splitrow[0] == "LOBSTER":
+                    return splitrow[1]
+
+    def _has_bandoverlaps(self, data):
+        if 'WARNING: I dumped the band overlap matrices to the file bandOverlaps.lobster.' in data:
+            return True
+        else:
+            return False
+
+    def _starts_from_projection(self, data):
+        if 'loading projection from projectionData.lobster...' in data:
+            return True
+        else:
+            return False
+
+    def _has_DOSCAR(self, data):
+        if 'writing DOSCAR.lobster...' in data and not 'SKIPPING writing DOSCAR.lobster...' in data:
+            return True
+        else:
+            return False
+
+    def _has_COOPCAR(self, data):
+        if 'writing COOPCAR.lobster and ICOOPLIST.lobster...' in data and not 'SKIPPING writing COOPCAR.lobster and ICOOPLIST.lobster...' in data:
+            return True
+        else:
+            return False
+
+    def _has_COHPCAR(self, data):
+        if 'writing COHPCAR.lobster and ICOHPLIST.lobster...' in data and not 'SKIPPING writing COHPCAR.lobster and ICOHPLIST.lobster...' in data:
+            return True
+        else:
+            return False
+
+    def _has_CHARGE(self, data):
+        # weitere optionen testen -> auch hier kann uebersprungen werden
+        if not 'SKIPPING writing CHARGE.lobster...' in data:
+            return True
+        else:
+            return False
+
+    def _has_grosspopulation(self, data):
+        if 'writing CHARGE.lobster and GROSSPOP.lobster...' in data:
+            return True
+        else:
+            return False
+
+    def _has_projection(self, data):
+        if 'saving projection to projectionData.lobster...' in data:
+            return True
+        else:
+            return False
+
+    def _has_fatband(self, data):
+        for row in data:
+            splitrow = row.split()
+            if len(splitrow) > 1:
+                if splitrow[1] == 'FatBand':
+                    return True
+        return False
+
+    def _has_density_of_energies(self, data):
+        if "writing DensityOfEnergy.lobster..." in data:
+            return True
+        else:
+            return False
+
+    def _get_dft_program(self, data):
+        for row in data:
+            splitrow = row.split()
+            if len(splitrow) > 4:
+                if splitrow[3] == "program...":
+                    return splitrow[4]
+
+    def _get_number_of_spins(self, data):
+        if "spillings for spin channel 2" in data:
+            # print('two spin channels')
+            return 2
+        else:
+            return 1
+
+    def _get_threads(self, data):
+        for row in data:
+            splitrow = row.split()
+            if len(splitrow) > 11:
+                if (splitrow[11]) == "threads":
+                    return splitrow[10]
+
+    def _get_spillings(self, data, number_of_spins):
+        charge_spilling = []
+        total_spilling = []
+
+        for row in data:
+            splitrow = row.split()
+
+            if len(splitrow) > 2:
+                if splitrow[2] == 'spilling:':
+                    # print(splitrow)
+                    if splitrow[1] == 'charge':
+                        charge_spilling.append(np.float(splitrow[3].replace('%', '')) / 100.0)
+                    if splitrow[1] == 'total':
+                        total_spilling.append(np.float(splitrow[3].replace('%', '')) / 100.0)
+
+            if len(charge_spilling) == number_of_spins and len(total_spilling) == number_of_spins:
+                break;
+
+        return charge_spilling, total_spilling
+
+    def _get_elements_basistype_basisfunctions(self, data):
+        begin = False
+        end = False
+        elements = []
+        basistype = []
+        basisfunctions = []
+        for row in data:
+
+            if begin and not end:
+                # print(row)
+                splitrow = row.split()
+                if splitrow[0] not in ['INFO:', 'WARNING:', 'setting', 'calculating', 'post-processing', 'saving',
+                                       'spillings', 'writing']:
+
+                    elements.append(splitrow[0])
+                    basistype.append(splitrow[1].replace('(', '').replace(')', ''))
+                    # last sign is a ''
+                    basisfunctions.append(splitrow[2:])
+                else:
+                    end = True
+            if "setting up local basis functions..." in row:
+                begin = True
+                # print(row)
+        return elements, basistype, basisfunctions
+
+    def _get_timing(self, data):
+        # will give back wall, user and sys time
+        begin = False
+        # end=False
+        # time=[]
+
+        for row in data:
+            splitrow = row.split()
+            if 'finished' in splitrow:
+                begin = True
+            if begin:
+                if 'wall' in splitrow:
+                    wall_time = (splitrow[2:10])
+                if 'user' in splitrow:
+                    user_time = (splitrow[0:8])
+                if 'sys' in splitrow:
+                    sys_time = (splitrow[0:8])
+
+        wall_time_dict = {"h": wall_time[0], "min": wall_time[2], "s": wall_time[4], "ms": wall_time[6]}
+        user_time_dict = {"h": user_time[0], "min": user_time[2], "s": user_time[4], "ms": user_time[6]}
+        sys_time_dict = {"h": sys_time[0], "min": sys_time[2], "s": sys_time[4], "ms": sys_time[6]}
+
+        return wall_time_dict, user_time_dict, sys_time_dict
+
+    def _get_warning_orthonormalization(self, data):
+        orthowarning = []
+        for row in data:
+            splitrow = row.split()
+            if 'orthonormalized' in splitrow:
+                orthowarning.append(" ".join(splitrow[1:]))
+        return orthowarning
+
+    def _get_all_warning_lines(self, data):
+        warnings = []
+        for row in data:
+            splitrow = row.split()
+            if len(splitrow) > 0:
+                if splitrow[0] == 'WARNING:':
+                    warnings.append(" ".join(splitrow[1:]))
+
+        return warnings
+        # print(warnings)
+
+    def _get_all_info_lines(self, data):
+        infos = []
+        for row in data:
+            splitrow = row.split()
+            if len(splitrow) > 0:
+                if splitrow[0] == 'INFO:':
+                    infos.append(" ".join(splitrow[1:]))
+
+        return infos
+
+
+class Fatband:
+    """
+    reads in FATBAND_x_y.lobster files
+    Args:
+      filenames (list or string): can be a list of file names or a path to a folder folder from which all "FATBAND_*" files will be read
+      vasprun: corresponding vasprun file
+      Kpointsfile: KPOINTS file for bandstructure calculation, typically "KPOINTS"
+
+      .. attribute: efermi
+      efermi that was read in from vasprun.xml
+
+      .. attribute: eigenvals
+      {Spin.up:[][],Spin.down:[][]}, the first index of the array
+            [][] refers to the band and the second to the index of the
+            kpoint. The kpoints are ordered according to the order of the
+            kpoints array. If the band structure is not spin polarized, we
+            only store one data set under Spin.up.
+
+      .. attribute: is_spinpolarized
+      Boolean that tells you whether this was a spin-polarized calculation
+
+      .. attribute: kpoints_array
+        list of kpoint as numpy arrays, in frac_coords of the
+            given lattice by default
+
+      .. attribute: label_dict
+     (dict) of {} this link a kpoint (in frac coords or
+            cartesian coordinates depending on the coords).
+
+      .. attribute: lattice
+      lattice object of reciprocal lattice as read in from vasprun.xml
+
+      .. attribute: nbands
+      number of bands used in the calculation
+
+      .. attribute: p_eigenvals
+      dict of orbital projections as {spin: array of dict}.
+      The indices of the array are [band_index, kpoint_index].
+      The dict is then built the following way:
+      {"string of element": "string of orbital as read in from FATBAND file"}
+      If the band structure is not spin polarized, we only store one data set under Spin.up.
+
+      .. attribute: structure
+      structure read in from vasprun.xml
+
+
+    """
+
+    def __init__(self, filenames=".", vasprun='vasprun.xml', Kpointsfile='KPOINTS'):
+
+        warnings.warn('Make sure all relevant FATBAND files were generated and read in!')
+        warnings.warn('Use Lobster 3.2.0 or newer for fatband calculations!')
+
+        VASPRUN = Vasprun(filename=vasprun, ionic_step_skip=None,
+                          ionic_step_offset=0, parse_dos=True,
+                          parse_eigen=False, parse_projected_eigen=False,
+                          parse_potcar_file=False, occu_tol=1e-8,
+                          exception_on_bad_xml=True)
+        self.structure = VASPRUN.final_structure
+        self.lattice = self.structure.lattice.reciprocal_lattice
+        self.efermi = VASPRUN.efermi
+        kpoints_object = Kpoints.from_file(Kpointsfile)
+
+        atomtype = []
+        atomnames = []
+        orbital_names = []
+
+        if type(filenames) is not type([]) or filenames is None:
+            filenames_new = []
+            if filenames is None:
+                filenames = '.'
+            for file in os.listdir(filenames):
+                if fnmatch.fnmatch(file, 'FATBAND_*.lobster'):
+                    filenames_new.append(os.path.join(filenames, file))
+            filenames = filenames_new
+        if (len(filenames)) == 0:
+            raise ValueError("No FATBAND files in folder or given")
+        for ifilename, filename in enumerate(filenames):
+            with zopen(filename, "rt") as f:
+                contents = f.read().split("\n")
+
+            # TODO: could be replaced for future versions of Lobster, get atomname from filename
+            atomnames.append(os.path.split(filename)[1].split('_')[1].capitalize())
+            parameters = contents[0].split()
+            atomtype.append(re.split(r"[0-9]+", parameters[3])[0].capitalize())
+            orbital_names.append(parameters[4])
+
+        # get atomtype orbital dict
+        atom_orbital_dict = {}
+        for iatom, atom in enumerate(atomnames):
+            if atom not in atom_orbital_dict:
+                atom_orbital_dict[atom] = []
+            atom_orbital_dict[atom].append(orbital_names[iatom])
+        # test if there are the same orbitals twice or if two different formats were used or if all necessary orbitals are there
+        for key, items in atom_orbital_dict.items():
+            if len(set(items)) != len(items):
+                raise (ValueError("The are two FATBAND files for the same atom and orbital. The program will stop."))
+            split = []
+            for item in items:
+                split.append(item.split("_")[0])
+            for orb, number in collections.Counter(split).items():
+                if number != 1 and number != 3 and number != 5 and number != 7:
+                    raise (ValueError(
+                        "Make sure all relevant orbitals were generated and that no duplicates (2p and 2p_x) are present"))
+
+        kpoints_array = []
+        for ifilename, filename in enumerate(filenames):
+            with zopen(filename, "rt") as f:
+                contents = f.read().split("\n")
+
+            if ifilename == 0:
+                self.nbands = int(parameters[6])
+                self.number_kpts = kpoints_object.num_kpts - int(contents[1].split()[2]) + 1
+
+            if len(contents[1:]) == self.nbands + 2:
+                self.is_spinpolarized = False
+            elif len(contents[1:]) == self.nbands * 2 + 2:
+                self.is_spinpolarized = True
+            else:
+                linenumbers = []
+                for iline, line in enumerate(contents[1:self.nbands * 2 + 4]):
+                    # print(line)
+                    # if line in ['\n', '\r\n']:
+                    #    linenumbers.append(iline)
+                    if line.split()[0] == '#':
+                        linenumbers.append(iline)
+
+                if ifilename == 0:
+                    if len(linenumbers) == 2:
+                        self.is_spinpolarized = True
+                    else:
+                        self.is_spinpolarized = False
+
+            if ifilename == 0:
+                eigenvals = {}
+                eigenvals[Spin.up] = [[collections.defaultdict(float)
+                                       for i in range(self.number_kpts)]
+                                      for j in range(self.nbands)]
+                if self.is_spinpolarized:
+                    eigenvals[Spin.down] = [[collections.defaultdict(float)
+                                             for i in range(self.number_kpts)]
+                                            for j in range(self.nbands)]
+
+                p_eigenvals = {}
+                p_eigenvals[Spin.up] = [
+                    [{str(e): {str(orb): collections.defaultdict(float) for orb in atom_orbital_dict[e]}
+                      for e in atomnames}
+                     for i in range(self.number_kpts)]
+                    for j in range(self.nbands)]
+
+                if self.is_spinpolarized:
+                    p_eigenvals[Spin.down] = [
+                        [{str(e): {str(orb): collections.defaultdict(float) for orb in atom_orbital_dict[e]}
+                          for e in atomnames}
+                         for i in range(self.number_kpts)]
+                        for j in range(self.nbands)]
+
+            ikpoint = -1
+            for iline, line in enumerate(contents[1:-1]):
+                if line.split()[0] == '#':
+                    Kpointnumber = int(line.split()[2])
+                    KPOINT = np.array([float(line.split()[4]), float(line.split()[5]), float(line.split()[6])])
+                    if ifilename == 0:
+                        kpoints_array.append(KPOINT)
+
+                    linenumber = 0
+                    iband = 0
+                    ikpoint += 1
+                if linenumber == self.nbands:
+                    iband = 0
+                if line.split()[0] != '#':
+
+                    if linenumber < self.nbands:
+                        if ifilename == 0:
+                            eigenvals[Spin.up][iband][ikpoint] = float(line.split()[1]) + self.efermi
+
+                        p_eigenvals[Spin.up][iband][ikpoint][atomnames[ifilename]][orbital_names[ifilename]] = float(
+                            line.split()[2])
+                    if linenumber >= self.nbands and self.is_spinpolarized:
+                        # print(line.split())
+                        # print(iband)
+                        if ifilename == 0:
+                            eigenvals[Spin.down][iband][ikpoint] = float(line.split()[1]) + self.efermi
+                        p_eigenvals[Spin.down][iband][ikpoint][atomnames[ifilename]][
+                            orbital_names[ifilename]] = float(line.split()[2])
+
+                    linenumber += 1
+                    iband += 1
+
+        self.kpoints_array = kpoints_array
+        self.eigenvals = eigenvals
+        self.p_eigenvals = p_eigenvals
+
+        label_dict = {}
+        for ilabel, label in enumerate(kpoints_object.labels[-self.number_kpts:], start=0):
+
+            if label is not None:
+                label_dict[label] = kpoints_array[ilabel]
+
+        self.label_dict = label_dict
+
+    def get_bandstructure(self):
+        """
+        returns a LobsterBandStructureSymmLine object which can be plotted with a normal BSPlotter
+        """
+
+        return LobsterBandStructureSymmLine(kpoints=self.kpoints_array, eigenvals=self.eigenvals, lattice=self.lattice,
+                                            efermi=self.efermi, labels_dict=self.label_dict,
+                                            structure=self.structure,
+                                            projections=self.p_eigenvals)
+
+
+class Lobsterin(dict, MSONable):
+    """
+    This class can handle and generate lobsterin files
+    Furthermore, it can also modify INCAR files for lobster, generate KPOINT files for fatband calculations in Lobster,
+    and generate the standard primitive cells in a POSCAR file that are needed for the fatband calculations.
+    There are also several standard lobsterin files that can be easily generated.
+    Args:
+        settingsdict: dict to initialize Lobsterin
+
+    """
+
+    # all keywords known to this class so far
+    # reminder: lobster is not case sensitive
+    AVAILABLEKEYWORDS = ['COHPstartEnergy', 'COHPendEnergy', 'basisSet', 'cohpGenerator',
+                         'gaussianSmearingWidth', 'saveProjectionToFile', 'basisfunctions', 'skipdos',
+                         'skipcohp', 'skipcoop', 'skipPopulationAnalysis', 'skipGrossPopulation',
+                         'userecommendedbasisfunctions', 'loadProjectionFromFile', 'forceEnergyRange',
+                         'DensityOfEnergy', 'BWDF', 'BWDFCOHP', 'skipProjection', 'createFatband',
+                         'writeBasisFunctions', 'writeMatricesToFile', 'realspaceHamiltonian',
+                         'realspaceOverlap', 'printPAWRealSpaceWavefunction', 'printLCAORealSpaceWavefunction',
+                         'noFFTforVisualization', 'RMSp', 'onlyReadVasprun.xml', 'noMemoryMappedFiles',
+                         'skipPAWOrthonormalityTest', 'doNotIgnoreExcessiveBands', 'doNotUseAbsoluteSpilling',
+                         'skipReOrthonormalization', 'forceV1HMatrix', 'useOriginalTetrahedronMethod',
+                         'useDecimalPlaces', 'kSpaceCOHP']
+
+    # keyword + one float can be used in file
+    FLOATKEYWORDS = ['COHPstartEnergy', 'COHPendEnergy', 'gaussianSmearingWidth', 'useDecimalPlaces']
+    # one of these keywords +endstring can be used in file
+    STRINGKEYWORDS = ['basisSet', 'cohpGenerator', 'realspaceHamiltonian', 'realspaceOverlap',
+                      'printPAWRealSpaceWavefunction', 'printLCAORealSpaceWavefunction', 'kSpaceCOHP']
+    # the keyword alone will turn on or off a function
+    BOOLEANKEYWORDS = ['saveProjectionToFile', 'skipdos', 'skipcohp', 'skipcoop', 'loadProjectionFromFile',
+                       'forceEnergyRange', 'DensityOfEnergy', 'BWDF', 'BWDFCOHP', 'skipPopulationAnalysis',
+                       'skipGrossPopulation', 'userecommendedbasisfunctions', 'skipProjection',
+                       'writeBasisFunctions', 'writeMatricesToFile', 'noFFTforVisualization', 'RMSp',
+                       'onlyReadVasprun.xml', 'noMemoryMappedFiles', 'skipPAWOrthonormalityTest',
+                       'doNotIgnoreExcessiveBands', 'doNotUseAbsoluteSpilling', 'skipReOrthonormalization',
+                       'forceV1HMatrix', 'useOriginalTetrahedronMethod']
+    # several of these keywords + ending can be used in a lobsterin file:
+    LISTKEYWORDS = ['basisfunctions', 'cohpbetween', 'createFatband']
+
+    def __init__(self, settingsdict: dict):
+        super().__init__()
+        # check for duplicates
+        listkey = [key.lower() for key in settingsdict.keys()]
+        if len(listkey) != len(list(set(listkey))):
+            raise IOError("There are duplicates for the keywords! The program will stop here.")
+        self.update(settingsdict)
+
+    def __setitem__(self, key, val):
+        """
+        Add parameter-val pair to Lobsterin.  Warns if parameter is not in list of
+        valid lobsterintags. Also cleans the parameter and val by stripping
+        leading and trailing white spaces. Similar to INCAR class.
+        """
+        # due to the missing case sensitivity of lobster, the following code is neccessary
+        found = False
+        for key_here in self.keys():
+            if key.strip().lower() == key_here.lower():
+                new_key = key_here
+                found = True
+        if not found:
+            new_key = key
+        if new_key.lower() not in [element.lower() for element in Lobsterin.AVAILABLEKEYWORDS]:
+            raise (ValueError("Key is currently not available"))
+
+        super().__setitem__(new_key, val.strip() if isinstance(val, str) else val)
+
+    def __getitem__(self, item):
+        """
+        implements getitem from dict to avoid problems with cases
+        """
+        found = False
+        for key_here in self.keys():
+            if item.strip().lower() == key_here.lower():
+                new_key = key_here
+                found = True
+        if not found:
+            new_key = item
+
+        val = dict.__getitem__(self, new_key)
+        return val
+
+    def diff(self, other):
+        """
+        Diff function for lobsterin. Compares two lobsterin and indicates which parameters are the same.
+        Similar to the diff in INCAR.
+        Args:
+            other (Lobsterin): Lobsterin object to compare to
+        Returns:
+            dict with differences and similarities
+        """
+        similar_param = {}
+        different_param = {}
+        key_list_others = [element.lower() for element in other.keys()]
+
+        for k1, v1 in self.items():
+            k1lower = k1.lower()
+            if k1lower not in key_list_others:
+                different_param[k1.upper()] = {"lobsterin1": v1, "lobsterin2": None}
+            else:
+                for key_here in other.keys():
+                    if k1.lower() == key_here.lower():
+                        new_key = key_here
+
+                if type(v1) == type(''):
+                    if v1.strip().lower() != other[new_key].strip().lower():
+
+                        different_param[k1.upper()] = {"lobsterin1": v1, "lobsterin2": other[new_key]}
+                    else:
+                        similar_param[k1.upper()] = v1
+                elif type(v1) == type([]):
+                    new_set1 = set([element.strip().lower() for element in v1])
+                    new_set2 = set([element.strip().lower() for element in other[new_key]])
+                    if new_set1 != new_set2:
+                        different_param[k1.upper()] = {"lobsterin1": v1, "lobsterin2": other[new_key]}
+                else:
+                    if v1 != other[new_key]:
+                        different_param[k1.upper()] = {"lobsterin1": v1, "lobsterin2": other[new_key]}
+                    else:
+                        similar_param[k1.upper()] = v1
+
+        for k2, v2 in other.items():
+            if k2.upper() not in similar_param and k2.upper() not in different_param:
+                for key_here in self.keys():
+                    if k2.lower() == key_here.lower():
+                        new_key = key_here
+                    else:
+                        new_key = k2
+                if new_key not in self:
+                    different_param[k2.upper()] = {"lobsterin1": None, "lobsterin2": v2}
+        return {"Same": similar_param, "Different": different_param}
+
+    def _get_nbands(self, structure: Structure):
+        """
+        get number of nbands
+        """
+        if self.get("basisfunctions") is None:
+            raise IOError("No basis functions are provided. The program cannot calculate nbands.")
+        else:
+            basis_functions = []
+            for string_basis in self.get("basisfunctions"):
+                # string_basis.lstrip()
+                string_basis_raw = string_basis.strip().split(" ")
+                while "" in string_basis_raw:
+                    string_basis_raw.remove("")
+                for i in range(0, int(structure.composition.element_composition[string_basis_raw[0]])):
+                    basis_functions.extend(string_basis_raw[1:])
+
+        no_basis_functions = 0
+        for basis in basis_functions:
+            if "s" in basis:
+                no_basis_functions = no_basis_functions + 1
+            elif "p" in basis:
+                no_basis_functions = no_basis_functions + 3
+            elif "d" in basis:
+                no_basis_functions = no_basis_functions + 5
+            elif "f" in basis:
+                no_basis_functions = no_basis_functions + 7
+
+        return int(no_basis_functions)
+
+    def write_lobsterin(self, path="lobsterin", overwritedict=None):
+        """
+        writes a lobsterin file
+        Args:
+            path (str): filename of the lobsterin file that will be written
+            overwritedict (dict): dict that can be used to overwrite lobsterin, e.g. {"skipdos": True}
+        """
+
+        # will overwrite previous entries
+        # has to search first if entry is already in Lobsterindict (due to case insensitivity)
+        if overwritedict is not None:
+            for key, entry in overwritedict.items():
+                found = False
+                for key2 in self.keys():
+                    if key.lower() == key2.lower():
+                        self.get[key2] = entry
+                        found = True
+                if not found:
+                    self.get[key] = entry
+
+        filename = path
+        with open(filename, 'w') as f:
+            for key in Lobsterin.AVAILABLEKEYWORDS:
+                if key.lower() in [element.lower() for element in self.keys()]:
+                    if key.lower() in [element.lower() for element in Lobsterin.FLOATKEYWORDS]:
+                        f.write(key + ' ' + str(self.get(key)) + '\n')
+                    elif key.lower() in [element.lower() for element in Lobsterin.BOOLEANKEYWORDS]:
+                        # checks if entry is True or False
+                        for key_here in self.keys():
+                            if key.lower() == key_here.lower():
+                                new_key = key_here
+                        if self.get(new_key):
+                            f.write(key + '\n')
+                    elif key.lower() in [element.lower() for element in Lobsterin.STRINGKEYWORDS]:
+                        f.write(key + ' ' + str(self.get(key) + '\n'))
+                    elif key.lower() in [element.lower() for element in Lobsterin.LISTKEYWORDS]:
+                        for entry in self.get(key):
+                            f.write(key + ' ' + str(entry) + '\n')
+
+    def as_dict(self):
+        """
+        get dict
+        """
+        d = dict(self)
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        """
+        initalize from dict
+        """
+        return Lobsterin({k: v for k, v in d.items() if k not in ["@module",
+                                                                  "@class"]})
+
+    def write_INCAR(self, incar_input="INCAR", incar_output="INCAR.lobster", poscar_input="POSCAR",
+                    further_settings=None):
+        """
+        Will only make the run static, insert nbands, make ISYM=-1, set LWAVE=True and write a new INCAR.
+        You have to check for the rest.
+        Args:
+            incar_input (str): path to input INCAR
+            incar_output (str): path to output INCAR
+            poscar_input (str) path to input POSCAR
+            further_settings (dict): A dict can be used to include further settings, e.g. {"ISMEAR":-5}
+        """
+        # reads old incar from file, this one will be modified
+        incar = Incar.from_file(incar_input)
+        warnings.warn("Please check your incar_input before using it. This method only changes three settings!")
+        incar["ISYM"] = -1
+        incar["NSW"] = 0
+        incar["LWAVE"] = True
+        # get nbands from _get_nbands (use basis set that is inserted)
+        incar["NBANDS"] = self._get_nbands(Structure.from_file(poscar_input))
+        if further_settings is not None:
+            for key, item in further_settings.items():
+                incar[key] = further_settings[key]
+        # print it to file
+        incar.write_file(incar_output)
+
+    @staticmethod
+    def _get_basis(structure: Structure, potcar_symbols: list):
+        """
+        will get the basis from given potcar_symbols (e.g., ["Fe_pv","Si"]
+        #include this in lobsterin class
+        Args:
+            structure (Structure): Structure object
+            potcar_symbols: list of potcar symbols
+        Returns:
+            returns basis
+        """
+        Potcar_names = [name for name in potcar_symbols]
+
+        AtomTypes_Potcar = [name.split('_')[0] for name in Potcar_names]
+
+        AtomTypes = structure.symbol_set
+
+        if set(AtomTypes) != set(AtomTypes_Potcar):
+            raise IOError("Your POSCAR does not correspond to your POTCAR!")
+        BASIS = loadfn(os.path.join(MODULE_DIR, "BASIS_PBE_54.yaml"))['BASIS']
+
+        basis_functions = []
+        list_forin = []
+        for itype, type in enumerate(Potcar_names):
+            if type not in BASIS:
+                raise ValueError("You have to provide the basis for" + str(
+                    type) + "manually. We don't have any information on this POTCAR.")
+            basis_functions.append(BASIS[type].split())
+            tojoin = str(AtomTypes_Potcar[itype]) + " "
+            tojoin2 = "".join(str(str(e) + " ") for e in BASIS[type].split())
+            list_forin.append(str(tojoin + tojoin2))
+        return list_forin
+
+    @staticmethod
+    def write_POSCAR_with_standard_primitive(POSCAR_input="POSCAR", POSCAR_output="POSCAR.lobster", symprec=0.01):
+        """
+        writes a POSCAR with the standard primitive cell. This is needed to arrive at the correct kpath
+        Args:
+            POSCAR_input (str): filename of input POSCAR
+            POSCAR_output (str): filename of output POSCAR
+            symprec (float): precision to find symmetry
+        """
+        structure = Structure.from_file(POSCAR_input)
+        kpath = HighSymmKpath(structure, symprec=symprec)
+        new_structure = kpath.prim
+        new_structure.to(fmt='POSCAR', filename=POSCAR_output)
+
+    @staticmethod
+    def write_KPOINTS(POSCAR_input="POSCAR", KPOINTS_output="KPOINTS.lobster", reciprocal_density=100, from_grid=False,
+                      input_grid=[5, 5, 5], line_mode=True,
+                      kpoints_line_density=20, symprec=0.01):
+        """
+        writes a KPOINT file for lobster (no symmetry considered!, ISYM=-1)
+        Args:
+            POSCAR_input (str): path to POSCAR
+            KPOINTS_output (str): path to output KPOINTS
+            reciprocal_density (int): Grid density
+            from_grid (bool): If True KPOINTS will be generated with the help of a grid given in input_grid. Otherwise, they will be generated from the reciprocal_density
+            input_grid (list): grid to generate the KPOINTS file
+            line_mode (bool): If True, band structure will be generated
+            kpoints_line_density (int): density of the lines in the band structure
+            symprec (float): precision to determine symmetry
+
+        """
+        structure = Structure.from_file(POSCAR_input)
+        # should this really be static? -> make it similar to INCAR?
+        if not from_grid:
+            kpointgrid = Kpoints.automatic_density_by_vol(structure, reciprocal_density).kpts
+            mesh = kpointgrid[0]
+        else:
+            mesh = input_grid
+
+        # The following code is taken from: SpacegroupAnalyzer
+        # we need to switch off symmetry here
+        latt = structure.lattice.matrix
+        positions = structure.frac_coords
+        unique_species = []
+        zs = []
+        magmoms = []
+
+        for species, g in itertools.groupby(structure,
+                                            key=lambda s: s.species):
+            if species in unique_species:
+                ind = unique_species.index(species)
+                zs.extend([ind + 1] * len(tuple(g)))
+            else:
+                unique_species.append(species)
+                zs.extend([len(unique_species)] * len(tuple(g)))
+
+        for site in structure:
+            if hasattr(site, 'magmom'):
+                magmoms.append(site.magmom)
+            elif site.is_ordered and hasattr(site.specie, 'spin'):
+                magmoms.append(site.specie.spin)
+            else:
+                magmoms.append(0)
+
+        # For now, we are setting magmom to zero. (Taken from INCAR class)
+        cell = latt, positions, zs, magmoms
+        mapping, grid = spglib.get_ir_reciprocal_mesh(mesh, cell, is_shift=[0, 0, 0])
+
+        # get the kpoints for the grid
+        kpts = []
+        weights = []
+        all_labels = []
+        for i, (ir_gp_id, gp) in enumerate(zip(mapping, grid)):
+            # print("%3d ->%3d %s" % (i, ir_gp_id, gp.astype(float) / mesh))
+            kpts.append(gp.astype(float) / mesh)
+            weights.append(1)
+            all_labels.append("")
+
+        # line mode
+        if line_mode:
+            kpath = HighSymmKpath(structure, symprec=symprec)
+            if not np.allclose(kpath.prim.lattice.matrix, structure.lattice.matrix):
+                raise ValueError(
+                    "You are not using the standard primitive cell. The k-path is not correct. Please generate a standard primitive cell first.")
+
+            frac_k_points, labels = kpath.get_kpoints(
+                line_density=kpoints_line_density,
+                coords_are_cartesian=False)
+
+            for k in range(len(frac_k_points)):
+                kpts.append(frac_k_points[k])
+                weights.append(0.0)
+                all_labels.append(labels[k])
+
+        comment = (
+            "ISYM=-1, grid: " + str(mesh) if not line_mode else "ISYM=-1, grid: " + str(mesh) + " plus kpoint path")
+
+        KpointObject = Kpoints(comment=comment,
+                               style=Kpoints.supported_modes.Reciprocal,
+                               num_kpts=len(kpts), kpts=kpts, kpts_weights=weights,
+                               labels=all_labels)
+
+        KpointObject.write_file(filename=KPOINTS_output)
+
+    @classmethod
+    def from_file(cls, lobsterin: str):
+        """
+        Args:
+            lobsterin (str): path to lobsterin
+
+        Returns:
+            Lobsterin object
+        """
+        with zopen(lobsterin) as f:
+            data = f.read().split("\n")
+        if len(data) == 0:
+            raise IOError("lobsterin file contains no data.")
+        Lobsterindict = {}
+
+        for datum in data:
+            # will remove all commments to avoid complications
+            raw_datum = datum.split('!')[0]
+            raw_datum = raw_datum.split('//')[0]
+            raw_datum = raw_datum.split('#')[0]
+            raw_datum = raw_datum.split(' ')
+            while "" in raw_datum:
+                raw_datum.remove("")
+            if len(raw_datum) > 1:
+                # check which type of keyword this is, handle accordingly
+                if raw_datum[0].lower() not in [datum2.lower() for datum2 in Lobsterin.LISTKEYWORDS]:
+                    if raw_datum[0].lower() not in [datum2.lower() for datum2 in Lobsterin.FLOATKEYWORDS]:
+                        if raw_datum[0].lower() not in Lobsterindict:
+                            Lobsterindict[raw_datum[0].lower()] = " ".join(raw_datum[1:])
+                        else:
+                            raise ValueError("Same keyword " + str(raw_datum[0].lower()) + "twice!")
+                    else:
+                        if raw_datum[0].lower() not in Lobsterindict:
+                            Lobsterindict[raw_datum[0].lower()] = float(raw_datum[1])
+                        else:
+                            raise ValueError("Same keyword " + str(raw_datum[0].lower()) + "twice!")
+                else:
+                    if raw_datum[0].lower() not in Lobsterindict:
+                        Lobsterindict[raw_datum[0].lower()] = [" ".join(raw_datum[1:])]
+                    else:
+                        Lobsterindict[raw_datum[0].lower()].append(" ".join(raw_datum[1:]))
+            elif len(raw_datum) > 0:
+                Lobsterindict[raw_datum[0].lower()] = True
+
+        return cls(Lobsterindict)
+
+    @staticmethod
+    def _get_potcar_symbols(POTCAR_input: str) -> list:
+        """
+        will return the name of the species in the POTCAR
+        Args:
+         POTCAR_input(str): string to potcar file
+        Returns:
+            list of the names of the species in string format
+        """
+        potcar = Potcar.from_file(POTCAR_input)
+        for pot in potcar:
+            if pot.potential_type != "PAW":
+                raise IOError("Lobster only works with PAW! Use different POTCARs")
+
+        if potcar.functional != "PBE":
+            raise IOError("We only have BASIS options for PBE so far")
+
+        Potcar_names = [name["symbol"] for name in potcar.spec]
+        return Potcar_names
+
+    @classmethod
+    def standard_calculations_from_vasp_files(cls, POSCAR_input="POSCAR", INCAR_input="INCAR", POTCAR_input=None,
+                                              dict_for_basis=None,
+                                              option='standard'):
+        """
+        will generate Lobsterin with standard settings
+
+        Args:
+            POSCAR_input(str): path to POSCAR
+            INCAR_input(str): path to INCAR
+            POTCAR_input (str): path to POTCAR
+            dict_for_basis (dict): can be provided: it should look the following: dict_for_basis={"Fe":'3p 3d 4s 4f', "C": '2s 2p'} and will overwrite all settings from POTCAR_input
+
+            option (str): 'standard' will start a normal lobster run where COHPs, COOPs, DOS, CHARGE etc. will be calculated
+                        'standard_from_projection' will start a normal lobster run from a projection
+                        'standard_with_fatband' will do a fatband calculation, run over all orbitals
+                        'onlyprojection' will only do a projection
+                        'onlydos' will only calculate a projected dos
+                        'onlycohp' will only calculate cohp
+                        'onlycoop' will only calculate coop
+                        'onlycohpcoop' will only calculate cohp and coop
+
+
+        Returns:
+            Lobsterin Object with standard settings
+        """
+        warnings.warn(
+            "Always check and test the provided basis functions. The spilling of your Lobster calculation might help")
+        # warn that fatband calc cannot be done with tetrahedron method at the moment
+        if option not in ['standard', 'standard_from_projection', 'standard_with_fatband', 'onlyprojection', 'onlydos',
+                          'onlycohp', 'onlycoop', 'onlycohpcoop']:
+            raise ValueError("The option is not valid!")
+
+        Lobsterindict = {}
+        # this basis set covers most elements
+        Lobsterindict['basisSet'] = 'pbeVaspFit2015'
+        # energies around e-fermi
+        Lobsterindict['COHPstartEnergy'] = -15.0
+        Lobsterindict['COHPendEnergy'] = 5.0
+
+        if option == 'standard' or option == 'onlycohp' or option == 'onlycoop' or option == 'onlycohpcoop' or option == 'standard_with_fatband':
+            # every interaction with a distance of 6.0 is checked
+            Lobsterindict['cohpGenerator'] = "from 0.1 to 6.0 orbitalwise"
+            # the projection is saved
+            Lobsterindict['saveProjectionToFile'] = True
+
+        if option == 'standard_from_projection':
+            Lobsterindict['cohpGenerator'] = "from 0.1 to 6.0 orbitalwise"
+            Lobsterindict['loadProjectionFromFile'] = True
+
+        if option == 'onlycohp':
+            Lobsterindict['skipdos'] = True
+            Lobsterindict['skipcoop'] = True
+            Lobsterindict['skipPopulationAnalysis'] = True
+            Lobsterindict['skipGrossPopulation'] = True
+
+        if option == 'onlycoop':
+            Lobsterindict['skipdos'] = True
+            Lobsterindict['skipcohp'] = True
+            Lobsterindict['skipPopulationAnalysis'] = True
+            Lobsterindict['skipGrossPopulation'] = True
+
+        if option == 'onlycohpcoop':
+            Lobsterindict['skipdos'] = True
+            Lobsterindict['skipPopulationAnalysis'] = True
+            Lobsterindict['skipGrossPopulation'] = True
+
+        if option == 'onlydos':
+            Lobsterindict['skipcohp'] = True
+            Lobsterindict['skipcoop'] = True
+            Lobsterindict['skipPopulationAnalysis'] = True
+            Lobsterindict['skipGrossPopulation'] = True
+
+        if option == 'onlyprojection':
+            Lobsterindict['skipdos'] = True
+            Lobsterindict['skipcohp'] = True
+            Lobsterindict['skipcoop'] = True
+            Lobsterindict['skipPopulationAnalysis'] = True
+            Lobsterindict['skipGrossPopulation'] = True
+            Lobsterindict['saveProjectionToFile'] = True
+
+        incar = Incar.from_file(INCAR_input)
+        if incar["ISMEAR"] == 0:
+            Lobsterindict['gaussianSmearingWidth'] = incar["SIGMA"]
+        if incar["ISMEAR"] != 0 and option == "standard_with_fatband":
+            raise ValueError("ISMEAR has to be 0 for a fatband calculation with Lobster")
+        if dict_for_basis is not None:
+            # dict_for_basis={"Fe":'3p 3d 4s 4f', "C": '2s 2p'}
+            # will just insert this basis and not check with poscar
+            basis = [key + ' ' + value for key, value in dict_for_basis.items()]
+        else:
+            # get basis from POTCAR
+            potcar_names = Lobsterin._get_potcar_symbols(POTCAR_input=POTCAR_input)
+
+            basis = Lobsterin._get_basis(structure=Structure.from_file(POSCAR_input),
+                                         potcar_symbols=potcar_names)
+        Lobsterindict["basisfunctions"] = basis
+        if option == 'standard_with_fatband':
+            Lobsterindict['createFatband'] = basis
+
+        return cls(Lobsterindict)
+
+
+class Bandoverlaps:
+    """
+    Class to read in bandOverlaps.lobster files. These files are not created during every Lobster run.
+    Args:
+        filename: filename of the "bandOverlaps.lobster" file
+
+    .. attribute: bandoverlapsdict is a dict of the following form:
+                 {spin:{"kpoint as string": {"maxDeviation": float that describes the max deviation, "matrix": 2D array of the size number of bands times number of bands including the overlap matrices with } }}
+
+    .. attribute: maxDeviation is a list of floats describing the maximal Deviation for each problematic kpoint
+
+    """
+
+    def __init__(self, filename="bandOverlaps.lobster"):
+
+        with zopen(filename, "rt") as f:
+            contents = f.read().split("\n")
+
+        self._read(contents)
+
+    def _read(self, contents: list):
+        """
+        will read in all contents of the file
+        Args:
+         contents: list of strings
+        """
+        self.bandoverlapsdict = {}
+        self.maxDeviation = []
+        # This has to be done like this because there can be different numbers of problematic k-points per spin
+        for line in contents:
+            if "Overlap Matrix (abs) of the orthonormalized projected bands for spin 0" in line:
+                spin = Spin.up
+            elif "Overlap Matrix (abs) of the orthonormalized projected bands for spin 1" in line:
+                spin = Spin.down
+            elif "k-point" in line:
+                kpoint = line.split(" ")
+                kpoint_array = []
+                for kpointel in kpoint:
+                    if kpointel not in ["at", "k-point", ""]:
+                        kpoint_array.append(str(kpointel))
+
+            elif "maxDeviation" in line:
+                if not spin in self.bandoverlapsdict:
+                    self.bandoverlapsdict[spin] = {}
+                if not " ".join(kpoint_array) in self.bandoverlapsdict[spin]:
+                    self.bandoverlapsdict[spin][" ".join(kpoint_array)] = {}
+                maxdev = line.split(" ")[2]
+                self.bandoverlapsdict[spin][" ".join(kpoint_array)]["maxDeviation"] = float(maxdev)
+                self.maxDeviation.append(float(maxdev))
+                self.bandoverlapsdict[spin][" ".join(kpoint_array)]["matrix"] = []
+
+            else:
+                overlaps = []
+                for el in (line.split(" ")):
+                    if el not in [""]:
+                        overlaps.append(float(el))
+                self.bandoverlapsdict[spin][" ".join(kpoint_array)]["matrix"].append(overlaps)
+
+    def has_good_quality_maxDeviation(self, limit_maxDeviation=0.1) -> bool:
+        """
+        will check if the maxDeviation from the ideal bandoverlap is smaller or equal to limit_maxDeviation
+        Args:
+         limit_maxDeviation: limit of the maxDeviation
+        Returns:
+             Boolean that will give you information about the quality of the projection
+        """
+
+        for deviation in self.maxDeviation:
+            if deviation > limit_maxDeviation:
+                return False
+        return True
+
+    def has_good_quality_check_occupied_bands(self, number_occ_bands_spin_up, number_occ_bands_spin_down=None,
+                                              spin_polarized=False, limit_deviation=0.1) -> bool:
+        """
+        will check if the deviation from the ideal bandoverlap of all occupied bands is smaller or equal to limit_deviation
+        Args:
+        number_occ_bands_spin_up (int): number of occupied bands of spin up
+        number_occ_bands_spin_down (int): number of occupied bands of spin down
+        spin_polarized (bool):  If True, then it was a spin polarized calculation
+        limit_deviation (float): limit of the maxDeviation
+        Returns:
+             Boolean that will give you information about the quality of the projection
+        """
+
+        for matrix in self.bandoverlapsdict[Spin.up].values():
+            for iband1, band1 in enumerate(matrix["matrix"]):
+                for iband2, band2 in enumerate(band1):
+                    if iband1 < number_occ_bands_spin_up and iband2 < number_occ_bands_spin_up:
+                        if iband1 == iband2:
+                            if abs(band2 - 1.0) > limit_deviation:
+                                return False
+                        else:
+                            if band2 > limit_deviation:
+                                return False
+
+        if spin_polarized:
+            for matrix in self.bandoverlapsdict[Spin.down].values():
+                for iband1, band1 in enumerate(matrix["matrix"]):
+                    for iband2, band2 in enumerate(band1):
+                        if iband1 < number_occ_bands_spin_down and iband2 < number_occ_bands_spin_down:
+                            if iband1 == iband2:
+                                if abs(band2 - 1.0) > limit_deviation:
+                                    return False
+                            else:
+                                if band2 > limit_deviation:
+                                    return False
+
+        return True

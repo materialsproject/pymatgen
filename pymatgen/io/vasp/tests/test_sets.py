@@ -40,6 +40,19 @@ class MITMPRelaxSetTest(PymatgenTest):
     def tearDown(self):
         warnings.simplefilter("default")
 
+    def test_metal_check(self):
+        structure = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3),
+                                              ["Cu"], [[0, 0, 0]])
+
+        with warnings.catch_warnings(record=True) as w:
+            # Cause all warnings to always be triggered.
+            warnings.simplefilter("always")
+            # Trigger a warning.
+            vis = MITRelaxSet(structure)
+            incar = vis.incar
+            # Verify some things
+            self.assertIn("ISMEAR", str(w[-1].message))
+
     def test_poscar(self):
         structure = Structure(self.lattice, ["Fe", "Mn"], self.coords)
         mitparamset = MITRelaxSet(structure, sort_structure=False)
@@ -374,6 +387,33 @@ class MPStaticSetTest(PymatgenTest):
                                                   lcalcpol=True)
         self.assertTrue(lcalcpol_vis.incar["LCALCPOL"])
 
+    def test_override_from_prev_calc(self):
+        # test override_from_prev
+        prev_run = self.TEST_FILES_DIR / "relaxation"
+
+        vis = MPStaticSet(_dummy_structure)
+        vis.override_from_prev_calc(prev_calc_dir=prev_run)
+        self.assertEqual(vis.incar["NSW"], 0)
+        self.assertEqual(vis.incar["ENCUT"], 600)
+        self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Monkhorst)
+
+        # Check LCALCPOL flag
+        lcalcpol_vis = MPStaticSet(_dummy_structure, lcalcpol=True)
+        lcalcpol_vis = lcalcpol_vis.override_from_prev_calc(
+            prev_calc_dir=prev_run)
+        self.assertTrue(lcalcpol_vis.incar["LCALCPOL"])
+
+    def test_standardize_structure(self):
+        sga = SpacegroupAnalyzer(self.get_structure("Si"))
+        original_structure = sga.get_conventional_standard_structure()
+        sm = StructureMatcher(primitive_cell=False, scale=False)
+
+        vis = MPStaticSet(original_structure)
+        self.assertTrue(sm.fit(vis.structure, original_structure))
+
+        vis = MPStaticSet(original_structure, standardize=True)
+        self.assertFalse(sm.fit(vis.structure, original_structure))
+
     def tearDown(self):
         shutil.rmtree(self.tmp)
         warnings.simplefilter("default")
@@ -386,9 +426,20 @@ class MPNonSCFSetTest(PymatgenTest):
 
     def test_init(self):
         prev_run = self.TEST_FILES_DIR / "relaxation"
+        # check boltztrap mode
+        vis = MPNonSCFSet.from_prev_calc(prev_calc_dir=prev_run,
+                                         mode="Boltztrap")
+        self.assertEqual(vis.incar["ISMEAR"], 0)
+
+        # check uniform mode
+        vis = MPNonSCFSet.from_prev_calc(prev_calc_dir=prev_run, mode="Uniform")
+        self.assertEqual(vis.incar["ISMEAR"], -5)
+
+        # test line mode
         vis = MPNonSCFSet.from_prev_calc(
             prev_calc_dir=prev_run, mode="Line", copy_chgcar=False,
             user_incar_settings={"SIGMA": 0.025})
+
         self.assertEqual(vis.incar["NSW"], 0)
         # Check that the ENCUT has been inherited.
         self.assertEqual(vis.incar["ENCUT"], 600)
@@ -408,6 +459,8 @@ class MPNonSCFSetTest(PymatgenTest):
 
         vis = MPNonSCFSet.from_prev_calc(prev_calc_dir=prev_run,
                                          mode="Line", copy_chgcar=True)
+        # check ISMEAR set correctly for line mode
+        self.assertEqual(vis.incar["ISMEAR"], 0)
         vis.write_input(self.tmp)
         self.assertTrue(os.path.exists(os.path.join(self.tmp, "CHGCAR")))
         os.remove(os.path.join(self.tmp, "CHGCAR"))
@@ -417,6 +470,56 @@ class MPNonSCFSetTest(PymatgenTest):
                                          mode="Line", copy_chgcar=True)
         vis.write_input(self.tmp)
         self.assertFalse(os.path.exists(os.path.join(self.tmp, "CHGCAR")))
+
+    def test_override_from_prev(self):
+        prev_run = self.TEST_FILES_DIR / "relaxation"
+
+        # test override_from_prev
+        vis = MPNonSCFSet(_dummy_structure, mode="Boltztrap")
+        vis.override_from_prev_calc(prev_calc_dir=prev_run)
+        self.assertEqual(vis.incar["ISMEAR"], 0)
+
+        vis = MPNonSCFSet(_dummy_structure, mode="Uniform")
+        vis.override_from_prev_calc(prev_calc_dir=prev_run)
+        self.assertEqual(vis.incar["ISMEAR"], -5)
+
+        # test line mode
+        vis = MPNonSCFSet(_dummy_structure, mode="Line", copy_chgcar=False,
+                          user_incar_settings={"SIGMA": 0.025})
+        vis.override_from_prev_calc(prev_calc_dir=prev_run)
+
+        self.assertEqual(vis.incar["NSW"], 0)
+        self.assertEqual(vis.incar["ENCUT"], 600)
+        self.assertEqual(vis.incar["SIGMA"], 0.025)
+        self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Reciprocal)
+
+        vis = MPNonSCFSet(_dummy_structure, mode="Line", copy_chgcar=True)
+        vis.override_from_prev_calc(prev_calc_dir=prev_run)
+        self.assertEqual(vis.incar["ISMEAR"], 0)
+        vis.write_input(self.tmp)
+        self.assertTrue(os.path.exists(os.path.join(self.tmp, "CHGCAR")))
+        os.remove(os.path.join(self.tmp, "CHGCAR"))
+
+        vis = MPNonSCFSet(_dummy_structure, standardize=True, mode="Line",
+                          copy_chgcar=True)
+        vis.override_from_prev_calc(prev_calc_dir=prev_run)
+        vis.write_input(self.tmp)
+        self.assertFalse(os.path.exists(os.path.join(self.tmp, "CHGCAR")))
+
+    def test_kpoints(self):
+        # test k-points are generated in the correct format
+        prev_run = self.TEST_FILES_DIR / "relaxation"
+        vis = MPNonSCFSet.from_prev_calc(
+            prev_calc_dir=prev_run, mode="Uniform", copy_chgcar=False)
+        self.assertEqual(np.array(vis.kpoints.kpts).shape, (1, 3))
+
+        vis = MPNonSCFSet.from_prev_calc(
+            prev_calc_dir=prev_run, mode="Line", copy_chgcar=False)
+        self.assertNotEqual(np.array(vis.kpoints.kpts).shape, (1, 3))
+
+        vis = MPNonSCFSet.from_prev_calc(
+            prev_calc_dir=prev_run, mode="Boltztrap", copy_chgcar=False)
+        self.assertNotEqual(np.array(vis.kpoints.kpts).shape, (1, 3))
 
     def test_optics(self):
         prev_run = self.TEST_FILES_DIR / "relaxation"
@@ -433,7 +536,7 @@ class MPNonSCFSetTest(PymatgenTest):
         self.assertEqual(vis.incar["ISMEAR"], -5)
 
         self.assertTrue(vis.incar["LOPTICS"])
-        self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Reciprocal)
+        self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Gamma)
 
     def test_user_kpoint_override(self):
         user_kpoints_override = Kpoints(
@@ -463,7 +566,7 @@ class MagmomLdauTest(PymatgenTest):
         vrun = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.magmom_ldau")
         structure = vrun.final_structure
         poscar = Poscar(structure)
-        structure_decorated = get_structure_from_prev_run(vrun, sym_prec=0)
+        structure_decorated = get_structure_from_prev_run(vrun)
         ldau_ans = {'LDAUU': [5.3, 0.0], 'LDAUL': [2, 0], 'LDAUJ': [0.0, 0.0]}
         magmom_ans = [5.0, 5.0, 5.0, 5.0, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6]
         ldau_dict = {}
@@ -643,6 +746,19 @@ class MPSOCSetTest(PymatgenTest):
         self.assertEqual(vis.incar["MAGMOM"], [[0, 0, 3]])
         self.assertEqual(vis.incar['SIGMA'], 0.025)
 
+    def test_override_from_prev_calc(self):
+        # test override_from_prev_calc
+        prev_run = self.TEST_FILES_DIR / "fe_monomer"
+        vis = MPSOCSet(_dummy_structure, magmom=[3], saxis=(1, 0, 0),
+                       user_incar_settings={"SIGMA": 0.025})
+        vis.override_from_prev_calc(prev_calc_dir=prev_run)
+        self.assertEqual(vis.incar["ISYM"], -1)
+        self.assertTrue(vis.incar["LSORBIT"])
+        self.assertEqual(vis.incar["ICHARG"], 11)
+        self.assertEqual(vis.incar["SAXIS"], [1, 0, 0])
+        self.assertEqual(vis.incar["MAGMOM"], [[0, 0, 3]])
+        self.assertEqual(vis.incar['SIGMA'], 0.025)
+
 
 class MPNMRSetTest(PymatgenTest):
     def setUp(self):
@@ -788,6 +904,15 @@ class MVLGWSetTest(PymatgenTest):
         self.assertEqual(mvlgwdiag.incar["ALGO"], "Exact")
         self.assertTrue(mvlgwdiag.incar["LOPTICS"])
 
+        # test override_from_prev_calc
+        mvlgwdiag = MVLGWSet(_dummy_structure, copy_wavecar=True, mode="diag")
+        mvlgwdiag.override_from_prev_calc(prev_calc_dir=prev_run)
+        mvlgwdiag.write_input(self.tmp)
+        self.assertTrue(os.path.exists(os.path.join(self.tmp, "WAVECAR")))
+        self.assertEqual(mvlgwdiag.incar["NBANDS"], 32)
+        self.assertEqual(mvlgwdiag.incar["ALGO"], "Exact")
+        self.assertTrue(mvlgwdiag.incar["LOPTICS"])
+
     def test_bse(self):
         prev_run = self.TEST_FILES_DIR / "relaxation"
         mvlgwgbse = MVLGWSet.from_prev_calc(prev_run, copy_wavecar=True,
@@ -804,6 +929,27 @@ class MVLGWSetTest(PymatgenTest):
         self.assertEqual(mvlgwgbse.incar["ALGO"], "GW0")
         mvlgwgbse1 = MVLGWSet.from_prev_calc(prev_run, copy_wavecar=False,
                                              mode="BSE")
+        self.assertEqual(mvlgwgbse1.incar["ANTIRES"], 0)
+        self.assertEqual(mvlgwgbse1.incar["NBANDSO"], 20)
+        self.assertEqual(mvlgwgbse1.incar["ALGO"], "BSE")
+
+        # test override_from_prev_calc
+        prev_run = self.TEST_FILES_DIR / "relaxation"
+        mvlgwgbse = MVLGWSet(_dummy_structure, copy_wavecar=True, mode="BSE")
+        mvlgwgbse.override_from_prev_calc(prev_calc_dir=prev_run)
+        mvlgwgbse.write_input(self.tmp)
+        self.assertTrue(os.path.exists(os.path.join(self.tmp, "WAVECAR")))
+        self.assertTrue(os.path.exists(os.path.join(self.tmp, "WAVEDER")))
+
+        prev_run = self.TEST_FILES_DIR / "relaxation"
+        mvlgwgbse = MVLGWSet(_dummy_structure, copy_wavecar=True, mode="GW")
+        mvlgwgbse.override_from_prev_calc(prev_calc_dir=prev_run)
+        self.assertEqual(mvlgwgbse.incar["NOMEGA"], 80)
+        self.assertEqual(mvlgwgbse.incar["ENCUTGW"], 250)
+        self.assertEqual(mvlgwgbse.incar["ALGO"], "GW0")
+
+        mvlgwgbse1 = MVLGWSet(_dummy_structure, copy_wavecar=False, mode="BSE")
+        mvlgwgbse1.override_from_prev_calc(prev_calc_dir=prev_run)
         self.assertEqual(mvlgwgbse1.incar["ANTIRES"], 0)
         self.assertEqual(mvlgwgbse1.incar["NBANDSO"], 20)
         self.assertEqual(mvlgwgbse1.incar["ALGO"], "BSE")
@@ -831,6 +977,26 @@ class MPHSEBSTest(PymatgenTest):
         self.assertEqual(len(vis.kpoints.kpts), 18)
 
         vis = MPHSEBSSet.from_prev_calc(prev_calc_dir=prev_run, mode="line")
+        self.assertTrue(vis.incar["LHFCALC"])
+        self.assertEqual(vis.incar['HFSCREEN'], 0.2)
+        self.assertEqual(vis.incar['NSW'], 0)
+        self.assertEqual(vis.incar['ISYM'], 3)
+        self.assertEqual(len(vis.kpoints.kpts), 180)
+
+    def test_override_from_prev_calc(self):
+        prev_run = self.TEST_FILES_DIR / "static_silicon"
+        vis = MPHSEBSSet(_dummy_structure, mode="uniform")
+        vis = vis.override_from_prev_calc(prev_calc_dir=prev_run)
+        self.assertTrue(vis.incar["LHFCALC"])
+        self.assertEqual(len(vis.kpoints.kpts), 16)
+
+        vis = MPHSEBSSet(_dummy_structure, mode="gap")
+        vis = vis.override_from_prev_calc(prev_calc_dir=prev_run)
+        self.assertTrue(vis.incar["LHFCALC"])
+        self.assertEqual(len(vis.kpoints.kpts), 18)
+
+        vis = MPHSEBSSet(_dummy_structure, mode="line")
+        vis = vis.override_from_prev_calc(prev_calc_dir=prev_run)
         self.assertTrue(vis.incar["LHFCALC"])
         self.assertEqual(vis.incar['HFSCREEN'], 0.2)
         self.assertEqual(vis.incar['NSW'], 0)
@@ -958,6 +1124,9 @@ class MVLRelax52SetTest(PymatgenTest):
         self.assertEqual(type(v), MVLRelax52Set)
         self.assertEqual(v.incar["NSW"], 500)
 
+
+_dummy_structure = Structure([1, 0, 0, 0, 1, 0, 0, 0, 1], ['I'], [[0, 0, 0]],
+                             site_properties={"magmom": [[0, 0, 1]]})
 
 if __name__ == '__main__':
     unittest.main()

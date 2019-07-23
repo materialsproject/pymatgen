@@ -436,7 +436,7 @@ class ElectronsAlgorithm(dict, AbivarAble, MSONable):
         dielam=None, diegap=None, dielng=None, diecut=None, nstep=50)
 
     def __init__(self, *args, **kwargs):
-        super(ElectronsAlgorithm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         for k in self:
             if k not in self._DEFAULT:
@@ -469,7 +469,7 @@ class Electrons(AbivarAble, MSONable):
             comment: String comment for Electrons
             charge: Total charge of the system. Default is 0.
         """
-        super(Electrons, self).__init__()
+        super().__init__()
 
         self.comment = comment
         self.smearing = Smearing.as_smearing(smearing)
@@ -588,7 +588,7 @@ class KSampling(AbivarAble, MSONable):
         if isinstance(mode, str):
             mode = KSamplingModes[mode]
 
-        super(KSampling, self).__init__()
+        super().__init__()
 
         self.mode = mode
         self.comment = comment

@@ -1,6 +1,7 @@
 **Official docs:** http://www.pymatgen.org
 
 .. image:: https://circleci.com/gh/materialsproject/pymatgen.svg?style=shield&circle-token=:circle-token
+    :target: https://circleci.com/gh/materialsproject/pymatgen
 
 .. image:: https://ci.appveyor.com/api/projects/status/akdyke5jxg6gps45?svg=true
 
@@ -13,8 +14,8 @@ for materials analysis. These are some of the main features:
 
 1. Highly flexible classes for the representation of Element, Site, Molecule,
    Structure objects.
-2. Extensive input/output support, including support for VASP
-   (http://cms.mpi.univie.ac.at/vasp/), ABINIT (http://www.abinit.org/), CIF,
+2. Extensive input/output support, including support for `VASP
+   <http://cms.mpi.univie.ac.at/vasp>`_, `ABINIT <http://www.abinit.org>`_, CIF,
    Gaussian, XYZ, and many other file formats.
 3. Powerful analysis tools, including generation of phase diagrams, Pourbaix
    diagrams, diffusion analyses, reactions, etc.
@@ -65,13 +66,6 @@ but pymatgen offer several advantages:
    and maintained by the `Materials Virtual Lab`_, the ABINIT group and many
    other research groups.
 
-Pymatgen is compatible with both Python 2.7+ as well as latest Python 3.x.
-The pymatgen development team will phase out Py2.7 support over the course of
-2018. From v2018.1.1, new features implemented in pymatgen no longer need to
-support Py2.7 (i.e., unittests do not need to pass Py2k testing), though
-existing features will still be Py2.7 compatible. From v2019.1.1, pymatgen will
-be Py3k only.
-
 Getting pymatgen
 ================
 
@@ -84,14 +78,20 @@ conda, which will make things a lot easier, especially on Windows. Visit
 `materials.sh <http://materials.sh>`_ for instructions on how to use the
 matsci channel to install pymatgen and other packages.
 
-The version at the Python Package Index (PyPI) is always the latest stable
-release that is relatively bug-free. The easiest way to install pymatgen on
-any system is to use pip::
+In line with the Scientific Python stack, pymatgen will now support only
+Py3.x from v2019.1.1. Specifically, we now only run testing on Py3.6+ so
+this is our officially  supported minimum Python version.
+
+Users who need Python 2.7 support should install v2018.x,
+you may also need to enforce an older version of numpy (`pip install numpy==1.16.4 `).
+
+The version at the `Python Package Index (PyPI) <https://pypi.org/project/pymatgen>`_
+is always the latest stable release that is relatively bug-free. The easiest 
+way to install pymatgen on any system is via pip::
 
     pip install pymatgen
 
-Wheels for Mac (Python 2.7 and 3.6) and Windows (Python 3.6) have been built
-for convenience.
+Wheels for Mac and Windows have been built for convenience.
 
 Some extra functionality (e.g., generation of POTCARs) do require additional
 setup (please see the `pymatgen page`_).

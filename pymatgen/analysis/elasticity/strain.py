@@ -45,7 +45,7 @@ class Deformation(SquareTensor):
             deformation_gradient (3x3 array-like): the 3x3 array-like
                 representing the deformation gradient
         """
-        obj = super(Deformation, cls).__new__(cls, deformation_gradient)
+        obj = super().__new__(cls, deformation_gradient)
         return obj.view(cls)
 
     def is_independent(self, tol=1e-8):
@@ -175,7 +175,7 @@ class Strain(SquareTensor):
         """
         vscale = np.ones((6,))
         vscale[3:] *= 2
-        obj = super(Strain, cls).__new__(cls, strain_matrix, vscale=vscale)
+        obj = super().__new__(cls, strain_matrix, vscale=vscale)
         if not obj.is_symmetric():
             raise ValueError("Strain objects must be initialized "
                              "with a symmetric array or a voigt-notation "

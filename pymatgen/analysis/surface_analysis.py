@@ -133,7 +133,7 @@ class SlabEntry(ComputedStructureEntry):
         self.mark = marker
         self.color = color
 
-        super(SlabEntry, self).__init__(
+        super().__init__(
             structure, energy, correction=correction,
             parameters=parameters, data=data, entry_id=entry_id)
 

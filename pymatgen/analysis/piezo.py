@@ -36,8 +36,22 @@ class PiezoTensor(Tensor):
             input_matrix (3x3x3 array-like): the 3x6 array-like
                 representing the piezo tensor
         """
-        obj = super(PiezoTensor, cls).__new__(cls, input_array, check_rank=3)
+        obj = super().__new__(cls, input_array, check_rank=3)
         if not (obj - np.transpose(obj, (0, 2, 1)) < tol).all():
             warnings.warn("Input piezo tensor does "
                           "not satisfy standard symmetries")
         return obj.view(cls)
+
+    @classmethod
+    def from_vasp_voigt(cls, input_vasp_array):
+        voigt_map = [(0, 0), (1, 1), (2, 2), (0, 1), (1, 2), (0, 2)]
+        input_vasp_array = np.array(input_vasp_array)
+        rank = 3
+
+        pt = np.zeros([rank, 3, 3])
+        for dim in range(rank):
+            for pos in range(len(voigt_map)):
+                pt[dim][voigt_map[pos]] = input_vasp_array[dim][pos]
+                pt[dim].T[voigt_map[pos]] = input_vasp_array[dim][pos]
+
+        return cls(pt)

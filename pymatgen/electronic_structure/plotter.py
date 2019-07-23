@@ -705,7 +705,7 @@ class BSPlotterProjected(BSPlotter):
         if len(bs.projections) == 0:
             raise ValueError("try to plot projections"
                              " on a band structure without any")
-        super(BSPlotterProjected, self).__init__(bs)
+        super().__init__(bs)
 
     def _get_projections_by_branches(self, dictio):
         proj = self._bs.get_projections_on_elements_and_orbitals(dictio)
@@ -746,6 +746,9 @@ class BSPlotterProjected(BSPlotter):
                 format is {Element:[Orbitals]} for instance
                 {'Cu':['d','s'],'O':['p']} will give projections for Cu on
                 d and s orbitals and on oxygen p.
+                If you use this class to plot LobsterBandStructureSymmLine,
+                the orbitals are named as in the FATBAND filename, e.g.
+                "2p" or "2p_x"
 
         Returns:
             a pylab object with different subfigures for each projection
@@ -2092,6 +2095,8 @@ class BSPlotterProjected(BSPlotter):
         return plt, shift
 
 
+
+
 class BSDOSPlotter:
     """
     A joint, aligned band structure and density of states plot. Contributions 
@@ -2187,10 +2192,13 @@ class BSDOSPlotter:
         # initialize all the k-point labels and k-point x-distances for bs plot
         xlabels = []  # all symmetry point labels on x-axis
         xlabel_distances = []  # positions of symmetry point x-labels
-        x_distances = []  # x positions of kpoint data
+
+        x_distances_list = []
         prev_right_klabel = None  # used to determine which branches require a midline separator
 
         for idx, l in enumerate(bs.branches):
+            x_distances = []
+
             # get left and right kpoint labels of this branch
             left_k, right_k = l["name"].split("-")
 
@@ -2223,6 +2231,7 @@ class BSDOSPlotter:
             x_distances.append(xlabel_distances[-2])
             for i in range(npts):
                 x_distances.append(x_distances[-1] + distance_interval)
+            x_distances_list.append(x_distances)
 
         # set up bs and dos plot
         gs = GridSpec(1, 2, width_ratios=[2, 1]) if dos else GridSpec(1, 1)
@@ -2234,7 +2243,7 @@ class BSDOSPlotter:
             dos_ax = mplt.subplot(gs[1])
 
         # set basic axes limits for the plot
-        bs_ax.set_xlim(0, x_distances[-1])
+        bs_ax.set_xlim(0, x_distances_list[-1][-1])
         bs_ax.set_ylim(emin, emax)
         if dos:
             dos_ax.set_ylim(emin, emax)
@@ -2248,7 +2257,7 @@ class BSDOSPlotter:
                          family=self.font)
 
         # add BS fermi level line at E=0 and gridlines
-        bs_ax.hlines(y=0, xmin=0, xmax=x_distances[-1], color="k", lw=2)
+        bs_ax.hlines(y=0, xmin=0, xmax=x_distances_list[-1][-1], color="k", lw=2)
         bs_ax.set_yticks(np.arange(emin, emax + 1E-5, self.egrid_interval))
         bs_ax.set_yticklabels(np.arange(emin, emax + 1E-5, self.egrid_interval),
                               size=self.tick_fontsize)
@@ -2279,11 +2288,17 @@ class BSDOSPlotter:
             if spin in band_energies:
                 linestyles = "solid" if spin == Spin.up else "dotted"
                 for band_idx, band in enumerate(band_energies[spin]):
-                    self._rgbline(bs_ax, x_distances, band,
-                                  colordata[spin][band_idx, :, 0],
-                                  colordata[spin][band_idx, :, 1],
-                                  colordata[spin][band_idx, :, 2],
-                                  linestyles=linestyles)
+                    current_pos = 0
+                    for x_distances in x_distances_list:
+                        sub_band = band[current_pos: current_pos + len(x_distances)]
+
+                        self._rgbline(bs_ax, x_distances, sub_band,
+                                      colordata[spin][band_idx, :, 0][current_pos: current_pos + len(x_distances)],
+                                      colordata[spin][band_idx, :, 1][current_pos: current_pos + len(x_distances)],
+                                      colordata[spin][band_idx, :, 2][current_pos: current_pos + len(x_distances)],
+                                      linestyles=linestyles)
+
+                        current_pos += len(x_distances)
 
         if dos:
             # Plot the DOS and projected DOS
@@ -2534,7 +2549,7 @@ class BSDOSPlotter:
                           [1 - (i / 1000) ** 2, 0, (i / 1000) ** 2]])
 
         # plot the bar
-        inset_ax.scatter(x, y, s=250., marker='s', edgecolor=color)
+        inset_ax.scatter(x, y, s=250., marker='s', c=color)
         inset_ax.set_xlim([-0.1, 1.7])
         inset_ax.text(1.35, 0, b_label, fontsize=13,
                       family='Times New Roman', color=(0, 0, 0),
@@ -4104,7 +4119,7 @@ def plot_brillouin_zone(bz_lattice, lines=None, labels=None, kpoints=None,
     ax.set_ylim3d(-1, 1)
     ax.set_zlim3d(-1, 1)
 
-    ax.set_aspect('equal')
+    # ax.set_aspect('equal')
     ax.axis("off")
 
     return fig
@@ -4183,3 +4198,5 @@ def plot_ellipsoid(hessian, center, lattice=None, rescale=1.0, ax=None,
                         color=color[i])
 
     return fig, ax
+
+

@@ -905,6 +905,12 @@ class Element(Enum):
         return self.is_lanthanoid or self.is_actinoid
 
     @property
+    def is_metal(self):
+        return (self.is_alkali or self.is_alkaline or
+                self.is_post_transition_metal or self.is_transition_metal or
+                self.is_lanthanoid or self.is_actinoid)
+
+    @property
     def is_metalloid(self):
         """
         True if element is a metalloid.

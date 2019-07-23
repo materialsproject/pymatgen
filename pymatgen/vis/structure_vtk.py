@@ -910,7 +910,7 @@ class MultiStructuresVis(StructureVis):
                  show_bonds=False, show_polyhedron=False,
                  poly_radii_tol_factor=0.5, excluded_bonding_elements=None,
                  animated_movie_options=DEFAULT_ANIMATED_MOVIE_OPTIONS):
-        super(MultiStructuresVis, self).__init__(element_color_mapping=element_color_mapping,
+        super().__init__(element_color_mapping=element_color_mapping,
                                                  show_unit_cell=show_unit_cell,
                                                  show_bonds=show_bonds, show_polyhedron=show_polyhedron,
                                                  poly_radii_tol_factor=poly_radii_tol_factor,
@@ -949,7 +949,7 @@ class MultiStructuresVis(StructureVis):
         self.set_structure(self.current_structure, reset_camera=True, to_unit_cell=False)
 
     def set_structure(self, structure, reset_camera=True, to_unit_cell=False):
-        super(MultiStructuresVis, self).set_structure(structure=structure, reset_camera=reset_camera,
+        super().set_structure(structure=structure, reset_camera=reset_camera,
                                                       to_unit_cell=to_unit_cell)
         self.apply_tags()
 

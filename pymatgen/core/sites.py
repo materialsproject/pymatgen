@@ -375,14 +375,14 @@ class PeriodicSite(Site, MSONable):
     @property
     def coords(self):
         """
-        Fractional coordinates
+        Cartesian coordinates
         """
         return self._coords
 
     @coords.setter
     def coords(self, coords):
         """
-        Fractional a coordinate
+        Set Cartesian coordinates
         """
         self._coords = np.array(coords)
         self._frac_coords = self._lattice.get_fractional_coords(self._coords)
@@ -397,7 +397,7 @@ class PeriodicSite(Site, MSONable):
     @frac_coords.setter
     def frac_coords(self, frac_coords):
         """
-        Fractional a coordinate
+        Set fractional coordinates
         """
         self._frac_coords = np.array(frac_coords)
         self._coords = self._lattice.get_cartesian_coords(self._frac_coords)

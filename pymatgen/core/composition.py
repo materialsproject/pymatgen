@@ -19,7 +19,7 @@ from monty.serialization import loadfn
 from functools import total_ordering
 
 from monty.fractions import gcd, gcd_float
-from pymatgen.core.periodic_table import get_el_sp, Element, Specie
+from pymatgen.core.periodic_table import get_el_sp, Element, Specie, DummySpecie
 from pymatgen.util.string import formula_double_format
 from monty.json import MSONable
 from pymatgen.core.units import unitized
@@ -40,7 +40,7 @@ __date__ = "Nov 10, 2012"
 
 
 @total_ordering
-class Composition(collections.Hashable, collections.Mapping, MSONable):
+class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
     """
     Represents a Composition, which is essentially a {element:amount} mapping
     type. Composition is written to be immutable and hashable,
@@ -97,7 +97,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
 
     oxi_prob = None  # prior probability of oxidation used by oxi_state_guesses
 
-    def __init__(self, *args, **kwargs):  # allow_negative=False
+    def __init__(self, *args, strict=False, **kwargs):  # allow_negative=False
         """
         Very flexible Composition construction, similar to the built-in Python
         dict(). Also extended to allow simple string init.
@@ -116,6 +116,8 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
 
             In addition, the Composition constructor also allows a single
             string as an input formula. E.g., Composition("Li2O").
+
+            strict: Only allow valid Elements and Species in the Composition.
 
             allow_negative: Whether to allow negative compositions. This
                 argument must be popped from the \\*\\*kwargs due to \\*args
@@ -140,6 +142,9 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 elamt[get_el_sp(k)] = v
                 self._natoms += abs(v)
         self._data = elamt
+        if strict and not self.valid:
+            raise ValueError("Composition is not valid, contains: {}"
+                             .format(", ".join(map(str, self.elements))))
 
     def __getitem__(self, item):
         try:
@@ -501,6 +506,35 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         """
         return get_el_sp(el).atomic_mass * abs(self[el]) / self.weight
 
+    def contains_element_type(self, category):
+        """
+        Check if Composition contains any elements matching a given category.
+
+        Args:
+            category (str): one of "noble_gas", "transition_metal",
+            "post_transition_metal", "rare_earth_metal", "metal", "metalloid",
+            "alkali", "alkaline", "halogen", "chalcogen", "lanthanoid",
+            "actinoid", "quadrupolar", "s-block", "p-block", "d-block", "f-block"
+
+
+        Returns:
+            True if any elements in Composition match category, otherwise False
+        """
+
+        allowed_categories = ("noble_gas", "transition_metal", "post_transition_metal",
+                              "rare_earth_metal", "metal", "metalloid", "alkali",
+                              "alkaline", "halogen", "chalcogen", "lanthanoid",
+                              "actinoid", "quadrupolar", "s-block", "p-block",
+                              "d-block", "f-block")
+
+        if category not in allowed_categories:
+            raise ValueError("Please pick a category from: {}".format(", ".join(allowed_categories)))
+
+        if "block" in category:
+            return any([category[0] in el.block for el in self.elements])
+        else:
+            return any([getattr(el, "is_{}".format(category)) for el in self.elements])
+
     def _parse_formula(self, formula):
         """
         Args:
@@ -563,6 +597,25 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 amt_str = str(amt)
             anon += ("{}{}".format(e, amt_str))
         return anon
+
+    @property
+    def chemical_system(self):
+        """
+        Get the chemical system of a Composition, for example "O-Si" for
+        SiO2. Chemical system is a string of a list of elements
+        sorted alphabetically and joined by dashes, by convention for use
+        in database keys.
+        """
+        return "-".join(sorted([str(el) for el in self.elements]))
+
+    @property
+    def valid(self):
+        """
+        Returns True if Composition contains valid elements or species and
+        False if the Composition contains any dummy species.
+        """
+        return not any([isinstance(el, DummySpecie) for el in self.elements])
+
 
     def __repr__(self):
         return "Comp: " + self.formula
@@ -1126,7 +1179,7 @@ class ChemicalPotential(dict, MSONable):
             *args, **kwargs: any valid dict init arguments
         """
         d = dict(*args, **kwargs)
-        super(ChemicalPotential, self).__init__((get_el_sp(k), v)
+        super().__init__((get_el_sp(k), v)
                                                 for k, v in d.items())
         if len(d) != len(self):
             raise ValueError("Duplicate potential specified")
@@ -1177,7 +1230,7 @@ class ChemicalPotential(dict, MSONable):
         return sum(self.get(k, 0) * v for k, v in composition.items())
 
     def __repr__(self):
-        return "ChemPots: " + super(ChemicalPotential, self).__repr__()
+        return "ChemPots: " + super().__repr__()
 
 
 if __name__ == "__main__":

@@ -17,9 +17,7 @@ from inspect import getfullargspec as getargspec
 from itertools import groupby
 from pymatgen.core.periodic_table import Element, Specie, get_el_sp, DummySpecie
 from monty.io import zopen
-from monty.dev import requires
-from pymatgen.util.coord import in_coord_list_pbc, pbc_diff, \
-    find_in_coord_list_pbc
+from pymatgen.util.coord import in_coord_list_pbc, find_in_coord_list_pbc
 from monty.string import remove_non_ascii
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
@@ -31,10 +29,6 @@ from pymatgen.electronic_structure.core import Magmom
 from pymatgen.core.operations import MagSymmOp
 from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 
-try:
-    from pybtex.database import BibliographyData, Entry
-except ImportError:
-    BibliographyData, Entry = None, None
 
 """
 Wrapper classes for Cif input and output from Structures.
@@ -240,8 +234,8 @@ class CifBlock:
                 for k, v in zip(columns * n, items):
                     data[k].append(v.strip())
             elif "".join(s).strip() != "":
-                warnings.warn("Possible error in cif format"
-                              " error at {}".format("".join(s).strip()))
+                warnings.warn("Possible issue in cif file"
+                              " at line: {}".format("".join(s).strip()))
         return cls(data, loops, header)
 
 
@@ -314,7 +308,7 @@ class CifParser:
         # store if CIF contains features from non-core CIF dictionaries
         # e.g. magCIF
         self.feature_flags = {}
-        self.errors = []
+        self.warnings = []
 
         def is_magcif():
             """
@@ -397,7 +391,7 @@ class CifParser:
             attached_hydrogens = [str2float(x) for x in data.data['_atom_site_attached_hydrogens']
                                   if str2float(x) != 0]
             if len(attached_hydrogens) > 0:
-                self.errors.append("Structure has implicit hydrogens defined, "
+                self.warnings.append("Structure has implicit hydrogens defined, "
                                    "parsed structure unlikely to be suitable for use "
                                    "in calculations unless hydrogens added.")
 
@@ -484,7 +478,7 @@ class CifParser:
 
             if len(idxs_to_remove) > 0:
 
-                self.errors.append("Pauling file corrections applied.")
+                self.warnings.append("Pauling file corrections applied.")
 
                 data.data["_atom_site_label"] += new_atom_site_label
                 data.data["_atom_site_type_symbol"] += new_atom_site_type_symbol
@@ -542,7 +536,7 @@ class CifParser:
                     changes_to_make[final_key] = interim_key
 
             if len(changes_to_make) > 0:
-                self.errors.append("Keys changed to match new magCIF specification.")
+                self.warnings.append("Keys changed to match new magCIF specification.")
 
             for final_key, interim_key in changes_to_make.items():
                 data.data[final_key] = data.data[interim_key]
@@ -563,8 +557,8 @@ class CifParser:
                         if abs(1 - frac/comparison_frac) < 1e-4:
                             fracs_to_change[(label, idx)] = str(comparison_frac)
         if fracs_to_change:
-            self.errors.append("Some fractional co-ordinates rounded to ideal values to "
-                               "avoid finite precision errors.")
+            self.warnings.append("Some fractional co-ordinates rounded to ideal values to "
+                                 "avoid issues with finite precision.")
             for (label, idx), val in fracs_to_change.items():
                 data.data[label][idx] = val
 
@@ -647,7 +641,7 @@ class CifParser:
                         return self.get_lattice(data, lengths, angles,
                                                 lattice_type=lattice_type)
                     except AttributeError as exc:
-                        self.errors.append(str(exc))
+                        self.warnings.append(str(exc))
                         warnings.warn(exc)
 
                 else:
@@ -669,7 +663,7 @@ class CifParser:
                 if isinstance(xyz, str):
                     msg = "A 1-line symmetry op P1 CIF is detected!"
                     warnings.warn(msg)
-                    self.errors.append(msg)
+                    self.warnings.append(msg)
                     xyz = [xyz]
                 try:
                     symops = [SymmOp.from_xyz_string(s)
@@ -702,7 +696,7 @@ class CifParser:
                             msg = "No _symmetry_equiv_pos_as_xyz type key found. " \
                                     "Spacegroup from %s used." % symmetry_label
                             warnings.warn(msg)
-                            self.errors.append(msg)
+                            self.warnings.append(msg)
                             break
                     except ValueError:
                         # Ignore any errors
@@ -718,7 +712,7 @@ class CifParser:
                                 msg = "No _symmetry_equiv_pos_as_xyz type key found. " \
                                         "Spacegroup from %s used." % symmetry_label
                                 warnings.warn(msg)
-                                self.errors.append(msg)
+                                self.warnings.append(msg)
                                 break
                     except Exception as ex:
                         continue
@@ -743,7 +737,7 @@ class CifParser:
             msg = "No _symmetry_equiv_pos_as_xyz type key found. " \
                   "Defaulting to P1."
             warnings.warn(msg)
-            self.errors.append(msg)
+            self.warnings.append(msg)
             symops = [SymmOp.from_xyz_string(s) for s in ['x', 'y', 'z']]
 
         return symops
@@ -814,7 +808,7 @@ class CifParser:
         if not magsymmops:
             msg = "No magnetic symmetry detected, using primitive symmetry."
             warnings.warn(msg)
-            self.errors.append(msg)
+            self.warnings.append(msg)
             magsymmops = [MagSymmOp.from_xyzt_string("x, y, z, 1")]
 
         return magsymmops
@@ -893,7 +887,7 @@ class CifParser:
         if parsed_sym is not None and (m_sp or not re.match(r"{}\d*".format(parsed_sym), sym)):
             msg = "{} parsed as {}".format(sym, parsed_sym)
             warnings.warn(msg)
-            self.errors.append(msg)
+            self.warnings.append(msg)
 
         return parsed_sym
 
@@ -981,7 +975,7 @@ class CifParser:
                 comp_d = {el: occu}
                 if num_h > 0:
                     comp_d["H"] = num_h
-                    self.errors.append("Structure has implicit hydrogens defined, "
+                    self.warnings.append("Structure has implicit hydrogens defined, "
                                        "parsed structure unlikely to be suitable for use "
                                        "in calculations unless hydrogens added.")
                 comp = Composition(comp_d)
@@ -999,7 +993,7 @@ class CifParser:
             msg = "Some occupancies (%s) sum to > 1! If they are within " \
                     "the tolerance, they will be rescaled." % str(sum_occu)
             warnings.warn(msg)
-            self.errors.append(msg)
+            self.warnings.append(msg)
 
         allspecies = []
         allcoords = []
@@ -1101,23 +1095,25 @@ class CifParser:
                 # Warn the user (Errors should never pass silently)
                 # A user reported a problem with cif files produced by Avogadro
                 # in which the atomic coordinates are in Cartesian coords.
-                self.errors.append(str(exc))
+                self.warnings.append(str(exc))
                 warnings.warn(str(exc))
-        if self.errors:
-            warnings.warn("Issues encountered while parsing CIF:")
-            for error in self.errors:
-                warnings.warn(error)
+        if self.warnings:
+            warnings.warn("Issues encountered while parsing CIF: %s" % "\n".join(self.warnings))
         if len(structures) == 0:
             raise ValueError("Invalid cif file with no structures!")
         return structures
 
-    @requires(BibliographyData, "Bibliographic data extraction requires pybtex.")
     def get_bibtex_string(self):
         """
         Get BibTeX reference from CIF file.
         :param data:
         :return: BibTeX string
         """
+
+        try:
+            from pybtex.database import BibliographyData, Entry
+        except ImportError:
+            raise RuntimeError("Bibliographic data extraction requires pybtex.")
 
         bibtex_keys = {'author': ('_publ_author_name', '_citation_author_name'),
                        'title': ('_publ_section_title', '_citation_title'),
@@ -1183,7 +1179,7 @@ class CifParser:
 
     @property
     def has_errors(self):
-        return len(self.errors) > 0
+        return len(self.warnings) > 0
 
 
 class CifWriter:
@@ -1280,7 +1276,7 @@ class CifWriter:
         atom_site_moment_crystalaxis_x = []
         atom_site_moment_crystalaxis_y = []
         atom_site_moment_crystalaxis_z = []
-        count = 1
+        count = 0
         if symprec is None:
             for site in struct:
                 for sp, occu in sorted(site.species.items()):

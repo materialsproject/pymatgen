@@ -25,8 +25,8 @@ for crystal orbital overlap populations (COOP).
 __author__ = "Marco Esters, Janine George"
 __copyright__ = "Copyright 2017, The Materials Project"
 __version__ = "0.2"
-__maintainer__ = "Marco Esters"
-__email__ = "esters@uoregon.edu"
+__maintainer__ = "Marco Esters, Janine George"
+__email__ = "esters@uoregon.edu, janine.george@uclouvain.be"
 __date__ = "Dec 13, 2017"
 
 
@@ -287,11 +287,8 @@ class CompleteCohp(Cohp):
 
     def __init__(self, structure, avg_cohp, cohp_dict, bonds=None,
                  are_coops=False, orb_res_cohp=None):
-        super(CompleteCohp, self).__init__(avg_cohp.efermi,
-                                           avg_cohp.energies,
-                                           avg_cohp.cohp,
-                                           are_coops=are_coops,
-                                           icohp=avg_cohp.icohp)
+        super().__init__(avg_cohp.efermi, avg_cohp.energies, avg_cohp.cohp,
+                         are_coops=are_coops, icohp=avg_cohp.icohp)
         self.structure = structure
         self.are_coops = are_coops
         self.all_cohps = cohp_dict

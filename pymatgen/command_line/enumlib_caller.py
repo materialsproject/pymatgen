@@ -257,7 +257,7 @@ class EnumlibAdaptor:
 
         output.append("{} {}".format(self.min_cell_size, self.max_cell_size))
         output.append(str(self.enum_precision_parameter))
-        output.append("partial")
+        output.append("full")
 
         ndisordered = sum([len(s) for s in disordered_sites])
         base = int(ndisordered*lcm(*[f.limit_denominator(ndisordered *

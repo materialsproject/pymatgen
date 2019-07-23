@@ -822,7 +822,7 @@ class SquareTensor(Tensor):
                 voigt-notation vector with the tensor entries
         """
 
-        obj = super(SquareTensor, cls).__new__(cls, input_array, vscale,
+        obj = super().__new__(cls, input_array, vscale,
                                                check_rank=2)
         return obj.view(cls)
 

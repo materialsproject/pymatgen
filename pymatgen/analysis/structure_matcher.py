@@ -281,6 +281,7 @@ class OccupancyComparator(AbstractComparator):
         # Difficult to define sensible hash
         return 1
 
+
 class StructureMatcher(MSONable):
     """
     Class to match structures by similarity.
@@ -400,7 +401,7 @@ class StructureMatcher(MSONable):
                 el = get_el_sp(self._supercell_size)
                 fu = s2.composition[el] / s1.composition[el]
             except:
-                raise ValueError('invalid argument for supercell_size')
+                raise ValueError('Invalid argument for supercell_size.')
 
         if fu < 2/3:
             return int(round(1/fu)), False
@@ -1163,19 +1164,23 @@ class PointDefectComparator(MSONable):
         d1 = d1.copy()
         d2 = d2.copy()
         if self.check_primitive_cell or self.check_lattice_scale:
-            # if allowing for base structure volume or supercell modifications, then need to
-            # preprocess defect objects to allow for matching
-            d1_mod_bulk_structure, d2_mod_bulk_structure, _, _  = sm._preprocess( d1.bulk_structure, d2.bulk_structure)
-            d1_defect_site = PeriodicSite( d1.site.specie, d1.site.coords,
-                                           d1_mod_bulk_structure.lattice,
-                                           to_unit_cell=True, coords_are_cartesian=True)
+            # if allowing for base structure volume or supercell modifications,
+            # then need to preprocess defect objects to allow for matching
+            d1_mod_bulk_structure, d2_mod_bulk_structure, _, _ = sm._preprocess(
+                d1.bulk_structure, d2.bulk_structure)
+            d1_defect_site = PeriodicSite(d1.site.specie, d1.site.coords,
+                                          d1_mod_bulk_structure.lattice,
+                                          to_unit_cell=True,
+                                          coords_are_cartesian=True)
             d2_defect_site = PeriodicSite( d2.site.specie, d2.site.coords,
                                            d2_mod_bulk_structure.lattice,
-                                           to_unit_cell=True, coords_are_cartesian=True)
+                                           to_unit_cell=True,
+                                           coords_are_cartesian=True)
 
             d1._structure = d1_mod_bulk_structure
             d2._structure = d2_mod_bulk_structure
             d1._defect_site = d1_defect_site
             d2._defect_site = d2_defect_site
 
-        return sm.fit( d1.generate_defect_structure(), d2.generate_defect_structure())
+        return sm.fit(d1.generate_defect_structure(),
+                      d2.generate_defect_structure())

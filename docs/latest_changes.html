@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Change log &#8212; pymatgen 2019.3.13 documentation</title>
+    <meta charset="utf-8" />
+    <title>Change log &#8212; pymatgen 2019.7.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.3.13 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -46,46 +44,15 @@
             
   <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="v2019-3-13">
-<h2>v2019.3.13<a class="headerlink" href="#v2019-3-13" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="v2019-7-21">
+<h2>v2019.7.21<a class="headerlink" href="#v2019-7-21" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Streamlined Site, PeriodicSite, Molecule and Structure code by abandoning
-immutability for Site and PeriodicSite.</li>
-<li>VaspInput class now supports a run_vasp method, which can be used to code
-runnable python scripts for running simple calculations (custodian still
-recommended for more complex calculations.). For example, the following is a
-kpoint convergence script that can be submitted in a queue</li>
-</ul>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">from pymatgen import MPRester</span>
-<span class="go">from pymatgen.io.vasp.sets import MPRelaxSet</span>
-
-
-<span class="go">VASP_CMD = [&quot;mpirun&quot;, &quot;-machinefile&quot;, &quot;$PBS_NODEFILE&quot;, &quot;-np&quot;, &quot;16&quot;, &quot;vasp&quot;]</span>
-
-
-<span class="go">def main():</span>
-<span class="go">    mpr = MPRester()</span>
-<span class="go">    structure = mpr.get_structures(&quot;Li2O&quot;)[0]</span>
-<span class="go">    for k_dens in [100, 200, 400, 800]:</span>
-<span class="go">        vis = MPRelaxSet(structure,</span>
-<span class="go">            user_kpoints_settings={&quot;reciprocal_density&quot;: k_dens})</span>
-<span class="go">        vi = vis.get_vasp_input()</span>
-<span class="go">        kpoints = vi[&quot;KPOINTS&quot;].kpts[0][0]</span>
-<span class="go">        d = &quot;Li2O_kpoints_%d&quot; % kpoints</span>
-
-<span class="go">        # Directly run vasp.</span>
-<span class="go">        vi.run_vasp(d, vasp_cmd=VASP_CMD)</span>
-<span class="go">        # Use the final structure as the new initial structure to speed up calculations.</span>
-<span class="go">        structure = Vasprun(&quot;%s/vasprun.xml&quot; % d).final_structure</span>
-
-
-<span class="go">if __name__ == &quot;__main__&quot;:</span>
-<span class="go">    main()</span>
-</pre></div>
-</div>
-<ul class="simple">
-<li>Many pymatgen from_file methods now support pathlib.Path as well as strings.</li>
-<li>Misc bug fixes.</li>
+<li><p>Add CubicSupercellTransformation and PerturbedSupercellsTransformation (&#64;rees-c, &#64;utf)</p></li>
+<li><p>Add interface for ShengBTE (&#64;rees-c, &#64;utf)</p></li>
+<li><p>Add interface for Vampire (&#64;ncfrey)</p></li>
+<li><p>Improved Lobster interface (&#64;JaGeo)</p></li>
+<li><p>Bug fixes (&#64;sthartman, &#64;dwinston, &#64;utf)</p></li>
+<li><p>New functionality for calculation of Heisenberg exchange parameters (&#64;ncfrey)</p></li>
 </ul>
 </div>
 </div>
@@ -99,7 +66,7 @@ kpoint convergence script that can be submitted in a queue</li>
   <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Change log</a><ul>
-<li><a class="reference internal" href="#v2019-3-13">v2019.3.13</a></li>
+<li><a class="reference internal" href="#v2019-7-21">v2019.7.21</a></li>
 </ul>
 </li>
 </ul>
@@ -112,13 +79,11 @@ kpoint convergence script that can be submitted in a queue</li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -136,13 +101,13 @@ kpoint convergence script that can be submitted in a queue</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.3.13 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

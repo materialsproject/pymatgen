@@ -147,8 +147,7 @@ class GrandPotPDEntry(PDEntry):
         self.chempots = chempots
         new_comp_map = {el: comp[el] for el in comp.elements
                         if el not in chempots}
-        super(GrandPotPDEntry, self).__init__(new_comp_map, grandpot,
-                                              entry.name)
+        super().__init__(new_comp_map, grandpot, entry.name)
         self.name = name if name else entry.name
 
     @property
@@ -204,7 +203,7 @@ class TransformedPDEntry(PDEntry):
     """
 
     def __init__(self, comp, original_entry):
-        super(TransformedPDEntry, self).__init__(comp, original_entry.energy)
+        super().__init__(comp, original_entry.energy)
         self.original_entry = original_entry
         self.name = original_entry.name
 
@@ -967,7 +966,7 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
         for e in entries:
             if len(set(e.composition.elements).intersection(set(elements))) > 0:
                 all_entries.append(GrandPotPDEntry(e, self.chempots))
-        super(GrandPotentialPhaseDiagram, self).__init__(all_entries, elements)
+        super().__init__(all_entries, elements)
 
     def __str__(self):
         output = []
@@ -1027,7 +1026,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
         (pentries, species_mapping) = \
             self.transform_entries(entries, terminal_compositions)
         self.species_mapping = species_mapping
-        super(CompoundPhaseDiagram, self).__init__(
+        super().__init__(
             pentries, elements=species_mapping.values())
 
     def transform_entries(self, entries, terminal_compositions):

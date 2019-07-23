@@ -515,7 +515,7 @@ class NearNeighbors:
                 return i
         raise Exception('Site not found!')
 
-    def get_bonded_structure(self, structure, decorate=False):
+    def get_bonded_structure(self, structure, decorate=False, weights=True):
         """
         Obtain a StructureGraph object using this NearNeighbor
         class. Requires the optional dependency networkx
@@ -526,8 +526,10 @@ class NearNeighbors:
             decorate (bool): whether to annotate site properties
             with order parameters using neighbors determined by
             this NearNeighbor class
+            weights (bool): whether to include edge weights from
+            NearNeighbor class in StructureGraph
 
-        Returns: a pymatgen.analysis.graphs.BondedStructure object
+        Returns: a pymatgen.analysis.graphs.StructureGraph object
         """
 
         # requires optional dependency which is why it's not a top-level import
@@ -542,7 +544,7 @@ class NearNeighbors:
                                 for n in range(len(structure))]
             structure.add_site_property('order_parameters', order_parameters)
 
-        sg = StructureGraph.with_local_env_strategy(structure, self)
+        sg = StructureGraph.with_local_env_strategy(structure, self, weights=weights)
 
         return sg
 
@@ -611,7 +613,7 @@ class VoronoiNN(NearNeighbors):
     def __init__(self, tol=0, targets=None, cutoff=13.0,
                  allow_pathological=False, weight='solid_angle',
                  extra_nn_info=True, compute_adj_neighbors=True):
-        super(VoronoiNN, self).__init__()
+        super().__init__()
         self.tol = tol
         self.cutoff = cutoff
         self.allow_pathological = allow_pathological
@@ -1006,9 +1008,8 @@ class VoronoiNN_modified(VoronoiNN):
                 available in get_voronoi_polyhedra)
             extra_nn_info (bool) - Add all polyhedron info to `get_nn_info`
         """
-        super(VoronoiNN_modified, self).__init__(0.5, targets, cutoff,
-                                                 allow_pathological,
-                                                 weight, extra_nn_info)
+        super().__init__(0.5, targets, cutoff, allow_pathological, weight,
+                         extra_nn_info)
 
 
 class JmolNN(NearNeighbors):
@@ -1099,7 +1100,7 @@ class MinimumDistanceNN(NearNeighbors):
     """
     Determine near-neighbor sites and coordination number using the
     nearest neighbor(s) at distance, d_min, plus all neighbors
-    within a distance (1 + delta) * d_min, where delta is a
+    within a distance (1 + tol) * d_min, where tol is a
     (relative) distance tolerance parameter.
 
     Args:
@@ -1107,11 +1108,15 @@ class MinimumDistanceNN(NearNeighbors):
             (default: 0.1).
         cutoff (float): cutoff radius in Angstrom to look for trial
             near-neighbor sites (default: 10.0).
+        get_all_sites (boolean): If this is set to True then the neighbor
+            sites are only determined by the cutoff radius, tol is ignored
+
     """
 
-    def __init__(self, tol=0.1, cutoff=10.0):
+    def __init__(self, tol=0.1, cutoff=10.0, get_all_sites=False):
         self.tol = tol
         self.cutoff = cutoff
+        self.get_all_sites = get_all_sites
 
     def get_nn_info(self, structure, n):
         """
@@ -1132,16 +1137,25 @@ class MinimumDistanceNN(NearNeighbors):
 
         site = structure[n]
         neighs_dists = structure.get_neighbors(site, self.cutoff)
-        min_dist = min([dist for neigh, dist in neighs_dists])
 
         siw = []
-        for s, dist in neighs_dists:
-            if dist < (1.0 + self.tol) * min_dist:
-                w = min_dist / dist
-                siw.append({'site': s,
-                            'image': self._get_image(structure, s),
-                            'weight': w,
-                            'site_index': self._get_original_site(structure,
+        if self.get_all_sites == True:
+            for s, dist in neighs_dists:
+                    w = dist
+                    siw.append({'site': s,
+                                'image': self._get_image(structure, s),
+                                'weight': w,
+                                'site_index': self._get_original_site(structure,
+                                                                  s)})
+        else:
+            min_dist = min([dist for neigh, dist in neighs_dists])
+            for s, dist in neighs_dists:
+                if dist < (1.0 + self.tol) * min_dist:
+                    w = min_dist / dist
+                    siw.append({'site': s,
+                                'image': self._get_image(structure, s),
+                                'weight': w,
+                                'site_index': self._get_original_site(structure,
                                                                   s)})
         return siw
 
@@ -1366,7 +1380,7 @@ class CovalentBondNN(NearNeighbors):
                                 for n in range(len(structure))]
             structure.add_site_property('order_parameters', order_parameters)
 
-        mg = MoleculeGraph.with_local_env_strategy(structure, self)
+        mg = MoleculeGraph.with_local_env_strategy(structure, self, extend_structure=False)
 
         return mg
 
@@ -3427,7 +3441,7 @@ class CrystalNN(NearNeighbors):
             raise ValueError("The weighted_cn parameter and use_weights "
                              "parameter should match!")
 
-        return super(CrystalNN, self).get_cn(structure, n, use_weights)
+        return super().get_cn(structure, n, use_weights)
 
     def get_cn_dict(self, structure, n, use_weights=False):
         """
@@ -3448,7 +3462,7 @@ class CrystalNN(NearNeighbors):
             raise ValueError("The weighted_cn parameter and use_weights "
                              "parameter should match!")
 
-        return super(CrystalNN, self).get_cn_dict(structure, n, use_weights)
+        return super().get_cn_dict(structure, n, use_weights)
 
     @staticmethod
     def _semicircle_integral(dist_bins, idx):

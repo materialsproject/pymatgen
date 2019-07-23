@@ -151,7 +151,7 @@ class ComputedStructureEntry(ComputedEntry):
                 with the entry. Defaults to None.
             entry_id (obj): An optional id to uniquely identify the entry.
         """
-        super(ComputedStructureEntry, self).__init__(
+        super().__init__(
             structure.composition, energy, correction=correction,
             parameters=parameters, data=data, entry_id=entry_id)
         self.structure = structure
@@ -172,7 +172,7 @@ class ComputedStructureEntry(ComputedEntry):
         return self.__repr__()
 
     def as_dict(self):
-        d = super(ComputedStructureEntry, self).as_dict()
+        d = super().as_dict()
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         d["structure"] = self.structure.as_dict()
