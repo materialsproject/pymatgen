@@ -9,7 +9,6 @@ import subprocess
 import itertools
 import logging
 import glob
-import warnings
 
 import numpy as np
 from monty.fractions import lcm
