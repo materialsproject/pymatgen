@@ -6,6 +6,7 @@ import itertools
 import logging
 from collections import defaultdict
 import copy
+import os
 
 import math
 from math import cos
@@ -22,6 +23,8 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import PeriodicSite
 from pymatgen.core.operations import SymmOp
 from pymatgen.util.coord import find_in_coord_list, pbc_diff
+from pymatgen.symmetry.groups import SpaceGroup
+from pymatgen.core.operations import MagSymmOp
 
 """
 An interface to the excellent spglib library by Atsushi Togo
@@ -1631,3 +1634,156 @@ class PointGroupOperations(list):
 
     def __repr__(self):
         return self.__str__()
+
+class MagneticSpaceGroupAnalyzer:
+    """
+    Takes a pymatgen.core.structure.Structure object, symprec and angle_tolarance.
+
+    Tests time reversal symmetry operations on top of SpacegroupAnalyzer to determine
+    all magnetic space group operations. Then uses the tool IDENTIFY MAGNETIC GROUP made 
+    available by the Bilbao Crystallographic Server on the website www.cryst.ehu.es.
+    Handling of the website introduces dependency to python's package mechanize.
+
+    Args:
+        structure (Structure/IStructure): Structure to find symmetry
+        symprec (float): Tolerance for symmetry finding. Defaults to 0.01,
+            which is fairly strict and works well for properly refined
+            structures with atoms in the proper symmetry coordinates. For
+            structures with slight deviations from their proper atomic
+            positions (e.g., structures relaxed with electronic structure
+            codes), a looser tolerance of 0.1 (the value used in Materials
+            Project) is often needed.
+        angle_tolerance (float): Angle tolerance for symmetry finding.
+    """
+
+    def __init__( self, structure, symprec=0.01, angle_tolerance=5):
+      # TODO: structure code such that the circular dependencies btw pymatgen.transformations 
+      #       and pymatgen.symmetry are resolved
+      
+      from pymatgen.transformations.standard_transformations import ApplyMagSymmOpTransformation
+      from pymatgen.alchemy.materials import TransformedStructure
+      
+      MAGSPACEGROUP2MAGPOINTGROUP = os.path.join(os.path.dirname(__file__), "mspg2mpg_map.txt")
+
+      self._structure = structure
+      self._symprec   = symprec
+      self._angle_tol = angle_tolerance
+
+      a = SpacegroupAnalyzer( self._structure, symprec=self._symprec, angle_tolerance=self._angle_tol)
+      self._space_group_data = a._space_group_data
+
+      g = SpaceGroup.from_int_number( int(self._space_group_data["number"]) )
+      self._oplist = g.symmetry_ops
+
+      # apply mag space group op and check if it is symm
+      mspg_list = []
+      for op in self._oplist:
+        for i in [+1, -1]:
+          mop = MagSymmOp.from_symmop( op, i )
+          trans = [ApplyMagSymmOpTransformation(mop)]
+          s_new = TransformedStructure(self._structure, trans )
+
+          if self._same_struc( s_new.final_structure,  self._structure  ):
+            mspg_list.append( mop )
+      self.magsymmetry_ops = mspg_list
+
+      # find magnetic space group corresponding to symm ops in msg_list
+      self._MagneticSpaceGroup = self._brows4MagneticSpaceGroup( [mop.as_xyzt_string() for mop in self.magsymmetry_ops] )
+
+    def get_pointgroup_info(self):
+      """
+      Get magnetic point group info as tuple ( label, number).
+
+      Returns:
+          (str, list(int) ): Magnetic point group for structure.
+      """
+      MAGSPACEGROUP2MAGPOINTGROUP = os.path.join(os.path.dirname(__file__), "mspg2mpg_map.txt")
+      with open( MAGSPACEGROUP2MAGPOINTGROUP, 'r') as f:
+        for line in f:
+          og_no, og_label, pointgroup_no, pointgroup_label = line.split()
+          if og_no == ".".join( [str(x) for x in self.og_no] ):
+            return ( pointgroup_label, [int(x) for x in pointgroup_no.split(".")] )
+
+    def get_MagneticSpaceGroup(self):
+      """
+      Get the magnetic space group.
+
+      Returns:
+          pymatgen.symmetry.maggroups.MagneticSpaceGroup object.
+      """
+      return self._MagneticSpaceGroup
+
+    def get_magsymmetry_ops( self ):
+      """
+      Get magnetic space group operations for structure.
+
+      Returns:
+          List of pymatgen.core.operations.MagSymmOp objects.
+      """ 
+      return self._MagneticSpaceGroup.symmetry_ops
+
+    def get_og_info( self ):
+      """
+      Get the magnetic space group in the OG notation [1], e.g. (P1, 1.1.1). 
+
+      [1] Opechowski and Guccione (1965). Magnetism, edited by G. T. Rado and H. Suhl, Vol. II, Part A, pp. 105-165. New York: Academic Press
+      
+      Returns:
+        (str, list(int) ): Magnetic space group in a tuple of ( symbol, number ) for structure.
+      
+      """
+      og_label = self._MagneticSpaceGroup._data["og_label"] 
+      return ( og_label, self.og_no )  
+
+    def _same_struc( self, struc1, struc2 ):
+      """
+      Compare two pymatgen.core.structure.Structure objects, struc1 and struc2.
+      If all sites in struc1 have a site in struc2 where all coordinates are close and 
+      the properties, such as the magnetic moment, is the same, then True is returned.
+      False otherwise.
+
+      Retruns:
+          (bool): True if struc1 and struc2 are crystallographically equivalent, i.e. modulo translation.
+      """
+      sites_contained = []
+      for site_a in struc1:
+        is_in = np.any([ site_a._species == site_b._species and np.allclose(site_a.frac_coords, site_b.frac_coords, atol=self._symprec) and site_a.properties == site_b.properties for site_b in struc2 ])
+        sites_contained.append( is_in )
+      return np.all( sites_contained )
+
+    def _brows4MagneticSpaceGroup( self, xyzt_string_list ):
+      """
+      Takes a list of xyzt strings, e.g. [ 'x,y,z,+1' ], corresponding to a list of 
+      pymatgen.core.operations.MagSymmOp objects.
+      Uses IDENTIFY MAGNETIC GROUP by Bilbao Crystallographic Server.
+
+      Returns:
+          pymatgen.symmetry.maggroups.MagneticSpaceGroup object
+
+      Special dependency:
+          mechanize
+      """
+      from pymatgen.symmetry.maggroups import MagneticSpaceGroup
+      import mechanize as mech
+      br = mech.Browser()
+      br.open( "http://www.cryst.ehu.es/cgi-bin/cryst/programs/checkgr.pl?tipog=gmag" )
+      br.form = list( br.forms() )[0]
+      control = br.form.find_control( "setting" )
+      control.set( 'OG', 'OG')
+      control = br.form.find_control( "generators" )
+      control.value = "\n".join( xyzt_string_list  )
+      control = br.form.find_control( "list" )
+      control.disable = True
+      br.submit()
+      br.form = list( br.forms() )[0]
+      control = br.form.find_control( "grupo" )
+      og_no = control.value.split(',')[1]
+      self.og_no = [int(x) for x in og_no.split(".")]
+
+      return MagneticSpaceGroup.from_og( self.og_no )
+
+    # TODO: add a function get_refined_structure(self) analogous to SpacegroupAnalyzer
+    # TODO: add function to return Magnetic Laue group
+    # TODO: Use Magnetic Laue Group + Seemann et al (2015) to determine symmetry-imposed 
+    #       shape of linear response tensor.
+
