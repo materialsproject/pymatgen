@@ -8,7 +8,7 @@ import os
 import unittest
 import pandas as pd
 
-from monty.serialization import loadfn
+from monty.serialization import loadfn, dumpfn
 
 from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper
 from pymatgen import Structure
@@ -86,8 +86,13 @@ class HeisenbergMapperTest(unittest.TestCase):
 
     def test_get_igraph(self):
         for hm in self.hms:
-            igraph = hm.get_interaction_graph("igraph.json")
+            igraph = hm.get_interaction_graph()
             self.assertEqual(len(igraph), 6)
+
+    def test_heisenberg_model(self):
+        for hm in self.hms:
+            hmodel = hm.get_heisenberg_model()
+            self.assertEqual(hmodel.formula, 'Mn3Al')
 
 
 if __name__ == "__main__":

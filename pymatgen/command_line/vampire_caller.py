@@ -10,8 +10,9 @@ import os
 
 from monty.dev import requires
 from monty.os.path import which
+from monty.json import MSONable
 
-from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper
+from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper, HeisenbergModel
 from pymatgen.analysis.magnetism.analyzer import CollinearMagneticStructureAnalyzer
 
 """
@@ -72,7 +73,7 @@ class VampireCaller:
             equil_timesteps (int): number of MC steps for equilibrating
             mc_timesteps (int): number of MC steps for averaging
             save_inputs (bool): if True, save scratch dir of vampire input files
-            hm (HeisenbergMapper): object already fit to low energy
+            hm (HeisenbergModel): object already fit to low energy
                 magnetic orderings.
             user_input_settings (dict): optional commands for VAMPIRE Monte Carlo
 
@@ -107,20 +108,22 @@ class VampireCaller:
 
         # Get exchange parameters and set instance variables
         if not hm:
-            hm = HeisenbergMapper(ordered_structures, energies, cutoff=7.5, tol=0.02)
+            hmapper = HeisenbergMapper(ordered_structures, energies, cutoff=7.5, tol=0.02)
 
-        # Instance attributes from HeisenbergMapper
+            hm = hmapper.get_heisenberg_model()
+
+        # Attributes from HeisenbergModel
         self.hm = hm
-        self.structure = hm.ordered_structures[0]  # ground state
+        self.structure = hm.structures[0]  # ground state
         self.sgraph = hm.sgraphs[0]  # ground state graph
         self.unique_site_ids = hm.unique_site_ids
         self.nn_interactions = hm.nn_interactions
         self.dists = hm.dists
         self.tol = hm.tol
-        self.ex_params = hm.get_exchange()
+        self.ex_params = hm.ex_params
 
         # Full structure name before reducing to only magnetic ions
-        self.mat_name = str(hm.ordered_structures_[0].composition.reduced_formula)
+        self.mat_name = hm.formula
 
         # Switch to scratch dir which automatically cleans up vampire inputs files unless user specifies to save them
         # with ScratchDir('/scratch', copy_from_current_on_enter=self.save_inputs, copy_to_current_on_exit=self.save_inputs) as temp_dir:
@@ -391,21 +394,24 @@ class VampireCaller:
             f.write(ucf)
 
 
-class VampireOutput:
-    def __init__(self, vamp_stdout, nmats):
+class VampireOutput(MSONable):
+    def __init__(self, vamp_stdout=None, nmats=None, parsed_out=None, critical_temp=None):
         """
         This class processes results from a Vampire Monte Carlo simulation
         and returns the critical temperature.
         
         Args:
             vamp_stdout (txt file): stdout from running vampire-serial.
-
-        Attributes:
+            nmats (int): Number of distinct materials (1 for each specie and up/down spin).
+            parsed_out (json): json rep of parsed stdout DataFrame.
             critical_temp (float): Monte Carlo Tc result.
+
         """
 
         self.vamp_stdout = vamp_stdout
-        self.critical_temp = np.nan
+        self.nmats = nmats
+        self.parsed_out = parsed_out
+        self.critical_temp = critical_temp
         self._parse_stdout(vamp_stdout, nmats)
 
     def _parse_stdout(self, vamp_stdout, nmats):
@@ -419,9 +425,10 @@ class VampireOutput:
         # Parsing vampire MC output
         df = pd.read_csv(vamp_stdout, sep="\t", skiprows=9, header=None, names=names)
         df.drop("nan", axis=1, inplace=True)
-        df.to_csv("vamp_out.txt")
+
+        self.parsed_out = df.to_json()
 
         # Max of susceptibility <-> critical temp
-        T_crit = df.iloc[df.X_m.idxmax()]["T"]
+        critical_temp = df.iloc[df.X_m.idxmax()]["T"]
 
-        self.critical_temp = T_crit
+        self.critical_temp = critical_temp
