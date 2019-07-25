@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.ext.matproj module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.ext.matproj module &#8212; pymatgen 2019.7.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -375,6 +375,36 @@ Materials Project REST interface.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="pymatgen.ext.matproj.MPRester.get_gb_data">
+<code class="sig-name descname">get_gb_data</code><span class="sig-paren">(</span><em class="sig-param">material_id=None</em>, <em class="sig-param">pretty_formula=None</em>, <em class="sig-param">chemsys=None</em>, <em class="sig-param">sigma=None</em>, <em class="sig-param">gb_plane=None</em>, <em class="sig-param">rotation_axis=None</em>, <em class="sig-param">include_work_of_separation=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_gb_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_gb_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets grain boundary data for a material.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>material_id</strong> (<em>str</em>) – Materials Project material_id, e.g., ‘mp-129’.</p></li>
+<li><p><strong>pretty_formula</strong> (<em>str</em>) – The formula of metals. e.g., ‘Fe’</p></li>
+<li><p><strong>sigma</strong> (<em>int</em>) – The sigma value of a certain type of grain boundary</p></li>
+<li><p><strong>gb_plane</strong> (<em>list of integer</em>) – The Miller index of grain</p></li>
+<li><p><strong>plane. e.g.</strong><strong>, </strong><strong>[</strong><strong>1</strong><strong>, </strong><strong>1</strong><strong>, </strong><strong>1</strong><strong>]</strong> (<em>boundary</em>) – </p></li>
+<li><p><strong>rotation_axis</strong> (<em>list of integer</em>) – The Miller index of rotation</p></li>
+<li><p><strong>e.g.</strong><strong>, </strong><strong>[</strong><strong>1</strong><strong>, </strong><strong>0</strong><strong>, </strong><strong>0</strong><strong>]</strong><strong>, </strong><strong>[</strong><strong>1</strong><strong>, </strong><strong>1</strong><strong>, </strong><strong>0</strong><strong>]</strong><strong>, </strong><strong>and</strong><strong> [</strong><strong>1</strong><strong>, </strong><strong>1</strong><strong>, </strong><strong>1</strong><strong>]</strong> (<em>axis.</em>) – </p></li>
+<li><p><strong>value is determined by the combination of rotation axis and</strong> (<em>Sigma</em>) – </p></li>
+<li><p><strong>angle. The five degrees of freedom</strong> (<em>rotation</em>) – </p></li>
+<li><p><strong>include</strong> – rotation axis (2 DOFs), rotation angle (1 DOF), and grain</p></li>
+<li><p><strong>plane</strong> (<em>boundary</em>) – </p></li>
+<li><p><strong>include_work_of_separation</strong> (<em>bool</em>) – whether to include the work of separation</p></li>
+<li><p><strong>unit of</strong> (<em>(</em><em>in</em>) – </p></li>
+<li><p><strong>the material_id.</strong> (<em>specify</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of grain boundaries that satisfy the query conditions (sigma, gb_plane).
+Energies are given in SI units (J/m^2).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_interface_reactions">
 <code class="sig-name descname">get_interface_reactions</code><span class="sig-paren">(</span><em class="sig-param">reactant1</em>, <em class="sig-param">reactant2</em>, <em class="sig-param">open_el=None</em>, <em class="sig-param">relative_mu=None</em>, <em class="sig-param">use_hull_energy=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_interface_reactions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_interface_reactions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets critical reactions between two reactants.</p>
@@ -607,7 +637,7 @@ n=0 returns all available matches</p></li>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_surface_data">
-<code class="sig-name descname">get_surface_data</code><span class="sig-paren">(</span><em class="sig-param">material_id</em>, <em class="sig-param">inc_structures=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_surface_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_surface_data" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_surface_data</code><span class="sig-paren">(</span><em class="sig-param">material_id</em>, <em class="sig-param">miller_index=None</em>, <em class="sig-param">inc_structures=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_surface_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_surface_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets surface data for a material. Useful for Wulff shapes.</p>
 <p>Reference for surface data:</p>
 <p>Tran, R., Xu, Z., Radhakrishnan, B., Winston, D., Sun, W., Persson, K.
@@ -618,6 +648,9 @@ crystals. Scientific Data, 3(160080), 1–13.
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>material_id</strong> (<em>str</em>) – Materials Project material_id, e.g. ‘mp-123’.</p></li>
+<li><p><strong>miller_index</strong> (<em>list of integer</em>) – The miller index of the surface.</p></li>
+<li><p><strong>[</strong><strong>3</strong><strong>, </strong><strong>2</strong><strong>, </strong><strong>1</strong><strong>]</strong><strong> If miller_index is provided</strong><strong>, </strong><strong>only one dictionary</strong> (<em>e.g.</em><em>,</em>) – </p></li>
+<li><p><strong>this specific plane will be returned.</strong> (<em>of</em>) – </p></li>
 <li><p><strong>inc_structures</strong> (<em>bool</em>) – Include final surface slab structures.
 These are unnecessary for Wulff shape construction.</p></li>
 </ul>
@@ -661,6 +694,25 @@ general list of useful properties.</p></li>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>pymatgen.analysis.wulff.WulffShape</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.ext.matproj.MPRester.get_xas_data">
+<code class="sig-name descname">get_xas_data</code><span class="sig-paren">(</span><em class="sig-param">material_id</em>, <em class="sig-param">absorbing_element</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_xas_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_xas_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get X-ray absorption spectroscopy data for absorbing element in the
+structure corresponding to a material_id. Only X-ray Absorption Near Edge
+Structure (XANES) for K-edge is supported.</p>
+<p>REST Endpoint:
+<a class="reference external" href="https://www.materialsproject.org/materials">https://www.materialsproject.org/materials</a>/&lt;mp-id&gt;/xas/&lt;absorbing_element&gt;.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>material_id</strong> (<em>str</em>) – E.g., mp-1143 for Al2O3</p></li>
+<li><p><strong>absorbing_element</strong> (<em>str</em>) – The absorbing element in the corresponding
+structure. E.g., Al in Al2O3</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -940,13 +992,13 @@ assimilate. Defaults to None, which means serial.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

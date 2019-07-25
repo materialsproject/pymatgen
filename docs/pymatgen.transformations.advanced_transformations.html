@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.transformations.advanced_transformations module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.transformations.advanced_transformations module &#8212; pymatgen 2019.7.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -96,6 +96,78 @@ Otherwise, should return None.</p>
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.ChargeBalanceTransformation.is_one_to_many">
 <em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.ChargeBalanceTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines if a Transformation is a one-to-many transformation. If a
+Transformation is a one-to-many transformation, the
+apply_transformation method should have a keyword arg
+“return_ranked_list” which allows for the transformed structures to be
+returned as a ranked list.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.transformations.advanced_transformations.CubicSupercellTransformation">
+<em class="property">class </em><code class="sig-name descname">CubicSupercellTransformation</code><span class="sig-paren">(</span><em class="sig-param">min_atoms=-inf</em>, <em class="sig-param">max_atoms=inf</em>, <em class="sig-param">num_nn_dists=5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#CubicSupercellTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.CubicSupercellTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
+<p>A transformation that aims to generate a nearly cubic supercell structure from a structure.</p>
+<p>The algorithm solves for a transformation matrix that makes the supercell cubic. The matrix
+must have integer entries, so entries are rounded (in such a way that forces the matrix to be
+nonsingular). From the supercell resulting from this transformation matrix, vector projections
+are used to determine the side length of the largest cube that can fit inside the supercell.
+The algorithm will iteratively increase the size of the supercell until the largest inscribed
+cube’s side length is at least ‘num_nn_dists’ times the nearest neighbor distance and the
+number of atoms in the supercell falls in the range [‘min_atoms’, ‘max_atoms’].</p>
+<p>Returns a supercell structure given a Pymatgen structure suitable for
+Compressed Sensing Lattice Dynamics (CSLD). See papers below for details
+on CSLD.</p>
+<p>doi: 10.1103/PhysRevLett.113.185501
+<a class="reference external" href="https://arxiv.org/abs/1805.08904">https://arxiv.org/abs/1805.08904</a>
+<a class="reference external" href="https://arxiv.org/abs/1805.08903">https://arxiv.org/abs/1805.08903</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure.</p></li>
+<li><p><strong>max_atoms</strong> (<em>int</em>) – maximum number of atoms allowed in the supercell</p></li>
+<li><p><strong>min_atoms</strong> (<em>int</em>) – minimum number of atoms allowed in the supercell</p></li>
+<li><p><strong>num_nn_dists</strong> (<em>int</em>) – number of multiples of atomic nearest neighbor
+distances to force all directions of the supercell to be at
+least as large</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Supercell structure (Structure)</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.transformations.advanced_transformations.CubicSupercellTransformation.apply_transformation">
+<code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#CubicSupercellTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.CubicSupercellTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>The algorithm solves for a transformation matrix that makes the
+supercell cubic. The matrix must have integer entries, so entries are
+rounded (in such a way that forces the matrix to be nonsingular). From
+the supercell resulting from this transformation matrix, vector
+projections are used to determine the side length of the largest cube
+that can fit inside the supercell. The algorithm will iteratively
+increase the size of the supercell until the largest inscribed cube’s
+side length is at least ‘num_nn_dists’ times the nearest neighbor
+distance and the number of atoms in the supercell falls in the range
+[‘min_atoms’, ‘max_atoms’].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>supercell (Structure)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.transformations.advanced_transformations.CubicSupercellTransformation.inverse">
+<em class="property">property </em><code class="sig-name descname">inverse</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.CubicSupercellTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the inverse transformation if available.
+Otherwise, should return None.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.transformations.advanced_transformations.CubicSupercellTransformation.is_one_to_many">
+<em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.CubicSupercellTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determines if a Transformation is a one-to-many transformation. If a
 Transformation is a one-to-many transformation, the
 apply_transformation method should have a keyword arg
@@ -317,7 +389,7 @@ returned as a ranked list.</p>
 
 <dl class="class">
 <dt id="pymatgen.transformations.advanced_transformations.GrainBoundaryTransformation">
-<em class="property">class </em><code class="sig-name descname">GrainBoundaryTransformation</code><span class="sig-paren">(</span><em class="sig-param">rotation_axis, rotation_angle, expand_times=4, vacuum_thickness=0.0, ab_shift=[0, 0], normal=False, ratio=None, plane=None, max_search=50, tol_coi=0.001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#GrainBoundaryTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.GrainBoundaryTransformation" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">GrainBoundaryTransformation</code><span class="sig-paren">(</span><em class="sig-param">rotation_axis, rotation_angle, expand_times=4, vacuum_thickness=0.0, ab_shift=[0, 0], normal=False, ratio=None, plane=None, max_search=20, tol_coi=1e-08, rm_ratio=0.7, quick_gen=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#GrainBoundaryTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.GrainBoundaryTransformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>A transformation that creates a gb from a bulk structure.</p>
 <dl class="field-list simple">
@@ -366,10 +438,15 @@ the ratio needed to generate the GB, you probably need to increase this toleranc
 obtain the correct number of coincidence sites. To check the number of coincidence
 sites are correct or not, you can compare the generated Gb object’s sigma with enum*
 sigma values (what user expected by input).</p></li>
+<li><p><strong>rm_ratio</strong> (<em>float</em>) – the criteria to remove the atoms which are too close with each other.
+rm_ratio * bond_length of bulk system is the criteria of bond length, below which the atom
+will be removed. Default to 0.7.</p></li>
+<li><p><strong>quick_gen</strong> (<em>bool</em>) – whether to quickly generate a supercell, if set to true, no need to
+find the smallest cell.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Grain boundary structure (Gb (Structure) object).</p>
+<dd class="field-even"><p>Grain boundary structure (gb (Structure) object).</p>
 </dd>
 </dl>
 <dl class="method">
@@ -561,6 +638,103 @@ the structure using that specie.</p></li>
 <dt id="pymatgen.transformations.advanced_transformations.MultipleSubstitutionTransformation.is_one_to_many">
 <em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.MultipleSubstitutionTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.transformations.advanced_transformations.PerturbSitesTransformation">
+<em class="property">class </em><code class="sig-name descname">PerturbSitesTransformation</code><span class="sig-paren">(</span><em class="sig-param">max_displacement=0.3</em>, <em class="sig-param">min_displacement=0.01</em>, <em class="sig-param">num_displacements=10</em>, <em class="sig-param">structures_per_displacement_distance=1</em>, <em class="sig-param">min_random_distance=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#PerturbSitesTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.PerturbSitesTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
+<p>Generates supercells where the atoms have been displaced around their
+ideal sites.</p>
+<p>The algorithm is as follows:
+- Generate a list of distances between ‘min_displacement’ and</p>
+<blockquote>
+<div><p>‘max_displacement’.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>If ‘min_random_distance’ is None, a structure is generated for each of
+the displacement distances where all atoms are displaced in random
+directions from their original locations by the displacement distance.</p></li>
+<li><p>If ‘structures_per_displacement_distance’ is greater than 1, multiple
+structures per displacement distance will be generated.</p></li>
+<li><p>If ‘min_random_distance’ is a number (float less than ‘min_displacement’),
+for each displacement distance, the atoms will be perturbed in a random
+direction and by a random amount sample uniformly between
+‘min_random_distance’ and the displacement distance.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_displacement</strong> (<em>float</em>) – maximum displacement distance for
+perturbing the structure (Angstroms)</p></li>
+<li><p><strong>min_displacement</strong> (<em>float</em>) – minimum displacement distance for
+perturbing the structure (Angstroms)</p></li>
+<li><p><strong>num_displacements</strong> (<em>int</em>) – number of unique displacement distances to
+try, uniformly distributed between ‘min_displacement’ and
+‘max_displacement’.</p></li>
+<li><p><strong>structures_per_displacement_distance</strong> (<em>int</em>) – number of perturbed
+structures to generate for each unique displacement distance.</p></li>
+<li><p><strong>min_random_distance</strong> (<em>Optional float</em>) – If None (default), then for a
+given perturbed structure, all atoms will move the same distance
+from their original locations. If float, then for a given
+perturbed structure, the distances that atoms move will be
+uniformly distributed from a minimum distance of
+‘min_random_distance’ to one of the displacement distances
+uniformly sampled between ‘min_displacement’ and
+‘max_displacement’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of randomly displaced structures (List of Structures)</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.transformations.advanced_transformations.PerturbSitesTransformation.apply_transformation">
+<code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#PerturbSitesTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.PerturbSitesTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies the transformation to a structure. Depending on whether a
+transformation is one-to-many, there may be an option to return a
+ranked list of structures.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – input structure</p></li>
+<li><p><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
+returned. If return_ranked_list is a number, that number of
+structures is returned.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>depending on returned_ranked list, either a transformed structure
+or
+a list of dictionaries, where each dictionary is of the form
+{‘structure’ = …. , ‘other_arguments’}
+the key ‘transformation’ is reserved for the transformation that
+was actually applied to the structure.
+This transformation is parsed by the alchemy classes for generating
+a more specific transformation history. Any other information will
+be stored in the transformation_parameters dictionary in the
+transmuted structure class.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.transformations.advanced_transformations.PerturbSitesTransformation.inverse">
+<em class="property">property </em><code class="sig-name descname">inverse</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.PerturbSitesTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the inverse transformation if available.
+Otherwise, should return None.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.transformations.advanced_transformations.PerturbSitesTransformation.is_one_to_many">
+<em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.PerturbSitesTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines if a Transformation is a one-to-many transformation. If a
+Transformation is a one-to-many transformation, the
+apply_transformation method should have a keyword arg
+“return_ranked_list” which allows for the transformed structures to be
+returned as a ranked list.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -767,11 +941,6 @@ returned as a ranked list.</p>
 
 </dd></dl>
 
-<dl class="data">
-<dt id="pymatgen.transformations.advanced_transformations.logger">
-<code class="sig-name descname">logger</code><em class="property"> = &lt;Logger pymatgen.transformations.advanced_transformations (INFO)&gt;</em><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.logger" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </div>
 
 
@@ -810,13 +979,13 @@ returned as a ranked list.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

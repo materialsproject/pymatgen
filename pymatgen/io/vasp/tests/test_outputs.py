@@ -90,6 +90,10 @@ class VasprunTest(PymatgenTest):
             self.assertTrue(issubclass(w[-1].category,
                                        UserWarning))
 
+    def test_runtype(self):
+        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.hse06")
+        self.assertIn(v.run_type, "HSE06")
+
     def test_vdw(self):
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.vdw")
         self.assertAlmostEqual(v.final_energy, -9.78310677)
@@ -271,6 +275,24 @@ class VasprunTest(PymatgenTest):
         self.assertAlmostEqual(34.186, vasprun_diel.dielectric[2][85][1])
         self.assertAlmostEqual(34.186, vasprun_diel.dielectric[2][85][2])
         self.assertAlmostEqual(0.0, vasprun_diel.dielectric[2][85][3])
+
+    def test_dielectric_vasp608(self):
+        # test reading dielectric constant in vasp 6.0.8
+        vasprun_diel = Vasprun(
+            self.TEST_FILES_DIR / "vasprun.xml.dielectric_6.0.8",
+            parse_potcar_file=False)
+        self.assertAlmostEqual(0.4338, vasprun_diel.dielectric[0][10])
+        self.assertAlmostEqual(5.267, vasprun_diel.dielectric[1][51][0])
+        self.assertAlmostEqual(
+            0.4338, vasprun_diel.dielectric_data["density"][0][10])
+        self.assertAlmostEqual(
+            5.267, vasprun_diel.dielectric_data["density"][1][51][0])
+        self.assertAlmostEqual(
+            0.4338, vasprun_diel.dielectric_data["velocity"][0][10])
+        self.assertAlmostEqual(
+            1.0741, vasprun_diel.dielectric_data["velocity"][1][51][0])
+        self.assertEqual(len(vasprun_diel.other_dielectric), 0)
+
 
     def test_indirect_vasprun(self):
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.indirect.gz")
@@ -557,6 +579,10 @@ class VasprunTest(PymatgenTest):
         self.assertEqual(vasprun.parameters.get('NELECT', 0), 7)
         self.assertEqual(vasprun.structures[-1].charge, 1)
 
+    def test_kpointset_electronvelocities(self):
+        vpath = self.TEST_FILES_DIR / 'vasprun.lvel.Si2H.xml'
+        vasprun = Vasprun(vpath, parse_potcar_file=False)
+        self.assertEqual(vasprun.eigenvalues[Spin.up].shape[0], len(vasprun.actual_kpoints))
 
 class OutcarTest(PymatgenTest):
     _multiprocess_shared_ = True
@@ -675,6 +701,11 @@ class OutcarTest(PymatgenTest):
         filepath = self.TEST_FILES_DIR / "OUTCAR.BaTiO3.polar"
         outcar = Outcar(filepath)
         self.assertDictEqual({'Ba': 10.00, 'Ti': 10.00, 'O': 6.00},
+                             outcar.zval_dict)
+
+        filepath = self.TEST_FILES_DIR / "OUTCAR.LaSnNO2.polar"
+        outcar = Outcar(filepath)
+        self.assertDictEqual({'La': 11.0, 'N': 5.0, 'O': 6.0, 'Sn': 14.0},
                              outcar.zval_dict)
 
     def test_dielectric(self):
@@ -923,11 +954,11 @@ class OutcarTest(PymatgenTest):
 
     def test_onsite_density_matrix(self):
         outcar = Outcar(self.TEST_FILES_DIR / "OUTCAR.LinearResponseU.gz")
-        outcar.read_onsite_density_matrices()
         matrices = outcar.data["onsite_density_matrices"]
         self.assertEqual(matrices[0][Spin.up][0][0], 1.0227)
         self.assertEqual(len(matrices[0][Spin.up]), 5)
         self.assertEqual(len(matrices[0][Spin.up][0]), 5)
+        self.assertTrue("onsite_density_matrices" in outcar.as_dict())
 
 
 class BSVasprunTest(PymatgenTest):

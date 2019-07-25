@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.lattice module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.core.lattice module &#8212; pymatgen 2019.7.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -510,6 +510,14 @@ point, or return the raw fcoord, dist, index arrays</p></li>
 </dd></dl>
 
 <dl class="method">
+<dt id="pymatgen.core.lattice.Lattice.get_recp_symmetry_operation">
+<code class="sig-name descname">get_recp_symmetry_operation</code><span class="sig-paren">(</span><em class="sig-param">symprec: float = 0.01</em><span class="sig-paren">)</span> &#x2192; List<a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.get_recp_symmetry_operation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_recp_symmetry_operation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the symmetric operations of the reciprocal lattice,
+to be used for hkl transformations
+:param symprec: default is 0.001</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.get_vector_along_lattice_directions">
 <code class="sig-name descname">get_vector_along_lattice_directions</code><span class="sig-paren">(</span><em class="sig-param">cart_coords: Union[List[float], numpy.ndarray]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.get_vector_along_lattice_directions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_vector_along_lattice_directions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the coordinates along lattice directions given cartesian coordinates.</p>
@@ -806,13 +814,13 @@ miller index to.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

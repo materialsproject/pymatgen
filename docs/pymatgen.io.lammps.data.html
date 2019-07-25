@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.lammps.data module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.io.lammps.data module &#8212; pymatgen 2019.7.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,16 +44,6 @@
             
   <div class="section" id="module-pymatgen.io.lammps.data">
 <span id="pymatgen-io-lammps-data-module"></span><h1>pymatgen.io.lammps.data module<a class="headerlink" href="#module-pymatgen.io.lammps.data" title="Permalink to this headline">¶</a></h1>
-<dl class="data">
-<dt id="pymatgen.io.lammps.data.ATOMS_HEADERS">
-<code class="sig-name descname">ATOMS_HEADERS</code><em class="property"> = {'angle': ['molecule-ID', 'type', 'x', 'y', 'z'], 'atomic': ['type', 'x', 'y', 'z'], 'bond': ['molecule-ID', 'type', 'x', 'y', 'z'], 'charge': ['type', 'q', 'x', 'y', 'z'], 'full': ['molecule-ID', 'type', 'q', 'x', 'y', 'z'], 'molecular': ['molecule-ID', 'type', 'x', 'y', 'z']}</em><a class="headerlink" href="#pymatgen.io.lammps.data.ATOMS_HEADERS" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="data">
-<dt id="pymatgen.io.lammps.data.CLASS2_KEYWORDS">
-<code class="sig-name descname">CLASS2_KEYWORDS</code><em class="property"> = {'Angle Coeffs': ['BondBond Coeffs', 'BondAngle Coeffs'], 'Dihedral Coeffs': ['MiddleBondTorsion Coeffs', 'EndBondTorsion Coeffs', 'AngleTorsion Coeffs', 'AngleAngleTorsion Coeffs', 'BondBond13 Coeffs'], 'Improper Coeffs': ['AngleAngle Coeffs']}</em><a class="headerlink" href="#pymatgen.io.lammps.data.CLASS2_KEYWORDS" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="class">
 <dt id="pymatgen.io.lammps.data.ForceField">
 <em class="property">class </em><code class="sig-name descname">ForceField</code><span class="sig-paren">(</span><em class="sig-param">mass_info</em>, <em class="sig-param">nonbond_coeffs=None</em>, <em class="sig-param">topo_coeffs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#ForceField"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.ForceField" title="Permalink to this definition">¶</a></dt>
@@ -447,16 +437,6 @@ charges. Default to 3.</p></li>
 
 </dd></dl>
 
-<dl class="data">
-<dt id="pymatgen.io.lammps.data.SECTION_HEADERS">
-<code class="sig-name descname">SECTION_HEADERS</code><em class="property"> = {'Angles': ['type', 'atom1', 'atom2', 'atom3'], 'Bonds': ['type', 'atom1', 'atom2'], 'Dihedrals': ['type', 'atom1', 'atom2', 'atom3', 'atom4'], 'Impropers': ['type', 'atom1', 'atom2', 'atom3', 'atom4'], 'Masses': ['mass'], 'Velocities': ['vx', 'vy', 'vz']}</em><a class="headerlink" href="#pymatgen.io.lammps.data.SECTION_HEADERS" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="data">
-<dt id="pymatgen.io.lammps.data.SECTION_KEYWORDS">
-<code class="sig-name descname">SECTION_KEYWORDS</code><em class="property"> = {'atom': ['Atoms', 'Velocities', 'Masses', 'Ellipsoids', 'Lines', 'Triangles', 'Bodies'], 'class2': ['BondBond Coeffs', 'BondAngle Coeffs', 'MiddleBondTorsion Coeffs', 'EndBondTorsion Coeffs', 'AngleTorsion Coeffs', 'AngleAngleTorsion Coeffs', 'BondBond13 Coeffs', 'AngleAngle Coeffs'], 'ff': ['Pair Coeffs', 'PairIJ Coeffs', 'Bond Coeffs', 'Angle Coeffs', 'Dihedral Coeffs', 'Improper Coeffs'], 'topology': ['Bonds', 'Angles', 'Dihedrals', 'Impropers']}</em><a class="headerlink" href="#pymatgen.io.lammps.data.SECTION_KEYWORDS" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="class">
 <dt id="pymatgen.io.lammps.data.Topology">
 <em class="property">class </em><code class="sig-name descname">Topology</code><span class="sig-paren">(</span><em class="sig-param">sites</em>, <em class="sig-param">ff_label=None</em>, <em class="sig-param">charges=None</em>, <em class="sig-param">velocities=None</em>, <em class="sig-param">topologies=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#Topology"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.Topology" title="Permalink to this definition">¶</a></dt>
@@ -539,11 +519,6 @@ simulation box. Default to (0, 0, 0).</p></li>
 </dl>
 </dd></dl>
 
-<dl class="function">
-<dt id="pymatgen.io.lammps.data.structure_2_lmpdata">
-<code class="sig-name descname">structure_2_lmpdata</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pymatgen.io.lammps.data.structure_2_lmpdata" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </div>
 
 
@@ -582,13 +557,13 @@ simulation box. Default to (0, 0, 0).</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

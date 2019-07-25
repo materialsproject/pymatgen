@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.defects.utils module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.analysis.defects.utils module &#8212; pymatgen 2019.7.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -508,11 +508,6 @@ from existing atoms.</p>
 
 </dd></dl>
 
-<dl class="data">
-<dt id="pymatgen.analysis.defects.utils.ang_to_bohr">
-<code class="sig-name descname">ang_to_bohr</code><em class="property"> = 1.8897</em><a class="headerlink" href="#pymatgen.analysis.defects.utils.ang_to_bohr" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="function">
 <dt id="pymatgen.analysis.defects.utils.calculate_vol">
 <code class="sig-name descname">calculate_vol</code><span class="sig-paren">(</span><em class="sig-param">coords</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/utils.html#calculate_vol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.calculate_vol" title="Permalink to this definition">¶</a></dt>
@@ -591,41 +586,6 @@ determined by a1, a2, a3 and whose magntidue is less than gcut^2.</p>
 </dl>
 </dd></dl>
 
-<dl class="data">
-<dt id="pymatgen.analysis.defects.utils.hart_to_ev">
-<code class="sig-name descname">hart_to_ev</code><em class="property"> = 27.2114</em><a class="headerlink" href="#pymatgen.analysis.defects.utils.hart_to_ev" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="data">
-<dt id="pymatgen.analysis.defects.utils.invang_to_ev">
-<code class="sig-name descname">invang_to_ev</code><em class="property"> = 3.80986</em><a class="headerlink" href="#pymatgen.analysis.defects.utils.invang_to_ev" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="data">
-<dt id="pymatgen.analysis.defects.utils.kb">
-<code class="sig-name descname">kb</code><em class="property"> = 8.6173324e-05</em><a class="headerlink" href="#pymatgen.analysis.defects.utils.kb" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="data">
-<dt id="pymatgen.analysis.defects.utils.kumagai_to_V">
-<code class="sig-name descname">kumagai_to_V</code><em class="property"> = 180.9512739</em><a class="headerlink" href="#pymatgen.analysis.defects.utils.kumagai_to_V" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="data">
-<dt id="pymatgen.analysis.defects.utils.logger">
-<code class="sig-name descname">logger</code><em class="property"> = &lt;Logger pymatgen.analysis.defects.utils (WARNING)&gt;</em><a class="headerlink" href="#pymatgen.analysis.defects.utils.logger" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="data">
-<dt id="pymatgen.analysis.defects.utils.motif_cn_op">
-<code class="sig-name descname">motif_cn_op</code><em class="property"> = {'L-shaped': {'cn': 2, 'optype': 'bent', 'params': {'IGW_TA': 15.15, 'TA': 0.5}}, 'T-shaped': {'cn': 3, 'optype': 'T', 'params': None}, 'bent 120 degrees': {'cn': 2, 'optype': 'bent', 'params': {'IGW_TA': 13.25, 'TA': 0.666666666667}}, 'bent 150 degrees': {'cn': 2, 'optype': 'bent', 'params': {'IGW_TA': 12.45, 'TA': 0.833333333333333}}, 'body-centered cubic': {'cn': 8, 'optype': 'bcc', 'params': None}, 'cuboctahedral': {'cn': 12, 'optype': 'cuboct_max', 'params': None}, 'hexagonal bipyramidal': {'cn': 8, 'optype': 'hex_bipyr', 'params': None}, 'hexagonal planar': {'cn': 6, 'optype': 'hex_plan_max', 'params': None}, 'hexagonal pyramidal': {'cn': 7, 'optype': 'hex_pyr', 'params': None}, 'linear': {'cn': 2, 'optype': 'bent', 'params': {'IGW_TA': 8.667, 'TA': 1}}, 'octahedral': {'cn': 6, 'optype': 'oct_max', 'params': None}, 'pentagonal bipyramidal': {'cn': 7, 'optype': 'pent_bipyr', 'params': None}, 'pentagonal planar': {'cn': 5, 'optype': 'pent_plan_max', 'params': None}, 'pentagonal pyramidal': {'cn': 6, 'optype': 'pent_pyr', 'params': None}, 'rectangular see-saw-like': {'cn': 4, 'optype': 'see_saw_rect', 'params': None}, 'see-saw-like': {'cn': 4, 'optype': 'tri_bipyr', 'params': {'IGW_EP': 15.75, 'IGW_SPP': 12.75, 'exp_cos_AA': 2, 'fac_AA': 1.5, 'min_SPP': 2.356194490192345, 'w_SPP': 1}}, 'square co-planar': {'cn': 4, 'optype': 'sq_plan_max', 'params': None}, 'square pyramidal': {'cn': 5, 'optype': 'sq_pyr', 'params': None}, 'tetrahedral': {'cn': 4, 'optype': 'tet_max', 'params': None}, 'trigonal bipyramidal': {'cn': 5, 'optype': 'tri_bipyr', 'params': None}, 'trigonal non-coplanar': {'cn': 3, 'optype': 'tet_max', 'params': {'IGW_TA': 18.33, 'TA': 0.6081734479693927, 'exp_cos_AA': 2, 'fac_AA': 1.5}}, 'trigonal planar': {'cn': 3, 'optype': 'tri_plan_max', 'params': None}, 'trigonal pyramidal': {'cn': 4, 'optype': 'tri_pyr', 'params': None}, 'water-like': {'cn': 2, 'optype': 'bent', 'params': {'IGW_TA': 13.95, 'TA': 0.5802777777777778}}}</em><a class="headerlink" href="#pymatgen.analysis.defects.utils.motif_cn_op" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="data">
-<dt id="pymatgen.analysis.defects.utils.peak_local_max_found">
-<code class="sig-name descname">peak_local_max_found</code><em class="property"> = False</em><a class="headerlink" href="#pymatgen.analysis.defects.utils.peak_local_max_found" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="function">
 <dt id="pymatgen.analysis.defects.utils.tune_for_gamma">
 <code class="sig-name descname">tune_for_gamma</code><span class="sig-paren">(</span><em class="sig-param">lattice</em>, <em class="sig-param">epsilon</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/utils.html#tune_for_gamma"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.tune_for_gamma" title="Permalink to this definition">¶</a></dt>
@@ -673,13 +633,13 @@ given the suggested cut off radii by Kumagai and Oba</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

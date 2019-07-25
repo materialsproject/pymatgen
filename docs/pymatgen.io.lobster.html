@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.lobster module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.io.lobster module &#8212; pymatgen 2019.7.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +44,38 @@
             
   <div class="section" id="module-pymatgen.io.lobster">
 <span id="pymatgen-io-lobster-module"></span><h1>pymatgen.io.lobster module<a class="headerlink" href="#module-pymatgen.io.lobster" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pymatgen.io.lobster.Bandoverlaps">
+<em class="property">class </em><code class="sig-name descname">Bandoverlaps</code><span class="sig-paren">(</span><em class="sig-param">filename='bandOverlaps.lobster'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lobster.html#Bandoverlaps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Bandoverlaps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to read in bandOverlaps.lobster files. These files are not created during every Lobster run.
+:param filename: filename of the “bandOverlaps.lobster” file</p>
+<dl class="method">
+<dt id="pymatgen.io.lobster.Bandoverlaps.has_good_quality_check_occupied_bands">
+<code class="sig-name descname">has_good_quality_check_occupied_bands</code><span class="sig-paren">(</span><em class="sig-param">number_occ_bands_spin_up</em>, <em class="sig-param">number_occ_bands_spin_down=None</em>, <em class="sig-param">spin_polarized=False</em>, <em class="sig-param">limit_deviation=0.1</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/pymatgen/io/lobster.html#Bandoverlaps.has_good_quality_check_occupied_bands"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Bandoverlaps.has_good_quality_check_occupied_bands" title="Permalink to this definition">¶</a></dt>
+<dd><p>will check if the deviation from the ideal bandoverlap of all occupied bands is smaller or equal to limit_deviation
+Args:
+number_occ_bands_spin_up (int): number of occupied bands of spin up
+number_occ_bands_spin_down (int): number of occupied bands of spin down
+spin_polarized (bool):  If True, then it was a spin polarized calculation
+limit_deviation (float): limit of the maxDeviation
+:returns: Boolean that will give you information about the quality of the projection</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.lobster.Bandoverlaps.has_good_quality_maxDeviation">
+<code class="sig-name descname">has_good_quality_maxDeviation</code><span class="sig-paren">(</span><em class="sig-param">limit_maxDeviation=0.1</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/pymatgen/io/lobster.html#Bandoverlaps.has_good_quality_maxDeviation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Bandoverlaps.has_good_quality_maxDeviation" title="Permalink to this definition">¶</a></dt>
+<dd><p>will check if the maxDeviation from the ideal bandoverlap is smaller or equal to limit_maxDeviation
+:param limit_maxDeviation: limit of the maxDeviation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Boolean that will give you information about the quality of the projection</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="class">
 <dt id="pymatgen.io.lobster.Charge">
 <em class="property">class </em><code class="sig-name descname">Charge</code><span class="sig-paren">(</span><em class="sig-param">filename='CHARGE.lobster'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lobster.html#Charge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Charge" title="Permalink to this definition">¶</a></dt>
@@ -248,13 +280,23 @@ file name will be chosen, depending on the value of are_coops.</p></li>
 <dl class="method">
 <dt id="pymatgen.io.lobster.Icohplist.icohpcollection">
 <em class="property">property </em><code class="sig-name descname">icohpcollection</code><a class="headerlink" href="#pymatgen.io.lobster.Icohplist.icohpcollection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns: IcohpCollection object</p>
+<dd><p>IcohpCollection object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.lobster.Icohplist.icohplist">
 <em class="property">property </em><code class="sig-name descname">icohplist</code><a class="headerlink" href="#pymatgen.io.lobster.Icohplist.icohplist" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns: icohplist compatible with older version of this class</p>
+<dd><p>icohplist compatible with older version of this class</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -361,13 +403,15 @@ Similar to the diff in INCAR.
 
 <dl class="method">
 <dt id="pymatgen.io.lobster.Lobsterin.write_INCAR">
-<code class="sig-name descname">write_INCAR</code><span class="sig-paren">(</span><em class="sig-param">incar_input='INCAR'</em>, <em class="sig-param">incar_output='INCAR.lobster'</em>, <em class="sig-param">further_settings=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lobster.html#Lobsterin.write_INCAR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Lobsterin.write_INCAR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Will only make the run static, insert nbands, make ISYM=-1, and write a new INCAR.
+<code class="sig-name descname">write_INCAR</code><span class="sig-paren">(</span><em class="sig-param">incar_input='INCAR'</em>, <em class="sig-param">incar_output='INCAR.lobster'</em>, <em class="sig-param">poscar_input='POSCAR'</em>, <em class="sig-param">further_settings=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lobster.html#Lobsterin.write_INCAR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Lobsterin.write_INCAR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Will only make the run static, insert nbands, make ISYM=-1, set LWAVE=True and write a new INCAR.
 You have to check for the rest.
 :param incar_input: path to input INCAR
 :type incar_input: str
 :param incar_output: path to output INCAR
 :type incar_output: str
+:param poscar_input:
+:type poscar_input: str
 :param further_settings: A dict can be used to include further settings, e.g. {“ISMEAR”:-5}
 :type further_settings: dict</p>
 </dd></dl>
@@ -486,11 +530,6 @@ string with all warnings</p></li>
 
 </dd></dl>
 
-<dl class="data">
-<dt id="pymatgen.io.lobster.MODULE_DIR">
-<code class="sig-name descname">MODULE_DIR</code><em class="property"> = '/Users/shyuepingong/repos/pymatgen/pymatgen/io'</em><a class="headerlink" href="#pymatgen.io.lobster.MODULE_DIR" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </div>
 
 
@@ -529,13 +568,13 @@ string with all warnings</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

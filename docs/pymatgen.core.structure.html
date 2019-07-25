@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.structure module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.core.structure module &#8212; pymatgen 2019.7.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,11 +44,6 @@
             
   <div class="section" id="module-pymatgen.core.structure">
 <span id="pymatgen-core-structure-module"></span><h1>pymatgen.core.structure module<a class="headerlink" href="#module-pymatgen.core.structure" title="Permalink to this headline">¶</a></h1>
-<dl class="data">
-<dt id="pymatgen.core.structure.FunctionalGroups">
-<code class="sig-name descname">FunctionalGroups</code><em class="property"> = {'amine': Molecule Summary Site: X0+ (-0.4000, 1.1900, 1.3900) Site: N (-0.9700, 0.3800, 0.0000) Site: H (-0.6300, -0.5600, 0.0000) Site: H (-0.6300, 0.8600, -0.8200), 'benzene': Molecule Summary Site: X0+ (-0.4000, -2.2700, 0.0000) Site: C (0.1500, -1.3200, 0.0000) Site: C (1.5500, -1.3200, 0.0000) Site: C (2.2400, -0.1100, 0.0000) Site: C (1.5500, 1.1000, 0.0000) Site: C (0.1500, 1.1000, 0.0000) Site: C (-0.5500, -0.1100, 0.0000) Site: H (2.1000, -2.2700, 0.0000) Site: H (3.3400, -0.1100, 0.0000) Site: H (2.1000, 2.0500, 0.0000) Site: H (-0.4000, 2.0500, 0.0000) Site: H (-1.6500, -0.1100, 0.0000), 'carboxyl': Molecule Summary Site: X0+ (-1.5400, -0.8600, 0.0000) Site: C (-0.8300, -0.0100, 0.0000) Site: O (0.4000, -0.0100, 0.0000) Site: O (-1.4600, 1.1900, 0.0000) Site: H (-0.8100, 1.9100, 0.0000), 'cyano': Molecule Summary Site: X0+ (-2.6900, -0.3500, 0.5000) Site: C (-0.9200, -0.3500, 0.5000) Site: N (0.2200, -0.3500, 0.5000), 'dimethylamine': Molecule Summary Site: X0+ (-0.4000, 1.1900, 1.3900) Site: N (-0.9700, 0.3800, 0.0000) Site: C (-0.4800, -1.0000, 0.0000) Site: H (-0.8400, -1.5100, 0.8700) Site: H (-0.8300, -1.5100, -0.8700) Site: H (0.5900, -1.0000, 0.0000) Site: C (-0.4800, 1.0800, -1.2000) Site: H (-0.8300, 0.5700, -2.0700) Site: H (-0.8300, 2.0900, -1.2000) Site: H (0.5900, 1.0800, -1.2000), 'ethanamide': Molecule Summary Site: X0+ (0.5100, 2.0100, 3.6300) Site: N (1.2400, 2.0900, 2.1000) Site: C (-0.1000, 2.1700, -0.0500) Site: H (0.2500, 1.1600, -0.0500) Site: H (0.2500, 2.6800, -0.9200) Site: H (-1.1700, 2.1700, -0.0500) Site: C (0.4000, 2.9000, 1.2000) Site: O (0.1300, 4.0700, 1.4300) Site: H (2.1400, 2.5200, 2.1800), 'ethyl': Molecule Summary Site: X0+ (0.0700, -0.8100, 0.2600) Site: C (0.4600, -0.2900, 1.1700) Site: C (1.9600, -0.2900, 1.1700) Site: H (0.0700, 0.7600, 1.1700) Site: H (0.0700, -0.8100, 2.0700) Site: H (2.3600, -1.3300, 1.1600) Site: H (2.3600, 0.2300, 0.2600) Site: H (2.3600, 0.2300, 2.0700), 'ethynyl': Molecule Summary Site: X0+ (-2.1000, 1.2000, 0.0000) Site: C (-1.0000, 1.2000, 0.0700) Site: C (0.1500, 1.2000, 0.0000) Site: H (1.2000, 1.2000, 0.0000), 'fluoro': Molecule Summary Site: X0+ (0.0000, 0.0000, 0.0000) Site: F (0.0000, 0.0000, 1.1100), 'hydroxyl': Molecule Summary Site: X0+ (-2.1700, 1.2700, 0.0000) Site: O (-1.8500, 0.3600, 0.0000) Site: H (-0.8900, 0.3600, 0.0000), 'methoxyl': Molecule Summary Site: X0+ (-0.4800, 2.2200, -1.2600) Site: O (0.0800, 0.6500, -1.2500) Site: C (-0.4000, -0.0200, -0.0900) Site: H (-0.0400, -1.0300, -0.0900) Site: H (-0.0400, 0.4800, 0.7900) Site: H (-1.4700, -0.0200, -0.0900), 'methyl': Molecule Summary Site: X0+ (-0.9700, 0.6400, 0.0000) Site: C (0.1000, 0.6400, 0.0000) Site: H (0.4600, -0.3700, 0.0000) Site: H (0.4600, 1.1500, 0.8700) Site: H (0.4600, 1.1500, -0.8700), 'methylamine': Molecule Summary Site: X0+ (-0.4000, 1.1900, 1.3900) Site: N (-0.9700, 0.3800, 0.0000) Site: H (-0.6300, 0.8600, -0.8200) Site: C (-0.4800, -1.0000, 0.0000) Site: H (-0.8400, -1.5100, 0.8700) Site: H (-0.8300, -1.5100, -0.8700) Site: H (0.5900, -1.0000, 0.0000), 'nitro': Molecule Summary Site: X0+ (-3.8700, -0.8900, -0.0700) Site: N (-3.3600, 0.4300, 0.0000) Site: O (-3.9800, 1.5000, 0.0000) Site: O (-2.1300, 0.4300, 0.0000), 'trichloromethyl': Molecule Summary Site: X0+ (-2.0900, 0.0000, -0.2000) Site: C (-0.3200, 0.0000, -0.2000) Site: Cl (0.2600, 0.8300, -1.6400) Site: Cl (0.2600, 0.8300, 1.2400) Site: Cl (0.2600, -1.6600, -0.2000), 'vinyl': Molecule Summary Site: X0+ (1.7400, 0.9600, 0.0000) Site: C (1.1500, 0.0300, 0.0000) Site: C (-0.1700, 0.0300, 0.0000) Site: H (-0.7700, 0.9600, 0.0000) Site: H (-0.7700, -0.8900, 0.0000) Site: H (1.7400, -0.8900, 0.0000)}</em><a class="headerlink" href="#pymatgen.core.structure.FunctionalGroups" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="class">
 <dt id="pymatgen.core.structure.IMolecule">
 <em class="property">class </em><code class="sig-name descname">IMolecule</code><span class="sig-paren">(</span><em class="sig-param">species: list</em>, <em class="sig-param">coords: list</em>, <em class="sig-param">charge: float = 0</em>, <em class="sig-param">spin_multiplicity: float = None</em>, <em class="sig-param">validate_proximity: bool = False</em>, <em class="sig-param">site_properties: dict = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IMolecule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IMolecule" title="Permalink to this definition">¶</a></dt>
@@ -716,7 +711,13 @@ in the returned data</p></li>
 data. Defaults to True.</p></li>
 <li><p><strong>sites</strong> (<em>list of Sites</em><em> or </em><a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a><em> or </em><em>None</em>) – sites for getting all neighbors,
 default is None, which means neighbors will be obtained for all
-sites.</p></li>
+sites. This is useful in the situation where you are interested
+only in one subspecies type, and makes it a lot faster.</p></li>
+<li><p><strong>numerical_tol</strong> (<em>float</em>) – This is a numerical tolerance for distances.
+Sites which are &lt; numerical_tol are determined to be conincident
+with the site. Sites which are r + numerical_tol away is deemed
+to be within r from the site. The default of 1e-8 should be
+ok in most instances.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -2043,6 +2044,17 @@ cell</p></li>
 Raised when the structure has problems, e.g., atoms that are too close.</p>
 </dd></dl>
 
+<dl class="function">
+<dt id="pymatgen.core.structure.find_neighbors">
+<code class="sig-name descname">find_neighbors</code><span class="sig-paren">(</span><em class="sig-param">label</em>, <em class="sig-param">nx</em>, <em class="sig-param">ny</em>, <em class="sig-param">nz</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#find_neighbors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.find_neighbors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a cube index, find the neighbor cube indices
+:param label: (array) (n,) or (n x 3) indice array
+:param nx: (int) number of cells in y direction
+:param ny: (int) number of cells in y direction
+:param nz: (int) number of cells in z direction
+:return: neighbor cell indices</p>
+</dd></dl>
+
 </div>
 
 
@@ -2081,13 +2093,13 @@ Raised when the structure has problems, e.g., atoms that are too close.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

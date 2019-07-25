@@ -515,7 +515,7 @@ class NearNeighbors:
                 return i
         raise Exception('Site not found!')
 
-    def get_bonded_structure(self, structure, decorate=False):
+    def get_bonded_structure(self, structure, decorate=False, weights=True):
         """
         Obtain a StructureGraph object using this NearNeighbor
         class. Requires the optional dependency networkx
@@ -526,8 +526,10 @@ class NearNeighbors:
             decorate (bool): whether to annotate site properties
             with order parameters using neighbors determined by
             this NearNeighbor class
+            weights (bool): whether to include edge weights from
+            NearNeighbor class in StructureGraph
 
-        Returns: a pymatgen.analysis.graphs.BondedStructure object
+        Returns: a pymatgen.analysis.graphs.StructureGraph object
         """
 
         # requires optional dependency which is why it's not a top-level import
@@ -542,7 +544,7 @@ class NearNeighbors:
                                 for n in range(len(structure))]
             structure.add_site_property('order_parameters', order_parameters)
 
-        sg = StructureGraph.with_local_env_strategy(structure, self)
+        sg = StructureGraph.with_local_env_strategy(structure, self, weights=weights)
 
         return sg
 
