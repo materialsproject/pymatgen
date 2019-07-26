@@ -14,7 +14,7 @@ import warnings
 from fnmatch import fnmatch
 import re
 import functools
-from typing import Dict
+from typing import Dict, List, Tuple
 
 from math import gcd
 
@@ -91,7 +91,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         return all_distances(self.cart_coords, self.cart_coords)
 
     @property
-    def species(self):
+    def species(self) -> List[Specie]:
         """
         Only works for ordered structures.
         Disordered structures will raise an AttributeError.
@@ -102,14 +102,14 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         return [site.specie for site in self]
 
     @property
-    def species_and_occu(self):
+    def species_and_occu(self) -> Dict[Composition, float]:
         """
         List of species and occupancies at each site of the structure.
         """
         return [site.species for site in self]
 
     @property
-    def ntypesp(self):
+    def ntypesp(self) -> int:
         """Number of types of atoms."""
         return len(self.types_of_specie)
 
@@ -148,7 +148,7 @@ to build an appropriate supercell from partial occupancies.""")
                       if specie.symbol == symbol))
 
     @property
-    def symbol_set(self):
+    def symbol_set(self) -> Tuple[str]:
         """
         Tuple with the set of chemical symbols.
         Note that len(symbol_set) == len(types_of_specie)
@@ -156,7 +156,7 @@ to build an appropriate supercell from partial occupancies.""")
         return tuple((specie.symbol for specie in self.types_of_specie))
 
     @property
-    def atomic_numbers(self):
+    def atomic_numbers(self) -> List[int]:
         """List of atomic numbers."""
         return [site.specie.number for site in self]
 
@@ -192,7 +192,7 @@ to build an appropriate supercell from partial occupancies.""")
         return self.composition.__hash__()
 
     @property
-    def num_sites(self):
+    def num_sites(self) -> int:
         """
         Number of sites.
         """
@@ -207,7 +207,7 @@ to build an appropriate supercell from partial occupancies.""")
         return np.array([site.coords for site in self])
 
     @property
-    def formula(self):
+    def formula(self) -> str:
         """
         (str) Returns the formula.
         """
@@ -225,7 +225,7 @@ to build an appropriate supercell from partial occupancies.""")
         return Composition(elmap)
 
     @property
-    def charge(self):
+    def charge(self) -> float:
         """
         Returns the net charge of the structure based on oxidation states. If
         Elements are found, a charge of 0 is assumed.
@@ -237,7 +237,7 @@ to build an appropriate supercell from partial occupancies.""")
         return charge
 
     @property
-    def is_ordered(self):
+    def is_ordered(self) -> bool:
         """
         Checks if structure is ordered, meaning no partial occupancies in any
         of the sites.
@@ -383,7 +383,7 @@ to build an appropriate supercell from partial occupancies.""")
                         c += {new_sp: amt}
                 site.species = c
 
-    def add_oxidation_state_by_element(self, oxidation_states):
+    def add_oxidation_state_by_element(self, oxidation_states: Dict[str, float]):
         """
         Add oxidation states.
 
@@ -402,7 +402,7 @@ to build an appropriate supercell from partial occupancies.""")
             raise ValueError("Oxidation state of all elements must be "
                              "specified in the dictionary.")
 
-    def add_oxidation_state_by_site(self, oxidation_states):
+    def add_oxidation_state_by_site(self, oxidation_states: List[float]):
         """
         Add oxidation states to a structure by site.
 
