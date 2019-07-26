@@ -1091,12 +1091,8 @@ class IStructure(SiteCollection, MSONable):
                 is always included in the returned data.
 
         Returns:
-            [(site, dist) ...] since most of the time, subsequent processing
-            requires the distance.
-            If include_index == True, the tuple for each neighbor also includes
-            the index of the neighbor.
-            If include_supercell == True, the tuple for each neighbor also includes
-            the index of supercell.
+            [Neighbor] where Neighbor is a namedtuple containing
+            (site, distance, index, image).
         """
         return self.get_all_neighbors(r, include_index=include_index,
                                       include_image=include_image,
@@ -1117,12 +1113,8 @@ class IStructure(SiteCollection, MSONable):
                 is included in the returned data
 
         Returns:
-            [(site, dist) ...] since most of the time, subsequent processing
-            requires the distance.
-            If include_index == True, the tuple for each neighbor also includes
-            the index of the neighbor.
-            If include_supercell == True, the tuple for each neighbor also includes
-            the index of supercell.
+            [Neighbor] where Neighbor is a namedtuple containing
+            (site, distance, index, image).
         """
         nn = self.get_sites_in_sphere(site.coords, r,
                                       include_index=include_index,
@@ -1170,14 +1162,8 @@ class IStructure(SiteCollection, MSONable):
                 ok in most instances.
 
         Returns:
-            A list of a list of nearest neighbors for each site, i.e.,
-            [[(site, dist, index, image) ...], ..]
-            Index only supplied if include_index = True.
-            The index is the index of the site in the original (non-supercell)
-            structure. This is needed for ewaldmatrix by keeping track of which
-            sites contribute to the ewald sum.
-            Image only supplied if include_image = True
-            Site is supplied only if include_site = True (the default).
+            [Neighbor] where Neighbor is a namedtuple containing
+            (site, distance, index, image).
         """
 
         latt = self.lattice
@@ -1301,14 +1287,8 @@ class IStructure(SiteCollection, MSONable):
                 data. Defaults to True.
 
         Returns:
-            A list of a list of nearest neighbors for each site, i.e.,
-            [[(site, dist, index, image) ...], ..]
-            Index only supplied if include_index = True.
-            The index is the index of the site in the original (non-supercell)
-            structure. This is needed for ewaldmatrix by keeping track of which
-            sites contribute to the ewald sum.
-            Image only supplied if include_image = True
-            Site is supplied only if include_site = True (the default).
+            [Neighbor] where Neighbor is a namedtuple containing
+            (site, distance, index, image).
         """
         # Use same algorithm as get_sites_in_sphere to determine supercell but
         # loop over all atoms in crystal
@@ -1366,13 +1346,8 @@ class IStructure(SiteCollection, MSONable):
                 is always included in the returned data.
 
         Returns:
-            [(site, dist, index) ...] since most of the time, subsequent
-            processing
-            requires the distance. Index only supplied if include_index = True.
-            The index is the index of the site in the original (non-supercell)
-            structure. This is needed for ewaldmatrix by keeping track of which
-            sites contribute to the ewald sum.
-            Image only supplied if include_image = True
+            [NearestNeighbor] where Nearest Neighbor is a named tuple containing
+            (site, distance, index, image).
         """
         outer = self.get_sites_in_sphere(origin, r + dr,
                                          include_index=include_index,
@@ -1396,7 +1371,7 @@ class IStructure(SiteCollection, MSONable):
         sites = sorted(self, key=key, reverse=reverse)
         return self.__class__.from_sites(sites, charge=self._charge)
 
-    def get_reduced_structure(self, reduction_algo="niggli"):
+    def get_reduced_structure(self, reduction_algo: str="niggli"):
         """
         Get a reduced structure.
 
@@ -1466,8 +1441,9 @@ class IStructure(SiteCollection, MSONable):
             new_sites = sorted(new_sites)
             return self.__class__.from_sites(new_sites, charge=self._charge)
 
-    def interpolate(self, end_structure, nimages=10,
-                    interpolate_lattices=False, pbc=True, autosort_tol=0):
+    def interpolate(self, end_structure, nimages: int=10,
+                    interpolate_lattices:bool =False, pbc: bool=True,
+                    autosort_tol: float=0):
         """
         Interpolate between this structure and end_structure. Useful for
         construction of NEB inputs.
@@ -3417,7 +3393,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
                            validate_proximity=validate_proximity,
                            properties=properties)
 
-    def set_charge_and_spin(self, charge, spin_multiplicity=None):
+    def set_charge_and_spin(self, charge: float, spin_multiplicity: Optional[float]=None):
         """
         Set the charge and spin multiplicity.
 
