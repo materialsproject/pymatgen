@@ -132,11 +132,11 @@ class IsingModel(EnergyModel):
     def get_energy(self, structure):
         all_nn = structure.get_all_neighbors(r=self.max_radius)
         energy = 0
-        for i, nn in enumerate(all_nn):
+        for i, nns in enumerate(all_nn):
             s1 = getattr(structure[i].specie, "spin", 0)
-            for site, dist in nn:
-                energy += self.j * s1 * getattr(site.specie, "spin",
-                                                0) / (dist ** 2)
+            for nn in nns:
+                energy += self.j * s1 * getattr(nn.site.specie, "spin",
+                                                0) / (nn.distance ** 2)
         return energy
 
     def as_dict(self):
