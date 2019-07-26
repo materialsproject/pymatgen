@@ -114,7 +114,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         return len(self.types_of_specie)
 
     @property
-    def types_of_specie(self):
+    def types_of_specie(self) -> List[Specie]:
         """
         List of types of specie. Only works for ordered structures.
         Disordered structures will raise TypeError.
@@ -139,7 +139,7 @@ to build an appropriate supercell from partial occupancies.""")
                 if site.specie == t:
                     yield site
 
-    def indices_from_symbol(self, symbol: str) -> tuple:
+    def indices_from_symbol(self, symbol: str) -> Tuple[int]:
         """
         Returns a tuple with the sequential indices of the sites
         that contain an element with the given chemical symbol.
@@ -161,7 +161,7 @@ to build an appropriate supercell from partial occupancies.""")
         return [site.specie.number for site in self]
 
     @property
-    def site_properties(self):
+    def site_properties(self) -> Dict[str, List]:
         """
         Returns the site properties as a dict of sequences. E.g.,
         {"magmom": (5,-5), "charge": (-4,4)}.
@@ -214,7 +214,7 @@ to build an appropriate supercell from partial occupancies.""")
         return self.composition.formula
 
     @property
-    def composition(self):
+    def composition(self) -> Composition:
         """
         (Composition) Returns the composition
         """
@@ -324,7 +324,7 @@ to build an appropriate supercell from partial occupancies.""")
         """
         pass
 
-    def add_site_property(self, property_name, values):
+    def add_site_property(self, property_name: str, values: List):
         """
         Adds a property to a site.
 
@@ -444,7 +444,7 @@ to build an appropriate supercell from partial occupancies.""")
                      [dict([(e.symbol, 0) for e in self.composition])]
         self.add_oxidation_state_by_element(oxid_guess[0])
 
-    def add_spin_by_element(self, spins):
+    def add_spin_by_element(self, spins: Dict[str, float]):
         """
         Add spin states to a structure.
 
@@ -461,7 +461,7 @@ to build an appropriate supercell from partial occupancies.""")
                               properties={'spin': spins.get(str(sp), spins.get(sym, None))})] = occu
             site.species = new_sp
 
-    def add_spin_by_site(self, spins):
+    def add_spin_by_site(self, spins: List[float]):
         """
         Add spin states to a structure by site.
 
@@ -493,7 +493,7 @@ to build an appropriate supercell from partial occupancies.""")
                 new_sp[Specie(sp.symbol, oxidation_state=oxi_state)] += occu
             site.species = new_sp
 
-    def extract_cluster(self, target_sites, **kwargs):
+    def extract_cluster(self, target_sites: List[Site], **kwargs):
         """
         Extracts a cluster of atoms based on bond lengths
 
@@ -601,8 +601,9 @@ class IStructure(SiteCollection, MSONable):
         self._charge = charge
 
     @classmethod
-    def from_sites(cls, sites, charge=None, validate_proximity=False,
-                   to_unit_cell=False):
+    def from_sites(cls, sites: List[PeriodicSite], charge: float=None,
+                   validate_proximity: bool=False,
+                   to_unit_cell: bool=False):
         """
         Convenience constructor to make a Structure from a list of sites.
 
@@ -645,8 +646,9 @@ class IStructure(SiteCollection, MSONable):
                    to_unit_cell=to_unit_cell)
 
     @classmethod
-    def from_spacegroup(cls, sg, lattice, species, coords, site_properties=None,
-                        coords_are_cartesian=False, tol=1e-5):
+    def from_spacegroup(cls, sg: str, lattice: Lattice, species: List,
+                        coords: List, site_properties: Dict[str, List]=None,
+                        coords_are_cartesian: bool=False, tol: float=1e-5):
         """
         Generate a structure using a spacegroup. Note that only symmetrically
         distinct species and coords should be provided. All equivalent sites
@@ -732,8 +734,9 @@ class IStructure(SiteCollection, MSONable):
 
     @classmethod
     def from_magnetic_spacegroup(
-            cls, msg, lattice, species, coords, site_properties,
-            transform_setting=None, coords_are_cartesian=False, tol=1e-5):
+            cls, msg: str, lattice: Lattice, species: List,
+            coords: List, site_properties: Dict[str, List]=None,
+            coords_are_cartesian: bool=False, tol: float=1e-5):
         """
         Generate a structure using a magnetic spacegroup. Note that only
         symmetrically distinct species, coords and magmoms should be provided.]
@@ -894,10 +897,10 @@ class IStructure(SiteCollection, MSONable):
                                angle_tolerance=angle_tolerance)
         return a.get_space_group_symbol(), a.get_space_group_number()
 
-    def matches(self, other, **kwargs):
+    def matches(self, other, anonymous=False, **kwargs):
         """
         Check whether this structure is similar to another structure.
-        Basically a convenience method to call structure matching fitting.
+        Basically a convenience method to call structure matching.
 
         Args:
             other (IStructure/Structure): Another structure.
@@ -910,7 +913,10 @@ class IStructure(SiteCollection, MSONable):
         """
         from pymatgen.analysis.structure_matcher import StructureMatcher
         m = StructureMatcher(**kwargs)
-        return m.fit(Structure.from_sites(self), Structure.from_sites(other))
+        if not anonymous:
+            return m.fit(self, other)
+        else:
+            return m.fit_anonymous(self, other)
 
     def __eq__(self, other):
         if other is self:
