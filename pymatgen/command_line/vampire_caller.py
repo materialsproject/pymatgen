@@ -108,7 +108,9 @@ class VampireCaller:
 
         # Get exchange parameters and set instance variables
         if not hm:
-            hmapper = HeisenbergMapper(ordered_structures, energies, cutoff=7.5, tol=0.02)
+            hmapper = HeisenbergMapper(
+                ordered_structures, energies, cutoff=7.5, tol=0.02
+            )
 
             hm = hmapper.get_heisenberg_model()
 
@@ -395,7 +397,9 @@ class VampireCaller:
 
 
 class VampireOutput(MSONable):
-    def __init__(self, vamp_stdout=None, nmats=None, parsed_out=None, critical_temp=None):
+    def __init__(
+        self, vamp_stdout=None, nmats=None, parsed_out=None, critical_temp=None
+    ):
         """
         This class processes results from a Vampire Monte Carlo simulation
         and returns the critical temperature.
