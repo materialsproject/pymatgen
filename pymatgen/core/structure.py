@@ -14,6 +14,7 @@ import warnings
 from fnmatch import fnmatch
 import re
 import functools
+from typing import Dict
 
 from math import gcd
 
@@ -347,7 +348,7 @@ to build an appropriate supercell from partial occupancies.""")
         for site in self.sites:
             del site.properties[property_name]
 
-    def replace_species(self, species_mapping):
+    def replace_species(self, species_mapping: Dict[str, str]):
         """
         Swap species.
 
