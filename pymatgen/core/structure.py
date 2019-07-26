@@ -2387,14 +2387,14 @@ class IMolecule(SiteCollection, MSONable):
             r (float): Radius of sphere.
 
         Returns:
-            [(site, dist) ...] since most of the time, subsequent processing
+            [Neighbor] since most of the time, subsequent processing
             requires the distance.
         """
         neighbors = []
-        for site in self._sites:
+        for i, site in enumerate(self._sites):
             dist = site.distance_from_point(pt)
             if dist <= r:
-                neighbors.append((site, dist))
+                neighbors.append(Neighbor(site, dist, i, None))
         return neighbors
 
     def get_neighbors(self, site, r):
@@ -2410,8 +2410,8 @@ class IMolecule(SiteCollection, MSONable):
             [(site, dist) ...] since most of the time, subsequent processing
             requires the distance.
         """
-        nn = self.get_sites_in_sphere(site.coords, r)
-        return [(s, dist) for (s, dist) in nn if site != s]
+        nns = self.get_sites_in_sphere(site.coords, r)
+        return [nn for nn in nns if nn.site != site]
 
     def get_neighbors_in_shell(self, origin, r, dr):
         """
@@ -2429,7 +2429,7 @@ class IMolecule(SiteCollection, MSONable):
         """
         outer = self.get_sites_in_sphere(origin, r + dr)
         inner = r - dr
-        return [(site, dist) for (site, dist) in outer if dist > inner]
+        return [nn for nn in outer if nn.distance > inner]
 
     def get_boxed_structure(self, a, b, c, images=(1, 1, 1),
                             random_rotation=False, min_dist=1, cls=None,
@@ -3601,20 +3601,20 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
         # Find the nearest neighbor that is not a terminal atom.
         all_non_terminal_nn = []
-        for nn, dist in self.get_neighbors(self[index], 3):
+        for nn in self.get_neighbors(self[index], 3):
             # Check that the nn has neighbors within a sensible distance but
             # is not the site being substituted.
-            for inn, dist2 in self.get_neighbors(nn, 3):
-                if inn != self[index] and \
-                                dist2 < 1.2 * get_bond_length(nn.specie, inn.specie):
-                    all_non_terminal_nn.append((nn, dist))
+            for nn2 in self.get_neighbors(nn.site, 3):
+                if nn2.site != self[index] and \
+                        nn2.distance < 1.2 * get_bond_length(nn.site.specie, nn2.site.specie):
+                    all_non_terminal_nn.append(nn)
                     break
 
         if len(all_non_terminal_nn) == 0:
             raise RuntimeError("Can't find a non-terminal neighbor to attach"
                                " functional group to.")
 
-        non_terminal_nn = min(all_non_terminal_nn, key=lambda d: d[1])[0]
+        non_terminal_nn = min(all_non_terminal_nn, key=lambda nn: nn.distance).site
 
         # Set the origin point to be the coordinates of the nearest
         # non-terminal neighbor.
