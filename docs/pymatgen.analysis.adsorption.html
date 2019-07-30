@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.adsorption module &#8212; pymatgen 2019.7.21 documentation</title>
+    <title>pymatgen.analysis.adsorption module &#8212; pymatgen 2019.7.30 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -91,9 +91,6 @@ non-surface sites as fixed for selective dynamics</p></li>
 concurrent with the miller index, this enables use with
 slabs that have been reoriented, but the miller vector
 must be supplied manually</p></li>
-<li><p><strong>top_surface</strong> (<em>bool</em>) – Which surface to adsorb, True for the surface
-above the center of mass, False for the surface below
-center of mass</p></li>
 </ul>
 </dd>
 </dl>
@@ -122,7 +119,7 @@ have its z-axis concurrent with miller index</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.adsorb_both_surfaces">
-<code class="sig-name descname">adsorb_both_surfaces</code><span class="sig-paren">(</span><em class="sig-param">molecule</em>, <em class="sig-param">repeat=None</em>, <em class="sig-param">min_lw=5.0</em>, <em class="sig-param">translate=True</em>, <em class="sig-param">reorient=True</em>, <em class="sig-param">find_args={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.adsorb_both_surfaces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.adsorb_both_surfaces" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">adsorb_both_surfaces</code><span class="sig-paren">(</span><em class="sig-param">molecule</em>, <em class="sig-param">repeat=None</em>, <em class="sig-param">min_lw=5.0</em>, <em class="sig-param">translate=True</em>, <em class="sig-param">reorient=True</em>, <em class="sig-param">find_args=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.adsorb_both_surfaces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.adsorb_both_surfaces" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function that generates all adsorption structures for a given
 molecular adsorbate on both surfaces of a slab. This is useful
 for calculating surface energy where both surfaces need to be
@@ -262,7 +259,7 @@ are 10% less coordinated than their bulk counterpart</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.generate_adsorption_structures">
-<code class="sig-name descname">generate_adsorption_structures</code><span class="sig-paren">(</span><em class="sig-param">molecule</em>, <em class="sig-param">repeat=None</em>, <em class="sig-param">min_lw=5.0</em>, <em class="sig-param">translate=True</em>, <em class="sig-param">reorient=True</em>, <em class="sig-param">find_args={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.generate_adsorption_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.generate_adsorption_structures" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">generate_adsorption_structures</code><span class="sig-paren">(</span><em class="sig-param">molecule</em>, <em class="sig-param">repeat=None</em>, <em class="sig-param">min_lw=5.0</em>, <em class="sig-param">translate=True</em>, <em class="sig-param">reorient=True</em>, <em class="sig-param">find_args=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.generate_adsorption_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.generate_adsorption_structures" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function that generates all adsorption structures for a given
 molecular adsorbate.  Can take repeat argument or minimum
 length/width of precursor slab as an input</p>
@@ -273,6 +270,8 @@ length/width of precursor slab as an input</p>
 <li><p><strong>repeat</strong> (<em>3-tuple</em><em> or </em><em>list</em>) – repeat argument for supercell generation</p></li>
 <li><p><strong>min_lw</strong> (<em>float</em>) – minimum length and width of the slab, only used
 if repeat is None</p></li>
+<li><p><strong>translate</strong> (<em>bool</em>) – flag on whether to translate the molecule so
+that its CoM is at the origin prior to adding it to the surface</p></li>
 <li><p><strong>reorient</strong> (<em>bool</em>) – flag on whether or not to reorient adsorbate
 along the miller index</p></li>
 <li><p><strong>find_args</strong> (<em>dict</em>) – dictionary of arguments to be passed to the
@@ -284,7 +283,7 @@ call to self.find_adsorption_sites, e.g. {“distance”:2.0}</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.generate_substitution_structures">
-<code class="sig-name descname">generate_substitution_structures</code><span class="sig-paren">(</span><em class="sig-param">atom</em>, <em class="sig-param">target_species=[]</em>, <em class="sig-param">sub_both_sides=False</em>, <em class="sig-param">range_tol=0.01</em>, <em class="sig-param">dist_from_surf=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.generate_substitution_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.generate_substitution_structures" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">generate_substitution_structures</code><span class="sig-paren">(</span><em class="sig-param">atom</em>, <em class="sig-param">target_species=None</em>, <em class="sig-param">sub_both_sides=False</em>, <em class="sig-param">range_tol=0.01</em>, <em class="sig-param">dist_from_surf=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/adsorption.html#AdsorbateSiteFinder.generate_substitution_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.generate_substitution_structures" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Function that performs substitution-type doping on the surface and</dt><dd><p>returns all possible configurations where one dopant is substituted
 per surface. Can substitute one surface or both.</p>
@@ -448,7 +447,7 @@ normal to the A-B plane</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
       </ul>
     </div>
 

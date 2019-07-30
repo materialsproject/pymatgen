@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Index &#8212; pymatgen 2019.7.21 documentation</title>
+    <title>Index &#8212; pymatgen 2019.7.30 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -291,6 +291,8 @@
       <li><a href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureVis.add_text">add_text() (StructureVis method)</a>
 </li>
       <li><a href="pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureVis.add_triangle">add_triangle() (StructureVis method)</a>
+</li>
+      <li><a href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.AddAdsorbateTransformation">AddAdsorbateTransformation (class in pymatgen.transformations.advanced_transformations)</a>
 </li>
       <li><a href="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.additional_condition">additional_condition() (SimplestChemenvStrategy property)</a>
 </li>
@@ -627,6 +629,8 @@
       <li><a href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation.apply_transformation">apply_transformation() (AbstractTransformation method)</a>
 
       <ul>
+        <li><a href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.AddAdsorbateTransformation.apply_transformation">(AddAdsorbateTransformation method)</a>
+</li>
         <li><a href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.AddSitePropertyTransformation.apply_transformation">(AddSitePropertyTransformation method)</a>
 </li>
         <li><a href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation.apply_transformation">(AutoOxiStateDecorationTransformation method)</a>
@@ -688,6 +692,8 @@
         <li><a href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation.apply_transformation">(ScaleToRelaxedTransformation method)</a>
 </li>
         <li><a href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SlabTransformation.apply_transformation">(SlabTransformation method)</a>
+</li>
+        <li><a href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SubstituteSurfaceSiteTransformation.apply_transformation">(SubstituteSurfaceSiteTransformation method)</a>
 </li>
         <li><a href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SubstitutionPredictorTransformation.apply_transformation">(SubstitutionPredictorTransformation method)</a>
 </li>
@@ -1180,6 +1186,8 @@
 </li>
       <li><a href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element.atomic_mass">atomic_mass (Element attribute)</a>
 </li>
+      <li><a href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element.atomic_mass">atomic_mass() (Element property)</a>
+</li>
       <li><a href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.PotcarSingle.atomic_no">atomic_no() (PotcarSingle property)</a>
 </li>
       <li><a href="pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection.atomic_numbers">atomic_numbers() (SiteCollection property)</a>
@@ -1187,6 +1195,8 @@
       <li><a href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element.atomic_orbitals">atomic_orbitals (Element attribute)</a>
 </li>
       <li><a href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element.atomic_radius">atomic_radius (Element attribute)</a>
+</li>
+      <li><a href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element.atomic_radius">atomic_radius() (Element property)</a>
 </li>
       <li><a href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element.atomic_radius_calculated">atomic_radius_calculated (Element attribute)</a>
 </li>
@@ -2542,9 +2552,11 @@
 </li>
       <li><a href="pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.ConnectedSite.dist">dist() (ConnectedSite property)</a>
 </li>
-      <li><a href="pymatgen.core.sites.html#pymatgen.core.sites.PeriodicSite.distance">distance() (PeriodicSite method)</a>
+      <li><a href="pymatgen.core.structure.html#pymatgen.core.structure.Neighbor.distance">distance() (Neighbor property)</a>
 
       <ul>
+        <li><a href="pymatgen.core.sites.html#pymatgen.core.sites.PeriodicSite.distance">(PeriodicSite method)</a>
+</li>
         <li><a href="pymatgen.core.sites.html#pymatgen.core.sites.Site.distance">(Site method)</a>
 </li>
       </ul></li>
@@ -6506,6 +6518,8 @@
 </li>
       <li><a href="pymatgen.io.abinit.flows.html#pymatgen.io.abinit.flows.Flow.iflat_tasks_wti">iflat_tasks_wti() (Flow method)</a>
 </li>
+      <li><a href="pymatgen.core.structure.html#pymatgen.core.structure.Neighbor.image">image() (Neighbor property)</a>
+</li>
       <li><a href="pymatgen.analysis.path_finder.html#pymatgen.analysis.path_finder.NEBPathfinder.images">images() (NEBPathfinder property)</a>
 </li>
       <li><a href="pymatgen.core.structure.html#pymatgen.core.structure.IMolecule">IMolecule (class in pymatgen.core.structure)</a>
@@ -6571,7 +6585,11 @@
       <li><a href="pymatgen.io.exciting.inputs.html#pymatgen.io.exciting.inputs.ExcitingInput.indent">indent() (ExcitingInput static method)</a>
 </li>
       <li><a href="pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.ConnectedSite.index">index() (ConnectedSite property)</a>
+
+      <ul>
+        <li><a href="pymatgen.core.structure.html#pymatgen.core.structure.Neighbor.index">(Neighbor property)</a>
 </li>
+      </ul></li>
       <li><a href="pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection.indices_from_symbol">indices_from_symbol() (SiteCollection method)</a>
 </li>
       <li><a href="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.html#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.indices_separate">indices_separate() (Plane method)</a>
@@ -6665,6 +6683,8 @@
       <li><a href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation.inverse">inverse() (AbstractTransformation property)</a>
 
       <ul>
+        <li><a href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.AddAdsorbateTransformation.inverse">(AddAdsorbateTransformation property)</a>
+</li>
         <li><a href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.AddSitePropertyTransformation.inverse">(AddSitePropertyTransformation property)</a>
 </li>
         <li><a href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation.inverse">(AutoOxiStateDecorationTransformation property)</a>
@@ -6726,6 +6746,8 @@
         <li><a href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation.inverse">(ScaleToRelaxedTransformation property)</a>
 </li>
         <li><a href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SlabTransformation.inverse">(SlabTransformation property)</a>
+</li>
+        <li><a href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SubstituteSurfaceSiteTransformation.inverse">(SubstituteSurfaceSiteTransformation property)</a>
 </li>
         <li><a href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SubstitutionPredictorTransformation.inverse">(SubstitutionPredictorTransformation property)</a>
 </li>
@@ -6798,10 +6820,10 @@
 </li>
       <li><a href="pymatgen.core.libxcfunc.html#pymatgen.core.libxcfunc.LibxcFunc.is_c_kind">is_c_kind() (LibxcFunc property)</a>
 </li>
-      <li><a href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element.is_chalcogen">is_chalcogen() (Element property)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element.is_chalcogen">is_chalcogen() (Element property)</a>
+</li>
       <li><a href="pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments.is_close_to">is_close_to() (ChemicalEnvironments method)</a>
 
       <ul>
@@ -6919,6 +6941,8 @@
       <li><a href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation.is_one_to_many">is_one_to_many() (AbstractTransformation property)</a>
 
       <ul>
+        <li><a href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.AddAdsorbateTransformation.is_one_to_many">(AddAdsorbateTransformation property)</a>
+</li>
         <li><a href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.AddSitePropertyTransformation.is_one_to_many">(AddSitePropertyTransformation property)</a>
 </li>
         <li><a href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation.is_one_to_many">(AutoOxiStateDecorationTransformation property)</a>
@@ -6978,6 +7002,8 @@
         <li><a href="pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation.is_one_to_many">(ScaleToRelaxedTransformation property)</a>
 </li>
         <li><a href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SlabTransformation.is_one_to_many">(SlabTransformation property)</a>
+</li>
+        <li><a href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SubstituteSurfaceSiteTransformation.is_one_to_many">(SubstituteSurfaceSiteTransformation property)</a>
 </li>
         <li><a href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SubstitutionPredictorTransformation.is_one_to_many">(SubstitutionPredictorTransformation property)</a>
 </li>
@@ -8286,6 +8312,8 @@
         <li><a href="pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.neighb_sites_and_indices">(StructureEnvironments.NeighborsSet property)</a>
 </li>
       </ul></li>
+      <li><a href="pymatgen.core.structure.html#pymatgen.core.structure.Neighbor">Neighbor (class in pymatgen.core.structure)</a>
+</li>
       <li><a href="pymatgen.analysis.chemenv.coordination_environments.voronoi.html#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.neighbors">neighbors() (DetailedVoronoiContainer method)</a>
 </li>
       <li><a href="pymatgen.analysis.chemenv.coordination_environments.voronoi.html#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.neighbors_map">neighbors_map() (DetailedVoronoiContainer method)</a>
@@ -11121,6 +11149,8 @@
 </li>
         <li><a href="pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.DefectEntry.site">(DefectEntry property)</a>
 </li>
+        <li><a href="pymatgen.core.structure.html#pymatgen.core.structure.Neighbor.site">(Neighbor property)</a>
+</li>
       </ul></li>
       <li><a href="pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.site_contains_environment">site_contains_environment() (LightStructureEnvironments method)</a>
 </li>
@@ -11578,6 +11608,8 @@
         <li><a href="pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph.substitute_group">(StructureGraph method)</a>
 </li>
       </ul></li>
+      <li><a href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SubstituteSurfaceSiteTransformation">SubstituteSurfaceSiteTransformation (class in pymatgen.transformations.advanced_transformations)</a>
+</li>
       <li><a href="pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.Substitution">Substitution (class in pymatgen.analysis.defects.core)</a>
 </li>
       <li><a href="pymatgen.analysis.defects.generators.html#pymatgen.analysis.defects.generators.SubstitutionGenerator">SubstitutionGenerator (class in pymatgen.analysis.defects.generators)</a>
@@ -12915,7 +12947,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
       </ul>
     </div>
 
