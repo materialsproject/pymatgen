@@ -653,13 +653,17 @@ class PerturbSitesTransformationTest(PymatgenTest):
 
         structure = self.get_structure('TlBiSe2')
 
-        perturb_transformer = PerturbSitesTransformation(max_displacement=max_displacement,
-                                                         min_displacement=min_displacement,
-                                                         num_displacements=num_displacements,
+        perturb_transformer = PerturbSitesTransformation(max_disp=max_displacement,
+                                                         min_disp=min_displacement,
+                                                         num_disps=num_displacements,
                                                          structures_per_displacement_distance=structures_per_displacement_val)
-        random_structures = perturb_transformer.apply_transformation(structure)
+        random_structures = [d['structure'] for d in perturb_transformer.apply_transformation(structure)]
+        disps = [d['displacement'] for d in perturb_transformer.apply_transformation(structure)]
+        min_rand_dists = [d['min_random_distance'] for d in perturb_transformer.apply_transformation(structure)]
         num_random_structures = len(random_structures)
         self.assertEqual(num_random_structures, num_displacements*structures_per_displacement_val)
+        self.assertArrayEqual(disps, [0.01, 0.01, 0.05, 0.05])
+        self.assertArrayEqual(min_rand_dists, [None]*4)
 
         nsites = structure.num_sites
         random_sites_idxs = np.random.randint(0, nsites, size=round(nsites / 2))

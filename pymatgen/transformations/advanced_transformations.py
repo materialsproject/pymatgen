@@ -1712,9 +1712,10 @@ class PerturbSitesTransformation(AbstractTransformation):
         if not return_ranked_list:
             return perturbed_structures[0]['structure']
         else:
-            if len(perturbed_structures) > return_ranked_list:
+            if return_ranked_list is True:
+                return perturbed_structures
+            elif len(perturbed_structures) > return_ranked_list:
                 return perturbed_structures[0:return_ranked_list]
-            return perturbed_structures
 
     @property
     def inverse(self):
