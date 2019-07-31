@@ -7,6 +7,7 @@ from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.analysis.local_env import MinimumDistanceNN
 from pymatgen.analysis.structure_matcher import ElementComparator, StructureMatcher
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen import Structure
 
 from monty.serialization import dumpfn
 from monty.json import MSONable, jsanitize
@@ -938,11 +939,11 @@ class HeisenbergModel(MSONable):
         d["@class"] = self.__class__.__name__
         d["@version"] = __version__
         d["formula"] = self.formula
-        d["structures"] = self.structures
+        d["structures"] = [s.as_dict() for s in self.structures]
         d["energies"] = self.energies
         d["cutoff"] = self.cutoff
         d["tol"] = self.tol
-        d["sgraphs"] = self.sgraphs
+        d["sgraphs"] = [sgraph.as_dict() for sgraph in self.sgraphs]
         d["nn_interactions"] = self.nn_interactions
         d["dists"] = self.dists
         d["ex_mat"] = self.ex_mat
@@ -976,16 +977,24 @@ class HeisenbergModel(MSONable):
             key = literal_eval(k)
             wids[key] = v
 
+        # Reconstitute the structure and graph objects
+        structures = []
+        sgraphs = []
+        for v in d["structures"]:
+            structures.append(Structure.from_dict(v))
+        for v in d["sgraphs"]:
+            sgraphs.append(StructureGraph.from_dict(v))
+
         # Reconstitute the exchange matrix DataFrame
         ex_mat = pd.read_json(d["ex_mat"])
 
         hmodel = HeisenbergModel(
             formula=d["formula"],
-            structures=d["structures"],
+            structures=structures,
             energies=d["energies"],
             cutoff=d["cutoff"],
             tol=d["tol"],
-            sgraphs=d["sgraphs"],
+            sgraphs=sgraphs,
             unique_site_ids=usids,
             wyckoff_ids=wids,
             nn_interactions=d["nn_interactions"],

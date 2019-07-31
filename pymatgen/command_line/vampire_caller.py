@@ -14,6 +14,8 @@ from monty.json import MSONable
 
 from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper, HeisenbergModel
 from pymatgen.analysis.magnetism.analyzer import CollinearMagneticStructureAnalyzer
+from pymatgen import Structure
+from pymatgen.analysis.graphs import StructureGraph
 
 """
 This module implements an interface to the VAMPIRE code for atomistic
@@ -48,8 +50,8 @@ class VampireCaller:
     )
     def __init__(
         self,
-        ordered_structures,
-        energies,
+        ordered_structures=None,
+        energies=None,
         mc_box_size=4.0,
         equil_timesteps=2000,
         mc_timesteps=4000,
@@ -60,6 +62,8 @@ class VampireCaller:
 
         """
         Run Vampire on a material with magnetic ordering and exchange parameter information to compute the critical temperature with classical Monte Carlo.
+
+        Either ordered_structures and energies are required, or a HeisenbergModel object.
 
         user_input_settings is a dictionary that can contain:
         * start_t (int): Start MC sim at this temp, defaults to 0 K.
@@ -97,17 +101,21 @@ class VampireCaller:
         self.equil_timesteps = equil_timesteps
         self.mc_timesteps = mc_timesteps
         self.save_inputs = save_inputs
-        self.user_input_settings = user_input_settings
 
-        # Sort by energy if not already sorted
-        ordered_structures = [
-            s for _, s in sorted(zip(energies, ordered_structures), reverse=False)
-        ]
-
-        energies = sorted(energies, reverse=False)
+        if not user_input_settings:  # set to empty dict
+            self.user_input_settings = {}
+        else:
+            self.user_input_settings = user_input_settings
 
         # Get exchange parameters and set instance variables
         if not hm:
+            # Sort by energy if not already sorted
+            ordered_structures = [
+                s for _, s in sorted(zip(energies, ordered_structures), reverse=False)
+            ]
+
+            energies = sorted(energies, reverse=False)
+
             hmapper = HeisenbergMapper(
                 ordered_structures, energies, cutoff=7.5, tol=0.02
             )
