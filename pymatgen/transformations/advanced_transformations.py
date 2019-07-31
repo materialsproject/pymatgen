@@ -1376,7 +1376,7 @@ class CubicSupercellTransformation(AbstractTransformation):
     number of atoms in the supercell falls in the range ['min_atoms', 'max_atoms'].
     """
 
-    def __init__(self, min_atoms=-np.Inf, max_atoms=np.Inf, num_nn_dists=5):
+    def __init__(self, min_atoms=None, max_atoms=None, num_nn_dists=5):
         """
         Returns a supercell structure given a Pymatgen structure suitable for
         Compressed Sensing Lattice Dynamics (CSLD). See papers below for details
@@ -1396,9 +1396,14 @@ class CubicSupercellTransformation(AbstractTransformation):
         Returns:
             Supercell structure (Structure)
         """
+        if min_atoms is None:
+            min_atoms = -np.Inf
+        if max_atoms is None:
+            max_atoms = np.Inf
+
         self.min_atoms = min_atoms
         self.max_atoms = max_atoms
-        self.num_nn_cutoff = num_nn_dists
+        self.num_nn_dists = num_nn_dists
 
         # Variables to be solved for by 'apply_transformation()'
         self.smallest_dim = None # smallest direction of the resulting supercell
@@ -1504,7 +1509,7 @@ class CubicSupercellTransformation(AbstractTransformation):
             sc_not_found = True
 
             # minimum distance any direction of the supercell must be as large as
-            hard_sc_size_threshold = self.nn_dist * self.num_nn_cutoff
+            hard_sc_size_threshold = self.nn_dist * self.num_nn_dists
 
             # target_threshold is used as the desired cubic side lengths of the supercell
             target_sc_size = hard_sc_size_threshold
@@ -1590,18 +1595,18 @@ class PerturbSitesTransformation(AbstractTransformation):
     """
 
     def __init__(self,
-                 max_displacement=0.30,
-                 min_displacement=0.01,
-                 num_displacements=10,
+                 max_disp=0.30,
+                 min_disp=0.01,
+                 num_disps=10,
                  structures_per_displacement_distance=1,
                  min_random_distance=None):
         """
         Args:
-            max_displacement (float): maximum displacement distance for
+            max_disp (float): maximum displacement distance for
                 perturbing the structure (Angstroms)
-            min_displacement (float): minimum displacement distance for
+            min_disp (float): minimum displacement distance for
                 perturbing the structure (Angstroms)
-            num_displacements (int): number of unique displacement distances to
+            num_disps (int): number of unique displacement distances to
                 try, uniformly distributed between 'min_displacement' and
                 'max_displacement'.
             structures_per_displacement_distance (int): number of perturbed
@@ -1618,18 +1623,18 @@ class PerturbSitesTransformation(AbstractTransformation):
             List of randomly displaced structures (List of Structures)
         """
 
-        self.max_disp = max_displacement
-        self.min_disp = min_displacement
-        self.num_disps = num_displacements
-        self.structures_per_disp = structures_per_displacement_distance
+        self.max_disp = max_disp
+        self.min_disp = min_disp
+        self.num_disps = num_disps
+        self.structures_per_displacement_distance = structures_per_displacement_distance
 
         if min_random_distance is not None:
             self.min_random_distance = float(min_random_distance)
         else:
             self.min_random_distance = None
 
-        self.disps = np.linspace(min_displacement, max_displacement,
-                                 num=num_displacements)
+        self.disps = np.linspace(min_disp, max_disp,
+                                 num=num_disps)
 
     def _random_displacements(self, natom, rmax, rmin):
         """
@@ -1669,7 +1674,6 @@ class PerturbSitesTransformation(AbstractTransformation):
 
     def _perturb_structure(self, structure, max_disp, floor_disp):
         """
-        *** Adapted from CSLD's 'polaron_main' file
         All atoms move in a random direction (with each coordinate sampled
         from the Normal distribution - see '_random_displacements()').
         If 'floor_disp' is None, all atoms will move a distance of 'max_disp'.
@@ -1691,18 +1695,29 @@ class PerturbSitesTransformation(AbstractTransformation):
         else:
             raise AttributeError('Displacement entered is not a float.')
 
-    def apply_transformation(self, structure):
-        # Return a list of perturbed structures
+    def apply_transformation(self, structure, return_ranked_list=True):
+        # Return a list of dicts of perturbed structures if return_ranked_list
+        # is True.
+        # If return_ranked_list is False, a structure with the 'min_disp'
+        # displacement will be returned.
 
         perturbed_structures = []
         for disp_val in self.disps:
-            for cell in range(self.structures_per_disp):
+            for cell in range(self.structures_per_displacement_distance):
                 perturbed_structure = structure.copy()
                 perturbed_structure = self._perturb_structure(perturbed_structure,
                                                               disp_val,
                                                               self.min_random_distance)
-                perturbed_structures += [perturbed_structure]
-        return perturbed_structures
+                perturbed_structures += [{'structure': perturbed_structure,
+                                          'displacement': disp_val,
+                                          'min_random_distance': self.min_random_distance}]
+        if not return_ranked_list:
+            return perturbed_structures[0]['structure']
+        else:
+            if return_ranked_list is True:
+                return perturbed_structures
+            elif len(perturbed_structures) > return_ranked_list:
+                return perturbed_structures[0:return_ranked_list]
 
     @property
     def inverse(self):
