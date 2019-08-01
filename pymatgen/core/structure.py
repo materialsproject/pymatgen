@@ -3180,7 +3180,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 properties=site.properties)
             self._sites[i] = new_site
 
-    def perturb(self, distance):
+    def perturb(self, distance, min_random_distance=None):
         """
         Performs a random perturbation of the sites in a structure to break
         symmetries.
@@ -3188,13 +3188,23 @@ class Structure(IStructure, collections.abc.MutableSequence):
         Args:
             distance (float): Distance in angstroms by which to perturb each
                 site.
+            min_random_distance (None, int, or float): If None, perturb
+                each site by 'distance'. If int or float, perturb each site a
+                distance drawn from the uniform distribution between
+                'min_random_distance' and 'distance'.
+
         """
 
         def get_rand_vec():
             # deals with zero vectors.
             vector = np.random.randn(3)
             vnorm = np.linalg.norm(vector)
-            return vector / vnorm * distance if vnorm != 0 else get_rand_vec()
+            if isinstance(min_random_distance, float) or \
+                    isinstance(min_random_distance, int):
+                return vector / vnorm * np.random.uniform(min_random_distance, distance) \
+                    if vnorm != 0 else get_rand_vec()
+            else:
+                return vector / vnorm * distance if vnorm != 0 else get_rand_vec()
 
         for i in range(len(self._sites)):
             self.translate_sites([i], get_rand_vec(), frac_coords=False)
