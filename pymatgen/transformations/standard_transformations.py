@@ -686,14 +686,14 @@ class PerturbStructureTransformation(AbstractTransformation):
             'min_amplitude' and 'amplitude'.
     """
 
-    def __init__(self, amplitude=0.01, min_amplitude=None):
+    def __init__(self, distance=0.01, min_distance=None):
 
-        self.amplitude = amplitude
-        self.min_amplitude = min_amplitude
+        self.distance = distance
+        self.min_distance = min_distance
 
     def apply_transformation(self, structure):
         s = structure.copy()
-        s.perturb(self.amplitude, min_distance=self.min_amplitude)
+        s.perturb(self.distance, min_distance=self.min_distance)
         return s
 
     def __str__(self):
