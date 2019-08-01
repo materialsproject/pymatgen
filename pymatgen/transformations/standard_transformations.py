@@ -678,12 +678,12 @@ class PerturbStructureTransformation(AbstractTransformation):
     directions. Used for breaking symmetries.
 
     Args:
-        amplitude (float): Amplitude of perturbation in angstroms. All sites
-            will be perturbed by exactly that amplitude in a random direction.
-        min_amplitude (None, int, or float): if None, all displacements will be
-            equal amplitude. If int or float, perturb each site a
+        distance (float): Distance of perturbation in angstroms. All sites
+            will be perturbed by exactly that distance in a random direction.
+        min_distance (None, int, or float): if None, all displacements will be
+            equidistant. If int or float, perturb each site a
             distance drawn from the uniform distribution between
-            'min_amplitude' and 'amplitude'.
+            'min_distance' and 'distance'.
     """
 
     def __init__(self, distance=0.01, min_distance=None):
