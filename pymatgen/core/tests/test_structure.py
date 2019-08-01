@@ -697,6 +697,14 @@ class StructureTest(PymatgenTest):
             self.assertAlmostEqual(x.distance(post_perturbation_sites[i]), d,
                                    3, "Bad perturbation distance")
 
+        structure2 = pre_perturbation_sites.copy()
+        structure2.perturb(distance=d, min_distance=0)
+        post_perturbation_sites2 = structure2.sites
+
+        for i, x in enumerate(pre_perturbation_sites):
+            self.assertLessEqual(x.distance(post_perturbation_sites2[i]), d)
+            self.assertGreaterEqual(x.distance(post_perturbation_sites2[i]), 0)
+
     def test_add_oxidation_states(self):
         oxidation_states = {"Si": -4}
         self.structure.add_oxidation_state_by_element(oxidation_states)
