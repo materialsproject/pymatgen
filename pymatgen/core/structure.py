@@ -3199,8 +3199,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             # deals with zero vectors.
             vector = np.random.randn(3)
             vnorm = np.linalg.norm(vector)
-            if isinstance(min_random_distance, float) or \
-                    isinstance(min_random_distance, int):
+            if isinstance(min_random_distance, (float, int)):
                 return vector / vnorm * np.random.uniform(min_random_distance, distance) \
                     if vnorm != 0 else get_rand_vec()
             else:

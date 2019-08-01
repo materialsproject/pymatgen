@@ -680,20 +680,20 @@ class PerturbStructureTransformation(AbstractTransformation):
     Args:
         amplitude (float): Amplitude of perturbation in angstroms. All sites
             will be perturbed by exactly that amplitude in a random direction.
-        min_random_distance (None, int, or float): If None, perturb
+        min_random_amplitude (None, int, or float): If None, perturb
             each site by 'distance'. If int or float, perturb each site a
             distance drawn from the uniform distribution between
-            'min_random_distance' and 'amplitude'.
+            'min_random_amplitude' and 'amplitude'.
     """
 
-    def __init__(self, amplitude=0.01, min_random_distance=None):
+    def __init__(self, amplitude=0.01, min_random_amplitude=None):
 
         self.amplitude = amplitude
-        self.min_random_distance = min_random_distance
+        self.min_random_amplitude = min_random_amplitude
 
     def apply_transformation(self, structure):
         s = structure.copy()
-        s.perturb(self.amplitude, self.min_random_distance)
+        s.perturb(self.amplitude, min_random_distance=self.min_random_ampliude)
         return s
 
     def __str__(self):
