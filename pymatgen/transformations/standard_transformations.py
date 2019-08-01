@@ -693,7 +693,7 @@ class PerturbStructureTransformation(AbstractTransformation):
 
     def apply_transformation(self, structure):
         s = structure.copy()
-        s.perturb(self.amplitude, min_random_distance=self.min_random_ampliude)
+        s.perturb(self.amplitude, min_random_distance=self.min_random_amplitude)
         return s
 
     def __str__(self):
