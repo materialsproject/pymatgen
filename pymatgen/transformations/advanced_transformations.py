@@ -34,6 +34,7 @@ from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
+from pymatgen.analysis.adsorption import AdsorbateSiteFinder
 
 """
 This module implements more advanced transformations.
@@ -1602,6 +1603,155 @@ class CubicSupercellTransformation(AbstractTransformation):
     @property
     def is_one_to_many(self):
         return False
+
+
+class AddAdsorbateTransformation(AbstractTransformation):
+
+    def __init__(self, adsorbate, selective_dynamics=False, height=0.9,
+                 mi_vec=None, repeat=None, min_lw=5.0, translate=True,
+                 reorient=True, find_args=None):
+        """
+        Use AdsorbateSiteFinder to add an absorbate to a slab.
+
+        Args:
+            adsorbate (Molecule): molecule to add as adsorbate
+            selective_dynamics (bool): flag for whether to assign
+                non-surface sites as fixed for selective dynamics
+            height (float): height criteria for selection of surface sites
+            mi_vec : vector corresponding to the vector
+                concurrent with the miller index, this enables use with
+                slabs that have been reoriented, but the miller vector
+                must be supplied manually
+            repeat (3-tuple or list): repeat argument for supercell generation
+            min_lw (float): minimum length and width of the slab, only used
+                if repeat is None
+            translate (bool): flag on whether to translate the molecule so
+                that its CoM is at the origin prior to adding it to the surface
+            reorient (bool): flag on whether or not to reorient adsorbate
+                along the miller index
+            find_args (dict): dictionary of arguments to be passed to the
+                call to self.find_adsorption_sites, e.g. {"distance":2.0}
+        """
+        self.adsorbate = adsorbate
+        self.selective_dynamics = selective_dynamics
+        self.height = height
+        self.mi_vec = mi_vec
+        self.repeat = repeat
+        self.min_lw = min_lw
+        self.translate = translate
+        self.reorient = reorient
+        self.find_args = find_args
+
+    def apply_transformation(self, structure, return_ranked_list=False):
+        """
+
+        Args:
+            structure: Must be a Slab structure
+            return_ranked_list:  Whether or not multiple structures are
+                returned. If return_ranked_list is a number, up to that number of
+                structures is returned.
+
+        Returns: Slab with adsorbate
+
+        """
+
+        sitefinder = AdsorbateSiteFinder(structure,
+                                         selective_dynamics=self.selective_dynamics,
+                                         height=self.height,
+                                         mi_vec=self.mi_vec)
+
+        structures = sitefinder.generate_adsorption_structures(
+            self.adsorbate, repeat=self.repeat, min_lw=self.min_lw,
+            translate=self.translate, reorient=self.reorient, find_args=self.find_args
+        )
+
+        if not return_ranked_list:
+            return structures[0]
+        else:
+            return [{"structure": structure} for structure in structures[:return_ranked_list]]
+
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return True
+
+
+class SubstituteSurfaceSiteTransformation(AbstractTransformation):
+
+    def __init__(self, atom, selective_dynamics=False, height=0.9,
+                 mi_vec=None, target_species=None, sub_both_sides=False,
+                 range_tol=1e-2, dist_from_surf=0):
+        """
+        Use AdsorptionSiteFinder to perform substitution-type doping on the surface and
+        returns all possible configurations where one dopant is substituted
+        per surface. Can substitute one surface or both.
+
+
+        Args:
+            atom (str): atom corresponding to substitutional dopant
+            selective_dynamics (bool): flag for whether to assign
+                non-surface sites as fixed for selective dynamics
+            height (float): height criteria for selection of surface sites
+            mi_vec : vector corresponding to the vector
+                concurrent with the miller index, this enables use with
+                slabs that have been reoriented, but the miller vector
+                must be supplied manually
+            target_species:  List of specific species to substitute
+            sub_both_sides (bool): If true, substitute an equivalent
+                site on the other surface
+            range_tol (float): Find viable substitution sites at a specific
+                distance from the surface +- this tolerance
+            dist_from_surf (float): Distance from the surface to find viable
+                substitution sites, defaults to 0 to substitute at the surface
+        """
+        self.atom = atom
+        self.selective_dynamics = selective_dynamics
+        self.height = height
+        self.mi_vec = mi_vec
+        self.target_species = target_species
+        self.sub_both_sides = sub_both_sides
+        self.range_tol = range_tol
+        self.dist_from_surf = dist_from_surf
+
+    def apply_transformation(self, structure, return_ranked_list=False):
+        """
+
+        Args:
+            structure: Must be a Slab structure
+            return_ranked_list:  Whether or not multiple structures are
+                returned. If return_ranked_list is a number, up to that number of
+                structures is returned.
+
+        Returns: Slab with sites substituted
+
+        """
+
+        sitefinder = AdsorbateSiteFinder(structure,
+                                         selective_dynamics=self.selective_dynamics,
+                                         height=self.height,
+                                         mi_vec=self.mi_vec)
+
+        structures = sitefinder.generate_substitution_structures(self.atom,
+                                                                 target_species=self.target_species,
+                                                                 sub_both_sides=self.sub_both_sides,
+                                                                 range_tol=self.range_tol,
+                                                                 dist_from_surf=self.dist_from_surf)
+
+        if not return_ranked_list:
+            return structures[0]
+        else:
+            return [{"structure": structure} for structure in structures[:return_ranked_list]]
+
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return True
 
 
 def _proj(b, a):

@@ -8,7 +8,7 @@ import json
 import warnings
 import numpy as np
 
-from pymatgen import Lattice, Structure, Specie
+from pymatgen import Lattice, Structure, Specie, Molecule
 from pymatgen.transformations.standard_transformations import \
     OxidationStateDecorationTransformation, SubstitutionTransformation, \
     OrderDisorderedStructureTransformation, AutoOxiStateDecorationTransformation
@@ -18,7 +18,9 @@ from pymatgen.transformations.advanced_transformations import \
     SubstitutionPredictorTransformation, MagOrderingTransformation, \
     DopingTransformation, _find_codopant, SlabTransformation, \
     MagOrderParameterConstraint, DisorderOrderedTransformation, \
-    GrainBoundaryTransformation, CubicSupercellTransformation
+    GrainBoundaryTransformation, CubicSupercellTransformation, \
+    AddAdsorbateTransformation, SubstituteSurfaceSiteTransformation
+
 from monty.os.path import which
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.cif import CifParser
@@ -662,6 +664,31 @@ class CubicSupercellTransformationTest(PymatgenTest):
                               np.array([[4, 0, 0],
                                         [0, 4, 0],
                                         [0, 0, 4]]))
+
+
+class AddAdsorbateTransformationTest(PymatgenTest):
+
+    def test_apply_transformation(self):
+
+        co = Molecule(["C", "O"], [[0, 0, 0], [0, 0, 1.23]])
+        trans = AddAdsorbateTransformation(co)
+        pt = Structure(Lattice.cubic(5), ["Pt"], [[0, 0, 0]])  # fictitious
+        slab = SlabTransformation([0, 0, 1], 20, 10).apply_transformation(pt)
+        out = trans.apply_transformation(slab)
+
+        self.assertEqual(out.composition.reduced_formula, "Pt4CO")
+
+
+class SubstituteSurfaceSiteTransformationTest(PymatgenTest):
+
+    def test_apply_transformation(self):
+
+        trans = SubstituteSurfaceSiteTransformation("Au")
+        pt = Structure(Lattice.cubic(5), ["Pt"], [[0, 0, 0]])  # fictitious
+        slab = SlabTransformation([0, 0, 1], 20, 10).apply_transformation(pt)
+        out = trans.apply_transformation(slab)
+
+        self.assertEqual(out.composition.reduced_formula, "Pt3Au")
 
 
 if __name__ == "__main__":
