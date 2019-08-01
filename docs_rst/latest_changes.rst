@@ -1,12 +1,9 @@
 Change log
 ==========
 
-v2019.7.21
+v2019.7.30
 ----------
-* Add CubicSupercellTransformation and PerturbedSupercellsTransformation (@rees-c, @utf)
-* Add interface for ShengBTE (@rees-c, @utf)
-* Add interface for Vampire (@ncfrey)
-* Improved Lobster interface (@JaGeo)
-* Bug fixes (@sthartman, @dwinston, @utf)
-* New functionality for calculation of Heisenberg exchange parameters (@ncfrey)
-
+* Bug fixes (@shyuep, @mfherbst)
+* More type hint annotations (@shyuep)
+* Improvements to BabelMolAdaptor (@smheidrich)
+* Convenience Transformations for AdsorbateSiteFinder (@mkhorton)

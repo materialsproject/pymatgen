@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.surface &#8212; pymatgen 2019.7.21 documentation</title>
+    <title>pymatgen.core.surface &#8212; pymatgen 2019.7.30 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -1068,11 +1068,11 @@
         <span class="k">for</span> <span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">),</span> <span class="n">bond_dist</span> <span class="ow">in</span> <span class="n">bonds</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">oriented_unit_cell</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">sp1</span> <span class="ow">in</span> <span class="n">site</span><span class="o">.</span><span class="n">species</span><span class="p">:</span>
-                    <span class="k">for</span> <span class="n">nn</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">oriented_unit_cell</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span>
-                            <span class="n">site</span><span class="p">,</span> <span class="n">bond_dist</span><span class="p">):</span>
-                        <span class="k">if</span> <span class="n">sp2</span> <span class="ow">in</span> <span class="n">nn</span><span class="o">.</span><span class="n">species</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">oriented_unit_cell</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">bond_dist</span><span class="p">):</span>
+                        <span class="n">nnsite</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">site</span>
+                        <span class="k">if</span> <span class="n">sp2</span> <span class="ow">in</span> <span class="n">nnsite</span><span class="o">.</span><span class="n">species</span><span class="p">:</span>
                             <span class="n">c_range</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">([</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
-                                                    <span class="n">nn</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]]))</span>
+                                                    <span class="n">nnsite</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]]))</span>
                             <span class="k">if</span> <span class="n">c_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                                 <span class="c1"># Takes care of PBC when c coordinate of site</span>
                                 <span class="c1"># goes beyond the upper boundary of the cell</span>
@@ -1208,7 +1208,7 @@
                 <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">species_string</span> <span class="o">==</span> <span class="n">element1</span><span class="p">:</span>
                     <span class="n">poly_coord</span> <span class="o">=</span> <span class="mi">0</span>
                     <span class="k">for</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="n">slab</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">blength</span><span class="p">):</span>
-                        <span class="n">poly_coord</span> <span class="o">+=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">neighbor</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">species_string</span> <span class="o">==</span> <span class="n">element2</span> <span class="k">else</span> <span class="mi">0</span>
+                        <span class="n">poly_coord</span> <span class="o">+=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">neighbor</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">species_string</span> <span class="o">==</span> <span class="n">element2</span> <span class="k">else</span> <span class="mi">0</span>
 
                     <span class="c1"># suppose we find an undercoordinated reference atom</span>
                     <span class="k">if</span> <span class="n">poly_coord</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cn_dict</span><span class="p">[</span><span class="n">element1</span><span class="p">]:</span>
@@ -1877,9 +1877,8 @@
         <span class="c1"># Now locate the highest site within the lower region of the slab</span>
         <span class="n">upper_fcoords</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">slab</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="n">nn</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">all_indices</span> <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span>
-                    <span class="n">slab</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">blength</span><span class="p">,</span>
-                                       <span class="n">include_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)]):</span>
+            <span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="n">nn</span><span class="o">.</span><span class="n">index</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">all_indices</span> <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span>
+                    <span class="n">slab</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">blength</span><span class="p">)]):</span>
                 <span class="n">upper_fcoords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
         <span class="n">coords</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">last_fcoords</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">fcoords</span> <span class="k">else</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">fcoords</span><span class="p">)</span>
         <span class="n">min_top</span> <span class="o">=</span> <span class="n">slab</span><span class="p">[</span><span class="n">last_indices</span><span class="p">[</span><span class="n">coords</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">coords</span><span class="p">))]]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
@@ -2014,7 +2013,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
