@@ -3727,6 +3727,8 @@ class Xdatcar:
                     else:
                         if ionicstep_start <= ionicstep_cnt < ionicstep_end:
                             structures.append(p.structure)
+                        if ionicstep_cnt >= ionicstep_end:
+                            break
                     ionicstep_cnt += 1
                     coords_str = []
                 else:
