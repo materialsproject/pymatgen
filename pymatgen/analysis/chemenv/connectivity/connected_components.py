@@ -1,5 +1,7 @@
 from __future__ import print_function
 from pymatgen.analysis.chemenv.utils.graph_utils import get_all_simple_paths_edges
+from pymatgen.analysis.chemenv.utils.graph_utils import get_delta
+from monty.json import jsanitize
 
 __author__ = 'waroquiers'
 
@@ -12,9 +14,11 @@ from networkx.algorithms.traversal import bfs_tree
 from networkx.algorithms.components import is_connected
 import numpy as np
 from pymatgen.analysis.chemenv.utils.math_utils import divisors, get_linearly_independent_vectors
+from pymatgen.analysis.chemenv.connectivity.environment_nodes import EnvironmentNode
 import itertools
 from matplotlib.patches import FancyArrowPatch, Circle
 import logging
+from collections import deque
 
 
 def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
@@ -86,15 +90,6 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
         ax.add_patch(e)
 
     return e
-
-
-def get_delta(node1, node2, edge_data):
-    if node1.isite == edge_data['start'] and node2.isite == edge_data['end']:
-        return np.array(edge_data['delta'])
-    elif node2.isite == edge_data['start'] and node1.isite == edge_data['end']:
-        return -np.array(edge_data['delta'])
-    else:
-        raise ValueError("Trying to find a delta between two nodes with an edge that seem not to link these nodes")
 
 
 def get_ordered_path_isites(path):
@@ -230,12 +225,38 @@ class ConnectedComponent(MSONable):
             if environments_data is None:
                 self._connected_subgraph.add_nodes_from(environments)
             else:
-                self._connected_subgraph.add_nodes_from(environments, environments_data)
-            for (env_node1, env_node2) in links:
+                for env in environments:
+                    if env in environments_data:
+                        self._connected_subgraph.add_node(env, **environments_data[env])
+                    else:
+                        self._connected_subgraph.add_node(env)
+            for edge in links:
+                env_node1 = edge[0]
+                env_node2 = edge[1]
+                if len(edge) == 2:
+                    key = None
+                else:
+                    key = edge[2]
                 if ((not self._connected_subgraph.has_node(env_node1)) or
                         (not self._connected_subgraph.has_node(env_node2))):
                     raise ChemenvError(self.__class__, '__init__', 'Trying to add edge with some unexisting node ...')
-                self._connected_subgraph.add_edge(env_node1, env_node2, attr_dict=links_data)
+                if links_data is not None:
+                    if (env_node1, env_node2, key) in links_data:
+                        edge_data = links_data[(env_node1, env_node2, key)]
+                    elif (env_node2, env_node1, key) in links_data:
+                        edge_data = links_data[(env_node2, env_node1, key)]
+                    elif (env_node1, env_node2) in links_data:
+                        edge_data = links_data[(env_node1, env_node2)]
+                    elif (env_node2, env_node1) in links_data:
+                        edge_data = links_data[(env_node2, env_node1)]
+                    else:
+                        edge_data = None
+                else:
+                    edge_data = None
+                if edge_data:
+                    self._connected_subgraph.add_edge(env_node1, env_node2, key, **edge_data)
+                else:
+                    self._connected_subgraph.add_edge(env_node1, env_node2, key)
         else:
             self._connected_subgraph = graph
 
@@ -524,8 +545,22 @@ class ConnectedComponent(MSONable):
         Bson-serializable dict representation of the ConnectedComponent object.
         :return: Bson-serializable dict representation of the ConnectedComponent object.
         """
+        nodes = {'{:d}'.format(node.isite): (node, data) for node, data in self._connected_subgraph.nodes(data=True)}
+        node2stringindex = {node: strindex for strindex, (node, data) in nodes.items()}
+        dict_of_dicts = nx.to_dict_of_dicts(self._connected_subgraph)
+        new_dict_of_dicts = {}
+        for n1, n2dict in dict_of_dicts.items():
+            in1 = node2stringindex[n1]
+            new_dict_of_dicts[in1] = {}
+            for n2, edges_dict in n2dict.items():
+                in2 = node2stringindex[n2]
+                new_dict_of_dicts[in1][in2] = {}
+                for ie, edge_data in edges_dict.items():
+                    new_dict_of_dicts[in1][in2][str(ie)] = jsanitize(edge_data)
         return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__, }
+                "@class": self.__class__.__name__,
+                "nodes": {strindex: (node.as_dict(), data) for strindex, (node, data) in nodes.items()},
+                "graph": new_dict_of_dicts}
 
     @classmethod
     def from_dict(cls, d):
@@ -535,7 +570,14 @@ class ConnectedComponent(MSONable):
         :param d: dict representation of the ConnectedComponent object
         :return: ConnectedComponent object
         """
-        return cls()
+        nodes_map = {inode_str: EnvironmentNode.from_dict(nodedict)
+                     for inode_str, (nodedict, nodedata) in d['nodes'].items()}
+        nodes_data = {inode_str: EnvironmentNode.from_dict(nodedict)
+                      for inode_str, (nodedict, nodedata) in d['nodes'].items()}
+        graph = nx.from_dict_of_dicts(d["graph"], multigraph_input=True)
+        nx.set_node_attributes(graph, nodes_data)
+        nx.relabel_nodes(graph, nodes_map, copy=False)
+        return cls(graph=graph)
 
     @classmethod
     def from_graph(cls, g):

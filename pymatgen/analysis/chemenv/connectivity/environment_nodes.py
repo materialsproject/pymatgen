@@ -2,11 +2,12 @@ __author__ = 'waroquiers'
 
 import abc
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
+from monty.json import MSONable
 from six import with_metaclass
 import operator
 
 
-class AbstractEnvironmentNode(with_metaclass(abc.ABCMeta)):
+class AbstractEnvironmentNode(MSONable):
 
     COORDINATION_ENVIRONMENT = 0
     NUMBER_OF_NEIGHBORING_COORDINATION_ENVIRONMENTS = 1
@@ -43,6 +44,9 @@ class AbstractEnvironmentNode(with_metaclass(abc.ABCMeta)):
 
     def __eq__(self, other):
         return self.isite == other.isite
+
+    def everything_equal(self, other):
+        return self.__eq__(other) and self.central_site == other.central_site
 
     @abc.abstractproperty
     def coordination_environment(self):
@@ -136,6 +140,10 @@ class EnvironmentNode(AbstractEnvironmentNode):
     @property
     def coordination_environment(self):
         return self.ce_symbol
+
+    def everything_equal(self, other):
+        return (super().everything_equal(other) and
+                self.coordination_environment == other.coordination_environment)
 
 
 class OctahedralEnvironmentNode(AbstractEnvironmentNode):

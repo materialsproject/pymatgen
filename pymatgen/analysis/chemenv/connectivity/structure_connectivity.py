@@ -17,7 +17,11 @@ __email__ = "david.waroquiers@gmail.com"
 __date__ = "June 25, 2019"
 
 
-def get_ligand_delta_image(isite1, isite2, data1, data2):
+def get_delta_image(isite1, isite2, data1, data2):
+    """
+    Helper method to get the delta image between one environment and another
+    from the ligand's delta images.
+    """
     if data1['start'] == isite1:
         if data2['start'] == isite2:
             return np.array(data1['delta']) - np.array(data2['delta'])
@@ -34,7 +38,7 @@ class StructureConnectivity(MSONable):
     """
     Main class containing the connectivity of a structure.
     """
-    def __init__(self, light_structure_environment, connectivity_graph=None):
+    def __init__(self, light_structure_environment, connectivity_graph=None, environment_subgraphs=None):
         """
         Constructore for the StructureConnectivity object.
 
@@ -48,7 +52,11 @@ class StructureConnectivity(MSONable):
             self._graph = nx.MultiGraph()
         else:
             self._graph = connectivity_graph
-        self.environment_subgraphs = {}
+        if environment_subgraphs is None:
+            self.environment_subgraphs = {}
+        else:
+            self.environment_subgraphs = environment_subgraphs
+        self.environment_subgraph = None
 
     def add_sites(self):
         """
@@ -99,6 +107,13 @@ class StructureConnectivity(MSONable):
                 self._graph.add_edge(isite, nb_index_unitcell, start=isite, end=nb_index_unitcell, delta=nb_image_cell)
 
     def setup_environment_subgraph(self, environments_symbols, only_atoms=None):
+        """
+        Set up the graph for predefined environments and optionally atoms.
+
+        :param environments_symbols: Symbols of the environments for the environment subgraph
+        :param only_atoms: Atoms to be considered
+        :return: None
+        """
         logging.info('Setup of environment subgraph for environments {}'.format(', '.join(environments_symbols)))
         if not isinstance(environments_symbols, collections.Iterable):
             environments_symbols = [environments_symbols]
@@ -152,7 +167,7 @@ class StructureConnectivity(MSONable):
                 for (site1_1, ilig_site1, d1) in links_node1:
                     for (site2_1, ilig_site2, d2) in links_node2:
                         if ilig_site1 == ilig_site2:
-                            delta_image = get_ligand_delta_image(isite1, isite2, d1, d2)
+                            delta_image = get_delta_image(isite1, isite2, d1, d2)
                             if isite1 == isite2 and np.all(delta_image == 0):
                                 continue
                             tuple_delta_image = tuple(delta_image)
@@ -219,12 +234,16 @@ class StructureConnectivity(MSONable):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "light_structure_environments": self.light_structure_environments.as_dict(),
-                "connectivity_graph": jsanitize(nx.to_dict_of_dicts(self._graph))}
+                "connectivity_graph": jsanitize(nx.to_dict_of_dicts(self._graph)),
+                "environment_subgraphs": {env_key: jsanitize(nx.to_dict_of_dicts(subgraph))
+                                          for env_key, subgraph in self.environment_subgraphs.items()}}
 
     @classmethod
     def from_dict(cls, d):
         return cls(LightStructureEnvironments.from_dict(d['light_structure_environments']),
-                   connectivity_graph=nx.from_dict_of_dicts(d['connectivity_graph'], multigraph_input=True))
+                   connectivity_graph=nx.from_dict_of_dicts(d['connectivity_graph'], multigraph_input=True),
+                   environment_subgraphs={env_key: nx.from_dict_of_dicts(subgraph, multigraph_input=True)
+                                          for env_key, subgraph in d['environment_subgraphs'].items()})
 
 #     def add_uc_atom(self, site, isite):
 #         """
