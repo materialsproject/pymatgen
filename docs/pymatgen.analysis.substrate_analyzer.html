@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.substrate_analyzer module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.analysis.substrate_analyzer module &#8212; pymatgen 2019.7.30 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -139,9 +139,9 @@ for substrate</p></li>
 <p>This class generate matching interface super lattices based on the methodology
 of lattice vector matching for heterostructural interfaces proposed by
 Zur and McGill:
-Journal of Applied Physics 55 (1984), 378 ; doi: 10.1063/1.333084</p>
-<p>The process of generating all possible matching super lattices is:</p>
-<p>1.) Reduce the surface lattice vectors and calculate area for the surfaces
+Journal of Applied Physics 55 (1984), 378 ; doi: 10.1063/1.333084
+The process of generating all possible matching super lattices is:
+1.) Reduce the surface lattice vectors and calculate area for the surfaces
 2.) Generate all super lattice transformations within a maximum allowed area</p>
 <blockquote>
 <div><p>limit that give nearly equal area super-lattices for the two
@@ -177,16 +177,14 @@ of vectors have nearly the same angle between them</p></li>
 <dd><p>Generates transformation sets for film/substrate pair given the
 area of the unit cell area for the film and substrate. The
 transformation sets map the film and substrate unit cells to super
-lattices with a maximum area</p>
+lattices with a maximum area
+:param film_area: the unit cell area for the film
+:type film_area: int
+:param substrate_area: the unit cell area for the substrate
+:type substrate_area: int</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>film_area</strong> (<em>int</em>) – the unit cell area for the film</p></li>
-<li><p><strong>substrate_area</strong> (<em>int</em>) – the unit cell area for the substrate</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><dl class="simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
 <dt>a set of transformation_sets defined as:</dt><dd><p>1.) the transformation matricies for the film to create a
 super lattice of area i*film area
 2.) the tranformation matricies for the substrate to create
@@ -195,8 +193,8 @@ a super lattice of area j*film area</p>
 </dl>
 </p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>transformation_sets</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>transformation_sets</p>
 </dd>
 </dl>
 </dd></dl>
@@ -206,16 +204,18 @@ a super lattice of area j*film area</p>
 <code class="sig-name descname">get_equiv_transformations</code><span class="sig-paren">(</span><em class="sig-param">transformation_sets</em>, <em class="sig-param">film_vectors</em>, <em class="sig-param">substrate_vectors</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/substrate_analyzer.html#ZSLGenerator.get_equiv_transformations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.ZSLGenerator.get_equiv_transformations" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies the transformation_sets to the film and substrate vectors
 to generate super-lattices and checks if they matches.
-Returns all matching vectors sets.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>transformation_sets</strong> (<em>array</em>) – an array of transformation sets:
-each transformation set is an array with the (i,j)
+Returns all matching vectors sets.
+:param transformation_sets: an array of transformation sets:</p>
+<blockquote>
+<div><p>each transformation set is an array with the (i,j)
 indicating the area multipes of the film and subtrate it
 corresponds to, an array with all possible transformations
 for the film area multiple i and another array for the
-substrate area multiple j.</p></li>
+substrate area multiple j.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
 <li><p><strong>film_vectors</strong> (<em>array</em>) – film vectors to generate super lattices</p></li>
 <li><p><strong>substrate_vectors</strong> (<em>array</em>) – substrate vectors to generate super
 lattices</p></li>
@@ -228,29 +228,21 @@ lattices</p></li>
 <dt id="pymatgen.analysis.substrate_analyzer.ZSLGenerator.is_same_vectors">
 <code class="sig-name descname">is_same_vectors</code><span class="sig-paren">(</span><em class="sig-param">vec_set1</em>, <em class="sig-param">vec_set2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/substrate_analyzer.html#ZSLGenerator.is_same_vectors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.ZSLGenerator.is_same_vectors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine if two sets of vectors are the same within length and angle
-tolerances</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>vec_set1</strong> (<em>array</em><em>[</em><em>array</em><em>]</em>) – an array of two vectors</p></li>
-<li><p><strong>vec_set2</strong> (<em>array</em><em>[</em><em>array</em><em>]</em>) – second array of two vectors</p></li>
-</ul>
-</dd>
-</dl>
+tolerances
+:param vec_set1: an array of two vectors
+:type vec_set1: array[array]
+:param vec_set2: second array of two vectors
+:type vec_set2: array[array]</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.substrate_analyzer.ZSLGenerator.match_as_dict">
-<code class="sig-name descname">match_as_dict</code><span class="sig-paren">(</span><em class="sig-param">film_sl_vectors</em>, <em class="sig-param">substrate_sl_vectors</em>, <em class="sig-param">film_vectors</em>, <em class="sig-param">substrate_vectors</em>, <em class="sig-param">match_area</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/substrate_analyzer.html#ZSLGenerator.match_as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.ZSLGenerator.match_as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns dict which contains ZSL match</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>film_miller</strong> (<em>array</em>) – </p></li>
-<li><p><strong>substrate_miller</strong> (<em>array</em>) – </p></li>
-</ul>
-</dd>
-</dl>
+<code class="sig-name descname">match_as_dict</code><span class="sig-paren">(</span><em class="sig-param">film_sl_vectors</em>, <em class="sig-param">substrate_sl_vectors</em>, <em class="sig-param">film_vectors</em>, <em class="sig-param">substrate_vectors</em>, <em class="sig-param">match_area</em>, <em class="sig-param">film_transformation</em>, <em class="sig-param">substrate_transformation</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/substrate_analyzer.html#ZSLGenerator.match_as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.ZSLGenerator.match_as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns dict which contains ZSL match
+:param film_miller:
+:type film_miller: array
+:param substrate_miller:
+:type substrate_miller: array</p>
 </dd></dl>
 
 </dd></dl>
@@ -369,13 +361,13 @@ methodology of Zur and McGill</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

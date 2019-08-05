@@ -9,7 +9,6 @@ import subprocess
 import itertools
 import logging
 import glob
-import warnings
 
 import numpy as np
 from monty.fractions import lcm
@@ -257,7 +256,7 @@ class EnumlibAdaptor:
 
         output.append("{} {}".format(self.min_cell_size, self.max_cell_size))
         output.append(str(self.enum_precision_parameter))
-        output.append("partial")
+        output.append("full")
 
         ndisordered = sum([len(s) for s in disordered_sites])
         base = int(ndisordered*lcm(*[f.limit_denominator(ndisordered *
@@ -406,7 +405,7 @@ class EnumlibAdaptor:
                                          properties=disordered_site_properties)
                         )
                     else:
-                        warnings.warn("Skipping sites that include species X.")
+                        logger.debug("Skipping sites that include species X.")
                 structs.append(Structure.from_sites(sorted(sites)))
 
         logger.debug("Read in a total of {} structures.".format(num_structs))

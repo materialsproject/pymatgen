@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.local_env &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.analysis.local_env &#8212; pymatgen 2019.7.30 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -562,7 +562,7 @@
                 <span class="k">return</span> <span class="n">i</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Site not found!&#39;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="NearNeighbors.get_bonded_structure"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.NearNeighbors.get_bonded_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_bonded_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">decorate</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="NearNeighbors.get_bonded_structure"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.NearNeighbors.get_bonded_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_bonded_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">decorate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Obtain a StructureGraph object using this NearNeighbor</span>
 <span class="sd">        class. Requires the optional dependency networkx</span>
@@ -573,8 +573,10 @@
 <span class="sd">            decorate (bool): whether to annotate site properties</span>
 <span class="sd">            with order parameters using neighbors determined by</span>
 <span class="sd">            this NearNeighbor class</span>
+<span class="sd">            weights (bool): whether to include edge weights from</span>
+<span class="sd">            NearNeighbor class in StructureGraph</span>
 
-<span class="sd">        Returns: a pymatgen.analysis.graphs.BondedStructure object</span>
+<span class="sd">        Returns: a pymatgen.analysis.graphs.StructureGraph object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># requires optional dependency which is why it&#39;s not a top-level import</span>
@@ -589,7 +591,7 @@
                                 <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">structure</span><span class="p">))]</span>
             <span class="n">structure</span><span class="o">.</span><span class="n">add_site_property</span><span class="p">(</span><span class="s1">&#39;order_parameters&#39;</span><span class="p">,</span> <span class="n">order_parameters</span><span class="p">)</span>
 
-        <span class="n">sg</span> <span class="o">=</span> <span class="n">StructureGraph</span><span class="o">.</span><span class="n">with_local_env_strategy</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">sg</span> <span class="o">=</span> <span class="n">StructureGraph</span><span class="o">.</span><span class="n">with_local_env_strategy</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">sg</span></div>
 
@@ -1128,7 +1130,8 @@
         <span class="n">min_rad</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">bonds</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 
         <span class="n">siw</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">neighb</span><span class="p">,</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">max_rad</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">max_rad</span><span class="p">):</span>
+            <span class="n">neighb</span><span class="p">,</span> <span class="n">dist</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">site</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">distance</span>
             <span class="c1"># Confirm neighbor based on bond length specific to atom pair</span>
             <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="n">bonds</span><span class="p">[(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">neighb</span><span class="o">.</span><span class="n">specie</span><span class="p">)])</span> <span class="ow">and</span> <span class="p">(</span>
                     <span class="n">dist</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_bond_distance</span><span class="p">):</span>
@@ -1185,23 +1188,24 @@
 
         <span class="n">siw</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_all_sites</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">:</span>
-                    <span class="n">w</span> <span class="o">=</span> <span class="n">dist</span>
-                    <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span>
-                                <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">s</span><span class="p">),</span>
-                                <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">w</span><span class="p">,</span>
-                                <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span>
-                                                                  <span class="n">s</span><span class="p">)})</span>
+            <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">:</span>
+                <span class="n">w</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">distance</span>
+                <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">site</span><span class="p">,</span>
+                            <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">site</span><span class="p">),</span>
+                            <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">w</span><span class="p">,</span>
+                            <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span>
+                                                                  <span class="n">nn</span><span class="o">.</span><span class="n">site</span><span class="p">)})</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">min_dist</span> <span class="o">=</span> <span class="nb">min</span><span class="p">([</span><span class="n">dist</span> <span class="k">for</span> <span class="n">neigh</span><span class="p">,</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">])</span>
-            <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">:</span>
+            <span class="n">min_dist</span> <span class="o">=</span> <span class="nb">min</span><span class="p">([</span><span class="n">nn</span><span class="o">.</span><span class="n">distance</span> <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">:</span>
+                <span class="n">dist</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">distance</span>
                 <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">)</span> <span class="o">*</span> <span class="n">min_dist</span><span class="p">:</span>
                     <span class="n">w</span> <span class="o">=</span> <span class="n">min_dist</span> <span class="o">/</span> <span class="n">dist</span>
-                    <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span>
-                                <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">s</span><span class="p">),</span>
+                    <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">site</span><span class="p">,</span>
+                                <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">site</span><span class="p">),</span>
                                 <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">w</span><span class="p">,</span>
                                 <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span>
-                                                                  <span class="n">s</span><span class="p">)})</span>
+                                                                      <span class="n">nn</span><span class="o">.</span><span class="n">site</span><span class="p">)})</span>
         <span class="k">return</span> <span class="n">siw</span></div></div>
 
 
@@ -1515,7 +1519,9 @@
             <span class="n">eln</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">species_string</span>
 
         <span class="n">reldists_neighs</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">neigh</span><span class="p">,</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">:</span>
+            <span class="n">neigh</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">site</span>
+            <span class="n">dist</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">distance</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">el2</span> <span class="o">=</span> <span class="n">neigh</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">element</span>
             <span class="k">except</span><span class="p">:</span>
@@ -1579,9 +1585,10 @@
         <span class="n">rn</span> <span class="o">=</span> <span class="n">vire</span><span class="o">.</span><span class="n">radii</span><span class="p">[</span><span class="n">vire</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">species_string</span><span class="p">]</span>
 
         <span class="n">reldists_neighs</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">neigh</span><span class="p">,</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">:</span>
-            <span class="n">reldists_neighs</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">dist</span> <span class="o">/</span> <span class="p">(</span>
-                    <span class="n">vire</span><span class="o">.</span><span class="n">radii</span><span class="p">[</span><span class="n">neigh</span><span class="o">.</span><span class="n">species_string</span><span class="p">]</span> <span class="o">+</span> <span class="n">rn</span><span class="p">),</span> <span class="n">neigh</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">:</span>
+            <span class="n">reldists_neighs</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">nn</span><span class="o">.</span><span class="n">distance</span> <span class="o">/</span> <span class="p">(</span>
+                    <span class="n">vire</span><span class="o">.</span><span class="n">radii</span><span class="p">[</span><span class="n">nn</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">species_string</span><span class="p">]</span> <span class="o">+</span> <span class="n">rn</span><span class="p">),</span>
+                                    <span class="n">nn</span><span class="o">.</span><span class="n">site</span><span class="p">])</span>
 
         <span class="n">siw</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">min_reldist</span> <span class="o">=</span> <span class="nb">min</span><span class="p">([</span><span class="n">reldist</span> <span class="k">for</span> <span class="n">reldist</span><span class="p">,</span> <span class="n">neigh</span> <span class="ow">in</span> <span class="n">reldists_neighs</span><span class="p">])</span>
@@ -3097,14 +3104,15 @@
 
         <span class="n">site</span> <span class="o">=</span> <span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
         <span class="n">neighs_dists</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span><span class="p">)</span>
-        <span class="n">ds</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">]</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">distance</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">]</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
 
         <span class="n">ns</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">ds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">ds</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
 
         <span class="n">d_max</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">ns</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">ns</span><span class="p">))]</span>
         <span class="n">siw</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">:</span>
+            <span class="n">s</span><span class="p">,</span> <span class="n">dist</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">site</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">distance</span>
             <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="n">d_max</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">:</span>
                 <span class="n">w</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">dist</span>
                 <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span>
@@ -3137,14 +3145,15 @@
 
         <span class="n">site</span> <span class="o">=</span> <span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
         <span class="n">neighs_dists</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span><span class="p">)</span>
-        <span class="n">ds</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">]</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">distance</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">]</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
 
         <span class="n">ns</span> <span class="o">=</span> <span class="p">[</span><span class="n">ds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">ds</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
 
         <span class="n">d_max</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">ns</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">ns</span><span class="p">))]</span>
         <span class="n">siw</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">:</span>
+            <span class="n">s</span><span class="p">,</span> <span class="n">dist</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">site</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">distance</span>
             <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="n">d_max</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">:</span>
                 <span class="n">w</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">dist</span>
                 <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span>
@@ -3177,14 +3186,15 @@
 
         <span class="n">site</span> <span class="o">=</span> <span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
         <span class="n">neighs_dists</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span><span class="p">)</span>
-        <span class="n">ds</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">]</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">distance</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">]</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
 
         <span class="n">ns</span> <span class="o">=</span> <span class="p">[</span><span class="n">ds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">ds</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
 
         <span class="n">d_max</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">ns</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">ns</span><span class="p">))]</span>
         <span class="n">siw</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">:</span>
+            <span class="n">s</span><span class="p">,</span> <span class="n">dist</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">site</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">distance</span>
             <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="n">d_max</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">:</span>
                 <span class="n">w</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">dist</span>
                 <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span>
@@ -3221,11 +3231,12 @@
 
         <span class="n">site</span> <span class="o">=</span> <span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
         <span class="n">neighs_dists</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span><span class="p">)</span>
-        <span class="n">all_bond_lengths</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">]</span>
+        <span class="n">all_bond_lengths</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">distance</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">]</span>
         <span class="n">weighted_avg</span> <span class="o">=</span> <span class="n">calculate_weighted_avg</span><span class="p">(</span><span class="n">all_bond_lengths</span><span class="p">)</span>
 
         <span class="n">siw</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">:</span>
+            <span class="n">s</span><span class="p">,</span> <span class="n">dist</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">site</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">distance</span>
             <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span><span class="p">:</span>
                 <span class="n">w</span> <span class="o">=</span> <span class="n">exp</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">dist</span> <span class="o">/</span> <span class="n">weighted_avg</span><span class="p">)</span> <span class="o">**</span> <span class="mi">6</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">w</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">:</span>
@@ -3694,8 +3705,9 @@
         <span class="n">neighs_dists</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_dist</span><span class="p">)</span>
 
         <span class="n">nn_info</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">n_site</span><span class="p">,</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">:</span>
-
+        <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">:</span>
+            <span class="n">n_site</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">site</span>
+            <span class="n">dist</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">distance</span>
             <span class="n">neigh_cut_off_dist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lookup_dict</span> \
                 <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">species_string</span><span class="p">,</span> <span class="p">{})</span> \
                 <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">n_site</span><span class="o">.</span><span class="n">species_string</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
@@ -3794,7 +3806,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -3802,7 +3814,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.surface &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.core.surface &#8212; pymatgen 2019.7.30 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -831,6 +831,14 @@
 <span class="sd">                the c direction is the third vector of the lattice matrix</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Add Wyckoff symbols of the bulk, will help with</span>
+        <span class="c1"># identfying types of sites in the slab system</span>
+        <span class="n">sg</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">initial_structure</span><span class="p">)</span>
+        <span class="n">initial_structure</span><span class="o">.</span><span class="n">add_site_property</span><span class="p">(</span><span class="s2">&quot;bulk_wyckoff&quot;</span><span class="p">,</span>
+                                            <span class="n">sg</span><span class="o">.</span><span class="n">get_symmetry_dataset</span><span class="p">()[</span><span class="s1">&#39;wyckoffs&#39;</span><span class="p">])</span>
+        <span class="n">initial_structure</span><span class="o">.</span><span class="n">add_site_property</span><span class="p">(</span><span class="s2">&quot;bulk_equivalent&quot;</span><span class="p">,</span>
+                                            <span class="n">sg</span><span class="o">.</span><span class="n">get_symmetry_dataset</span><span class="p">()[</span><span class="s1">&#39;equivalent_atoms&#39;</span><span class="p">])</span>
         <span class="n">latt</span> <span class="o">=</span> <span class="n">initial_structure</span><span class="o">.</span><span class="n">lattice</span>
         <span class="n">miller_index</span> <span class="o">=</span> <span class="n">reduce_vector</span><span class="p">(</span><span class="n">miller_index</span><span class="p">)</span>
         <span class="c1"># Calculate the surface normal using the reciprocal lattice vector.</span>
@@ -942,7 +950,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proj_height</span>
-        <span class="n">p</span> <span class="o">=</span> <span class="n">h</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">d_hkl</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">miller_index</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">h</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">d_hkl</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">miller_index</span><span class="p">),</span> <span class="mi">8</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_unit_planes</span><span class="p">:</span>
             <span class="n">nlayers_slab</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min_slab_size</span> <span class="o">/</span> <span class="n">p</span><span class="p">))</span>
             <span class="n">nlayers_vac</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min_vac_size</span> <span class="o">/</span> <span class="n">p</span><span class="p">))</span>
@@ -1060,11 +1068,11 @@
         <span class="k">for</span> <span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">),</span> <span class="n">bond_dist</span> <span class="ow">in</span> <span class="n">bonds</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">oriented_unit_cell</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">sp1</span> <span class="ow">in</span> <span class="n">site</span><span class="o">.</span><span class="n">species</span><span class="p">:</span>
-                    <span class="k">for</span> <span class="n">nn</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">oriented_unit_cell</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span>
-                            <span class="n">site</span><span class="p">,</span> <span class="n">bond_dist</span><span class="p">):</span>
-                        <span class="k">if</span> <span class="n">sp2</span> <span class="ow">in</span> <span class="n">nn</span><span class="o">.</span><span class="n">species</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">oriented_unit_cell</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">bond_dist</span><span class="p">):</span>
+                        <span class="n">nnsite</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">site</span>
+                        <span class="k">if</span> <span class="n">sp2</span> <span class="ow">in</span> <span class="n">nnsite</span><span class="o">.</span><span class="n">species</span><span class="p">:</span>
                             <span class="n">c_range</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">([</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
-                                                    <span class="n">nn</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]]))</span>
+                                                    <span class="n">nnsite</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]]))</span>
                             <span class="k">if</span> <span class="n">c_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                                 <span class="c1"># Takes care of PBC when c coordinate of site</span>
                                 <span class="c1"># goes beyond the upper boundary of the cell</span>
@@ -1200,7 +1208,7 @@
                 <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">species_string</span> <span class="o">==</span> <span class="n">element1</span><span class="p">:</span>
                     <span class="n">poly_coord</span> <span class="o">=</span> <span class="mi">0</span>
                     <span class="k">for</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="n">slab</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">blength</span><span class="p">):</span>
-                        <span class="n">poly_coord</span> <span class="o">+=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">neighbor</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">species_string</span> <span class="o">==</span> <span class="n">element2</span> <span class="k">else</span> <span class="mi">0</span>
+                        <span class="n">poly_coord</span> <span class="o">+=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">neighbor</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">species_string</span> <span class="o">==</span> <span class="n">element2</span> <span class="k">else</span> <span class="mi">0</span>
 
                     <span class="c1"># suppose we find an undercoordinated reference atom</span>
                     <span class="k">if</span> <span class="n">poly_coord</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cn_dict</span><span class="p">[</span><span class="n">element1</span><span class="p">]:</span>
@@ -1580,32 +1588,74 @@
             <span class="k">break</span>
     <span class="k">return</span> <span class="n">slab</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">d</span><span class="p">])[</span><span class="mi">2</span><span class="p">]</span></div>
 
-
-
-<div class="viewcode-block" id="get_recp_symmetry_operation"><a class="viewcode-back" href="../../../pymatgen.core.surface.html#pymatgen.core.surface.get_recp_symmetry_operation">[docs]</a><span class="k">def</span> <span class="nf">get_recp_symmetry_operation</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
+<div class="viewcode-block" id="is_already_analyzed"><a class="viewcode-back" href="../../../pymatgen.core.surface.html#pymatgen.core.surface.is_already_analyzed">[docs]</a><span class="k">def</span> <span class="nf">is_already_analyzed</span><span class="p">(</span>
+        <span class="n">miller_index</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">miller_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">symm_ops</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span><span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Find the symmetric operations of the reciprocal lattice,</span>
-<span class="sd">    to be used for hkl transformations</span>
+<span class="sd">    Helper function to check if a given Miller index is</span>
+<span class="sd">    part of the family of indices of any index in a list</span>
+
 <span class="sd">    Args:</span>
-<span class="sd">        structure (Structure): conventional unit cell</span>
-<span class="sd">        symprec: default is 0.001</span>
-
+<span class="sd">        miller_index (tuple): The Miller index to analyze</span>
+<span class="sd">        miller_list (list): List of Miller indices. If the given</span>
+<span class="sd">            Miller index belongs in the same family as any of the</span>
+<span class="sd">            indices in this list, return True, else return False</span>
+<span class="sd">        symm_ops (list): Symmetry operations of a</span>
+<span class="sd">            lattice, used to define family of indices</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">recp_lattice</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">reciprocal_lattice_crystallographic</span>
-    <span class="c1"># get symmetry operations from input conventional unit cell</span>
-    <span class="c1"># Need to make sure recp lattice is big enough, otherwise symmetry</span>
-    <span class="c1"># determination will fail. We set the overall volume to 1.</span>
-    <span class="n">recp_lattice</span> <span class="o">=</span> <span class="n">recp_lattice</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">recp</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="n">recp_lattice</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
-    <span class="c1"># Creates a function that uses the symmetry operations in the</span>
-    <span class="c1"># structure to find Miller indices that might give repetitive slabs</span>
-    <span class="n">analyzer</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">recp</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="n">symprec</span><span class="p">)</span>
-    <span class="n">recp_symmops</span> <span class="o">=</span> <span class="n">analyzer</span><span class="o">.</span><span class="n">get_symmetry_operations</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">symm_ops</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">in_coord_list</span><span class="p">(</span><span class="n">miller_list</span><span class="p">,</span> <span class="n">op</span><span class="o">.</span><span class="n">operate</span><span class="p">(</span><span class="n">miller_index</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span></div>
 
-    <span class="k">return</span> <span class="n">recp_symmops</span></div>
+<div class="viewcode-block" id="get_symmetrically_equivalent_miller_indices"><a class="viewcode-back" href="../../../pymatgen.core.surface.html#pymatgen.core.surface.get_symmetrically_equivalent_miller_indices">[docs]</a><span class="k">def</span> <span class="nf">get_symmetrically_equivalent_miller_indices</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">miller_index</span><span class="p">,</span> <span class="n">return_hkil</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns all symmetrically equivalent indices for a given structure. Analysis</span>
+<span class="sd">    is based on the symmetry of the reciprocal lattice of the structure.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        miller_index (tuple): Designates the family of Miller indices</span>
+<span class="sd">            to find. Can be hkl or hkil for hexagonal systems</span>
+<span class="sd">        return_hkil (bool): If true, return hkil form of Miller</span>
+<span class="sd">            index for hexagonal systems, otherwise return hkl</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Change to hkl if hkil because in_coord_list only handles tuples of 3</span>
+    <span class="n">miller_index</span> <span class="o">=</span> <span class="p">(</span><span class="n">miller_index</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">miller_index</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">miller_index</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span> \
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">miller_index</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span> <span class="k">else</span> <span class="n">miller_index</span>
+    <span class="n">mmi</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">miller_index</span><span class="p">))</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">mmi</span><span class="p">,</span> <span class="n">mmi</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">r</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+
+    <span class="n">sg</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+    <span class="c1"># Get distinct hkl planes from the rhombohedral setting if trigonal</span>
+    <span class="k">if</span> <span class="n">sg</span><span class="o">.</span><span class="n">get_crystal_system</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;trigonal&quot;</span><span class="p">:</span>
+        <span class="n">prim_structure</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span><span class="o">.</span><span class="n">get_primitive_standard_structure</span><span class="p">()</span>
+        <span class="n">symm_ops</span> <span class="o">=</span> <span class="n">prim_structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_recp_symmetry_operation</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">symm_ops</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_recp_symmetry_operation</span><span class="p">()</span>
+
+    <span class="n">equivalent_millers</span> <span class="o">=</span> <span class="p">[</span><span class="n">miller_index</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">miller</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">miller</span> <span class="o">==</span> <span class="n">miller_index</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">i</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">miller</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">is_already_analyzed</span><span class="p">(</span><span class="n">miller</span><span class="p">,</span> <span class="n">equivalent_millers</span><span class="p">,</span> <span class="n">symm_ops</span><span class="p">):</span>
+                <span class="n">equivalent_millers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">miller</span><span class="p">)</span>
+
+            <span class="c1"># include larger Miller indices in the family of planes</span>
+            <span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="n">mmi</span> <span class="o">&gt;</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">miller</span><span class="p">)])</span> <span class="ow">and</span> \
+                    <span class="ow">not</span> <span class="n">in_coord_list</span><span class="p">(</span><span class="n">equivalent_millers</span><span class="p">,</span> <span class="n">miller</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">is_already_analyzed</span><span class="p">(</span><span class="n">mmi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">miller</span><span class="p">),</span>
+                                       <span class="n">equivalent_millers</span><span class="p">,</span> <span class="n">symm_ops</span><span class="p">):</span>
+                    <span class="n">equivalent_millers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">miller</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">return_hkil</span> <span class="ow">and</span> <span class="n">sg</span><span class="o">.</span><span class="n">get_crystal_system</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;trigonal&quot;</span><span class="p">,</span> <span class="s2">&quot;hexagonal&quot;</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="n">hkl</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">hkl</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="n">hkl</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">hkl</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                 <span class="n">hkl</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="n">equivalent_millers</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">equivalent_millers</span></div>
 
 
-<div class="viewcode-block" id="get_symmetrically_distinct_miller_indices"><a class="viewcode-back" href="../../../pymatgen.core.surface.html#pymatgen.core.surface.get_symmetrically_distinct_miller_indices">[docs]</a><span class="k">def</span> <span class="nf">get_symmetrically_distinct_miller_indices</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">max_index</span><span class="p">):</span>
+<div class="viewcode-block" id="get_symmetrically_distinct_miller_indices"><a class="viewcode-back" href="../../../pymatgen.core.surface.html#pymatgen.core.surface.get_symmetrically_distinct_miller_indices">[docs]</a><span class="k">def</span> <span class="nf">get_symmetrically_distinct_miller_indices</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">max_index</span><span class="p">,</span> <span class="n">return_hkil</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns all symmetrically distinct indices below a certain max-index for</span>
 <span class="sd">    a given structure. Analysis is based on the symmetry of the reciprocal</span>
@@ -1615,6 +1665,8 @@
 <span class="sd">        max_index (int): The maximum index. For example, a max_index of 1</span>
 <span class="sd">            means that (100), (110), and (111) are returned for the cubic</span>
 <span class="sd">            structure. All other indices are equivalent to one of these.</span>
+<span class="sd">        return_hkil (bool): If true, return hkil form of Miller</span>
+<span class="sd">            index for hexagonal systems, otherwise return hkl</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">r</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">max_index</span><span class="p">,</span> <span class="n">max_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
@@ -1629,23 +1681,17 @@
         <span class="n">transf</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">get_conventional_to_primitive_transformation_matrix</span><span class="p">()</span>
         <span class="n">miller_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">hkl_transformation</span><span class="p">(</span><span class="n">transf</span><span class="p">,</span> <span class="n">hkl</span><span class="p">)</span> <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="n">conv_hkl_list</span><span class="p">]</span>
         <span class="n">prim_structure</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span><span class="o">.</span><span class="n">get_primitive_standard_structure</span><span class="p">()</span>
-        <span class="n">symm_ops</span> <span class="o">=</span> <span class="n">get_recp_symmetry_operation</span><span class="p">(</span><span class="n">prim_structure</span><span class="p">)</span>
+        <span class="n">symm_ops</span> <span class="o">=</span> <span class="n">prim_structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_recp_symmetry_operation</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">miller_list</span> <span class="o">=</span> <span class="n">conv_hkl_list</span>
-        <span class="n">symm_ops</span> <span class="o">=</span> <span class="n">get_recp_symmetry_operation</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+        <span class="n">symm_ops</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_recp_symmetry_operation</span><span class="p">()</span>
 
     <span class="n">unique_millers</span><span class="p">,</span> <span class="n">unique_millers_conv</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
-
-    <span class="k">def</span> <span class="nf">is_already_analyzed</span><span class="p">(</span><span class="n">miller_index</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">symm_ops</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">in_coord_list</span><span class="p">(</span><span class="n">unique_millers</span><span class="p">,</span> <span class="n">op</span><span class="o">.</span><span class="n">operate</span><span class="p">(</span><span class="n">miller_index</span><span class="p">)):</span>
-                <span class="k">return</span> <span class="kc">True</span>
-        <span class="k">return</span> <span class="kc">False</span>
 
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">miller</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">miller_list</span><span class="p">):</span>
         <span class="n">d</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">reduce</span><span class="p">(</span><span class="n">gcd</span><span class="p">,</span> <span class="n">miller</span><span class="p">))</span>
         <span class="n">miller</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span> <span class="o">/</span> <span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">miller</span><span class="p">])</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_already_analyzed</span><span class="p">(</span><span class="n">miller</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_already_analyzed</span><span class="p">(</span><span class="n">miller</span><span class="p">,</span> <span class="n">unique_millers</span><span class="p">,</span> <span class="n">symm_ops</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">sg</span><span class="o">.</span><span class="n">get_crystal_system</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;trigonal&quot;</span><span class="p">:</span>
                 <span class="c1"># Now we find the distinct primitive hkls using</span>
                 <span class="c1"># the primitive symmetry operations and their</span>
@@ -1658,6 +1704,9 @@
                 <span class="n">unique_millers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">miller</span><span class="p">)</span>
                 <span class="n">unique_millers_conv</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">miller</span><span class="p">)</span>
 
+    <span class="k">if</span> <span class="n">return_hkil</span> <span class="ow">and</span> <span class="n">sg</span><span class="o">.</span><span class="n">get_crystal_system</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;trigonal&quot;</span><span class="p">,</span> <span class="s2">&quot;hexagonal&quot;</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="n">hkl</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">hkl</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="n">hkl</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">hkl</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                 <span class="n">hkl</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="n">unique_millers_conv</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">unique_millers_conv</span></div>
 
 
@@ -1688,7 +1737,7 @@
 
 
 <div class="viewcode-block" id="generate_all_slabs"><a class="viewcode-back" href="../../../pymatgen.core.surface.html#pymatgen.core.surface.generate_all_slabs">[docs]</a><span class="k">def</span> <span class="nf">generate_all_slabs</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">max_index</span><span class="p">,</span> <span class="n">min_slab_size</span><span class="p">,</span> <span class="n">min_vacuum_size</span><span class="p">,</span>
-                       <span class="n">bonds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">max_broken_bonds</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                       <span class="n">bonds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">ftol</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">max_broken_bonds</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                        <span class="n">lll_reduce</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">center_slab</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">primitive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                        <span class="n">max_normal_search</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">symmetrize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">repair</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                        <span class="n">include_reconstructions</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">in_unit_planes</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -1755,7 +1804,7 @@
                             <span class="n">center_slab</span><span class="o">=</span><span class="n">center_slab</span><span class="p">,</span> <span class="n">primitive</span><span class="o">=</span><span class="n">primitive</span><span class="p">,</span>
                             <span class="n">max_normal_search</span><span class="o">=</span><span class="n">max_normal_search</span><span class="p">,</span>
                             <span class="n">in_unit_planes</span><span class="o">=</span><span class="n">in_unit_planes</span><span class="p">)</span>
-        <span class="n">slabs</span> <span class="o">=</span> <span class="n">gen</span><span class="o">.</span><span class="n">get_slabs</span><span class="p">(</span><span class="n">bonds</span><span class="o">=</span><span class="n">bonds</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span> <span class="n">symmetrize</span><span class="o">=</span><span class="n">symmetrize</span><span class="p">,</span>
+        <span class="n">slabs</span> <span class="o">=</span> <span class="n">gen</span><span class="o">.</span><span class="n">get_slabs</span><span class="p">(</span><span class="n">bonds</span><span class="o">=</span><span class="n">bonds</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span> <span class="n">ftol</span><span class="o">=</span><span class="n">ftol</span><span class="p">,</span> <span class="n">symmetrize</span><span class="o">=</span><span class="n">symmetrize</span><span class="p">,</span>
                               <span class="n">max_broken_bonds</span><span class="o">=</span><span class="n">max_broken_bonds</span><span class="p">,</span> <span class="n">repair</span><span class="o">=</span><span class="n">repair</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">slabs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -1828,9 +1877,8 @@
         <span class="c1"># Now locate the highest site within the lower region of the slab</span>
         <span class="n">upper_fcoords</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">slab</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="n">nn</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">all_indices</span> <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span>
-                    <span class="n">slab</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">blength</span><span class="p">,</span>
-                                       <span class="n">include_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)]):</span>
+            <span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="n">nn</span><span class="o">.</span><span class="n">index</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">all_indices</span> <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span>
+                    <span class="n">slab</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">blength</span><span class="p">)]):</span>
                 <span class="n">upper_fcoords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
         <span class="n">coords</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">last_fcoords</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">fcoords</span> <span class="k">else</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">fcoords</span><span class="p">)</span>
         <span class="n">min_top</span> <span class="o">=</span> <span class="n">slab</span><span class="p">[</span><span class="n">last_indices</span><span class="p">[</span><span class="n">coords</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">coords</span><span class="p">))]]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
@@ -1965,7 +2013,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1973,7 +2021,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

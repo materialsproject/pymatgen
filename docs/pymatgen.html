@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen package &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen package &#8212; pymatgen 2019.7.30 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -192,6 +192,7 @@
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.magnetism.html">pymatgen.analysis.magnetism package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.magnetism.html#submodules">Submodules</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html">pymatgen.analysis.magnetism.analyzer module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.magnetism.heisenberg.html">pymatgen.analysis.magnetism.heisenberg module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.magnetism.jahnteller.html">pymatgen.analysis.magnetism.jahnteller module</a></li>
 </ul>
 </li>
@@ -240,6 +241,7 @@
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.fragmenter.html">pymatgen.analysis.fragmenter module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.functional_groups.html">pymatgen.analysis.functional_groups module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.graphs.html">pymatgen.analysis.graphs module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.interface.html">pymatgen.analysis.interface module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.interface_reactions.html">pymatgen.analysis.interface_reactions module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.local_env.html">pymatgen.analysis.local_env module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.molecule_matcher.html">pymatgen.analysis.molecule_matcher module</a></li>
@@ -326,6 +328,7 @@
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.critic2_caller.html">pymatgen.command_line.critic2_caller module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.enumlib_caller.html">pymatgen.command_line.enumlib_caller module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.gulp_caller.html">pymatgen.command_line.gulp_caller module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.command_line.vampire_caller.html">pymatgen.command_line.vampire_caller module</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.command_line.html#module-pymatgen.command_line">Module contents</a></li>
@@ -514,8 +517,10 @@
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.html">pymatgen.io.lobster module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.nwchem.html">pymatgen.io.nwchem module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.phonopy.html">pymatgen.io.phonopy module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.prismatic.html">pymatgen.io.prismatic module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.pwscf.html">pymatgen.io.pwscf module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.qchem_deprecated.html">pymatgen.io.qchem_deprecated module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.shengbte.html">pymatgen.io.shengbte module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.xcrysden.html">pymatgen.io.xcrysden module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.xr.html">pymatgen.io.xr module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.xyz.html">pymatgen.io.xyz module</a></li>
@@ -629,16 +634,6 @@
 </div>
 <div class="section" id="module-pymatgen">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pymatgen" title="Permalink to this headline">¶</a></h2>
-<dl class="data">
-<dt id="pymatgen.SETTINGS">
-<code class="sig-name descname">SETTINGS</code><em class="property"> = {'PMG_MAPI_KEY': 'xNebFpxTfLhTnnIH', 'PMG_VASP_PSP_DIR': '/Users/shyuepingong/repos/pymacy/resources/VASP_PSP'}</em><a class="headerlink" href="#pymatgen.SETTINGS" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="data">
-<dt id="pymatgen.SETTINGS_FILE">
-<code class="sig-name descname">SETTINGS_FILE</code><em class="property"> = '/Users/shyuepingong/.pmgrc.yaml'</em><a class="headerlink" href="#pymatgen.SETTINGS_FILE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="function">
 <dt id="pymatgen.get_structure_from_mp">
 <code class="sig-name descname">get_structure_from_mp</code><span class="sig-paren">(</span><em class="sig-param">formula</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen.html#get_structure_from_mp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.get_structure_from_mp" title="Permalink to this definition">¶</a></dt>
@@ -725,13 +720,13 @@ type of object returned depends the file type.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

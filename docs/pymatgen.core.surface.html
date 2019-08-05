@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.surface module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.core.surface module &#8212; pymatgen 2019.7.30 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -865,7 +865,7 @@ site is now on the other side. Repeat for all sites with z&gt;c.</p>
 
 <dl class="function">
 <dt id="pymatgen.core.surface.generate_all_slabs">
-<code class="sig-name descname">generate_all_slabs</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">max_index</em>, <em class="sig-param">min_slab_size</em>, <em class="sig-param">min_vacuum_size</em>, <em class="sig-param">bonds=None</em>, <em class="sig-param">tol=0.001</em>, <em class="sig-param">max_broken_bonds=0</em>, <em class="sig-param">lll_reduce=False</em>, <em class="sig-param">center_slab=False</em>, <em class="sig-param">primitive=True</em>, <em class="sig-param">max_normal_search=None</em>, <em class="sig-param">symmetrize=False</em>, <em class="sig-param">repair=False</em>, <em class="sig-param">include_reconstructions=False</em>, <em class="sig-param">in_unit_planes=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#generate_all_slabs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.generate_all_slabs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">generate_all_slabs</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">max_index</em>, <em class="sig-param">min_slab_size</em>, <em class="sig-param">min_vacuum_size</em>, <em class="sig-param">bonds=None</em>, <em class="sig-param">tol=0.1</em>, <em class="sig-param">ftol=0.1</em>, <em class="sig-param">max_broken_bonds=0</em>, <em class="sig-param">lll_reduce=False</em>, <em class="sig-param">center_slab=False</em>, <em class="sig-param">primitive=True</em>, <em class="sig-param">max_normal_search=None</em>, <em class="sig-param">symmetrize=False</em>, <em class="sig-param">repair=False</em>, <em class="sig-param">include_reconstructions=False</em>, <em class="sig-param">in_unit_planes=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#generate_all_slabs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.generate_all_slabs" title="Permalink to this definition">¶</a></dt>
 <dd><p>A function that finds all different slabs up to a certain miller index.
 Slabs oriented under certain Miller indices that are equivalent to other
 slabs in other Miller indices are filtered out using symmetry operations
@@ -932,16 +932,6 @@ each layer of atoms along c</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="pymatgen.core.surface.get_recp_symmetry_operation">
-<code class="sig-name descname">get_recp_symmetry_operation</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">symprec=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#get_recp_symmetry_operation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.get_recp_symmetry_operation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Find the symmetric operations of the reciprocal lattice,
-to be used for hkl transformations
-:param structure: conventional unit cell
-:type structure: Structure
-:param symprec: default is 0.001</p>
-</dd></dl>
-
-<dl class="function">
 <dt id="pymatgen.core.surface.get_slab_regions">
 <code class="sig-name descname">get_slab_regions</code><span class="sig-paren">(</span><em class="sig-param">slab</em>, <em class="sig-param">blength=3.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#get_slab_regions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.get_slab_regions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function to get the ranges of the slab regions. Useful for discerning where
@@ -959,7 +949,7 @@ order to find atoms that are part of the slab</p>
 
 <dl class="function">
 <dt id="pymatgen.core.surface.get_symmetrically_distinct_miller_indices">
-<code class="sig-name descname">get_symmetrically_distinct_miller_indices</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">max_index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#get_symmetrically_distinct_miller_indices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.get_symmetrically_distinct_miller_indices" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_symmetrically_distinct_miller_indices</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">max_index</em>, <em class="sig-param">return_hkil=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#get_symmetrically_distinct_miller_indices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.get_symmetrically_distinct_miller_indices" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns all symmetrically distinct indices below a certain max-index for
 a given structure. Analysis is based on the symmetry of the reciprocal
 lattice of the structure.
@@ -971,6 +961,27 @@ lattice of the structure.
 structure. All other indices are equivalent to one of these.</p>
 </div></blockquote>
 <dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>return_hkil</strong> (<em>bool</em>) – If true, return hkil form of Miller
+index for hexagonal systems, otherwise return hkl</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.core.surface.get_symmetrically_equivalent_miller_indices">
+<code class="sig-name descname">get_symmetrically_equivalent_miller_indices</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">miller_index</em>, <em class="sig-param">return_hkil=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#get_symmetrically_equivalent_miller_indices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.get_symmetrically_equivalent_miller_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all symmetrically equivalent indices for a given structure. Analysis
+is based on the symmetry of the reciprocal lattice of the structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>miller_index</strong> (<em>tuple</em>) – Designates the family of Miller indices
+to find. Can be hkl or hkil for hexagonal systems</p></li>
+<li><p><strong>return_hkil</strong> (<em>bool</em>) – If true, return hkil form of Miller
+index for hexagonal systems, otherwise return hkl</p></li>
+</ul>
+</dd>
 </dl>
 </dd></dl>
 
@@ -990,10 +1001,24 @@ A to B using a transformation matrix
 </dl>
 </dd></dl>
 
-<dl class="data">
-<dt id="pymatgen.core.surface.logger">
-<code class="sig-name descname">logger</code><em class="property"> = &lt;Logger pymatgen.core.surface (INFO)&gt;</em><a class="headerlink" href="#pymatgen.core.surface.logger" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dl class="function">
+<dt id="pymatgen.core.surface.is_already_analyzed">
+<code class="sig-name descname">is_already_analyzed</code><span class="sig-paren">(</span><em class="sig-param">miller_index: tuple</em>, <em class="sig-param">miller_list: list</em>, <em class="sig-param">symm_ops: list</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/pymatgen/core/surface.html#is_already_analyzed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.is_already_analyzed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function to check if a given Miller index is
+part of the family of indices of any index in a list</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>miller_index</strong> (<em>tuple</em>) – The Miller index to analyze</p></li>
+<li><p><strong>miller_list</strong> (<em>list</em>) – List of Miller indices. If the given
+Miller index belongs in the same family as any of the
+indices in this list, return True, else return False</p></li>
+<li><p><strong>symm_ops</strong> (<em>list</em>) – Symmetry operations of a
+lattice, used to define family of indices</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.core.surface.miller_index_from_sites">
@@ -1026,16 +1051,6 @@ miller index to.</p></li>
 </dd>
 </dl>
 </dd></dl>
-
-<dl class="data">
-<dt id="pymatgen.core.surface.module_dir">
-<code class="sig-name descname">module_dir</code><em class="property"> = '/Users/shyuepingong/repos/pymatgen/pymatgen/core'</em><a class="headerlink" href="#pymatgen.core.surface.module_dir" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="data">
-<dt id="pymatgen.core.surface.reconstructions_archive">
-<code class="sig-name descname">reconstructions_archive</code><em class="property"> = {'bcc_100_zigzag_rt2xrt2': {'SlabGenerator_parameters': {'center_slab': True, 'max_normal_search': 1}, 'Woods_notation': 'p(rt2xrt2)', 'description': 'This is the (rt2xrt2) reconstruction for the body-centered (100)                     slab. The surface sites are arranged in a zig-zag pattern along the diagonal of                     the primitive slab.', 'miller_index': [1, 0, 0], 'name': 'bcc_100_zigzag_rt2xrt2', 'points_to_add': [[0.0, 0.08789, 1], [0.5, 0.41211, 1]], 'reference': 'Yonehara, K., &amp; Schmidt, L. D. (1971). A LEED study of structures                     produced by H2 on (100) W. Surface Science, 25(2), 238–260.', 'spacegroup': {'number': 229, 'symbol': 'Im-3m'}, 'transformation_matrix': [[1, 1, 0], [-1, 1, 0], [0, 0, 1]]}, 'diamond_100_2x1': {'SlabGenerator_parameters': {'center_slab': True, 'max_normal_search': 1}, 'Woods_notation': 'p(2x1)', 'description': 'This is the (2x1) reconstruction for the diamond (100)                     slab. The surface sites are rearranged such that they form a dimer with                     each other and two back bonds with the layer of atoms below.', 'miller_index': [1, 0, 0], 'name': 'diamond_100_2x1', 'points_to_add': [[0.05709, 0.5, 0.1], [0.34289, 0.5, -0.5]], 'points_to_remove': [[0.5, 0.5, 0], [0, 0.5, 0]], 'reference': 'Schlier, R. E., &amp; Farnsworth, H. E. (1959). Structure and                     Adsorption Characteristics of Clean Surfaces of Germanium and Silicon.                     The Journal of Chemical Physics, 30(4), 917.', 'spacegroup': {'number': 227, 'symbol': 'Fd-3m'}, 'transformation_matrix': [[2, 0, 0], [0, 1, 0], [0, 0, 1]]}, 'diamond_110_1x1': {'SlabGenerator_parameters': {'center_slab': True, 'max_normal_search': 1}, 'Woods_notation': 'p(1x1)', 'description': 'This is the (1x1) reconstruction for the diamond (110)                     slab. The surface sites are rearranged such that they form a chain with                     each other and the layer of atoms below.', 'miller_index': [1, 1, 0], 'name': 'diamond_110_1x1', 'points_to_add': [[0.5, 0.21526, 1.07], [0, 0.42367, 0.755]], 'reference': 'Schlier, R. E., &amp; Farnsworth, H. E. (1959). Structure and                     Adsorption Characteristics of Clean Surfaces of Germanium and Silicon.                     The Journal of Chemical Physics, 30(4), 917.', 'spacegroup': {'number': 227, 'symbol': 'Fd-3m'}, 'transformation_matrix': [[1, 0, 0], [0, 1, 0], [0, 0, 1]]}, 'diamond_111_1x2': {'SlabGenerator_parameters': {'center_slab': True, 'max_normal_search': 1}, 'Woods_notation': 'p(1x2)', 'description': 'This is the (1x2) reconstruction for the diamond (111)                     slab. The surface sites are rearranged such that they form a pi-bonded chain.', 'miller_index': [1, 1, 1], 'name': 'diamond_111_1x2', 'points_to_add': [[0.54968, 0.03888, 2.75], [0.83446, 0.83157, 2.75], [0.83928, 0.33563, 4.75], [0.50345, 0.49975, 3.834]], 'reference': 'A. Stekolnikov, J. Furthmuller, F. Bechstedt, Absolute surface                      energies of group-IV semiconductors: Dependence on orientation                      and reconstruction, Phys. Rev. B. 65 (2002) 1-10.', 'spacegroup': {'number': 227, 'symbol': 'Fd-3m'}, 'transformation_matrix': [[1, 0, 0], [0, 2, 0], [0, 0, 1]]}, 'fcc_100_missing_row_1x1': {'SlabGenerator_parameters': {'center_slab': True, 'max_normal_search': 1, 'primitive': False}, 'Woods_notation': 'c(1x1)', 'description': 'This is the (2x1) reconstruction for the fcc (100)                     slab, also known as the missing-row reconstruction.', 'miller_index': [1, 0, 0], 'name': 'fcc_100_missing_row_1x1', 'points_to_remove': [[0.5, 0.25, 0]], 'reference': 'Zhang, J. M., Zhang, M. Y., &amp; Xu, K. W. (2009). Missing row reconstruction on                     three low index surfaces of ten FCC metals. Crystal Research and Technology, 44(3), 275–280.', 'spacegroup': {'number': 225, 'symbol': 'Fm-3m'}, 'transformation_matrix': [[1, 0, 0], [0, 1, 0], [0, 0, 1]]}, 'fcc_110_missing_row_1x2': {'SlabGenerator_parameters': {'center_slab': True, 'max_normal_search': 1}, 'Woods_notation': 'p(1x2)', 'description': 'This is the (2x1) reconstruction for the fcc (110)                     slab, also known as the missing-row reconstruction.', 'miller_index': [1, 1, 0], 'name': 'fcc_110_missing_row_1x2', 'points_to_remove': [[0.5, 0.25, 0]], 'reference': 'Zhang, J. M., Zhang, M. Y., &amp; Xu, K. W. (2009). Missing row reconstruction on                     three low index surfaces of ten FCC metals. Crystal Research and Technology, 44(3), 275–280.', 'spacegroup': {'number': 225, 'symbol': 'Fm-3m'}, 'transformation_matrix': [[1, 0, 0], [0, 2, 0], [0, 0, 1]]}, 'fcc_111_adatom_bridge_1x1': {'base_reconstruction': 'fcc_111_adatom_t_1x1', 'description': 'This is the (1x1) reconstruction for the fcc (111)                     slab with an adatom on the bridge site.', 'name': 'fcc_111_adatom_bridge_1x1', 'points_to_add': [[0.5, 0.5, 1]], 'reference': 'Crljen, Z., Lazic, P., Sokcevic, D., &amp; Brako, R. (2003).                     Relaxation and reconstruction on (111) surfaces of Au, Pt, and Cu.                     Physical Review B, 68(19), 195411.'}, 'fcc_111_adatom_ft_1x1': {'base_reconstruction': 'fcc_111_adatom_t_1x1', 'description': 'This is the (1x1) reconstruction for the fcc (111)                     slab with an adatom between the fcc and top (ft) site.', 'name': 'fcc_111_adatom_ft_1x1', 'points_to_add': [[0.166665, 0.333335, 1]], 'reference': 'Crljen, Z., Lazic, P., Sokcevic, D., &amp; Brako, R. (2003).                     Relaxation and reconstruction on (111) surfaces of Au, Pt, and Cu.                     Physical Review B, 68(19), 195411.'}, 'fcc_111_adatom_h_1x1': {'base_reconstruction': 'fcc_111_adatom_t_1x1', 'description': 'This is the (1x1) reconstruction for the fcc (111)                     slab on the hcp (h) site.', 'name': 'fcc_111_adatom_h_1x1', 'points_to_add': [[0.66667, 0.33333, 1]], 'reference': 'Crljen, Z., Lazic, P., Sokcevic, D., &amp; Brako, R. (2003).                     Relaxation and reconstruction on (111) surfaces of Au, Pt, and Cu.                     Physical Review B, 68(19), 195411.'}, 'fcc_111_adatom_ht_1x1': {'base_reconstruction': 'fcc_111_adatom_t_1x1', 'description': 'This is the (1x1) reconstruction for the fcc (111)                     slab with an adatom between the hcp and top (ht) site.', 'name': 'fcc_111_adatom_ht_1x1', 'points_to_add': [[0.333335, 0.166665, 1]], 'reference': 'Crljen, Z., Lazic, P., Sokcevic, D., &amp; Brako, R. (2003).                     Relaxation and reconstruction on (111) surfaces of Au, Pt, and Cu.                     Physical Review B, 68(19), 195411.'}, 'fcc_111_adatom_t_1x1': {'SlabGenerator_parameters': {'center_slab': True, 'max_normal_search': 1}, 'Woods_notation': 'p(1x1)', 'description': 'This is the (1x1) reconstruction for the fcc (111)                     slab on the top (t) site.', 'miller_index': [1, 1, 1], 'name': 'fcc_111_adatom_t_1x1', 'points_to_add': [[0.0, 0.0, 1]], 'reference': 'Crljen, Z., Lazic, P., Sokcevic, D., &amp; Brako, R. (2003).                     Relaxation and reconstruction on (111) surfaces of Au, Pt, and Cu.                     Physical Review B, 68(19), 195411.', 'spacegroup': {'number': 225, 'symbol': 'Fm-3m'}, 'transformation_matrix': [[1, 0, 0], [0, 1, 0], [0, 0, 1]]}, 'fcc_111_missing_row_1x2': {'SlabGenerator_parameters': {'center_slab': True, 'max_normal_search': 1}, 'Woods_notation': 'p(1x2)', 'description': 'This is the (2x1) reconstruction for the fcc (111)                     slab, also known as the missing-row reconstruction.', 'miller_index': [1, 1, 1], 'name': 'fcc_111_missing_row_1x2', 'points_to_remove': [[0.5, 0.25, 0]], 'reference': 'Zhang, J. M., Zhang, M. Y., &amp; Xu, K. W. (2009). Missing row reconstruction on                     three low index surfaces of ten FCC metals. Crystal Research and Technology, 44(3), 275–280.', 'spacegroup': {'number': 225, 'symbol': 'Fm-3m'}, 'transformation_matrix': [[1, 0, 0], [0, 2, 0], [0, 0, 1]]}}</em><a class="headerlink" href="#pymatgen.core.surface.reconstructions_archive" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.core.surface.reduce_vector">
@@ -1080,13 +1095,13 @@ miller index to.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

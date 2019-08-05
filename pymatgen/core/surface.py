@@ -1021,11 +1021,11 @@ class SlabGenerator:
         for (sp1, sp2), bond_dist in bonds.items():
             for site in self.oriented_unit_cell:
                 if sp1 in site.species:
-                    for nn, d in self.oriented_unit_cell.get_neighbors(
-                            site, bond_dist):
-                        if sp2 in nn.species:
+                    for nn in self.oriented_unit_cell.get_neighbors(site, bond_dist):
+                        nnsite = nn.site
+                        if sp2 in nnsite.species:
                             c_range = tuple(sorted([site.frac_coords[2],
-                                                    nn.frac_coords[2]]))
+                                                    nnsite.frac_coords[2]]))
                             if c_range[1] > 1:
                                 # Takes care of PBC when c coordinate of site
                                 # goes beyond the upper boundary of the cell
@@ -1161,7 +1161,7 @@ class SlabGenerator:
                 if site.species_string == element1:
                     poly_coord = 0
                     for neighbor in slab.get_neighbors(site, blength):
-                        poly_coord += 1 if neighbor[0].species_string == element2 else 0
+                        poly_coord += 1 if neighbor.site.species_string == element2 else 0
 
                     # suppose we find an undercoordinated reference atom
                     if poly_coord not in cn_dict[element1]:
@@ -1541,32 +1541,74 @@ def get_d(slab):
             break
     return slab.lattice.get_cartesian_coords([0, 0, d])[2]
 
-
-
-def get_recp_symmetry_operation(structure, symprec=0.01):
+def is_already_analyzed(
+        miller_index: tuple, miller_list: list, symm_ops: list)-> bool:
     """
-    Find the symmetric operations of the reciprocal lattice,
-    to be used for hkl transformations
+    Helper function to check if a given Miller index is
+    part of the family of indices of any index in a list
+
     Args:
-        structure (Structure): conventional unit cell
-        symprec: default is 0.001
-
+        miller_index (tuple): The Miller index to analyze
+        miller_list (list): List of Miller indices. If the given
+            Miller index belongs in the same family as any of the
+            indices in this list, return True, else return False
+        symm_ops (list): Symmetry operations of a
+            lattice, used to define family of indices
     """
-    recp_lattice = structure.lattice.reciprocal_lattice_crystallographic
-    # get symmetry operations from input conventional unit cell
-    # Need to make sure recp lattice is big enough, otherwise symmetry
-    # determination will fail. We set the overall volume to 1.
-    recp_lattice = recp_lattice.scale(1)
-    recp = Structure(recp_lattice, ["H"], [[0, 0, 0]])
-    # Creates a function that uses the symmetry operations in the
-    # structure to find Miller indices that might give repetitive slabs
-    analyzer = SpacegroupAnalyzer(recp, symprec=symprec)
-    recp_symmops = analyzer.get_symmetry_operations()
+    for op in symm_ops:
+        if in_coord_list(miller_list, op.operate(miller_index)):
+            return True
+    return False
 
-    return recp_symmops
+def get_symmetrically_equivalent_miller_indices(structure, miller_index, return_hkil=True):
+    """
+    Returns all symmetrically equivalent indices for a given structure. Analysis
+    is based on the symmetry of the reciprocal lattice of the structure.
+
+    Args:
+        miller_index (tuple): Designates the family of Miller indices
+            to find. Can be hkl or hkil for hexagonal systems
+        return_hkil (bool): If true, return hkil form of Miller
+            index for hexagonal systems, otherwise return hkl
+    """
+
+    # Change to hkl if hkil because in_coord_list only handles tuples of 3
+    miller_index = (miller_index[0], miller_index[1], miller_index[3]) \
+        if len(miller_index) == 4 else miller_index
+    mmi = max(np.abs(miller_index))
+    r = list(range(-mmi, mmi + 1))
+    r.reverse()
+
+    sg = SpacegroupAnalyzer(structure)
+    # Get distinct hkl planes from the rhombohedral setting if trigonal
+    if sg.get_crystal_system() == "trigonal":
+        prim_structure = SpacegroupAnalyzer(structure).get_primitive_standard_structure()
+        symm_ops = prim_structure.lattice.get_recp_symmetry_operation()
+    else:
+        symm_ops = structure.lattice.get_recp_symmetry_operation()
+
+    equivalent_millers = [miller_index]
+    for miller in itertools.product(r, r, r):
+        if miller == miller_index:
+            continue
+        if any([i != 0 for i in miller]):
+            if is_already_analyzed(miller, equivalent_millers, symm_ops):
+                equivalent_millers.append(miller)
+
+            # include larger Miller indices in the family of planes
+            if all([mmi > i for i in np.abs(miller)]) and \
+                    not in_coord_list(equivalent_millers, miller):
+                if is_already_analyzed(mmi * np.array(miller),
+                                       equivalent_millers, symm_ops):
+                    equivalent_millers.append(miller)
+
+    if return_hkil and sg.get_crystal_system() in ["trigonal", "hexagonal"]:
+        return [(hkl[0], hkl[1], -1*hkl[0]-hkl[1],
+                 hkl[2]) for hkl in equivalent_millers]
+    return equivalent_millers
 
 
-def get_symmetrically_distinct_miller_indices(structure, max_index):
+def get_symmetrically_distinct_miller_indices(structure, max_index, return_hkil=False):
     """
     Returns all symmetrically distinct indices below a certain max-index for
     a given structure. Analysis is based on the symmetry of the reciprocal
@@ -1576,6 +1618,8 @@ def get_symmetrically_distinct_miller_indices(structure, max_index):
         max_index (int): The maximum index. For example, a max_index of 1
             means that (100), (110), and (111) are returned for the cubic
             structure. All other indices are equivalent to one of these.
+        return_hkil (bool): If true, return hkil form of Miller
+            index for hexagonal systems, otherwise return hkl
     """
 
     r = list(range(-max_index, max_index + 1))
@@ -1590,23 +1634,17 @@ def get_symmetrically_distinct_miller_indices(structure, max_index):
         transf = sg.get_conventional_to_primitive_transformation_matrix()
         miller_list = [hkl_transformation(transf, hkl) for hkl in conv_hkl_list]
         prim_structure = SpacegroupAnalyzer(structure).get_primitive_standard_structure()
-        symm_ops = get_recp_symmetry_operation(prim_structure)
+        symm_ops = prim_structure.lattice.get_recp_symmetry_operation()
     else:
         miller_list = conv_hkl_list
-        symm_ops = get_recp_symmetry_operation(structure)
+        symm_ops = structure.lattice.get_recp_symmetry_operation()
 
     unique_millers, unique_millers_conv = [], []
-
-    def is_already_analyzed(miller_index):
-        for op in symm_ops:
-            if in_coord_list(unique_millers, op.operate(miller_index)):
-                return True
-        return False
 
     for i, miller in enumerate(miller_list):
         d = abs(reduce(gcd, miller))
         miller = tuple([int(i / d) for i in miller])
-        if not is_already_analyzed(miller):
+        if not is_already_analyzed(miller, unique_millers, symm_ops):
             if sg.get_crystal_system() == "trigonal":
                 # Now we find the distinct primitive hkls using
                 # the primitive symmetry operations and their
@@ -1619,6 +1657,9 @@ def get_symmetrically_distinct_miller_indices(structure, max_index):
                 unique_millers.append(miller)
                 unique_millers_conv.append(miller)
 
+    if return_hkil and sg.get_crystal_system() in ["trigonal", "hexagonal"]:
+        return [(hkl[0], hkl[1], -1*hkl[0]-hkl[1],
+                 hkl[2]) for hkl in unique_millers_conv]
     return unique_millers_conv
 
 
@@ -1789,9 +1830,8 @@ def get_slab_regions(slab, blength=3.5):
         # Now locate the highest site within the lower region of the slab
         upper_fcoords = []
         for site in slab:
-            if all([nn[-1] not in all_indices for nn in
-                    slab.get_neighbors(site, blength,
-                                       include_index=True)]):
+            if all([nn.index not in all_indices for nn in
+                    slab.get_neighbors(site, blength)]):
                 upper_fcoords.append(site.frac_coords[2])
         coords = copy.copy(last_fcoords) if not fcoords else copy.copy(fcoords)
         min_top = slab[last_indices[coords.index(min(coords))]].frac_coords[2]

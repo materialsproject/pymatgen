@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.units module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.core.units module &#8212; pymatgen 2019.7.30 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,11 +44,6 @@
             
   <div class="section" id="module-pymatgen.core.units">
 <span id="pymatgen-core-units-module"></span><h1>pymatgen.core.units module<a class="headerlink" href="#module-pymatgen.core.units" title="Permalink to this headline">¶</a></h1>
-<dl class="data">
-<dt id="pymatgen.core.units.ALL_UNITS">
-<code class="sig-name descname">ALL_UNITS</code><em class="property"> = {'amount': {'atom': 1.6605390404271643e-24, 'mol': 1}, 'capacitance': {'F': {'A': 2, 'kg': -1, 'm': -2, 's': 4}}, 'charge': {'C': {'A': 1, 's': 1}, 'e': {'A': 1, 's': 1, 1.6021766208e-19: 1}}, 'conductance': {'S': {'A': 2, 'kg': -1, 'm': -2, 's': 3}}, 'cross_section': {'barn': {'m': 2, 1e-28: 1}, 'mbarn': {'m': 2, 1e-31: 1}}, 'current': {'A': 1}, 'emf': {'V': {'A': -1, 'kg': 1, 'm': 2, 's': -3}}, 'energy': {'Ha': {'kg': 1, 'm': 2, 's': -2, 4.359744650182188e-18: 1}, 'J': {'kg': 1, 'm': 2, 's': -2}, 'Ry': {'kg': 1, 'm': 2, 's': -2, 2.179872325091094e-18: 1}, 'eV': {'kg': 1, 'm': 2, 's': -2, 1.6021766208e-19: 1}, 'kJ': {'kg': 1, 'm': 2, 's': -2, 1000: 1}, 'meV': {'kg': 1, 'm': 2, 's': -2, 1.6021766208000002e-22: 1}}, 'force': {'GN': {'kg': 1, 'm': 1, 's': -2, 1000000000.0: 1}, 'KN': {'kg': 1, 'm': 1, 's': -2, 1000: 1}, 'MN': {'kg': 1, 'm': 1, 's': -2, 1000000.0: 1}, 'N': {'kg': 1, 'm': 1, 's': -2}}, 'frequency': {'GHz': {'s': -1, 1000000000.0: 1}, 'Hz': {'s': -1}, 'KHz': {'s': -1, 1000: 1}, 'MHz': {'s': -1, 1000000.0: 1}, 'THz': {'s': -1, 1000000000000.0: 1}}, 'intensity': {'cd': 1}, 'length': {'ang': 1e-10, 'bohr': 5.2917721067e-11, 'cm': 0.01, 'km': 1000, 'm': 1, 'mile': 1609.3439999999998, 'pm': 1e-12}, 'magnetic_flux': {'Wb': {'A': -1, 'kg': 1, 'm': 2, 's': -2}}, 'mass': {'amu': 1.66053904e-27, 'g': 0.001, 'kg': 1}, 'memory': {'Gb': 1073741824, 'Kb': 1024, 'Mb': 1048576, 'Tb': 1099511627776, 'byte': 1, 'gb': 1073741824, 'kb': 1024, 'mb': 1048576, 'tb': 1099511627776}, 'power': {'GW': {'m': 2, 'kg': 1, 's': -3, 1000000000.0: 1}, 'KW': {'m': 2, 'kg': 1, 's': -3, 1000: 1}, 'MW': {'m': 2, 'kg': 1, 's': -3, 1000000.0: 1}, 'W': {'kg': 1, 'm': 2, 's': -3}}, 'pressure': {'GPa': {'kg': 1, 'm': -1, 's': -2, 1000000000.0: 1}, 'KPa': {'kg': 1, 'm': -1, 's': -2, 1000: 1}, 'MPa': {'kg': 1, 'm': -1, 's': -2, 1000000.0: 1}, 'Pa': {'kg': 1, 'm': -1, 's': -2}}, 'resistance': {'ohm': {'A': -2, 'kg': 1, 'm': 2, 's': -3}}, 'temperature': {'K': 1}, 'time': {'h': 3600, 'min': 60, 's': 1}}</em><a class="headerlink" href="#pymatgen.core.units.ALL_UNITS" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="class">
 <dt id="pymatgen.core.units.ArrayWithUnit">
 <em class="property">class </em><code class="sig-name descname">ArrayWithUnit</code><a class="reference internal" href="_modules/pymatgen/core/units.html#ArrayWithUnit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.ArrayWithUnit" title="Permalink to this definition">¶</a></dt>
@@ -129,11 +124,6 @@ array([ 27.21138386,  29.93252225]) eV</p>
 </dd></dl>
 
 <dl class="data">
-<dt id="pymatgen.core.units.BASE_UNITS">
-<code class="sig-name descname">BASE_UNITS</code><em class="property"> = {'amount': {'atom': 1.6605390404271643e-24, 'mol': 1}, 'current': {'A': 1}, 'intensity': {'cd': 1}, 'length': {'ang': 1e-10, 'bohr': 5.2917721067e-11, 'cm': 0.01, 'km': 1000, 'm': 1, 'mile': 1609.3439999999998, 'pm': 1e-12}, 'mass': {'amu': 1.66053904e-27, 'g': 0.001, 'kg': 1}, 'memory': {'Gb': 1073741824, 'Kb': 1024, 'Mb': 1048576, 'Tb': 1099511627776, 'byte': 1, 'gb': 1073741824, 'kb': 1024, 'mb': 1048576, 'tb': 1099511627776}, 'temperature': {'K': 1}, 'time': {'h': 3600, 'min': 60, 's': 1}}</em><a class="headerlink" href="#pymatgen.core.units.BASE_UNITS" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="data">
 <dt id="pymatgen.core.units.Charge">
 <code class="sig-name descname">Charge</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.FloatWithUnit'&gt;, unit_type='charge')</em><a class="headerlink" href="#pymatgen.core.units.Charge" title="Permalink to this definition">¶</a></dt>
 <dd><p>A float with a charge unit.</p>
@@ -149,16 +139,6 @@ is raised.</p></li>
 </dd></dl>
 
 <dl class="data">
-<dt id="pymatgen.core.units.ChargeArray">
-<code class="sig-name descname">ChargeArray</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.ArrayWithUnit'&gt;, unit_type='charge')</em><a class="headerlink" href="#pymatgen.core.units.ChargeArray" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="data">
-<dt id="pymatgen.core.units.DERIVED_UNITS">
-<code class="sig-name descname">DERIVED_UNITS</code><em class="property"> = {'capacitance': {'F': {'A': 2, 'kg': -1, 'm': -2, 's': 4}}, 'charge': {'C': {'A': 1, 's': 1}, 'e': {'A': 1, 's': 1, 1.6021766208e-19: 1}}, 'conductance': {'S': {'A': 2, 'kg': -1, 'm': -2, 's': 3}}, 'cross_section': {'barn': {'m': 2, 1e-28: 1}, 'mbarn': {'m': 2, 1e-31: 1}}, 'emf': {'V': {'A': -1, 'kg': 1, 'm': 2, 's': -3}}, 'energy': {'Ha': {'kg': 1, 'm': 2, 's': -2, 4.359744650182188e-18: 1}, 'J': {'kg': 1, 'm': 2, 's': -2}, 'Ry': {'kg': 1, 'm': 2, 's': -2, 2.179872325091094e-18: 1}, 'eV': {'kg': 1, 'm': 2, 's': -2, 1.6021766208e-19: 1}, 'kJ': {'kg': 1, 'm': 2, 's': -2, 1000: 1}, 'meV': {'kg': 1, 'm': 2, 's': -2, 1.6021766208000002e-22: 1}}, 'force': {'GN': {'kg': 1, 'm': 1, 's': -2, 1000000000.0: 1}, 'KN': {'kg': 1, 'm': 1, 's': -2, 1000: 1}, 'MN': {'kg': 1, 'm': 1, 's': -2, 1000000.0: 1}, 'N': {'kg': 1, 'm': 1, 's': -2}}, 'frequency': {'GHz': {'s': -1, 1000000000.0: 1}, 'Hz': {'s': -1}, 'KHz': {'s': -1, 1000: 1}, 'MHz': {'s': -1, 1000000.0: 1}, 'THz': {'s': -1, 1000000000000.0: 1}}, 'magnetic_flux': {'Wb': {'A': -1, 'kg': 1, 'm': 2, 's': -2}}, 'power': {'GW': {'m': 2, 'kg': 1, 's': -3, 1000000000.0: 1}, 'KW': {'m': 2, 'kg': 1, 's': -3, 1000: 1}, 'MW': {'m': 2, 'kg': 1, 's': -3, 1000000.0: 1}, 'W': {'kg': 1, 'm': 2, 's': -3}}, 'pressure': {'GPa': {'kg': 1, 'm': -1, 's': -2, 1000000000.0: 1}, 'KPa': {'kg': 1, 'm': -1, 's': -2, 1000: 1}, 'MPa': {'kg': 1, 'm': -1, 's': -2, 1000000.0: 1}, 'Pa': {'kg': 1, 'm': -1, 's': -2}}, 'resistance': {'ohm': {'A': -2, 'kg': 1, 'm': 2, 's': -3}}}</em><a class="headerlink" href="#pymatgen.core.units.DERIVED_UNITS" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="data">
 <dt id="pymatgen.core.units.Energy">
 <code class="sig-name descname">Energy</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.FloatWithUnit'&gt;, unit_type='energy')</em><a class="headerlink" href="#pymatgen.core.units.Energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>A float with an energy unit.</p>
@@ -171,11 +151,6 @@ is raised.</p></li>
 </dd>
 </dl>
 </dd></dl>
-
-<dl class="data">
-<dt id="pymatgen.core.units.EnergyArray">
-<code class="sig-name descname">EnergyArray</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.ArrayWithUnit'&gt;, unit_type='energy')</em><a class="headerlink" href="#pymatgen.core.units.EnergyArray" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.core.units.FloatWithUnit">
@@ -272,11 +247,6 @@ units of each type.</p>
 </dd></dl>
 
 <dl class="data">
-<dt id="pymatgen.core.units.Ha_to_eV">
-<code class="sig-name descname">Ha_to_eV</code><em class="property"> = 27.211386020632837</em><a class="headerlink" href="#pymatgen.core.units.Ha_to_eV" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="data">
 <dt id="pymatgen.core.units.Length">
 <code class="sig-name descname">Length</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.FloatWithUnit'&gt;, unit_type='length')</em><a class="headerlink" href="#pymatgen.core.units.Length" title="Permalink to this definition">¶</a></dt>
 <dd><p>A float with a length unit.</p>
@@ -290,11 +260,6 @@ raised.</p></li>
 </dd>
 </dl>
 </dd></dl>
-
-<dl class="data">
-<dt id="pymatgen.core.units.LengthArray">
-<code class="sig-name descname">LengthArray</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.ArrayWithUnit'&gt;, unit_type='length')</em><a class="headerlink" href="#pymatgen.core.units.LengthArray" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="data">
 <dt id="pymatgen.core.units.Mass">
@@ -312,11 +277,6 @@ raised.</p></li>
 </dd></dl>
 
 <dl class="data">
-<dt id="pymatgen.core.units.MassArray">
-<code class="sig-name descname">MassArray</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.ArrayWithUnit'&gt;, unit_type='mass')</em><a class="headerlink" href="#pymatgen.core.units.MassArray" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="data">
 <dt id="pymatgen.core.units.Memory">
 <code class="sig-name descname">Memory</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.FloatWithUnit'&gt;, unit_type='memory')</em><a class="headerlink" href="#pymatgen.core.units.Memory" title="Permalink to this definition">¶</a></dt>
 <dd><p>A float with a memory unit.</p>
@@ -330,16 +290,6 @@ is raised.</p></li>
 </dd>
 </dl>
 </dd></dl>
-
-<dl class="data">
-<dt id="pymatgen.core.units.Ry_to_eV">
-<code class="sig-name descname">Ry_to_eV</code><em class="property"> = 13.605693010316418</em><a class="headerlink" href="#pymatgen.core.units.Ry_to_eV" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="data">
-<dt id="pymatgen.core.units.SUPPORTED_UNIT_NAMES">
-<code class="sig-name descname">SUPPORTED_UNIT_NAMES</code><em class="property"> = ('m', 'km', 'mile', 'ang', 'cm', 'pm', 'bohr', 'kg', 'g', 'amu', 's', 'min', 'h', 'A', 'K', 'mol', 'atom', 'cd', 'byte', 'Kb', 'Mb', 'Gb', 'Tb', 'kb', 'mb', 'gb', 'tb', 'eV', 'meV', 'Ha', 'Ry', 'J', 'kJ', 'C', 'e', 'N', 'KN', 'MN', 'GN', 'Hz', 'KHz', 'MHz', 'GHz', 'THz', 'Pa', 'KPa', 'MPa', 'GPa', 'W', 'KW', 'MW', 'GW', 'V', 'F', 'ohm', 'S', 'Wb', 'barn', 'mbarn')</em><a class="headerlink" href="#pymatgen.core.units.SUPPORTED_UNIT_NAMES" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="data">
 <dt id="pymatgen.core.units.Temp">
@@ -356,11 +306,6 @@ is raised.</p></li>
 </dd></dl>
 
 <dl class="data">
-<dt id="pymatgen.core.units.TempArray">
-<code class="sig-name descname">TempArray</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.ArrayWithUnit'&gt;, unit_type='temperature')</em><a class="headerlink" href="#pymatgen.core.units.TempArray" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="data">
 <dt id="pymatgen.core.units.Time">
 <code class="sig-name descname">Time</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.FloatWithUnit'&gt;, unit_type='time')</em><a class="headerlink" href="#pymatgen.core.units.Time" title="Permalink to this definition">¶</a></dt>
 <dd><p>A float with a time unit.</p>
@@ -374,11 +319,6 @@ raised.</p></li>
 </dd>
 </dl>
 </dd></dl>
-
-<dl class="data">
-<dt id="pymatgen.core.units.TimeArray">
-<code class="sig-name descname">TimeArray</code><em class="property"> = functools.partial(&lt;class 'pymatgen.core.units.ArrayWithUnit'&gt;, unit_type='time')</em><a class="headerlink" href="#pymatgen.core.units.TimeArray" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.core.units.Unit">
@@ -437,11 +377,6 @@ unit type.</p>
 </dd></dl>
 
 <dl class="data">
-<dt id="pymatgen.core.units.amu_to_kg">
-<code class="sig-name descname">amu_to_kg</code><em class="property"> = 1.66053904e-27</em><a class="headerlink" href="#pymatgen.core.units.amu_to_kg" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="data">
 <dt id="pymatgen.core.units.ang_to_bohr">
 <code class="sig-name descname">ang_to_bohr</code><em class="property"> = 1.8897261254578281</em><a class="headerlink" href="#pymatgen.core.units.ang_to_bohr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Definitions of supported units. Values below are essentially scaling and
@@ -449,29 +384,9 @@ conversion factors. What matters is the relative values, not the absolute.
 The SI units must have factor 1.</p>
 </dd></dl>
 
-<dl class="data">
-<dt id="pymatgen.core.units.bohr_to_ang">
-<code class="sig-name descname">bohr_to_ang</code><em class="property"> = 0.52917721067</em><a class="headerlink" href="#pymatgen.core.units.bohr_to_ang" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="data">
-<dt id="pymatgen.core.units.bohr_to_angstrom">
-<code class="sig-name descname">bohr_to_angstrom</code><em class="property"> = 0.52917721067</em><a class="headerlink" href="#pymatgen.core.units.bohr_to_angstrom" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="function">
 <dt id="pymatgen.core.units.check_mappings">
 <code class="sig-name descname">check_mappings</code><span class="sig-paren">(</span><em class="sig-param">u</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/units.html#check_mappings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.check_mappings" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="data">
-<dt id="pymatgen.core.units.eV_to_Ha">
-<code class="sig-name descname">eV_to_Ha</code><em class="property"> = 0.03674932248</em><a class="headerlink" href="#pymatgen.core.units.eV_to_Ha" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="data">
-<dt id="pymatgen.core.units.mile_to_meters">
-<code class="sig-name descname">mile_to_meters</code><em class="property"> = 1609.3439999999998</em><a class="headerlink" href="#pymatgen.core.units.mile_to_meters" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
@@ -547,13 +462,13 @@ are assigned units.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

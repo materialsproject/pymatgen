@@ -36,7 +36,7 @@ __author__ = "Matthew Horton, Evan Spotte-Smith"
 __version__ = "0.1"
 __maintainer__ = "Matthew Horton"
 __email__ = "mkhorton@lbl.gov"
-__status__ = "Beta"
+__status__ = "Production"
 __date__ = "August 2017"
 
 ConnectedSite = namedtuple('ConnectedSite', 'site, jimage, index, weight, dist')
@@ -192,7 +192,7 @@ class StructureGraph(MSONable):
         return sg
 
     @staticmethod
-    def with_local_env_strategy(structure, strategy):
+    def with_local_env_strategy(structure, strategy, weights=False):
         """
         Constructor for StructureGraph, using a strategy
         from :Class: `pymatgen.analysis.local_env`.
@@ -200,12 +200,12 @@ class StructureGraph(MSONable):
         :param structure: Structure object
         :param strategy: an instance of a
             :Class: `pymatgen.analysis.local_env.NearNeighbors` object
+        :param weights: if True, use weights from local_env class
+        (consult relevant class for their meaning)
         :return:
         """
 
-        sg = StructureGraph.with_empty_graph(structure, name="bonds",
-                                             edge_weight_name="weight",
-                                             edge_weight_units="")
+        sg = StructureGraph.with_empty_graph(structure, name="bonds")
 
         for n, neighbors in enumerate(strategy.get_all_nn_info(structure)):
             for neighbor in neighbors:
@@ -218,7 +218,7 @@ class StructureGraph(MSONable):
                             from_jimage=(0, 0, 0),
                             to_index=neighbor['site_index'],
                             to_jimage=neighbor['image'],
-                            weight=neighbor['weight'],
+                            weight=neighbor['weight'] if weights else None,
                             warn_duplicates=False)
 
         return sg
