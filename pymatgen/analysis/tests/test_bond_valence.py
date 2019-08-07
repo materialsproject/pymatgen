@@ -81,6 +81,7 @@ class BondValenceSumTest(PymatgenTest):
         bv_sum = calculate_bv_sum_unordered(s[0], neighbors)
         self.assertAlmostEqual(bv_sum, 1.5494662306918852, places=5)
 
+
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()
