@@ -9,7 +9,17 @@ from pymatgen.io import atat
 def run_mcsqs(structure, clusters, supercell = None, total_atoms = None, search_time = 0.01):
     """
     Helper function for calling mcsqs with different arguments
-    max_time (int): max time for running mcsqs in minutes
+
+    Args:
+        clusters (dict): dictionary of cluster interactions with entries in the form 
+        # atoms: cutoff in angstroms
+        supercell (list): dimensions of the supercell in units of the original unit cell
+        total_atoms(int): total number of atoms in the final SQS. Choose either
+        this OR supercell
+        search_time (int): The time spent looking for the ideal SQS in minutes
+        
+    Returns: 
+        Pymatgen structure which is an SQS of the input structure
     """
     num_atoms = len(structure)
     if total_atoms == None:
@@ -20,7 +30,6 @@ def run_mcsqs(structure, clusters, supercell = None, total_atoms = None, search_
         return
 
     ## Set supercell
-
     cell = np.eye(3)
     text_file = open("sqscell.out", "w")
     text_file.write('1\n')

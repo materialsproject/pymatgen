@@ -1770,8 +1770,11 @@ class SQSTransformation(AbstractTransformation):
     def __init__(self, clusters, supercell = None, total_atoms = None, search_time = 0.1):
         """
         Args:
+            clusters (dict): dictionary of cluster interactions with entries in the form 
+            # atoms: cutoff in angstroms
             supercell (list): dimensions of the supercell in units of the original unit cell
-            total_atoms(int): total number of atoms in the final SQS. Choose either this OR supercell
+            total_atoms(int): total number of atoms in the final SQS. Choose either
+            this OR supercell
             search_time (int): The time spent looking for the ideal SQS in minutes
            
         """
