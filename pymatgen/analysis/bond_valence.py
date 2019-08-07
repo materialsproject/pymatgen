@@ -57,14 +57,12 @@ def calculate_bv_sum(site, nn_list, scale_factor=1.0):
     Calculates the BV sum of a site.
 
     Args:
-        site:
-            The site
-        nn_list:
-            List of nearest neighbors in the format [(nn_site, dist), ...].
-        scale_factor:
-            A scale factor to be applied. This is useful for scaling distance,
-            esp in the case of calculation-relaxed structures which may tend
-            to under (GGA) or over bind (LDA).
+        site (PeriodicSite): The central site to calculate the bond valence
+        nn_list ([Neighbor]): A list of namedtuple Neighbors having "distance"
+            and "site" attributes
+        scale_factor (float): A scale factor to be applied. This is useful for
+            scaling distance, esp in the case of calculation-relaxed structures
+            which may tend to under (GGA) or over bind (LDA).
     """
     el1 = Element(site.specie.symbol)
     bvsum = 0
@@ -87,14 +85,12 @@ def calculate_bv_sum_unordered(site, nn_list, scale_factor=1):
     Calculates the BV sum of a site for unordered structures.
 
     Args:
-        site:
-            The site
-        nn_list:
-            List of nearest neighbors in the format [(nn_site, dist), ...].
-        scale_factor:
-            A scale factor to be applied. This is useful for scaling distance,
-            esp in the case of calculation-relaxed structures which may tend
-            to under (GGA) or over bind (LDA).
+        site (PeriodicSite): The central site to calculate the bond valence
+        nn_list ([Neighbor]): A list of namedtuple Neighbors having "distance"
+            and "site" attributes
+        scale_factor (float): A scale factor to be applied. This is useful for
+            scaling distance, esp in the case of calculation-relaxed structures
+            which may tend to under (GGA) or over bind (LDA).
     """
     # If the site "site" has N partial occupations as : f_{site}_0,
     # f_{site}_1, ... f_{site}_N of elements
