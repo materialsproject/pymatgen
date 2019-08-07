@@ -107,8 +107,8 @@ def calculate_bv_sum_unordered(site, nn_list, scale_factor=1):
     bvsum = 0
     for specie1, occu1 in site.species.items():
         el1 = Element(specie1.symbol)
-        for (nn, dist) in nn_list:
-            for specie2, occu2 in nn.species.items():
+        for nn in nn_list:
+            for specie2, occu2 in nn.site.species.items():
                 el2 = Element(specie2.symbol)
                 if (el1 in ELECTRONEG or el2 in ELECTRONEG) and el1 != el2:
                     r1 = BV_PARAMS[el1]["r"]
@@ -117,7 +117,7 @@ def calculate_bv_sum_unordered(site, nn_list, scale_factor=1):
                     c2 = BV_PARAMS[el2]["c"]
                     R = r1 + r2 - r1 * r2 * (sqrt(c1) - sqrt(c2)) ** 2 / \
                         (c1 * r1 + c2 * r2)
-                    vij = exp((R - dist * scale_factor) / 0.31)
+                    vij = exp((R - nn.distance * scale_factor) / 0.31)
                     bvsum += occu1 * occu2 * vij * (1 if el1.X < el2.X else -1)
     return bvsum
 
