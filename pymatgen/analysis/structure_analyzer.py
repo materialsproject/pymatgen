@@ -639,9 +639,9 @@ def sulfide_type(structure):
                 break
 
         neighbors = sorted(neighbors, key=lambda n: n[1])
-        nn, dist = neighbors[0]
-        coord_elements = [site.specie for site, d in neighbors
-                          if d < dist + 0.4][:4]
+        dist = neighbors[0].distance
+        coord_elements = [nn.site.specie for nn in neighbors
+                          if nn.distance < dist + 0.4][:4]
         avg_electroneg = np.mean([e.X for e in coord_elements])
         if avg_electroneg > s.X:
             return "sulfate"

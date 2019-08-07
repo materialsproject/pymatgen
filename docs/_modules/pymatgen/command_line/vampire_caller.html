@@ -1,0 +1,530 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>pymatgen.command_line.vampire_caller &#8212; pymatgen 2019.7.30 documentation</title>
+    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.command_line.vampire_caller</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">requires</span>
+<span class="kn">from</span> <span class="nn">monty.os.path</span> <span class="k">import</span> <span class="n">which</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.magnetism.heisenberg</span> <span class="k">import</span> <span class="n">HeisenbergMapper</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.magnetism.analyzer</span> <span class="k">import</span> <span class="n">CollinearMagneticStructureAnalyzer</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module implements an interface to the VAMPIRE code for atomistic</span>
+<span class="sd">simulations of magnetic materials.</span>
+
+<span class="sd">This module depends on a compiled vampire executable available in the path.</span>
+<span class="sd">Please download at https://vampire.york.ac.uk/download/ and</span>
+<span class="sd">follow the instructions to compile the executable.</span>
+
+<span class="sd">If you use this module, please cite the following:</span>
+<span class="sd">    </span>
+<span class="sd">&quot;Atomistic spin model simulations of magnetic nanomaterials.&quot;</span>
+<span class="sd">R. F. L. Evans, W. J. Fan, P. Chureemart, T. A. Ostler, M. O. A. Ellis </span>
+<span class="sd">and R. W. Chantrell. J. Phys.: Condens. Matter 26, 103202 (2014)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;ncfrey&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Nathan C. Frey&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;ncfrey@lbl.gov&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Development&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;June 2019&quot;</span>
+
+<span class="n">VAMPEXE</span> <span class="o">=</span> <span class="n">which</span><span class="p">(</span><span class="s2">&quot;vampire-serial&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="VampireCaller"><a class="viewcode-back" href="../../../pymatgen.command_line.vampire_caller.html#pymatgen.command_line.vampire_caller.VampireCaller">[docs]</a><span class="k">class</span> <span class="nc">VampireCaller</span><span class="p">:</span>
+    <span class="nd">@requires</span><span class="p">(</span>
+        <span class="n">VAMPEXE</span><span class="p">,</span>
+        <span class="s2">&quot;VampireCaller requires vampire-serial to be in the path.&quot;</span>
+        <span class="s2">&quot;Please follow the instructions at https://vampire.york.ac.uk/download/.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">ordered_structures</span><span class="p">,</span>
+        <span class="n">energies</span><span class="p">,</span>
+        <span class="n">mc_box_size</span><span class="o">=</span><span class="mf">4.0</span><span class="p">,</span>
+        <span class="n">equil_timesteps</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span>
+        <span class="n">mc_timesteps</span><span class="o">=</span><span class="mi">4000</span><span class="p">,</span>
+        <span class="n">save_inputs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">hm</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">user_input_settings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run Vampire on a material with magnetic ordering and exchange parameter information to compute the critical temperature with classical Monte Carlo.</span>
+
+<span class="sd">        user_input_settings is a dictionary that can contain:</span>
+<span class="sd">        * start_t (int): Start MC sim at this temp, defaults to 0 K.</span>
+<span class="sd">        * end_t (int): End MC sim at this temp, defaults to 1500 K.</span>
+<span class="sd">        * temp_increment (int): Temp step size, defaults to 25 K.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            ordered_structures (list): Structure objects with magmoms.</span>
+<span class="sd">            energies (list): Energies of each relaxed magnetic structure.</span>
+<span class="sd">            mc_box_size (float): x=y=z dimensions (nm) of MC simulation box</span>
+<span class="sd">            equil_timesteps (int): number of MC steps for equilibrating</span>
+<span class="sd">            mc_timesteps (int): number of MC steps for averaging</span>
+<span class="sd">            save_inputs (bool): if True, save scratch dir of vampire input files</span>
+<span class="sd">            hm (HeisenbergMapper): object already fit to low energy</span>
+<span class="sd">                magnetic orderings.</span>
+<span class="sd">            user_input_settings (dict): optional commands for VAMPIRE Monte Carlo</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            sgraph (StructureGraph): Ground state graph.</span>
+<span class="sd">            unique_site_ids (dict): Maps each site to its unique identifier</span>
+<span class="sd">            nn_interacations (dict): {i: j} pairs of NN interactions</span>
+<span class="sd">                between unique sites.</span>
+<span class="sd">            ex_params (dict): Exchange parameter values (meV/atom)</span>
+<span class="sd">            mft_t (float): Mean field theory estimate of critical T</span>
+<span class="sd">            mat_name (str): Formula unit label for input files</span>
+<span class="sd">            mat_id_dict (dict): Maps sites to material id # for vampire</span>
+<span class="sd">                indexing.</span>
+
+<span class="sd">        TODO:</span>
+<span class="sd">            * Create input files in a temp folder that gets cleaned up after run terminates</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mc_box_size</span> <span class="o">=</span> <span class="n">mc_box_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">equil_timesteps</span> <span class="o">=</span> <span class="n">equil_timesteps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mc_timesteps</span> <span class="o">=</span> <span class="n">mc_timesteps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_inputs</span> <span class="o">=</span> <span class="n">save_inputs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">user_input_settings</span> <span class="o">=</span> <span class="n">user_input_settings</span>
+
+        <span class="c1"># Sort by energy if not already sorted</span>
+        <span class="n">ordered_structures</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">s</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">ordered_structures</span><span class="p">),</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="p">]</span>
+
+        <span class="n">energies</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># Get exchange parameters and set instance variables</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">hm</span><span class="p">:</span>
+            <span class="n">hm</span> <span class="o">=</span> <span class="n">HeisenbergMapper</span><span class="p">(</span><span class="n">ordered_structures</span><span class="p">,</span> <span class="n">energies</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">7.5</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
+
+        <span class="c1"># Instance attributes from HeisenbergMapper</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hm</span> <span class="o">=</span> <span class="n">hm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">hm</span><span class="o">.</span><span class="n">ordered_structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># ground state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sgraph</span> <span class="o">=</span> <span class="n">hm</span><span class="o">.</span><span class="n">sgraphs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># ground state graph</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unique_site_ids</span> <span class="o">=</span> <span class="n">hm</span><span class="o">.</span><span class="n">unique_site_ids</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nn_interactions</span> <span class="o">=</span> <span class="n">hm</span><span class="o">.</span><span class="n">nn_interactions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dists</span> <span class="o">=</span> <span class="n">hm</span><span class="o">.</span><span class="n">dists</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tol</span> <span class="o">=</span> <span class="n">hm</span><span class="o">.</span><span class="n">tol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ex_params</span> <span class="o">=</span> <span class="n">hm</span><span class="o">.</span><span class="n">get_exchange</span><span class="p">()</span>
+
+        <span class="c1"># Full structure name before reducing to only magnetic ions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mat_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">hm</span><span class="o">.</span><span class="n">ordered_structures_</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">)</span>
+
+        <span class="c1"># Switch to scratch dir which automatically cleans up vampire inputs files unless user specifies to save them</span>
+        <span class="c1"># with ScratchDir(&#39;/scratch&#39;, copy_from_current_on_enter=self.save_inputs, copy_to_current_on_exit=self.save_inputs) as temp_dir:</span>
+
+        <span class="c1">#     os.chdir(temp_dir)</span>
+
+        <span class="c1"># Create input files</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_create_mat</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_create_input</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_create_ucf</span><span class="p">()</span>
+
+        <span class="c1"># Call Vampire</span>
+        <span class="n">process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;vampire-serial&quot;</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span>
+        <span class="p">)</span>
+        <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+        <span class="n">stdout</span> <span class="o">=</span> <span class="n">stdout</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">stderr</span><span class="p">:</span>
+            <span class="n">vanhelsing</span> <span class="o">=</span> <span class="n">stderr</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vanhelsing</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">27</span><span class="p">:</span>  <span class="c1"># Suppress blank warning msg</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">vanhelsing</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;Vampire exited with return code </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">returncode</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stdout</span> <span class="o">=</span> <span class="n">stdout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stderr</span> <span class="o">=</span> <span class="n">stderr</span>
+
+        <span class="c1"># Process output</span>
+        <span class="n">nmats</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mat_id_dict</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="n">VampireOutput</span><span class="p">(</span><span class="s2">&quot;output&quot;</span><span class="p">,</span> <span class="n">nmats</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_create_mat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span>
+        <span class="n">mat_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mat_name</span>
+        <span class="n">magmoms</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">site_properties</span><span class="p">[</span><span class="s2">&quot;magmom&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Maps sites to material id for vampire inputs</span>
+        <span class="n">mat_id_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">nmats</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">unique_site_ids</span><span class="p">:</span>
+            <span class="n">spin_up</span><span class="p">,</span> <span class="n">spin_down</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
+            <span class="n">nmats</span> <span class="o">+=</span> <span class="mi">1</span>  <span class="c1"># at least 1 mat for each unique site</span>
+
+            <span class="c1"># Check which spin sublattices exist for this site id</span>
+            <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">key</span><span class="p">:</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">magmoms</span><span class="p">[</span><span class="n">site</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">m</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">spin_up</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">if</span> <span class="n">m</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">spin_down</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="c1"># Assign material id for each site</span>
+            <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">key</span><span class="p">:</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">magmoms</span><span class="p">[</span><span class="n">site</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">spin_up</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">spin_down</span><span class="p">:</span>
+                    <span class="n">mat_id_dict</span><span class="p">[</span><span class="n">site</span><span class="p">]</span> <span class="o">=</span> <span class="n">nmats</span>
+                <span class="k">if</span> <span class="n">spin_down</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">spin_up</span><span class="p">:</span>
+                    <span class="n">mat_id_dict</span><span class="p">[</span><span class="n">site</span><span class="p">]</span> <span class="o">=</span> <span class="n">nmats</span>
+                <span class="k">if</span> <span class="n">spin_up</span> <span class="ow">and</span> <span class="n">spin_down</span><span class="p">:</span>
+
+                    <span class="c1"># Check if spin up or down shows up first</span>
+                    <span class="n">m0</span> <span class="o">=</span> <span class="n">magmoms</span><span class="p">[</span><span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+                    <span class="k">if</span> <span class="n">m</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">m0</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">mat_id_dict</span><span class="p">[</span><span class="n">site</span><span class="p">]</span> <span class="o">=</span> <span class="n">nmats</span>
+                    <span class="k">if</span> <span class="n">m</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">m0</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">mat_id_dict</span><span class="p">[</span><span class="n">site</span><span class="p">]</span> <span class="o">=</span> <span class="n">nmats</span>
+                    <span class="k">if</span> <span class="n">m</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">m0</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">mat_id_dict</span><span class="p">[</span><span class="n">site</span><span class="p">]</span> <span class="o">=</span> <span class="n">nmats</span> <span class="o">+</span> <span class="mi">1</span>
+                    <span class="k">if</span> <span class="n">m</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">m0</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">mat_id_dict</span><span class="p">[</span><span class="n">site</span><span class="p">]</span> <span class="o">=</span> <span class="n">nmats</span> <span class="o">+</span> <span class="mi">1</span>
+
+            <span class="c1"># Increment index if two sublattices</span>
+            <span class="k">if</span> <span class="n">spin_up</span> <span class="ow">and</span> <span class="n">spin_down</span><span class="p">:</span>
+                <span class="n">nmats</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">mat_file</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;material:num-materials=</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">nmats</span><span class="p">)]</span>
+
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">unique_site_ids</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unique_site_ids</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>  <span class="c1"># unique site id</span>
+
+            <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">key</span><span class="p">:</span>
+                <span class="n">mat_id</span> <span class="o">=</span> <span class="n">mat_id_dict</span><span class="p">[</span><span class="n">site</span><span class="p">]</span>
+
+                <span class="c1"># Only positive magmoms allowed</span>
+                <span class="n">m_magnitude</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">magmoms</span><span class="p">[</span><span class="n">site</span><span class="p">])</span>
+
+                <span class="k">if</span> <span class="n">magmoms</span><span class="p">[</span><span class="n">site</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">spin</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">magmoms</span><span class="p">[</span><span class="n">site</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">spin</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+                <span class="n">atom</span> <span class="o">=</span> <span class="n">structure</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">reduced_formula</span>
+
+                <span class="n">mat_file</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;material[</span><span class="si">%d</span><span class="s2">]:material-element=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">mat_id</span><span class="p">,</span> <span class="n">atom</span><span class="p">)]</span>
+                <span class="n">mat_file</span> <span class="o">+=</span> <span class="p">[</span>
+                    <span class="s2">&quot;material[</span><span class="si">%d</span><span class="s2">]:damping-constant=1.0&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">mat_id</span><span class="p">),</span>
+                    <span class="s2">&quot;material[</span><span class="si">%d</span><span class="s2">]:uniaxial-anisotropy-constant=1.0e-24&quot;</span>
+                    <span class="o">%</span> <span class="p">(</span><span class="n">mat_id</span><span class="p">),</span>  <span class="c1"># xx - do we need this?</span>
+                    <span class="s2">&quot;material[</span><span class="si">%d</span><span class="s2">]:atomic-spin-moment=</span><span class="si">%.2f</span><span class="s2"> !muB&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">mat_id</span><span class="p">,</span> <span class="n">m_magnitude</span><span class="p">),</span>
+                    <span class="s2">&quot;material[</span><span class="si">%d</span><span class="s2">]:initial-spin-direction=0,0,</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">mat_id</span><span class="p">,</span> <span class="n">spin</span><span class="p">),</span>
+                <span class="p">]</span>
+
+        <span class="n">mat_file</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mat_file</span><span class="p">)</span>
+        <span class="n">mat_file_name</span> <span class="o">=</span> <span class="n">mat_name</span> <span class="o">+</span> <span class="s2">&quot;.mat&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mat_id_dict</span> <span class="o">=</span> <span class="n">mat_id_dict</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">mat_file_name</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">mat_file</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_create_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Todo:</span>
+<span class="sd">            * How to determine range and increment of simulation?</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span>
+        <span class="n">mcbs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mc_box_size</span>
+        <span class="n">equil_timesteps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">equil_timesteps</span>
+        <span class="n">mc_timesteps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mc_timesteps</span>
+        <span class="n">mat_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mat_name</span>
+
+        <span class="n">input_script</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;material:unit-cell-file=</span><span class="si">%s</span><span class="s2">.ucf&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">mat_name</span><span class="p">)]</span>
+        <span class="n">input_script</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;material:file=</span><span class="si">%s</span><span class="s2">.mat&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">mat_name</span><span class="p">)]</span>
+
+        <span class="c1"># Specify periodic boundary conditions</span>
+        <span class="n">input_script</span> <span class="o">+=</span> <span class="p">[</span>
+            <span class="s2">&quot;create:periodic-boundaries-x&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;create:periodic-boundaries-y&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;create:periodic-boundaries-z&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+
+        <span class="c1"># Unit cell size in Angstrom</span>
+        <span class="n">abc</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">abc</span>
+        <span class="n">ucx</span><span class="p">,</span> <span class="n">ucy</span><span class="p">,</span> <span class="n">ucz</span> <span class="o">=</span> <span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">abc</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">abc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+        <span class="n">input_script</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;dimensions:unit-cell-size-x = </span><span class="si">%.10f</span><span class="s2"> !A&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ucx</span><span class="p">)]</span>
+        <span class="n">input_script</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;dimensions:unit-cell-size-y = </span><span class="si">%.10f</span><span class="s2"> !A&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ucy</span><span class="p">)]</span>
+        <span class="n">input_script</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;dimensions:unit-cell-size-z = </span><span class="si">%.10f</span><span class="s2"> !A&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ucz</span><span class="p">)]</span>
+
+        <span class="c1"># System size in nm</span>
+        <span class="n">input_script</span> <span class="o">+=</span> <span class="p">[</span>
+            <span class="s2">&quot;dimensions:system-size-x = </span><span class="si">%.1f</span><span class="s2"> !nm&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">mcbs</span><span class="p">),</span>
+            <span class="s2">&quot;dimensions:system-size-y = </span><span class="si">%.1f</span><span class="s2"> !nm&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">mcbs</span><span class="p">),</span>
+            <span class="s2">&quot;dimensions:system-size-z = </span><span class="si">%.1f</span><span class="s2"> !nm&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">mcbs</span><span class="p">),</span>
+        <span class="p">]</span>
+
+        <span class="c1"># Critical temperature Monte Carlo calculation</span>
+        <span class="n">input_script</span> <span class="o">+=</span> <span class="p">[</span>
+            <span class="s2">&quot;sim:integrator = monte-carlo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sim:program = curie-temperature&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+
+        <span class="c1"># Default Monte Carlo params</span>
+        <span class="n">input_script</span> <span class="o">+=</span> <span class="p">[</span>
+            <span class="s2">&quot;sim:equilibration-time-steps = </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">equil_timesteps</span><span class="p">),</span>
+            <span class="s2">&quot;sim:loop-time-steps = </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">mc_timesteps</span><span class="p">),</span>
+            <span class="s2">&quot;sim:time-steps-increment = 1&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+
+        <span class="c1"># Set temperature range and step size of simulation</span>
+        <span class="k">if</span> <span class="s2">&quot;start_t&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_input_settings</span><span class="p">:</span>
+            <span class="n">start_t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_input_settings</span><span class="p">[</span><span class="s2">&quot;start_t&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">start_t</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">if</span> <span class="s2">&quot;end_t&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_input_settings</span><span class="p">:</span>
+            <span class="n">end_t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_input_settings</span><span class="p">[</span><span class="s2">&quot;end_t&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">end_t</span> <span class="o">=</span> <span class="mi">1500</span>
+
+        <span class="k">if</span> <span class="s2">&quot;temp_increment&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_input_settings</span><span class="p">:</span>
+            <span class="n">temp_increment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_input_settings</span><span class="p">[</span><span class="s2">&quot;temp_increment&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">temp_increment</span> <span class="o">=</span> <span class="mi">25</span>
+
+        <span class="n">input_script</span> <span class="o">+=</span> <span class="p">[</span>
+            <span class="s2">&quot;sim:minimum-temperature = </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">start_t</span><span class="p">),</span>
+            <span class="s2">&quot;sim:maximum-temperature = </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">end_t</span><span class="p">),</span>
+            <span class="s2">&quot;sim:temperature-increment = </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">temp_increment</span><span class="p">),</span>
+        <span class="p">]</span>
+
+        <span class="c1"># Output to save</span>
+        <span class="n">input_script</span> <span class="o">+=</span> <span class="p">[</span>
+            <span class="s2">&quot;output:temperature&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;output:mean-magnetisation-length&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;output:material-mean-magnetisation-length&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;output:mean-susceptibility&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+
+        <span class="n">input_script</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">input_script</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;input&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">input_script</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_create_ucf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span>
+        <span class="n">mat_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mat_name</span>
+        <span class="n">tol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span>
+        <span class="n">dists</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dists</span>
+
+        <span class="n">abc</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">abc</span>
+        <span class="n">ucx</span><span class="p">,</span> <span class="n">ucy</span><span class="p">,</span> <span class="n">ucz</span> <span class="o">=</span> <span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">abc</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">abc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+        <span class="n">ucf</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;# Unit cell size:&quot;</span><span class="p">]</span>
+        <span class="n">ucf</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">%.10f</span><span class="s2"> </span><span class="si">%.10f</span><span class="s2"> </span><span class="si">%.10f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ucx</span><span class="p">,</span> <span class="n">ucy</span><span class="p">,</span> <span class="n">ucz</span><span class="p">)]</span>
+
+        <span class="n">ucf</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;# Unit cell lattice vectors:&quot;</span><span class="p">]</span>
+        <span class="n">a1</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">ucf</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">%.10f</span><span class="s2"> </span><span class="si">%.10f</span><span class="s2"> </span><span class="si">%.10f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">a1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">a1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">a1</span><span class="p">[</span><span class="mi">2</span><span class="p">])]</span>
+        <span class="n">a2</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">ucf</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">%.10f</span><span class="s2"> </span><span class="si">%.10f</span><span class="s2"> </span><span class="si">%.10f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">a2</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">a2</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">a2</span><span class="p">[</span><span class="mi">2</span><span class="p">])]</span>
+        <span class="n">a3</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">ucf</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">%.10f</span><span class="s2"> </span><span class="si">%.10f</span><span class="s2"> </span><span class="si">%.10f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">a3</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">a3</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">a3</span><span class="p">[</span><span class="mi">2</span><span class="p">])]</span>
+
+        <span class="n">nmats</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mat_id_dict</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+        <span class="n">ucf</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;# Atoms num_materials; id cx cy cz mat cat hcat&quot;</span><span class="p">]</span>
+        <span class="n">ucf</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">structure</span><span class="p">),</span> <span class="n">nmats</span><span class="p">)]</span>
+
+        <span class="c1"># Fractional coordinates of atoms</span>
+        <span class="k">for</span> <span class="n">site</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">):</span>
+            <span class="c1"># Back to 0 indexing for some reason...</span>
+            <span class="n">mat_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mat_id_dict</span><span class="p">[</span><span class="n">site</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="n">ucf</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> </span><span class="si">%.10f</span><span class="s2"> </span><span class="si">%.10f</span><span class="s2"> </span><span class="si">%.10f</span><span class="s2"> </span><span class="si">%d</span><span class="s2"> 0 0&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">mat_id</span><span class="p">)]</span>
+
+        <span class="c1"># J_ij exchange interaction matrix</span>
+        <span class="n">sgraph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sgraph</span>
+        <span class="n">ninter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sgraph</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">):</span>
+            <span class="n">ninter</span> <span class="o">+=</span> <span class="n">sgraph</span><span class="o">.</span><span class="n">get_coordination_of_site</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+        <span class="n">ucf</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;# Interactions&quot;</span><span class="p">]</span>
+        <span class="n">ucf</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> isotropic&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ninter</span><span class="p">)]</span>
+
+        <span class="n">iid</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># counts number of interaction</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sgraph</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">):</span>
+            <span class="n">connections</span> <span class="o">=</span> <span class="n">sgraph</span><span class="o">.</span><span class="n">get_connected_sites</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">connections</span><span class="p">:</span>
+                <span class="n">jimage</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># relative integer coordinates of atom j</span>
+                <span class="n">dx</span> <span class="o">=</span> <span class="n">jimage</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">dy</span> <span class="o">=</span> <span class="n">jimage</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">dz</span> <span class="o">=</span> <span class="n">jimage</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                <span class="n">j</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>  <span class="c1"># index of neighbor</span>
+                <span class="n">dist</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
+
+                <span class="c1"># Look up J_ij between the sites</span>
+                <span class="n">j_exc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hm</span><span class="o">.</span><span class="n">_get_j_exc</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span>
+
+                <span class="c1"># Convert J_ij from meV to Joules</span>
+                <span class="n">j_exc</span> <span class="o">*=</span> <span class="mf">1.6021766e-22</span>
+
+                <span class="n">j_exc</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">j_exc</span><span class="p">)</span>  <span class="c1"># otherwise this rounds to 0</span>
+
+                <span class="n">ucf</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> </span><span class="si">%d</span><span class="s2"> </span><span class="si">%d</span><span class="s2"> </span><span class="si">%d</span><span class="s2"> </span><span class="si">%d</span><span class="s2"> </span><span class="si">%d</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">iid</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">,</span> <span class="n">dz</span><span class="p">,</span> <span class="n">j_exc</span><span class="p">)]</span>
+                <span class="n">iid</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">ucf</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ucf</span><span class="p">)</span>
+        <span class="n">ucf_file_name</span> <span class="o">=</span> <span class="n">mat_name</span> <span class="o">+</span> <span class="s2">&quot;.ucf&quot;</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">ucf_file_name</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ucf</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VampireOutput"><a class="viewcode-back" href="../../../pymatgen.command_line.vampire_caller.html#pymatgen.command_line.vampire_caller.VampireOutput">[docs]</a><span class="k">class</span> <span class="nc">VampireOutput</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vamp_stdout</span><span class="p">,</span> <span class="n">nmats</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This class processes results from a Vampire Monte Carlo simulation</span>
+<span class="sd">        and returns the critical temperature.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            vamp_stdout (txt file): stdout from running vampire-serial.</span>
+
+<span class="sd">        Attributes:</span>
+<span class="sd">            critical_temp (float): Monte Carlo Tc result.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">vamp_stdout</span> <span class="o">=</span> <span class="n">vamp_stdout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">critical_temp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parse_stdout</span><span class="p">(</span><span class="n">vamp_stdout</span><span class="p">,</span> <span class="n">nmats</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_parse_stdout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vamp_stdout</span><span class="p">,</span> <span class="n">nmats</span><span class="p">):</span>
+
+        <span class="n">names</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;T&quot;</span><span class="p">,</span> <span class="s2">&quot;m_total&quot;</span><span class="p">]</span>
+            <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;m_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nmats</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+            <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;X_x&quot;</span><span class="p">,</span> <span class="s2">&quot;X_y&quot;</span><span class="p">,</span> <span class="s2">&quot;X_z&quot;</span><span class="p">,</span> <span class="s2">&quot;X_m&quot;</span><span class="p">,</span> <span class="s2">&quot;nan&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Parsing vampire MC output</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">vamp_stdout</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">skiprows</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">names</span><span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s2">&quot;vamp_out.txt&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Max of susceptibility &lt;-&gt; critical temp</span>
+        <span class="n">T_crit</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">X_m</span><span class="o">.</span><span class="n">idxmax</span><span class="p">()][</span><span class="s2">&quot;T&quot;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">critical_temp</span> <span class="o">=</span> <span class="n">T_crit</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

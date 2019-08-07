@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.util.string &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.util.string &#8212; pymatgen 2019.7.30 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.5.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -166,6 +166,68 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">sym</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;_(\d+)&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;$_{\1}$&quot;</span><span class="p">,</span> <span class="n">spacegroup_symbol</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;-(\d)&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">overline{\1}$&quot;</span><span class="p">,</span> <span class="n">sym</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="unicodeify_spacegroup"><a class="viewcode-back" href="../../../pymatgen.util.string.html#pymatgen.util.string.unicodeify_spacegroup">[docs]</a><span class="k">def</span> <span class="nf">unicodeify_spacegroup</span><span class="p">(</span><span class="n">spacegroup_symbol</span><span class="p">):</span>
+    <span class="c1"># TODO: move this to pymatgen</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">spacegroup_symbol</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="n">subscript_unicode_map</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;₀&quot;</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;₁&quot;</span><span class="p">,</span>
+        <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;₂&quot;</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;₃&quot;</span><span class="p">,</span>
+        <span class="mi">4</span><span class="p">:</span> <span class="s2">&quot;₄&quot;</span><span class="p">,</span>
+        <span class="mi">5</span><span class="p">:</span> <span class="s2">&quot;₅&quot;</span><span class="p">,</span>
+        <span class="mi">6</span><span class="p">:</span> <span class="s2">&quot;₆&quot;</span><span class="p">,</span>
+        <span class="mi">7</span><span class="p">:</span> <span class="s2">&quot;₇&quot;</span><span class="p">,</span>
+        <span class="mi">8</span><span class="p">:</span> <span class="s2">&quot;₈&quot;</span><span class="p">,</span>
+        <span class="mi">9</span><span class="p">:</span> <span class="s2">&quot;₉&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">symbol</span> <span class="o">=</span> <span class="n">latexify_spacegroup</span><span class="p">(</span><span class="n">spacegroup_symbol</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">number</span><span class="p">,</span> <span class="n">unicode_number</span> <span class="ow">in</span> <span class="n">subscript_unicode_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">symbol</span> <span class="o">=</span> <span class="n">symbol</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;$_{&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">number</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;}$&quot;</span><span class="p">,</span> <span class="n">unicode_number</span><span class="p">)</span>
+        <span class="n">symbol</span> <span class="o">=</span> <span class="n">symbol</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">number</span><span class="p">),</span> <span class="n">unicode_number</span><span class="p">)</span>
+
+    <span class="n">overline</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\u0305</span><span class="s2">&quot;</span>  <span class="c1"># u&quot;\u0304&quot; (macron) is also an option</span>
+
+    <span class="n">symbol</span> <span class="o">=</span> <span class="n">symbol</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">overline{&quot;</span><span class="p">,</span> <span class="n">overline</span><span class="p">)</span>
+    <span class="n">symbol</span> <span class="o">=</span> <span class="n">symbol</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;$&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">symbol</span> <span class="o">=</span> <span class="n">symbol</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;{&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">symbol</span> <span class="o">=</span> <span class="n">symbol</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;}&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">symbol</span></div>
+
+
+<div class="viewcode-block" id="unicodeify_species"><a class="viewcode-back" href="../../../pymatgen.util.string.html#pymatgen.util.string.unicodeify_species">[docs]</a><span class="k">def</span> <span class="nf">unicodeify_species</span><span class="p">(</span><span class="n">specie_string</span><span class="p">):</span>
+    <span class="c1"># TODO: move this to pymatgen</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">specie_string</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="n">superscript_unicode_map</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;0&quot;</span><span class="p">:</span> <span class="s2">&quot;⁰&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;1&quot;</span><span class="p">:</span> <span class="s2">&quot;¹&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;2&quot;</span><span class="p">:</span> <span class="s2">&quot;²&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;3&quot;</span><span class="p">:</span> <span class="s2">&quot;³&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;4&quot;</span><span class="p">:</span> <span class="s2">&quot;⁴&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;5&quot;</span><span class="p">:</span> <span class="s2">&quot;⁵&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;6&quot;</span><span class="p">:</span> <span class="s2">&quot;⁶&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;7&quot;</span><span class="p">:</span> <span class="s2">&quot;⁷&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;8&quot;</span><span class="p">:</span> <span class="s2">&quot;⁸&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;9&quot;</span><span class="p">:</span> <span class="s2">&quot;⁹&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;+&quot;</span><span class="p">:</span> <span class="s2">&quot;⁺&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;-&quot;</span><span class="p">:</span> <span class="s2">&quot;⁻&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="n">character</span><span class="p">,</span> <span class="n">unicode_character</span> <span class="ow">in</span> <span class="n">superscript_unicode_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">specie_string</span> <span class="o">=</span> <span class="n">specie_string</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">character</span><span class="p">,</span> <span class="n">unicode_character</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">specie_string</span></div>
 
 
 <div class="viewcode-block" id="stream_has_colours"><a class="viewcode-back" href="../../../pymatgen.util.string.html#pymatgen.util.string.stream_has_colours">[docs]</a><span class="k">def</span> <span class="nf">stream_has_colours</span><span class="p">(</span><span class="n">stream</span><span class="p">):</span>
@@ -366,10 +428,10 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -388,7 +450,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.5.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -396,7 +458,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

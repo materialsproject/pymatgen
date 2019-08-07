@@ -2,6 +2,6 @@ pymatgen.dao module
 ===================
 
 .. automodule:: pymatgen.dao
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

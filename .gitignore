@@ -1,3 +1,4 @@
+__pycache__/
 .DS_Store
 pymatgen.egg-info
 dependencies/PyCifRW-3.3/PyCifRW.egg-info

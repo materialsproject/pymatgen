@@ -335,6 +335,15 @@ class CovalentBondNNTest(PymatgenTest):
         acetylene = strat.get_nn_info(self.acetylene, 0)
         self.assertAlmostEqual(acetylene[0]["weight"], 1.19, places=2)
 
+    def test_bonded_structure(self):
+        strat = CovalentBondNN()
+
+        benzene = strat.get_bonded_structure(self.benzene)
+        self.assertEqual(len(benzene.find_rings()), 1)
+
+        acetylene = strat.get_bonded_structure(self.acetylene)
+        self.assertEqual(len(acetylene.graph.nodes), 4)
+
     def tearDown(self):
         del self.benzene
         del self.acetylene

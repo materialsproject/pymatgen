@@ -1649,7 +1649,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
                 if cn_map not in weights_additional_info['weights'][isite]:
                     weights_additional_info['weights'][isite][cn_map] = {}
                 weights_additional_info['weights'][isite][cn_map][weight_name] = w_nb_set
-                if w_nb_set > 0.0:
+                if return_all or w_nb_set > 0.0:
                     cn_maps_new.append(cn_map)
             cn_maps = cn_maps_new
         for cn_map, weights in weights_additional_info['weights'][isite].items():

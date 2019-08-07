@@ -1,0 +1,644 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.interface module &#8212; pymatgen 2019.7.30 documentation</title>
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pymatgen.analysis.interface">
+<span id="pymatgen-analysis-interface-module"></span><h1>pymatgen.analysis.interface module<a class="headerlink" href="#module-pymatgen.analysis.interface" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pymatgen.analysis.interface.Interface">
+<em class="property">class </em><code class="sig-name descname">Interface</code><span class="sig-paren">(</span><em class="sig-param">lattice</em>, <em class="sig-param">species</em>, <em class="sig-param">coords</em>, <em class="sig-param">sub_plane</em>, <em class="sig-param">film_plane</em>, <em class="sig-param">sub_init_cell</em>, <em class="sig-param">film_init_cell</em>, <em class="sig-param">modified_sub_structure</em>, <em class="sig-param">modified_film_structure</em>, <em class="sig-param">strained_sub_structure</em>, <em class="sig-param">strained_film_structure</em>, <em class="sig-param">validate_proximity=False</em>, <em class="sig-param">coords_are_cartesian=False</em>, <em class="sig-param">init_inplane_shift=None</em>, <em class="sig-param">charge=None</em>, <em class="sig-param">site_properties=None</em>, <em class="sig-param">to_unit_cell=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface.html#Interface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface.Interface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.structure.Structure</span></code></a></p>
+<p>This class stores data for defining an interface between two structures.
+It is a subclass of pymatgen.core.structure.Structure.</p>
+<p>Makes an interface structure, a Structure object with additional
+information and methods pertaining to interfaces.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lattice</strong> (<em>Lattice/3x3 array</em>) – The lattice, either as a
+<a class="reference internal" href="pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.lattice.Lattice</span></code></a> or
+simply as any 2D array. Each row should correspond to a lattice
+vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
+lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].</p></li>
+<li><p><strong>species</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><em>Specie</em></a><em>]</em>) – <p>Sequence of species on each site. Can take in
+flexible input, including:
+i.  A sequence of element / specie specified either as string</p>
+<blockquote>
+<div><p>symbols, e.g. [“Li”, “Fe2+”, “P”, …] or atomic numbers,
+e.g., (3, 56, …) or actual Element or Specie objects.</p>
+</div></blockquote>
+<ol class="lowerroman simple" start="2">
+<li><p>List of dict of elements/species and occupancies, e.g.,
+[{“Fe” : 0.5, “Mn”:0.5}, …]. This allows the setup of
+disordered structures.</p></li>
+</ol>
+</p></li>
+<li><p><strong>coords</strong> (<em>Nx3 array</em>) – list of fractional/cartesian coordinates of
+each species.</p></li>
+<li><p><strong>sub_plane</strong> (<em>list</em>) – Substrate plane in the form of a list of integers
+(based on the sub_init_cell), e.g.: [1, 2, 3].</p></li>
+<li><p><strong>film_plane</strong> (<em>list</em>) – Film plane in the form of a list of integers
+(based on the film_init_cell), e.g. [1, 2, 3].</p></li>
+<li><p><strong>sub_init_cell</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – initial bulk substrate structure</p></li>
+<li><p><strong>film_init_cell</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – initial bulk film structure</p></li>
+<li><p><strong>site_properties</strong> (<em>dict</em>) – Properties associated with the sites as a
+dict of sequences. The sequences have to be the same length as
+the atomic species and fractional_coords. For an interface, you should
+have the ‘interface_label’ properties to classify the sites as
+‘substrate’ and ‘film’.</p></li>
+<li><p><strong>modified_sub_structure</strong> (<a class="reference internal" href="pymatgen.core.surface.html#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab"><em>Slab</em></a>) – substrate supercell slab.</p></li>
+<li><p><strong>modified_film_structure</strong> (<a class="reference internal" href="pymatgen.core.surface.html#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab"><em>Slab</em></a>) – film supercell slab.</p></li>
+<li><p><strong>strained_sub_structure</strong> (<a class="reference internal" href="pymatgen.core.surface.html#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab"><em>Slab</em></a>) – strained substrate supercell slab</p></li>
+<li><p><strong>strained_film_structure</strong> (<a class="reference internal" href="pymatgen.core.surface.html#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab"><em>Slab</em></a>) – strained film supercell slab</p></li>
+<li><p><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check if there are sites
+that are less than 0.01 Ang apart. Defaults to False.</p></li>
+<li><p><strong>coords_are_cartesian</strong> (<em>bool</em>) – Set to True if you are providing
+coordinates in cartesian coordinates. Defaults to False.</p></li>
+<li><p><strong>init_inplane_shift</strong> (<em>length-2 list of float</em><em>, </em><em>in Cartesian coordinates</em>) – The initial shift of the film relative to the substrate
+in the plane of the interface.</p></li>
+<li><p><strong>charge</strong> (<em>float</em><em>, </em><em>optional</em>) – overal charge of the structure</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.analysis.interface.Interface.ab_shift">
+<em class="property">property </em><code class="sig-name descname">ab_shift</code><a class="headerlink" href="#pymatgen.analysis.interface.Interface.ab_shift" title="Permalink to this definition">¶</a></dt>
+<dd><p>The 2D component of offset_vector along the interface plane
+in fractional coordinates. I.e. if ab_shift = [a, b], the
+Cartesian coordinate shift in the interface plane
+is a * (first lattice vector) + b * (second lattice vector).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.interface.Interface.as_dict">
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface.html#Interface.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface.Interface.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dict representation of Structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>verbosity</strong> (<em>int</em>) – Verbosity level. Default of 1 includes both
+direct and cartesian coordinates for all sites, lattice
+parameters, etc. Useful for reading and for insertion into a
+database. Set to 0 for an extremely lightweight version
+that only includes sufficient information to reconstruct the
+object.</p></li>
+<li><p><strong>fmt</strong> (<em>str</em>) – Specifies a format for the dict. Defaults to None,
+which is the default format used in pymatgen. Other options
+include “abivars”.</p></li>
+<li><p><strong>**kwargs</strong> – Allow passing of other kwargs needed for certain</p></li>
+<li><p><strong>e.g.</strong><strong>, </strong><strong>&quot;abivars&quot;.</strong> (<em>formats</em><em>,</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>JSON serializable dict representation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.interface.Interface.change_z_shift">
+<code class="sig-name descname">change_z_shift</code><span class="sig-paren">(</span><em class="sig-param">dz</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface.html#Interface.change_z_shift"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface.Interface.change_z_shift" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adjust the spacing between the substrate and film layers by dz Angstroms</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dz</strong> (<em>float</em>) – shift perpendicular to the plane (in Angstroms)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.interface.Interface.copy">
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">site_properties=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface.html#Interface.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface.Interface.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience method to get a copy of the structure, with options to add
+site properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A copy of the Interface.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.interface.Interface.film">
+<em class="property">property </em><code class="sig-name descname">film</code><a class="headerlink" href="#pymatgen.analysis.interface.Interface.film" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the film (Structure) of the interface.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.interface.Interface.film_sites">
+<em class="property">property </em><code class="sig-name descname">film_sites</code><a class="headerlink" href="#pymatgen.analysis.interface.Interface.film_sites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the film sites of the interface.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.interface.Interface.from_dict">
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface.html#Interface.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface.Interface.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reconstitute a Structure object from a dict representation of Structure
+created using as_dict().</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dict representation of structure.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Structure object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.interface.Interface.get_film_indices">
+<code class="sig-name descname">get_film_indices</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface.html#Interface.get_film_indices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface.Interface.get_film_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the indices of the film sites</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.interface.Interface.get_sorted_structure">
+<code class="sig-name descname">get_sorted_structure</code><span class="sig-paren">(</span><em class="sig-param">key=None</em>, <em class="sig-param">reverse=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface.html#Interface.get_sorted_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface.Interface.get_sorted_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a sorted copy of the structure. The parameters have the same
+meaning as in list.sort. By default, sites are sorted by the
+electronegativity of the species.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> – Specifies a function of one argument that is used to extract
+a comparison key from each list element: key=str.lower. The
+default value is None (compare the elements directly).</p></li>
+<li><p><strong>reverse</strong> (<em>bool</em>) – If set to True, then the list elements are sorted
+as if each comparison were reversed.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.interface.Interface.offset_vector">
+<em class="property">property </em><code class="sig-name descname">offset_vector</code><a class="headerlink" href="#pymatgen.analysis.interface.Interface.offset_vector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Displacement of the origin of the film structure relative to that
+of the substrate structure in Cartesian coordinates.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.interface.Interface.shift_film">
+<code class="sig-name descname">shift_film</code><span class="sig-paren">(</span><em class="sig-param">delta</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface.html#Interface.shift_film"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface.Interface.shift_film" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shift the film’s position relative to the substrate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>delta</strong> (<em>length-3 list of float</em><em> or </em><em>numpy array</em>) – Cartesian coordinate
+vector by which to shift the film. After this operation
+self.offset_vector -&gt; self.offset_vector + delta.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.interface.Interface.shift_film_along_surface_lattice">
+<code class="sig-name descname">shift_film_along_surface_lattice</code><span class="sig-paren">(</span><em class="sig-param">da</em>, <em class="sig-param">db</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface.html#Interface.shift_film_along_surface_lattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface.Interface.shift_film_along_surface_lattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given two floats da and db, adjust the shift vector
+by da * (first lattice vector) + db * (second lattice vector).
+This shift is in the plane of the interface.
+I.e. da and db are fractional coordinates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>da</strong> (<em>float</em>) – shift in the first lattice vector</p></li>
+<li><p><strong>db</strong> (<em>float</em>) – shift in the second lattice vector</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.interface.Interface.substrate">
+<em class="property">property </em><code class="sig-name descname">substrate</code><a class="headerlink" href="#pymatgen.analysis.interface.Interface.substrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the substrate (Structure) of the interface.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.interface.Interface.substrate_sites">
+<em class="property">property </em><code class="sig-name descname">substrate_sites</code><a class="headerlink" href="#pymatgen.analysis.interface.Interface.substrate_sites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the substrate sites of the interface.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.interface.Interface.vacuum_thickness">
+<em class="property">property </em><code class="sig-name descname">vacuum_thickness</code><a class="headerlink" href="#pymatgen.analysis.interface.Interface.vacuum_thickness" title="Permalink to this definition">¶</a></dt>
+<dd><p>Vacuum buffer above the film.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.interface.Interface.z_shift">
+<em class="property">property </em><code class="sig-name descname">z_shift</code><a class="headerlink" href="#pymatgen.analysis.interface.Interface.z_shift" title="Permalink to this definition">¶</a></dt>
+<dd><p>The 1D component of offset_vector along the interface plane
+in fractional coordinates. I.e. if z_shift = z, the distance
+between the substrate and film planes is z.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.interface.InterfaceBuilder">
+<em class="property">class </em><code class="sig-name descname">InterfaceBuilder</code><span class="sig-paren">(</span><em class="sig-param">substrate_structure</em>, <em class="sig-param">film_structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface.html#InterfaceBuilder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface.InterfaceBuilder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class constructs the epitaxially matched interfaces between two crystalline slabs</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>substrate_structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – structure of substrate</p></li>
+<li><p><strong>film_structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – structure of film</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.analysis.interface.InterfaceBuilder.apply_transformation">
+<code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">matrix</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface.html#InterfaceBuilder.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface.InterfaceBuilder.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a supercell of structure using matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.surface.html#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab"><em>Slab</em></a>) – Slab to make supercell of</p></li>
+<li><p><strong>matrix</strong> (<em>3x3 np.ndarray</em>) – supercell matrix</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(Slab) The supercell of structure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.interface.InterfaceBuilder.apply_transformations">
+<code class="sig-name descname">apply_transformations</code><span class="sig-paren">(</span><em class="sig-param">match</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface.html#InterfaceBuilder.apply_transformations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface.InterfaceBuilder.apply_transformations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Using ZSL match, transform all of the film_structures by the ZSL
+supercell transformation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>match</strong> (<em>dict</em>) – ZSL match returned by ZSLGenerator.__call__</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.interface.InterfaceBuilder.combine_slabs">
+<code class="sig-name descname">combine_slabs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface.html#InterfaceBuilder.combine_slabs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface.InterfaceBuilder.combine_slabs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Combine the slabs generated by get_oriented_slabs into interfaces</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.interface.InterfaceBuilder.generate_interfaces">
+<code class="sig-name descname">generate_interfaces</code><span class="sig-paren">(</span><em class="sig-param">film_millers=None</em>, <em class="sig-param">substrate_millers=None</em>, <em class="sig-param">film_layers=3</em>, <em class="sig-param">substrate_layers=3</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface.html#InterfaceBuilder.generate_interfaces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface.InterfaceBuilder.generate_interfaces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a list of Interface (Structure) objects and store them to self.interfaces.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>film_millers</strong> (<em>list of</em><em> [</em><em>int</em><em>]</em>) – list of film surfaces</p></li>
+<li><p><strong>substrate_millers</strong> (<em>list of</em><em> [</em><em>int</em><em>]</em>) – list of substrate surfaces</p></li>
+<li><p><strong>film_layers</strong> (<em>int</em>) – number of layers of film to include in Interface structures.</p></li>
+<li><p><strong>substrate_layers</strong> (<em>int</em>) – number of layers of substrate to include in Interface structures.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.interface.InterfaceBuilder.get_oriented_slabs">
+<code class="sig-name descname">get_oriented_slabs</code><span class="sig-paren">(</span><em class="sig-param">film_layers=3</em>, <em class="sig-param">substrate_layers=3</em>, <em class="sig-param">match_index=0</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface.html#InterfaceBuilder.get_oriented_slabs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface.InterfaceBuilder.get_oriented_slabs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of oriented slabs for constructing interfaces and put them
+in self.film_structures, self.substrate_structures, self.modified_film_structures,
+and self.modified_substrate_structures.
+Currently only uses first match (lowest SA) in the list of matches</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>film_layers</strong> (<em>int</em>) – number of layers of film to include in Interface structures.</p></li>
+<li><p><strong>substrate_layers</strong> (<em>int</em>) – number of layers of substrate to include in Interface structures.</p></li>
+<li><p><strong>match_index</strong> (<em>int</em>) – ZSL match from which to construct slabs.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.interface.InterfaceBuilder.get_summary_dict">
+<code class="sig-name descname">get_summary_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface.html#InterfaceBuilder.get_summary_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface.InterfaceBuilder.get_summary_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return dictionary with information about the InterfaceBuilder,
+with currently generated structures included.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.interface.InterfaceBuilder.make_interface">
+<code class="sig-name descname">make_interface</code><span class="sig-paren">(</span><em class="sig-param">slab_substrate</em>, <em class="sig-param">slab_film</em>, <em class="sig-param">offset=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface.html#InterfaceBuilder.make_interface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface.InterfaceBuilder.make_interface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Strain a film to fit a substrate and generate an interface.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>slab_substrate</strong> (<a class="reference internal" href="pymatgen.core.surface.html#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab"><em>Slab</em></a>) – substrate structure supercell</p></li>
+<li><p><strong>slab_film</strong> (<a class="reference internal" href="pymatgen.core.surface.html#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab"><em>Slab</em></a>) – film structure supercell</p></li>
+<li><p><strong>offset</strong> (<em>[</em><em>int</em><em>]</em>) – separation vector of film and substrate</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.interface.InterfaceBuilder.visualize_interface">
+<code class="sig-name descname">visualize_interface</code><span class="sig-paren">(</span><em class="sig-param">interface_index=0</em>, <em class="sig-param">show_atoms=False</em>, <em class="sig-param">n_uc=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface.html#InterfaceBuilder.visualize_interface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface.InterfaceBuilder.visualize_interface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the film-substrate superlattice match, the film superlattice,
+and the substrate superlattice in three separate plots and show them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>interface_index</strong> (<em>int</em><em>, </em><em>0</em>) – Choice of interface to plot</p></li>
+<li><p><strong>show_atoms</strong> (<em>bool</em><em>, </em><em>False</em>) – Whether to plot atomic sites</p></li>
+<li><p><strong>n_uc</strong> (<em>int</em><em>, </em><em>2</em>) – Number of 2D unit cells of the interface in each direction.
+(The unit cell of the interface is the supercell of th substrate
+that matches a supercel of the film.)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.interface.InterfaceBuilder.write_all_structures">
+<code class="sig-name descname">write_all_structures</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface.html#InterfaceBuilder.write_all_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface.InterfaceBuilder.write_all_structures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write all of the structures relevant for
+the interface calculation to VASP POSCAR files.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.interface.align_x">
+<code class="sig-name descname">align_x</code><span class="sig-paren">(</span><em class="sig-param">slab, orthogonal_basis=[[1, 0, 0], [0, 1, 0], [0, 0, 1]]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface.html#align_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface.align_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Align the a lattice vector of slab with the x axis. Optionally specify
+an orthogonal_basis to align according to a different set of axes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>slab</strong> (<a class="reference internal" href="pymatgen.core.surface.html#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab"><em>Slab</em></a>) – input structure</p></li>
+<li><p><strong>basis</strong> (<em>orthogonal</em>) – If specified, align with
+orthogonal_basis[0] rather than [1,0,0]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The slab, which has been aligned with the specified axis in place.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.interface.get_ortho_axes">
+<code class="sig-name descname">get_ortho_axes</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface.html#get_ortho_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface.get_ortho_axes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an orthonormal set of axes for the structure with the first axis
+pointing along the a lattice vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>3x3 numpy matrix with the axes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.interface.get_shear_reduced_slab">
+<code class="sig-name descname">get_shear_reduced_slab</code><span class="sig-paren">(</span><em class="sig-param">slab</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface.html#get_shear_reduced_slab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface.get_shear_reduced_slab" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reduce the vectors of the slab plane according to the algorithm in
+substrate_analyzer, then make a new Slab with a Lattice with those
+reduced vectors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>slab</strong> (<a class="reference internal" href="pymatgen.core.surface.html#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab"><em>Slab</em></a>) – Slab to reduce</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Slab object of identical structure to the input slab
+but rduced in-plane lattice vectors</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.interface.merge_slabs">
+<code class="sig-name descname">merge_slabs</code><span class="sig-paren">(</span><em class="sig-param">substrate</em>, <em class="sig-param">film</em>, <em class="sig-param">slab_offset</em>, <em class="sig-param">x_offset</em>, <em class="sig-param">y_offset</em>, <em class="sig-param">vacuum=20</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface.html#merge_slabs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface.merge_slabs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given substrate and film supercells (oriented to match as closely as possible),
+strain the film to match the substrate lattice and combine the slabs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>slab_offset</strong> – spacing between the substrate and film</p></li>
+<li><p><strong>y_offset</strong> (<em>x_offset</em>) – in-plane displacement of the film in Cartesian coordinates</p></li>
+<li><p><strong>vacuum</strong> – vacuum buffer above the film</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A structure with the strained film and substrate</dt><dd><p>combined into one structure</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>combined_structure (<a class="reference internal" href="pymatgen.core.surface.html#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab">Slab</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.interface.strain_slabs">
+<code class="sig-name descname">strain_slabs</code><span class="sig-paren">(</span><em class="sig-param">sub_slab</em>, <em class="sig-param">film_slab</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface.html#strain_slabs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface.strain_slabs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Strain the film_slab to match the sub_slab,
+orient the structures to match each other,
+and return the new matching structures.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sub_slab</strong> (<a class="reference internal" href="pymatgen.core.surface.html#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab"><em>Slab</em></a>) – substrate supercell slab</p></li>
+<li><p><strong>film_slab</strong> (<a class="reference internal" href="pymatgen.core.surface.html#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab"><em>Slab</em></a>) – film supercell slab</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>substrate structure oriented</dt><dd><p>to match the film supercell</p>
+</dd>
+<dt>film_struct (Slab): film structure strained to match</dt><dd><p>the substrate supercell lattice.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>sub_struct (<a class="reference internal" href="pymatgen.core.surface.html#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab">Slab</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.interface.third_vect">
+<code class="sig-name descname">third_vect</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">b</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface.html#third_vect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface.third_vect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a unit vector proportional to cross(a, b).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>b</strong> (<em>a</em><em>,</em>) – 3D vectors.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>unit vector proportional to cross(a, b).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.interface.transf_mat">
+<code class="sig-name descname">transf_mat</code><span class="sig-paren">(</span><em class="sig-param">A</em>, <em class="sig-param">B</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface.html#transf_mat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface.transf_mat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the matrix to transform from the set of axes A
+to the set of axes B.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>A</strong> (<em>3x3 numpy array</em>) – original axis basis</p></li>
+<li><p><strong>B</strong> (<em>3x3 numpy array</em>) – new axis basis</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>3x3 numpy array transformation between the bases</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.interface.visualize_interface">
+<code class="sig-name descname">visualize_interface</code><span class="sig-paren">(</span><em class="sig-param">interface</em>, <em class="sig-param">show_atoms=False</em>, <em class="sig-param">n_uc=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface.html#visualize_interface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface.visualize_interface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the match of the substrate and film superlattices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>interface</strong> (<a class="reference internal" href="#pymatgen.analysis.interface.Interface" title="pymatgen.analysis.interface.Interface"><em>Interface</em></a>) – Interface object</p></li>
+<li><p><strong>show_atoms</strong> (<em>bool</em><em>, </em><em>False</em>) – Whether to plot atomic sites</p></li>
+<li><p><strong>n_uc</strong> (<em>int</em><em>, </em><em>2</em>) – Number of 2D unit cells of the interface in each direction.
+(The unit cell of the interface is the supercell of th substrate
+that matches a supercel of the film.)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.interface.visualize_superlattice">
+<code class="sig-name descname">visualize_superlattice</code><span class="sig-paren">(</span><em class="sig-param">struct</em>, <em class="sig-param">modified_struct</em>, <em class="sig-param">film=True</em>, <em class="sig-param">show_atoms=False</em>, <em class="sig-param">n_uc=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface.html#visualize_superlattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface.visualize_superlattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Visualize the unit cell-supercell match for either the film or substrate
+(specified by film boolean tag).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>struct</strong> (<a class="reference internal" href="pymatgen.core.surface.html#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab"><em>Slab</em></a>) – unit cell slab</p></li>
+<li><p><strong>modified_struct</strong> (<a class="reference internal" href="pymatgen.core.surface.html#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab"><em>Slab</em></a>) – supercell slab</p></li>
+<li><p><strong>film</strong> (<em>bool</em><em>, </em><em>True</em>) – True=label plot as film, False=label plot as substrate</p></li>
+<li><p><strong>show_atoms</strong> (<em>bool</em><em>, </em><em>False</em>) – Whether to plot atomic sites</p></li>
+<li><p><strong>n_uc</strong> (<em>int</em><em>, </em><em>2</em>) – Number of 2D unit cells of the interface in each direction.
+(The unit cell of the interface is the supercell of th substrate
+that matches a supercel of the film.)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pymatgen.analysis.interface.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

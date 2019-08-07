@@ -1,0 +1,415 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>monty.json &#8212; pymatgen 2019.6.5 documentation</title>
+    <link rel="stylesheet" href="../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for monty.json</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">JSON serialization and deserialization utilities.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">unicode_literals</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">six</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">importlib</span> <span class="k">import</span> <span class="n">import_module</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="c1"># importlib only available in Python 2.7+, 3.1+</span>
+    <span class="n">importlib</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">inspect</span> <span class="k">import</span> <span class="n">getfullargspec</span> <span class="k">as</span> <span class="n">getargspec</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">inspect</span> <span class="k">import</span> <span class="n">getargspec</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">np</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">bson</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">bson</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2014, The Materials Virtual Lab&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;ongsp@ucsd.edu&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;1/24/14&quot;</span>
+
+
+<span class="k">class</span> <span class="nc">MSONable</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is a mix-in base class specifying an API for msonable objects. MSON</span>
+<span class="sd">    is Monty JSON. Essentially, MSONable objects must implement an as_dict</span>
+<span class="sd">    method, which must return a json serializable dict and must also support</span>
+<span class="sd">    no arguments (though optional arguments to finetune the output is ok),</span>
+<span class="sd">    and a from_dict class method that regenerates the object from the dict</span>
+<span class="sd">    generated by the as_dict method. The as_dict method should contain the</span>
+<span class="sd">    &quot;@module&quot; and &quot;@class&quot; keys which will allow the MontyEncoder to</span>
+<span class="sd">    dynamically deserialize the class. E.g.::</span>
+
+<span class="sd">        d[&quot;@module&quot;] = self.__class__.__module__</span>
+<span class="sd">        d[&quot;@module&quot;] = self.__class__.__name__</span>
+
+<span class="sd">    A default implementation is provided in MSONable, which automatically</span>
+<span class="sd">    determines if the class already contains self.argname or self._argname</span>
+<span class="sd">    attributes for every arg. If so, these will be used for serialization in</span>
+<span class="sd">    the dict format. Similarly, the default from_dict will deserialization</span>
+<span class="sd">    classes of such form. An example is given below::</span>
+
+<span class="sd">        class MSONClass(MSONable):</span>
+
+<span class="sd">        def __init__(self, a, b, c, d=1, **kwargs):</span>
+<span class="sd">            self.a = a</span>
+<span class="sd">            self.b = b</span>
+<span class="sd">            self._c = c</span>
+<span class="sd">            self._d = d</span>
+<span class="sd">            self.kwargs = kwargs</span>
+
+<span class="sd">    For such classes, you merely need to inherit from MSONable and you do not</span>
+<span class="sd">    need to implement your own as_dict or from_dict protocol.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A JSON serializable dict representation of an object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+             <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">}</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">parent_module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">module_version</span> <span class="o">=</span> <span class="n">import_module</span><span class="p">(</span><span class="n">parent_module</span><span class="p">)</span><span class="o">.</span><span class="n">__version__</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;@version&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">u</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">module_version</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;@version&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="n">getargspec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="fm">__init__</span><span class="p">)</span><span class="o">.</span><span class="n">args</span>
+
+        <span class="k">def</span> <span class="nf">recursive_as_dict</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">recursive_as_dict</span><span class="p">(</span><span class="n">it</span><span class="p">)</span> <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">return</span> <span class="p">{</span><span class="n">kk</span><span class="p">:</span> <span class="n">recursive_as_dict</span><span class="p">(</span><span class="n">vv</span><span class="p">)</span> <span class="k">for</span> <span class="n">kk</span><span class="p">,</span> <span class="n">vv</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+            <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;as_dict&quot;</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">obj</span>
+
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="s2">&quot;self&quot;</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">c</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                            <span class="s2">&quot;Unable to automatically determine as_dict &quot;</span>
+                            <span class="s2">&quot;format from class. MSONAble requires all &quot;</span>
+                            <span class="s2">&quot;args to be present as either self.argname or &quot;</span>
+                            <span class="s2">&quot;self._argname, and kwargs to be present under&quot;</span>
+                            <span class="s2">&quot;a self.kwargs variable to automatically &quot;</span>
+                            <span class="s2">&quot;determine the dict format. Alternatively, &quot;</span>
+                            <span class="s2">&quot;you can implement both as_dict and from_dict.&quot;</span><span class="p">)</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">recursive_as_dict</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;kwargs&quot;</span><span class="p">):</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_kwargs&quot;</span><span class="p">):</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">d</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="n">decoded</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">MontyDecoder</span><span class="p">()</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                   <span class="k">if</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;@&quot;</span><span class="p">)}</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">decoded</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a json string representation of the MSONable object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">MontyEncoder</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">MontyEncoder</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">JSONEncoder</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A Json Encoder which supports the MSONable API, plus adds support for</span>
+<span class="sd">    numpy arrays, datetime objects, bson ObjectIds (requires bson).</span>
+
+<span class="sd">    Usage::</span>
+
+<span class="sd">        # Add it as a *cls* keyword when using json.dump</span>
+<span class="sd">        json.dumps(object, cls=MontyEncoder)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Overriding default method for JSON encoding. This method does two</span>
+<span class="sd">        things: (a) If an object has a to_dict property, return the to_dict</span>
+<span class="sd">        output. (b) If the @module and @class keys are not in the to_dict,</span>
+<span class="sd">        add them to the output automatically. If the object has no to_dict</span>
+<span class="sd">        property, the default Python json encoder default method is called.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            o: Python object.</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            Python dict representation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="s2">&quot;datetime&quot;</span><span class="p">,</span> <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="s2">&quot;datetime&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;string&quot;</span><span class="p">:</span> <span class="n">o</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()}</span>
+        <span class="k">if</span> <span class="n">np</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="s2">&quot;numpy&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="s2">&quot;array&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;dtype&quot;</span><span class="p">:</span> <span class="n">o</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="fm">__str__</span><span class="p">(),</span>
+                        <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">o</span><span class="o">.</span><span class="n">tolist</span><span class="p">()}</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">generic</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">o</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">bson</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">bson</span><span class="o">.</span><span class="n">objectid</span><span class="o">.</span><span class="n">ObjectId</span><span class="p">):</span>
+                <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="s2">&quot;bson.objectid&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="s2">&quot;ObjectId&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;oid&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">o</span><span class="p">)}</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+            <span class="k">if</span> <span class="s2">&quot;@module&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="s2">&quot;@module&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">u</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;@class&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="s2">&quot;@class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">u</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;@version&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">parent_module</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">module_version</span> <span class="o">=</span> <span class="n">import_module</span><span class="p">(</span><span class="n">parent_module</span><span class="p">)</span><span class="o">.</span><span class="n">__version__</span>
+                    <span class="n">d</span><span class="p">[</span><span class="s2">&quot;@version&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">u</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">module_version</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                    <span class="n">d</span><span class="p">[</span><span class="s2">&quot;@version&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="n">d</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONEncoder</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">MontyDecoder</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">JSONDecoder</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A Json Decoder which supports the MSONable API. By default, the</span>
+<span class="sd">    decoder attempts to find a module and name associated with a dict. If</span>
+<span class="sd">    found, the decoder will generate a Pymatgen as a priority.  If that fails,</span>
+<span class="sd">    the original decoded dictionary from the string is returned. Note that</span>
+<span class="sd">    nested lists and dicts containing pymatgen object will be decoded correctly</span>
+<span class="sd">    as well.</span>
+
+<span class="sd">    Usage:</span>
+
+<span class="sd">        # Add it as a *cls* keyword when using json.load</span>
+<span class="sd">        json.loads(json_string, cls=MontyDecoder)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">process_decoded</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Recursive method to support decoding dicts and lists containing</span>
+<span class="sd">        pymatgen objects.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s2">&quot;@module&quot;</span> <span class="ow">in</span> <span class="n">d</span> <span class="ow">and</span> <span class="s2">&quot;@class&quot;</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+                <span class="n">modname</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;@module&quot;</span><span class="p">]</span>
+                <span class="n">classname</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;@class&quot;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">modname</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">classname</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">modname</span> <span class="ow">and</span> <span class="n">modname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;bson.objectid&quot;</span><span class="p">,</span> <span class="s2">&quot;numpy&quot;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">modname</span> <span class="o">==</span> <span class="s2">&quot;datetime&quot;</span> <span class="ow">and</span> <span class="n">classname</span> <span class="o">==</span> <span class="s2">&quot;datetime&quot;</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">dt</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;string&quot;</span><span class="p">],</span>
+                                                        <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S.</span><span class="si">%f</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                        <span class="n">dt</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;string&quot;</span><span class="p">],</span>
+                                                        <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="n">dt</span>
+
+                <span class="n">mod</span> <span class="o">=</span> <span class="nb">__import__</span><span class="p">(</span><span class="n">modname</span><span class="p">,</span> <span class="nb">globals</span><span class="p">(),</span> <span class="nb">locals</span><span class="p">(),</span> <span class="p">[</span><span class="n">classname</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">classname</span><span class="p">):</span>
+                    <span class="n">cls_</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">classname</span><span class="p">)</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                           <span class="k">if</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;@&quot;</span><span class="p">)}</span>
+                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cls_</span><span class="p">,</span> <span class="s2">&quot;from_dict&quot;</span><span class="p">):</span>
+                        <span class="k">return</span> <span class="n">cls_</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">np</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">modname</span> <span class="o">==</span> <span class="s2">&quot;numpy&quot;</span> <span class="ow">and</span> <span class="n">classname</span> <span class="o">==</span> \
+                    <span class="s2">&quot;array&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;dtype&quot;</span><span class="p">])</span>
+
+            <span class="k">elif</span> <span class="p">(</span><span class="n">bson</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="n">modname</span> <span class="o">==</span> <span class="s2">&quot;bson.objectid&quot;</span> <span class="ow">and</span> \
+                    <span class="n">classname</span> <span class="o">==</span> <span class="s2">&quot;ObjectId&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">bson</span><span class="o">.</span><span class="n">objectid</span><span class="o">.</span><span class="n">ObjectId</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;oid&quot;</span><span class="p">])</span>
+
+            <span class="k">return</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">d</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">d</span>
+
+    <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecoder</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">MSONError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exception class for serialization errors.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+
+<span class="k">def</span> <span class="nf">jsanitize</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">allow_bson</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This method cleans an input json-like object, either a list or a dict or</span>
+<span class="sd">    some sequence, nested or otherwise, by converting all non-string</span>
+<span class="sd">    dictionary keys (such as int and float) to strings, and also recursively</span>
+<span class="sd">    encodes all objects using Monty&#39;s as_dict() protocol.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        obj: input json-like object.</span>
+<span class="sd">        strict (bool): This parameters sets the behavior when jsanitize</span>
+<span class="sd">            encounters an object it does not understand. If strict is True,</span>
+<span class="sd">            jsanitize will try to get the as_dict() attribute of the object. If</span>
+<span class="sd">            no such attribute is found, an attribute error will be thrown. If</span>
+<span class="sd">            strict is False, jsanitize will simply call str(object) to convert</span>
+<span class="sd">            the object to a string representation.</span>
+<span class="sd">        allow_bson (bool): This parameters sets the behavior when jsanitize</span>
+<span class="sd">            encounters an bson supported type such as objectid and datetime. If</span>
+<span class="sd">            True, such bson types will be ignored, allowing for proper</span>
+<span class="sd">            insertion into MongoDb databases.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Sanitized dict that can be json serialized.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">allow_bson</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">))</span> <span class="ow">or</span> \
+                       <span class="p">(</span><span class="n">bson</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span>
+                                                        <span class="n">bson</span><span class="o">.</span><span class="n">objectid</span><span class="o">.</span><span class="n">ObjectId</span><span class="p">))):</span>
+        <span class="k">return</span> <span class="n">obj</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">jsanitize</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="n">strict</span><span class="p">,</span> <span class="n">allow_bson</span><span class="o">=</span><span class="n">allow_bson</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">np</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">jsanitize</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="n">strict</span><span class="p">,</span> <span class="n">allow_bson</span><span class="o">=</span><span class="n">allow_bson</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">tolist</span><span class="p">()]</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="o">.</span><span class="fm">__str__</span><span class="p">():</span> <span class="n">jsanitize</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="n">strict</span><span class="p">,</span> <span class="n">allow_bson</span><span class="o">=</span><span class="n">allow_bson</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">integer_types</span> <span class="o">+</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">float</span><span class="p">])):</span>
+        <span class="k">return</span> <span class="n">obj</span>
+    <span class="k">elif</span> <span class="n">obj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">strict</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">jsanitize</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span> <span class="n">strict</span><span class="o">=</span><span class="n">strict</span><span class="p">,</span>
+                                 <span class="n">allow_bson</span><span class="o">=</span><span class="n">allow_bson</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

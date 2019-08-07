@@ -145,7 +145,7 @@ class BabelMolAdaptor:
 
         Args:
             idx1: The atom index of one of the atoms participating the in bond
-            idx2: The atom index of the other atom participating in the bond 
+            idx2: The atom index of the other atom participating in the bond
         """
         for obbond in ob.OBMolBondIter(self._obmol):
             if (obbond.GetBeginAtomIdx() == idx1 and obbond.GetEndAtomIdx() == idx2) or (obbond.GetBeginAtomIdx() == idx2 and obbond.GetEndAtomIdx() == idx1):
@@ -300,19 +300,25 @@ class BabelMolAdaptor:
         return mol.write(file_format, filename, overwrite=True)
 
     @staticmethod
-    def from_file(filename, file_format="xyz"):
+    def from_file(filename, file_format="xyz", return_all_molecules=False):
         """
         Uses OpenBabel to read a molecule from a file in all supported formats.
 
         Args:
             filename: Filename of input file
             file_format: String specifying any OpenBabel supported formats.
+            return_all_molecules: If ``True``, will return a list of
+                ``BabelMolAdaptor`` instances, one for each molecule found in
+                the file. If ``False``, will return only the first molecule.
 
         Returns:
-            BabelMolAdaptor object
+            BabelMolAdaptor object or list thereof
         """
-        mols = list(pb.readfile(str(file_format), str(filename)))
-        return BabelMolAdaptor(mols[0].OBMol)
+        mols = pb.readfile(str(file_format), str(filename))
+        if return_all_molecules:
+            return [ BabelMolAdaptor(mol.OBMol) for mol in mols ]
+        else:
+            return BabelMolAdaptor(next(mols).OBMol)
 
     @staticmethod
     def from_molecule_graph(mol):

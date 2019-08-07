@@ -6,12 +6,12 @@ Subpackages
 
 .. toctree::
 
-    pymatgen.io.abinit
-    pymatgen.io.exciting
-    pymatgen.io.feff
-    pymatgen.io.lammps
-    pymatgen.io.qchem
-    pymatgen.io.vasp
+   pymatgen.io.abinit
+   pymatgen.io.exciting
+   pymatgen.io.feff
+   pymatgen.io.lammps
+   pymatgen.io.qchem
+   pymatgen.io.vasp
 
 Submodules
 ----------
@@ -31,8 +31,10 @@ Submodules
    pymatgen.io.lobster
    pymatgen.io.nwchem
    pymatgen.io.phonopy
+   pymatgen.io.prismatic
    pymatgen.io.pwscf
    pymatgen.io.qchem_deprecated
+   pymatgen.io.shengbte
    pymatgen.io.xcrysden
    pymatgen.io.xr
    pymatgen.io.xyz
@@ -42,6 +44,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.io
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

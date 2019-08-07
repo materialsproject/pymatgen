@@ -272,7 +272,7 @@ def main():
                        help="List of POTCAR symbols. Use -f to set "
                             "functional. Defaults to PBE.")
     group.add_argument("-r", "--recursive", dest="recursive",
-                       type=str, nargs="+",
+                       type=str,
                        help="Dirname to find and generate from POTCAR.spec.")
     parser_potcar.set_defaults(func=generate_potcar)
 

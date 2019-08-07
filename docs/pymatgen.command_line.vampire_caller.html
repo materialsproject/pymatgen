@@ -1,0 +1,167 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>pymatgen.command_line.vampire_caller module &#8212; pymatgen 2019.7.30 documentation</title>
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pymatgen.command_line.vampire_caller">
+<span id="pymatgen-command-line-vampire-caller-module"></span><h1>pymatgen.command_line.vampire_caller module<a class="headerlink" href="#module-pymatgen.command_line.vampire_caller" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pymatgen.command_line.vampire_caller.VampireCaller">
+<em class="property">class </em><code class="sig-name descname">VampireCaller</code><span class="sig-paren">(</span><em class="sig-param">ordered_structures</em>, <em class="sig-param">energies</em>, <em class="sig-param">mc_box_size=4.0</em>, <em class="sig-param">equil_timesteps=2000</em>, <em class="sig-param">mc_timesteps=4000</em>, <em class="sig-param">save_inputs=False</em>, <em class="sig-param">hm=None</em>, <em class="sig-param">user_input_settings=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/command_line/vampire_caller.html#VampireCaller"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.vampire_caller.VampireCaller" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Run Vampire on a material with magnetic ordering and exchange parameter information to compute the critical temperature with classical Monte Carlo.</p>
+<p>user_input_settings is a dictionary that can contain:
+* start_t (int): Start MC sim at this temp, defaults to 0 K.
+* end_t (int): End MC sim at this temp, defaults to 1500 K.
+* temp_increment (int): Temp step size, defaults to 25 K.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ordered_structures</strong> (<em>list</em>) – Structure objects with magmoms.</p></li>
+<li><p><strong>energies</strong> (<em>list</em>) – Energies of each relaxed magnetic structure.</p></li>
+<li><p><strong>mc_box_size</strong> (<em>float</em>) – x=y=z dimensions (nm) of MC simulation box</p></li>
+<li><p><strong>equil_timesteps</strong> (<em>int</em>) – number of MC steps for equilibrating</p></li>
+<li><p><strong>mc_timesteps</strong> (<em>int</em>) – number of MC steps for averaging</p></li>
+<li><p><strong>save_inputs</strong> (<em>bool</em>) – if True, save scratch dir of vampire input files</p></li>
+<li><p><strong>hm</strong> (<a class="reference internal" href="pymatgen.analysis.magnetism.heisenberg.html#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper" title="pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper"><em>HeisenbergMapper</em></a>) – object already fit to low energy
+magnetic orderings.</p></li>
+<li><p><strong>user_input_settings</strong> (<em>dict</em>) – optional commands for VAMPIRE Monte Carlo</p></li>
+<li><p><strong>sgraph</strong> (<a class="reference internal" href="pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph" title="pymatgen.analysis.graphs.StructureGraph"><em>StructureGraph</em></a>) – Ground state graph.</p></li>
+<li><p><strong>unique_site_ids</strong> (<em>dict</em>) – Maps each site to its unique identifier</p></li>
+<li><p><strong>nn_interacations</strong> (<em>dict</em>) – {i: j} pairs of NN interactions
+between unique sites.</p></li>
+<li><p><strong>ex_params</strong> (<em>dict</em>) – Exchange parameter values (meV/atom)</p></li>
+<li><p><strong>mft_t</strong> (<em>float</em>) – Mean field theory estimate of critical T</p></li>
+<li><p><strong>mat_name</strong> (<em>str</em>) – Formula unit label for input files</p></li>
+<li><p><strong>mat_id_dict</strong> (<em>dict</em>) – Maps sites to material id # for vampire
+indexing.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.command_line.vampire_caller.VampireOutput">
+<em class="property">class </em><code class="sig-name descname">VampireOutput</code><span class="sig-paren">(</span><em class="sig-param">vamp_stdout</em>, <em class="sig-param">nmats</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/command_line/vampire_caller.html#VampireOutput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.vampire_caller.VampireOutput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class processes results from a Vampire Monte Carlo simulation
+and returns the critical temperature.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>vamp_stdout</strong> (<em>txt file</em>) – stdout from running vampire-serial.</p>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="pymatgen.command_line.vampire_caller.VampireOutput.critical_temp">
+<code class="sig-name descname">critical_temp</code><a class="headerlink" href="#pymatgen.command_line.vampire_caller.VampireOutput.critical_temp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Monte Carlo Tc result.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pymatgen.command_line.vampire_caller.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>
