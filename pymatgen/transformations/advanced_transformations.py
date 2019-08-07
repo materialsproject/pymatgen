@@ -33,6 +33,7 @@ from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
+from pymatgen.command_line.mcsqs_caller import run_mcsqs
 
 """
 This module implements more advanced transformations.
@@ -1344,6 +1345,45 @@ class GrainBoundaryTransformation(AbstractTransformation):
             self.tol_coi)
         return gb_struct
       
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return False
+
+class SQSTransformation(AbstractTransformation):
+
+    """
+    A transformation that creates a SQS from a structure with partial occupancies.
+    """
+
+    def __init__(self, clusters, supercell = None, total_atoms = None, search_time = 0.1):
+        """
+        Args:
+            supercell (list): dimensions of the supercell in units of the original unit cell
+            total_atoms(int): total number of atoms in the final SQS. Choose either this OR supercell
+            search_time (int): The time spent looking for the ideal SQS in minutes
+           
+        """
+        self.supercell = supercell
+        self.total_atoms = total_atoms
+        self.search_time = search_time
+        self.clusters = clusters
+
+    def apply_transformation(self, struc):
+        """
+        Args:
+            structure (Pymatgen Structure): Pymatgen Structure with partial occupancies
+
+        Returns:
+            Pymatgen Structure which is an SQS of the input structure
+           
+        """
+        return run_mcsqs(struc, self.clusters, supercell = self.supercell,
+        total_atoms = self.total_atoms, search_time = self.search_time)
+
     @property
     def inverse(self):
         return None

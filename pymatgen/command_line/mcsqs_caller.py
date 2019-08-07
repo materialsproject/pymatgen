@@ -6,7 +6,7 @@ from threading import Timer
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io import atat
 
-def run_mcsqs(structure, clusters, supercell = None, total_atoms = None, max_time = None):
+def run_mcsqs(structure, clusters, supercell = None, total_atoms = None, search_time = 0.01):
     """
     Helper function for calling mcsqs with different arguments
     max_time (int): max time for running mcsqs in minutes
@@ -46,31 +46,27 @@ def run_mcsqs(structure, clusters, supercell = None, total_atoms = None, max_tim
 
         p = subprocess.Popen(command, stdout=subprocess.PIPE,
                              stdin=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
-        ## Create stop file
-        text_file = open("stopsqs", "w")
-        text_file.close()
-        ## Run mcsqs
-        time.sleep(0.01)
+                             stderr=subprocess.PIPE, close_fds=True)
+        p.communicate()
+
         command = ['mcsqs',  '-rc', "-n {}".format(len(structure))]
         p = subprocess.Popen(command, stdout=subprocess.PIPE,
                              stdin=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
+                             stderr=subprocess.PIPE, close_fds=True)
+        try:
+            p.communicate(timeout = search_time*60)
+        except:
+            p.kill()
+            p.communicate()
+            if os.path.exists('bestsqs.out'):
+                text_file = open("bestsqs.out", "r")
+                bestsqs = text_file.read()
+                text_file.close()
 
-        if max_time:
-            timed_out = False
-            timer = Timer(max_time*60, lambda p: p.kill(), [p])
-
-            try:
-                timer.start()
-                output = p.communicate()[0].decode("utf-8")
-            finally:
-                if not timer.is_alive():
-                    timed_out = True
-                timer.cancel()
-
-            if timed_out:
+                return atat.Mcsqs.structure_from_string(bestsqs)
+            else: 
                 raise TimeoutError('Cluster expansion took too long.')
+
     else:
         struc = atat.Mcsqs(struccopy)
         text_file = open("rndstr.in", "w")
@@ -85,35 +81,23 @@ def run_mcsqs(structure, clusters, supercell = None, total_atoms = None, max_tim
 
         p = subprocess.Popen(command, stdout=subprocess.PIPE,
                              stdin=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
-        ## Create stop file
-        text_file = open("stopsqs", "w")
-        text_file.close()
-        ## Run mcsqs
+                             stderr=subprocess.PIPE, close_fds=True)
+        p.communicate()
 
-        time.sleep(0.01)
         command = ['mcsqs', "-n {}".format(total_atoms)]
         p = subprocess.Popen(command, stdout=subprocess.PIPE,
                              stdin=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
-        if max_time:
-            timed_out = False
-            timer = Timer(max_time*60, lambda p: p.kill(), [p])
+                             stderr=subprocess.PIPE, close_fds=True)
+        try:
+            p.communicate(timeout = search_time*60)
+        except:
+            p.kill()
+            p.communicate()
+            if os.path.exists('bestsqs.out'):
+                text_file = open("bestsqs.out", "r")
+                bestsqs = text_file.read()
+                text_file.close()
 
-            try:
-                timer.start()
-                output = p.communicate()[0].decode("utf-8")
-            finally:
-                if not timer.is_alive():
-                    timed_out = True
-                timer.cancel()
-
-            if timed_out:
+                return atat.Mcsqs.structure_from_string(bestsqs)
+            else: 
                 raise TimeoutError('Cluster expansion took too long.')
-        
-    time.sleep(0.01)
-    text_file = open("bestsqs.out", "r")
-    bestsqs = text_file.read()
-    text_file.close()
-
-    return atat.Mcsqs.structure_from_string(bestsqs)

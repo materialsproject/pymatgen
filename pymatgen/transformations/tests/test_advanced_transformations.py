@@ -18,7 +18,7 @@ from pymatgen.transformations.advanced_transformations import \
     SubstitutionPredictorTransformation, MagOrderingTransformation, \
     DopingTransformation, _find_codopant, SlabTransformation, \
     MagOrderParameterConstraint, DisorderOrderedTransformation, \
-    GrainBoundaryTransformation
+    GrainBoundaryTransformation, SQSTransformation
 from monty.os.path import which
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.cif import CifParser
@@ -27,6 +27,8 @@ from pymatgen.analysis.energy_models import IsingModel
 from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.surface import SlabGenerator
+from pymatgen.io import atat
+
 """
 Created on Jul 24, 2012
 """
@@ -60,6 +62,7 @@ def get_table():
 
 enum_cmd = which('enum.x') or which('multienum.x')
 makestr_cmd = which('makestr.x') or which('makeStr.x') or which('makeStr.py')
+mcsqs_cmd = which('mcsqs')
 enumlib_present = enum_cmd and makestr_cmd
 
 
@@ -610,6 +613,28 @@ class DisorderedOrderedTransformationTest(PymatgenTest):
         self.assertDictEqual(output[-1].species.as_dict(),
                              {'Ni': 0.5, 'Ba': 0.5})
 
+@unittest.skipIf(not mcsqs_cmd, "mcsqs not present.")
+class SQSTransformationTest(PymatgenTest):
+
+    def test_apply_transformation(self):
+
+        # non-sensical example just for testing purposes
+        self.pztstrings = np.load(os.path.join(test_dir, "mcsqs/pztstrings.npy"), allow_pickle=True)
+        self.struct = self.get_structure('Pb2TiZrO6')
+
+        trans = SQSTransformation({2:6, 3:4}, supercell = [2,1,1], total_atoms = None, search_time = 0.01)
+        struct = self.struct.copy()
+        struct.replace_species({'Ti': {'Ti':0.5, 'Zr':0.5 }, 'Zr': {'Ti':0.5, 'Zr':0.5}})
+        sqs = trans.apply_transformation(struct)
+        self.assertEqual(atat.Mcsqs(sqs).to_string() in self.pztstrings, True)
+        os.remove('sqscell.out')
+        os.remove('rndstrgrp.out')
+        os.remove('bestcorr.out')
+        os.remove('rndstr.in')
+        os.remove('sym.out')
+        os.remove('mcsqs.log')
+        os.remove('bestsqs.out')
+        os.remove('clusters.out')
 
 if __name__ == "__main__":
     unittest.main()
