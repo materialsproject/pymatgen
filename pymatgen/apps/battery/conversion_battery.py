@@ -53,7 +53,7 @@ class ConversionElectrode(AbstractElectrode):
         self._vpairs = voltage_pairs
 
     @staticmethod
-    def from_composition_and_pd(comp, pd, working_ion_symbol="Li"):
+    def from_composition_and_pd(comp, pd, working_ion_symbol="Li", allow_unstable=False):
         """
         Convenience constructor to make a ConversionElectrode from a
         composition and a phase diagram.
@@ -66,6 +66,8 @@ class ConversionElectrode(AbstractElectrode):
                 A PhaseDiagram of the relevant system (e.g., Li-Fe-F)
             working_ion_symbol:
                 Element symbol of working ion. Defaults to Li.
+            allow_unstable:
+                Allow compositions that are unstable
         """
         working_ion = Element(working_ion_symbol)
         entry = None
@@ -77,7 +79,7 @@ class ConversionElectrode(AbstractElectrode):
                     e.composition.reduced_formula == working_ion_symbol:
                 working_ion_entry = e
 
-        if not entry:
+        if not allow_unstable and not entry:
             raise ValueError("Not stable compound found at composition {}."
                              .format(comp))
 
@@ -100,7 +102,7 @@ class ConversionElectrode(AbstractElectrode):
 
     @staticmethod
     def from_composition_and_entries(comp, entries_in_chemsys,
-                                     working_ion_symbol="Li"):
+                                     working_ion_symbol="Li", allow_unstable=False):
         """
         Convenience constructor to make a ConversionElectrode from a
         composition and all entries in a chemical system.
@@ -114,7 +116,7 @@ class ConversionElectrode(AbstractElectrode):
         """
         pd = PhaseDiagram(entries_in_chemsys)
         return ConversionElectrode.from_composition_and_pd(comp, pd,
-                                                           working_ion_symbol)
+                                                           working_ion_symbol, allow_unstable)
 
     def get_sub_electrodes(self, adjacent_only=True):
         """
@@ -298,10 +300,10 @@ class ConversionElectrode(AbstractElectrode):
         d["nsteps"] = self.num_steps
         if print_subelectrodes:
             f_dict = lambda c: c.get_summary_dict(print_subelectrodes=False)
-            d["adj_pairs"] = map(f_dict,
-                                 self.get_sub_electrodes(adjacent_only=True))
-            d["all_pairs"] = map(f_dict,
-                                 self.get_sub_electrodes(adjacent_only=False))
+            d["adj_pairs"] = list(map(f_dict,
+                                 self.get_sub_electrodes(adjacent_only=True)))
+            d["all_pairs"] = list(map(f_dict,
+                                 self.get_sub_electrodes(adjacent_only=False)))
         return d
 
 
