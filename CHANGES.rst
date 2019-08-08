@@ -1,6 +1,79 @@
 Change log
 ==========
 
+v2019.7.30
+----------
+* Bug fixes (@shyuep, @mfherbst)
+* More type hint annotations (@shyuep)
+* Improvements to BabelMolAdaptor (@smheidrich)
+* Convenience Transformations for AdsorbateSiteFinder (@mkhorton)
+
+v2019.7.21
+----------
+* Add CubicSupercellTransformation and PerturbedSupercellsTransformation (@rees-c, @utf)
+* Add interface for ShengBTE (@rees-c, @utf)
+* Add interface for Vampire (@ncfrey)
+* Improved Lobster interface (@JaGeo)
+* Bug fixes (@sthartman, @dwinston, @utf)
+* New functionality for calculation of Heisenberg exchange parameters (@ncfrey)
+* Improvements to Miller indices handling and Lattice (@richardtran415)
+
+
+v2019.7.2
+---------
+* Improvements to grain boundary transformations and Rester (@Tinaatucsd)
+* Improvements to AdsorbateSiteFinder (@oxana-a)
+* Improvements to Waveder support (@JRSuckert)
+* Improvements to run type detection (@darnoceloc)
+* Add XAS data to Rester (@yimingchen95)
+* Fix to ATAT input/output (@dongsenfo)
+* Initial support for Prismatic input (@mkhorton)
+
+v2019.6.20
+----------
+* New interface class (@sivonxay, @kylebystrom, @shyamd)
+* Updates to SlabGenerator (@richardtran415)
+* Updates to PiezoTensor (@dongsenfo)
+* Add support for parsing on-site density matrix to Outcar (@mkhorton, @mhsiron, @clegaspi)
+* Fixes for magnetic space groups (@simonward86)
+* Fixes for Lobster class (@JaGeo)
+* Fix for FEFF (@stevetorr)
+* Fix for Waveder (@JRSuckert)
+
+v2019.6.5
+---------
+* Linear scaling get_all_neighbors. Tested to be faster for > 100 atoms (@chc273). 
+* Lobsterin class to handle input for Lobster (@JaGeo).
+* Strict options for composition parsing (@mkhorton).
+* Bug fix for CovalentBondNN.get_bonded_structure (@lan496).
+
+v2019.5.28
+----------
+* New VASP Input Set "from previous" interface (@utf)
+* ELFCAR support (@mkhorton)
+* Improvements to plotting of band structures and densities of states (@ShuaishuaiYuan)
+* Convenience functions added to Composition including chemical system convention (@mkhorton)
+* Various bug fixes (@mkhorton, @utf)
+* Improvements to MEGNET API (@shyuep)
+* Improvements to Structure interpolation (@mturiansky)
+
+v2019.5.8
+---------
+* Numerous updates and improvements to defect classes (@dbroberg)
+* New API for MEGNET models, see http://megnet.crystals.ai (@shyuep)
+* Update to NMR symmeterization (@dongsenfo)
+* Change CIF indexing (@kmu)
+* Add BoltzTraP mode to NonSCF input sets (@utf)
+
+v2019.5.1
+---------
+* Small speeds to Structure.get_all_neighbors.
+* Big fixes for gulp_caller. (@kmu)
+* Plot fatbands from Lobster. (@jageo)
+* Speed up get_ir_mesh (@utf)
+* Parsing of plasma frequencies from Outcar.
+* Miscellaneous bug fixes.
+
 v2019.4.11
 ----------
 * Improvements to MimimumDistanceNN (@jmmshn)

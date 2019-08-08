@@ -244,7 +244,7 @@ def symmetry_measure(points_distorted, points_perfect):
         return {'symmetry_measure': 0.0, 'scaling_factor': None, 'rotation_matrix': None}
     # Find the rotation matrix that aligns the distorted points to the perfect points in a least-square sense.
     rot = find_rotation(points_distorted=points_distorted,
-                           points_perfect=points_perfect)
+                        points_perfect=points_perfect)
     # Find the scaling factor between the distorted points and the perfect points in a least-square sense.
     scaling_factor, rotated_coords, points_perfect = find_scaling_factor(points_distorted=points_distorted,
                                                                          points_perfect=points_perfect,
@@ -1255,7 +1255,7 @@ class LocalGeometryFinder:
                     permutation=perm)
 
                 sm_info = symmetry_measure(points_distorted=points_distorted,
-                                              points_perfect=points_perfect)
+                                           points_perfect=points_perfect)
                 sm_info['translation_vector'] = self.local_geometry.centroid_with_centre
 
                 permutations_symmetry_measures[iperm] = sm_info
@@ -1674,7 +1674,7 @@ class LocalGeometryFinder:
                 permutation=pp)
 
             sm_info = symmetry_measure(points_distorted=points_distorted,
-                                          points_perfect=points_perfect)
+                                       points_perfect=points_perfect)
 
             sm_info['translation_vector'] = self.local_geometry.centroid_with_centre
 
@@ -1745,7 +1745,7 @@ class LocalGeometryFinder:
                 permutation=pp)
 
             sm_info = symmetry_measure(points_distorted=points_distorted,
-                                          points_perfect=points_perfect)
+                                       points_perfect=points_perfect)
 
             sm_info['translation_vector'] = self.local_geometry.centroid_with_centre
 

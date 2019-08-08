@@ -74,7 +74,7 @@ class XcFunc(MSONable):
 
     xcf = LibxcFunc
     defined_aliases = OrderedDict([  # (x, c) --> type_name
-	# LDAs
+        # LDAs
         ((xcf.LDA_X, xcf.LDA_C_PW), type_name("LDA", "PW")),             # ixc 7
         ((xcf.LDA_X, xcf.LDA_C_PW_MOD), type_name("LDA", "PW_MOD")),
         ((xcf.LDA_X, xcf.LDA_C_PZ), type_name("LDA", "PZ")),             # ixc 2
@@ -82,7 +82,7 @@ class XcFunc(MSONable):
         ((xcf.LDA_X, xcf.LDA_C_HL), type_name("LDA", "HL")),             # ixc 5
         ((xcf.LDA_X, xcf.LDA_C_GL), type_name("LDA", "GL")),
         ((xcf.LDA_X, xcf.LDA_C_VWN), type_name("LDA", "VWN")),
-	# GGAs
+        # GGAs
         ((xcf.GGA_X_PW91, xcf.GGA_C_PW91), type_name("GGA", "PW91")),
         ((xcf.GGA_X_PBE, xcf.GGA_C_PBE), type_name("GGA", "PBE")),
         ((xcf.GGA_X_RPBE, xcf.GGA_C_PBE), type_name("GGA", "RPBE")),      # ixc 15
@@ -125,7 +125,9 @@ class XcFunc(MSONable):
     def from_abinit_ixc(cls, ixc):
         """Build the object from Abinit ixc (integer)"""
         ixc = int(ixc)
-        if ixc >= 0:
+        if ixc == 0:
+            return None
+        if ixc > 0:
             return cls(**cls.abinitixc_to_libxc[ixc])
         else:
             # libxc notation employed in Abinit: a six-digit number in the form XXXCCC or CCCXXX

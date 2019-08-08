@@ -22,6 +22,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.apps.battery
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

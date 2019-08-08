@@ -6,22 +6,22 @@ Subpackages
 
 .. toctree::
 
-    pymatgen.alchemy
-    pymatgen.analysis
-    pymatgen.apps
-    pymatgen.cli
-    pymatgen.command_line
-    pymatgen.core
-    pymatgen.electronic_structure
-    pymatgen.entries
-    pymatgen.ext
-    pymatgen.io
-    pymatgen.optimization
-    pymatgen.phonon
-    pymatgen.symmetry
-    pymatgen.transformations
-    pymatgen.util
-    pymatgen.vis
+   pymatgen.alchemy
+   pymatgen.analysis
+   pymatgen.apps
+   pymatgen.cli
+   pymatgen.command_line
+   pymatgen.core
+   pymatgen.electronic_structure
+   pymatgen.entries
+   pymatgen.ext
+   pymatgen.io
+   pymatgen.optimization
+   pymatgen.phonon
+   pymatgen.symmetry
+   pymatgen.transformations
+   pymatgen.util
+   pymatgen.vis
 
 Submodules
 ----------
@@ -34,6 +34,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

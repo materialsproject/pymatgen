@@ -147,6 +147,7 @@ def update_doc(ctx):
     except:
         pass
     ctx.run("cp docs_rst/conf-normal.py docs_rst/conf.py")
+    ctx.run("mv pymatgen.tgz ..")
     make_doc(ctx)
     ctx.run("git add .")
     ctx.run("git commit -a -m \"Update docs\"")
@@ -270,7 +271,11 @@ def release(ctx, notest=False, nodoc=False):
         ctx.run("nosetests")
     publish(ctx)
     if not nodoc:
-        update_doc(ctx)
+        # update_doc(ctx)
+        make_doc(ctx)
+        ctx.run("git add .")
+        ctx.run("git commit -a -m \"Update docs\"")
+        ctx.run("git push")
     merge_stable(ctx)
     release_github(ctx)
     post_discourse(ctx)

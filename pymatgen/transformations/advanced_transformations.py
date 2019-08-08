@@ -19,7 +19,8 @@ from monty.json import MSONable
 from pymatgen.core.periodic_table import Element, Specie, get_el_sp, DummySpecie
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.transformations.standard_transformations import \
-    SubstitutionTransformation, OrderDisorderedStructureTransformation
+    SubstitutionTransformation, OrderDisorderedStructureTransformation, \
+    SupercellTransformation
 from pymatgen.command_line.enumlib_caller import EnumlibAdaptor, EnumError
 from pymatgen.analysis.ewald import EwaldSummation
 from pymatgen.core.structure import Structure
@@ -33,6 +34,7 @@ from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
+from pymatgen.analysis.adsorption import AdsorbateSiteFinder
 
 """
 This module implements more advanced transformations.
@@ -365,7 +367,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
             try:
                 adaptor.run()
             except EnumError:
-                warn("Unable to enumerate for max_cell_size = %d".format(
+                warn("Unable to enumerate for max_cell_size = {}".format(
                     max_cell_size))
             structures = adaptor.structures
             if structures:
@@ -1266,8 +1268,8 @@ class GrainBoundaryTransformation(AbstractTransformation):
     """
 
     def __init__(self, rotation_axis, rotation_angle, expand_times=4, vacuum_thickness=0.0,
-                 ab_shift=[0, 0], normal=False, ratio=None, plane=None, max_search=50,
-                 tol_coi=1.e-3):
+                 ab_shift=[0, 0], normal=False, ratio=None, plane=None, max_search=20,
+                 tol_coi=1.e-8, rm_ratio=0.7, quick_gen=False):
         """
         Args:
             rotation_axis (list): Rotation axis of GB in the form of a list of integer
@@ -1315,8 +1317,13 @@ class GrainBoundaryTransformation(AbstractTransformation):
                 obtain the correct number of coincidence sites. To check the number of coincidence
                 sites are correct or not, you can compare the generated Gb object's sigma with enum*
                 sigma values (what user expected by input).
+            rm_ratio (float): the criteria to remove the atoms which are too close with each other.
+                rm_ratio * bond_length of bulk system is the criteria of bond length, below which the atom
+                will be removed. Default to 0.7.
+            quick_gen (bool): whether to quickly generate a supercell, if set to true, no need to
+                find the smallest cell.
         Returns:
-           Grain boundary structure (Gb (Structure) object).
+           Grain boundary structure (gb (Structure) object).
         """
         self.rotation_axis = rotation_axis
         self.rotation_angle = rotation_angle
@@ -1328,6 +1335,8 @@ class GrainBoundaryTransformation(AbstractTransformation):
         self.plane = plane
         self.max_search = max_search
         self.tol_coi = tol_coi
+        self.rm_ratio = rm_ratio
+        self.quick_gen = quick_gen
 
     def apply_transformation(self, structure):
         gbg = GrainBoundaryGenerator(structure)
@@ -1341,7 +1350,9 @@ class GrainBoundaryTransformation(AbstractTransformation):
             self.ratio,
             self.plane,
             self.max_search,
-            self.tol_coi)
+            self.tol_coi,
+            self.rm_ratio,
+            self.quick_gen)
         return gb_struct
       
     @property
@@ -1351,3 +1362,401 @@ class GrainBoundaryTransformation(AbstractTransformation):
     @property
     def is_one_to_many(self):
         return False
+
+class CubicSupercellTransformation(AbstractTransformation):
+    """
+    A transformation that aims to generate a nearly cubic supercell structure from a structure.
+
+    The algorithm solves for a transformation matrix that makes the supercell cubic. The matrix
+    must have integer entries, so entries are rounded (in such a way that forces the matrix to be
+    nonsingular). From the supercell resulting from this transformation matrix, vector projections
+    are used to determine the side length of the largest cube that can fit inside the supercell.
+    The algorithm will iteratively increase the size of the supercell until the largest inscribed
+    cube's side length is at least 'num_nn_dists' times the nearest neighbor distance and the
+    number of atoms in the supercell falls in the range ['min_atoms', 'max_atoms'].
+    """
+
+    def __init__(self, min_atoms=None, max_atoms=None, num_nn_dists=5,
+                 force_diagonal_transformation=False):
+        """
+        Returns a supercell structure given a Pymatgen structure suitable for
+        Compressed Sensing Lattice Dynamics (CSLD). See papers below for details
+        on CSLD.
+
+        doi: 10.1103/PhysRevLett.113.185501
+        https://arxiv.org/abs/1805.08904
+        https://arxiv.org/abs/1805.08903
+
+        Args:
+            structure (Structure): input structure.
+            max_atoms (int): maximum number of atoms allowed in the supercell
+            min_atoms (int): minimum number of atoms allowed in the supercell
+            num_nn_dists (int): number of multiples of atomic nearest neighbor
+                distances to force all directions of the supercell to be at
+                least as large
+            force_diagonal_transformation (bool): If true, return a
+                transformation with a diagonal transformation matrix. Else,
+                do not impose this constraint (leading to a better result).
+        Returns:
+            Supercell structure (Structure)
+        """
+        if min_atoms is None:
+            min_atoms = -np.Inf
+        if max_atoms is None:
+            max_atoms = np.Inf
+
+        self.min_atoms = min_atoms
+        self.max_atoms = max_atoms
+        self.num_nn_dists = num_nn_dists
+        self.force_diagonal_transformation = force_diagonal_transformation
+
+        # Variables to be solved for by 'apply_transformation()'
+        self.smallest_dim = None # norm of smallest direction of the resulting supercell
+        self.trans_mat = None # transformation matrix
+        self.nn_dist = None
+
+    def _round_away_from_zero(self, x):
+        """
+        Returns 'x' rounded to the next integer away from 0.
+        If 'x' is zero, then returns zero.
+        E.g. -1.2 rounds to -2.0. 1.2 rounds to 2.0.
+
+        Args:
+            x (float): Number to be rounded to the next
+                integer away from 0.
+        Returns:
+            Number (float) rounded away from zero.
+        """
+        aX = abs(x)
+        return math.ceil(aX) * (aX / x) if x != 0 else 0
+
+    def _round_and_make_arr_singular(self, arr):
+        """
+        This function rounds all elements of a matrix to the nearest integer,
+        unless the rounding scheme causes the matrix to be singular, in which
+        case elements of zero rows or columns in the rounded matrix with the
+        largest absolute valued magnitude in the unrounded matrix will be
+        rounded to the next integer away from zero rather than to the
+        nearest integer.
+
+        Args:
+            array (np.ndarray): Matrix to be transformed
+        Returns:
+            transformed array (np.ndarray): Transformed matrix. The transformation
+                is as follows. First, all entries in 'arr' will be rounded to the
+                nearest integer to yield 'arr_rounded'. If 'arr_rounded' has any
+                zero rows, then one element in each zero row of 'arr_rounded'
+                corresponding to the element in 'arr' of that row with the
+                largest absolute valued magnitude will be rounded to the next
+                integer away from zero (see the '_round_away_from_zero(x)'
+                function) rather than the nearest integer. This process is then
+                repeated for zero columns. Also note that if 'arr' already has
+                zero rows or columns, then this function will not change those
+                rows/columns.
+        """
+        arr_rounded = np.around(arr)
+
+        # Zero rows in 'arr_rounded' make the array singular,
+        #   so force zero rows to be nonzero
+        if (~arr_rounded.any(axis=1)).any():  # Check for zero rows in T_rounded
+            # indices of zero rows
+            zero_row_idxs = np.where(~arr_rounded.any(axis=1))[0]
+
+            for zero_row_idx in zero_row_idxs: # loop over zero rows
+                zero_row = arr[zero_row_idx, :]
+
+                # Find the element of the zero row with the largest absolute
+                #   magnitude in the original (non-rounded) array (i.e. 'arr')
+                col_idx_to_fix = np.where(np.absolute(zero_row) == np.amax(np.absolute(zero_row)))[0]
+
+                # Break ties for the largest absolute magnitude
+                col_idx_to_fix = col_idx_to_fix[np.random.randint(len(col_idx_to_fix))]
+
+                # Round the chosen element away from zero
+                arr_rounded[zero_row_idx, col_idx_to_fix] = self._round_away_from_zero(arr[zero_row_idx, col_idx_to_fix])
+
+        # Repeat process for zero columns
+        if (~arr_rounded.any(axis=0)).any():  # Check for zero columns in T_rounded
+            zero_col_idxs = np.where(~arr_rounded.any(axis=0))[0]
+            for zero_col_idx in zero_col_idxs:
+                zero_col = arr[:, zero_col_idx]
+                row_idx_to_fix = np.where(np.absolute(zero_col) == np.amax(np.absolute(zero_col)))[0]
+                for i in row_idx_to_fix:
+                    arr_rounded[i, zero_col_idx] = self._round_away_from_zero(arr[i, zero_col_idx])
+        return arr_rounded.astype(int)
+
+    def apply_transformation(self, structure):
+        """
+        The algorithm solves for a transformation matrix that makes the
+        supercell cubic. The matrix must have integer entries, so entries are
+        rounded (in such a way that forces the matrix to be nonsingular). From
+        the supercell resulting from this transformation matrix, vector
+        projections are used to determine the side length of the largest cube
+        that can fit inside the supercell. The algorithm will iteratively
+        increase the size of the supercell until the largest inscribed cube's
+        side length is at least 'num_nn_dists' times the nearest neighbor
+        distance and the number of atoms in the supercell falls in the range
+        ['min_atoms', 'max_atoms'].
+
+        Returns:
+            supercell (Structure)
+        """
+
+        lat_vecs = structure.lattice.matrix
+        bond_matrix = structure.distance_matrix
+        np.fill_diagonal(bond_matrix, np.Inf)
+        self.nn_dist = np.amin(bond_matrix)
+
+        if not structure:
+            raise AttributeError('No structure was passed into gen_scaling_matrix()')
+        else:
+            # boolean for if a sufficiently large supercell has been created
+            sc_not_found = True
+
+            # minimum distance any direction of the supercell must be as large as
+            hard_sc_size_threshold = self.nn_dist * self.num_nn_dists
+
+            if self.force_diagonal_transformation:
+                # trans_mat_diagonal holds the diagonal of the trans_mat
+                trans_mat_diagonal = np.array([0, 0, 0])
+                trans_mat_diagonal_update = np.array([1, 1, 1])
+            else:
+                # target_threshold is used as the desired cubic side lengths of the supercell
+                target_sc_size = hard_sc_size_threshold
+            while sc_not_found:
+                if self.force_diagonal_transformation:
+                    # Update trans_mat (with diagonal constraint)
+                    trans_mat_diagonal += trans_mat_diagonal_update
+                    self.trans_mat = np.diag(trans_mat_diagonal)
+                else:
+                    # Update trans_mat (without diagonal constraint)
+                    target_sc_lat_vecs = np.eye(3, 3) * target_sc_size
+                    self.trans_mat = np.linalg.inv(lat_vecs) @ target_sc_lat_vecs
+
+                    # round the entries of T and force T to be nonsingular
+                    self.trans_mat = self._round_and_make_arr_singular(self.trans_mat)
+
+                proposed_sc_lat_vecs = self.trans_mat @ lat_vecs
+
+                # Find the shortest dimension length and direction
+                a = proposed_sc_lat_vecs[0]
+                b = proposed_sc_lat_vecs[1]
+                c = proposed_sc_lat_vecs[2]
+
+                length1_vec = c - _proj(c, a) #a-c plane
+                length2_vec = a - _proj(a, c)
+                length3_vec = b - _proj(b, a) #b-a plane
+                length4_vec = a - _proj(a, b)
+                length5_vec = b - _proj(b, c) #b-c plane
+                length6_vec = c - _proj(c, b)
+                length_vecs = np.array([length1_vec, length2_vec, length3_vec,
+                                        length4_vec, length5_vec, length6_vec])
+
+                lengths = np.linalg.norm(length_vecs, axis=1)
+                self.smallest_dim = np.amin(lengths) #shortest length
+                smallest_dim_idx = np.argmin(lengths)
+                smallest_dim_vec = length_vecs[smallest_dim_idx] # shortest direction
+
+                # Get number of atoms
+                superstructure = SupercellTransformation(self.trans_mat).apply_transformation(structure)
+                num_at = superstructure.num_sites
+
+                # Check if constraints are satisfied
+                if self.smallest_dim >= hard_sc_size_threshold \
+                        and num_at >= self.min_atoms and num_at <= self.max_atoms:
+                    return superstructure
+                else:
+                    # Increase threshold until proposed supercell meets requirements
+                    if self.force_diagonal_transformation:
+                        #Find which supercell lattice vector contributes most to
+                        # the shortest dimension
+                        sc_latvec1_proj_mag = np.linalg.norm(
+                                                _proj(proposed_sc_lat_vecs[0],
+                                                      smallest_dim_vec))
+                        sc_latvec2_proj_mag = np.linalg.norm(
+                                                _proj(proposed_sc_lat_vecs[1],
+                                                      smallest_dim_vec))
+                        sc_latvec3_proj_mag = np.linalg.norm(
+                                                _proj(proposed_sc_lat_vecs[2],
+                                                      smallest_dim_vec))
+                        sc_latvec_proj_mags = [sc_latvec1_proj_mag,
+                                               sc_latvec2_proj_mag,
+                                               sc_latvec3_proj_mag]
+                        sc_proj_max_idx = sc_latvec_proj_mags.index(max(sc_latvec_proj_mags))
+
+                        #Increase the corresponding supercell lattice vector size
+                        trans_mat_diagonal_update = np.array([0, 0, 0])
+                        np.put(trans_mat_diagonal_update, sc_proj_max_idx, 1)
+                    else:
+                        target_sc_size += 0.1
+                    if num_at > self.max_atoms:
+                        raise AttributeError('While trying to solve for the '
+                                             'supercell, the max number of atoms'
+                                             ' was exceeded. Try lowering the '
+                                             'number of nearest neighbor '
+                                             'distances.')
+
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return False
+
+
+class AddAdsorbateTransformation(AbstractTransformation):
+
+    def __init__(self, adsorbate, selective_dynamics=False, height=0.9,
+                 mi_vec=None, repeat=None, min_lw=5.0, translate=True,
+                 reorient=True, find_args=None):
+        """
+        Use AdsorbateSiteFinder to add an absorbate to a slab.
+
+        Args:
+            adsorbate (Molecule): molecule to add as adsorbate
+            selective_dynamics (bool): flag for whether to assign
+                non-surface sites as fixed for selective dynamics
+            height (float): height criteria for selection of surface sites
+            mi_vec : vector corresponding to the vector
+                concurrent with the miller index, this enables use with
+                slabs that have been reoriented, but the miller vector
+                must be supplied manually
+            repeat (3-tuple or list): repeat argument for supercell generation
+            min_lw (float): minimum length and width of the slab, only used
+                if repeat is None
+            translate (bool): flag on whether to translate the molecule so
+                that its CoM is at the origin prior to adding it to the surface
+            reorient (bool): flag on whether or not to reorient adsorbate
+                along the miller index
+            find_args (dict): dictionary of arguments to be passed to the
+                call to self.find_adsorption_sites, e.g. {"distance":2.0}
+        """
+        self.adsorbate = adsorbate
+        self.selective_dynamics = selective_dynamics
+        self.height = height
+        self.mi_vec = mi_vec
+        self.repeat = repeat
+        self.min_lw = min_lw
+        self.translate = translate
+        self.reorient = reorient
+        self.find_args = find_args
+
+    def apply_transformation(self, structure, return_ranked_list=False):
+        """
+
+        Args:
+            structure: Must be a Slab structure
+            return_ranked_list:  Whether or not multiple structures are
+                returned. If return_ranked_list is a number, up to that number of
+                structures is returned.
+
+        Returns: Slab with adsorbate
+
+        """
+
+        sitefinder = AdsorbateSiteFinder(structure,
+                                         selective_dynamics=self.selective_dynamics,
+                                         height=self.height,
+                                         mi_vec=self.mi_vec)
+
+        structures = sitefinder.generate_adsorption_structures(
+            self.adsorbate, repeat=self.repeat, min_lw=self.min_lw,
+            translate=self.translate, reorient=self.reorient, find_args=self.find_args
+        )
+
+        if not return_ranked_list:
+            return structures[0]
+        else:
+            return [{"structure": structure} for structure in structures[:return_ranked_list]]
+
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return True
+
+
+class SubstituteSurfaceSiteTransformation(AbstractTransformation):
+
+    def __init__(self, atom, selective_dynamics=False, height=0.9,
+                 mi_vec=None, target_species=None, sub_both_sides=False,
+                 range_tol=1e-2, dist_from_surf=0):
+        """
+        Use AdsorptionSiteFinder to perform substitution-type doping on the surface and
+        returns all possible configurations where one dopant is substituted
+        per surface. Can substitute one surface or both.
+
+
+        Args:
+            atom (str): atom corresponding to substitutional dopant
+            selective_dynamics (bool): flag for whether to assign
+                non-surface sites as fixed for selective dynamics
+            height (float): height criteria for selection of surface sites
+            mi_vec : vector corresponding to the vector
+                concurrent with the miller index, this enables use with
+                slabs that have been reoriented, but the miller vector
+                must be supplied manually
+            target_species:  List of specific species to substitute
+            sub_both_sides (bool): If true, substitute an equivalent
+                site on the other surface
+            range_tol (float): Find viable substitution sites at a specific
+                distance from the surface +- this tolerance
+            dist_from_surf (float): Distance from the surface to find viable
+                substitution sites, defaults to 0 to substitute at the surface
+        """
+        self.atom = atom
+        self.selective_dynamics = selective_dynamics
+        self.height = height
+        self.mi_vec = mi_vec
+        self.target_species = target_species
+        self.sub_both_sides = sub_both_sides
+        self.range_tol = range_tol
+        self.dist_from_surf = dist_from_surf
+
+    def apply_transformation(self, structure, return_ranked_list=False):
+        """
+
+        Args:
+            structure: Must be a Slab structure
+            return_ranked_list:  Whether or not multiple structures are
+                returned. If return_ranked_list is a number, up to that number of
+                structures is returned.
+
+        Returns: Slab with sites substituted
+
+        """
+
+        sitefinder = AdsorbateSiteFinder(structure,
+                                         selective_dynamics=self.selective_dynamics,
+                                         height=self.height,
+                                         mi_vec=self.mi_vec)
+
+        structures = sitefinder.generate_substitution_structures(self.atom,
+                                                                 target_species=self.target_species,
+                                                                 sub_both_sides=self.sub_both_sides,
+                                                                 range_tol=self.range_tol,
+                                                                 dist_from_surf=self.dist_from_surf)
+
+        if not return_ranked_list:
+            return structures[0]
+        else:
+            return [{"structure": structure} for structure in structures[:return_ranked_list]]
+
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return True
+
+
+def _proj(b, a):
+    """
+    Returns vector projection (np.ndarray) of vector b (np.ndarray)
+    onto vector a (np.ndarray)
+    """
+    return (b.T @ (a / np.linalg.norm(a))) * (a / np.linalg.norm(a))

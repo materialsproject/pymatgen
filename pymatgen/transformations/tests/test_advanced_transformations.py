@@ -8,7 +8,7 @@ import json
 import warnings
 import numpy as np
 
-from pymatgen import Lattice, Structure, Specie
+from pymatgen import Lattice, Structure, Specie, Molecule
 from pymatgen.transformations.standard_transformations import \
     OxidationStateDecorationTransformation, SubstitutionTransformation, \
     OrderDisorderedStructureTransformation, AutoOxiStateDecorationTransformation
@@ -18,7 +18,9 @@ from pymatgen.transformations.advanced_transformations import \
     SubstitutionPredictorTransformation, MagOrderingTransformation, \
     DopingTransformation, _find_codopant, SlabTransformation, \
     MagOrderParameterConstraint, DisorderOrderedTransformation, \
-    GrainBoundaryTransformation
+    GrainBoundaryTransformation, CubicSupercellTransformation, \
+    AddAdsorbateTransformation, SubstituteSurfaceSiteTransformation
+
 from monty.os.path import which
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.cif import CifParser
@@ -335,8 +337,10 @@ class MagOrderingTransformationTest(PymatgenTest):
         p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.LiFePO4'),
                              check_for_POTCAR=False)
         s = p.structure
+        a = SpacegroupAnalyzer(s, 0.1)
+        s = a.get_refined_structure()
         alls = trans.apply_transformation(s, 10)
-        self.assertEqual(len(alls), 2)
+        self.assertEqual(len(alls), 1)
 
     def test_as_from_dict(self):
         trans = MagOrderingTransformation({"Fe": 5}, order_parameter=0.75)
@@ -499,6 +503,8 @@ class DopingTransformationTest(PymatgenTest):
 
     def test_apply_transformation(self):
         structure = PymatgenTest.get_structure("LiFePO4")
+        a = SpacegroupAnalyzer(structure, 0.1)
+        structure = a.get_refined_structure()
         t = DopingTransformation("Ca2+", min_length=10)
         ss = t.apply_transformation(structure, 100)
         self.assertEqual(len(ss), 1)
@@ -508,7 +514,7 @@ class DopingTransformationTest(PymatgenTest):
         self.assertEqual(len(ss), 0)
 
         # Aliovalent doping with vacancies
-        for dopant, nstructures in [("Al3+", 4), ("N3-", 420), ("Cl-", 16)]:
+        for dopant, nstructures in [("Al3+", 2), ("N3-", 235), ("Cl-", 8)]:
             t = DopingTransformation(dopant, min_length=4, alio_tol=1,
                                      max_structures_per_enum=1000)
             ss = t.apply_transformation(structure, 1000)
@@ -517,7 +523,7 @@ class DopingTransformationTest(PymatgenTest):
                 self.assertEqual(d["structure"].charge, 0)
 
         # Aliovalent doping with codopant
-        for dopant, nstructures in [("Al3+", 3), ("N3-", 60), ("Cl-", 60)]:
+        for dopant, nstructures in [("Al3+", 3), ("N3-", 37), ("Cl-", 37)]:
             t = DopingTransformation(dopant, min_length=4, alio_tol=1,
                                      codopant=True,
                                      max_structures_per_enum=1000)
@@ -581,15 +587,15 @@ class GrainBoundaryTransformationTest(PymatgenTest):
     def test_apply_transformation(self):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            Li_bulk = Structure.from_spacegroup("Im-3m", Lattice.cubic(2.96771),
-                                                ["Li"], [[0, 0, 0]])
-            gb_gen_params_s3 = {"rotation_axis": [1, 1, 1], "rotation_angle": 60.0,
-                                "expand_times": 2, "vacuum_thickness": 0.0, "normal": True,
-                                "ratio": None, "plane": None}
-            gbg = GrainBoundaryGenerator(Li_bulk)
-            gb_from_generator = gbg.gb_from_parameters(**gb_gen_params_s3)
-            gbt_s3 = GrainBoundaryTransformation(**gb_gen_params_s3)
-            gb_from_trans = gbt_s3.apply_transformation(Li_bulk)
+            Al_bulk = Structure.from_spacegroup("Fm-3m", Lattice.cubic(2.8575585),
+                                                ["Al"], [[0, 0, 0]])
+            gb_gen_params_s5 = {"rotation_axis": [1, 0, 0], "rotation_angle": 53.13010235415599,
+                                "expand_times": 3, "vacuum_thickness": 0.0, "normal": True,
+                                "plane": [0, -1, -3], 'rm_ratio': 0.6}
+            gbg = GrainBoundaryGenerator(Al_bulk)
+            gb_from_generator = gbg.gb_from_parameters(**gb_gen_params_s5)
+            gbt_s5 = GrainBoundaryTransformation(**gb_gen_params_s5)
+            gb_from_trans = gbt_s5.apply_transformation(Al_bulk)
             self.assertArrayAlmostEqual(gb_from_generator.lattice.matrix,
                                         gb_from_trans.lattice.matrix)
             self.assertArrayAlmostEqual(gb_from_generator.cart_coords,
@@ -609,6 +615,80 @@ class DisorderedOrderedTransformationTest(PymatgenTest):
         self.assertFalse(output.is_ordered)
         self.assertDictEqual(output[-1].species.as_dict(),
                              {'Ni': 0.5, 'Ba': 0.5})
+
+
+class CubicSupercellTransformationTest(PymatgenTest):
+
+    def test_apply_transformation(self):
+
+        structure = self.get_structure('TlBiSe2')
+        min_atoms = 100
+        max_atoms = 1000
+        num_nn_dists = 5
+
+        # Test the transformation without constraining trans_mat to be diagonal
+        supercell_generator = CubicSupercellTransformation(min_atoms=min_atoms,
+                                                           max_atoms=max_atoms,
+                                                           num_nn_dists=num_nn_dists)
+        superstructure = supercell_generator.apply_transformation(structure)
+
+        num_atoms = superstructure.num_sites
+        self.assertTrue(num_atoms>=min_atoms)
+        self.assertTrue(num_atoms<=max_atoms)
+        self.assertTrue(supercell_generator.smallest_dim >=
+                        num_nn_dists*supercell_generator.nn_dist)
+        self.assertArrayAlmostEqual(superstructure.lattice.matrix[0],
+                                    [1.49656087e+01, -1.11448000e-03, 9.04924836e+00])
+        self.assertArrayAlmostEqual(superstructure.lattice.matrix[1],
+                                    [-0.95005506, 14.95766342, 10.01819773])
+        self.assertArrayAlmostEqual(superstructure.lattice.matrix[2],
+                                    [3.69130000e-02, 4.09320200e-02, 5.90830153e+01])
+        self.assertEqual(superstructure.num_sites, 448)
+        self.assertArrayEqual(supercell_generator.trans_mat,
+                              np.array([[4, 0, 0],
+                                        [1, 4, -4],
+                                        [0, 0, 1]]))
+
+        # Test the diagonal transformation
+        structure2 = self.get_structure('Si')
+        sga = SpacegroupAnalyzer(structure2)
+        structure2 = sga.get_primitive_standard_structure()
+        structure2.to("poscar", filename="POSCAR-orig_si")
+        diagonal_supercell_generator = CubicSupercellTransformation(min_atoms=min_atoms,
+                                                                    max_atoms=max_atoms,
+                                                                    num_nn_dists=num_nn_dists,
+                                                                    force_diagonal_transformation=True)
+        superstructure2 = diagonal_supercell_generator.apply_transformation(structure2)
+        superstructure2.to("poscar", filename="POSCAR-diag_si")
+        self.assertArrayEqual(diagonal_supercell_generator.trans_mat,
+                              np.array([[4, 0, 0],
+                                        [0, 4, 0],
+                                        [0, 0, 4]]))
+
+
+class AddAdsorbateTransformationTest(PymatgenTest):
+
+    def test_apply_transformation(self):
+
+        co = Molecule(["C", "O"], [[0, 0, 0], [0, 0, 1.23]])
+        trans = AddAdsorbateTransformation(co)
+        pt = Structure(Lattice.cubic(5), ["Pt"], [[0, 0, 0]])  # fictitious
+        slab = SlabTransformation([0, 0, 1], 20, 10).apply_transformation(pt)
+        out = trans.apply_transformation(slab)
+
+        self.assertEqual(out.composition.reduced_formula, "Pt4CO")
+
+
+class SubstituteSurfaceSiteTransformationTest(PymatgenTest):
+
+    def test_apply_transformation(self):
+
+        trans = SubstituteSurfaceSiteTransformation("Au")
+        pt = Structure(Lattice.cubic(5), ["Pt"], [[0, 0, 0]])  # fictitious
+        slab = SlabTransformation([0, 0, 1], 20, 10).apply_transformation(pt)
+        out = trans.apply_transformation(slab)
+
+        self.assertEqual(out.composition.reduced_formula, "Pt3Au")
 
 
 if __name__ == "__main__":

@@ -124,7 +124,7 @@ class MagneticSpaceGroup(SymmetryGroup):
 
         def _get_point_operator(idx):
             '''Retrieve information on point operator (rotation matrix and Seitz label).'''
-            hex = self._data['bns_number'][0] >= 168 and self._data['bns_number'][0] <= 194
+            hex = self._data['bns_number'][0] >= 143 and self._data['bns_number'][0] <= 194
             c.execute('SELECT symbol, matrix FROM point_operators WHERE idx=? AND hex=?;', (idx-1, hex))
             op = c.fetchone()
             op = {'symbol': op[0], 'matrix': np.array(op[1].split(','), dtype='f').reshape(3, 3)}
@@ -179,12 +179,12 @@ class MagneticSpaceGroup(SymmetryGroup):
                 for j in range(m):
                     s = b[3+o+(j*22):3+o+(j*22)+22]  # data corresponding to specific Wyckoff position
                     translation_vec = [s[0]/s[3], s[1]/s[3], s[2]/s[3]]
-                    matrix = [[s[4], s[5], s[6]],
-                              [s[7], s[8], s[9]],
-                              [s[10], s[11], s[12]]]
-                    matrix_magmom = [[s[13], s[14], s[15]],
-                                     [s[16], s[17], s[18]],
-                                     [s[19], s[20], s[21]]]
+                    matrix = [[s[4], s[7], s[10]],
+                              [s[5], s[8], s[11]],
+                              [s[6], s[9], s[12]]]
+                    matrix_magmom = [[s[13], s[16], s[19]],
+                                     [s[14], s[17], s[20]],
+                                     [s[15], s[18], s[21]]]
                     # store string representation, e.g. (x,y,z;mx,my,mz)
                     wyckoff_str = "({};{})".format(transformation_to_string(matrix, translation_vec),
                                                    transformation_to_string(matrix_magmom, c='m'))
@@ -224,9 +224,9 @@ class MagneticSpaceGroup(SymmetryGroup):
                 return None
             # capital letters used here by convention,
             # IUCr defines P and p specifically
-            P = [[b[0], b[1], b[2]],
-                 [b[3], b[4], b[5]],
-                 [b[6], b[7], b[8]]]
+            P = [[b[0], b[3], b[6]],
+                 [b[1], b[4], b[7]],
+                 [b[2], b[5], b[8]]]
             p = [b[9]/b[12], b[10]/b[12], b[11]/b[12]]
             P = np.array(P).transpose()
             P_string = transformation_to_string(P, components=('a', 'b', 'c'))

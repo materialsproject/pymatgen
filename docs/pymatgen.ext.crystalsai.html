@@ -1,0 +1,182 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>pymatgen.ext.crystalsai module &#8212; pymatgen 2019.7.30 documentation</title>
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pymatgen.ext.crystalsai">
+<span id="pymatgen-ext-crystalsai-module"></span><h1>pymatgen.ext.crystalsai module<a class="headerlink" href="#module-pymatgen.ext.crystalsai" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pymatgen.ext.crystalsai.CrystalAIRester">
+<em class="property">class </em><code class="sig-name descname">CrystalAIRester</code><a class="reference internal" href="_modules/pymatgen/ext/crystalsai.html#CrystalAIRester"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.crystalsai.CrystalAIRester" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This is a high-level interface to the REST API for <a class="reference external" href="http://megnet.crystals.ai">http://megnet.crystals.ai</a>
+for property prediction. Using this API, you can use MatErials Graph
+Networks (MEGNet) developed by the Materials Virtual Lab to predict the
+properties of any given crystal. These models are trained on the latest
+versions of the Materials Project. The open-source code
+implementing these MEGNet models are available at
+<a class="reference external" href="https://github.com/materialsvirtuallab/megnet">https://github.com/materialsvirtuallab/megnet</a>.</p>
+<p>For the details of MEGNet and benchmarks, please refer to the following work:
+Chen, C.; Ye, W.; Zuo, Y.; Zheng, C.; Ong, S. P. &lt;i&gt;Graph Networks as a Universal Machine Learning Framework</p>
+<blockquote>
+<div><blockquote>
+<div><p>for Molecules and Crystals.&lt;/i&gt; Chemistry of Materials 2019, acs.chemmater.9b01294.</p>
+</div></blockquote>
+<p>DOI: &lt;a href=”<a class="reference external" href="http://dx.doi.org/10.1021/acs.chemmater.9b01294">http://dx.doi.org/10.1021/acs.chemmater.9b01294</a>”&gt;10.1021/acs.chemmater.9b01294&lt;/a&gt;.&lt;/p&gt;</p>
+</div></blockquote>
+<dl class="method">
+<dt id="pymatgen.ext.crystalsai.CrystalAIRester.get_available_models">
+<code class="sig-name descname">get_available_models</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/crystalsai.html#CrystalAIRester.get_available_models"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.crystalsai.CrystalAIRester.get_available_models" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Available model names. It should be noted that model names starting
+with log10 are for the log10 of that quantity.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.ext.crystalsai.CrystalAIRester.predict_mp">
+<code class="sig-name descname">predict_mp</code><span class="sig-paren">(</span><em class="sig-param">model_name</em>, <em class="sig-param">mp_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/crystalsai.html#CrystalAIRester.predict_mp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.crystalsai.CrystalAIRester.predict_mp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict using the <a class="reference external" href="http://megnet.crystals.ai">http://megnet.crystals.ai</a> API.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_name</strong> – An available model in the
+<a class="reference external" href="http://megnet.crystals.ai">http://megnet.crystals.ai</a> API. Use get_available_models to find
+the model names.</p></li>
+<li><p><strong>mp_id</strong> – A Materials Project id.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Predicted value. It should be noted that model names starting
+with log10 are for the log10 of that quantity and you should apply
+10 ** prediction to get the actual value.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.ext.crystalsai.CrystalAIRester.predict_structure">
+<code class="sig-name descname">predict_structure</code><span class="sig-paren">(</span><em class="sig-param">model_name</em>, <em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/crystalsai.html#CrystalAIRester.predict_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.crystalsai.CrystalAIRester.predict_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict using the <a class="reference external" href="http://megnet.crystals.ai">http://megnet.crystals.ai</a> API.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_name</strong> – An available model in the
+<a class="reference external" href="http://megnet.crystals.ai">http://megnet.crystals.ai</a> API. Use get_available_models to find
+the model names.</p></li>
+<li><p><strong>structure</strong> – A Pymatgen Structure.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Predicted value. It should be noted that model names starting
+with log10 are for the log10 of that quantity and you should apply
+10 ** prediction to get the actual value.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pymatgen.ext.crystalsai.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

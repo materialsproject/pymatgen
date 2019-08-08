@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.transformations.advanced_transformations &#8212; pymatgen 2019.4.11 documentation</title>
+    <title>pymatgen.transformations.advanced_transformations &#8212; pymatgen 2019.7.30 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.4.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -66,7 +66,8 @@
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">get_el_sp</span><span class="p">,</span> <span class="n">DummySpecie</span>
 <span class="kn">from</span> <span class="nn">pymatgen.transformations.transformation_abc</span> <span class="k">import</span> <span class="n">AbstractTransformation</span>
 <span class="kn">from</span> <span class="nn">pymatgen.transformations.standard_transformations</span> <span class="k">import</span> \
-    <span class="n">SubstitutionTransformation</span><span class="p">,</span> <span class="n">OrderDisorderedStructureTransformation</span>
+    <span class="n">SubstitutionTransformation</span><span class="p">,</span> <span class="n">OrderDisorderedStructureTransformation</span><span class="p">,</span> \
+    <span class="n">SupercellTransformation</span>
 <span class="kn">from</span> <span class="nn">pymatgen.command_line.enumlib_caller</span> <span class="k">import</span> <span class="n">EnumlibAdaptor</span><span class="p">,</span> <span class="n">EnumError</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.ewald</span> <span class="k">import</span> <span class="n">EwaldSummation</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
@@ -80,6 +81,7 @@
 <span class="kn">from</span> <span class="nn">pymatgen.core.surface</span> <span class="k">import</span> <span class="n">SlabGenerator</span>
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="k">import</span> <span class="n">Spin</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.gb.grain</span> <span class="k">import</span> <span class="n">GrainBoundaryGenerator</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.adsorption</span> <span class="k">import</span> <span class="n">AdsorbateSiteFinder</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module implements more advanced transformations.</span>
@@ -412,7 +414,7 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">adaptor</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
             <span class="k">except</span> <span class="n">EnumError</span><span class="p">:</span>
-                <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Unable to enumerate for max_cell_size = </span><span class="si">%d</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Unable to enumerate for max_cell_size = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                     <span class="n">max_cell_size</span><span class="p">))</span>
             <span class="n">structures</span> <span class="o">=</span> <span class="n">adaptor</span><span class="o">.</span><span class="n">structures</span>
             <span class="k">if</span> <span class="n">structures</span><span class="p">:</span>
@@ -1313,8 +1315,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rotation_axis</span><span class="p">,</span> <span class="n">rotation_angle</span><span class="p">,</span> <span class="n">expand_times</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">vacuum_thickness</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
-                 <span class="n">ab_shift</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">normal</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ratio</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plane</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_search</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
-                 <span class="n">tol_coi</span><span class="o">=</span><span class="mf">1.e-3</span><span class="p">):</span>
+                 <span class="n">ab_shift</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">normal</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ratio</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plane</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_search</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+                 <span class="n">tol_coi</span><span class="o">=</span><span class="mf">1.e-8</span><span class="p">,</span> <span class="n">rm_ratio</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">quick_gen</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            rotation_axis (list): Rotation axis of GB in the form of a list of integer</span>
@@ -1362,8 +1364,13 @@
 <span class="sd">                obtain the correct number of coincidence sites. To check the number of coincidence</span>
 <span class="sd">                sites are correct or not, you can compare the generated Gb object&#39;s sigma with enum*</span>
 <span class="sd">                sigma values (what user expected by input).</span>
+<span class="sd">            rm_ratio (float): the criteria to remove the atoms which are too close with each other.</span>
+<span class="sd">                rm_ratio * bond_length of bulk system is the criteria of bond length, below which the atom</span>
+<span class="sd">                will be removed. Default to 0.7.</span>
+<span class="sd">            quick_gen (bool): whether to quickly generate a supercell, if set to true, no need to</span>
+<span class="sd">                find the smallest cell.</span>
 <span class="sd">        Returns:</span>
-<span class="sd">           Grain boundary structure (Gb (Structure) object).</span>
+<span class="sd">           Grain boundary structure (gb (Structure) object).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rotation_axis</span> <span class="o">=</span> <span class="n">rotation_axis</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rotation_angle</span> <span class="o">=</span> <span class="n">rotation_angle</span>
@@ -1375,6 +1382,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">plane</span> <span class="o">=</span> <span class="n">plane</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_search</span> <span class="o">=</span> <span class="n">max_search</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tol_coi</span> <span class="o">=</span> <span class="n">tol_coi</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rm_ratio</span> <span class="o">=</span> <span class="n">rm_ratio</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">quick_gen</span> <span class="o">=</span> <span class="n">quick_gen</span>
 
 <div class="viewcode-block" id="GrainBoundaryTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.GrainBoundaryTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
         <span class="n">gbg</span> <span class="o">=</span> <span class="n">GrainBoundaryGenerator</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
@@ -1388,7 +1397,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">ratio</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">plane</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">max_search</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">tol_coi</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tol_coi</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rm_ratio</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">quick_gen</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">gb_struct</span></div>
       
     <span class="nd">@property</span>
@@ -1398,6 +1409,512 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="CubicSupercellTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.CubicSupercellTransformation">[docs]</a><span class="k">class</span> <span class="nc">CubicSupercellTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A transformation that aims to generate a nearly cubic supercell structure from a structure.</span>
+
+<span class="sd">    The algorithm solves for a transformation matrix that makes the supercell cubic. The matrix</span>
+<span class="sd">    must have integer entries, so entries are rounded (in such a way that forces the matrix to be</span>
+<span class="sd">    nonsingular). From the supercell resulting from this transformation matrix, vector projections</span>
+<span class="sd">    are used to determine the side length of the largest cube that can fit inside the supercell.</span>
+<span class="sd">    The algorithm will iteratively increase the size of the supercell until the largest inscribed</span>
+<span class="sd">    cube&#39;s side length is at least &#39;num_nn_dists&#39; times the nearest neighbor distance and the</span>
+<span class="sd">    number of atoms in the supercell falls in the range [&#39;min_atoms&#39;, &#39;max_atoms&#39;].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_atoms</span><span class="o">=-</span><span class="n">np</span><span class="o">.</span><span class="n">Inf</span><span class="p">,</span> <span class="n">max_atoms</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">Inf</span><span class="p">,</span> <span class="n">num_nn_dists</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a supercell structure given a Pymatgen structure suitable for</span>
+<span class="sd">        Compressed Sensing Lattice Dynamics (CSLD). See papers below for details</span>
+<span class="sd">        on CSLD.</span>
+
+<span class="sd">        doi: 10.1103/PhysRevLett.113.185501</span>
+<span class="sd">        https://arxiv.org/abs/1805.08904</span>
+<span class="sd">        https://arxiv.org/abs/1805.08903</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): input structure.</span>
+<span class="sd">            max_atoms (int): maximum number of atoms allowed in the supercell</span>
+<span class="sd">            min_atoms (int): minimum number of atoms allowed in the supercell</span>
+<span class="sd">            num_nn_dists (int): number of multiples of atomic nearest neighbor</span>
+<span class="sd">                distances to force all directions of the supercell to be at</span>
+<span class="sd">                least as large</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Supercell structure (Structure)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_atoms</span> <span class="o">=</span> <span class="n">min_atoms</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_atoms</span> <span class="o">=</span> <span class="n">max_atoms</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_nn_cutoff</span> <span class="o">=</span> <span class="n">num_nn_dists</span>
+
+        <span class="c1"># Variables to be solved for by &#39;apply_transformation()&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">smallest_dim</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># smallest direction of the resulting supercell</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trans_mat</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># transformation matrix</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nn_dist</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_round_away_from_zero</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns &#39;x&#39; rounded to the next integer away from 0.</span>
+<span class="sd">        If &#39;x&#39; is zero, then returns zero.</span>
+<span class="sd">        E.g. -1.2 rounds to -2.0. 1.2 rounds to 2.0.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x (float): Number to be rounded to the next</span>
+<span class="sd">                integer away from 0.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Number (float) rounded away from zero.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">aX</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">aX</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">aX</span> <span class="o">/</span> <span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">_round_and_make_arr_singular</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arr</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function rounds all elements of a matrix to the nearest integer,</span>
+<span class="sd">        unless the rounding scheme causes the matrix to be singular, in which</span>
+<span class="sd">        case elements of zero rows or columns in the rounded matrix with the</span>
+<span class="sd">        largest absolute valued magnitude in the unrounded matrix will be</span>
+<span class="sd">        rounded to the next integer away from zero rather than to the</span>
+<span class="sd">        nearest integer.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            array (np.ndarray): Matrix to be transformed</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            transformed array (np.ndarray): Transformed matrix. The transformation</span>
+<span class="sd">                is as follows. First, all entries in &#39;arr&#39; will be rounded to the</span>
+<span class="sd">                nearest integer to yield &#39;arr_rounded&#39;. If &#39;arr_rounded&#39; has any</span>
+<span class="sd">                zero rows, then one element in each zero row of &#39;arr_rounded&#39;</span>
+<span class="sd">                corresponding to the element in &#39;arr&#39; of that row with the</span>
+<span class="sd">                largest absolute valued magnitude will be rounded to the next</span>
+<span class="sd">                integer away from zero (see the &#39;_round_away_from_zero(x)&#39;</span>
+<span class="sd">                function) rather than the nearest integer. This process is then</span>
+<span class="sd">                repeated for zero columns. Also note that if &#39;arr&#39; already has</span>
+<span class="sd">                zero rows or columns, then this function will not change those</span>
+<span class="sd">                rows/columns.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">arr_rounded</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+
+        <span class="c1"># Zero rows in &#39;arr_rounded&#39; make the array singular,</span>
+        <span class="c1">#   so force zero rows to be nonzero</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">~</span><span class="n">arr_rounded</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>  <span class="c1"># Check for zero rows in T_rounded</span>
+            <span class="c1"># indices of zero rows</span>
+            <span class="n">zero_row_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="n">arr_rounded</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">zero_row_idx</span> <span class="ow">in</span> <span class="n">zero_row_idxs</span><span class="p">:</span> <span class="c1"># loop over zero rows</span>
+                <span class="n">zero_row</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="n">zero_row_idx</span><span class="p">,</span> <span class="p">:]</span>
+
+                <span class="c1"># Find the element of the zero row with the largest absolute</span>
+                <span class="c1">#   magnitude in the original (non-rounded) array (i.e. &#39;arr&#39;)</span>
+                <span class="n">col_idx_to_fix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">absolute</span><span class="p">(</span><span class="n">zero_row</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">absolute</span><span class="p">(</span><span class="n">zero_row</span><span class="p">)))[</span><span class="mi">0</span><span class="p">]</span>
+
+                <span class="c1"># Break ties for the largest absolute magnitude</span>
+                <span class="n">col_idx_to_fix</span> <span class="o">=</span> <span class="n">col_idx_to_fix</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">col_idx_to_fix</span><span class="p">))]</span>
+
+                <span class="c1"># Round the chosen element away from zero</span>
+                <span class="n">arr_rounded</span><span class="p">[</span><span class="n">zero_row_idx</span><span class="p">,</span> <span class="n">col_idx_to_fix</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_round_away_from_zero</span><span class="p">(</span><span class="n">arr</span><span class="p">[</span><span class="n">zero_row_idx</span><span class="p">,</span> <span class="n">col_idx_to_fix</span><span class="p">])</span>
+
+        <span class="c1"># Repeat process for zero columns</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">~</span><span class="n">arr_rounded</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>  <span class="c1"># Check for zero columns in T_rounded</span>
+            <span class="n">zero_col_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="n">arr_rounded</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">zero_col_idx</span> <span class="ow">in</span> <span class="n">zero_col_idxs</span><span class="p">:</span>
+                <span class="n">zero_col</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[:,</span> <span class="n">zero_col_idx</span><span class="p">]</span>
+                <span class="n">row_idx_to_fix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">absolute</span><span class="p">(</span><span class="n">zero_col</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">absolute</span><span class="p">(</span><span class="n">zero_col</span><span class="p">)))[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">row_idx_to_fix</span><span class="p">:</span>
+                    <span class="n">arr_rounded</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">zero_col_idx</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_round_away_from_zero</span><span class="p">(</span><span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">zero_col_idx</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">arr_rounded</span>
+
+<div class="viewcode-block" id="CubicSupercellTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.CubicSupercellTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The algorithm solves for a transformation matrix that makes the</span>
+<span class="sd">        supercell cubic. The matrix must have integer entries, so entries are</span>
+<span class="sd">        rounded (in such a way that forces the matrix to be nonsingular). From</span>
+<span class="sd">        the supercell resulting from this transformation matrix, vector</span>
+<span class="sd">        projections are used to determine the side length of the largest cube</span>
+<span class="sd">        that can fit inside the supercell. The algorithm will iteratively</span>
+<span class="sd">        increase the size of the supercell until the largest inscribed cube&#39;s</span>
+<span class="sd">        side length is at least &#39;num_nn_dists&#39; times the nearest neighbor</span>
+<span class="sd">        distance and the number of atoms in the supercell falls in the range</span>
+<span class="sd">        [&#39;min_atoms&#39;, &#39;max_atoms&#39;].</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            supercell (Structure)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">lat_vecs</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span>
+        <span class="n">bond_matrix</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">distance_matrix</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">bond_matrix</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">Inf</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nn_dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amin</span><span class="p">(</span><span class="n">bond_matrix</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">structure</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s1">&#39;No structure was passed into gen_scaling_matrix()&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># boolean for if a sufficiently large supercell has been created</span>
+            <span class="n">sc_not_found</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="c1"># minimum distance any direction of the supercell must be as large as</span>
+            <span class="n">hard_sc_size_threshold</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nn_dist</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_nn_cutoff</span>
+
+            <span class="c1"># target_threshold is used as the desired cubic side lengths of the supercell</span>
+            <span class="n">target_sc_size</span> <span class="o">=</span> <span class="n">hard_sc_size_threshold</span>
+
+            <span class="k">while</span> <span class="n">sc_not_found</span><span class="p">:</span>
+                <span class="n">target_sc_lat_vecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">target_sc_size</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">trans_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">lat_vecs</span><span class="p">)</span> <span class="o">@</span> <span class="n">target_sc_lat_vecs</span>
+
+                <span class="c1"># round the entries of T and force T to be nonsingular</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">trans_mat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_round_and_make_arr_singular</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trans_mat</span><span class="p">)</span>
+
+                <span class="n">proposed_sc_lat_vecs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trans_mat</span> <span class="o">@</span> <span class="n">lat_vecs</span>
+
+                <span class="c1"># Check how many nearest neighbors the proposed supercell allows</span>
+                <span class="n">scBasesNorms</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">proposed_sc_lat_vecs</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                                <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">proposed_sc_lat_vecs</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                                <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">proposed_sc_lat_vecs</span><span class="p">[</span><span class="mi">2</span><span class="p">])]</span>
+                <span class="n">maxNorm</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">scBasesNorms</span><span class="p">)</span>
+                <span class="n">maxIndex</span> <span class="o">=</span> <span class="n">scBasesNorms</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">maxNorm</span><span class="p">)</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+                <span class="n">idx</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">maxIndex</span><span class="p">)</span>
+                <span class="n">a</span> <span class="o">=</span> <span class="n">proposed_sc_lat_vecs</span><span class="p">[</span><span class="n">maxIndex</span><span class="p">]</span>
+                <span class="n">b</span> <span class="o">=</span> <span class="n">proposed_sc_lat_vecs</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+                <span class="n">c</span> <span class="o">=</span> <span class="n">proposed_sc_lat_vecs</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+                <span class="n">projb_a</span> <span class="o">=</span> <span class="n">_proj</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
+                <span class="n">projc_a</span> <span class="o">=</span> <span class="n">_proj</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">projb_a</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">projc_a</span><span class="p">):</span>
+                    <span class="n">length</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">a</span> <span class="o">-</span> <span class="n">projb_a</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">length</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">a</span> <span class="o">-</span> <span class="n">projc_a</span><span class="p">)</span>
+                <span class="n">width</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">projb_a</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="n">ab_normal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>  <span class="c1"># get normal direction from AB plane</span>
+                <span class="n">height</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">_proj</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">ab_normal</span><span class="p">))</span>  <span class="c1"># project c onto AB plane normal</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">smallest_dim</span> <span class="o">=</span> <span class="nb">min</span><span class="p">([</span><span class="n">length</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">])</span>
+
+                <span class="c1"># Get number of atoms</span>
+                <span class="n">superstructure</span> <span class="o">=</span> <span class="n">SupercellTransformation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trans_mat</span><span class="p">)</span><span class="o">.</span><span class="n">apply_transformation</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+                <span class="n">num_at</span> <span class="o">=</span> <span class="n">superstructure</span><span class="o">.</span><span class="n">num_sites</span>
+
+                <span class="c1"># Check if constraints are satisfied</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">smallest_dim</span> <span class="o">&gt;=</span> <span class="n">hard_sc_size_threshold</span> \
+                        <span class="ow">and</span> <span class="n">num_at</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_atoms</span> <span class="ow">and</span> <span class="n">num_at</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_atoms</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">superstructure</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Increase threshold until proposed supercell meets requirements</span>
+                    <span class="n">target_sc_size</span> <span class="o">+=</span> <span class="mf">0.1</span>
+                    <span class="k">if</span> <span class="n">num_at</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_atoms</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s1">&#39;While trying to solve for the &#39;</span>
+                                             <span class="s1">&#39;supercell, the max number of atoms&#39;</span>
+                                             <span class="s1">&#39; was exceeded. Try lowering the &#39;</span>
+                                             <span class="s1">&#39;number of nearest neighbor &#39;</span>
+                                             <span class="s1">&#39;distances.&#39;</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="PerturbSitesTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.PerturbSitesTransformation">[docs]</a><span class="k">class</span> <span class="nc">PerturbSitesTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates supercells where the atoms have been displaced around their</span>
+<span class="sd">    ideal sites.</span>
+
+<span class="sd">    The algorithm is as follows:</span>
+<span class="sd">    - Generate a list of distances between &#39;min_displacement&#39; and</span>
+<span class="sd">      &#39;max_displacement&#39;.</span>
+<span class="sd">    - If &#39;min_random_distance&#39; is None, a structure is generated for each of</span>
+<span class="sd">      the displacement distances where all atoms are displaced in random</span>
+<span class="sd">      directions from their original locations by the displacement distance.</span>
+<span class="sd">    - If &#39;structures_per_displacement_distance&#39; is greater than 1, multiple</span>
+<span class="sd">      structures per displacement distance will be generated.</span>
+<span class="sd">    - If &#39;min_random_distance&#39; is a number (float less than &#39;min_displacement&#39;),</span>
+<span class="sd">      for each displacement distance, the atoms will be perturbed in a random</span>
+<span class="sd">      direction and by a random amount sample uniformly between</span>
+<span class="sd">      &#39;min_random_distance&#39; and the displacement distance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">max_displacement</span><span class="o">=</span><span class="mf">0.30</span><span class="p">,</span>
+                 <span class="n">min_displacement</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+                 <span class="n">num_displacements</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                 <span class="n">structures_per_displacement_distance</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                 <span class="n">min_random_distance</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            max_displacement (float): maximum displacement distance for</span>
+<span class="sd">                perturbing the structure (Angstroms)</span>
+<span class="sd">            min_displacement (float): minimum displacement distance for</span>
+<span class="sd">                perturbing the structure (Angstroms)</span>
+<span class="sd">            num_displacements (int): number of unique displacement distances to</span>
+<span class="sd">                try, uniformly distributed between &#39;min_displacement&#39; and</span>
+<span class="sd">                &#39;max_displacement&#39;.</span>
+<span class="sd">            structures_per_displacement_distance (int): number of perturbed</span>
+<span class="sd">                structures to generate for each unique displacement distance.</span>
+<span class="sd">            min_random_distance (Optional float): If None (default), then for a</span>
+<span class="sd">                given perturbed structure, all atoms will move the same distance</span>
+<span class="sd">                from their original locations. If float, then for a given</span>
+<span class="sd">                perturbed structure, the distances that atoms move will be</span>
+<span class="sd">                uniformly distributed from a minimum distance of</span>
+<span class="sd">                &#39;min_random_distance&#39; to one of the displacement distances</span>
+<span class="sd">                uniformly sampled between &#39;min_displacement&#39; and</span>
+<span class="sd">                &#39;max_displacement&#39;.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            List of randomly displaced structures (List of Structures)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_disp</span> <span class="o">=</span> <span class="n">max_displacement</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_disp</span> <span class="o">=</span> <span class="n">min_displacement</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_disps</span> <span class="o">=</span> <span class="n">num_displacements</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">structures_per_disp</span> <span class="o">=</span> <span class="n">structures_per_displacement_distance</span>
+
+        <span class="k">if</span> <span class="n">min_random_distance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">min_random_distance</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">min_random_distance</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">min_random_distance</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">disps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">min_displacement</span><span class="p">,</span> <span class="n">max_displacement</span><span class="p">,</span>
+                                 <span class="n">num</span><span class="o">=</span><span class="n">num_displacements</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_random_displacements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">natom</span><span class="p">,</span> <span class="n">rmax</span><span class="p">,</span> <span class="n">rmin</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        ***Adapted from csld.util.mathtool</span>
+<span class="sd">        This function is not meant to be called directly.</span>
+<span class="sd">        Generates matrix of size (natom, 3) where each row vector has</span>
+<span class="sd">            Gaussian-sampled coordinates.</span>
+<span class="sd">        If &#39;rmin&#39;=None, then all row vectors will have magnitude &#39;rmax&#39;.</span>
+<span class="sd">        Else, magnitudes are uniformly distributed between &#39;rmin&#39; and &#39;rmax&#39;.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            natom (int): number of atoms to be displaced (i.e. number of displacement</span>
+<span class="sd">                vectors to generate)</span>
+<span class="sd">            rmax (float): max displacement distance that each atom can move</span>
+<span class="sd">            rmin (float): min displacement distance that each atom can move</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Matrix of size (natom, 3) where each row is a displacement</span>
+<span class="sd">                vector for a single atom (np.ndarray)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Gaussian sampled displacements. Size: (natom, 3)</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">natom</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+
+        <span class="c1"># Norms of each row</span>
+        <span class="n">dx_norms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Displacement distances</span>
+        <span class="n">disp_dists</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">natom</span><span class="p">,</span> <span class="n">rmax</span><span class="p">)</span> <span class="k">if</span> <span class="n">rmin</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">rmin</span><span class="p">,</span> <span class="n">rmax</span><span class="p">,</span> <span class="n">natom</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="mi">0</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dx_norms</span><span class="p">:</span>
+            <span class="c1"># Renormalize Gaussian vectors with &#39;disp_dists&#39;</span>
+            <span class="k">return</span> <span class="n">dx</span> <span class="o">*</span> <span class="p">(</span><span class="n">disp_dists</span> <span class="o">/</span> <span class="n">dx_norms</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Protect against dividing by 0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_random_displacements</span><span class="p">(</span><span class="n">natom</span><span class="p">,</span> <span class="n">rmax</span><span class="p">,</span> <span class="n">rmin</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_perturb_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">max_disp</span><span class="p">,</span> <span class="n">floor_disp</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        *** Adapted from CSLD&#39;s &#39;polaron_main&#39; file</span>
+<span class="sd">        All atoms move in a random direction (with each coordinate sampled</span>
+<span class="sd">        from the Normal distribution - see &#39;_random_displacements()&#39;).</span>
+<span class="sd">        If &#39;floor_disp&#39; is None, all atoms will move a distance of &#39;max_disp&#39;.</span>
+<span class="sd">        Else, atoms will move with distances uniformly distributed in the range,</span>
+<span class="sd">        [&#39;floor_disp&#39;, &#39;max_disp&#39;].</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">na</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">num_sites</span>
+        <span class="n">max_disp</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">max_disp</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">max_disp</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="c1"># generate random displacements</span>
+            <span class="n">dr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_random_displacements</span><span class="p">(</span><span class="n">na</span><span class="p">,</span> <span class="n">max_disp</span><span class="p">,</span> <span class="n">floor_disp</span><span class="p">)</span>
+
+            <span class="c1"># Perturb structure with the random displacements</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">_sites</span><span class="p">)):</span>
+                <span class="n">structure</span><span class="o">.</span><span class="n">translate_sites</span><span class="p">([</span><span class="n">i</span><span class="p">],</span> <span class="n">dr</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">frac_coords</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                          <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">structure</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s1">&#39;Displacement entered is not a float.&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PerturbSitesTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.PerturbSitesTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="c1"># Return a list of perturbed structures</span>
+
+        <span class="n">perturbed_structures</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">disp_val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">disps</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">cell</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structures_per_disp</span><span class="p">):</span>
+                <span class="n">perturbed_structure</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">perturbed_structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_perturb_structure</span><span class="p">(</span><span class="n">perturbed_structure</span><span class="p">,</span>
+                                                              <span class="n">disp_val</span><span class="p">,</span>
+                                                              <span class="bp">self</span><span class="o">.</span><span class="n">min_random_distance</span><span class="p">)</span>
+                <span class="n">perturbed_structures</span> <span class="o">+=</span> <span class="p">[</span><span class="n">perturbed_structure</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">perturbed_structures</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="AddAdsorbateTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.AddAdsorbateTransformation">[docs]</a><span class="k">class</span> <span class="nc">AddAdsorbateTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adsorbate</span><span class="p">,</span> <span class="n">selective_dynamics</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+                 <span class="n">mi_vec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">repeat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_lw</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">translate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">reorient</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">find_args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Use AdsorbateSiteFinder to add an absorbate to a slab.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            adsorbate (Molecule): molecule to add as adsorbate</span>
+<span class="sd">            selective_dynamics (bool): flag for whether to assign</span>
+<span class="sd">                non-surface sites as fixed for selective dynamics</span>
+<span class="sd">            height (float): height criteria for selection of surface sites</span>
+<span class="sd">            mi_vec : vector corresponding to the vector</span>
+<span class="sd">                concurrent with the miller index, this enables use with</span>
+<span class="sd">                slabs that have been reoriented, but the miller vector</span>
+<span class="sd">                must be supplied manually</span>
+<span class="sd">            repeat (3-tuple or list): repeat argument for supercell generation</span>
+<span class="sd">            min_lw (float): minimum length and width of the slab, only used</span>
+<span class="sd">                if repeat is None</span>
+<span class="sd">            translate (bool): flag on whether to translate the molecule so</span>
+<span class="sd">                that its CoM is at the origin prior to adding it to the surface</span>
+<span class="sd">            reorient (bool): flag on whether or not to reorient adsorbate</span>
+<span class="sd">                along the miller index</span>
+<span class="sd">            find_args (dict): dictionary of arguments to be passed to the</span>
+<span class="sd">                call to self.find_adsorption_sites, e.g. {&quot;distance&quot;:2.0}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adsorbate</span> <span class="o">=</span> <span class="n">adsorbate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">selective_dynamics</span> <span class="o">=</span> <span class="n">selective_dynamics</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="n">height</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mi_vec</span> <span class="o">=</span> <span class="n">mi_vec</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">repeat</span> <span class="o">=</span> <span class="n">repeat</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_lw</span> <span class="o">=</span> <span class="n">min_lw</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">translate</span> <span class="o">=</span> <span class="n">translate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reorient</span> <span class="o">=</span> <span class="n">reorient</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">find_args</span> <span class="o">=</span> <span class="n">find_args</span>
+
+<div class="viewcode-block" id="AddAdsorbateTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.AddAdsorbateTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">return_ranked_list</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure: Must be a Slab structure</span>
+<span class="sd">            return_ranked_list:  Whether or not multiple structures are</span>
+<span class="sd">                returned. If return_ranked_list is a number, up to that number of</span>
+<span class="sd">                structures is returned.</span>
+
+<span class="sd">        Returns: Slab with adsorbate</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">sitefinder</span> <span class="o">=</span> <span class="n">AdsorbateSiteFinder</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span>
+                                         <span class="n">selective_dynamics</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">selective_dynamics</span><span class="p">,</span>
+                                         <span class="n">height</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span>
+                                         <span class="n">mi_vec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mi_vec</span><span class="p">)</span>
+
+        <span class="n">structures</span> <span class="o">=</span> <span class="n">sitefinder</span><span class="o">.</span><span class="n">generate_adsorption_structures</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">adsorbate</span><span class="p">,</span> <span class="n">repeat</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">repeat</span><span class="p">,</span> <span class="n">min_lw</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">min_lw</span><span class="p">,</span>
+            <span class="n">translate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">translate</span><span class="p">,</span> <span class="n">reorient</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">reorient</span><span class="p">,</span> <span class="n">find_args</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">find_args</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">return_ranked_list</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[{</span><span class="s2">&quot;structure&quot;</span><span class="p">:</span> <span class="n">structure</span><span class="p">}</span> <span class="k">for</span> <span class="n">structure</span> <span class="ow">in</span> <span class="n">structures</span><span class="p">[:</span><span class="n">return_ranked_list</span><span class="p">]]</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="SubstituteSurfaceSiteTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SubstituteSurfaceSiteTransformation">[docs]</a><span class="k">class</span> <span class="nc">SubstituteSurfaceSiteTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom</span><span class="p">,</span> <span class="n">selective_dynamics</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+                 <span class="n">mi_vec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">target_species</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sub_both_sides</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">range_tol</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">,</span> <span class="n">dist_from_surf</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Use AdsorptionSiteFinder to perform substitution-type doping on the surface and</span>
+<span class="sd">        returns all possible configurations where one dopant is substituted</span>
+<span class="sd">        per surface. Can substitute one surface or both.</span>
+
+
+<span class="sd">        Args:</span>
+<span class="sd">            atom (str): atom corresponding to substitutional dopant</span>
+<span class="sd">            selective_dynamics (bool): flag for whether to assign</span>
+<span class="sd">                non-surface sites as fixed for selective dynamics</span>
+<span class="sd">            height (float): height criteria for selection of surface sites</span>
+<span class="sd">            mi_vec : vector corresponding to the vector</span>
+<span class="sd">                concurrent with the miller index, this enables use with</span>
+<span class="sd">                slabs that have been reoriented, but the miller vector</span>
+<span class="sd">                must be supplied manually</span>
+<span class="sd">            target_species:  List of specific species to substitute</span>
+<span class="sd">            sub_both_sides (bool): If true, substitute an equivalent</span>
+<span class="sd">                site on the other surface</span>
+<span class="sd">            range_tol (float): Find viable substitution sites at a specific</span>
+<span class="sd">                distance from the surface +- this tolerance</span>
+<span class="sd">            dist_from_surf (float): Distance from the surface to find viable</span>
+<span class="sd">                substitution sites, defaults to 0 to substitute at the surface</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atom</span> <span class="o">=</span> <span class="n">atom</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">selective_dynamics</span> <span class="o">=</span> <span class="n">selective_dynamics</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="n">height</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mi_vec</span> <span class="o">=</span> <span class="n">mi_vec</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_species</span> <span class="o">=</span> <span class="n">target_species</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sub_both_sides</span> <span class="o">=</span> <span class="n">sub_both_sides</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">range_tol</span> <span class="o">=</span> <span class="n">range_tol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dist_from_surf</span> <span class="o">=</span> <span class="n">dist_from_surf</span>
+
+<div class="viewcode-block" id="SubstituteSurfaceSiteTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SubstituteSurfaceSiteTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">return_ranked_list</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure: Must be a Slab structure</span>
+<span class="sd">            return_ranked_list:  Whether or not multiple structures are</span>
+<span class="sd">                returned. If return_ranked_list is a number, up to that number of</span>
+<span class="sd">                structures is returned.</span>
+
+<span class="sd">        Returns: Slab with sites substituted</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">sitefinder</span> <span class="o">=</span> <span class="n">AdsorbateSiteFinder</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span>
+                                         <span class="n">selective_dynamics</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">selective_dynamics</span><span class="p">,</span>
+                                         <span class="n">height</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span>
+                                         <span class="n">mi_vec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mi_vec</span><span class="p">)</span>
+
+        <span class="n">structures</span> <span class="o">=</span> <span class="n">sitefinder</span><span class="o">.</span><span class="n">generate_substitution_structures</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atom</span><span class="p">,</span>
+                                                                 <span class="n">target_species</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target_species</span><span class="p">,</span>
+                                                                 <span class="n">sub_both_sides</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sub_both_sides</span><span class="p">,</span>
+                                                                 <span class="n">range_tol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">range_tol</span><span class="p">,</span>
+                                                                 <span class="n">dist_from_surf</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dist_from_surf</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">return_ranked_list</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[{</span><span class="s2">&quot;structure&quot;</span><span class="p">:</span> <span class="n">structure</span><span class="p">}</span> <span class="k">for</span> <span class="n">structure</span> <span class="ow">in</span> <span class="n">structures</span><span class="p">[:</span><span class="n">return_ranked_list</span><span class="p">]]</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<span class="k">def</span> <span class="nf">_proj</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns vector projection (np.ndarray) of vector b (np.ndarray)</span>
+<span class="sd">    onto vector a (np.ndarray)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="p">(</span><span class="n">a</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">a</span><span class="p">)))</span> <span class="o">*</span> <span class="p">(</span><span class="n">a</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
 </pre></div>
 
           </div>
@@ -1406,10 +1923,10 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -1428,7 +1945,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.4.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1436,7 +1953,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

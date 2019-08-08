@@ -14,6 +14,7 @@ import warnings
 from fnmatch import fnmatch
 import re
 import functools
+from typing import Dict, List, Tuple, Optional
 
 from math import gcd
 
@@ -45,6 +46,9 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
+
+
+Neighbor = collections.namedtuple('Neighbor', 'site distance index image')
 
 
 class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
@@ -90,7 +94,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         return all_distances(self.cart_coords, self.cart_coords)
 
     @property
-    def species(self):
+    def species(self) -> List[Specie]:
         """
         Only works for ordered structures.
         Disordered structures will raise an AttributeError.
@@ -101,19 +105,19 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         return [site.specie for site in self]
 
     @property
-    def species_and_occu(self):
+    def species_and_occu(self) -> Dict[Composition, float]:
         """
         List of species and occupancies at each site of the structure.
         """
         return [site.species for site in self]
 
     @property
-    def ntypesp(self):
+    def ntypesp(self) -> int:
         """Number of types of atoms."""
         return len(self.types_of_specie)
 
     @property
-    def types_of_specie(self):
+    def types_of_specie(self) -> List[Specie]:
         """
         List of types of specie. Only works for ordered structures.
         Disordered structures will raise TypeError.
@@ -138,7 +142,7 @@ to build an appropriate supercell from partial occupancies.""")
                 if site.specie == t:
                     yield site
 
-    def indices_from_symbol(self, symbol: str) -> tuple:
+    def indices_from_symbol(self, symbol: str) -> Tuple[int]:
         """
         Returns a tuple with the sequential indices of the sites
         that contain an element with the given chemical symbol.
@@ -147,7 +151,7 @@ to build an appropriate supercell from partial occupancies.""")
                       if specie.symbol == symbol))
 
     @property
-    def symbol_set(self):
+    def symbol_set(self) -> Tuple[str]:
         """
         Tuple with the set of chemical symbols.
         Note that len(symbol_set) == len(types_of_specie)
@@ -155,12 +159,12 @@ to build an appropriate supercell from partial occupancies.""")
         return tuple((specie.symbol for specie in self.types_of_specie))
 
     @property
-    def atomic_numbers(self):
+    def atomic_numbers(self) -> List[int]:
         """List of atomic numbers."""
         return [site.specie.number for site in self]
 
     @property
-    def site_properties(self):
+    def site_properties(self) -> Dict[str, List]:
         """
         Returns the site properties as a dict of sequences. E.g.,
         {"magmom": (5,-5), "charge": (-4,4)}.
@@ -191,7 +195,7 @@ to build an appropriate supercell from partial occupancies.""")
         return self.composition.__hash__()
 
     @property
-    def num_sites(self):
+    def num_sites(self) -> int:
         """
         Number of sites.
         """
@@ -206,14 +210,14 @@ to build an appropriate supercell from partial occupancies.""")
         return np.array([site.coords for site in self])
 
     @property
-    def formula(self):
+    def formula(self) -> str:
         """
         (str) Returns the formula.
         """
         return self.composition.formula
 
     @property
-    def composition(self):
+    def composition(self) -> Composition:
         """
         (Composition) Returns the composition
         """
@@ -224,7 +228,7 @@ to build an appropriate supercell from partial occupancies.""")
         return Composition(elmap)
 
     @property
-    def charge(self):
+    def charge(self) -> float:
         """
         Returns the net charge of the structure based on oxidation states. If
         Elements are found, a charge of 0 is assumed.
@@ -236,7 +240,7 @@ to build an appropriate supercell from partial occupancies.""")
         return charge
 
     @property
-    def is_ordered(self):
+    def is_ordered(self) -> bool:
         """
         Checks if structure is ordered, meaning no partial occupancies in any
         of the sites.
@@ -323,7 +327,7 @@ to build an appropriate supercell from partial occupancies.""")
         """
         pass
 
-    def add_site_property(self, property_name, values):
+    def add_site_property(self, property_name: str, values: List):
         """
         Adds a property to a site.
 
@@ -347,7 +351,7 @@ to build an appropriate supercell from partial occupancies.""")
         for site in self.sites:
             del site.properties[property_name]
 
-    def replace_species(self, species_mapping):
+    def replace_species(self, species_mapping: Dict[str, str]):
         """
         Swap species.
 
@@ -382,7 +386,7 @@ to build an appropriate supercell from partial occupancies.""")
                         c += {new_sp: amt}
                 site.species = c
 
-    def add_oxidation_state_by_element(self, oxidation_states):
+    def add_oxidation_state_by_element(self, oxidation_states: Dict[str, float]):
         """
         Add oxidation states.
 
@@ -401,7 +405,7 @@ to build an appropriate supercell from partial occupancies.""")
             raise ValueError("Oxidation state of all elements must be "
                              "specified in the dictionary.")
 
-    def add_oxidation_state_by_site(self, oxidation_states):
+    def add_oxidation_state_by_site(self, oxidation_states: List[float]):
         """
         Add oxidation states to a structure by site.
 
@@ -443,7 +447,7 @@ to build an appropriate supercell from partial occupancies.""")
                      [dict([(e.symbol, 0) for e in self.composition])]
         self.add_oxidation_state_by_element(oxid_guess[0])
 
-    def add_spin_by_element(self, spins):
+    def add_spin_by_element(self, spins: Dict[str, float]):
         """
         Add spin states to a structure.
 
@@ -460,7 +464,7 @@ to build an appropriate supercell from partial occupancies.""")
                               properties={'spin': spins.get(str(sp), spins.get(sym, None))})] = occu
             site.species = new_sp
 
-    def add_spin_by_site(self, spins):
+    def add_spin_by_site(self, spins: List[float]):
         """
         Add spin states to a structure by site.
 
@@ -492,7 +496,7 @@ to build an appropriate supercell from partial occupancies.""")
                 new_sp[Specie(sp.symbol, oxidation_state=oxi_state)] += occu
             site.species = new_sp
 
-    def extract_cluster(self, target_sites, **kwargs):
+    def extract_cluster(self, target_sites: List[Site], **kwargs):
         """
         Extracts a cluster of atoms based on bond lengths
 
@@ -600,8 +604,9 @@ class IStructure(SiteCollection, MSONable):
         self._charge = charge
 
     @classmethod
-    def from_sites(cls, sites, charge=None, validate_proximity=False,
-                   to_unit_cell=False):
+    def from_sites(cls, sites: List[PeriodicSite], charge: float=None,
+                   validate_proximity: bool=False,
+                   to_unit_cell: bool=False):
         """
         Convenience constructor to make a Structure from a list of sites.
 
@@ -644,8 +649,9 @@ class IStructure(SiteCollection, MSONable):
                    to_unit_cell=to_unit_cell)
 
     @classmethod
-    def from_spacegroup(cls, sg, lattice, species, coords, site_properties=None,
-                        coords_are_cartesian=False, tol=1e-5):
+    def from_spacegroup(cls, sg: str, lattice: Lattice, species: List,
+                        coords: List, site_properties: Dict[str, List]=None,
+                        coords_are_cartesian: bool=False, tol: float=1e-5):
         """
         Generate a structure using a spacegroup. Note that only symmetrically
         distinct species and coords should be provided. All equivalent sites
@@ -731,8 +737,9 @@ class IStructure(SiteCollection, MSONable):
 
     @classmethod
     def from_magnetic_spacegroup(
-            cls, msg, lattice, species, coords, site_properties,
-            transform_setting=None, coords_are_cartesian=False, tol=1e-5):
+            cls, msg: str, lattice: Lattice, species: List,
+            coords: List, site_properties: Dict[str, List]=None,
+            coords_are_cartesian: bool=False, tol: float=1e-5):
         """
         Generate a structure using a magnetic spacegroup. Note that only
         symmetrically distinct species, coords and magmoms should be provided.]
@@ -893,10 +900,10 @@ class IStructure(SiteCollection, MSONable):
                                angle_tolerance=angle_tolerance)
         return a.get_space_group_symbol(), a.get_space_group_number()
 
-    def matches(self, other, **kwargs):
+    def matches(self, other, anonymous=False, **kwargs):
         """
         Check whether this structure is similar to another structure.
-        Basically a convenience method to call structure matching fitting.
+        Basically a convenience method to call structure matching.
 
         Args:
             other (IStructure/Structure): Another structure.
@@ -909,7 +916,10 @@ class IStructure(SiteCollection, MSONable):
         """
         from pymatgen.analysis.structure_matcher import StructureMatcher
         m = StructureMatcher(**kwargs)
-        return m.fit(Structure.from_sites(self), Structure.from_sites(other))
+        if not anonymous:
+            return m.fit(self, other)
+        else:
+            return m.fit_anonymous(self, other)
 
     def __eq__(self, other):
         if other is self:
@@ -1017,10 +1027,14 @@ class IStructure(SiteCollection, MSONable):
         """
         return self[i].distance(self[j], jimage)
 
-    def get_sites_in_sphere(self, pt, r, include_index=False, include_image=False):
+    def get_sites_in_sphere(self, pt: np.array, r: float,
+                            include_index: bool=False,
+                            include_image: bool=False) \
+            -> List[Tuple[PeriodicSite, float, Optional[int], Optional[Tuple[int]]]]:
         """
-        Find all sites within a sphere from the point. This includes sites
-        in other periodic images.
+        Find all sites within a sphere from the point, including a site (if any)
+        sitting on the point itself. This includes sites in other periodic
+        images.
 
         Algorithm:
 
@@ -1061,7 +1075,31 @@ class IStructure(SiteCollection, MSONable):
             neighbors.append(nn_data)
         return neighbors
 
-    def get_neighbors(self, site, r, include_index=False, include_image=False):
+    def get_neighbors(self, site: PeriodicSite, r: float,
+                      include_index: bool=False, include_image: bool=False)\
+            -> List[Neighbor]:
+        """
+        Get all neighbors to a site within a sphere of radius r.  Excludes the
+        site itself.
+
+        Args:
+            site (Site): Which is the center of the sphere.
+            r (float): Radius of sphere.
+            include_index (bool): Deprecated. Now, the non-supercell site index
+                is always included in the returned data.
+            include_image (bool): Deprecated. Now the supercell image
+                is always included in the returned data.
+
+        Returns:
+            [Neighbor] where Neighbor is a namedtuple containing
+            (site, distance, index, image).
+        """
+        return self.get_all_neighbors(r, include_index=include_index,
+                                      include_image=include_image,
+                                      sites=[site])[0]
+
+    @deprecated(get_neighbors, "This is retained purely for checking purposes.")
+    def get_neighbors_old(self, site, r, include_index=False, include_image=False):
         """
         Get all neighbors to a site within a sphere of radius r.  Excludes the
         site itself.
@@ -1075,19 +1113,20 @@ class IStructure(SiteCollection, MSONable):
                 is included in the returned data
 
         Returns:
-            [(site, dist) ...] since most of the time, subsequent processing
-            requires the distance.
-            If include_index == True, the tuple for each neighbor also includes
-            the index of the neighbor.
-            If include_supercell == True, the tuple for each neighbor also includes
-            the index of supercell.
+            [Neighbor] where Neighbor is a namedtuple containing
+            (site, distance, index, image).
         """
         nn = self.get_sites_in_sphere(site.coords, r,
                                       include_index=include_index,
                                       include_image=include_image)
         return [d for d in nn if site != d[0]]
 
-    def get_all_neighbors(self, r, include_index=False, include_image=False):
+    def get_all_neighbors(self, r: float, include_index: bool=False,
+                          include_image: bool=False,
+                          sites: List[PeriodicSite]=None,
+                          numerical_tol: float=1e-8)\
+            -> List[List[Neighbor]]:
+
         """
         Get neighbors for each atom in the unit cell, out to a distance r
         Returns a list of list of neighbors for each site in structure.
@@ -1100,10 +1139,143 @@ class IStructure(SiteCollection, MSONable):
         The return type is a [(site, dist) ...] since most of the time,
         subsequent processing requires the distance.
 
-        A note about periodic images: Before computing the neighbors, this operation
-        translates all atoms to within the unit cell (having fractional coordinates within [0,1)).
-        This means that the "image" of a site does not correspond to how much it has been
-        translates from its current position, but which image of the unit cell it resides.
+        A note about periodic images: Before computing the neighbors, this
+        operation translates all atoms to within the unit cell (having
+        fractional coordinates within [0,1)). This means that the "image" of a
+        site does not correspond to how much it has been translates from its
+        current position, but which image of the unit cell it resides.
+
+        Args:
+            r (float): Radius of sphere.
+            include_index (bool): Deprecated. Now, the non-supercell site index
+                is always included in the returned data.
+            include_image (bool): Deprecated. Now the supercell image
+                is always included in the returned data.
+            sites (list of Sites or None): sites for getting all neighbors,
+                default is None, which means neighbors will be obtained for all
+                sites. This is useful in the situation where you are interested
+                only in one subspecies type, and makes it a lot faster.
+            numerical_tol (float): This is a numerical tolerance for distances.
+                Sites which are < numerical_tol are determined to be conincident
+                with the site. Sites which are r + numerical_tol away is deemed
+                to be within r from the site. The default of 1e-8 should be
+                ok in most instances.
+
+        Returns:
+            [Neighbor] where Neighbor is a namedtuple containing
+            (site, distance, index, image).
+        """
+
+        latt = self.lattice
+        if sites is None:
+            sites = self.sites
+        site_coords = np.array([site.coords for site in sites])
+        recp_len = np.array(latt.reciprocal_lattice.abc)
+        maxr = np.ceil((r + 0.15) * recp_len / (2 * math.pi))
+        frac_coords = latt.get_fractional_coords(site_coords)
+        nmin = np.floor(np.min(frac_coords, axis=0)) - maxr
+        nmax = np.ceil(np.max(frac_coords, axis=0)) + maxr
+        all_ranges = [np.arange(x, y) for x, y in zip(nmin, nmax)]
+        matrix = latt.matrix
+        all_fcoords = np.mod(self.frac_coords, 1)
+        coords_in_cell = np.dot(all_fcoords, matrix)
+        coords_min = np.min(site_coords, axis=0)
+        coords_max = np.max(site_coords, axis=0)
+        # The lower bound of all considered atom coords
+        global_min = coords_min - r - numerical_tol
+        global_max = coords_max + r + numerical_tol
+
+        # Filter out those beyond max range
+        valid_coords = []
+        valid_images = []
+        valid_indices = []
+        for image in itertools.product(*all_ranges):
+            coords = np.dot(image, matrix) + coords_in_cell
+            valid_index_bool = np.all(np.bitwise_and(coords > global_min[None, :],  coords < global_max[None, :]),
+                                      axis=1)
+            ind = np.arange(len(self))
+            if np.any(valid_index_bool):
+                valid_coords.append(coords[valid_index_bool])
+                valid_images.extend([list(image)] * np.sum(valid_index_bool))
+                valid_indices.extend([k for k in ind if valid_index_bool[k]])
+        valid_coords = np.concatenate(valid_coords, axis=0)
+        # Divide the valid 3D space into cubes and compute the cube ids
+        all_cube_index = _compute_cube_index(valid_coords, global_min, r)
+        nx, ny, nz = _compute_cube_index(global_max, global_min, r) + 1
+        all_cube_index = _three_to_one(all_cube_index, ny, nz)
+        site_cube_index = _three_to_one(_compute_cube_index(site_coords, global_min, r), ny, nz)
+        # create cube index to coordinates, images, and indices map
+        cube_to_coords = collections.defaultdict(list)
+        cube_to_images = collections.defaultdict(list)
+        cube_to_indices = collections.defaultdict(list)
+        for i, j, k, l in zip(all_cube_index.ravel(), valid_coords,
+                              valid_images, valid_indices):
+            cube_to_coords[i].append(j)
+            cube_to_images[i].append(k)
+            cube_to_indices[i].append(l)
+
+        # find all neighboring cubes for each atom in the lattice cell
+        site_neighbors = find_neighbors(site_cube_index, nx, ny, nz)
+        neighbors = []
+        for sp, i, j, site in zip(self.species_and_occu, site_coords, site_neighbors, sites):
+            l1 = np.array(_three_to_one(j, ny, nz), dtype=int).ravel()
+            # use the cube index map to find the all the neighboring
+            # coords, images, and indices
+            ks = [k for k in l1 if k in cube_to_coords]
+            if not ks:
+                neighbors.append([])
+                continue
+            nn_coords = np.concatenate([cube_to_coords[k] for k in ks], axis=0)
+            nn_images = itertools.chain(*[cube_to_images[k] for k in ks])
+            nn_indices = itertools.chain(*[cube_to_indices[k] for k in ks])
+            dist = np.linalg.norm(nn_coords - i[None, :], axis=1)
+            nns = []
+            for coord, index, image, d in zip(nn_coords, nn_indices, nn_images, dist):
+                # filtering out all sites that are beyond the cutoff and
+                # those that are identical to center site
+                if d < r + numerical_tol and (d > numerical_tol or
+                                              self[index] != site):
+                    # item = []
+                    # if include_site:
+                    #     item.append(PeriodicSite(
+                    #         self[index].species, coord, latt,
+                    #         properties=self[index].properties,
+                    #         coords_are_cartesian=True))
+                    # item.append(d)
+                    # if include_index:
+                    #     item.append(index)
+                    # if include_image:
+                    #     item.append(tuple(image))
+                    nnsite = PeriodicSite(self[index].species, coord, latt,
+                                          properties=self[index].properties,
+                                          coords_are_cartesian=True)
+                    nn = Neighbor(site=nnsite, distance=d,
+                                  index=index, image=tuple(image))
+                    nns.append(nn)
+
+            neighbors.append(nns)
+        return neighbors
+
+    @deprecated(get_all_neighbors, "This is retained purely for checking purposes.")
+    def get_all_neighbors_old(self, r, include_index=False, include_image=False,
+                              include_site=True):
+        """
+        Get neighbors for each atom in the unit cell, out to a distance r
+        Returns a list of list of neighbors for each site in structure.
+        Use this method if you are planning on looping over all sites in the
+        crystal. If you only want neighbors for a particular site, use the
+        method get_neighbors as it may not have to build such a large supercell
+        However if you are looping over all sites in the crystal, this method
+        is more efficient since it only performs one pass over a large enough
+        supercell to contain all possible atoms out to a distance r.
+        The return type is a [(site, dist) ...] since most of the time,
+        subsequent processing requires the distance.
+
+        A note about periodic images: Before computing the neighbors, this
+        operation translates all atoms to within the unit cell (having
+        fractional coordinates within [0,1)). This means that the "image" of a
+        site does not correspond to how much it has been translates from its
+        current position, but which image of the unit cell it resides.
 
         Args:
             r (float): Radius of sphere.
@@ -1111,15 +1283,12 @@ class IStructure(SiteCollection, MSONable):
                 in the returned data
             include_image (bool): Whether to include the supercell image
                 in the returned data
+            include_site (bool): Whether to include the site in the returned
+                data. Defaults to True.
 
         Returns:
-            A list of a list of nearest neighbors for each site, i.e.,
-            [[(site, dist, index) ...], ..]
-            Index only supplied if include_index = True.
-            The index is the index of the site in the original (non-supercell)
-            structure. This is needed for ewaldmatrix by keeping track of which
-            sites contribute to the ewald sum.
-            Image only supplied if include_image = True
+            [Neighbor] where Neighbor is a namedtuple containing
+            (site, distance, index, image).
         """
         # Use same algorithm as get_sites_in_sphere to determine supercell but
         # loop over all atoms in crystal
@@ -1129,30 +1298,36 @@ class IStructure(SiteCollection, MSONable):
         nmax = np.ceil(np.max(self.frac_coords, axis=0)) + maxr
 
         all_ranges = [np.arange(x, y) for x, y in zip(nmin, nmax)]
-
         latt = self._lattice
+        matrix = latt.matrix
         neighbors = [list() for _ in range(len(self._sites))]
         all_fcoords = np.mod(self.frac_coords, 1)
-        coords_in_cell = latt.get_cartesian_coords(all_fcoords)
+        coords_in_cell = np.dot(all_fcoords, matrix)
         site_coords = self.cart_coords
 
         indices = np.arange(len(self))
+
         for image in itertools.product(*all_ranges):
-            coords = latt.get_cartesian_coords(image) + coords_in_cell
+            coords = np.dot(image, matrix) + coords_in_cell
             all_dists = all_distances(coords, site_coords)
             all_within_r = np.bitwise_and(all_dists <= r, all_dists > 1e-8)
 
             for (j, d, within_r) in zip(indices, all_dists, all_within_r):
-                nnsite = PeriodicSite(self[j].species, coords[j],
-                                      latt, properties=self[j].properties,
-                                      coords_are_cartesian=True)
-                for i in indices[within_r]:
-                    item = (nnsite, d[i], j) if include_index else (
-                        nnsite, d[i])
+                if include_site:
+                    nnsite = PeriodicSite(self[j].species, coords[j],
+                                          latt, properties=self[j].properties,
+                                          coords_are_cartesian=True)
 
+                for i in indices[within_r]:
+                    item = []
+                    if include_site:
+                        item.append(nnsite)
+                    item.append(d[i])
+                    if include_index:
+                        item.append(j)
                     # Add the image, if requested
                     if include_image:
-                        item += (image,)
+                        item.append(image)
                     neighbors[i].append(item)
         return neighbors
 
@@ -1165,19 +1340,14 @@ class IStructure(SiteCollection, MSONable):
             origin (3x1 array): Cartesian coordinates of center of sphere.
             r (float): Inner radius of shell.
             dr (float): Width of shell.
-            include_index (bool): Whether to include the non-supercell site
-                in the returned data
-            include_image (bool): Whether to include the supercell image
-                in the returned data
+            include_index (bool): Deprecated. Now, the non-supercell site index
+                is always included in the returned data.
+            include_image (bool): Deprecated. Now the supercell image
+                is always included in the returned data.
 
         Returns:
-            [(site, dist, index) ...] since most of the time, subsequent
-            processing
-            requires the distance. Index only supplied if include_index = True.
-            The index is the index of the site in the original (non-supercell)
-            structure. This is needed for ewaldmatrix by keeping track of which
-            sites contribute to the ewald sum.
-            Image only supplied if include_image = True
+            [NearestNeighbor] where Nearest Neighbor is a named tuple containing
+            (site, distance, index, image).
         """
         outer = self.get_sites_in_sphere(origin, r + dr,
                                          include_index=include_index,
@@ -1201,7 +1371,7 @@ class IStructure(SiteCollection, MSONable):
         sites = sorted(self, key=key, reverse=reverse)
         return self.__class__.from_sites(sites, charge=self._charge)
 
-    def get_reduced_structure(self, reduction_algo="niggli"):
+    def get_reduced_structure(self, reduction_algo: str="niggli"):
         """
         Get a reduced structure.
 
@@ -1271,8 +1441,9 @@ class IStructure(SiteCollection, MSONable):
             new_sites = sorted(new_sites)
             return self.__class__.from_sites(new_sites, charge=self._charge)
 
-    def interpolate(self, end_structure, nimages=10,
-                    interpolate_lattices=False, pbc=True, autosort_tol=0):
+    def interpolate(self, end_structure, nimages: int=10,
+                    interpolate_lattices:bool =False, pbc: bool=True,
+                    autosort_tol: float=0):
         """
         Interpolate between this structure and end_structure. Useful for
         construction of NEB inputs.
@@ -1280,7 +1451,8 @@ class IStructure(SiteCollection, MSONable):
         Args:
             end_structure (Structure): structure to interpolate between this
                 structure and end.
-            nimages (int): No. of interpolation images. Defaults to 10 images.
+            nimages (int,list): No. of interpolation images or a list of
+                interpolation images. Defaults to 10 images.
             interpolate_lattices (bool): Whether to interpolate the lattices.
                 Interpolates the lengths and angles (rather than the matrix)
                 so orientation may be affected.
@@ -1303,6 +1475,9 @@ class IStructure(SiteCollection, MSONable):
 
         if not (interpolate_lattices or self.lattice == end_structure.lattice):
             raise ValueError("Structures with different lattices!")
+
+        if not isinstance(nimages, collections.abc.Iterable):
+            nimages = np.arange(nimages + 1) / nimages
 
         # Check that both structures have the same species
         for i in range(len(self)):
@@ -1363,14 +1538,14 @@ class IStructure(SiteCollection, MSONable):
             lvec = p - np.identity(3)
             lstart = self.lattice.matrix.T
 
-        for x in range(nimages + 1):
+        for x in nimages:
             if interpolate_lattices:
-                l_a = np.dot(np.identity(3) + x / nimages * lvec, lstart).T
-                l = Lattice(l_a)
+                l_a = np.dot(np.identity(3) + x * lvec, lstart).T
+                lat = Lattice(l_a)
             else:
-                l = self.lattice
-            fcoords = start_coords + x / nimages * vec
-            structs.append(self.__class__(l, sp, fcoords,
+                lat = self.lattice
+            fcoords = start_coords + x * vec
+            structs.append(self.__class__(lat, sp, fcoords,
                                           site_properties=self.site_properties))
         return structs
 
@@ -1759,6 +1934,10 @@ class IStructure(SiteCollection, MSONable):
             if filename:
                 with zopen(fname, "wt", encoding='ascii') as f:
                     f.write(s)
+            return s
+        elif fmt == 'prismatic' or fnmatch(fname, "*prismatic*"):
+            from pymatgen.io.prismatic import Prismatic
+            s = Prismatic(self).to_string()
             return s
         else:
             import ruamel.yaml as yaml
@@ -2208,14 +2387,14 @@ class IMolecule(SiteCollection, MSONable):
             r (float): Radius of sphere.
 
         Returns:
-            [(site, dist) ...] since most of the time, subsequent processing
+            [Neighbor] since most of the time, subsequent processing
             requires the distance.
         """
         neighbors = []
-        for site in self._sites:
+        for i, site in enumerate(self._sites):
             dist = site.distance_from_point(pt)
             if dist <= r:
-                neighbors.append((site, dist))
+                neighbors.append(Neighbor(site, dist, i, None))
         return neighbors
 
     def get_neighbors(self, site, r):
@@ -2231,8 +2410,8 @@ class IMolecule(SiteCollection, MSONable):
             [(site, dist) ...] since most of the time, subsequent processing
             requires the distance.
         """
-        nn = self.get_sites_in_sphere(site.coords, r)
-        return [(s, dist) for (s, dist) in nn if site != s]
+        nns = self.get_sites_in_sphere(site.coords, r)
+        return [nn for nn in nns if nn.site != site]
 
     def get_neighbors_in_shell(self, origin, r, dr):
         """
@@ -2250,7 +2429,7 @@ class IMolecule(SiteCollection, MSONable):
         """
         outer = self.get_sites_in_sphere(origin, r + dr)
         inner = r - dr
-        return [(site, dist) for (site, dist) in outer if dist > inner]
+        return [nn for nn in outer if nn.distance > inner]
 
     def get_boxed_structure(self, a, b, c, images=(1, 1, 1),
                             random_rotation=False, min_dist=1, cls=None,
@@ -2741,10 +2920,10 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         # Find the nearest neighbor that is not a terminal atom.
         all_non_terminal_nn = []
-        for nn, dist in self.get_neighbors(self[index], 3):
+        for nn, dist, _, _ in self.get_neighbors(self[index], 3):
             # Check that the nn has neighbors within a sensible distance but
             # is not the site being substituted.
-            for inn, dist2 in self.get_neighbors(nn, 3):
+            for inn, dist2, _, _ in self.get_neighbors(nn, 3):
                 if inn != self[index] and \
                                 dist2 < 1.2 * get_bond_length(nn.specie, inn.specie):
                     all_non_terminal_nn.append((nn, dist))
@@ -2999,7 +3178,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 properties=site.properties)
             self._sites[i] = new_site
 
-    def perturb(self, distance):
+    def perturb(self, distance, min_distance=None):
         """
         Performs a random perturbation of the sites in a structure to break
         symmetries.
@@ -3007,13 +3186,21 @@ class Structure(IStructure, collections.abc.MutableSequence):
         Args:
             distance (float): Distance in angstroms by which to perturb each
                 site.
+            min_distance (None, int, or float): if None, all displacements will
+                be equal amplitude. If int or float, perturb each site a
+                distance drawn from the uniform distribution between
+                'min_distance' and 'distance'.
+
         """
 
         def get_rand_vec():
             # deals with zero vectors.
             vector = np.random.randn(3)
             vnorm = np.linalg.norm(vector)
-            return vector / vnorm * distance if vnorm != 0 else get_rand_vec()
+            dist = distance
+            if isinstance(min_distance, (float, int)):
+                dist = np.random.uniform(min_distance, dist)
+            return vector / vnorm * dist if vnorm != 0 else get_rand_vec()
 
         for i in range(len(self._sites)):
             self.translate_sites([i], get_rand_vec(), frac_coords=False)
@@ -3214,7 +3401,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
                            validate_proximity=validate_proximity,
                            properties=properties)
 
-    def set_charge_and_spin(self, charge, spin_multiplicity=None):
+    def set_charge_and_spin(self, charge: float, spin_multiplicity: Optional[float]=None):
         """
         Set the charge and spin multiplicity.
 
@@ -3422,20 +3609,20 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
         # Find the nearest neighbor that is not a terminal atom.
         all_non_terminal_nn = []
-        for nn, dist in self.get_neighbors(self[index], 3):
+        for nn in self.get_neighbors(self[index], 3):
             # Check that the nn has neighbors within a sensible distance but
             # is not the site being substituted.
-            for inn, dist2 in self.get_neighbors(nn, 3):
-                if inn != self[index] and \
-                                dist2 < 1.2 * get_bond_length(nn.specie, inn.specie):
-                    all_non_terminal_nn.append((nn, dist))
+            for nn2 in self.get_neighbors(nn.site, 3):
+                if nn2.site != self[index] and \
+                        nn2.distance < 1.2 * get_bond_length(nn.site.specie, nn2.site.specie):
+                    all_non_terminal_nn.append(nn)
                     break
 
         if len(all_non_terminal_nn) == 0:
             raise RuntimeError("Can't find a non-terminal neighbor to attach"
                                " functional group to.")
 
-        non_terminal_nn = min(all_non_terminal_nn, key=lambda d: d[1])[0]
+        non_terminal_nn = min(all_non_terminal_nn, key=lambda nn: nn.distance).site
 
         # Set the origin point to be the coordinates of the nearest
         # non-terminal neighbor.
@@ -3491,6 +3678,69 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         del self[index]
         for site in func_grp[1:]:
             self._sites.append(site)
+
+
+# The following internal methods are used in the get_all_neighbors method.
+
+
+def _compute_cube_index(coords, global_min, radius):
+    """
+    Compute the cube index from coordinates
+
+    :param coords: (nx3 array) atom coordinates
+    :param global_min: (float) lower boundary of coordinates
+    :param radius: (float) cutoff radius
+    :return: (nx3 array) int indices
+    """
+    return np.array(np.floor((coords - global_min) / radius), dtype=int)
+
+
+def _one_to_three(label1d, ny, nz):
+    """
+    Convert a 1D index array to 3D index array
+
+    :param label1d: (array) 1D index array
+    :param ny: (int) number of cells in y direction
+    :param nz: (int) number of cells in z direction
+    :return: (nx3) int array of index
+    """
+    last = np.mod(label1d, nz)
+    second = np.mod((label1d - last) / nz, ny)
+    first = (label1d - last - second * nz) / (ny * nz)
+    return np.concatenate([first, second, last], axis=1)
+
+
+def _three_to_one(label3d, ny, nz):
+    """
+    The reverse of one_to_three
+    """
+    return np.array(label3d[:, 0] * ny * nz +
+                    label3d[:, 1] * nz + label3d[:, 2]).reshape((-1, 1))
+
+
+def find_neighbors(label, nx, ny, nz):
+    """
+    Given a cube index, find the neighbor cube indices
+    :param label: (array) (n,) or (n x 3) indice array
+    :param nx: (int) number of cells in y direction
+    :param ny: (int) number of cells in y direction
+    :param nz: (int) number of cells in z direction
+    :return: neighbor cell indices
+    """
+    array = [[-1, 0, 1]] * 3
+    neighbor_vectors = np.array(list(itertools.product(*array)),
+                                dtype=int)
+    if np.shape(label)[1] == 1:
+        label3d = _one_to_three(label, ny, nz)
+    else:
+        label3d = label
+    all_labels = label3d[:, None, :] - neighbor_vectors[None, :, :]
+    filtered_labels = []
+    # filter out out-of-bound labels i.e., label < 0
+    for labels in all_labels:
+        ind = (labels[:, 0] < nx) * (labels[:, 1] < ny) * (labels[:, 2] < nz) * np.all(labels > -1e-5, axis=1)
+        filtered_labels.append(labels[ind])
+    return filtered_labels
 
 
 class StructureError(Exception):

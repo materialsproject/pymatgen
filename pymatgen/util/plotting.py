@@ -75,7 +75,7 @@ def pretty_plot(width=8, height=None, plt=None, dpi=None,
 
 
 def pretty_plot_two_axis(x, y1, y2, xlabel=None, y1label=None, y2label=None,
-                         width=8, height=None, dpi=300):
+                         width=8, height=None, dpi=300, **plot_kwargs):
     """
     Variant of pretty_plot that does a dual axis plot. Adapted from matplotlib
     examples. Makes it easier to create plots with different axes.
@@ -93,6 +93,8 @@ def pretty_plot_two_axis(x, y1, y2, xlabel=None, y1label=None, y2label=None,
         height (float): Height of plot in inches. Defaults to width * golden
             ratio.
         dpi (int): Sets dot per inch for figure. Defaults to 300.
+        plot_kwargs: Passthrough kwargs to matplotlib's plot method. E.g.,
+            linewidth, etc.
 
     Returns:
         matplotlib.pyplot
@@ -122,10 +124,10 @@ def pretty_plot_two_axis(x, y1, y2, xlabel=None, y1label=None, y2label=None,
     if isinstance(y1, dict):
         for i, (k, v) in enumerate(y1.items()):
             ax1.plot(x, v, c=c1, marker='s', ls=styles[i % len(styles)],
-                     label=k)
+                     label=k, **plot_kwargs)
         ax1.legend(fontsize=labelsize)
     else:
-        ax1.plot(x, y1, c=c1, marker='s', ls='-')
+        ax1.plot(x, y1, c=c1, marker='s', ls='-', **plot_kwargs)
 
     if xlabel:
         ax1.set_xlabel(xlabel, fontsize=labelsize)
