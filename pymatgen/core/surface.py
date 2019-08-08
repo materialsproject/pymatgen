@@ -1886,17 +1886,21 @@ def center_slab(slab):
         find the surface sites and apply operations like doping.
 
     There are three cases where the slab in not centered:
+
     1. The slab region is completely between two vacuums in the
-        box but not necessarily centered. We simply shift the
-        slab by the difference in its center of mass and 0.5
-        along the c direction.
+    box but not necessarily centered. We simply shift the
+    slab by the difference in its center of mass and 0.5
+    along the c direction.
+
     2. The slab completely spills outside the box from the bottom
-        and into the top. This makes it incredibly difficult to
-        locate surface sites. We iterate through all sites that
-        spill over (z>c) and shift all sites such that this specific
-        site is now on the other side. Repeat for all sites with z>c.
+    and into the top. This makes it incredibly difficult to
+    locate surface sites. We iterate through all sites that
+    spill over (z>c) and shift all sites such that this specific
+    site is now on the other side. Repeat for all sites with z>c.
+
     3. This is a simpler case of scenario 2. Either the top or bottom
-        slab sites are at c=0 or c=1. Treat as scenario 2.
+    slab sites are at c=0 or c=1. Treat as scenario 2.
+    
     Args:
         slab (Slab): Slab structure to center
     Returns:

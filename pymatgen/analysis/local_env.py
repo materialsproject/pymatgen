@@ -1189,7 +1189,7 @@ class OpenBabelNN(NearNeighbors):
         :param molecule: input Molecule.
         :param n: index of site for which to determine near neighbors.
         :return: [dict] representing a neighboring site and the type of
-        bond present between site n and the neighboring site.
+            bond present between site n and the neighboring site.
         """
 
         from pymatgen.io.babel import BabelMolAdaptor
@@ -1324,7 +1324,7 @@ class CovalentBondNN(NearNeighbors):
         :param structure: input Molecule.
         :param n: index of site for which to determine near neighbors.
         :return: [dict] representing a neighboring site and the type of
-        bond present between site n and the neighboring site.
+            bond present between site n and the neighboring site.
         """
 
         # This is unfortunately inefficient, but is the best way to fit the

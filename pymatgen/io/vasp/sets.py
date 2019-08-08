@@ -26,6 +26,7 @@ Read the following carefully before implementing new input sets:
    MPStaticSet or MPNonSCFSets are constructed.
 
 The above are recommendations. The following are UNBREAKABLE rules:
+
 1. All input sets must take in a structure or list of structures as the first
    argument.
 2. user_incar_settings, user_kpoints_settings and user_<whatever>_settings are

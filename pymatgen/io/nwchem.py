@@ -24,6 +24,7 @@ This module implements input and output processing from Nwchem.
 2015/09/21 - Xin Chen (chenxin13@mails.tsinghua.edu.cn):
 
     NwOutput will read new kinds of data:
+
         1. normal hessian matrix.       ["hessian"]
         2. projected hessian matrix.    ["projected_hessian"]
         3. normal frequencies.          ["normal_frequencies"]
@@ -33,6 +34,7 @@ This module implements input and output processing from Nwchem.
 
 2015/10/12 - Xin Chen
     NwOutput will read new kinds of data:
+    
         1. forces.                      ["forces"]
 
 """

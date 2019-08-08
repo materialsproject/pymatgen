@@ -74,7 +74,7 @@ class StructureGraph(MSONable):
         :param structure: a Structure object
 
         :param graph_data: dict containing graph information in
-        dict format (not intended to be constructed manually,
+            dict format (not intended to be constructed manually,
         see as_dict method for format)
         """
 
@@ -112,9 +112,9 @@ class StructureGraph(MSONable):
         :param structure (Structure):
         :param name (str): name of graph, e.g. "bonds"
         :param edge_weight_name (str): name of edge weights,
-        e.g. "bond_length" or "exchange_constant"
+            e.g. "bond_length" or "exchange_constant"
         :param edge_weight_units (str): name of edge weight units
-        e.g. "Å" or "eV"
+            e.g. "Å" or "eV"
         :return (StructureGraph):
         """
 
@@ -144,10 +144,10 @@ class StructureGraph(MSONable):
 
         :param molecule: Molecule object
         :param edges: dict representing the bonds of the functional
-                group (format: {(from_index, to_index, from_image, to_image): props},
-                where props is a dictionary of properties, including weight.
-                Props should be None if no additional properties are to be
-                specified.
+            group (format: {(from_index, to_index, from_image, to_image): props},
+            where props is a dictionary of properties, including weight.
+            Props should be None if no additional properties are to be
+            specified.
         :return: sg, a StructureGraph
         """
 
@@ -201,7 +201,7 @@ class StructureGraph(MSONable):
         :param strategy: an instance of a
             :Class: `pymatgen.analysis.local_env.NearNeighbors` object
         :param weights: if True, use weights from local_env class
-        (consult relevant class for their meaning)
+            (consult relevant class for their meaning)
         :return:
         """
 
@@ -261,14 +261,14 @@ class StructureGraph(MSONable):
         :param from_index: index of site connecting from
         :param to_index: index of site connecting to
         :param from_jimage (tuple of ints): lattice vector of periodic
-        image, e.g. (1, 0, 0) for periodic image in +x direction
+            image, e.g. (1, 0, 0) for periodic image in +x direction
         :param to_jimage (tuple of ints): lattice vector of image
         :param weight (float): e.g. bond length
         :param warn_duplicates (bool): if True, will warn if
-        trying to add duplicate edges (duplicate edges will not
-        be added in either case)
+            trying to add duplicate edges (duplicate edges will not
+            be added in either case)
         :param edge_properties (dict): any other information to
-        store on graph edges, similar to Structure's site_properties
+            store on graph edges, similar to Structure's site_properties
         :return:
         """
 
@@ -360,7 +360,7 @@ class StructureGraph(MSONable):
         :param species: Species for the new site
         :param coords: 3x1 array representing coordinates of the new site
         :param coords_are_cartesian: Whether coordinates are cartesian.
-                Defaults to False.
+            Defaults to False.
         :param validate_proximity: For Molecule.insert(); if True (default
             False), distance will be checked to ensure that site can be safely
             added.
@@ -431,13 +431,13 @@ class StructureGraph(MSONable):
         :param to_index: int
         :param to_jimage: tuple
         :param new_weight: alter_edge does not require
-        that weight be altered. As such, by default, this
-        is None. If weight is to be changed, it should be a
-        float.
+            that weight be altered. As such, by default, this
+            is None. If weight is to be changed, it should be a
+            float.
         :param new_edge_properties: alter_edge does not require
-        that edge_properties be altered. As such, by default,
-        this is None. If any edge properties are to be changed,
-        it should be a dictionary of edge properties to be changed.
+            that edge_properties be altered. As such, by default,
+            this is None. If any edge properties are to be changed,
+            it should be a dictionary of edge properties to be changed.
         :return:
         """
 
@@ -472,8 +472,8 @@ class StructureGraph(MSONable):
         :param to_index: int
         :param to_jimage: tuple
         :param allow_reverse: If allow_reverse is True, then break_edge will
-        attempt to break both (from_index, to_index) and, failing that,
-        will attempt to break (to_index, from_index).
+            attempt to break both (from_index, to_index) and, failing that,
+            will attempt to break (to_index, from_index).
         :return:
         """
 
@@ -540,28 +540,28 @@ class StructureGraph(MSONable):
         :param index: Index of atom to substitute.
         :param func_grp: Substituent molecule. There are two options:
 
-                1. Providing an actual Molecule as the input. The first atom
-                   must be a DummySpecie X, indicating the position of
-                   nearest neighbor. The second atom must be the next
-                   nearest atom. For example, for a methyl group
-                   substitution, func_grp should be X-CH3, where X is the
-                   first site and C is the second site. What the code will
-                   do is to remove the index site, and connect the nearest
-                   neighbor to the C atom in CH3. The X-C bond indicates the
-                   directionality to connect the atoms.
-                2. A string name. The molecule will be obtained from the
-                   relevant template in func_groups.json.
+            1. Providing an actual Molecule as the input. The first atom
+                must be a DummySpecie X, indicating the position of
+                nearest neighbor. The second atom must be the next
+                nearest atom. For example, for a methyl group
+                substitution, func_grp should be X-CH3, where X is the
+                first site and C is the second site. What the code will
+                do is to remove the index site, and connect the nearest
+                neighbor to the C atom in CH3. The X-C bond indicates the
+                directionality to connect the atoms.
+            2. A string name. The molecule will be obtained from the
+                relevant template in func_groups.json.
         :param strategy: Class from pymatgen.analysis.local_env.
         :param bond_order: A specified bond order to calculate the bond
-                length between the attached functional group and the nearest
-                neighbor site. Defaults to 1.
+            length between the attached functional group and the nearest
+            neighbor site. Defaults to 1.
         :param graph_dict: Dictionary representing the bonds of the functional
-                group (format: {(u, v): props}, where props is a dictionary of
-                properties, including weight. If None, then the algorithm
-                will attempt to automatically determine bonds using one of
-                a list of strategies defined in pymatgen.analysis.local_env.
+            group (format: {(u, v): props}, where props is a dictionary of
+            properties, including weight. If None, then the algorithm
+            will attempt to automatically determine bonds using one of
+            a list of strategies defined in pymatgen.analysis.local_env.
         :param strategy_params: dictionary of keyword arguments for strategy.
-                If None, default parameters will be used.
+            If None, default parameters will be used.
         :return:
         """
 
@@ -636,7 +636,7 @@ class StructureGraph(MSONable):
         :param n: index of Site in Structure
         :param jimage: lattice vector of site
         :return: list of ConnectedSite tuples,
-        sorted by closest first
+            sorted by closest first
         """
 
         connected_sites = set()
@@ -716,30 +716,30 @@ class StructureGraph(MSONable):
         graphs.
 
         :param filename: filename to output, will detect filetype
-        from extension (any graphviz filetype supported, such as
-        pdf or png)
+            from extension (any graphviz filetype supported, such as
+            pdf or png)
         :param diff (StructureGraph): an additional graph to
-        compare with, will color edges red that do not exist in diff
-        and edges green that are in diff graph but not in the
-        reference graph
+            compare with, will color edges red that do not exist in diff
+            and edges green that are in diff graph but not in the
+            reference graph
         :param hide_unconnected_nodes: if True, hide unconnected
-        nodes
+            nodes
         :param hide_image_edges: if True, do not draw edges that
-        go through periodic boundaries
+            go through periodic boundaries
         :param edge_colors (bool): if True, use node colors to
-        color edges
+            color edges
         :param node_labels (bool): if True, label nodes with
-        species and site index
+            species and site index
         :param weight_labels (bool): if True, label edges with
-        weights
+            weights
         :param image_labels (bool): if True, label edges with
-        their periodic images (usually only used for debugging,
-        edges to periodic images always appear as dashed lines)
+            their periodic images (usually only used for debugging,
+            edges to periodic images always appear as dashed lines)
         :param color_scheme (str): "VESTA" or "JMOL"
         :param keep_dot (bool): keep GraphViz .dot file for later
-        visualization
+            visualization
         :param algo: any graphviz algo, "neato" (for simple graphs)
-        or "fdp" (for more crowded graphs) usually give good outputs
+            or "fdp" (for more crowded graphs) usually give good outputs
         :return:
         """
 
@@ -868,9 +868,9 @@ class StructureGraph(MSONable):
         of edges in the graph.
 
         :return: A dictionary with keys specifying the
-        species involved in a connection in alphabetical order
-        (e.g. string 'Fe-O') and values which are a list of
-        weights for those connections (e.g. bond lengths).
+            species involved in a connection in alphabetical order
+            (e.g. string 'Fe-O') and values which are a list of
+            weights for those connections (e.g. bond lengths).
         """
         def get_label(u, v):
             u_label = self.structure[u].species_string
@@ -891,7 +891,7 @@ class StructureGraph(MSONable):
         the graph.
 
         :return: A dict with an 'all_weights' list, 'minimum',
-        'maximum', 'median', 'mean', 'std_dev'
+            'maximum', 'median', 'mean', 'std_dev'
         """
 
         all_weights = [d.get('weight', None) for u, v, d
@@ -912,9 +912,9 @@ class StructureGraph(MSONable):
         present in the graph.
 
         :param anonymous: if anonymous, will replace specie names
-        with A, B, C, etc.
+            with A, B, C, etc.
         :return: a list of co-ordination environments,
-        e.g. ['Mo-S(6)', 'S-Mo(3)']
+            e.g. ['Mo-S(6)', 'S-Mo(3)']
         """
 
         motifs = set()
@@ -1321,9 +1321,9 @@ class StructureGraph(MSONable):
 
         :param other: StructureGraph
         :param strict: if False, will compare bonds
-        from different Structures, with node indices
-        replaced by Specie strings, will not count
-        number of occurrences of bonds
+            from different Structures, with node indices
+            replaced by Specie strings, will not count
+            number of occurrences of bonds
         :return:
         """
 
@@ -1378,11 +1378,11 @@ class StructureGraph(MSONable):
         isomorphic subgraph).
 
         :param use_weights (bool): If True, only treat subgraphs
-        as isomorphic if edges have the same weights. Typically,
-        this means molecules will need to have the same bond
-        lengths to be defined as duplicates, otherwise bond
-        lengths can differ. This is a fairly robust approach,
-        but will treat e.g. enantiomers as being duplicates.
+            as isomorphic if edges have the same weights. Typically,
+            this means molecules will need to have the same bond
+            lengths to be defined as duplicates, otherwise bond
+            lengths can differ. This is a fairly robust approach,
+            but will treat e.g. enantiomers as being duplicates.
 
         :return: list of unique Molecules in Structure
         """
@@ -1487,8 +1487,8 @@ class MoleculeGraph(MSONable):
         :param molecule: Molecule object
 
         :param graph_data: dict containing graph information in
-        dict format (not intended to be constructed manually,
-        see as_dict method for format)
+            dict format (not intended to be constructed manually,
+            see as_dict method for format)
         """
 
         if isinstance(molecule, MoleculeGraph):
@@ -1527,9 +1527,9 @@ class MoleculeGraph(MSONable):
         :param molecule (Molecule):
         :param name (str): name of graph, e.g. "bonds"
         :param edge_weight_name (str): name of edge weights,
-        e.g. "bond_length" or "exchange_constant"
+            e.g. "bond_length" or "exchange_constant"
         :param edge_weight_units (str): name of edge weight units
-        e.g. "Å" or "eV"
+            e.g. "Å" or "eV"
         :return (MoleculeGraph):
         """
 
@@ -1559,9 +1559,9 @@ class MoleculeGraph(MSONable):
 
         :param molecule: Molecule object
         :param edges: dict representing the bonds of the functional
-                group (format: {(u, v): props}, where props is a dictionary of
-                properties, including weight. Props should be None if no
-                additional properties are to be specified.
+            group (format: {(u, v): props}, where props is a dictionary of
+            properties, including weight. Props should be None if no
+            additional properties are to be specified.
         :return: mg, a MoleculeGraph
         """
 
@@ -1710,10 +1710,10 @@ class MoleculeGraph(MSONable):
         :param to_index: index of site connecting to
         :param weight (float): e.g. bond length
         :param warn_duplicates (bool): if True, will warn if
-        trying to add duplicate edges (duplicate edges will not
-        be added in either case)
+            trying to add duplicate edges (duplicate edges will not
+            be added in either case)
         :param edge_properties (dict): any other information to
-        store on graph edges, similar to Structure's site_properties
+            store on graph edges, similar to Structure's site_properties
         :return:
         """
 
@@ -1822,13 +1822,13 @@ class MoleculeGraph(MSONable):
         :param from_index: int
         :param to_index: int
         :param new_weight: alter_edge does not require
-        that weight be altered. As such, by default, this
-        is None. If weight is to be changed, it should be a
-        float.
+            that weight be altered. As such, by default, this
+            is None. If weight is to be changed, it should be a
+            float.
         :param new_edge_properties: alter_edge does not require
-        that edge_properties be altered. As such, by default,
-        this is None. If any edge properties are to be changed,
-        it should be a dictionary of edge properties to be changed.
+            that edge_properties be altered. As such, by default,
+            this is None. If any edge properties are to be changed,
+            it should be a dictionary of edge properties to be changed.
         :return:
         """
 
@@ -1856,8 +1856,8 @@ class MoleculeGraph(MSONable):
         :param from_index: int
         :param to_index: int
         :param allow_reverse: If allow_reverse is True, then break_edge will
-        attempt to break both (from_index, to_index) and, failing that,
-        will attempt to break (to_index, from_index).
+            attempt to break both (from_index, to_index) and, failing that,
+            will attempt to break (to_index, from_index).
         :return:
         """
 
@@ -1922,13 +1922,13 @@ class MoleculeGraph(MSONable):
         returns two or more new MoleculeGraph objects.
 
         :param bonds: list of tuples (from_index, to_index)
-        representing bonds to be broken to split the MoleculeGraph.
+            representing bonds to be broken to split the MoleculeGraph.
         :param alterations: a dict {(from_index, to_index): alt},
-        where alt is a dictionary including weight and/or edge
-        properties to be changed following the split.
+            where alt is a dictionary including weight and/or edge
+            properties to be changed following the split.
         :param allow_reverse: If allow_reverse is True, then break_edge will
-        attempt to break both (from_index, to_index) and, failing that,
-        will attempt to break (to_index, from_index).
+            attempt to break both (from_index, to_index) and, failing that,
+            will attempt to break (to_index, from_index).
         :return: list of MoleculeGraphs
         """
 
@@ -2078,18 +2078,18 @@ class MoleculeGraph(MSONable):
         :param index: Index of atom to substitute.
         :param func_grp: Substituent molecule. There are three options:
 
-                1. Providing an actual molecule as the input. The first atom
-                   must be a DummySpecie X, indicating the position of
-                   nearest neighbor. The second atom must be the next
-                   nearest atom. For example, for a methyl group
-                   substitution, func_grp should be X-CH3, where X is the
-                   first site and C is the second site. What the code will
-                   do is to remove the index site, and connect the nearest
-                   neighbor to the C atom in CH3. The X-C bond indicates the
-                   directionality to connect the atoms.
-                2. A string name. The molecule will be obtained from the
-                   relevant template in func_groups.json.
-                3. A MoleculeGraph object.
+            1. Providing an actual molecule as the input. The first atom
+                must be a DummySpecie X, indicating the position of
+                nearest neighbor. The second atom must be the next
+                nearest atom. For example, for a methyl group
+                substitution, func_grp should be X-CH3, where X is the
+                first site and C is the second site. What the code will
+                do is to remove the index site, and connect the nearest
+                neighbor to the C atom in CH3. The X-C bond indicates the
+                directionality to connect the atoms.
+            2. A string name. The molecule will be obtained from the
+                relevant template in func_groups.json.
+            3. A MoleculeGraph object.
         :param strategy: Class from pymatgen.analysis.local_env.
         :param bond_order: A specified bond order to calculate the bond
                 length between the attached functional group and the nearest
@@ -2199,35 +2199,35 @@ class MoleculeGraph(MSONable):
 
         :param index: Index of atom to substitute.
         :param func_grp: Substituent molecule. There are three options:
-
-                1. Providing an actual molecule as the input. The first atom
-                   must be a DummySpecie X, indicating the position of
-                   nearest neighbor. The second atom must be the next
-                   nearest atom. For example, for a methyl group
-                   substitution, func_grp should be X-CH3, where X is the
-                   first site and C is the second site. What the code will
-                   do is to remove the index site, and connect the nearest
-                   neighbor to the C atom in CH3. The X-C bond indicates the
-                   directionality to connect the atoms.
-                2. A string name. The molecule will be obtained from the
-                   relevant template in func_groups.json.
-                3. A MoleculeGraph object.
+        
+            1. Providing an actual molecule as the input. The first atom
+               must be a DummySpecie X, indicating the position of
+               nearest neighbor. The second atom must be the next
+               nearest atom. For example, for a methyl group
+               substitution, func_grp should be X-CH3, where X is the
+               first site and C is the second site. What the code will
+               do is to remove the index site, and connect the nearest
+               neighbor to the C atom in CH3. The X-C bond indicates the
+               directionality to connect the atoms.
+            2. A string name. The molecule will be obtained from the
+               relevant template in func_groups.json.
+            3. A MoleculeGraph object.
         :param strategy: Class from pymatgen.analysis.local_env.
         :param bond_order: A specified bond order to calculate the bond
-                length between the attached functional group and the nearest
-                neighbor site. Defaults to 1.
+            length between the attached functional group and the nearest
+            neighbor site. Defaults to 1.
         :param graph_dict: Dictionary representing the bonds of the functional
-                group (format: {(u, v): props}, where props is a dictionary of
-                properties, including weight. If None, then the algorithm
-                will attempt to automatically determine bonds using one of
-                a list of strategies defined in pymatgen.analysis.local_env.
+            group (format: {(u, v): props}, where props is a dictionary of
+            properties, including weight. If None, then the algorithm
+            will attempt to automatically determine bonds using one of
+            a list of strategies defined in pymatgen.analysis.local_env.
         :param strategy_params: dictionary of keyword arguments for strategy.
-                If None, default parameters will be used.
+            If None, default parameters will be used.
         :param reorder: bool, representing if graph nodes need to be reordered
-                following the application of the local_env strategy
+            following the application of the local_env strategy
         :param extend_structure: If True (default), then a large artificial box
-                will be placed around the Molecule, because some strategies assume
-                periodic boundary conditions.
+            will be placed around the Molecule, because some strategies assume
+            periodic boundary conditions.
         :return:
         """
 
@@ -2274,14 +2274,14 @@ class MoleculeGraph(MSONable):
         Find ring structures in the MoleculeGraph.
 
         :param including: list of site indices. If
-        including is not None, then find_rings will
-        only return those rings including the specified
-        sites. By default, this parameter is None, and
-        all rings will be returned.
+            including is not None, then find_rings will
+            only return those rings including the specified
+            sites. By default, this parameter is None, and
+            all rings will be returned.
         :return: dict {index:cycle}. Each
-        entry will be a ring (cycle, in graph theory terms) including the index
-        found in the Molecule. If there is no cycle including an index, the
-        value will be an empty list.
+            entry will be a ring (cycle, in graph theory terms) including the index
+            found in the Molecule. If there is no cycle including an index, the
+            value will be an empty list.
         """
 
         # Copies self.graph such that all edges (u, v) matched by edges (v, u)
@@ -2329,7 +2329,7 @@ class MoleculeGraph(MSONable):
         :param n: index of Site in Molecule
         :param jimage: lattice vector of site
         :return: list of ConnectedSite tuples,
-        sorted by closest first
+            sorted by closest first
         """
 
         connected_sites = set()
@@ -2403,30 +2403,30 @@ class MoleculeGraph(MSONable):
         graphs.
 
         :param filename: filename to output, will detect filetype
-        from extension (any graphviz filetype supported, such as
-        pdf or png)
+            from extension (any graphviz filetype supported, such as
+            pdf or png)
         :param diff (StructureGraph): an additional graph to
-        compare with, will color edges red that do not exist in diff
-        and edges green that are in diff graph but not in the
-        reference graph
+            compare with, will color edges red that do not exist in diff
+            and edges green that are in diff graph but not in the
+            reference graph
         :param hide_unconnected_nodes: if True, hide unconnected
-        nodes
+            nodes
         :param hide_image_edges: if True, do not draw edges that
-        go through periodic boundaries
+            go through periodic boundaries
         :param edge_colors (bool): if True, use node colors to
-        color edges
+            color edges
         :param node_labels (bool): if True, label nodes with
-        species and site index
+            species and site index
         :param weight_labels (bool): if True, label edges with
-        weights
+            weights
         :param image_labels (bool): if True, label edges with
-        their periodic images (usually only used for debugging,
-        edges to periodic images always appear as dashed lines)
+            their periodic images (usually only used for debugging,
+            edges to periodic images always appear as dashed lines)
         :param color_scheme (str): "VESTA" or "JMOL"
         :param keep_dot (bool): keep GraphViz .dot file for later
-        visualization
+            visualization
         :param algo: any graphviz algo, "neato" (for simple graphs)
-        or "fdp" (for more crowded graphs) usually give good outputs
+            or "fdp" (for more crowded graphs) usually give good outputs
         :return:
         """
 
@@ -2733,9 +2733,9 @@ class MoleculeGraph(MSONable):
 
         :param other: MoleculeGraph
         :param strict: if False, will compare bonds
-        from different Molecules, with node indices
-        replaced by Specie strings, will not count
-        number of occurrences of bonds
+            from different Molecules, with node indices
+            replaced by Specie strings, will not count
+            number of occurrences of bonds
         :return:
         """
 
