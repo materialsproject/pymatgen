@@ -560,7 +560,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                  "structure": s_copy.get_sorted_structure()})
 
         if return_ranked_list:
-            return self._all_structures
+            return self._all_structures[:num_to_return]
         else:
             return self._all_structures[0]["structure"]
 
