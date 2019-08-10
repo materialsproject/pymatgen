@@ -37,7 +37,7 @@ def from_bson_voronoi_list(bson_nb_voro_list, structure):
     :param vlist: List of voronoi objects
     :param bson_nb_voro_list: List of periodic sites involved in the Voronoi
     :return: The voronoi_list needed for the VoronoiContainer (with PeriodicSites as keys of the dictionary - not
-    allowed in the BSON format)
+        allowed in the BSON format)
     """
     voronoi_list = [None] * len(bson_nb_voro_list)
     for isite, voro in enumerate(bson_nb_voro_list):
@@ -58,7 +58,7 @@ def from_bson_voronoi_list2(bson_nb_voro_list2, structure):
     :param vlist: List of voronoi objects
     :param bson_nb_voro_list: List of periodic sites involved in the Voronoi
     :return: The voronoi_list needed for the VoronoiContainer (with PeriodicSites as keys of the dictionary - not
-    allowed in the BSON format)
+        allowed in the BSON format)
     """
     voronoi_list = [None] * len(bson_nb_voro_list2)
     for isite, voro in enumerate(bson_nb_voro_list2):

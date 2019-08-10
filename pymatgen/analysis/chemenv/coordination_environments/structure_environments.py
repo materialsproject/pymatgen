@@ -340,7 +340,7 @@ class StructureEnvironments(MSONable):
         :param sites_map: Mapping of equivalent sites to the unequivalent sites that have been computed.
         :param equivalent_sites: List of list of equivalent sites of the structure
         :param struct_sites_to_irreducible_site_list_map: Maps the index of a site to the index of the item in the
-        list of equivalent sites to which the site belongs.
+            list of equivalent sites to which the site belongs.
         :param ce_list: List of chemical environments
         :param structure: Structure object
         """
@@ -495,9 +495,9 @@ class StructureEnvironments(MSONable):
         :param plot_type: How to plot the coordinations
         :param title: Title for the figure
         :param max_dist: Maximum distance to be plotted when the plotting of the distance is set to 'initial_normalized'
-                         or 'initial_real' (Warning: this is not the same meaning in both cases! In the first case,
-                         the closest atom lies at a "normalized" distance of 1.0 so that 2.0 means refers to this
-                         normalized distance while in the second case, the real distance is used)
+            or 'initial_real' (Warning: this is not the same meaning in both cases! In the first case, the closest atom 
+            lies at a "normalized" distance of 1.0 so that 2.0 means refers to this normalized distance while in the 
+            second case, the real distance is used)
         :param figsize: Size of the figure to be plotted
         :return: Nothing returned, just plot the figure
         """
@@ -650,9 +650,9 @@ class StructureEnvironments(MSONable):
         :param plot_type: How to plot the coordinations
         :param title: Title for the figure
         :param max_dist: Maximum distance to be plotted when the plotting of the distance is set to 'initial_normalized'
-                         or 'initial_real' (Warning: this is not the same meaning in both cases! In the first case,
-                         the closest atom lies at a "normalized" distance of 1.0 so that 2.0 means refers to this
-                         normalized distance while in the second case, the real distance is used)
+            or 'initial_real' (Warning: this is not the same meaning in both cases! In the first case, the closest atom 
+            lies at a "normalized" distance of 1.0 so that 2.0 means refers to this normalized distance while in the 
+            second case, the real distance is used)
         :param figsize: Size of the figure to be plotted
         :return: The figure object to be plotted or saved to file
         """
@@ -791,9 +791,9 @@ class StructureEnvironments(MSONable):
         :param plot_type: How to plot the coordinations
         :param title: Title for the figure
         :param max_dist: Maximum distance to be plotted when the plotting of the distance is set to 'initial_normalized'
-                         or 'initial_real' (Warning: this is not the same meaning in both cases! In the first case,
-                         the closest atom lies at a "normalized" distance of 1.0 so that 2.0 means refers to this
-                         normalized distance while in the second case, the real distance is used)
+            or 'initial_real' (Warning: this is not the same meaning in both cases! In the first case, the closest atom 
+            lies at a "normalized" distance of 1.0 so that 2.0 means refers to this normalized distance while in the 
+            second case, the real distance is used)
         :param figsize: Size of the figure to be plotted
         :return: Nothing returned, just plot the figure
         """

@@ -37,6 +37,7 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
     This code is a slight modification of XRDCalculator in
     pymatgen.analysis.diffraction.xrd. See it for details of the algorithm.
     Main changes by using neutron instead of X-ray are as follows:
+    
     1. Atomic scattering length is a constant.
     2. Polarization correction term of Lorentz factor is unnecessary.
 
