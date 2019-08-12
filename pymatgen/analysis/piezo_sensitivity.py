@@ -70,44 +70,44 @@ class BornEffectiveCharge:
         struc = self.structure
         ops = sga(struc).get_symmetry_operations(cartesian = True)
         uniquepointops = [] 
-        for i in range(len(ops)):
-            uniquepointops.append(ops[i])
+        for op in ops:
+            uniquepointops.append(op)
 
-        for i in range(len(self.pointops)):
-            for j in range(len(self.pointops[i])):
-                if self.pointops[i][j] not in uniquepointops:
-                    uniquepointops.append(self.pointops[i][j])
+        for atom in range(len(self.pointops)):
+            for op in self.pointops[atom]:
+                if op not in uniquepointops:
+                    uniquepointops.append(op)
          
         passed = []
         relations = []
-        for i in range(len(bec)):
+        for site in range(len(bec)):
             unique = 1
-            eig1, vecs1 = np.linalg.eig(bec[i])
+            eig1, vecs1 = np.linalg.eig(bec[site])
             index = np.argsort(eig1)
             neweig = np.real([eig1[index[0]],eig1[index[1]],eig1[index[2]]])
-            for k in range(len(passed)):
+            for index in range(len(passed)):
 
-                if np.allclose(neweig, passed[k][1], atol = eigtol):
-                    relations.append([i,k])
+                if np.allclose(neweig, passed[index][1], atol = eigtol):
+                    relations.append([site,index])
                     unique = 0 
-                    passed.append([i,passed[k][0], neweig])
+                    passed.append([site,passed[index][0], neweig])
                     break
             if unique == 1:
-                relations.append([i, i])
-                passed.append([i, neweig])
+                relations.append([site, site])
+                passed.append([site, neweig])
         BEC_operations = []
-        for i in range(len(relations)):
+        for atom in range(len(relations)):
             good = 0
-            BEC_operations.append(relations[i])
-            BEC_operations[i].append([])
+            BEC_operations.append(relations[atom])
+            BEC_operations[atom].append([])
 
             good = 0
-            for j in range(len(uniquepointops)):
-                new = uniquepointops[j].transform_tensor(self.bec[relations[i][1]])
+            for op in uniquepointops:
+                new = op.transform_tensor(self.bec[relations[atom][1]])
                 
                 ## Check the matrix it references
-                if np.allclose(new, self.bec[relations[i][0]], atol = opstol):
-                    BEC_operations[i][2].append(uniquepointops[j])
+                if np.allclose(new, self.bec[relations[atom][0]], atol = opstol):
+                    BEC_operations[atom][2].append(op)
 
         self.BEC_operations = BEC_operations
 
@@ -133,42 +133,42 @@ class BornEffectiveCharge:
         l = len(struc)
         BEC = np.zeros((l,3,3))
         primsites = []
-        for i in range(len(self.BEC_operations)):
-            if self.BEC_operations[i][0] == self.BEC_operations[i][1]:
+        for atom in range(len(self.BEC_operations)):
+            if self.BEC_operations[atom][0] == self.BEC_operations[atom][1]:
                 temp_tensor = Tensor(np.random.rand(3,3)-0.5)         
-                temp_tensor = sum([temp_tensor.transform(symm_op) for symm_op in self.pointops[i]]) \
-                    /len(self.pointops[i])
-                BEC[i] = temp_tensor
+                temp_tensor = sum([temp_tensor.transform(symm_op) for symm_op in self.pointops[atom]]) \
+                    /len(self.pointops[atom])
+                BEC[atom] = temp_tensor
             else: 
                 tempfcm = np.zeros([3,3])
-                for j in range(len(self.BEC_operations[i][2])):
+                for op in self.BEC_operations[atom][2]:
 
-                    tempfcm += self.BEC_operations[i][2][j].transform_tensor(BEC[self.BEC_operations[i][1]])
-                BEC[self.BEC_operations[i][0]] = tempfcm
-                if len(self.BEC_operations[i][2]) != 0:
-                    BEC[self.BEC_operations[i][0]] = BEC[self.BEC_operations[i][0]]/len(self.BEC_operations[i][2])
+                    tempfcm += op.transform_tensor(BEC[self.BEC_operations[atom][1]])
+                BEC[self.BEC_operations[atom][0]] = tempfcm
+                if len(self.BEC_operations[atom][2]) != 0:
+                    BEC[self.BEC_operations[atom][0]] = BEC[self.BEC_operations[atom][0]]/len(self.BEC_operations[atom][2])
         
     #     Enforce Acoustic Sum
         disp_charge = np.einsum("ijk->jk",BEC)/l
         add = np.zeros([l,3,3])
         
-        for i in range(len(self.BEC_operations)):  
+        for atom in range(len(self.BEC_operations)):  
             
-            if self.BEC_operations[i][0] == self.BEC_operations[i][1]:
+            if self.BEC_operations[atom][0] == self.BEC_operations[atom][1]:
                 temp_tensor = Tensor(disp_charge)
-                temp_tensor = sum([temp_tensor.transform(symm_op) for symm_op in self.pointops[i]]) \
-                    /len(self.pointops[i])
-                add[self.BEC_operations[i][0]] = temp_tensor
+                temp_tensor = sum([temp_tensor.transform(symm_op) for symm_op in self.pointops[atom]]) \
+                    /len(self.pointops[atom])
+                add[self.BEC_operations[atom][0]] = temp_tensor
             else: 
                 temp_tensor = np.zeros([3,3])
-                for j in range(len(self.BEC_operations[i][2])):
+                for op in self.BEC_operations[atom][2]:
 
-                    temp_tensor += self.BEC_operations[i][2][j].transform_tensor(add[self.BEC_operations[i][1]])
+                    temp_tensor += op.transform_tensor(add[self.BEC_operations[atom][1]])
                 
-                add[self.BEC_operations[i][0]] = temp_tensor
+                add[self.BEC_operations[atom][0]] = temp_tensor
                 
-                if len(self.BEC_operations[i][2]) != 0:
-                    add[self.BEC_operations[i][0]] = add[self.BEC_operations[i][0]]/len(self.BEC_operations[i][2])
+                if len(self.BEC_operations[atom]) != 0:
+                    add[self.BEC_operations[atom][0]] = add[self.BEC_operations[atom][0]]/len(self.BEC_operations[atom][2])
             
         BEC = BEC - add
          
@@ -220,24 +220,24 @@ class InternalStrainTensor:
         struc = self.structure
         ops = sga(struc).get_symmetry_operations(cartesian = True)
         uniquepointops = [] 
-        for i in range(len(ops)):
-            uniquepointops.append(ops[i])
+        for op in ops:
+            uniquepointops.append(op)
         
-        for i in range(len(self.pointops)):
-            for j in range(len(self.pointops[i])):
-                if self.pointops[i][j] not in uniquepointops:
-                    uniquepointops.append(self.pointops[i][j])
+        for atom in range(len(self.pointops)):
+            for op in self.pointops[atom]:
+                if op not in uniquepointops:
+                    uniquepointops.append(op)
 
         IST_operations = []
-        for i in range(len(self.ist)):
+        for atom in range(len(self.ist)):
             IST_operations.append([])
-            for j in range(0,i):
-                for k in range(len(uniquepointops)):
-                    new = uniquepointops[k].transform_tensor(self.ist[j])
+            for j in range(0,atom):
+                for op in uniquepointops:
+                    new = op.transform_tensor(self.ist[j])
 
                     ## Check the matrix it references
-                    if np.allclose(new, self.ist[i], atol = opstol):
-                        IST_operations[i].append([j, uniquepointops[k]])
+                    if np.allclose(new, self.ist[atom], atol = opstol):
+                        IST_operations[atom].append([j, op])
 
         self.IST_operations = IST_operations  
 
@@ -256,22 +256,20 @@ class InternalStrainTensor:
 
         l = len(self.structure)
         IST = np.zeros((l,3,3,3))
-        primsites = []
-        for i in range(len(self.IST_operations)):
+        for atom in range(len(self.IST_operations)):
             temp_tensor = np.zeros([3,3,3])
-            for j in range(len(self.IST_operations[i])):
-                temp_tensor += self.IST_operations[i][j][1].transform_tensor(IST[self.IST_operations[i][j][0]])
+            for op in self.IST_operations[atom]:
+                temp_tensor += op[1].transform_tensor(IST[op[0]])
                 
-            if len(self.IST_operations[i]) == 0:
+            if len(self.IST_operations[atom]) == 0:
                 temp_tensor = Tensor(np.random.rand(3,3,3)-0.5) 
                 for dim in range(3):
                     temp_tensor[dim] = (temp_tensor[dim]+temp_tensor[dim].T)/2
-                temp_tensor = sum([temp_tensor.transform(symm_op) for symm_op in self.pointops[i]]) \
-                    /len(self.pointops[i])
-            IST[i] = temp_tensor
-            if len(self.IST_operations[i]) != 0:
-                IST[i] = IST[i]/len(self.IST_operations[i])
-        return IST*max_force
+                temp_tensor = sum([temp_tensor.transform(symm_op) for symm_op in self.pointops[atom]]) \
+                    /len(self.pointops[atom])
+            IST[atom] = temp_tensor
+            if len(self.IST_operations[atom]) != 0:
+                IST[atom] = IST[atom]/len(self.IST_operations[atom])
 
         return IST*max_force
 
@@ -321,55 +319,55 @@ class ForceConstantMatrix:
         struc = self.structure
         ops = sga(struc).get_symmetry_operations(cartesian = True)
         uniquepointops = [] 
-        for i in range(len(ops)):
-            uniquepointops.append(ops[i])
+        for op in ops:
+            uniquepointops.append(op)
         
-        for i in range(len(self.pointops)):
-            for j in range(len(self.pointops[i])):
-                if self.pointops[i][j] not in uniquepointops:
-                    uniquepointops.append(self.pointops[i][j])
+        for atom in range(len(self.pointops)):
+            for op in self.pointops[atom]:
+                if op not in uniquepointops:
+                    uniquepointops.append(op)
                 
         passed = []
         relations = []
-        for i in range(len(self.fcm)):
-            for j in range(i, len(self.fcm)):
+        for atom1 in range(len(self.fcm)):
+            for atom2 in range(atom1, len(self.fcm)):
                 unique = 1
-                eig1, vecs1 = np.linalg.eig(self.fcm[i][j])
+                eig1, vecs1 = np.linalg.eig(self.fcm[atom1][atom2])
                 index = np.argsort(eig1)
                 neweig = np.real([eig1[index[0]],eig1[index[1]],eig1[index[2]]])
                 
-                for k in range(len(passed)):
-                    if np.allclose(neweig,passed[k][2], atol = eigtol):
-                        relations.append([i,j, passed[k][0], passed[k][1]])
+                for entry in range(len(passed)):
+                    if np.allclose(neweig,passed[entry][2], atol = eigtol):
+                        relations.append([atom1, atom2, passed[entry][0], passed[entry][1]])
                         unique = 0 
                         break
                 if unique == 1:
-                    relations.append([i,j, j, i])
-                    passed.append([i,j,np.real(neweig)])
+                    relations.append([atom1,atom2, atom2, atom1])
+                    passed.append([atom1,atom2,np.real(neweig)])
         FCM_operations = []
-        for i in range(len(relations)):
+        for entry in range(len(relations)):
             good = 0
-            FCM_operations.append(relations[i])
-            FCM_operations[i].append([])
+            FCM_operations.append(relations[entry])
+            FCM_operations[entry].append([])
 
             good = 0
-            for j in range(len(uniquepointops)):
-                new = uniquepointops[j].transform_tensor(self.fcm[relations[i][2]][relations[i][3]])
+            for op in uniquepointops:
+                new = op.transform_tensor(self.fcm[relations[entry][2]][relations[entry][3]])
                 
-                if np.allclose(new, self.fcm[relations[i][0]][relations[i][1]], atol = opstol):
-                    FCM_operations[i][4].append(uniquepointops[j])
+                if np.allclose(new, self.fcm[relations[entry][0]][relations[entry][1]], atol = opstol):
+                    FCM_operations[entry][4].append(op)
                     good = 1
-            if relations[i][0] == relations[i][3] and relations[i][1] == relations[i][2]:
+            if relations[entry][0] == relations[entry][3] and relations[entry][1] == relations[entry][2]:
                 good = 1
-            if relations[i][0] == relations[i][2] and relations[i][1] == relations[i][3]:
+            if relations[entry][0] == relations[entry][2] and relations[entry][1] == relations[entry][3]:
                 good = 1
             if good == 0:
-                FCM_operations[i] = [relations[i][0], relations[i][1], relations[i][3], relations[i][2]]
-                FCM_operations[i].append([])
-                for j in range(len(uniquepointops)):
-                    new = uniquepointops[j].transform_tensor(self.fcm[relations[i][2]][relations[i][3]])
-                    if np.allclose(new.T, self.fcm[relations[i][0]][relations[i][1]], atol = opstol):
-                        FCM_operations[i][4].append(uniquepointops[j])
+                FCM_operations[entry] = [relations[entry][0], relations[entry][1], relations[entry][3], relations[entry][2]]
+                FCM_operations[entry].append([])
+                for op in uniquepointops:
+                    new = op.transform_tensor(self.fcm[relations[entry][2]][relations[entry][3]])
+                    if np.allclose(new.T, self.fcm[relations[entry][0]][relations[entry][1]], atol = opstol):
+                        FCM_operations[entry][4].append(op)
          
         self.FCM_operations = FCM_operations    
         return FCM_operations
@@ -392,48 +390,48 @@ class ForceConstantMatrix:
         # set max force in reciprocal space
         numsites = len(struc.sites)
         D = (1/max_force)*2*(np.ones([numsites*3, numsites*3]))
-        for i in range(len(operations)):
+        for op in operations:
             same = 0
             transpose = 0
-            if operations[i][0] == operations[i][1] and operations[i][0] == operations[i][2] and operations[i][0] == operations[i][3]:
+            if op[0] == op[1] and op[0] == op[2] and op[0] == op[3]:
                 same = 1
-            if operations[i][0] == operations[i][3] and operations[i][1] == operations[i][2]:
+            if op[0] == op[3] and op[1] == op[2]:
                 transpose = 1
             if transpose ==0 and same == 0:
-                D[3*operations[i][0]:3*operations[i][0]+3, 3*operations[i][1]:3*operations[i][1]+3] = np.zeros([3,3])
-                D[3*operations[i][1]:3*operations[i][1]+3, 3*operations[i][0]:3*operations[i][0]+3] = np.zeros([3,3])
+                D[3*op[0]:3*op[0]+3, 3*op[1]:3*op[1]+3] = np.zeros([3,3])
+                D[3*op[1]:3*op[1]+3, 3*op[0]:3*op[0]+3] = np.zeros([3,3])
 
-                for j in range(len(operations[i][4])):
+                for symop in op[4]:
 
-                    tempfcm = D[3*operations[i][2]:3*operations[i][2]+3, 3*operations[i][3]:3*operations[i][3]+3]
-                    tempfcm = operations[i][4][j].transform_tensor(tempfcm)
-                    D[3*operations[i][0]:3*operations[i][0]+3, 3*operations[i][1]:3*operations[i][1]+3] += tempfcm
+                    tempfcm = D[3*op[2]:3*op[2]+3, 3*op[3]:3*op[3]+3]
+                    tempfcm = symop.transform_tensor(tempfcm)
+                    D[3*op[0]:3*op[0]+3, 3*op[1]:3*op[1]+3] += tempfcm
 
-                if len(operations[i][4]) != 0:
-                    D[3*operations[i][0]:3*operations[i][0]+3, 3*operations[i][1]:3*operations[i][1]+3] =\
-                        D[3*operations[i][0]:3*operations[i][0]+3, 3*operations[i][1]:3*operations[i][1]+3]/len(operations[i][4])
+                if len(op[4]) != 0:
+                    D[3*op[0]:3*op[0]+3, 3*op[1]:3*op[1]+3] =\
+                        D[3*op[0]:3*op[0]+3, 3*op[1]:3*op[1]+3]/len(op[4])
                 
-                D[3*operations[i][1]:3*operations[i][1]+3, 3*operations[i][0]:3*operations[i][0]+3] = \
-                D[3*operations[i][0]:3*operations[i][0]+3, 3*operations[i][1]:3*operations[i][1]+3].T
+                D[3*op[1]:3*op[1]+3, 3*op[0]:3*op[0]+3] = \
+                D[3*op[0]:3*op[0]+3, 3*op[1]:3*op[1]+3].T
                 continue
             else:
                 temp_tensor = Tensor(np.random.rand(3,3)-0.5)*max_force
 
                 temp_tensor_sum = sum([temp_tensor.transform(symm_op) for symm_op in \
-                                       self.sharedops[operations[i][0]][operations[i][1]]])
-                temp_tensor_sum = temp_tensor_sum/(len(self.sharedops[operations[i][0]][operations[i][1]]))
-                if operations[i][0] != operations[i][1]:
-                    for pair in range(len(operations[i][4])):
+                                       self.sharedops[op[0]][op[1]]])
+                temp_tensor_sum = temp_tensor_sum/(len(self.sharedops[op[0]][op[1]]))
+                if op[0] != op[1]:
+                    for pair in range(len(op[4])):
 
                         temp_tensor2 = temp_tensor_sum.T
-                        temp_tensor2 = operations[i][4][pair].transform_tensor(temp_tensor2)
+                        temp_tensor2 = op[4][pair].transform_tensor(temp_tensor2)
                         temp_tensor_sum = (temp_tensor_sum + temp_tensor2)/2
                         
                 else:
                     temp_tensor_sum = (temp_tensor_sum + temp_tensor_sum.T)/2
 
-                D[3*operations[i][0]:3*operations[i][0]+3, 3*operations[i][1]:3*operations[i][1]+3] = temp_tensor_sum
-                D[3*operations[i][1]:3*operations[i][1]+3, 3*operations[i][0]:3*operations[i][0]+3] = temp_tensor_sum.T
+                D[3*op[0]:3*op[0]+3, 3*op[1]:3*op[1]+3] = temp_tensor_sum
+                D[3*op[1]:3*op[1]+3, 3*op[0]:3*op[0]+3] = temp_tensor_sum.T
                 
 
         return D
@@ -452,55 +450,52 @@ class ForceConstantMatrix:
         operations = self.FCM_operations
         numsites = len(self.structure)
         D = unsymmetrized_fcm
-        for i in range(len(operations)):
+        for op in operations:
             same = 0
             transpose = 0
-            if operations[i][0] == operations[i][1] and operations[i][0] == operations[2] and operations[i][0] == operations[i][3]:
+            if op[0] == op[1] and op[0] == operations[2] and op[0] == op[3]:
                 same = 1
-            if operations[i][0] == operations[i][3] and operations[i][1] == operations[i][2]:
+            if op[0] == op[3] and op[1] == op[2]:
                 transpose = 1
             if transpose ==0 and same == 0:
-                D[3*operations[i][0]:3*operations[i][0]+3, 3*operations[i][1]:3*operations[i][1]+3] = np.zeros([3,3])
+                D[3*op[0]:3*op[0]+3, 3*op[1]:3*op[1]+3] = np.zeros([3,3])
 
-                for j in range(len(operations[i][4])):
+                for symop in op[4]:
 
-                    tempfcm = D[3*operations[i][2]:3*operations[i][2]+3, 3*operations[i][3]:3*operations[i][3]+3]
-                    tempfcm = operations[i][4][j].transform_tensor(tempfcm)
+                    tempfcm = D[3*op[2]:3*op[2]+3, 3*op[3]:3*op[3]+3]
+                    tempfcm = symop.transform_tensor(tempfcm)
 
-                    D[3*operations[i][0]:3*operations[i][0]+3, 3*operations[i][1]:3*operations[i][1]+3] += tempfcm
+                    D[3*op[0]:3*op[0]+3, 3*op[1]:3*op[1]+3] += tempfcm
 
-                if len(operations[i][4]) != 0:
-                    D[3*operations[i][0]:3*operations[i][0]+3, 3*operations[i][1]:3*operations[i][1]+3] =\
-                        D[3*operations[i][0]:3*operations[i][0]+3, 3*operations[i][1]:3*operations[i][1]+3]/len(operations[i][4])
-                D[3*operations[i][1]:3*operations[i][1]+3, 3*operations[i][0]:3*operations[i][0]+3] = \
-                    D[3*operations[i][0]:3*operations[i][0]+3, 3*operations[i][1]:3*operations[i][1]+3].T
+                if len(op[4]) != 0:
+                    D[3*op[0]:3*op[0]+3, 3*op[1]:3*op[1]+3] =\
+                        D[3*op[0]:3*op[0]+3, 3*op[1]:3*op[1]+3]/len(op[4])
+                D[3*op[1]:3*op[1]+3, 3*op[0]:3*op[0]+3] = \
+                    D[3*op[0]:3*op[0]+3, 3*op[1]:3*op[1]+3].T
                 continue
             else:
-    #         print(5, operations[i][0], operations[i][1])
 
-                temp_tensor = Tensor(D[3*operations[i][0]:3*operations[i][0]+3, 3*operations[i][1]:3*operations[i][1]+3])
+                temp_tensor = Tensor(D[3*op[0]:3*op[0]+3, 3*op[1]:3*op[1]+3])
                 temp_tensor_sum = sum([temp_tensor.transform(symm_op) for symm_op in \
-                                       self.sharedops[operations[i][0]][operations[i][1]]])
-                if len(self.sharedops[operations[i][0]][operations[i][1]]) != 0:
-                    temp_tensor_sum = temp_tensor_sum/(len(self.sharedops[operations[i][0]][operations[i][1]]))
-
-
+                                       self.sharedops[op[0]][op[1]]])
+                if len(self.sharedops[op[0]][op[1]]) != 0:
+                    temp_tensor_sum = temp_tensor_sum/(len(self.sharedops[op[0]][op[1]]))
 
                 ## Apply the proper transformation if there is an equivalent already
-                if operations[i][0] != operations[i][1]:
+                if op[0] != op[1]:
 
-                    for pair in range(len(operations[i][4])):
+                    for pair in range(len(op[4])):
 
                         temp_tensor2 = temp_tensor_sum.T
-                        temp_tensor2 = operations[i][4][pair].transform_tensor(temp_tensor2)
+                        temp_tensor2 = op[4][pair].transform_tensor(temp_tensor2)
                         temp_tensor_sum = (temp_tensor_sum + temp_tensor2)/2
 
                 else:
                     temp_tensor_sum = (temp_tensor_sum + temp_tensor_sum.T)/2
 
 
-            D[3*operations[i][0]:3*operations[i][0]+3, 3*operations[i][1]:3*operations[i][1]+3] = temp_tensor_sum
-            D[3*operations[i][1]:3*operations[i][1]+3, 3*operations[i][0]:3*operations[i][0]+3] = temp_tensor_sum.T
+            D[3*op[0]:3*op[0]+3, 3*op[1]:3*op[1]+3] = temp_tensor_sum
+            D[3*op[1]:3*op[1]+3, 3*op[0]:3*op[0]+3] = temp_tensor_sum.T
 
         return(D)
 
@@ -523,8 +518,8 @@ class ForceConstantMatrix:
         numsites = len(self.structure)
         check = 0
         count = 0
-        # fcm = self.get_asum_FCM(fcm)
         while check == 0:
+            ## if resymmetrizing brings back unstable modes 20 times, the method breaks
             if count > 20:
                 check = 1
                 break
@@ -588,32 +583,32 @@ class ForceConstantMatrix:
                 total = total + X[0:3, col*3:col*3+3]
 
             total = total/(numsites)
-            for i in range(len(operations)):
+            for op in operations:
                 same = 0
                 transpose = 0
-                if operations[i][0] == operations[i][1] and operations[i][0] == operations[i][2] and operations[i][0] == operations[i][3]:
+                if op[0] == op[1] and op[0] == op[2] and op[0] == op[3]:
                     same = 1
-                if operations[i][0] == operations[i][3] and operations[i][1] == operations[i][2]:
+                if op[0] == op[3] and op[1] == op[2]:
                     transpose = 1
                 if transpose ==0 and same == 0:
-                    D[3*operations[i][0]:3*operations[i][0]+3, 3*operations[i][1]:3*operations[i][1]+3] = np.zeros([3,3])
+                    D[3*op[0]:3*op[0]+3, 3*op[1]:3*op[1]+3] = np.zeros([3,3])
                 
-                    for j in range(len(operations[i][4])):
+                    for symop in op[4]:
 
-                        tempfcm = D[3*operations[i][2]:3*operations[i][2]+3, 3*operations[i][3]:3*operations[i][3]+3]
-                        tempfcm = operations[i][4][j].transform_tensor(tempfcm)
+                        tempfcm = D[3*op[2]:3*op[2]+3, 3*op[3]:3*op[3]+3]
+                        tempfcm = symop.transform_tensor(tempfcm)
 
-                        D[3*operations[i][0]:3*operations[i][0]+3, 3*operations[i][1]:3*operations[i][1]+3] += tempfcm
+                        D[3*op[0]:3*op[0]+3, 3*op[1]:3*op[1]+3] += tempfcm
                     
-                    if len(operations[i][4]) != 0:
-                        D[3*operations[i][0]:3*operations[i][0]+3, 3*operations[i][1]:3*operations[i][1]+3] =\
-                            D[3*operations[i][0]:3*operations[i][0]+3, 3*operations[i][1]:3*operations[i][1]+3]/len(operations[i][4])
-                    D[3*operations[i][1]:3*operations[i][1]+3, 3*operations[i][0]:3*operations[i][0]+3] = \
-                        D[3*operations[i][0]:3*operations[i][0]+3, 3*operations[i][1]:3*operations[i][1]+3].T
+                    if len(op[4]) != 0:
+                        D[3*op[0]:3*op[0]+3, 3*op[1]:3*op[1]+3] =\
+                            D[3*op[0]:3*op[0]+3, 3*op[1]:3*op[1]+3]/len(op[4])
+                    D[3*op[1]:3*op[1]+3, 3*op[0]:3*op[0]+3] = \
+                        D[3*op[0]:3*op[0]+3, 3*op[1]:3*op[1]+3].T
                     continue
                 else:
                     ## Get the difference in the sum up to this point
-                    currrow = operations[i][0]
+                    currrow = op[0]
                     if currrow != pastrow:
                         total = np.zeros([3,3])
                         for col in range(numsites):
@@ -626,26 +621,26 @@ class ForceConstantMatrix:
                     ## Apply the point symmetry operations of the site
                     temp_tensor = Tensor(total)
                     temp_tensor_sum = sum([temp_tensor.transform(symm_op) for symm_op in \
-                                           self.sharedops[operations[i][0]][operations[i][1]]])
+                                           self.sharedops[op[0]][op[1]]])
 
-                    if len(self.sharedops[operations[i][0]][operations[i][1]]) != 0:
-                        temp_tensor_sum = temp_tensor_sum/(len(self.sharedops[operations[i][0]][operations[i][1]]))
+                    if len(self.sharedops[op[0]][op[1]]) != 0:
+                        temp_tensor_sum = temp_tensor_sum/(len(self.sharedops[op[0]][op[1]]))
 
 
                     ## Apply the proper transformation if there is an equivalent already
-                    if operations[i][0] != operations[i][1]:
+                    if op[0] != op[1]:
 
-                        for pair in range(len(operations[i][4])):
+                        for pair in range(len(op[4])):
 
                             temp_tensor2 = temp_tensor_sum.T
-                            temp_tensor2 = operations[i][4][pair].transform_tensor(temp_tensor2)
+                            temp_tensor2 = op[4][pair].transform_tensor(temp_tensor2)
                             temp_tensor_sum = (temp_tensor_sum + temp_tensor2)/2
                         
                     else:
                         temp_tensor_sum = (temp_tensor_sum + temp_tensor_sum.T)/2
 
-                    D[3*operations[i][0]:3*operations[i][0]+3, 3*operations[i][1]:3*operations[i][1]+3] = temp_tensor_sum
-                    D[3*operations[i][1]:3*operations[i][1]+3, 3*operations[i][0]:3*operations[i][0]+3] = temp_tensor_sum.T
+                    D[3*op[0]:3*op[0]+3, 3*op[1]:3*op[1]+3] = temp_tensor_sum
+                    D[3*op[1]:3*op[1]+3, 3*op[0]:3*op[0]+3] = temp_tensor_sum.T
             fcm = fcm - D
 
         
@@ -673,7 +668,6 @@ class ForceConstantMatrix:
         pnstruc = Phonopy(structure, np.eye(3), np.eye(3))
         
         dyn = self.get_unstable_FCM(force)
-        # dyn = self.get_asum_FCM(dyn, self.FCM_operations, self.sharedops, numiter = asum)
         dyn = self.get_stable_FCM(dyn)
         
         dyn = np.reshape(dyn, (numsites,3,numsites,3)).swapaxes(1,2)
@@ -693,10 +687,9 @@ class ForceConstantMatrix:
     
         converter = dyntofc.DynmatToForceConstants(primitive, supercell)
 
-        fcm = dynmass
-        fcm = np.reshape(np.swapaxes(fcm,1,2),(numsites*3,numsites*3))
+        dyn = np.reshape(np.swapaxes(dynmass,1,2),(numsites*3,numsites*3))
         
-        converter.set_dynamical_matrices(dynmat = [fcm])
+        converter.set_dynamical_matrices(dynmat = [dyn])
 
         converter.run()
         fc = converter.get_force_constants()
@@ -739,14 +732,13 @@ def rand_piezo(struc, pointops, sharedops, BEC, IST, FCM, anumiter = 10):
         struc (pymatgen structure): structure whose symmetry operations the piezo tensor must obey
         pointops: list of point operations obeyed by a single atomic site
         sharedops: list of point operations shared by a pair of atomic sites
-        BEC_IST_operations: list of point operations a site must obey or the transformation
-            that brings one site's properties to anothers
-        FCM_operations: list of point operations a pair of sites must obey or the transformation
-            that brings one pair of site's properties to anothers
-
+        BEC (numpy array): Nx3x3 array representing the born effective charge tensor 
+        IST (numpy array): Nx3x3x3 array representing the internal strain tensor 
+        FCM (numpy array): NxNx3x3 array representing the born effective charge tensor 
+        anumiter (int): number of iterations for acoustic sum rule convergence
     Return:
-        [Nx3x3 random born effective charge tenosr, Nx3x3x3 random internal strain tensor, 
-        NxNx3x3 random force constant matrix, 3x3x3 piezo tensor]
+        list in the form of [Nx3x3 random born effective charge tenosr, 
+        Nx3x3x3 random internal strain tensor, NxNx3x3 random force constant matrix, 3x3x3 piezo tensor]
     """
     numsites = len(struc.sites)
     bec = BornEffectiveCharge(struc, BEC, pointops)
