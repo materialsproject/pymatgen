@@ -30,10 +30,10 @@ class BornEffectiveCharge:
 
     def __init__(self, structure, bec, pointops, tol=1e-3):
         """
-        Create an BornEffectiveChargeTensor object.  The constructor throws 
-        an error if the input_matrix argument does not satisfy the charge 
-        sum rule. Note that the constructor uses __new__ rather than __init__ 
-        according to the standard method of subclassing numpy ndarrays.
+        Create an BornEffectiveChargeTensor object defined by a 
+        structure, point operations of the structure's atomic sites.
+        Note that the constructor uses __new__ rather than __init__ 
+        according to the standard method ofsubclassing numpy ndarrays.
 
         Args:
             input_matrix (Nx3x3 array-like): the Nx3x3 array-like
@@ -49,6 +49,23 @@ class BornEffectiveCharge:
                           "not satisfy charge neutrality")
 
     def get_BEC_operations(self, eigtol = 1e-05, opstol = 1e-03):
+        """
+        Returns the symmetry operations which maps the tensors 
+        belonging to equivalent sites onto each other in the form
+        [site index 1, site index 2, [Symmops mapping from site
+        index 1 to site index 2]]
+
+
+        Args:
+            eigtol (float): tolerance for determining if two sites are 
+            related by symmetry
+            opstol (float): tolerance for determining if a symmetry
+            operation relates two sites
+
+        Return: 
+            list of symmetry operations mapping equivalent sites and 
+            the indexes of those sites. 
+        """
         bec = self.bec
         struc = self.structure
         ops = sga(struc).get_symmetry_operations(cartesian = True)
@@ -78,11 +95,11 @@ class BornEffectiveCharge:
             if unique == 1:
                 relations.append([i, i])
                 passed.append([i, neweig])
-        BEC_IST_operations = []
+        BEC_operations = []
         for i in range(len(relations)):
             good = 0
-            BEC_IST_operations.append(relations[i])
-            BEC_IST_operations[i].append([])
+            BEC_operations.append(relations[i])
+            BEC_operations[i].append([])
 
             good = 0
             for j in range(len(uniquepointops)):
@@ -90,9 +107,9 @@ class BornEffectiveCharge:
                 
                 ## Check the matrix it references
                 if np.allclose(new, self.bec[relations[i][0]], atol = opstol):
-                    BEC_IST_operations[i][2].append(uniquepointops[j])
+                    BEC_operations[i][2].append(uniquepointops[j])
 
-        self.BEC_operations = BEC_IST_operations
+        self.BEC_operations = BEC_operations
 
                         
 
@@ -102,13 +119,10 @@ class BornEffectiveCharge:
         symmetry and the acoustic sum rule
 
         Args:
-            struc (pymatgen structure): 
-            symops: point symmetry operations of each atomic site
-            BEC_operations: list of operations which map atomic sites onto each other
             max_charge (float): maximum born effective charge value
 
         Return:
-            BornEffectiveChargeTensor object
+            np.array Born effective charge tensor
         """
 
         struc = self.structure
@@ -164,16 +178,13 @@ class BornEffectiveCharge:
 
 class InternalStrainTensor:
     """
-    This class describes the Nx3x3x3 born effective charge tensor
+    This class describes the Nx3x3x3 internal tensor defined by a 
+    structure, point operations of the structure's atomic sites.
     """
 
     def __init__(self, structure, ist, pointops,  tol=1e-3):
         """
-        Create an InternalStrainTensor object.  The constructor throws an error if
-        the shape of the input_matrix argument is not Nx3x3x3, i. e. in true
-        tensor notation. Note that the constructor uses __new__ rather than
-        __init__ according to the standard method of subclassing numpy
-        ndarrays.
+        Create an InternalStrainTensor object.  
 
         Args:
             input_matrix (Nx3x3x3 array-like): the Nx3x3x3 array-like
@@ -190,6 +201,22 @@ class InternalStrainTensor:
             warnings.warn("Input internal strain tensor does "
                           "not satisfy standard symmetries")
     def get_IST_operations(self,opstol = 1e-03):
+        """
+        Returns the symmetry operations which maps the tensors 
+        belonging to equivalent sites onto each other in the form
+        [site index 1, site index 2, [Symmops mapping from site
+        index 1 to site index 2]]
+
+
+        Args:
+            opstol (float): tolerance for determining if a symmetry
+            operation relates two sites
+
+        Return: 
+            list of symmetry operations mapping equivalent sites and 
+            the indexes of those sites. 
+        """
+
         struc = self.structure
         ops = sga(struc).get_symmetry_operations(cartesian = True)
         uniquepointops = [] 
@@ -200,8 +227,6 @@ class InternalStrainTensor:
             for j in range(len(self.pointops[i])):
                 if self.pointops[i][j] not in uniquepointops:
                     uniquepointops.append(self.pointops[i][j])
-        ops = sga(struc).get_symmetry_operations(cartesian = True)
-
 
         IST_operations = []
         for i in range(len(self.ist)):
@@ -254,16 +279,14 @@ class InternalStrainTensor:
 
 class ForceConstantMatrix:
     """
-    This class describes the NxNx3x3 born effective charge tensor
+    This class describes the NxNx3x3 force constant matrix defined by a 
+    structure, point operations of the structure's atomic sites, and the
+    shared symmetry operations between pairs of atomic sites. 
     """
 
     def __init__(self, structure, fcm, pointops, sharedops, tol=1e-3):
         """
-        Create an ForceConstantMatrix object.  The constructor throws an error if
-        the shape of the input_matrix argument is not NxNx3x3, i. e. in true
-        tensor notation. Note that the constructor uses __new__ rather than
-        __init__ according to the standard method of subclassing numpy
-        ndarrays.
+        Create an ForceConstantMatrix object. 
 
         Args:
             input_matrix (NxNx3x3 array-like): the NxNx3x3 array-like
@@ -467,8 +490,8 @@ class ForceConstantMatrix:
     def get_stable_FCM(self, fcm, fcmasum = 10):
         
         """
-        Generate a symmeterized force constant matrix 
-        that has no unstable modes and also obeys the acoustic sum rule through an
+        Generate a symmeterized force constant matrix that obeys the objects symmetry 
+        constraints, has no unstable modes and also obeys the acoustic sum rule through an
         iterative procedure
 
         Args:
@@ -606,13 +629,12 @@ class ForceConstantMatrix:
         iterative procedure
 
         Args:
-            fcm (numpy array): unsymmeterized force constant matrix 
             force (float): maximum force constant
             asum (int): number of iterations to attempt to obey the acoustic sum
                 rule
 
         Return:
-            force constant matrix representing the force constant matrix
+            NxNx3x3 np.array representing the force constant matrix
 
         """
 
@@ -658,14 +680,28 @@ class ForceConstantMatrix:
 
         return fc
  
-def get_piezo(BEC, IST, FCM, rcondy = 0.0001):
+def get_piezo(BEC, IST, FCM, rcond = 0.0001):
+    """
+    Generate a random piezoelectric tensor based on a structure and corresponding
+    symmetry
+
+    Args:
+        BEC (numpy array): Nx3x3 array representing the born effective charge tensor 
+        IST (numpy array): Nx3x3x3 array representing the internal strain tensor 
+        FCM (numpy array): NxNx3x3 array representing the born effective charge tensor 
+        rcondy (float): condition for excluding eigenvalues in the pseudoinverse
+
+    Return:
+        Calculated Piezo tensor
+    """
+
     numsites = len(BEC)
     temp_fcm = np.reshape(np.swapaxes(FCM,1,2),(numsites*3,numsites*3))
     
     piezo = np.zeros([3,3,3])
     eigs,vecs = np.linalg.eig(temp_fcm) 
     K = np.linalg.pinv(-temp_fcm, \
-        rcond = np.abs(eigs[np.argsort(np.abs(eigs))[2]])/np.abs(eigs[np.argsort(np.abs(eigs))[-1]])+rcondy)
+        rcond = np.abs(eigs[np.argsort(np.abs(eigs))[2]])/np.abs(eigs[np.argsort(np.abs(eigs))[-1]])+rcond)
     
     K = np.reshape(K, (numsites,3,numsites,3)).swapaxes(1,2)
     return np.einsum("ikl,ijlm,jmno->kno",BEC,K,IST)*16.0216559424

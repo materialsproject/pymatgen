@@ -5,8 +5,18 @@ from pymatgen.core.operations import SymmOp
 from pymatgen import Element
 from pymatgen.analysis.elasticity.tensors import Tensor
 
-# function that returns the point group symmetries centered on each site
 def get_site_symmetries(struc, precision = 0.1):
+    """
+    Get all the point group operations centered on each atomic site
+    in the form [[point operations of site index 1]...[[point operations of site index N]]]
+
+    Args:
+        struc: Pymatgen structure
+        precision (float): tolerance to find symmetry operaitons 
+
+    Return:
+        list of lists of point operations for each atomic site
+    """
     numsites = len(struc.sites)
     sgastruc = sga(struc)
  
@@ -31,8 +41,18 @@ def get_site_symmetries(struc, precision = 0.1):
     return pointops
 
 
-# Function that returns the symmetry operations shared by a pair of atoms 
 def get_shared_symmetry_operations(struc, pointops, tol = 0.1):
+    """
+        Get all the point group operations shared by a pair of atomic sites
+        in the form [[point operations of site index 1],[],...,[]]
+
+        Args:
+            struc: Pymatgen structure
+            pointops: list of point group operations from get_site_symmetries method
+
+        Return:
+            list of lists of shared point operations for each pair of atomic sites
+    """
     numsites = len(struc)
     sharedops = [[0 for x in range(numsites)] for y in range(numsites)] 
     for site1 in range(numsites):
