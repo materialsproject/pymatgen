@@ -301,6 +301,23 @@ class ForceConstantMatrix:
 
 
     def get_FCM_operations(self, eigtol = 1e-05, opstol = 1e-05):
+        """
+        Returns the symmetry operations which maps the tensors 
+        belonging to equivalent sites onto each other in the form
+        [site index 1a, site index 1b, site index 2a, site index 2b,
+        [Symmops mapping from site index 1a, 1b to site index 2a, 2b]]
+
+
+        Args:
+            eigtol (float): tolerance for determining if two sites are 
+            related by symmetry
+            opstol (float): tolerance for determining if a symmetry
+            operation relates two sites
+
+        Return: 
+            list of symmetry operations mapping equivalent sites and 
+            the indexes of those sites. 
+        """
         struc = self.structure
         ops = sga(struc).get_symmetry_operations(cartesian = True)
         uniquepointops = [] 
@@ -429,7 +446,7 @@ class ForceConstantMatrix:
             max_charge (float): maximum born effective charge value
 
         Return:
-            numpy array representing the force constant matrix
+            3Nx3N numpy array representing the force constant matrix
         """
 
         operations = self.FCM_operations
@@ -500,7 +517,7 @@ class ForceConstantMatrix:
                 rule
 
         Return:
-            numpy array representing the force constant matrix
+            3Nx3N numpy array representing the force constant matrix
         """
 
         numsites = len(self.structure)
@@ -508,7 +525,7 @@ class ForceConstantMatrix:
         count = 0
         # fcm = self.get_asum_FCM(fcm)
         while check == 0:
-            if count > 100:
+            if count > 20:
                 check = 1
                 break
             
@@ -542,7 +559,20 @@ class ForceConstantMatrix:
     #acoustic sum
 
     def get_asum_FCM(self, fcm, numiter = 15):
-    # set max force in reciprocal space 
+        """
+        Generate a symmeterized force constant matrix that obeys the objects symmetry 
+        constraints and obeys the acoustic sum rule through an iterative procedure
+
+        Args:
+            fcm (numpy array): 3Nx3N unsymmeterized force constant matrix 
+            numiter (int): number of iterations to attempt to obey the acoustic sum
+                rule
+
+        Return:
+            numpy array representing the force constant matrix
+        """
+
+        # set max force in reciprocal space 
         operations = self.FCM_operations
         numsites = len(self.structure)
         
@@ -665,13 +695,6 @@ class ForceConstantMatrix:
 
         fcm = dynmass
         fcm = np.reshape(np.swapaxes(fcm,1,2),(numsites*3,numsites*3))
-
-        fcm = dynmass
-        fcm = np.reshape(np.swapaxes(fcm,1,2),(numsites*3,numsites*3))
-        supercell = pnstruc.get_supercell()
-        primitive = pnstruc.get_primitive()
-        
-        converter = dyntofc.DynmatToForceConstants(primitive, supercell)
         
         converter.set_dynamical_matrices(dynmat = [fcm])
 
@@ -692,7 +715,7 @@ def get_piezo(BEC, IST, FCM, rcond = 0.0001):
         rcondy (float): condition for excluding eigenvalues in the pseudoinverse
 
     Return:
-        Calculated Piezo tensor
+        3x3x3 calculated Piezo tensor 
     """
 
     numsites = len(BEC)
@@ -722,7 +745,8 @@ def rand_piezo(struc, pointops, sharedops, BEC, IST, FCM, anumiter = 10):
             that brings one pair of site's properties to anothers
 
     Return:
-        PiezoTensor object
+        [Nx3x3 random born effective charge tenosr, Nx3x3x3 random internal strain tensor, 
+        NxNx3x3 random force constant matrix, 3x3x3 piezo tensor]
     """
     numsites = len(struc.sites)
     bec = BornEffectiveCharge(struc, BEC, pointops)
