@@ -423,12 +423,11 @@ class Doscar:
                 cdos[nd] = np.array(line)
             dos.append(cdos)
         f.close()
-        #TODO: get number of lines in 6th line of file: 5 -> spinpolarized, 3 not spin polarized
         doshere = np.array(dos[0])
-        if len(doshere[0,:])==5:
-            self._is_spin_polarized=True
-        elif len(doshere[0,:])==3:
-            self._is_spin_polarized=False
+        if len(doshere[0, :]) == 5:
+            self._is_spin_polarized = True
+        elif len(doshere[0, :]) == 3:
+            self._is_spin_polarized = False
         else:
             raise ValueError("There is something wrong with the DOSCAR. Can't extract spin polarization.")
         energies = doshere[:, 0]

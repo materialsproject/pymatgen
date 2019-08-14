@@ -326,8 +326,8 @@ class DoscarTest(unittest.TestCase):
     def setUp(self):
         # first for spin polarized version
         doscar = os.path.join(test_dir_doscar, "DOSCAR.lobster.spin")
-        poscar= os.path.join(test_dir_doscar,"POSCAR.lobster.spin_DOS")
-        #not spin polarized
+        poscar = os.path.join(test_dir_doscar, "POSCAR.lobster.spin_DOS")
+        # not spin polarized
         doscar2 = os.path.join(test_dir_doscar, "DOSCAR.lobster.nonspin")
         poscar2 = os.path.join(test_dir_doscar, "POSCAR.lobster.nonspin_DOS")
         self.DOSCAR_spin_pol = Doscar(doscar=doscar, structure_file=poscar)
