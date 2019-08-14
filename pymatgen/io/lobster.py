@@ -365,7 +365,7 @@ class Doscar:
 
     Args:
         doscar: DOSCAR filename, typically "DOSCAR.lobster"
-        structurefile: for vasp, this is typically "POSCAR"
+        structure_file: for vasp, this is typically "POSCAR"
         dftprogram: so far only "vasp" is implemented
 
     .. attribute:: completedos
@@ -394,11 +394,11 @@ class Doscar:
 
     """
 
-    def __init__(self, doscar="DOSCAR.lobster", structurefile="POSCAR", dftprogram="Vasp"):
+    def __init__(self, doscar="DOSCAR.lobster", structure_file="POSCAR", dftprogram="Vasp"):
 
         self._doscar = doscar
         if dftprogram == "Vasp":
-            self._final_structure = Structure.from_file(structurefile)
+            self._final_structure = Structure.from_file(structure_file)
 
         self._parse_doscar()
 
