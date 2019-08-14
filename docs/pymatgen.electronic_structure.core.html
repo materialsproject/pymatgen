@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.electronic_structure.core module &#8212; pymatgen 2019.7.30 documentation</title>
+    <title>pymatgen.electronic_structure.core module &#8212; pymatgen 2019.8.14 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.14 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -87,12 +87,14 @@ VASP calculations:</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>moment</strong> – magnetic moment, supplied as float or list/np.ndarray</p></li>
-<li><p><strong>saxis</strong> – spin axis, supplied as list/np.ndarray, parameter will</p></li>
+<li><p><strong>saxis</strong> – spin axis, supplied as list/np.ndarray, parameter will
+be converted to unit vector (default is [0, 0, 1])</p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Magmom object</p>
+</dd>
 </dl>
-<p>be converted to unit vector (default is [0, 0, 1])
-:return: Magmom object</p>
 <dl class="method">
 <dt id="pymatgen.electronic_structure.core.Magmom.are_collinear">
 <em class="property">static </em><code class="sig-name descname">are_collinear</code><span class="sig-paren">(</span><em class="sig-param">magmoms</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/core.html#Magmom.are_collinear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.are_collinear" title="Permalink to this definition">¶</a></dt>
@@ -460,7 +462,7 @@ Usage: Spin.up, Spin.down.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.14 documentation</a> &#187;</li> 
       </ul>
     </div>
 

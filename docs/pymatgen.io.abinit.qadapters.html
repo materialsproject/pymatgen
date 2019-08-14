@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.abinit.qadapters module &#8212; pymatgen 2019.7.30 documentation</title>
+    <title>pymatgen.io.abinit.qadapters module &#8212; pymatgen 2019.8.14 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.14 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -42,29 +42,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-pymatgen.io.abinit.qadapters">
-<span id="pymatgen-io-abinit-qadapters-module"></span><h1>pymatgen.io.abinit.qadapters module<a class="headerlink" href="#module-pymatgen.io.abinit.qadapters" title="Permalink to this headline">¶</a></h1>
-<p>The initial version of this module was based on a similar implementation
-present in FireWorks (<a class="reference external" href="https://pypi.python.org/pypi/FireWorks">https://pypi.python.org/pypi/FireWorks</a>).
-Work done by D. Waroquiers, A. Jain, and M. Kocher.</p>
-<p>The main difference wrt the Fireworks implementation is that the QueueAdapter
-objects provide a programmatic interface for setting important attributes
-such as the number of MPI nodes, the number of OMP threads and the memory requirements.
-This programmatic interface is used by the <cite>TaskManager</cite> for optimizing the parameters
-of the run before submitting the job (Abinit provides the autoparal option that
-allows one to get a list of parallel configuration and their expected efficiency).</p>
-<dl class="function">
-<dt id="pymatgen.io.abinit.qadapters.make_qadapter">
-<code class="sig-name descname">make_qadapter</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/qadapters.html#make_qadapter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.qadapters.make_qadapter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the concrete <code class="xref py py-class docutils literal notranslate"><span class="pre">QueueAdapter</span></code> class from a string.
-Note that one can register a customized version with:</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>MyAdapter should be pickleable, hence one should declare it
-at the module level so that pickle can import it at run-time.</p>
-</div>
-</dd></dl>
-
+  <div class="section" id="pymatgen-io-abinit-qadapters-module">
+<h1>pymatgen.io.abinit.qadapters module<a class="headerlink" href="#pymatgen-io-abinit-qadapters-module" title="Permalink to this headline">¶</a></h1>
 </div>
 
 
@@ -103,7 +82,7 @@ at the module level so that pickle can import it at run-time.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.14 documentation</a> &#187;</li> 
       </ul>
     </div>
 

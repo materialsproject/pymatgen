@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.lobster module &#8212; pymatgen 2019.7.30 documentation</title>
+    <title>pymatgen.io.lobster module &#8212; pymatgen 2019.8.14 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.14 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -115,7 +115,7 @@ file name will be chosen, depending on the value of are_coops.</p></li>
 
 <dl class="class">
 <dt id="pymatgen.io.lobster.Doscar">
-<em class="property">class </em><code class="sig-name descname">Doscar</code><span class="sig-paren">(</span><em class="sig-param">doscar='DOSCAR.lobster'</em>, <em class="sig-param">vasprun='vasprun.xml'</em>, <em class="sig-param">dftprogram='Vasp'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lobster.html#Doscar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Doscar" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Doscar</code><span class="sig-paren">(</span><em class="sig-param">doscar='DOSCAR.lobster'</em>, <em class="sig-param">structure_file='POSCAR'</em>, <em class="sig-param">dftprogram='Vasp'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lobster.html#Doscar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Doscar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to deal with Lobster’s projected DOS and local projected DOS.
 The beforehand quantum-chemical calculation was performed with VASP</p>
@@ -123,7 +123,7 @@ The beforehand quantum-chemical calculation was performed with VASP</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>doscar</strong> – DOSCAR filename, typically “DOSCAR.lobster”</p></li>
-<li><p><strong>vasprun</strong> – vasprun filename, typically “vasprun.xml”</p></li>
+<li><p><strong>structure_file</strong> – for vasp, this is typically “POSCAR”</p></li>
 <li><p><strong>dftprogram</strong> – so far only “vasp” is implemented</p></li>
 </ul>
 </dd>
@@ -384,7 +384,7 @@ Similar to the diff in INCAR.
 <li><p><strong>POSCAR_input</strong> (<em>str</em>) – path to POSCAR</p></li>
 <li><p><strong>INCAR_input</strong> (<em>str</em>) – path to INCAR</p></li>
 <li><p><strong>POTCAR_input</strong> (<em>str</em>) – path to POTCAR</p></li>
-<li><p><strong>dict_for_basis</strong> (<em>dict</em>) – can be provided: it should look the following: dict_for_basis={“Fe”:‘3p 3d 4s 4f’, “C”: ‘2s 2p’} and will overwrite all settings from POTCAR_input</p></li>
+<li><p><strong>dict_for_basis</strong> (<em>dict</em>) – can be provided: it should look the following: dict_for_basis={“Fe”:’3p 3d 4s 4f’, “C”: ‘2s 2p’} and will overwrite all settings from POTCAR_input</p></li>
 <li><p><strong>option</strong> (<em>str</em>) – ‘standard’ will start a normal lobster run where COHPs, COOPs, DOS, CHARGE etc. will be calculated
 ‘standard_from_projection’ will start a normal lobster run from a projection
 ‘standard_with_fatband’ will do a fatband calculation, run over all orbitals
@@ -568,7 +568,7 @@ string with all warnings</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.14 documentation</a> &#187;</li> 
       </ul>
     </div>
 

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometries &#8212; pymatgen 2019.7.30 documentation</title>
+    <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometries &#8212; pymatgen 2019.8.14 documentation</title>
     <link rel="stylesheet" href="../../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -150,21 +150,21 @@
 <span class="sd">            Initializes a separation plane for a given perfect coordination geometry</span>
 
 <span class="sd">            :param mirror_plane: True if the separation plane is a mirror plane, in which case there is a correspondence</span>
-<span class="sd">            of the points in each point_group (can reduce the number of permutations)</span>
+<span class="sd">                of the points in each point_group (can reduce the number of permutations)</span>
 <span class="sd">            :param ordered_plane : True if the order of the points in the plane can be taken into account to reduce the</span>
-<span class="sd">            number of permutations</span>
+<span class="sd">                number of permutations</span>
 <span class="sd">            :param plane_points: Indices of the points that are in the plane in the perfect structure (and should be</span>
-<span class="sd">            found in the defective one as well)</span>
+<span class="sd">                found in the defective one as well)</span>
 <span class="sd">            :param point_groups: The two groups of points separated by the plane</span>
 <span class="sd">            :param plane_type: can be &quot;MIRROR&quot;, if the plane is a mirror plane going through the central site,</span>
-<span class="sd">             &#39;BASAL_THROUGH_CENTER&#39;, if the plane is a basal plane (no point on the &quot;left&quot; side) going through the central</span>
-<span class="sd">             site, &#39;BASAL&#39;, if the is a basal plane not going through the central site, &#39;UNEQUILIBRATED_THROUGH_CENTER&#39;, if</span>
-<span class="sd">             the plane cuts the geometry in two groups of points with different numbers of points on each side, and is going</span>
-<span class="sd">             through the centre, &#39;UNEQUILIBRATED&#39;, if the plane cuts the geometry in two groups of points with different</span>
-<span class="sd">             numbers of points on each side, and is not going through the centre, &#39;EQUILIBRATED_THROUGH_CENTER&#39;, if the</span>
-<span class="sd">             plane cuts the geometry in two groups of points of the same size, is going through the centre but is not a</span>
-<span class="sd">             mirror plane, &#39;EQUILIBRATED&#39;, if the plane cuts the geometry in two groups of points of the same size, is not</span>
-<span class="sd">             going through the centre but is not a mirror plane.</span>
+<span class="sd">                &#39;BASAL_THROUGH_CENTER&#39;, if the plane is a basal plane (no point on the &quot;left&quot; side) going through the central</span>
+<span class="sd">                site, &#39;BASAL&#39;, if the is a basal plane not going through the central site, &#39;UNEQUILIBRATED_THROUGH_CENTER&#39;, if</span>
+<span class="sd">                the plane cuts the geometry in two groups of points with different numbers of points on each side, and is going</span>
+<span class="sd">                through the centre, &#39;UNEQUILIBRATED&#39;, if the plane cuts the geometry in two groups of points with different</span>
+<span class="sd">                numbers of points on each side, and is not going through the centre, &#39;EQUILIBRATED_THROUGH_CENTER&#39;, if the</span>
+<span class="sd">                plane cuts the geometry in two groups of points of the same size, is going through the centre but is not a</span>
+<span class="sd">                mirror plane, &#39;EQUILIBRATED&#39;, if the plane cuts the geometry in two groups of points of the same size, is not</span>
+<span class="sd">                going through the centre but is not a mirror plane.</span>
 <span class="sd">            &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">algorithm_type</span><span class="o">=</span><span class="n">SEPARATION_PLANE</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mirror_plane</span> <span class="o">=</span> <span class="n">mirror_plane</span>
@@ -473,12 +473,12 @@
 <span class="sd">        :param points: The list of the coordinates of all the points of this coordination geometry.</span>
 <span class="sd">        :param separation_planes: List of separation facets to help set up the permutations</span>
 <span class="sd">        :param permutation_safe_override: Computes all the permutations if set to True (overrides the plane separation</span>
-<span class="sd">        algorithms or any other algorithm, for testing purposes)</span>
+<span class="sd">            algorithms or any other algorithm, for testing purposes)</span>
 <span class="sd">        :param plane_ordering_override: Computes all the permutations of the plane separation algorithm if set to False</span>
-<span class="sd">        otherwise, uses the anticlockwise ordering of the separation facets (for testing purposes)</span>
+<span class="sd">            otherwise, uses the anticlockwise ordering of the separation facets (for testing purposes)</span>
 <span class="sd">        :param deactivate: deactivates this coordination geometry in the search</span>
 <span class="sd">        :param faces : list of the faces with their vertices given in a clockwise or anticlockwise order, for drawing</span>
-<span class="sd">        purposes</span>
+<span class="sd">            purposes</span>
 <span class="sd">        :param : list of edges, for drawing purposes</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mp_symbol</span> <span class="o">=</span> <span class="n">mp_symbol</span>
@@ -1216,7 +1216,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
