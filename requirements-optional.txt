@@ -9,7 +9,6 @@ chemview==0.6
 netCDF4==1.4.2
 fdint==2.0.2
 phonopy==2.2.0
-networkx==2.3
 h5py==2.7.1
 #BoltzTraP2==18.9.1
 f90nml==1.1.2
