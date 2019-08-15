@@ -20,6 +20,13 @@ poff.init_notebook_mode(connected=True)
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
+# tempattern inherits from diffractionpattern
+#make msonable
+#run TEM on all 120k strucs
+#remove: symprec
+#voltage default set to 200 instead of 300 kv
+#beam directions: all permutations/families of 1, -1 (-1-1-1, 111, 110, 100)
+#cluster analysis of the points: min vector (1d or 2d)
 from math import *
 from fractions import Fraction 
 
@@ -88,10 +95,10 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     some important constants needed for calculations
     """
     planck = 6.62607004 * 10**-34
-    restMassElec = 9.1093835611 * 10**-31
-    chargeElec = 1.60217662 * 10**-19 
-    speedLight = 299792458
-    vacuumPerm = 8.8541878176 * 10**-12
+    rest_mass_elec = 9.1093835611 * 10**-31
+    charge_elec = 1.60217662 * 10**-19 
+    speed_light = 299792458
+    vacuum_perm = 8.8541878176 * 10**-12
     wavelength_cache = {}
     
     def __init__(self, symprec: float=None, voltage: float=300, beam_direction: List[int]=[0,0,1], 
@@ -134,8 +141,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         """
         if self.voltage in self.wavelength_cache:
             return self.wavelength_cache[self.voltage]
-        wavelength_rel = self.planck/math.sqrt(2*self.restMassElec*self.chargeElec*1000*self.voltage*
-        	(1+(self.chargeElec*1000*self.voltage)/(2*self.restMassElec*self.speedLight**2)))
+        wavelength_rel = self.planck/math.sqrt(2*self.rest_mass_elec*self.charge_elec*1000*self.voltage*
+        	(1+(self.charge_elec*1000*self.voltage)/(2*self.rest_mass_elec*self.speed_light**2)))
         self.wavelength_cache[self.voltage] = wavelength_rel
         return wavelength_rel
 
@@ -167,6 +174,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         """
         # TODO: memoize this as a dict of laue zone to pointlist. prob want a system where if you input a diff range of 
         # initial points, you edit the cache entry.
+        #t-SNE: perplexity parameter
 
         observed_points = []
         for point in points:
@@ -174,6 +182,14 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                 observed_points.append(point)
         return observed_points
 
+    #due to the MASSIVE (to the point of overflow) number of Bragg points, as well as the extreme
+    #difficulty of separating said points based on where they would theoretically appear in a 
+    #2d DP, it is impractical to calculate interplanar distance from the g-vector (which must
+    # be calc'ed by knowing the Bragg angle).
+
+    # actually disregard that, it's not hard to test it. you only need the miller indices.
+    # however just by a cursory inspection of interplanar distances, how is it 
+    # mathematically possible for hkl alone to determine interplanar distance?  
     def dist_cubic(self, structure, point):
         """
         Calculates the interplanar distance of an hkl plane in a cubic crystal.
@@ -341,20 +357,6 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             bragg_angles[plane] = np.arcsin(self.wavelength_rel()/(2*interplanar_spacings[plane]))
         return bragg_angles    
     
-    def get_atoms(self, structure: Structure):
-        """
-        Gets all unique atoms present in the input structure.
-        Args:
-            structure (Structure): The structure in question.
-        Returns:
-            list of Atom objects
-        """
-        atoms = []
-        for site in structure:
-            for sp, occu in site.species.items():
-                atoms.append(sp)
-        return atoms
-    
     def get_s2(self, structure, bragg_angles):
         """
         Calculates the s squared parameter (= square of sin theta over lambda) for each hkl plane.
@@ -383,7 +385,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         """
         x_ray_factors = {}
         s2 = self.get_s2(structure, bragg_angles)
-        atoms = self.get_atoms(structure)
+        atoms = structure.composition.elements
         coeffs = []
         scattering_factors_for_atom = {}
         scattering_factor_curr = 0
@@ -410,8 +412,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         electron_scattering_factors = {}
         x_ray_factors = self.x_ray_factors(structure, bragg_angles)
         s2 = self.get_s2(structure, bragg_angles)
-        atoms = self.get_atoms(structure)
-        prefactor = self.chargeElec/(16*(pi**2)*self.vacuumPerm) 
+        atoms = structure.composition.elements
+        prefactor = self.charge_elec/(16*(pi**2)*self.vacuum_perm) 
         
         scattering_factors_for_atom = {}
         scattering_factor_curr = 0
@@ -435,7 +437,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         cell_scattering_factors = {}
         electron_scattering_factors = self.electron_scattering_factors(structure, bragg_angles)
         s2 = self.get_s2(structure, bragg_angles)
-        atoms = self.get_atoms(structure)
+        atoms = structure.composition.elements
         scattering_factor_curr = 0
         
         for plane in bragg_angles:

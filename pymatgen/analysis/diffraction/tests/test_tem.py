@@ -111,16 +111,6 @@ class XRDCalculatorTest(PymatgenTest):
 		expected.sort()
 		self.assertEqual(actual, expected)	
 
-		# Test a structure with multiple of the same atom
-		mono = self.get_structure("Li3V2(PO4)3")
-		actual = c.get_atoms(mono)
-		Li = Element("Li")
-		V = Element("V")
-		P = Element("P")
-		O = Element("O")
-		expected = [Li, V, P, O]
-		self.assertEqual(actual, expected)	
-
 	def test_get_s2(self):
 		# Tests that the appropriate s2 factor is
 		c = TEMCalculator()
