@@ -10,7 +10,7 @@ env:
     - GULP_LIB=`pwd`/cmd_line/gulp/Libraries
     - MPLBACKEND=Agg
     - PMG_MAPI_ENDPOINT=https://zola.lbl.gov/rest/v2
-    - NOSE_EXCLUDE_TESTS="pymatgen.ext.tests.test_matproj.MPResterTest;pymatgen.analysis.tests.test_pourbaix_diagram.PourbaixDiagramTest;pymatgen.tests.test_init.SettingsTestCase"
+    - NOSE_EXCLUDE_TESTS="--ignore=pymatgen/ext/tests/test_matproj.py --ignore=pymatgen/analysis/tests/test_pourbaix_diagram.py --ignore=pymatgen/tests/test_init.py"
 # command to install dependencies
 sudo: false
 install:
@@ -28,7 +28,7 @@ before_script:
   - python setup.py --quiet develop
 # command to run tests, e.g. python setup.py test
 script:
-  - travis_wait 28800 nosetests --with-timer --timer-top-n 30 pymatgen
+  - travis_wait 28800 pytest $EXCLUDE_TESTS --durations=30 pymatgen
 notifications:
   email:
     recipients:

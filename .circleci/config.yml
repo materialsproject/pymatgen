@@ -49,7 +49,7 @@ jobs:
             export EXCLUDE_TESTS="--ignore=pymatgen/ext/tests/test_matproj.py --ignore=pymatgen/analysis/tests/test_pourbaix_diagram.py --ignore=pymatgen/tests/test_init.py"
             source activate test_env
             pip install --quiet -e .
-            pytest --cov=pymatgen --cov-report html:coverage_reports $EXCLUDE_TESTS pymatgen
+            pytest --cov=pymatgen --cov-report html:coverage_reports $EXCLUDE_TESTS --durations=30 pymatgen
             # Command line tests
             pmg structure --convert --filenames test_files/Li2O.cif POSCAR.pmg
             pmg structure --convert --filenames POSCAR.pmg pmg.cif
