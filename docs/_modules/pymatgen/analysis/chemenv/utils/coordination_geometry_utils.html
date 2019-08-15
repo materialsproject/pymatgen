@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.chemenv.utils.coordination_geometry_utils &#8212; pymatgen 2019.7.21 documentation</title>
+    <title>pymatgen.analysis.chemenv.utils.coordination_geometry_utils &#8212; pymatgen 2019.8.14 documentation</title>
     <link rel="stylesheet" href="../../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -713,9 +713,9 @@
 <span class="sd">        is considered to lie on the plane or not (distance to the plane)</span>
 <span class="sd">        :param points: list of points</span>
 <span class="sd">        :param dist_tolerance: tolerance to which a point is considered to lie on the plane</span>
-<span class="sd">        or not (distance to the plane)</span>
+<span class="sd">            or not (distance to the plane)</span>
 <span class="sd">        :return: The lists of indices of the points on one side of the plane, on the plane and</span>
-<span class="sd">        on the other side of the plane</span>
+<span class="sd">            on the other side of the plane</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">side1</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="n">inplane</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
@@ -744,7 +744,7 @@
 <span class="sd">        normal of the plane while negative distances are on the other side</span>
 <span class="sd">        :param points: Points for which distances are computed</span>
 <span class="sd">        :return: Distances from the plane to the points (positive values on the side of the normal to the plane,</span>
-<span class="sd">                 negative values on the other side)</span>
+<span class="sd">            negative values on the other side)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normal_vector</span><span class="p">,</span> <span class="n">pp</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">d</span> <span class="k">for</span> <span class="n">pp</span> <span class="ow">in</span> <span class="n">points</span><span class="p">]</span></div>
 
@@ -756,9 +756,8 @@
 <span class="sd">        :param points: Points for which distances are computed</span>
 <span class="sd">        :param sign: Whether to add sign information in the indices sorting the points distances</span>
 <span class="sd">        :return: Distances from the plane to the points (positive values on the side of the normal to the plane,</span>
-<span class="sd">                 negative values on the other side), as well as indices of the points from closest to furthest. For</span>
-<span class="sd">                 the latter, when the sign parameter is True, items of the sorting list are given as tuples of</span>
-<span class="sd">                 (index, sign).</span>
+<span class="sd">            negative values on the other side), as well as indices of the points from closest to furthest. For the </span>
+<span class="sd">            latter, when the sign parameter is True, items of the sorting list are given as tuples of (index, sign).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">distances</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normal_vector</span><span class="p">,</span> <span class="n">pp</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">d</span> <span class="k">for</span> <span class="n">pp</span> <span class="ow">in</span> <span class="n">points</span><span class="p">]</span>
         <span class="n">indices</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">distances</span><span class="p">)),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">k</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">distances</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
@@ -776,12 +775,12 @@
 <span class="sd">        :param points: Points for which distances are computed</span>
 <span class="sd">        :param delta: Distance interval for which two points are considered in the same group.</span>
 <span class="sd">        :param delta_factor: If delta is None, the distance interval is taken as delta_factor times the maximal</span>
-<span class="sd">                             point distance.</span>
-<span class="sd">                             :param sign: Whether to add sign information in the indices sorting the points distances</span>
+<span class="sd">            point distance.</span>
+<span class="sd">        :param sign: Whether to add sign information in the indices sorting the points distances</span>
 <span class="sd">        :return: Distances from the plane to the points (positive values on the side of the normal to the plane,</span>
-<span class="sd">                 negative values on the other side), as well as indices of the points from closest to furthest and</span>
-<span class="sd">                 grouped indices of distances separated by less than delta. For the sorting list and the grouped</span>
-<span class="sd">                 indices, when the sign parameter is True, items are given as tuples of (index, sign).</span>
+<span class="sd">            negative values on the other side), as well as indices of the points from closest to furthest and</span>
+<span class="sd">            grouped indices of distances separated by less than delta. For the sorting list and the grouped</span>
+<span class="sd">            indices, when the sign parameter is True, items are given as tuples of (index, sign).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">distances</span><span class="p">,</span> <span class="n">indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distances_indices_sorted</span><span class="p">(</span><span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">delta</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1035,7 +1034,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

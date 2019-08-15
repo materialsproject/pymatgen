@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.vasp.outputs &#8212; pymatgen 2019.7.21 documentation</title>
+    <title>pymatgen.io.vasp.outputs &#8212; pymatgen 2019.8.14 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -1481,12 +1481,14 @@
 <span class="sd">          [sigma21, sigma22, sigma23],</span>
 <span class="sd">          [sigma31, sigma32, sigma33]]]</span>
 
-<span class="sd">    .. attribute:: unsym_cs_tensor</span>
+<span class="sd">    .. attribute:: cs_g0_contribution</span>
+
 <span class="sd">        G=0 contribution to chemical shielding. 2D rank 3 matrix</span>
 
 <span class="sd">    .. attribute:: cs_core_contribution</span>
-<span class="sd">       Core contribution to chemical shielding. dict. e.g.,</span>
-<span class="sd">       {&#39;Mg&#39;: -412.8, &#39;C&#39;: -200.5, &#39;O&#39;: -271.1}</span>
+
+<span class="sd">        Core contribution to chemical shielding. dict. e.g.,</span>
+<span class="sd">        {&#39;Mg&#39;: -412.8, &#39;C&#39;: -200.5, &#39;O&#39;: -271.1}</span>
 
 <span class="sd">    .. attribute:: efg</span>
 
@@ -2649,20 +2651,20 @@
             <span class="k">def</span> <span class="nf">atom_symbols</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">match</span><span class="p">):</span>
                 <span class="n">element_symbol</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="s1">&#39;atom_symbols&#39;</span><span class="p">):</span>
-                    <span class="n">results</span><span class="o">.</span><span class="n">atom_symbols</span> <span class="o">=</span> <span class="p">[]</span> 
+                    <span class="n">results</span><span class="o">.</span><span class="n">atom_symbols</span> <span class="o">=</span> <span class="p">[]</span>
                 <span class="n">results</span><span class="o">.</span><span class="n">atom_symbols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">element_symbol</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
 
             <span class="k">def</span> <span class="nf">zvals</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">match</span><span class="p">):</span>
                 <span class="n">zvals</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
                 <span class="n">results</span><span class="o">.</span><span class="n">zvals</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;-?\d+\.\d*&#39;</span><span class="p">,</span> <span class="n">zvals</span><span class="p">))</span>
 
-            <span class="n">search</span> <span class="o">=</span> <span class="p">[]</span> 
+            <span class="n">search</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">search</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="sa">r</span><span class="s1">&#39;(?&lt;=VRHFIN =)(.*)(?=:)&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">atom_symbols</span><span class="p">])</span>
             <span class="n">search</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="sa">r</span><span class="s1">&#39;^\s+ZVAL.*=(.*)&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">zvals</span><span class="p">])</span>
 
             <span class="n">micro_pyawk</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">search</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
 
-            <span class="n">zval_dict</span> <span class="o">=</span> <span class="p">{}</span> 
+            <span class="n">zval_dict</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atom_symbols</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">zvals</span><span class="p">):</span>
                 <span class="n">zval_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">x</span><span class="p">:</span> <span class="n">y</span><span class="p">})</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">zval_dict</span> <span class="o">=</span> <span class="n">zval_dict</span>
@@ -3774,6 +3776,8 @@
                     <span class="k">else</span><span class="p">:</span>
                         <span class="k">if</span> <span class="n">ionicstep_start</span> <span class="o">&lt;=</span> <span class="n">ionicstep_cnt</span> <span class="o">&lt;</span> <span class="n">ionicstep_end</span><span class="p">:</span>
                             <span class="n">structures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">ionicstep_cnt</span> <span class="o">&gt;=</span> <span class="n">ionicstep_end</span><span class="p">:</span>
+                            <span class="k">break</span>
                     <span class="n">ionicstep_cnt</span> <span class="o">+=</span> <span class="mi">1</span>
                     <span class="n">coords_str</span> <span class="o">=</span> <span class="p">[]</span>
                 <span class="k">else</span><span class="p">:</span>
@@ -4626,7 +4630,7 @@
 <span class="sd">        Returns the orbital derivative between states</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cder_data</span>
-            
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">nbands</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -4707,7 +4711,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

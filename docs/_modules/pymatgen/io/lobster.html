@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.lobster &#8212; pymatgen 2019.7.21 documentation</title>
+    <title>pymatgen.io.lobster &#8212; pymatgen 2019.8.14 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -412,7 +412,7 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        doscar: DOSCAR filename, typically &quot;DOSCAR.lobster&quot;</span>
-<span class="sd">        vasprun: vasprun filename, typically &quot;vasprun.xml&quot;</span>
+<span class="sd">        structure_file: for vasp, this is typically &quot;POSCAR&quot;</span>
 <span class="sd">        dftprogram: so far only &quot;vasp&quot; is implemented</span>
 
 <span class="sd">    .. attribute:: completedos</span>
@@ -441,18 +441,11 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doscar</span><span class="o">=</span><span class="s2">&quot;DOSCAR.lobster&quot;</span><span class="p">,</span> <span class="n">vasprun</span><span class="o">=</span><span class="s2">&quot;vasprun.xml&quot;</span><span class="p">,</span> <span class="n">dftprogram</span><span class="o">=</span><span class="s2">&quot;Vasp&quot;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doscar</span><span class="o">=</span><span class="s2">&quot;DOSCAR.lobster&quot;</span><span class="p">,</span> <span class="n">structure_file</span><span class="o">=</span><span class="s2">&quot;POSCAR&quot;</span><span class="p">,</span> <span class="n">dftprogram</span><span class="o">=</span><span class="s2">&quot;Vasp&quot;</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_doscar</span> <span class="o">=</span> <span class="n">doscar</span>
         <span class="k">if</span> <span class="n">dftprogram</span> <span class="o">==</span> <span class="s2">&quot;Vasp&quot;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_vasprun</span> <span class="o">=</span> <span class="n">vasprun</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_VASPRUN</span> <span class="o">=</span> <span class="n">Vasprun</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_vasprun</span><span class="p">,</span> <span class="n">ionic_step_skip</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                                    <span class="n">ionic_step_offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">parse_dos</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                                    <span class="n">parse_eigen</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">parse_projected_eigen</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                                    <span class="n">parse_potcar_file</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">occu_tol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span>
-                                    <span class="n">exception_on_bad_xml</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_final_structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_VASPRUN</span><span class="o">.</span><span class="n">final_structure</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_is_spin_polarized</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_VASPRUN</span><span class="o">.</span><span class="n">is_spin</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_final_structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">structure_file</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_parse_doscar</span><span class="p">()</span>
 
@@ -477,8 +470,13 @@
                 <span class="n">cdos</span><span class="p">[</span><span class="n">nd</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
             <span class="n">dos</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cdos</span><span class="p">)</span>
         <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-
         <span class="n">doshere</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dos</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">doshere</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:])</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_is_spin_polarized</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">doshere</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:])</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_is_spin_polarized</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;There is something wrong with the DOSCAR. Can&#39;t extract spin polarization.&quot;</span><span class="p">)</span>
         <span class="n">energies</span> <span class="o">=</span> <span class="n">doshere</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_spin_polarized</span><span class="p">:</span>
             <span class="n">tdensities</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">]</span> <span class="o">=</span> <span class="n">doshere</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
@@ -1866,7 +1864,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

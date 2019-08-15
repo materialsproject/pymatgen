@@ -46,11 +46,11 @@ jobs:
             export LANG=en_US.UTF-8
             # Only do matproj and other ext API tests once every five random runs or so.
             # The parallelism is 4. If 1/20 we have to run, that measn the probability of a matproj test running is 1-(1-0.05)**4 = 0.18.
-            if [ "$(( RANDOM % 20 ))" -ne "0" ]; then export EXCLUDE_TESTS="--ignore=pymatgen/ext/tests/test_matproj.py --ignore=pymatgen/analysis/tests/test_pourbaix_diagram.py --ignore=pymatgen/tests/test_init.py"; fi
-            export EXCLUDE_TESTS="--ignore=pymatgen/ext/tests/test_matproj.py --ignore=pymatgen/analysis/tests/test_pourbaix_diagram.py --ignore=pymatgen/tests/test_init.py"
+            # if [ "$(( RANDOM % 20 ))" -ne "0" ]; then export EXCLUDE_TESTS="--ignore=pymatgen/ext/tests/test_matproj.py --ignore=pymatgen/analysis/tests/test_pourbaix_diagram.py --ignore=pymatgen/tests/test_init.py"; fi
+            # export EXCLUDE_TESTS="--ignore=pymatgen/ext/tests/test_matproj.py --ignore=pymatgen/analysis/tests/test_pourbaix_diagram.py --ignore=pymatgen/tests/test_init.py"
             source activate test_env
             pip install --quiet -e .
-            pytest --cov=pymatgen --cov-report html:coverage_reports $EXCLUDE_TESTS pymatgen
+            pytest pymatgen
             # Command line tests
             pmg structure --convert --filenames test_files/Li2O.cif POSCAR.pmg
             pmg structure --convert --filenames POSCAR.pmg pmg.cif

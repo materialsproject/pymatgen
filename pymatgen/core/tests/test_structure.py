@@ -405,11 +405,6 @@ class IStructureTest(PymatgenTest):
         s.make_supercell([2, 2, 2])
         self.assertEqual(sum(map(len, s.get_all_neighbors(3))), 976)
 
-        all_nn = s.get_all_neighbors(r, include_site=False)
-        for nn in all_nn:
-            self.assertEqual(1, len(nn[0]))
-            self.assertLessEqual(nn[0][0], r)
-
         all_nn = s.get_all_neighbors(0.05)
         self.assertEqual([len(nn) for nn in all_nn], [0] * len(s))
 
@@ -517,8 +512,7 @@ class IStructureTest(PymatgenTest):
                       [[3.1] * 3, [0.11] * 3, [-1.91] * 3, [0.5] * 3])
         nn_traditional = s.get_all_neighbors_old(4, include_index=True, include_image=True,
                                                  include_site=True)
-        nn_cell_lists = s.get_all_neighbors(4, include_index=True, include_image=True,
-                                            include_site=True)
+        nn_cell_lists = s.get_all_neighbors(4, include_index=True, include_image=True)
         nn_traditional = [sorted(i, key=lambda x: (x[1], x[2], x[3][0], x[3][1], x[3][2])) for i in nn_traditional]
         nn_cell_lists = [sorted(i, key=lambda x: (x[1], x[2], x[3][0], x[3][1], x[3][2])) for i in nn_cell_lists]
 
@@ -702,6 +696,14 @@ class StructureTest(PymatgenTest):
         for i, x in enumerate(pre_perturbation_sites):
             self.assertAlmostEqual(x.distance(post_perturbation_sites[i]), d,
                                    3, "Bad perturbation distance")
+
+        structure2 = pre_perturbation_sites.copy()
+        structure2.perturb(distance=d, min_distance=0)
+        post_perturbation_sites2 = structure2.sites
+
+        for i, x in enumerate(pre_perturbation_sites):
+            self.assertLessEqual(x.distance(post_perturbation_sites2[i]), d)
+            self.assertGreaterEqual(x.distance(post_perturbation_sites2[i]), 0)
 
     def test_add_oxidation_states(self):
         oxidation_states = {"Si": -4}

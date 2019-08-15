@@ -202,6 +202,7 @@ class Poscar(MSONable):
 
         The code will try its best to determine the elements in the POSCAR in
         the following order:
+
         1. If check_for_POTCAR is True, the code will try to check if a POTCAR
         is in the same directory as the POSCAR and use elements from that by
         default. (This is the VASP default sequence of priority).
@@ -249,11 +250,14 @@ class Poscar(MSONable):
 
         The code will try its best to determine the elements in the POSCAR in
         the following order:
+
         1. If default_names are supplied and valid, it will use those. Usually,
         default names comes from an external source, such as a POTCAR in the
         same directory.
+
         2. If there are no valid default names but the input file is Vasp5-like
         and contains element symbols in the 6th line, the code will use that.
+        
         3. Failing (2), the code will check if a symbol is provided at the end
         of each coordinate.
 

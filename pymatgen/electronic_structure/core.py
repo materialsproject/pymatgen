@@ -141,7 +141,7 @@ class Magmom(MSONable):
         """
         :param moment: magnetic moment, supplied as float or list/np.ndarray
         :param saxis: spin axis, supplied as list/np.ndarray, parameter will
-        be converted to unit vector (default is [0, 0, 1])
+            be converted to unit vector (default is [0, 0, 1])
         :return: Magmom object
         """
         # to init from another Magmom instance

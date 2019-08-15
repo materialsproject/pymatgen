@@ -27,7 +27,6 @@ class TestFragmentMolecule(PymatgenTest):
     def setUpClass(cls):
         cls.pc = Molecule.from_file(
             os.path.join(test_dir, "PC.xyz"))
-        cls.ec = Molecule.from_file(
             os.path.join(test_dir, "EC.xyz"))
         cls.pos_pc = Molecule.from_file(
             os.path.join(test_dir, "PC.xyz"))
@@ -38,7 +37,8 @@ class TestFragmentMolecule(PymatgenTest):
             os.path.join(test_dir, "PC_frag1.xyz"))
         cls.pc_frag1_edges = [[0, 2], [4, 2], [2, 1], [1, 3]]
         cls.tfsi = Molecule.from_file(os.path.join(test_dir, "TFSI.xyz"))
-        cls.tfsi_edges = [14,1],[1,4],[1,5],[1,7],[7,11],[7,12],[7,13],[14,0],[0,2],[0,3],[0,6],[6,8],[6,9],[6,10]
+        cls.tfsi_edges = [14, 1], [1, 4], [1, 5], [1, 7], [7, 11], [7, 12], [7, 13], [14, 0], [0, 2], [0, 3], [0, 6], [
+            6, 8], [6, 9], [6, 10]
 
     def test_edges_given_PC_frag1(self):
         fragmenter = Fragmenter(molecule=self.pc_frag1, edges=self.pc_frag1_edges, depth=0)
@@ -71,8 +71,8 @@ class TestFragmentMolecule(PymatgenTest):
 
     def test_edges_given_PC_not_defaults(self):
         fragmenter = Fragmenter(molecule=self.pc, edges=self.pc_edges, depth=2, open_rings=False, opt_steps=0)
-        self.assertEqual(fragmenter.open_rings,False)
-        self.assertEqual(fragmenter.opt_steps,0)
+        self.assertEqual(fragmenter.open_rings, False)
+        self.assertEqual(fragmenter.opt_steps, 0)
         edges = {(e[0], e[1]): None for e in self.pc_edges}
         default_mol_graph = MoleculeGraph.with_edges(self.pc, edges=edges)
         self.assertEqual(fragmenter.mol_graph,default_mol_graph)
@@ -96,7 +96,7 @@ class TestFragmentMolecule(PymatgenTest):
         self.assertEqual(fragmenter10.total_unique_fragments, 509)
 
         fragments_by_level = fragmenter10.fragments_by_level
-        num_frags_by_level = [13,51,95,115,105,75,39,14,2,0]
+        num_frags_by_level = [13, 51, 95, 115, 105, 75, 39, 14, 2, 0]
         for ii in range(10):
             num_frags = 0
             for key in fragments_by_level[str(ii)]:
@@ -111,7 +111,7 @@ class TestFragmentMolecule(PymatgenTest):
         self.assertEqual(fragmenter10.total_unique_fragments, 63)
 
         fragments_by_level = fragmenter10.fragments_by_level
-        num_frags_by_level = [8,12,15,14,9,4,1]
+        num_frags_by_level = [8, 12, 15, 14, 9, 4, 1]
         for ii in range(7):
             num_frags = 0
             for key in fragments_by_level[str(ii)]:

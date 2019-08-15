@@ -137,7 +137,7 @@ class SpecieProximityFilter(AbstractStructureFilter):
                              for sp in sp_to_test])
                 nn = structure.get_neighbors(site, max_r)
                 for sp in sp_to_test:
-                    for (nnsite, dist) in nn:
+                    for nnsite, dist, *_ in nn:
                         if sp in nnsite.species.keys():
                             if dist < self.specie_and_min_dist[sp]:
                                 return False

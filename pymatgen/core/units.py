@@ -857,7 +857,7 @@ def unitized(unit):
                 # preserved (list or tuple).
                 return val.__class__([FloatWithUnit(i, unit_type=unit_type,
                                                     unit=unit) for i in val])
-            elif isinstance(val, collections.Mapping):
+            elif isinstance(val, collections.abc.Mapping):
                 for k, v in val.items():
                     val[k] = FloatWithUnit(v, unit_type=unit_type, unit=unit)
             elif isinstance(val, numbers.Number):

@@ -9,7 +9,6 @@ import subprocess
 import itertools
 import logging
 import glob
-import warnings
 
 import numpy as np
 from monty.fractions import lcm
@@ -406,7 +405,7 @@ class EnumlibAdaptor:
                                          properties=disordered_site_properties)
                         )
                     else:
-                        warnings.warn("Skipping sites that include species X.")
+                        logger.debug("Skipping sites that include species X.")
                 structs.append(Structure.from_sites(sorted(sites)))
 
         logger.debug("Read in a total of {} structures.".format(num_structs))
