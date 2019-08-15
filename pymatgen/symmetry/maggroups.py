@@ -92,7 +92,7 @@ class MagneticSpaceGroup(SymmetryGroup):
         information on magnetic symmetry.
         
         :param id: BNS number supplied as list of 2 ints or BNS label as
-        str or index as int (1-1651) to iterate over all space groups"""
+            str or index as int (1-1651) to iterate over all space groups"""
 
         self._data = {}
 
@@ -258,7 +258,7 @@ class MagneticSpaceGroup(SymmetryGroup):
         Initialize from Opechowski and Guccione (OG) label or number.
         
         :param id: OG number supplied as list of 3 ints or
-        or OG label as str
+            or OG label as str
         :return: 
         """
 

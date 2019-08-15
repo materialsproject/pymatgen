@@ -26,7 +26,7 @@ from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.io.babel import BabelMolAdaptor
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        "test_files", "molecules")
+                        "test_files")
 
 try:
     import openbabel as ob
@@ -61,9 +61,15 @@ class BabelMolAdaptorTest(unittest.TestCase):
 
     def test_from_file(self):
         adaptor = BabelMolAdaptor.from_file(
-            os.path.join(test_dir, "Ethane_e.pdb"), "pdb")
+            os.path.join(test_dir, "molecules/Ethane_e.pdb"), "pdb")
         mol = adaptor.pymatgen_mol
         self.assertEqual(mol.formula, "H6 C2")
+
+    def test_from_file_return_all_molecules(self):
+        adaptors = BabelMolAdaptor.from_file(
+            os.path.join(test_dir, "multiple_frame_xyz.xyz"), "xyz",
+            return_all_molecules=True)
+        self.assertEqual(len(adaptors), 302)
 
     def test_from_molecule_graph(self):
         graph = MoleculeGraph.with_empty_graph(self.mol)

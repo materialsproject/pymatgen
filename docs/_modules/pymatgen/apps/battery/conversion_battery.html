@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.apps.battery.conversion_battery &#8212; pymatgen 2019.7.21 documentation</title>
+    <title>pymatgen.apps.battery.conversion_battery &#8212; pymatgen 2019.8.14 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -100,7 +100,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_vpairs</span> <span class="o">=</span> <span class="n">voltage_pairs</span>
 
 <div class="viewcode-block" id="ConversionElectrode.from_composition_and_pd"><a class="viewcode-back" href="../../../../pymatgen.apps.battery.conversion_battery.html#pymatgen.apps.battery.conversion_battery.ConversionElectrode.from_composition_and_pd">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_composition_and_pd</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span> <span class="n">pd</span><span class="p">,</span> <span class="n">working_ion_symbol</span><span class="o">=</span><span class="s2">&quot;Li&quot;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_composition_and_pd</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span> <span class="n">pd</span><span class="p">,</span> <span class="n">working_ion_symbol</span><span class="o">=</span><span class="s2">&quot;Li&quot;</span><span class="p">,</span> <span class="n">allow_unstable</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convenience constructor to make a ConversionElectrode from a</span>
 <span class="sd">        composition and a phase diagram.</span>
@@ -113,6 +113,8 @@
 <span class="sd">                A PhaseDiagram of the relevant system (e.g., Li-Fe-F)</span>
 <span class="sd">            working_ion_symbol:</span>
 <span class="sd">                Element symbol of working ion. Defaults to Li.</span>
+<span class="sd">            allow_unstable:</span>
+<span class="sd">                Allow compositions that are unstable</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">working_ion</span> <span class="o">=</span> <span class="n">Element</span><span class="p">(</span><span class="n">working_ion_symbol</span><span class="p">)</span>
         <span class="n">entry</span> <span class="o">=</span> <span class="kc">None</span>
@@ -124,7 +126,7 @@
                     <span class="n">e</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span> <span class="o">==</span> <span class="n">working_ion_symbol</span><span class="p">:</span>
                 <span class="n">working_ion_entry</span> <span class="o">=</span> <span class="n">e</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">entry</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_unstable</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">entry</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not stable compound found at composition </span><span class="si">{}</span><span class="s2">.&quot;</span>
                              <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">comp</span><span class="p">))</span>
 
@@ -147,7 +149,7 @@
 
 <div class="viewcode-block" id="ConversionElectrode.from_composition_and_entries"><a class="viewcode-back" href="../../../../pymatgen.apps.battery.conversion_battery.html#pymatgen.apps.battery.conversion_battery.ConversionElectrode.from_composition_and_entries">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_composition_and_entries</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span> <span class="n">entries_in_chemsys</span><span class="p">,</span>
-                                     <span class="n">working_ion_symbol</span><span class="o">=</span><span class="s2">&quot;Li&quot;</span><span class="p">):</span>
+                                     <span class="n">working_ion_symbol</span><span class="o">=</span><span class="s2">&quot;Li&quot;</span><span class="p">,</span> <span class="n">allow_unstable</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convenience constructor to make a ConversionElectrode from a</span>
 <span class="sd">        composition and all entries in a chemical system.</span>
@@ -161,7 +163,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">pd</span> <span class="o">=</span> <span class="n">PhaseDiagram</span><span class="p">(</span><span class="n">entries_in_chemsys</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ConversionElectrode</span><span class="o">.</span><span class="n">from_composition_and_pd</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span> <span class="n">pd</span><span class="p">,</span>
-                                                           <span class="n">working_ion_symbol</span><span class="p">)</span></div>
+                                                           <span class="n">working_ion_symbol</span><span class="p">,</span> <span class="n">allow_unstable</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ConversionElectrode.get_sub_electrodes"><a class="viewcode-back" href="../../../../pymatgen.apps.battery.conversion_battery.html#pymatgen.apps.battery.conversion_battery.ConversionElectrode.get_sub_electrodes">[docs]</a>    <span class="k">def</span> <span class="nf">get_sub_electrodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adjacent_only</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -345,10 +347,10 @@
         <span class="n">d</span><span class="p">[</span><span class="s2">&quot;nsteps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_steps</span>
         <span class="k">if</span> <span class="n">print_subelectrodes</span><span class="p">:</span>
             <span class="n">f_dict</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">get_summary_dict</span><span class="p">(</span><span class="n">print_subelectrodes</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;adj_pairs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">f_dict</span><span class="p">,</span>
-                                 <span class="bp">self</span><span class="o">.</span><span class="n">get_sub_electrodes</span><span class="p">(</span><span class="n">adjacent_only</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
-            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;all_pairs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">f_dict</span><span class="p">,</span>
-                                 <span class="bp">self</span><span class="o">.</span><span class="n">get_sub_electrodes</span><span class="p">(</span><span class="n">adjacent_only</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;adj_pairs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">f_dict</span><span class="p">,</span>
+                                 <span class="bp">self</span><span class="o">.</span><span class="n">get_sub_electrodes</span><span class="p">(</span><span class="n">adjacent_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)))</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;all_pairs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">f_dict</span><span class="p">,</span>
+                                 <span class="bp">self</span><span class="o">.</span><span class="n">get_sub_electrodes</span><span class="p">(</span><span class="n">adjacent_only</span><span class="o">=</span><span class="kc">False</span><span class="p">)))</span>
         <span class="k">return</span> <span class="n">d</span></div></div>
 
 
@@ -594,7 +596,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.magnetism.analyzer &#8212; pymatgen 2019.7.21 documentation</title>
+    <title>pymatgen.analysis.magnetism.analyzer &#8212; pymatgen 2019.8.14 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -167,22 +167,22 @@
 <span class="sd">        :param structure: Structure object</span>
 <span class="sd">        :param overwrite_magmom_mode (str): default &quot;none&quot;</span>
 <span class="sd">        :param round_magmoms (int or bool): will round input magmoms to</span>
-<span class="sd">        specified number of decimal places if integer is supplied, if set</span>
-<span class="sd">        to a float will try and group magmoms together using a kernel density</span>
-<span class="sd">        estimator of provided width, and extracting peaks of the estimator</span>
+<span class="sd">            specified number of decimal places if integer is supplied, if set</span>
+<span class="sd">            to a float will try and group magmoms together using a kernel density</span>
+<span class="sd">            estimator of provided width, and extracting peaks of the estimator</span>
 <span class="sd">        :param detect_valences (bool): if True, will attempt to assign valences</span>
-<span class="sd">        to input structure</span>
+<span class="sd">            to input structure</span>
 <span class="sd">        :param make_primitive (bool): if True, will transform to primitive</span>
-<span class="sd">        magnetic cell</span>
+<span class="sd">            magnetic cell</span>
 <span class="sd">        :param default_magmoms (dict): (optional) dict specifying default magmoms</span>
 <span class="sd">        :param set_net_positive (bool): if True, will change sign of magnetic</span>
-<span class="sd">        moments such that the net magnetization is positive. Argument will be</span>
-<span class="sd">        ignored if mode &quot;respect_sign&quot; is used.</span>
+<span class="sd">            moments such that the net magnetization is positive. Argument will be</span>
+<span class="sd">            ignored if mode &quot;respect_sign&quot; is used.</span>
 <span class="sd">        :param threshold (float): number (in Bohr magnetons) below which magmoms</span>
-<span class="sd">        will be rounded to zero,</span>
+<span class="sd">            will be rounded to zero,</span>
 <span class="sd">        :param threshold_nonmag (float): number (in Bohr magneton) </span>
-<span class="sd">        below which nonmagnetic ions (with no magmom specified </span>
-<span class="sd">        in default_magmoms) will be rounded to zero</span>
+<span class="sd">            below which nonmagnetic ions (with no magmom specified </span>
+<span class="sd">            in default_magmoms) will be rounded to zero</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">default_magmoms</span><span class="p">:</span>
@@ -449,7 +449,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a Structure without magnetic moments defined.</span>
 <span class="sd">        :param make_primitive (bool): Return a primitive</span>
-<span class="sd">        structure, defaults to True.</span>
+<span class="sd">            structure, defaults to True.</span>
 <span class="sd">        :return: Structure</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -466,7 +466,7 @@
 <span class="sd">        Returns a Structure with all magnetic moments positive</span>
 <span class="sd">        or zero.</span>
 <span class="sd">        :param make_primitive (bool): Return a primitive</span>
-<span class="sd">        structure, defaults to True.</span>
+<span class="sd">            structure, defaults to True.</span>
 <span class="sd">        :return: Structure</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -551,7 +551,7 @@
 <span class="sd">        :param symprec (float): same as in SpacegroupAnalyzer</span>
 <span class="sd">        :param angle_tolerance (float): same as in SpacegroupAnalyzer</span>
 <span class="sd">        :return (int): Number of symmetrically-distinct magnetic sites present</span>
-<span class="sd">        in structure.</span>
+<span class="sd">            in structure.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_nonmagnetic_structure</span><span class="p">()</span>
@@ -1373,7 +1373,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

@@ -79,7 +79,7 @@ class AbstractGeometry:
         :param bare_coords: Coordinates of the neighbors of the central site
         :param centering_type: How to center the abstract geometry
         :param include_central_site_in_centroid: When the centering is on the centroid, the central site is included
-         if this parameter is set to True.
+            if this parameter is set to True.
         :raise: ValueError if the parameters are not consistent
         """
         bcoords = np.array(bare_coords)
@@ -234,8 +234,8 @@ def symmetry_measure(points_distorted, points_perfect):
     Computes the continuous symmetry measure of the (distorted) set of points "points_distorted" with respect to the
     (perfect) set of points "points_perfect".
     :param points_distorted: List of points describing a given (distorted) polyhedron for which the symmetry measure
-                             has to be computed with respect to the model polyhedron described by the list of points
-                             "points_perfect".
+        has to be computed with respect to the model polyhedron described by the list of points
+        "points_perfect".
     :param points_perfect: List of "perfect" points describing a given model polyhedron.
     :return: The continuous symmetry measure of the distorted polyhedron with respect to the perfect polyhedron
     """
@@ -244,7 +244,7 @@ def symmetry_measure(points_distorted, points_perfect):
         return {'symmetry_measure': 0.0, 'scaling_factor': None, 'rotation_matrix': None}
     # Find the rotation matrix that aligns the distorted points to the perfect points in a least-square sense.
     rot = find_rotation(points_distorted=points_distorted,
-                           points_perfect=points_perfect)
+                        points_perfect=points_perfect)
     # Find the scaling factor between the distorted points and the perfect points in a least-square sense.
     scaling_factor, rotated_coords, points_perfect = find_scaling_factor(points_distorted=points_distorted,
                                                                          points_perfect=points_perfect,
@@ -262,7 +262,7 @@ def find_rotation(points_distorted, points_perfect):
     This finds the rotation matrix that aligns the (distorted) set of points "points_distorted" with respect to the
     (perfect) set of points "points_perfect" in a least-square sense.
     :param points_distorted: List of points describing a given (distorted) polyhedron for which the rotation that
-                             aligns these points in a least-square sense to the set of perfect points "points_perfect"
+        aligns these points in a least-square sense to the set of perfect points "points_perfect"
     :param points_perfect: List of "perfect" points describing a given model polyhedron.
     :return: The rotation matrix
     """
@@ -315,7 +315,7 @@ class LocalGeometryFinder:
         """
         Constructor for the LocalGeometryFinder, initializes the list of coordination geometries
         :param permutations_safe_override: If set to True, all permutations are tested (very time-consuming for large
-        coordination numbers!)
+            coordination numbers!)
         :param plane_ordering_override: If set to False, the ordering of the points in the plane is disabled
         """
         self.allcg = AllCoordinationGeometries(
@@ -342,14 +342,13 @@ class LocalGeometryFinder:
         atom for coordination numbers 1, 2, 3 and 4 and the centroid for coordination numbers > 4.
         :param centering_type: Type of the reference point (centering) 'standard', 'centroid' or 'central_site'
         :param include_central_site_in_centroid: In case centering_type is 'centroid', the central site is included if
-                                                 this value is set to True.
+            this value is set to True.
         :param bva_distance_scale_factor: Scaling factor for the bond valence analyzer (this might be different whether
-                                          the structure is an experimental one, an LDA or a GGA relaxed one, or any
-                                          other relaxation scheme (where under- or over-estimation of bond lengths
-                                          is known).
+            the structure is an experimental one, an LDA or a GGA relaxed one, or any other relaxation scheme (where 
+            under- or over-estimation of bond lengths is known).
         :param structure_refinement: Refinement of the structure. Can be "none", "refined" or "symmetrized".
         :param spg_analyzer_options: Options for the SpaceGroupAnalyzer (dictionary specifying "symprec"
-                                     and "angle_tolerance". See pymatgen's SpaceGroupAnalyzer for more information.
+            and "angle_tolerance". See pymatgen's SpaceGroupAnalyzer for more information.
         """
         self.centering_type = centering_type
         self.include_central_site_in_centroid = include_central_site_in_centroid
@@ -377,7 +376,6 @@ class LocalGeometryFinder:
         Sets up the structure for which the coordination geometries have to be identified. The structure is analyzed
         with the space group analyzer and a refined structure is used
         :param structure: A pymatgen Structure
-        :param
         """
         self.initial_structure = structure.copy()
         if self.structure_refinement == self.STRUCTURE_REFINEMENT_NONE:
@@ -480,29 +478,29 @@ class LocalGeometryFinder:
         :param only_cations: If set to True, will only compute environments for cations
         :param only_indices: If not set to None, will only compute environments the atoms of the given indices
         :param maximum_distance_factor: If not set to None, neighbors beyond
-                                        maximum_distance_factor*closest_neighbor_distance are not considered
+            maximum_distance_factor*closest_neighbor_distance are not considered
         :param minimum_angle_factor: If not set to None, neighbors for which the angle is lower than
-                                     minimum_angle_factor*largest_angle_neighbor are not considered
+            minimum_angle_factor*largest_angle_neighbor are not considered
         :param max_cn: maximum coordination number to be considered
         :param min_cn: minimum coordination number to be considered
         :param only_symbols: if not set to None, consider only coordination environments with the given symbols
         :param valences: valences of the atoms
         :param additional_conditions: additional conditions to be considered in the bonds (example : only bonds
-                                      between cation and anion
+            between cation and anion
         :param info: additional info about the calculation
         :param timelimit: time limit (in secs) after which the calculation of the StructureEnvironments object stops
         :param initial_structure_environments: initial StructureEnvironments object (most probably incomplete)
         :param get_from_hints: whether to add neighbors sets from "hints" (e.g. capped environment => test the
-                               neighbors without the cap)
+            neighbors without the cap)
         :param voronoi_normalized_distance_tolerance: tolerance for the normalized distance used to distinguish
-                                                      neighbors sets
+            neighbors sets
         :param voronoi_normalized_angle_tolerance: tolerance for the normalized angle used to distinguish
-                                                   neighbors sets
+            neighbors sets
         :param recompute: whether to recompute the sites already computed (when initial_structure_environments
-                          is not None)
+            is not None)
         :param optimization: optimization algorithm
         :return: The StructureEnvironments object containing all the information about the coordination
-        environments in the structure
+            environments in the structure
         """
         time_init = time.clock()
         if info is None:
@@ -1255,7 +1253,7 @@ class LocalGeometryFinder:
                     permutation=perm)
 
                 sm_info = symmetry_measure(points_distorted=points_distorted,
-                                              points_perfect=points_perfect)
+                                           points_perfect=points_perfect)
                 sm_info['translation_vector'] = self.local_geometry.centroid_with_centre
 
                 permutations_symmetry_measures[iperm] = sm_info
@@ -1674,7 +1672,7 @@ class LocalGeometryFinder:
                 permutation=pp)
 
             sm_info = symmetry_measure(points_distorted=points_distorted,
-                                          points_perfect=points_perfect)
+                                       points_perfect=points_perfect)
 
             sm_info['translation_vector'] = self.local_geometry.centroid_with_centre
 
@@ -1745,7 +1743,7 @@ class LocalGeometryFinder:
                 permutation=pp)
 
             sm_info = symmetry_measure(points_distorted=points_distorted,
-                                          points_perfect=points_perfect)
+                                       points_perfect=points_perfect)
 
             sm_info['translation_vector'] = self.local_geometry.centroid_with_centre
 

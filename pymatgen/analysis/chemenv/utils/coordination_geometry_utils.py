@@ -666,9 +666,9 @@ class Plane:
         is considered to lie on the plane or not (distance to the plane)
         :param points: list of points
         :param dist_tolerance: tolerance to which a point is considered to lie on the plane
-        or not (distance to the plane)
+            or not (distance to the plane)
         :return: The lists of indices of the points on one side of the plane, on the plane and
-        on the other side of the plane
+            on the other side of the plane
         """
         side1 = list()
         inplane = list()
@@ -697,7 +697,7 @@ class Plane:
         normal of the plane while negative distances are on the other side
         :param points: Points for which distances are computed
         :return: Distances from the plane to the points (positive values on the side of the normal to the plane,
-                 negative values on the other side)
+            negative values on the other side)
         """
         return [np.dot(self.normal_vector, pp) + self.d for pp in points]
 
@@ -709,9 +709,8 @@ class Plane:
         :param points: Points for which distances are computed
         :param sign: Whether to add sign information in the indices sorting the points distances
         :return: Distances from the plane to the points (positive values on the side of the normal to the plane,
-                 negative values on the other side), as well as indices of the points from closest to furthest. For
-                 the latter, when the sign parameter is True, items of the sorting list are given as tuples of
-                 (index, sign).
+            negative values on the other side), as well as indices of the points from closest to furthest. For the 
+            latter, when the sign parameter is True, items of the sorting list are given as tuples of (index, sign).
         """
         distances = [np.dot(self.normal_vector, pp) + self.d for pp in points]
         indices = sorted(range(len(distances)), key=lambda k: np.abs(distances[k]))
@@ -729,12 +728,12 @@ class Plane:
         :param points: Points for which distances are computed
         :param delta: Distance interval for which two points are considered in the same group.
         :param delta_factor: If delta is None, the distance interval is taken as delta_factor times the maximal
-                             point distance.
-                             :param sign: Whether to add sign information in the indices sorting the points distances
+            point distance.
+        :param sign: Whether to add sign information in the indices sorting the points distances
         :return: Distances from the plane to the points (positive values on the side of the normal to the plane,
-                 negative values on the other side), as well as indices of the points from closest to furthest and
-                 grouped indices of distances separated by less than delta. For the sorting list and the grouped
-                 indices, when the sign parameter is True, items are given as tuples of (index, sign).
+            negative values on the other side), as well as indices of the points from closest to furthest and
+            grouped indices of distances separated by less than delta. For the sorting list and the grouped
+            indices, when the sign parameter is True, items are given as tuples of (index, sign).
         """
         distances, indices = self.distances_indices_sorted(points=points)
         if delta is None:

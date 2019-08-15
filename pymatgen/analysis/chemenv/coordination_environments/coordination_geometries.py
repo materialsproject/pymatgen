@@ -103,21 +103,21 @@ class SeparationPlane(AbstractChemenvAlgorithm):
             Initializes a separation plane for a given perfect coordination geometry
 
             :param mirror_plane: True if the separation plane is a mirror plane, in which case there is a correspondence
-            of the points in each point_group (can reduce the number of permutations)
+                of the points in each point_group (can reduce the number of permutations)
             :param ordered_plane : True if the order of the points in the plane can be taken into account to reduce the
-            number of permutations
+                number of permutations
             :param plane_points: Indices of the points that are in the plane in the perfect structure (and should be
-            found in the defective one as well)
+                found in the defective one as well)
             :param point_groups: The two groups of points separated by the plane
             :param plane_type: can be "MIRROR", if the plane is a mirror plane going through the central site,
-             'BASAL_THROUGH_CENTER', if the plane is a basal plane (no point on the "left" side) going through the central
-             site, 'BASAL', if the is a basal plane not going through the central site, 'UNEQUILIBRATED_THROUGH_CENTER', if
-             the plane cuts the geometry in two groups of points with different numbers of points on each side, and is going
-             through the centre, 'UNEQUILIBRATED', if the plane cuts the geometry in two groups of points with different
-             numbers of points on each side, and is not going through the centre, 'EQUILIBRATED_THROUGH_CENTER', if the
-             plane cuts the geometry in two groups of points of the same size, is going through the centre but is not a
-             mirror plane, 'EQUILIBRATED', if the plane cuts the geometry in two groups of points of the same size, is not
-             going through the centre but is not a mirror plane.
+                'BASAL_THROUGH_CENTER', if the plane is a basal plane (no point on the "left" side) going through the central
+                site, 'BASAL', if the is a basal plane not going through the central site, 'UNEQUILIBRATED_THROUGH_CENTER', if
+                the plane cuts the geometry in two groups of points with different numbers of points on each side, and is going
+                through the centre, 'UNEQUILIBRATED', if the plane cuts the geometry in two groups of points with different
+                numbers of points on each side, and is not going through the centre, 'EQUILIBRATED_THROUGH_CENTER', if the
+                plane cuts the geometry in two groups of points of the same size, is going through the centre but is not a
+                mirror plane, 'EQUILIBRATED', if the plane cuts the geometry in two groups of points of the same size, is not
+                going through the centre but is not a mirror plane.
             """
         super().__init__(algorithm_type=SEPARATION_PLANE)
         self.mirror_plane = mirror_plane
@@ -426,12 +426,12 @@ class CoordinationGeometry:
         :param points: The list of the coordinates of all the points of this coordination geometry.
         :param separation_planes: List of separation facets to help set up the permutations
         :param permutation_safe_override: Computes all the permutations if set to True (overrides the plane separation
-        algorithms or any other algorithm, for testing purposes)
+            algorithms or any other algorithm, for testing purposes)
         :param plane_ordering_override: Computes all the permutations of the plane separation algorithm if set to False
-        otherwise, uses the anticlockwise ordering of the separation facets (for testing purposes)
+            otherwise, uses the anticlockwise ordering of the separation facets (for testing purposes)
         :param deactivate: deactivates this coordination geometry in the search
         :param faces : list of the faces with their vertices given in a clockwise or anticlockwise order, for drawing
-        purposes
+            purposes
         :param : list of edges, for drawing purposes
         """
         self._mp_symbol = mp_symbol

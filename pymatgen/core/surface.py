@@ -1021,11 +1021,11 @@ class SlabGenerator:
         for (sp1, sp2), bond_dist in bonds.items():
             for site in self.oriented_unit_cell:
                 if sp1 in site.species:
-                    for nn, d in self.oriented_unit_cell.get_neighbors(
-                            site, bond_dist):
-                        if sp2 in nn.species:
+                    for nn in self.oriented_unit_cell.get_neighbors(site, bond_dist):
+                        nnsite = nn.site
+                        if sp2 in nnsite.species:
                             c_range = tuple(sorted([site.frac_coords[2],
-                                                    nn.frac_coords[2]]))
+                                                    nnsite.frac_coords[2]]))
                             if c_range[1] > 1:
                                 # Takes care of PBC when c coordinate of site
                                 # goes beyond the upper boundary of the cell
@@ -1161,7 +1161,7 @@ class SlabGenerator:
                 if site.species_string == element1:
                     poly_coord = 0
                     for neighbor in slab.get_neighbors(site, blength):
-                        poly_coord += 1 if neighbor[0].species_string == element2 else 0
+                        poly_coord += 1 if neighbor.site.species_string == element2 else 0
 
                     # suppose we find an undercoordinated reference atom
                     if poly_coord not in cn_dict[element1]:
@@ -1830,9 +1830,8 @@ def get_slab_regions(slab, blength=3.5):
         # Now locate the highest site within the lower region of the slab
         upper_fcoords = []
         for site in slab:
-            if all([nn[-1] not in all_indices for nn in
-                    slab.get_neighbors(site, blength,
-                                       include_index=True)]):
+            if all([nn.index not in all_indices for nn in
+                    slab.get_neighbors(site, blength)]):
                 upper_fcoords.append(site.frac_coords[2])
         coords = copy.copy(last_fcoords) if not fcoords else copy.copy(fcoords)
         min_top = slab[last_indices[coords.index(min(coords))]].frac_coords[2]
@@ -1887,17 +1886,21 @@ def center_slab(slab):
         find the surface sites and apply operations like doping.
 
     There are three cases where the slab in not centered:
+
     1. The slab region is completely between two vacuums in the
-        box but not necessarily centered. We simply shift the
-        slab by the difference in its center of mass and 0.5
-        along the c direction.
+    box but not necessarily centered. We simply shift the
+    slab by the difference in its center of mass and 0.5
+    along the c direction.
+
     2. The slab completely spills outside the box from the bottom
-        and into the top. This makes it incredibly difficult to
-        locate surface sites. We iterate through all sites that
-        spill over (z>c) and shift all sites such that this specific
-        site is now on the other side. Repeat for all sites with z>c.
+    and into the top. This makes it incredibly difficult to
+    locate surface sites. We iterate through all sites that
+    spill over (z>c) and shift all sites such that this specific
+    site is now on the other side. Repeat for all sites with z>c.
+
     3. This is a simpler case of scenario 2. Either the top or bottom
-        slab sites are at c=0 or c=1. Treat as scenario 2.
+    slab sites are at c=0 or c=1. Treat as scenario 2.
+    
     Args:
         slab (Slab): Slab structure to center
     Returns:

@@ -365,7 +365,7 @@ class Doscar:
 
     Args:
         doscar: DOSCAR filename, typically "DOSCAR.lobster"
-        vasprun: vasprun filename, typically "vasprun.xml"
+        structure_file: for vasp, this is typically "POSCAR"
         dftprogram: so far only "vasp" is implemented
 
     .. attribute:: completedos
@@ -394,18 +394,11 @@ class Doscar:
 
     """
 
-    def __init__(self, doscar="DOSCAR.lobster", vasprun="vasprun.xml", dftprogram="Vasp"):
+    def __init__(self, doscar="DOSCAR.lobster", structure_file="POSCAR", dftprogram="Vasp"):
 
         self._doscar = doscar
         if dftprogram == "Vasp":
-            self._vasprun = vasprun
-            self._VASPRUN = Vasprun(filename=self._vasprun, ionic_step_skip=None,
-                                    ionic_step_offset=0, parse_dos=False,
-                                    parse_eigen=False, parse_projected_eigen=False,
-                                    parse_potcar_file=False, occu_tol=1e-8,
-                                    exception_on_bad_xml=True)
-            self._final_structure = self._VASPRUN.final_structure
-            self._is_spin_polarized = self._VASPRUN.is_spin
+            self._final_structure = Structure.from_file(structure_file)
 
         self._parse_doscar()
 
@@ -430,8 +423,13 @@ class Doscar:
                 cdos[nd] = np.array(line)
             dos.append(cdos)
         f.close()
-
         doshere = np.array(dos[0])
+        if len(doshere[0, :]) == 5:
+            self._is_spin_polarized = True
+        elif len(doshere[0, :]) == 3:
+            self._is_spin_polarized = False
+        else:
+            raise ValueError("There is something wrong with the DOSCAR. Can't extract spin polarization.")
         energies = doshere[:, 0]
         if not self._is_spin_polarized:
             tdensities[Spin.up] = doshere[:, 1]

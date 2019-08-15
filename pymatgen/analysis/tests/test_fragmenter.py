@@ -36,7 +36,8 @@ class TestFragmentMolecule(PymatgenTest):
             os.path.join(test_dir, "PC_frag1.xyz"))
         cls.pc_frag1_edges = [[0, 2], [4, 2], [2, 1], [1, 3]]
         cls.tfsi = Molecule.from_file(os.path.join(test_dir, "TFSI.xyz"))
-        cls.tfsi_edges = [14,1],[1,4],[1,5],[1,7],[7,11],[7,12],[7,13],[14,0],[0,2],[0,3],[0,6],[6,8],[6,9],[6,10]
+        cls.tfsi_edges = [14, 1], [1, 4], [1, 5], [1, 7], [7, 11], [7, 12], [7, 13], [14, 0], [0, 2], [0, 3], [0, 6], [
+            6, 8], [6, 9], [6, 10]
 
     def test_edges_given_PC_frag1(self):
         fragmenter = Fragmenter(molecule=self.pc_frag1, edges=self.pc_frag1_edges, depth=0)
@@ -50,21 +51,21 @@ class TestFragmentMolecule(PymatgenTest):
     @unittest.skipIf(not ob, "OpenBabel not present. Skipping...")
     def test_babel_PC_defaults(self):
         fragmenter = Fragmenter(molecule=self.pc)
-        self.assertEqual(fragmenter.open_rings,True)
-        self.assertEqual(fragmenter.opt_steps,10000)
+        self.assertEqual(fragmenter.open_rings, True)
+        self.assertEqual(fragmenter.opt_steps, 10000)
         default_mol_graph = MoleculeGraph.with_local_env_strategy(self.pc, OpenBabelNN(),
                                                                   reorder=False, extend_structure=False)
-        self.assertEqual(fragmenter.mol_graph,default_mol_graph)
+        self.assertEqual(fragmenter.mol_graph, default_mol_graph)
         self.assertEqual(len(fragmenter.unique_fragments), 13)
         self.assertEqual(len(fragmenter.unique_fragments_from_ring_openings), 5)
 
     def test_edges_given_PC_not_defaults(self):
         fragmenter = Fragmenter(molecule=self.pc, edges=self.pc_edges, depth=2, open_rings=False, opt_steps=0)
-        self.assertEqual(fragmenter.open_rings,False)
-        self.assertEqual(fragmenter.opt_steps,0)
+        self.assertEqual(fragmenter.open_rings, False)
+        self.assertEqual(fragmenter.opt_steps, 0)
         edges = {(e[0], e[1]): None for e in self.pc_edges}
         default_mol_graph = MoleculeGraph.with_edges(self.pc, edges=edges)
-        self.assertEqual(fragmenter.mol_graph,default_mol_graph)
+        self.assertEqual(fragmenter.mol_graph, default_mol_graph)
         self.assertEqual(len(fragmenter.unique_fragments), 20)
         self.assertEqual(len(fragmenter.unique_fragments_from_ring_openings), 0)
 
@@ -86,9 +87,9 @@ class TestFragmentMolecule(PymatgenTest):
         self.assertEqual(len(fragmenter10.unique_fragments), 509)
 
         fragments_by_level = fragmenter10.fragments_by_level
-        num_frags_by_level = [13,51,95,115,105,75,39,14,2,0]
+        num_frags_by_level = [13, 51, 95, 115, 105, 75, 39, 14, 2, 0]
         for ii in range(10):
-            self.assertEqual(len(fragments_by_level[str(ii)]),num_frags_by_level[ii])
+            self.assertEqual(len(fragments_by_level[str(ii)]), num_frags_by_level[ii])
 
         for fragment10 in fragmenter10.unique_fragments:
             found = False
@@ -106,9 +107,9 @@ class TestFragmentMolecule(PymatgenTest):
         self.assertEqual(len(fragmenter10.unique_fragments), 63)
 
         fragments_by_level = fragmenter10.fragments_by_level
-        num_frags_by_level = [8,12,15,14,9,4,1]
+        num_frags_by_level = [8, 12, 15, 14, 9, 4, 1]
         for ii in range(7):
-            self.assertEqual(len(fragments_by_level[str(ii)]),num_frags_by_level[ii])
+            self.assertEqual(len(fragments_by_level[str(ii)]), num_frags_by_level[ii])
 
         for fragment10 in fragmenter10.unique_fragments:
             found = False
