@@ -13,7 +13,8 @@ jobs:
           key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}
       - run:
           command: |
-            if [ ! -d "/root/miniconda3/envs/test_env" ]; then conda create --quiet --yes --name test_env python=3.6; fi
+            export PATH=$HOME/miniconda3/bin:$PATH
+            if [ ! -d "/root/miniconda3/envs/test_env" ]; then conda create --quiet --yes --name test_env python=3.7; fi
             source activate test_env
             conda install --quiet --yes numpy scipy matplotlib sympy cython pandas networkx pytest
             conda install --quiet --yes -c openbabel openbabel
@@ -32,6 +33,7 @@ jobs:
             - "/root/miniconda3/envs/test_env"
       - run:
           command: |
+            export PATH=$HOME/miniconda3/bin:$PATH
             # Add executables and path.
             for EXEPATH in `pwd`/cmd_line/*/Linux_64bit; do export PATH=$PATH:$EXEPATH; done
             export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
