@@ -24,7 +24,6 @@ jobs:
             export CFLAGS=$CFLAGS" -std=gnu++11"
             pip install BoltzTraP2
             export CFLAGS=${CFLAGS%% -std=gnu++11}
-            rm -r coverage_reports
       - run:
           command: |
             export PATH=$HOME/miniconda3/bin:$PATH
