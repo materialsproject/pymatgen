@@ -4,10 +4,13 @@ jobs:
     working_directory: ~/pymatgen
     docker:
       - image: materialsvirtuallab/circle-ci-pmg-py3:3.7.3
+#        environment:
+#          PMG_MAPI_ENDPOINT: https://zola.lbl.gov/rest/v2
+    # parallelism: 4
     steps:
       - checkout
       - run:
-        command: |
+          command: |
             export PATH=$HOME/miniconda3/bin:$PATH
             conda config --set always_yes yes --set changeps1 no
             conda update -q conda
@@ -23,7 +26,7 @@ jobs:
             export CFLAGS=${CFLAGS%% -std=gnu++11}
             rm -r coverage_reports
       - run:
-        command: |
+          command: |
             export PATH=$HOME/miniconda3/bin:$PATH
             # Add executables and path.
             for EXEPATH in `pwd`/cmd_line/*/Linux_64bit; do export PATH=$PATH:$EXEPATH; done
@@ -43,12 +46,12 @@ jobs:
             pmg structure --convert --filenames POSCAR.pmg pmg.cif
             pmg analyze -d test_files
             if [ "$CI_PULL_REQUEST" == "" ]; then coveralls; fi
-        no_output_timeout: 3600
+          no_output_timeout: 3600
       - store_artifacts:
-        path: coverage_reports/
-        destination: tr1
+          path: coverage_reports/
+          destination: tr1
       - store_test_results:
-        path: coverage_reports/
+          path: coverage_reports/
 
 workflows:
   version: 2
