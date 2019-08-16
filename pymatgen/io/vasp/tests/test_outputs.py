@@ -1092,8 +1092,7 @@ class ChgcarTest(PymatgenTest):
     #     chgcar2 = Chgcar.from_hdf5("chgcar_test.hdf5")
     #     self.assertArrayAlmostEqual(chgcar2.data["total"],
     #                                 chgcar.data["total"])
-
-        os.remove("chgcar_test.hdf5")
+    #     os.remove("chgcar_test.hdf5")
 
     def test_as_dict_and_from_dict(self):
         chgcar = Chgcar.from_file(self.TEST_FILES_DIR / "CHGCAR.NiO_SOC.gz")
