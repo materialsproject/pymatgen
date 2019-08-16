@@ -17,9 +17,6 @@ sudo: false
 install:
   - pip install --upgrade numpy
   - pip install --quiet --ignore-installed -r requirements.txt -r requirements-optional.txt
-  - export CFLAGS=$CFLAGS" -std=gnu++11"
-  - travis_wait pip install BoltzTraP2
-  - export CFLAGS=${CFLAGS%% -std=gnu++11}
   - >-
     echo "backend: Agg" > matplotlibrc
 before_script:
