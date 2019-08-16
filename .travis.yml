@@ -1,8 +1,9 @@
+dist: xenial
 services:
   - mysql
 language: python
 python:
-  - "3.6"
+  - "3.7"
 env:
   global:
     - secure: "LQDypjfjcQYVN1NYPYfBz1VqMSqjNQqEqGBp+R6u/opf8bRUtYUGdK1gR356U3ApPzgLl906M3rI2ZMNqxiROdB6RDZrDEzXLhushwCfqt0C9qmZFLsj7TtGCMT8qHahU/sfYKntYxlWDgTbvFVrHhmg6brWEObPYny5FUidJc4="
@@ -16,14 +17,11 @@ sudo: false
 install:
   - pip install --upgrade numpy
   - pip install --quiet --ignore-installed -r requirements.txt -r requirements-optional.txt
-  - pip install nose-timer
   - export CFLAGS=$CFLAGS" -std=gnu++11"
   - travis_wait pip install BoltzTraP2
   - export CFLAGS=${CFLAGS%% -std=gnu++11}
   - >-
     echo "backend: Agg" > matplotlibrc
-# This is needed, otherwise, nosetests can't find the installed pymatgen C
-# extensions.
 before_script:
   - python setup.py --quiet develop
 # command to run tests, e.g. python setup.py test
