@@ -3,7 +3,7 @@ jobs:
   py3test:
     working_directory: ~/pymatgen
     docker:
-      - image: materialsvirtuallab/circle-ci-pmg-py3:latest
+      - image: materialsvirtuallab/circle-ci-pmg-py3:3.7.3
         environment:
           PMG_MAPI_ENDPOINT: https://zola.lbl.gov/rest/v2
     # parallelism: 4
@@ -18,7 +18,7 @@ jobs:
             source activate test_env
             conda install --quiet --yes numpy scipy matplotlib sympy cython pandas networkx pytest
             conda install --quiet --yes -c openbabel openbabel
-            conda install --quiet --yes -c clinicalgraphics vtk
+            # conda install --quiet --yes -c clinicalgraphics vtk
             conda install --quiet --yes cmake
             conda update --quiet --yes numpy scipy matplotlib sympy cython pandas networkx pytest pip cmake
             mkdir coverage_reports
