@@ -8,7 +8,7 @@ coveralls==1.8.2
 chemview==0.6
 netCDF4==1.4.2
 fdint==2.0.2
-phonopy==2.2.0
+phonopy==1.11.12.121
 h5py==2.7.1
 #BoltzTraP2==18.9.1
 f90nml==1.1.2
