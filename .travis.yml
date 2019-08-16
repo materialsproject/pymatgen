@@ -14,14 +14,26 @@ env:
 # command to install dependencies
 sudo: false
 install:
-  - pip install --upgrade numpy
-  - pip install -r requirements.txt -r requirements-optional.txt
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  # Useful for debugging any issues with conda
+  - conda info -a
+  - conda create -q -n test-environment python=3.7 numpy scipy matplotlib sympy cython pandas networkx pytest h5py
+  - source activate test-environment
+  - conda update --quiet --yes numpy scipy matplotlib sympy cython pandas networkx pytest pip cmake h5py
+  - pip install --quiet --ignore-installed -r requirements.txt -r requirements-optional.txt
   - >-
     echo "backend: Agg" > matplotlibrc
 before_script:
   - python setup.py --quiet develop
 # command to run tests, e.g. python setup.py test
 script:
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - source activate test-environment
   - travis_wait 28800 pytest $EXCLUDE_TESTS pymatgen
 notifications:
   email:
