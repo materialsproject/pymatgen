@@ -16,19 +16,16 @@ jobs:
             export PATH=$HOME/miniconda3/bin:$PATH
             if [ ! -d "/root/miniconda3/envs/test_env" ]; then conda create --quiet --yes --name test_env python=3.6; fi
             source activate test_env
-            conda install --quiet --yes numpy scipy matplotlib sympy cython
+            conda install --quiet --yes numpy scipy matplotlib sympy cython pandas networkx pytest
             conda install --quiet --yes -c openbabel openbabel
             conda install --quiet --yes -c clinicalgraphics vtk
             conda install --quiet --yes cmake
-            # conda update --quiet --all
+            conda update --quiet --yes numpy scipy matplotlib sympy cython pandas networkx pytest pip cmake
             mkdir coverage_reports
-            pip install --upgrade pip
-            pip install --upgrade numpy
             pip install --quiet --ignore-installed -r requirements.txt -r requirements-optional.txt
             export CFLAGS=$CFLAGS" -std=gnu++11"
             pip install BoltzTraP2
             export CFLAGS=${CFLAGS%% -std=gnu++11}
-            pip install --force-reinstall phonopy==1.11.12.121
             rm -r coverage_reports
       - save_cache: # special step to save dependency cache
           key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}
