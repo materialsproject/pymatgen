@@ -22,7 +22,7 @@ install:
   - conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
-  - conda create -q -n test-environment python=3.7 numpy scipy matplotlib sympy cython pandas networkx pytest h5py
+  - conda create -q -n test-environment python=3.7 numpy scipy matplotlib sympy cython pandas networkx pytest cmake h5py
   - source activate test-environment
   - conda update --quiet --yes numpy scipy matplotlib sympy cython pandas networkx pytest pip cmake h5py
   - pip install --quiet --ignore-installed -r requirements.txt -r requirements-optional.txt
