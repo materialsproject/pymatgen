@@ -14,13 +14,13 @@ jobs:
       - run:
           command: |
             export PATH=$HOME/miniconda3/bin:$PATH
-            if [ ! -d "/root/miniconda3/envs/test_py37env" ]; then conda create --quiet --yes --name test_py37env python=3.7; fi
-            source activate test_py37env
-            conda install --quiet --yes numpy scipy matplotlib sympy cython pandas networkx pytest
+            if [ ! -d "/root/miniconda3/envs/py37env" ]; then conda create --quiet --yes --name py37env python=3.7; fi
+            source activate py37env
+            conda install --quiet --yes numpy scipy matplotlib sympy cython pandas networkx pytest h5py
             conda install --quiet --yes -c openbabel openbabel
             # conda install --quiet --yes -c clinicalgraphics vtk
             conda install --quiet --yes cmake
-            conda update --quiet --yes numpy scipy matplotlib sympy cython pandas networkx pytest pip cmake
+            conda update --quiet --yes numpy scipy matplotlib sympy cython pandas networkx pytest pip cmake h5py
             mkdir coverage_reports
             pip install --quiet --ignore-installed -r requirements.txt -r requirements-optional.txt
             export CFLAGS=$CFLAGS" -std=gnu++11"
@@ -30,7 +30,7 @@ jobs:
       - save_cache: # special step to save dependency cache
           key: deps-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}
           paths:
-            - "/root/miniconda3/envs/test_py37env"
+            - "/root/miniconda3/envs/py37env"
       - run:
           command: |
             export PATH=$HOME/miniconda3/bin:$PATH
@@ -44,7 +44,7 @@ jobs:
             # The parallelism is 4. If 1/20 we have to run, that measn the probability of a matproj test running is 1-(1-0.05)**4 = 0.18.
             # if [ "$(( RANDOM % 20 ))" -ne "0" ]; then export EXCLUDE_TESTS="--ignore=pymatgen/ext/tests/test_matproj.py --ignore=pymatgen/analysis/tests/test_pourbaix_diagram.py --ignore=pymatgen/tests/test_init.py"; fi
             # export EXCLUDE_TESTS="--ignore=pymatgen/ext/tests/test_matproj.py --ignore=pymatgen/analysis/tests/test_pourbaix_diagram.py --ignore=pymatgen/tests/test_init.py"
-            source activate test_py37env
+            source activate py37env
             pip install --quiet -e .
             pytest --ignore=pymatgen/analysis/tests/test_pourbaix_diagram.py pymatgen
             # Command line tests
