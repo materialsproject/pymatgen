@@ -91,7 +91,7 @@ class InterfaceTest(PymatgenTest):
         self.assertAlmostEqual(interface.lattice.c, interface.vacuum_thickness + interface.z_shift
                                + np.max(interface.film.cart_coords[:, 2])
                                - np.min(interface.film.cart_coords[:, 2])
-                               + np.max(interface.substrate.cart_coords[:, 2]) 
+                               + np.max(interface.substrate.cart_coords[:, 2])
                                - np.min(interface.substrate.cart_coords[:, 2]))
 
     def test_inplane_spacing(self):
