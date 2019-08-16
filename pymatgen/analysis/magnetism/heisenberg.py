@@ -944,13 +944,13 @@ class HeisenbergModel(MSONable):
         d["cutoff"] = self.cutoff
         d["tol"] = self.tol
         d["sgraphs"] = [sgraph.as_dict() for sgraph in self.sgraphs]
-        d["nn_interactions"] = self.nn_interactions
         d["dists"] = self.dists
         d["ex_mat"] = self.ex_mat
         d["ex_params"] = self.ex_params
-        d["igraph"] = self.igraph
+        d["igraph"] = self.igraph.as_dict()
 
-        # Sanitize the site ids
+        # Sanitize tuple & int keys
+        d["nn_interactions"] = jsanitize(self.nn_interactions)
         d["unique_site_ids"] = jsanitize(self.unique_site_ids)
         d["wyckoff_ids"] = jsanitize(self.wyckoff_ids)
 
@@ -963,8 +963,16 @@ class HeisenbergModel(MSONable):
         # Reconstitute the site ids
         usids = {}
         wids = {}
+        nnis = {}
 
         from ast import literal_eval
+
+        for k, v in d["nn_interactions"].items():
+            nn_dict = {}
+            for k1, v1 in v.items():
+                key = literal_eval(k1)
+                nn_dict[key] = v1
+            nnis[k] = nn_dict
 
         for k, v in d["unique_site_ids"].items():
             key = literal_eval(k)
@@ -985,6 +993,9 @@ class HeisenbergModel(MSONable):
         for v in d["sgraphs"]:
             sgraphs.append(StructureGraph.from_dict(v))
 
+        # Interaction graph
+        igraph = StructureGraph.from_dict(d["igraph"])
+
         # Reconstitute the exchange matrix DataFrame
         ex_mat = pd.read_json(d["ex_mat"])
 
@@ -997,11 +1008,11 @@ class HeisenbergModel(MSONable):
             sgraphs=sgraphs,
             unique_site_ids=usids,
             wyckoff_ids=wids,
-            nn_interactions=d["nn_interactions"],
+            nn_interactions=nnis,
             dists=d["dists"],
             ex_mat=ex_mat,
             ex_params=d["ex_params"],
-            igraph=d["igraph"],
+            igraph=igraph,
         )
 
         return hmodel
