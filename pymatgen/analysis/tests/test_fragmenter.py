@@ -27,6 +27,7 @@ class TestFragmentMolecule(PymatgenTest):
     def setUpClass(cls):
         cls.pc = Molecule.from_file(
             os.path.join(test_dir, "PC.xyz"))
+        cls.ec = Molecule.from_file(
             os.path.join(test_dir, "EC.xyz"))
         cls.pos_pc = Molecule.from_file(
             os.path.join(test_dir, "PC.xyz"))
