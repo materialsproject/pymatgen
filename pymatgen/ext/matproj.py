@@ -687,7 +687,7 @@ class MPRester:
             List of ComputedEntries.
         """
         entries = []
-        if isinstance(elements,str):
+        if isinstance(elements, str):
             elements = elements.split('-')
 
         for i in range(len(elements)):
