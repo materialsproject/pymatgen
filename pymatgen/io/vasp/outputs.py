@@ -1844,7 +1844,7 @@ class Outcar:
         pots = self.read_table_pattern(header_pattern, table_pattern, footer_pattern)
         pots = "".join(itertools.chain.from_iterable(pots))
 
-        pots = re.findall(r"\s+\d+\s*?([\.\-\d]+)+", pots)
+        pots = re.findall(r"\s+\d+\s*([\.\-\d]+)+", pots)
 
         self.electrostatic_potential = [float(f) for f in pots]
 
