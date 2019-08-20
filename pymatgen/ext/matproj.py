@@ -663,8 +663,9 @@ class MPRester:
         creating phase diagrams of entire chemical systems.
 
         Args:
-            elements ([str]): List of element symbols, e.g., ["Li", "Fe",
-                "O"].
+            elements (str or [str]): Chemical system string comprising element
+                symbols separated by dashes, e.g., "Li-Fe-O" or List of element 
+                symbols, e.g., ["Li", "Fe", "O"].
             compatible_only (bool): Whether to return only "compatible"
                 entries. Compatible entries are entries that have been
                 processed using the MaterialsProjectCompatibility class,
@@ -686,6 +687,9 @@ class MPRester:
             List of ComputedEntries.
         """
         entries = []
+        if isinstance(elements,str):
+            elements = elements.split('-')
+
         for i in range(len(elements)):
             for els in itertools.combinations(elements, i + 1):
                 entries.extend(
