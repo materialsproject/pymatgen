@@ -409,6 +409,7 @@ class IStructureTest(PymatgenTest):
         self.assertEqual([len(nn) for nn in all_nn], [0] * len(s))
 
     def test_get_all_neighbors_crosscheck_old(self):
+        warnings.simplefilter("ignore")
         for i in range(100):
             alpha, beta = np.random.rand(2) * 90
             a, b, c = 3 + np.random.rand(3) * 5
@@ -442,6 +443,8 @@ class IStructureTest(PymatgenTest):
         struct = Structure.from_dict(d)
         self.assertEqual(set([i[0] for i in struct.get_neighbors(struct[0], 0.05)]),
                          set([i[0] for i in struct.get_neighbors_old(struct[0], 0.05)]))
+
+        warnings.simplefilter("default")
 
     def test_get_all_neighbors_outside_cell(self):
         s = Structure(Lattice.cubic(2), ['Li', 'Li', 'Li', 'Si'],

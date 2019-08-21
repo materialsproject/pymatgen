@@ -147,7 +147,6 @@ class Interface(Structure):
         if self.offset_vector[2] + delta[2] < 0 or delta[2] > self.vacuum_thickness:
             raise ValueError("The shift {} will collide the film and substrate.".format(delta))
         self._offset_vector += np.array(delta)
-        # print("SHIFT", delta)
         self.translate_sites(self.get_film_indices(),
                              delta, frac_coords=False, to_unit_cell=True)
 
@@ -469,7 +468,6 @@ class InterfaceBuilder:
         # Generate all possible interface matches
         self.matches = list(sa.calculate(self.original_film_structure, self.original_substrate_structure, **kwargs))
         match = self.matches[match_index]
-        print(match)
 
         # Generate substrate slab and align x axis to (100) and slab normal to (001)
         ## Get no-vacuum structure for strained bulk calculation
