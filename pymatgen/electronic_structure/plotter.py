@@ -9,8 +9,13 @@ import warnings
 from collections import OrderedDict
 
 import numpy as np
-
 from monty.json import jsanitize
+from monty.dev import requires
+
+try:
+    from mayavi import mlab
+except ImportError:
+    mlab = None
 
 from pymatgen.core.periodic_table import Element
 from pymatgen.electronic_structure.core import Spin, Orbital, OrbitalType
@@ -3684,10 +3689,10 @@ class CohpPlotter:
         plt = self.get_plot(xlim, ylim)
         plt.show()
 
-
+@requires(mlab is not None, "MayAvi mlab not imported! Please install mayavi.")
 def plot_fermi_surface(data, structure, cbm, energy_levels=[],
                        multiple_figure=True,
-                       mlab_figure=None, kpoints_dict={}, color=(0, 0, 1),
+                       mlab_figure=None, kpoints_dict={}, colors=None,
                        transparency_factor=[], labels_scale_factor=0.05,
                        points_scale_factor=0.02, interative=True):
     """
@@ -3706,14 +3711,19 @@ def plot_fermi_surface(data, structure, cbm, energy_levels=[],
              a conduction band or not
         multiple_figure: if True a figure for each energy level will be shown.
                          If False all the surfaces will be shown in the same figure.
-                         In this las case, tune the transparency factor.
+                         In this last case, tune the transparency factor.
         mlab_figure: provide a previous figure to plot a new surface on it.
         kpoints_dict: dictionary of kpoints to show in the plot.
                       example: {"K":[0.5,0.0,0.5]}, 
                       where the coords are fractional.
-        color: tuple (r,g,b) of integers to define the color of the surface.
+        colors: list of 3-tuple (r,g,b) of integers to define the colors of each
+                surface (one per energy level). Should be the same length as the
+                number of surfaces being plotted.
+                Example: colors=[(1,0,0), (0,1,0), (0,0,1)]
+                Example: colors=[(0, 0.5, 0.5)]
         transparency_factor: list of values in the range [0,1] to tune
-                             the opacity of the surfaces.
+                             the opacity of the surfaces. Should be one
+                             transparency_factor per surface.
         labels_scale_factor: factor to tune the size of the kpoint labels
         points_scale_factor: factor to tune the size of the kpoint points
         interative: if True an interactive figure will be shown.
@@ -3728,13 +3738,6 @@ def plot_fermi_surface(data, structure, cbm, energy_levels=[],
           Please, double check the surface shown by using some 
           other software and report issues.
     """
-
-    try:
-        from mayavi import mlab
-    except ImportError:
-        raise BoltztrapError(
-            "Mayavi package should be installed to use this function")
-
     bz = structure.lattice.reciprocal_lattice.get_wigner_seitz_cell()
     cell = structure.lattice.reciprocal_lattice.matrix
 
@@ -3753,6 +3756,9 @@ def plot_fermi_surface(data, structure, cbm, energy_levels=[],
                 raise BoltztrapError("energy level " + str(e) +
                                      " not in the range of possible energies: [" +
                                      str(en_min) + ", " + str(en_max) + "]")
+
+    if colors is None:
+        colors = [(0, 0, 1)] * len(energy_levels)
 
     if transparency_factor == []:
         transparency_factor = [1] * len(energy_levels)
@@ -3779,7 +3785,9 @@ def plot_fermi_surface(data, structure, cbm, energy_levels=[],
             mlab.text3d(*label_coords, text=label, scale=labels_scale_factor,
                         color=(0, 0, 0), figure=fig)
 
-    for isolevel, alpha in zip(energy_levels, transparency_factor):
+    for i, isolevel in enumerate(energy_levels):
+        alpha = transparency_factor[i]
+        color = colors[i]
         if multiple_figure:
             fig = mlab.figure(size=(1024, 768), bgcolor=(1, 1, 1))
 
