@@ -2122,7 +2122,7 @@ class MoleculeGraph(MSONable):
                                                                       coords=coords,
                                                                       charge=self.molecule.charge),
                                                              edges))
-            # print(len(unique_mol_graph_list))
+
             frag_key = str(unique_mol_graph_list[0].molecule.composition.alphabetical_formula)+" E"+str(len(unique_mol_graph_list[0].graph.edges()))
             unique_mol_graph_dict[frag_key] = copy.deepcopy(unique_mol_graph_list)
         return unique_mol_graph_dict
@@ -2758,34 +2758,23 @@ class MoleculeGraph(MSONable):
         return (edges == edges_other) and \
                (self.molecule == other_sorted.molecule)
 
-    # def isomorphic_to(self, other, use_igraph=False):
-    #     """
-    #     Checks if the graphs of two MoleculeGraphs are isomorphic to one
-    #     another. In order to prevent problems with misdirected edges, both
-    #     graphs are converted into undirected nx.Graph objects.
+    def isomorphic_to(self, other, use_igraph=False):
+        """
+        Checks if the graphs of two MoleculeGraphs are isomorphic to one
+        another. In order to prevent problems with misdirected edges, both
+        graphs are converted into undirected nx.Graph objects.
 
-    #     :param other: MoleculeGraph object to be compared.
-    #     :return: bool
-    #     """
-    #     if len(self.molecule) != len(other.molecule):
-    #         return False
-    #     elif self.molecule.composition.alphabetical_formula != other.molecule.composition.alphabetical_formula:
-    #         return False
-    #     elif len(self.graph.edges()) != len(other.graph.edges()):
-    #         return False
-    #     elif use_igraph:
-    #         import igraph
-    #         self_igraph = igraph_from_nxgraph(self.graph)
-    #         other_igraph = igraph_from_nxgraph(other.graph)
-    #         if self_igraph.isomorphic_bliss(other_igraph):
-    #             return self_igraph.isomorphic_vf2(other_igraph,node_compat_fn=compare)
-    #         return False
-    #     else:
-    #         self_undir = self.graph.to_undirected()
-    #         other_undir = other.graph.to_undirected()
-    #         nm = iso.categorical_node_match("specie", "ERROR")
-    #         isomorphic = nx.is_isomorphic(self_undir, other_undir, node_match=nm)
-    #         return isomorphic
+        :param other: MoleculeGraph object to be compared.
+        :return: bool
+        """
+        if len(self.molecule) != len(other.molecule):
+            return False
+        elif self.molecule.composition.alphabetical_formula != other.molecule.composition.alphabetical_formula:
+            return False
+        elif len(self.graph.edges()) != len(other.graph.edges()):
+            return False
+        else:
+            return isomorphic(self.graph,other.graph,use_igraph)
 
     def diff(self, other, strict=True):
         """
