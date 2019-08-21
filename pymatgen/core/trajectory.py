@@ -24,6 +24,7 @@ class Trajectory(MSONable):
     Trajectory object that stores structural information related to a MD simulation.
     Provides basic functions such as slicing trajectory or obtaining displacements.
     """
+
     def __init__(self, lattice, species, frac_coords, time_step=2, site_properties=None, constant_lattice=True,
                  coords_are_displacement=False, base_positions=None):
         """
@@ -69,7 +70,7 @@ class Trajectory(MSONable):
         if coords_are_displacement:
             if base_positions is None:
                 warnings.warn(
-                    "Without providing an array of starting positions, the positions for each time step will not be available")
+                    "Without providing starting positions, the positions for each time step will not be available")
             self.base_positions = base_positions
         else:
             self.base_positions = frac_coords[0]
@@ -172,7 +173,7 @@ class Trajectory(MSONable):
         elif not (isinstance(frames, list) or isinstance(frames, np.ndarray)):
             try:
                 frames = np.asarray(frames)
-            except:
+            except Exception:
                 raise Exception('Given accessor is not of type int, slice, tuple, list, or array')
 
         if (isinstance(frames, list) or isinstance(frames, np.ndarray)) and \

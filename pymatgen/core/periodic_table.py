@@ -685,9 +685,7 @@ class Element(Enum):
             L, S = min(comb_counter)
 
             J = list(np.arange(abs(L - S), abs(L) + abs(S) + 1))
-            term_symbols.append([str(int(2 * (abs(S)) + 1))
-                                 + L_symbols[abs(L)]
-                                 + str(j) for j in J])
+            term_symbols.append([str(int(2 * (abs(S)) + 1)) + L_symbols[abs(L)] + str(j) for j in J])
             # Without J
             # term_symbols.append(str(int(2 * (abs(S)) + 1)) \
             #                     + L_symbols[abs(L)])
@@ -815,7 +813,7 @@ class Element(Enum):
         try:
             Element(symbol)
             return True
-        except:
+        except Exception:
             return False
 
     @property
@@ -1092,10 +1090,7 @@ class Specie(MSONable):
         p = object.__getattribute__(self, '_properties')
         if a in p:
             return p[a]
-        try:
-            return getattr(self._el, a)
-        except:
-            raise AttributeError(a)
+        return getattr(self._el, a)
 
     def __eq__(self, other):
         """
@@ -1290,7 +1285,7 @@ class Specie(MSONable):
                     "spin of %s. Only one spin data available, and "
                     "that value is returned." % (spin, k)
                 )
-        else: 
+        else:
             data = radii[str(int(self._oxi_state))][cn][spin]
         return data["%s_radius" % radius_type]
 
@@ -1611,6 +1606,6 @@ def get_el_sp(obj):
         except (ValueError, KeyError):
             try:
                 return DummySpecie.from_string(obj)
-            except:
+            except Exception:
                 raise ValueError("Can't parse Element or String from type"
                                  " %s: %s." % (type(obj), obj))
