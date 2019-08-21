@@ -3689,6 +3689,7 @@ class CohpPlotter:
         plt = self.get_plot(xlim, ylim)
         plt.show()
 
+
 @requires(mlab is not None, "MayAvi mlab not imported! Please install mayavi.")
 def plot_fermi_surface(data, structure, cbm, energy_levels=[],
                        multiple_figure=True,
@@ -3696,19 +3697,26 @@ def plot_fermi_surface(data, structure, cbm, energy_levels=[],
                        transparency_factor=[], labels_scale_factor=0.05,
                        points_scale_factor=0.02, interative=True):
     """
-    Plot the Fermi surface at specific energy value.
+    Plot the Fermi surface at specific energy value using Boltztrap 1 FERMI
+    mode.
+
+    The easiest way to use this plotter is:
+
+        1. Run boltztrap in 'FERMI' mode using BoltztrapRunner,
+        2. Load BoltztrapAnalyzer using your method of choice (e.g., from_files)
+        3. Pass in your BoltztrapAnalyzer's fermi_surface_data as this
+            function's data argument.
 
     Args:
-        data: energy values in a 3D grid from a CUBE file 
-              via read_cube_file function, or from a 
-              BoltztrapAnalyzer.fermi_surface_data
+        data: energy values in a 3D grid from a CUBE file via read_cube_file
+            function, or from a BoltztrapAnalyzer.fermi_surface_data
         structure: structure object of the material
-        energy_levels: list of energy value of the fermi surface. 
-                       By default 0 eV correspond to the VBM, as in 
-                       the plot of band structure along symmetry line.
-                       Default: max energy value + 0.01 eV
-        cbm: Boolean value to specify if the considered band is 
-             a conduction band or not
+        energy_levels ([float]): Energy values for plotting the fermi surface(s)
+            By default 0 eV correspond to the VBM, as in the plot of band
+            structure along symmetry line.
+            Default: max energy value + 0.01 eV
+        cbm (bool): Boolean value to specify if the considered band is a
+            conduction band or not
         multiple_figure: if True a figure for each energy level will be shown.
                          If False all the surfaces will be shown in the same figure.
                          In this last case, tune the transparency factor.
@@ -3757,8 +3765,7 @@ def plot_fermi_surface(data, structure, cbm, energy_levels=[],
                                      " not in the range of possible energies: [" +
                                      str(en_min) + ", " + str(en_max) + "]")
 
-    if colors is None:
-        colors = [(0, 0, 1)] * len(energy_levels)
+    colors = [(0, 0, 1)] * len(energy_levels) if colors is None else colors
 
     if transparency_factor == []:
         transparency_factor = [1] * len(energy_levels)
