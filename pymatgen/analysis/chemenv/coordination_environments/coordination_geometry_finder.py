@@ -502,7 +502,7 @@ class LocalGeometryFinder:
         :return: The StructureEnvironments object containing all the information about the coordination
             environments in the structure
         """
-        time_init = time.clock()
+        time_init = time.process_time()
         if info is None:
             info = {}
         info.update({'local_geometry_finder':
@@ -555,7 +555,7 @@ class LocalGeometryFinder:
                              isite in only_indices]
 
         # Get the VoronoiContainer for the sites defined by their indices (sites_indices)
-        logging.info('Getting DetailedVoronoiContainer')
+        logging.debug('Getting DetailedVoronoiContainer')
         if voronoi_normalized_distance_tolerance is None:
             normalized_distance_tolerance = DetailedVoronoiContainer.default_normalized_distance_tolerance
         else:
@@ -572,7 +572,7 @@ class LocalGeometryFinder:
                                                          additional_conditions=additional_conditions,
                                                          normalized_distance_tolerance=normalized_distance_tolerance,
                                                          normalized_angle_tolerance=normalized_angle_tolerance)
-        logging.info('DetailedVoronoiContainer has been set up')
+        logging.debug('DetailedVoronoiContainer has been set up')
 
         # Initialize the StructureEnvironments object (either from initial_structure_environments or from scratch)
         if initial_structure_environments is not None:
@@ -616,18 +616,18 @@ class LocalGeometryFinder:
         # Loop on all the sites
         for isite in range(len(self.structure)):
             if isite not in sites_indices:
-                logging.info(' ... in site #{:d}/{:d} ({}) : '
+                logging.debug(' ... in site #{:d}/{:d} ({}) : '
                              'skipped'.format(isite, len(self.structure),
                                               self.structure[isite].species_string))
                 continue
             if breakit:
-                logging.info(' ... in site #{:d}/{:d} ({}) : '
+                logging.debug(' ... in site #{:d}/{:d} ({}) : '
                              'skipped (timelimit)'.format(isite, len(self.structure),
                                                           self.structure[isite].species_string))
                 continue
-            logging.info(' ... in site #{:d}/{:d} ({})'.format(isite, len(self.structure),
+            logging.debug(' ... in site #{:d}/{:d} ({})'.format(isite, len(self.structure),
                                                                self.structure[isite].species_string))
-            t1 = time.clock()
+            t1 = time.process_time()
             if optimization > 0:
                 self.detailed_voronoi.local_planes[isite] = OrderedDict()
                 self.detailed_voronoi.separations[isite] = {}
@@ -641,10 +641,10 @@ class LocalGeometryFinder:
                     continue
                 for inb_set, nb_set in enumerate(nb_sets):
                     logging.debug('    ... getting environments for nb_set ({:d}, {:d})'.format(cn, inb_set))
-                    tnbset1 = time.clock()
+                    tnbset1 = time.process_time()
                     ce = self.update_nb_set_environments(se=se, isite=isite, cn=cn, inb_set=inb_set, nb_set=nb_set,
                                                          recompute=do_recompute, optimization=optimization)
-                    tnbset2 = time.clock()
+                    tnbset2 = time.process_time()
                     if cn not in nb_sets_info:
                         nb_sets_info[cn] = {}
                     nb_sets_info[cn][inb_set] = {'time': tnbset2 - tnbset1}
@@ -698,18 +698,18 @@ class LocalGeometryFinder:
                 inew_nb_set = se.neighbors_sets[isite_new_nb_set][cn_new_nb_set].index(new_nb_set)
                 logging.debug('    ... getting environments for nb_set ({:d}, {:d}) - '
                               'from hints'.format(cn_new_nb_set, inew_nb_set))
-                tnbset1 = time.clock()
+                tnbset1 = time.process_time()
                 self.update_nb_set_environments(se=se,
                                                 isite=isite_new_nb_set,
                                                 cn=cn_new_nb_set,
                                                 inb_set=inew_nb_set,
                                                 nb_set=new_nb_set,
                                                 optimization=optimization)
-                tnbset2 = time.clock()
+                tnbset2 = time.process_time()
                 if cn not in nb_sets_info:
                     nb_sets_info[cn] = {}
                 nb_sets_info[cn][inew_nb_set] = {'time': tnbset2 - tnbset1}
-            t2 = time.clock()
+            t2 = time.process_time()
             se.update_site_info(isite=isite, info_dict={'time': t2 - t1, 'nb_sets_info': nb_sets_info})
             if timelimit is not None:
                 time_elapsed = t2 - time_init
@@ -717,9 +717,9 @@ class LocalGeometryFinder:
                 if time_left < 2.0 * max_time_one_site:
                     breakit = True
             max_time_one_site = max(max_time_one_site, t2 - t1)
-            logging.info('    ... computed in {:.2f} seconds'.format(t2 - t1))
-        time_end = time.clock()
-        logging.info('    ... compute_structure_environments ended in {:.2f} seconds'.format(time_end-time_init))
+            logging.debug('    ... computed in {:.2f} seconds'.format(t2 - t1))
+        time_end = time.process_time()
+        logging.debug('    ... compute_structure_environments ended in {:.2f} seconds'.format(time_end-time_init))
         return se
 
     def update_nb_set_environments(self, se, isite, cn, inb_set, nb_set, recompute=False, optimization=None):
