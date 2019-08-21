@@ -8,7 +8,7 @@ from pymatgen.core.structure import Molecule
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.analysis.fragmenter import Fragmenter
+from pymatgen.analysis.fragmenter import Fragmenter, metal_edge_extender
 
 try:
     import openbabel as ob
@@ -40,6 +40,8 @@ class TestFragmentMolecule(PymatgenTest):
         cls.tfsi = Molecule.from_file(os.path.join(test_dir, "TFSI.xyz"))
         cls.tfsi_edges = [14, 1], [1, 4], [1, 5], [1, 7], [7, 11], [7, 12], [7, 13], [14, 0], [0, 2], [0, 3], [0, 6], [
             6, 8], [6, 9], [6, 10]
+        cls.LiEC = Molecule.from_file(
+            os.path.join(test_dir, "LiEC.xyz"))
 
     def test_edges_given_PC_frag1(self):
         fragmenter = Fragmenter(molecule=self.pc_frag1, edges=self.pc_frag1_edges, depth=0)
@@ -139,6 +141,14 @@ class TestFragmentMolecule(PymatgenTest):
         self.assertEqual(fragEC.new_unique_fragments,11)
         self.assertEqual(fragEC.total_unique_fragments,509+11)
 
+    def test_metal_edge_extender(self):
+        mol_graph = MoleculeGraph.with_local_env_strategy(self.LiEC,
+                                                          OpenBabelNN(),
+                                                          reorder=False,
+                                                          extend_structure=False)
+        self.assertEqual(len(mol_graph.graph.edges),11)
+        extended_mol_graph = metal_edge_extender(mol_graph)
+        self.assertEqual(len(mol_graph.graph.edges),12)
 
 if __name__ == "__main__":
     unittest.main()
