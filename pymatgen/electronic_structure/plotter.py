@@ -3693,8 +3693,8 @@ class CohpPlotter:
 @requires(mlab is not None, "MayAvi mlab not imported! Please install mayavi.")
 def plot_fermi_surface(data, structure, cbm, energy_levels=None,
                        multiple_figure=True,
-                       mlab_figure=None, kpoints_dict={}, colors=None,
-                       transparency_factor=[], labels_scale_factor=0.05,
+                       mlab_figure=None, kpoints_dict=None, colors=None,
+                       transparency_factor=None, labels_scale_factor=0.05,
                        points_scale_factor=0.02, interative=True):
     """
     Plot the Fermi surface at specific energy value using Boltztrap 1 FERMI
@@ -3761,19 +3761,26 @@ def plot_fermi_surface(data, structure, cbm, energy_levels=None,
     else:
         for e in energy_levels:
             if e > en_max or e < en_min:
-                raise BoltztrapError("energy level " + str(e) +
-                                     " not in the range of possible energies: [" +
-                                     str(en_min) + ", " + str(en_max) + "]")
+                raise BoltztrapError(
+                    "energy level " + str(e) +
+                    " not in the range of possible energies: [" +
+                    str(en_min) + ", " + str(en_max) + "]"
+                )
 
-    colors = [(0, 0, 1)] * len(energy_levels) if colors is None else colors
+    n_surfaces = len(energy_levels)
+    if colors is None:
+        colors = [(0, 0, 1)] * n_surfaces
 
-    if transparency_factor == []:
-        transparency_factor = [1] * len(energy_levels)
+    if transparency_factor is None:
+        transparency_factor = [1] * n_surfaces
 
     if mlab_figure:
         fig = mlab_figure
 
-    if mlab_figure == None and not multiple_figure:
+    if kpoints_dict is None:
+        kpoints_dict = {}
+
+    if mlab_figure is None and not multiple_figure:
         fig = mlab.figure(size=(1024, 768), bgcolor=(1, 1, 1))
         for iface in range(len(bz)):
             for line in itertools.combinations(bz[iface], 2):
@@ -3832,8 +3839,9 @@ def plot_fermi_surface(data, structure, cbm, energy_levels=None,
         polydata.points = (np.array(polydata.points) - [cx, cy, cz]) * 2
 
         #mlab.view(distance='auto')
-        fig.scene.isometric_view() 
-    if interative == True:
+        fig.scene.isometric_view()
+
+    if interative:
         mlab.show()
 
     return fig, mlab
