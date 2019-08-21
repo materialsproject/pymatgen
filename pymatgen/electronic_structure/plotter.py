@@ -3691,7 +3691,7 @@ class CohpPlotter:
 
 
 @requires(mlab is not None, "MayAvi mlab not imported! Please install mayavi.")
-def plot_fermi_surface(data, structure, cbm, energy_levels=[],
+def plot_fermi_surface(data, structure, cbm, energy_levels=None,
                        multiple_figure=True,
                        mlab_figure=None, kpoints_dict={}, colors=None,
                        transparency_factor=[], labels_scale_factor=0.05,
@@ -3714,30 +3714,30 @@ def plot_fermi_surface(data, structure, cbm, energy_levels=[],
         energy_levels ([float]): Energy values for plotting the fermi surface(s)
             By default 0 eV correspond to the VBM, as in the plot of band
             structure along symmetry line.
-            Default: max energy value + 0.01 eV
+            Default: One surface, with max energy value + 0.01 eV
         cbm (bool): Boolean value to specify if the considered band is a
             conduction band or not
-        multiple_figure: if True a figure for each energy level will be shown.
-                         If False all the surfaces will be shown in the same figure.
-                         In this last case, tune the transparency factor.
-        mlab_figure: provide a previous figure to plot a new surface on it.
-        kpoints_dict: dictionary of kpoints to show in the plot.
-                      example: {"K":[0.5,0.0,0.5]}, 
-                      where the coords are fractional.
-        colors: list of 3-tuple (r,g,b) of integers to define the colors of each
-                surface (one per energy level). Should be the same length as the
-                number of surfaces being plotted.
-                Example: colors=[(1,0,0), (0,1,0), (0,0,1)]
-                Example: colors=[(0, 0.5, 0.5)]
-        transparency_factor: list of values in the range [0,1] to tune
-                             the opacity of the surfaces. Should be one
-                             transparency_factor per surface.
-        labels_scale_factor: factor to tune the size of the kpoint labels
-        points_scale_factor: factor to tune the size of the kpoint points
-        interative: if True an interactive figure will be shown.
-                    If False a non interactive figure will be shown, but
-                    it is possible to plot other surfaces on the same figure.
-                    To make it interactive, run mlab.show().
+        multiple_figure (bool): If True a figure for each energy level will be
+            shown.  If False all the surfaces will be shown in the same figure.
+            In this last case, tune the transparency factor.
+        mlab_figure (mayavi.mlab.figure): A previous figure to plot a new
+            surface on.
+        kpoints_dict (dict): dictionary of kpoints to label in the plot.
+            Example: {"K":[0.5,0.0,0.5]}, coords are fractional
+        colors ([tuple]): Iterable of 3-tuples (r,g,b) of integers to define
+            the colors of each surface (one per energy level).
+            Should be the same length as the number of surfaces being plotted.
+            Example (3 surfaces): colors=[(1,0,0), (0,1,0), (0,0,1)]
+            Example (2 surfaces): colors=[(0, 0.5, 0.5)]
+        transparency_factor [float]: Values in the range [0,1] to tune the
+            opacity of each surface. Should be one transparency_factor per
+            surface.
+        labels_scale_factor (float): factor to tune size of the kpoint labels
+        points_scale_factor (float): factor to tune size of the kpoint points
+        interative (bool): if True an interactive figure will be shown.
+            If False a non interactive figure will be shown, but it is possible
+            to plot other surfaces on the same figure. To make it interactive,
+            run mlab.show().
         
     Returns:
         a Mayavi figure and a mlab module to control the plot.
@@ -3753,7 +3753,7 @@ def plot_fermi_surface(data, structure, cbm, energy_levels=[],
     en_min = np.min(fact * data.ravel())
     en_max = np.max(fact * data.ravel())
 
-    if energy_levels == []:
+    if energy_levels is None:
         energy_levels = [en_min + 0.01] if cbm == True else \
             [en_max - 0.01]
         print("Energy level set to: " + str(energy_levels[0]) + " eV")
