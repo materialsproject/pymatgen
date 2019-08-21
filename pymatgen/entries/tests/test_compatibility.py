@@ -6,6 +6,8 @@ import warnings
 import os
 import unittest
 
+from math import sqrt
+
 from monty.json import MontyDecoder
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility, \
     MITCompatibility, AqueousCorrection, MITAqueousCompatibility
@@ -88,7 +90,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
     def test_correction_values(self):
         # test_corrections
         self.assertAlmostEqual(self.compat.process_entry(self.entry1).correction,
-                               - 2.733 * 2 - 0.70229 * 3)
+                               - 2.2447923523460367 * 2 - 0.7309044412445238 * 3)
 
         entry = ComputedEntry(
             'FeF3', -2, 0.0,
@@ -100,11 +102,11 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                                          'hash': '180141c33d032bfbfff30b3bea9d23dd'}]})
         self.assertIsNotNone(self.compat.process_entry(entry))
 
-        # Check actual correction
-        self.assertAlmostEqual(self.compat.process_entry(entry).correction, -2.733)
+        #Check actual correction
+        self.assertAlmostEqual(self.compat.process_entry(entry).correction, -2.2447923523460367)
 
         self.assertAlmostEqual(self.compat.process_entry(
-            self.entry_sulfide).correction, -0.66346)
+            self.entry_sulfide).correction, -0.6314172089245144)
 
     def test_U_values(self):
         # Wrong U value
@@ -199,18 +201,20 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
             'Fe2O3', -1, 0.0,
             parameters={'is_hubbard': True, 'hubbards': {'Fe': 5.3, 'O': 0},
                         'run_type': 'GGA+U',
-                        'potcar_spec': [{'titel': 'PAW_PBE Fe_pv 06Sep2000',
-                                         'hash': '994537de5c4122b7f1b77fb604476db4'},
-                                        {'titel': 'PAW_PBE O 08Apr2002',
-                                         'hash': "7a25bc5b9a5393f46600a4939d357982"}]})
-        c = compat.get_corrections_dict(entry)
-        self.assertAlmostEqual(c["MP Anion Correction"], -2.10687)
-        self.assertAlmostEqual(c["MP Advanced Correction"], -5.466)
+                        'potcar_spec': [{'titel':'PAW_PBE Fe_pv 06Sep2000',
+                                            'hash': '994537de5c4122b7f1b77fb604476db4'},
+                                           {'titel': 'PAW_PBE O 08Apr2002',
+                                            'hash': "7a25bc5b9a5393f46600a4939d357982"}]})
+        c, e = compat.get_corrections_dict(entry)
+        self.assertAlmostEqual(c["test Anion Correction"], -0.7309044412445238*3)
+        self.assertAlmostEqual(c["test Advanced Correction"], -2.2447923523460367*2)
+        self.assertAlmostEqual(e["test Anion Correction"], 0.0016538603787238481*3)
+        self.assertAlmostEqual(e["test Advanced Correction"], 0.008018952265981852*2)
 
         entry.parameters["is_hubbard"] = False
         del entry.parameters["hubbards"]
-        c = ggacompat.get_corrections_dict(entry)
-        self.assertNotIn("MP Advanced Correction", c)
+        c, e = ggacompat.get_corrections_dict(entry)
+        self.assertNotIn("test Advanced Correction", c)
 
     def test_process_entries(self):
         entries = self.compat.process_entries([self.entry1,
@@ -273,6 +277,11 @@ class MITCompatibilityTest(unittest.TestCase):
                                - 1.723 * 2 - 0.66975 * 3)
         self.assertAlmostEqual(self.compat.process_entry(self.entry_F).correction, -1.723)
         self.assertAlmostEqual(self.compat.process_entry(self.entry_S).correction, -1.113)
+
+        #Check that correction error is 0
+        self.assertEqual(self.compat.process_entry(self.entry_O).data['correction_error'], 0)
+        self.assertEqual(self.compat.process_entry(self.entry_F).data['correction_error'], 0)
+        self.assertEqual(self.compat.process_entry(self.entry_S).data['correction_error'], 0)
 
     def test_U_value(self):
         # MIT should have a U value for Fe containing sulfides
@@ -746,6 +755,63 @@ class TestMITAqueousCompatibility(unittest.TestCase):
                               })
         self.assertIsNone(self.compat.process_entry(entry))
 
+class TestCorrectionErrorsCompatibility(unittest.TestCase):
+
+    def setUp(self):
+        self.compat = MaterialsProjectCompatibility()
+
+        self.entry1 = ComputedEntry(
+            'Fe2O3', -1, 0.0,
+            parameters={'is_hubbard': True, 'hubbards': {'Fe': 5.3, 'O': 0},
+                        'run_type': 'GGA+U',
+                        'potcar_spec': [{'titel':'PAW_PBE Fe_pv 06Sep2000',
+                                         'hash': '994537de5c4122b7f1b77fb604476db4'},
+                                        {'titel': 'PAW_PBE O 08Apr2002',
+                                         'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
+
+        self.entry_sulfide = ComputedEntry(
+            'FeS', -1, 0.0,
+            parameters={'is_hubbard': False,
+                        'run_type': 'GGA',
+                        'potcar_spec': [{'titel':'PAW_PBE Fe_pv 06Sep2000',
+                                         'hash': '994537de5c4122b7f1b77fb604476db4'},
+                                        {'titel': 'PAW_PBE S 08Apr2002',
+                                         'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
+
+        self.entry2 = ComputedEntry(
+            'Fe3O4', -2, 0.0,
+            parameters={'is_hubbard': True, 'hubbards': {'Fe': 5.3, 'O': 0},
+                        'run_type': 'GGA+U',
+                        'potcar_spec': [{'titel':'PAW_PBE Fe_pv 06Sep2000',
+                                         'hash': '994537de5c4122b7f1b77fb604476db4'},
+                                        {'titel': 'PAW_PBE O 08Apr2002',
+                                         'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
+
+        self.entry_fluoride = ComputedEntry(
+            'FeF3', -2, 0.0,
+            parameters={'is_hubbard': True, 'hubbards': {'Fe': 5.3, 'F': 0},
+                        'run_type': 'GGA+U',
+                        'potcar_spec': [{'titel':'PAW_PBE Fe_pv 06Sep2000',
+                                         'hash': '994537de5c4122b7f1b77fb604476db4'},
+                                        {'titel': 'PAW_PBE F 08Apr2002',
+                                         'hash': '180141c33d032bfbfff30b3bea9d23dd'}]})
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.simplefilter("default")
+
+    def test_errors(self):
+        entry1_corrected = self.compat.process_entry(self.entry1)
+        self.assertAlmostEqual(entry1_corrected.data['correction_error'], sqrt((2*0.008018952265981852)**2 + (3*0.0016538603787238481)**2))
+
+        entry2_corrected = self.compat.process_entry(self.entry2)
+        self.assertAlmostEqual(entry2_corrected.data['correction_error'], sqrt((3*0.008018952265981852)**2 + (4*0.0016538603787238481)**2))
+
+        entry_sulfide_corrected = self.compat.process_entry(self.entry_sulfide)
+        self.assertAlmostEqual(entry_sulfide_corrected.data['correction_error'], 0.012165375087004127)
+
+        entry_fluoride_corrected = self.compat.process_entry(self.entry_fluoride)
+        self.assertAlmostEqual(entry_fluoride_corrected.data['correction_error'], 0.008018952265981852)
 
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'Test.testName']
