@@ -27,11 +27,10 @@ __maintainer__ = "Shyue Ping Ong, Matteo Giantomassi"
 __status__ = "Production"
 __date__ = "Aug 30, 2013"
 
-
 """
 Some conversion factors
 """
-Ha_to_eV = 1/const.physical_constants["electron volt-hartree relationship"][0]
+Ha_to_eV = 1 / const.physical_constants["electron volt-hartree relationship"][0]
 eV_to_Ha = 1 / Ha_to_eV
 Ry_to_eV = Ha_to_eV / 2
 amu_to_kg = const.physical_constants["atomic mass unit-kilogram relationship"][0]
@@ -81,16 +80,15 @@ BASE_UNITS = {
     "memory": {
         "byte": 1,
         "Kb": 1024,
-        "Mb": 1024**2,
-        "Gb": 1024**3,
-        "Tb": 1024**4,
+        "Mb": 1024 ** 2,
+        "Gb": 1024 ** 3,
+        "Tb": 1024 ** 4,
     },
 }
 
 # Accept kb, mb, gb ... as well.
 BASE_UNITS["memory"].update({k.lower(): v
                              for k, v in BASE_UNITS["memory"].items()})
-
 
 # This current list are supported derived units defined in terms of powers of
 # SI base units and constants.
@@ -113,7 +111,7 @@ DERIVED_UNITS = {
         "MN": {"kg": 1, "m": 1, "s": -2, 1e6: 1},
         "GN": {"kg": 1, "m": 1, "s": -2, 1e9: 1},
     },
-    "frequency":{
+    "frequency": {
         "Hz": {"s": -1},
         "KHz": {"s": -1, 1000: 1},
         "MHz": {"s": -1, 1e6: 1},
@@ -152,7 +150,6 @@ DERIVED_UNITS = {
         "mbarn": {"m": 2, 1E-31: 1}
     }
 }
-
 
 ALL_UNITS = dict(list(BASE_UNITS.items()) + list(DERIVED_UNITS.items()))
 SUPPORTED_UNIT_NAMES = tuple([i for d in ALL_UNITS.values() for i in d.keys()])
@@ -454,7 +451,7 @@ class FloatWithUnit(float):
 
     def __getnewargs__(self):
         """Function used by pickle to recreate object."""
-        #print(self.__dict__)
+        # print(self.__dict__)
         # FIXME
         # There's a problem with _unit_type if we try to unpickle objects from file.
         # since self._unit_type might not be defined. I think this is due to
@@ -470,11 +467,11 @@ class FloatWithUnit(float):
     def __getstate__(self):
         state = self.__dict__.copy()
         state["val"] = float(self)
-        #print("in getstate %s" % state)
+        # print("in getstate %s" % state)
         return state
 
     def __setstate__(self, state):
-        #print("in setstate %s" % state)
+        # print("in setstate %s" % state)
         self._unit = state["_unit"]
 
     @property
@@ -516,7 +513,6 @@ class FloatWithUnit(float):
             A FloatWithUnit object in base SI units
         """
         return self.to(self.unit.as_base_units[0])
-
 
     @property
     def supported_units(self):
@@ -565,26 +561,26 @@ class ArrayWithUnit(np.ndarray):
         self._unit = getattr(obj, "_unit", None)
         self._unit_type = getattr(obj, "_unit_type", None)
 
-    #TODO abstract base class property?
+    # TODO abstract base class property?
     @property
     def unit_type(self):
         return self._unit_type
 
-    #TODO abstract base class property?
+    # TODO abstract base class property?
     @property
     def unit(self):
         return self._unit
 
     def __reduce__(self):
-        #print("in reduce")
+        # print("in reduce")
         reduce = list(super().__reduce__())
-        #print("unit",self._unit)
-        #print(reduce[2])
+        # print("unit",self._unit)
+        # print(reduce[2])
         reduce[2] = {"np_state": reduce[2], "_unit": self._unit}
         return tuple(reduce)
 
     def __setstate__(self, state):
-        #print("in setstate %s" % str(state))
+        # print("in setstate %s" % str(state))
         super().__setstate__(state["np_state"])
         self._unit = state["_unit"]
 
@@ -655,7 +651,7 @@ class ArrayWithUnit(np.ndarray):
         else:
             return self.__class__(
                 np.array(self).__div__(np.array(other)),
-                unit=self.unit/other.unit)
+                unit=self.unit / other.unit)
 
     def __truediv__(self, other):
         if not hasattr(other, "unit_type"):
@@ -700,7 +696,7 @@ class ArrayWithUnit(np.ndarray):
         """
         return self.to(self.unit.as_base_units[0])
 
-    #TODO abstract base class property?
+    # TODO abstract base class property?
     @property
     def supported_units(self):
         """
@@ -708,7 +704,7 @@ class ArrayWithUnit(np.ndarray):
         """
         return ALL_UNITS[self.unit_type]
 
-    #TODO abstract base class method?
+    # TODO abstract base class method?
     def conversions(self):
         """
         Returns a string showing the available conversions.
@@ -793,7 +789,6 @@ Args:
 """
 ChargeArray = partial(ArrayWithUnit, unit_type="charge")
 
-
 Memory = _my_partial(FloatWithUnit, unit_type="memory")
 """
 A float with a memory unit.
@@ -819,7 +814,7 @@ def obj_with_unit(obj, unit):
     if isinstance(obj, numbers.Number):
         return FloatWithUnit(obj, unit=unit, unit_type=unit_type)
     elif isinstance(obj, collections.Mapping):
-        return {k: obj_with_unit(v, unit) for k,v in obj.items()}
+        return {k: obj_with_unit(v, unit) for k, v in obj.items()}
     else:
         return ArrayWithUnit(obj, unit=unit, unit_type=unit_type)
 
@@ -843,6 +838,7 @@ def unitized(unit):
             return 123.45
 
     """
+
     def wrap(f):
         def wrapped_f(*args, **kwargs):
             val = f(*args, **kwargs)
@@ -867,10 +863,13 @@ def unitized(unit):
             else:
                 raise TypeError("Don't know how to assign units to %s" % str(val))
             return val
+
         return wrapped_f
+
     return wrap
 
 
 if __name__ == "__main__":
     import doctest
+
     doctest.testmod()

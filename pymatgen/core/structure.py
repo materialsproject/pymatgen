@@ -47,7 +47,6 @@ __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
-
 Neighbor = collections.namedtuple('Neighbor', 'site distance index image')
 
 
@@ -443,8 +442,7 @@ to build an appropriate supercell from partial occupancies.""")
             **kwargs: parameters to pass into oxi_state_guesses()
         """
         oxid_guess = self.composition.oxi_state_guesses(**kwargs)
-        oxid_guess = oxid_guess or \
-                     [dict([(e.symbol, 0) for e in self.composition])]
+        oxid_guess = oxid_guess or [dict([(e.symbol, 0) for e in self.composition])]
         self.add_oxidation_state_by_element(oxid_guess[0])
 
     def add_spin_by_element(self, spins: Dict[str, float]):
@@ -604,15 +602,18 @@ class IStructure(SiteCollection, MSONable):
         self._charge = charge
 
     @classmethod
-    def from_sites(cls, sites: List[PeriodicSite], charge: float=None,
-                   validate_proximity: bool=False,
-                   to_unit_cell: bool=False):
+    def from_sites(cls,
+                   sites: List[PeriodicSite],
+                   charge: float = None,
+                   validate_proximity: bool = False,
+                   to_unit_cell: bool = False):
         """
         Convenience constructor to make a Structure from a list of sites.
 
         Args:
             sites: Sequence of PeriodicSites. Sites must have the same
                 lattice.
+            charge: Charge of structure.
             validate_proximity (bool): Whether to check if there are sites
                 that are less than 0.01 Ang apart. Defaults to False.
             to_unit_cell (bool): Whether to translate sites into the unit
@@ -650,8 +651,8 @@ class IStructure(SiteCollection, MSONable):
 
     @classmethod
     def from_spacegroup(cls, sg: str, lattice: Lattice, species: List,
-                        coords: List, site_properties: Dict[str, List]=None,
-                        coords_are_cartesian: bool=False, tol: float=1e-5):
+                        coords: List, site_properties: Dict[str, List] = None,
+                        coords_are_cartesian: bool = False, tol: float = 1e-5):
         """
         Generate a structure using a spacegroup. Note that only symmetrically
         distinct species and coords should be provided. All equivalent sites
@@ -738,8 +739,8 @@ class IStructure(SiteCollection, MSONable):
     @classmethod
     def from_magnetic_spacegroup(
             cls, msg: str, lattice: Lattice, species: List,
-            coords: List, site_properties: Dict[str, List]=None,
-            coords_are_cartesian: bool=False, tol: float=1e-5):
+            coords: List, site_properties: Dict[str, List] = None,
+            coords_are_cartesian: bool = False, tol: float = 1e-5):
         """
         Generate a structure using a magnetic spacegroup. Note that only
         symmetrically distinct species, coords and magmoms should be provided.]
@@ -1028,8 +1029,8 @@ class IStructure(SiteCollection, MSONable):
         return self[i].distance(self[j], jimage)
 
     def get_sites_in_sphere(self, pt: np.array, r: float,
-                            include_index: bool=False,
-                            include_image: bool=False) \
+                            include_index: bool = False,
+                            include_image: bool = False) \
             -> List[Tuple[PeriodicSite, float, Optional[int], Optional[Tuple[int]]]]:
         """
         Find all sites within a sphere from the point, including a site (if any)
@@ -1076,7 +1077,7 @@ class IStructure(SiteCollection, MSONable):
         return neighbors
 
     def get_neighbors(self, site: PeriodicSite, r: float,
-                      include_index: bool=False, include_image: bool=False)\
+                      include_index: bool = False, include_image: bool = False) \
             -> List[Neighbor]:
         """
         Get all neighbors to a site within a sphere of radius r.  Excludes the
@@ -1121,10 +1122,10 @@ class IStructure(SiteCollection, MSONable):
                                       include_image=include_image)
         return [d for d in nn if site != d[0]]
 
-    def get_all_neighbors(self, r: float, include_index: bool=False,
-                          include_image: bool=False,
-                          sites: List[PeriodicSite]=None,
-                          numerical_tol: float=1e-8)\
+    def get_all_neighbors(self, r: float, include_index: bool = False,
+                          include_image: bool = False,
+                          sites: List[PeriodicSite] = None,
+                          numerical_tol: float = 1e-8) \
             -> List[List[Neighbor]]:
 
         """
@@ -1191,7 +1192,7 @@ class IStructure(SiteCollection, MSONable):
         valid_indices = []
         for image in itertools.product(*all_ranges):
             coords = np.dot(image, matrix) + coords_in_cell
-            valid_index_bool = np.all(np.bitwise_and(coords > global_min[None, :],  coords < global_max[None, :]),
+            valid_index_bool = np.all(np.bitwise_and(coords > global_min[None, :], coords < global_max[None, :]),
                                       axis=1)
             ind = np.arange(len(self))
             if np.any(valid_index_bool):
@@ -1371,7 +1372,7 @@ class IStructure(SiteCollection, MSONable):
         sites = sorted(self, key=key, reverse=reverse)
         return self.__class__.from_sites(sites, charge=self._charge)
 
-    def get_reduced_structure(self, reduction_algo: str="niggli"):
+    def get_reduced_structure(self, reduction_algo: str = "niggli"):
         """
         Get a reduced structure.
 
@@ -1441,9 +1442,9 @@ class IStructure(SiteCollection, MSONable):
             new_sites = sorted(new_sites)
             return self.__class__.from_sites(new_sites, charge=self._charge)
 
-    def interpolate(self, end_structure, nimages: int=10,
-                    interpolate_lattices:bool =False, pbc: bool=True,
-                    autosort_tol: float=0):
+    def interpolate(self, end_structure, nimages: int = 10,
+                    interpolate_lattices: bool = False, pbc: bool = True,
+                    autosort_tol: float = 0):
         """
         Interpolate between this structure and end_structure. Useful for
         construction of NEB inputs.
@@ -1789,9 +1790,10 @@ class IStructure(SiteCollection, MSONable):
 
     def __str__(self):
         outs = ["Full Formula ({s})".format(s=self.composition.formula),
-                "Reduced Formula: {}"
-                    .format(self.composition.reduced_formula)]
-        to_s = lambda x: "%0.6f" % x
+                "Reduced Formula: {}".format(self.composition.reduced_formula)]
+
+        def to_s(x):
+            return "%0.6f" % x
         outs.append("abc   : " + " ".join([to_s(i).rjust(10)
                                            for i in self.lattice.abc]))
         outs.append("angles: " + " ".join([to_s(i).rjust(10)
@@ -2925,7 +2927,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             # is not the site being substituted.
             for inn, dist2, _, _ in self.get_neighbors(nn, 3):
                 if inn != self[index] and \
-                                dist2 < 1.2 * get_bond_length(nn.specie, inn.specie):
+                        dist2 < 1.2 * get_bond_length(nn.specie, inn.specie):
                     all_non_terminal_nn.append((nn, dist))
                     break
 
@@ -3278,13 +3280,13 @@ class Structure(IStructure, collections.abc.MutableSequence):
                     coords.dtype)
                 for key in props.keys():
                     if props[key] is not None and self[i].properties[key] != props[key]:
-                        if mode  == 'a' and isinstance(props[key], float):
+                        if mode == 'a' and isinstance(props[key], float):
                             # update a running total
-                            props[key] = props[key]*(n+1)/(n+2) + self[i].properties[key]/(n+2)
+                            props[key] = props[key] * (n + 1) / (n + 2) + self[i].properties[key] / (n + 2)
                         else:
                             props[key] = None
                             warnings.warn("Sites with different site property %s are merged. "
-                                        "So property is set to none" % key)
+                                          "So property is set to none" % key)
             sites.append(PeriodicSite(species, coords, self.lattice, properties=props))
 
         self._sites = sites
@@ -3401,7 +3403,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
                            validate_proximity=validate_proximity,
                            properties=properties)
 
-    def set_charge_and_spin(self, charge: float, spin_multiplicity: Optional[float]=None):
+    def set_charge_and_spin(self, charge: float, spin_multiplicity: Optional[float] = None):
         """
         Set the charge and spin multiplicity.
 

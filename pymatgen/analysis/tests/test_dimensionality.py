@@ -1,6 +1,6 @@
 import os
 import networkx as nx
-
+import warnings
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.core.structure import Structure
 from pymatgen.analysis.local_env import CrystalNN
@@ -39,6 +39,10 @@ class LarsenDimensionalityTest(PymatgenTest):
             ['H', 'C', 'N'],
             [[0.752, 0.752, 0.000], [0.004, 0.004, 0.], [0.272, 0.272, 0.]])
         self.mol_structure = cnn.get_bonded_structure(mol_structure)
+        warnings.simplefilter("ignore")
+
+    def tearDown(self) -> None:
+        warnings.simplefilter("default")
 
     def test_get_dimensionality(self):
         self.assertEqual(get_dimensionality_larsen(self.lifepo), 3)

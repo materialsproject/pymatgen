@@ -725,7 +725,7 @@ class MoleculeGraphTest(unittest.TestCase):
         mol_graph_strat = MoleculeGraph.with_local_env_strategy(
             self.pc, OpenBabelNN(), reorder=False, extend_structure=False
         )
-        self.assertTrue(mol_graph_edges.isomorphic_to(mol_graph_strat))
+        self.assertTrue(isomorphic(mol_graph_edges.graph,mol_graph_strat.graph))
 
     def test_properties(self):
         self.assertEqual(self.cyclohexene.name, "bonds")
@@ -875,7 +875,11 @@ class MoleculeGraphTest(unittest.TestCase):
     def test_build_unique_fragments(self):
         edges = {(e[0], e[1]): None for e in self.pc_edges}
         mol_graph = MoleculeGraph.with_edges(self.pc, edges)
-        unique_fragments = mol_graph.build_unique_fragments()
+        unique_fragment_dict = mol_graph.build_unique_fragments()
+        unique_fragments = []
+        for key in unique_fragment_dict:
+            for fragment in unique_fragment_dict[key]:
+                unique_fragments.append(fragment)
         self.assertEqual(len(unique_fragments), 295)
         nm = iso.categorical_node_match("specie", "ERROR")
         for ii in range(295):
@@ -915,7 +919,7 @@ class MoleculeGraphTest(unittest.TestCase):
         no_rings = self.butadiene.find_rings()
         self.assertEqual(no_rings, [])
 
-    def test_isomorphic_to(self):
+    def test_isomorphic(self):
         ethylene = Molecule.from_file(
             os.path.join(
                 os.path.dirname(__file__),
@@ -940,8 +944,8 @@ class MoleculeGraphTest(unittest.TestCase):
         )
         # If they are equal, they must also be isomorphic
         eth_copy = copy.deepcopy(self.ethylene)
-        self.assertTrue(self.ethylene.isomorphic_to(eth_copy))
-        self.assertFalse(self.butadiene.isomorphic_to(self.ethylene))
+        self.assertTrue(isomorphic(self.ethylene.graph,eth_copy.graph))
+        self.assertFalse(isomorphic(self.butadiene.graph,self.ethylene.graph))
 
     def test_substitute(self):
         molecule = FunctionalGroups["methyl"]

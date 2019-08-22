@@ -120,22 +120,22 @@ class CollinearMagneticStructureAnalyzer:
         :param structure: Structure object
         :param overwrite_magmom_mode (str): default "none"
         :param round_magmoms (int or bool): will round input magmoms to
-        specified number of decimal places if integer is supplied, if set
-        to a float will try and group magmoms together using a kernel density
-        estimator of provided width, and extracting peaks of the estimator
+            specified number of decimal places if integer is supplied, if set
+            to a float will try and group magmoms together using a kernel density
+            estimator of provided width, and extracting peaks of the estimator
         :param detect_valences (bool): if True, will attempt to assign valences
-        to input structure
+            to input structure
         :param make_primitive (bool): if True, will transform to primitive
-        magnetic cell
+            magnetic cell
         :param default_magmoms (dict): (optional) dict specifying default magmoms
         :param set_net_positive (bool): if True, will change sign of magnetic
-        moments such that the net magnetization is positive. Argument will be
-        ignored if mode "respect_sign" is used.
+            moments such that the net magnetization is positive. Argument will be
+            ignored if mode "respect_sign" is used.
         :param threshold (float): number (in Bohr magnetons) below which magmoms
-        will be rounded to zero,
+            will be rounded to zero,
         :param threshold_nonmag (float): number (in Bohr magneton) 
-        below which nonmagnetic ions (with no magmom specified 
-        in default_magmoms) will be rounded to zero
+            below which nonmagnetic ions (with no magmom specified 
+            in default_magmoms) will be rounded to zero
         """
 
         if default_magmoms:
@@ -402,7 +402,7 @@ class CollinearMagneticStructureAnalyzer:
         """
         Returns a Structure without magnetic moments defined.
         :param make_primitive (bool): Return a primitive
-        structure, defaults to True.
+            structure, defaults to True.
         :return: Structure
         """
 
@@ -419,7 +419,7 @@ class CollinearMagneticStructureAnalyzer:
         Returns a Structure with all magnetic moments positive
         or zero.
         :param make_primitive (bool): Return a primitive
-        structure, defaults to True.
+            structure, defaults to True.
         :return: Structure
         """
 
@@ -504,7 +504,7 @@ class CollinearMagneticStructureAnalyzer:
         :param symprec (float): same as in SpacegroupAnalyzer
         :param angle_tolerance (float): same as in SpacegroupAnalyzer
         :return (int): Number of symmetrically-distinct magnetic sites present
-        in structure.
+            in structure.
         """
 
         structure = self.get_nonmagnetic_structure()

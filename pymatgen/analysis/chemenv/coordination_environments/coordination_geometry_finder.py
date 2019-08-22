@@ -79,7 +79,7 @@ class AbstractGeometry:
         :param bare_coords: Coordinates of the neighbors of the central site
         :param centering_type: How to center the abstract geometry
         :param include_central_site_in_centroid: When the centering is on the centroid, the central site is included
-         if this parameter is set to True.
+            if this parameter is set to True.
         :raise: ValueError if the parameters are not consistent
         """
         bcoords = np.array(bare_coords)
@@ -234,8 +234,8 @@ def symmetry_measure(points_distorted, points_perfect):
     Computes the continuous symmetry measure of the (distorted) set of points "points_distorted" with respect to the
     (perfect) set of points "points_perfect".
     :param points_distorted: List of points describing a given (distorted) polyhedron for which the symmetry measure
-                             has to be computed with respect to the model polyhedron described by the list of points
-                             "points_perfect".
+        has to be computed with respect to the model polyhedron described by the list of points
+        "points_perfect".
     :param points_perfect: List of "perfect" points describing a given model polyhedron.
     :return: The continuous symmetry measure of the distorted polyhedron with respect to the perfect polyhedron
     """
@@ -262,7 +262,7 @@ def find_rotation(points_distorted, points_perfect):
     This finds the rotation matrix that aligns the (distorted) set of points "points_distorted" with respect to the
     (perfect) set of points "points_perfect" in a least-square sense.
     :param points_distorted: List of points describing a given (distorted) polyhedron for which the rotation that
-                             aligns these points in a least-square sense to the set of perfect points "points_perfect"
+        aligns these points in a least-square sense to the set of perfect points "points_perfect"
     :param points_perfect: List of "perfect" points describing a given model polyhedron.
     :return: The rotation matrix
     """
@@ -315,7 +315,7 @@ class LocalGeometryFinder:
         """
         Constructor for the LocalGeometryFinder, initializes the list of coordination geometries
         :param permutations_safe_override: If set to True, all permutations are tested (very time-consuming for large
-        coordination numbers!)
+            coordination numbers!)
         :param plane_ordering_override: If set to False, the ordering of the points in the plane is disabled
         """
         self.allcg = AllCoordinationGeometries(
@@ -342,14 +342,13 @@ class LocalGeometryFinder:
         atom for coordination numbers 1, 2, 3 and 4 and the centroid for coordination numbers > 4.
         :param centering_type: Type of the reference point (centering) 'standard', 'centroid' or 'central_site'
         :param include_central_site_in_centroid: In case centering_type is 'centroid', the central site is included if
-                                                 this value is set to True.
+            this value is set to True.
         :param bva_distance_scale_factor: Scaling factor for the bond valence analyzer (this might be different whether
-                                          the structure is an experimental one, an LDA or a GGA relaxed one, or any
-                                          other relaxation scheme (where under- or over-estimation of bond lengths
-                                          is known).
+            the structure is an experimental one, an LDA or a GGA relaxed one, or any other relaxation scheme (where 
+            under- or over-estimation of bond lengths is known).
         :param structure_refinement: Refinement of the structure. Can be "none", "refined" or "symmetrized".
         :param spg_analyzer_options: Options for the SpaceGroupAnalyzer (dictionary specifying "symprec"
-                                     and "angle_tolerance". See pymatgen's SpaceGroupAnalyzer for more information.
+            and "angle_tolerance". See pymatgen's SpaceGroupAnalyzer for more information.
         """
         self.centering_type = centering_type
         self.include_central_site_in_centroid = include_central_site_in_centroid
@@ -377,7 +376,6 @@ class LocalGeometryFinder:
         Sets up the structure for which the coordination geometries have to be identified. The structure is analyzed
         with the space group analyzer and a refined structure is used
         :param structure: A pymatgen Structure
-        :param
         """
         self.initial_structure = structure.copy()
         if self.structure_refinement == self.STRUCTURE_REFINEMENT_NONE:
@@ -480,31 +478,31 @@ class LocalGeometryFinder:
         :param only_cations: If set to True, will only compute environments for cations
         :param only_indices: If not set to None, will only compute environments the atoms of the given indices
         :param maximum_distance_factor: If not set to None, neighbors beyond
-                                        maximum_distance_factor*closest_neighbor_distance are not considered
+            maximum_distance_factor*closest_neighbor_distance are not considered
         :param minimum_angle_factor: If not set to None, neighbors for which the angle is lower than
-                                     minimum_angle_factor*largest_angle_neighbor are not considered
+            minimum_angle_factor*largest_angle_neighbor are not considered
         :param max_cn: maximum coordination number to be considered
         :param min_cn: minimum coordination number to be considered
         :param only_symbols: if not set to None, consider only coordination environments with the given symbols
         :param valences: valences of the atoms
         :param additional_conditions: additional conditions to be considered in the bonds (example : only bonds
-                                      between cation and anion
+            between cation and anion
         :param info: additional info about the calculation
         :param timelimit: time limit (in secs) after which the calculation of the StructureEnvironments object stops
         :param initial_structure_environments: initial StructureEnvironments object (most probably incomplete)
         :param get_from_hints: whether to add neighbors sets from "hints" (e.g. capped environment => test the
-                               neighbors without the cap)
+            neighbors without the cap)
         :param voronoi_normalized_distance_tolerance: tolerance for the normalized distance used to distinguish
-                                                      neighbors sets
+            neighbors sets
         :param voronoi_normalized_angle_tolerance: tolerance for the normalized angle used to distinguish
-                                                   neighbors sets
+            neighbors sets
         :param recompute: whether to recompute the sites already computed (when initial_structure_environments
-                          is not None)
+            is not None)
         :param optimization: optimization algorithm
         :return: The StructureEnvironments object containing all the information about the coordination
-        environments in the structure
+            environments in the structure
         """
-        time_init = time.clock()
+        time_init = time.process_time()
         if info is None:
             info = {}
         info.update({'local_geometry_finder':
@@ -557,7 +555,7 @@ class LocalGeometryFinder:
                              isite in only_indices]
 
         # Get the VoronoiContainer for the sites defined by their indices (sites_indices)
-        logging.info('Getting DetailedVoronoiContainer')
+        logging.debug('Getting DetailedVoronoiContainer')
         if voronoi_normalized_distance_tolerance is None:
             normalized_distance_tolerance = DetailedVoronoiContainer.default_normalized_distance_tolerance
         else:
@@ -574,7 +572,7 @@ class LocalGeometryFinder:
                                                          additional_conditions=additional_conditions,
                                                          normalized_distance_tolerance=normalized_distance_tolerance,
                                                          normalized_angle_tolerance=normalized_angle_tolerance)
-        logging.info('DetailedVoronoiContainer has been set up')
+        logging.debug('DetailedVoronoiContainer has been set up')
 
         # Initialize the StructureEnvironments object (either from initial_structure_environments or from scratch)
         if initial_structure_environments is not None:
@@ -618,18 +616,18 @@ class LocalGeometryFinder:
         # Loop on all the sites
         for isite in range(len(self.structure)):
             if isite not in sites_indices:
-                logging.info(' ... in site #{:d}/{:d} ({}) : '
+                logging.debug(' ... in site #{:d}/{:d} ({}) : '
                              'skipped'.format(isite, len(self.structure),
                                               self.structure[isite].species_string))
                 continue
             if breakit:
-                logging.info(' ... in site #{:d}/{:d} ({}) : '
+                logging.debug(' ... in site #{:d}/{:d} ({}) : '
                              'skipped (timelimit)'.format(isite, len(self.structure),
                                                           self.structure[isite].species_string))
                 continue
-            logging.info(' ... in site #{:d}/{:d} ({})'.format(isite, len(self.structure),
+            logging.debug(' ... in site #{:d}/{:d} ({})'.format(isite, len(self.structure),
                                                                self.structure[isite].species_string))
-            t1 = time.clock()
+            t1 = time.process_time()
             if optimization > 0:
                 self.detailed_voronoi.local_planes[isite] = OrderedDict()
                 self.detailed_voronoi.separations[isite] = {}
@@ -643,10 +641,10 @@ class LocalGeometryFinder:
                     continue
                 for inb_set, nb_set in enumerate(nb_sets):
                     logging.debug('    ... getting environments for nb_set ({:d}, {:d})'.format(cn, inb_set))
-                    tnbset1 = time.clock()
+                    tnbset1 = time.process_time()
                     ce = self.update_nb_set_environments(se=se, isite=isite, cn=cn, inb_set=inb_set, nb_set=nb_set,
                                                          recompute=do_recompute, optimization=optimization)
-                    tnbset2 = time.clock()
+                    tnbset2 = time.process_time()
                     if cn not in nb_sets_info:
                         nb_sets_info[cn] = {}
                     nb_sets_info[cn][inb_set] = {'time': tnbset2 - tnbset1}
@@ -700,18 +698,18 @@ class LocalGeometryFinder:
                 inew_nb_set = se.neighbors_sets[isite_new_nb_set][cn_new_nb_set].index(new_nb_set)
                 logging.debug('    ... getting environments for nb_set ({:d}, {:d}) - '
                               'from hints'.format(cn_new_nb_set, inew_nb_set))
-                tnbset1 = time.clock()
+                tnbset1 = time.process_time()
                 self.update_nb_set_environments(se=se,
                                                 isite=isite_new_nb_set,
                                                 cn=cn_new_nb_set,
                                                 inb_set=inew_nb_set,
                                                 nb_set=new_nb_set,
                                                 optimization=optimization)
-                tnbset2 = time.clock()
+                tnbset2 = time.process_time()
                 if cn not in nb_sets_info:
                     nb_sets_info[cn] = {}
                 nb_sets_info[cn][inew_nb_set] = {'time': tnbset2 - tnbset1}
-            t2 = time.clock()
+            t2 = time.process_time()
             se.update_site_info(isite=isite, info_dict={'time': t2 - t1, 'nb_sets_info': nb_sets_info})
             if timelimit is not None:
                 time_elapsed = t2 - time_init
@@ -719,9 +717,9 @@ class LocalGeometryFinder:
                 if time_left < 2.0 * max_time_one_site:
                     breakit = True
             max_time_one_site = max(max_time_one_site, t2 - t1)
-            logging.info('    ... computed in {:.2f} seconds'.format(t2 - t1))
-        time_end = time.clock()
-        logging.info('    ... compute_structure_environments ended in {:.2f} seconds'.format(time_end-time_init))
+            logging.debug('    ... computed in {:.2f} seconds'.format(t2 - t1))
+        time_end = time.process_time()
+        logging.debug('    ... compute_structure_environments ended in {:.2f} seconds'.format(time_end-time_init))
         return se
 
     def update_nb_set_environments(self, se, isite, cn, inb_set, nb_set, recompute=False, optimization=None):

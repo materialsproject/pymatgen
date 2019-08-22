@@ -22,7 +22,7 @@ from pprint import pprint
 from tabulate import tabulate
 from pydispatch import dispatcher
 from collections import OrderedDict
-from monty.collections import as_set, dict2namedtuple
+from monty.collections import dict2namedtuple
 from monty.string import list_strings, is_string, make_banner
 from monty.operator import operator_from_str
 from monty.io import FileLock
@@ -60,6 +60,21 @@ __all__ = [
     "g0w0_flow",
     "phonon_flow",
 ]
+
+
+def as_set(obj):
+    """
+    Convert obj into a set, returns None if obj is None.
+
+    >>> assert as_set(None) is None and as_set(1) == set([1]) and as_set(range(1,3)) == set([1, 2])
+    """
+    if obj is None or isinstance(obj, collections.abc.Set):
+        return obj
+
+    if not isinstance(obj, collections.abc.Iterable):
+        return set((obj,))
+    else:
+        return set(obj)
 
 
 class FlowResults(NodeResults):

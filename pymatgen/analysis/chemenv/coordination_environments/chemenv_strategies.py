@@ -158,7 +158,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         """
         Abstract constructor for the all chemenv strategies.
         :param structure_environments: StructureEnvironments object containing all the information on the
-        coordination of the sites in a structure
+            coordination of the sites in a structure
         """
         self.structure_environments = None
         if structure_environments is not None:
@@ -239,9 +239,9 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         Applies the strategy to the structure_environments object in order to get the neighbors of a given site.
         :param site: Site for which the neighbors are looked for
         :param structure_environments: StructureEnvironments object containing all the information needed to get the
-        neighbors of the site
+            neighbors of the site
         :return: The list of neighbors of the site. For complex strategies, where one allows multiple solutions, this
-        can return a list of list of neighbors
+            can return a list of list of neighbors
         """
         raise NotImplementedError()
 
@@ -260,7 +260,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         a given site.
         :param site: Site for which the coordination environment is looked for
         :return: The coordination environment of the site. For complex strategies, where one allows multiple
-        solutions, this can return a list of coordination environments for the site
+            solutions, this can return a list of coordination environments for the site
         """
         raise NotImplementedError()
 
@@ -271,7 +271,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         a given site.
         :param site: Site for which the coordination environment is looked for
         :return: The coordination environment of the site. For complex strategies, where one allows multiple
-        solutions, this can return a list of coordination environments for the site
+            solutions, this can return a list of coordination environments for the site
         """
         raise NotImplementedError()
 
@@ -284,7 +284,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         a given site.
         :param site: Site for which the coordination environment is looked for
         :return: The coordination environment of the site. For complex strategies, where one allows multiple
-        solutions, this can return a list of coordination environments for the site
+            solutions, this can return a list of coordination environments for the site
         """
         raise NotImplementedError()
 
@@ -610,7 +610,7 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
         """
         Constructor for the SimpleAbundanceChemenvStrategy.
         :param structure_environments: StructureEnvironments object containing all the information on the
-        coordination of the sites in a structure
+            coordination of the sites in a structure
         """
         raise NotImplementedError('SimpleAbundanceChemenvStrategy not yet implemented')
         AbstractChemenvStrategy.__init__(self, structure_environments, symmetry_measure_type=symmetry_measure_type)
@@ -1606,7 +1606,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
         """
         Constructor for the WeightedNbSetChemenvStrategy.
         :param structure_environments: StructureEnvironments object containing all the information on the
-        coordination of the sites in a structure
+            coordination of the sites in a structure
         """
         AbstractChemenvStrategy.__init__(self, structure_environments, symmetry_measure_type=symmetry_measure_type)
         self._additional_condition = additional_condition
@@ -1828,7 +1828,7 @@ class MultiWeightsChemenvStrategy(WeightedNbSetChemenvStrategy):
         """
         Constructor for the MultiWeightsChemenvStrategy.
         :param structure_environments: StructureEnvironments object containing all the information on the
-        coordination of the sites in a structure
+            coordination of the sites in a structure
         """
         self._additional_condition = additional_condition
         self.dist_ang_area_weight = dist_ang_area_weight

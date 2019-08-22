@@ -1434,12 +1434,14 @@ class Outcar:
           [sigma21, sigma22, sigma23],
           [sigma31, sigma32, sigma33]]]
 
-    .. attribute:: unsym_cs_tensor
+    .. attribute:: cs_g0_contribution
+
         G=0 contribution to chemical shielding. 2D rank 3 matrix
 
     .. attribute:: cs_core_contribution
-       Core contribution to chemical shielding. dict. e.g.,
-       {'Mg': -412.8, 'C': -200.5, 'O': -271.1}
+
+        Core contribution to chemical shielding. dict. e.g.,
+        {'Mg': -412.8, 'C': -200.5, 'O': -271.1}
 
     .. attribute:: efg
 
@@ -1842,10 +1844,9 @@ class Outcar:
         pots = self.read_table_pattern(header_pattern, table_pattern, footer_pattern)
         pots = "".join(itertools.chain.from_iterable(pots))
 
-        pots = re.findall(r"\s+\d+\s?([\.\-\d]+)+", pots)
-        pots = [float(f) for f in pots]
+        pots = re.findall(r"\s+\d+\s*([\.\-\d]+)+", pots)
 
-        self.electrostatic_potential = pots
+        self.electrostatic_potential = [float(f) for f in pots]
 
     def read_freq_dielectric(self):
         """
@@ -2602,20 +2603,20 @@ class Outcar:
             def atom_symbols(results, match):
                 element_symbol = match.group(1)
                 if not hasattr(results, 'atom_symbols'):
-                    results.atom_symbols = [] 
+                    results.atom_symbols = []
                 results.atom_symbols.append(element_symbol.strip())
 
             def zvals(results, match):
                 zvals = match.group(1)
                 results.zvals = map(float, re.findall(r'-?\d+\.\d*', zvals))
 
-            search = [] 
+            search = []
             search.append([r'(?<=VRHFIN =)(.*)(?=:)', None, atom_symbols])
             search.append([r'^\s+ZVAL.*=(.*)', None, zvals])
 
             micro_pyawk(self.filename, search, self)
 
-            zval_dict = {} 
+            zval_dict = {}
             for x, y in zip(self.atom_symbols, self.zvals):
                 zval_dict.update({x: y})
             self.zval_dict = zval_dict
@@ -4581,7 +4582,7 @@ class Waveder:
         Returns the orbital derivative between states
         """
         return self._cder_data
-            
+
     @property
     def nbands(self):
         """

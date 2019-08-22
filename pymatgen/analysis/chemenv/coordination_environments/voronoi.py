@@ -37,7 +37,7 @@ def from_bson_voronoi_list(bson_nb_voro_list, structure):
     :param vlist: List of voronoi objects
     :param bson_nb_voro_list: List of periodic sites involved in the Voronoi
     :return: The voronoi_list needed for the VoronoiContainer (with PeriodicSites as keys of the dictionary - not
-    allowed in the BSON format)
+        allowed in the BSON format)
     """
     voronoi_list = [None] * len(bson_nb_voro_list)
     for isite, voro in enumerate(bson_nb_voro_list):
@@ -58,7 +58,7 @@ def from_bson_voronoi_list2(bson_nb_voro_list2, structure):
     :param vlist: List of voronoi objects
     :param bson_nb_voro_list: List of periodic sites involved in the Voronoi
     :return: The voronoi_list needed for the VoronoiContainer (with PeriodicSites as keys of the dictionary - not
-    allowed in the BSON format)
+        allowed in the BSON format)
     """
     voronoi_list = [None] * len(bson_nb_voro_list2)
     for isite, voro in enumerate(bson_nb_voro_list2):
@@ -112,16 +112,16 @@ class DetailedVoronoiContainer(MSONable):
         else:
             indices = isites
         self.structure = structure
-        logging.info('Setting Voronoi list')
+        logging.debug('Setting Voronoi list')
         if voronoi_list2 is not None:
             self.voronoi_list2 = voronoi_list2
         else:
             self.setup_voronoi_list(indices=indices, voronoi_cutoff=voronoi_cutoff)
-        logging.info('Setting neighbors distances and angles')
-        t1 = time.clock()
+        logging.debug('Setting neighbors distances and angles')
+        t1 = time.process_time()
         self.setup_neighbors_distances_and_angles(indices=indices)
-        t2 = time.clock()
-        logging.info('Neighbors distances and angles set up in {:.2f} seconds'.format(t2-t1))
+        t2 = time.process_time()
+        logging.debug('Neighbors distances and angles set up in {:.2f} seconds'.format(t2-t1))
 
     def setup_voronoi_list(self, indices, voronoi_cutoff):
         """
@@ -132,13 +132,13 @@ class DetailedVoronoiContainer(MSONable):
         """
         self.voronoi_list2 = [None] * len(self.structure)
         self.voronoi_list_coords = [None] * len(self.structure)
-        logging.info('Getting all neighbors in structure')
+        logging.debug('Getting all neighbors in structure')
         struct_neighbors = self.structure.get_all_neighbors(voronoi_cutoff, include_index=True)
-        t1 = time.clock()
-        logging.info('Setting up Voronoi list :')
+        t1 = time.process_time()
+        logging.debug('Setting up Voronoi list :')
 
         for jj, isite in enumerate(indices):
-            logging.info('  - Voronoi analysis for site #{:d} ({:d}/{:d})'.format(isite, jj+1, len(indices)))
+            logging.debug('  - Voronoi analysis for site #{:d} ({:d}/{:d})'.format(isite, jj+1, len(indices)))
             site = self.structure[isite]
             neighbors1 = [(site, 0.0, isite)]
             neighbors1.extend(struct_neighbors[isite])
@@ -178,8 +178,8 @@ class DetailedVoronoiContainer(MSONable):
                 dd['normalized_distance'] = dd['distance'] / mindist
             self.voronoi_list2[isite] = results2
             self.voronoi_list_coords[isite] = np.array([dd['site'].coords for dd in results2])
-        t2 = time.clock()
-        logging.info('Voronoi list set up in {:.2f} seconds'.format(t2-t1))
+        t2 = time.process_time()
+        logging.debug('Voronoi list set up in {:.2f} seconds'.format(t2-t1))
 
     def setup_neighbors_distances_and_angles(self, indices):
         """

@@ -87,10 +87,6 @@ class ComputedEntry(MSONable):
     def energy_per_atom(self):
         return self.energy / self.composition.num_atoms
 
-    @property
-    def energy_per_formula_unit(self):
-        return self.energy / self.composition.get_reduced_composition_and_factor()[1]
-
     def __repr__(self):
         output = ["ComputedEntry {} - {}".format(self.entry_id,
                                                  self.composition.formula),

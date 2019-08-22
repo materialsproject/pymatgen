@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.structure &#8212; pymatgen 2019.7.30 documentation</title>
+    <title>pymatgen.core.structure &#8212; pymatgen 2019.8.14 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -3225,7 +3225,7 @@
                 <span class="n">properties</span><span class="o">=</span><span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_site</span></div>
 
-<div class="viewcode-block" id="Structure.perturb"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Structure.perturb">[docs]</a>    <span class="k">def</span> <span class="nf">perturb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">distance</span><span class="p">):</span>
+<div class="viewcode-block" id="Structure.perturb"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Structure.perturb">[docs]</a>    <span class="k">def</span> <span class="nf">perturb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">distance</span><span class="p">,</span> <span class="n">min_distance</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Performs a random perturbation of the sites in a structure to break</span>
 <span class="sd">        symmetries.</span>
@@ -3233,13 +3233,21 @@
 <span class="sd">        Args:</span>
 <span class="sd">            distance (float): Distance in angstroms by which to perturb each</span>
 <span class="sd">                site.</span>
+<span class="sd">            min_distance (None, int, or float): if None, all displacements will</span>
+<span class="sd">                be equal amplitude. If int or float, perturb each site a</span>
+<span class="sd">                distance drawn from the uniform distribution between</span>
+<span class="sd">                &#39;min_distance&#39; and &#39;distance&#39;.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">def</span> <span class="nf">get_rand_vec</span><span class="p">():</span>
             <span class="c1"># deals with zero vectors.</span>
             <span class="n">vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
             <span class="n">vnorm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">vector</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">vector</span> <span class="o">/</span> <span class="n">vnorm</span> <span class="o">*</span> <span class="n">distance</span> <span class="k">if</span> <span class="n">vnorm</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">get_rand_vec</span><span class="p">()</span>
+            <span class="n">dist</span> <span class="o">=</span> <span class="n">distance</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">min_distance</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">)):</span>
+                <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">min_distance</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">vector</span> <span class="o">/</span> <span class="n">vnorm</span> <span class="o">*</span> <span class="n">dist</span> <span class="k">if</span> <span class="n">vnorm</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">get_rand_vec</span><span class="p">()</span>
 
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">)):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">translate_sites</span><span class="p">([</span><span class="n">i</span><span class="p">],</span> <span class="n">get_rand_vec</span><span class="p">(),</span> <span class="n">frac_coords</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
@@ -3824,7 +3832,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

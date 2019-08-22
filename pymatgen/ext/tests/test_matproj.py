@@ -49,6 +49,7 @@ class MPResterTest(PymatgenTest):
 
     def tearDown(self):
         warnings.simplefilter("default")
+        self.rester.session.close()
 
     def test_get_all_materials_ids_doc(self):
         mids = self.rester.get_materials_ids("Al2O3")

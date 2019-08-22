@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.vasp.sets module &#8212; pymatgen 2019.7.30 documentation</title>
+    <title>pymatgen.io.vasp.sets module &#8212; pymatgen 2019.8.14 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.14 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -65,12 +65,10 @@ Improper overriding the as_dict and from_dict protocols is the major
 cause of implementation headaches. If you need an example, look at how the
 MPStaticSet or MPNonSCFSets are constructed.</p></li>
 </ol>
-<p>The above are recommendations. The following are UNBREAKABLE rules:
-1. All input sets must take in a structure or list of structures as the first</p>
-<blockquote>
-<div><p>argument.</p>
-</div></blockquote>
-<ol class="arabic simple" start="2">
+<p>The above are recommendations. The following are UNBREAKABLE rules:</p>
+<ol class="arabic simple">
+<li><p>All input sets must take in a structure or list of structures as the first
+argument.</p></li>
 <li><p>user_incar_settings, user_kpoints_settings and user_&lt;whatever&gt;_settings are
 ABSOLUTE. Any new sets you implement must obey this. If a user wants to
 override your settings, you assume he knows what he is doing. Do not
@@ -1243,7 +1241,7 @@ convention (vs Curtarolo) for monoclinic. Defaults True.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.14 documentation</a> &#187;</li> 
       </ul>
     </div>
 

@@ -493,13 +493,13 @@ class MagOrderParameterConstraint(MSONable):
         dependent on how many sites satisfy that motif.
 
         :param order_parameter (float): any number from 0.0 to 1.0,
-        typically 0.5 (antiferromagnetic) or 1.0 (ferromagnetic)
+            typically 0.5 (antiferromagnetic) or 1.0 (ferromagnetic)
         :param species_constraint (list): str or list of strings
-        of Specie symbols that the constraint should apply to
+            of Specie symbols that the constraint should apply to
         :param site_constraint_name (str): name of the site property
-        that the constraint should apply to, e.g. "coordination_no"
+            that the constraint should apply to, e.g. "coordination_no"
         :param site_constraints (list): list of values of the site
-        property that the constraints should apply to
+            property that the constraints should apply to
         """
 
         # validation
@@ -558,19 +558,19 @@ class MagOrderingTransformation(AbstractTransformation):
         approximation first.
 
         :param mag_species_spin: A mapping of elements/species to their
-        spin magnitudes, e.g. {"Fe3+": 5, "Mn3+": 4}
+            spin magnitudes, e.g. {"Fe3+": 5, "Mn3+": 4}
         :param order_parameter (float or list): if float, a specifies a
-        global order parameter and can take values from 0.0 to 1.0
-        (e.g. 0.5 for antiferromagnetic or 1.0 for ferromagnetic), if
-        list has to be a list of
-        :class: `pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint`
-        to specify more complicated orderings, see documentation for
-        MagOrderParameterConstraint more details on usage
+            global order parameter and can take values from 0.0 to 1.0
+            (e.g. 0.5 for antiferromagnetic or 1.0 for ferromagnetic), if
+            list has to be a list of
+            :class: `pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint`
+            to specify more complicated orderings, see documentation for
+            MagOrderParameterConstraint more details on usage
         :param energy_model: Energy model to rank the returned structures,
-        see :mod: `pymatgen.analysis.energy_models` for more information (note
-        that this is not necessarily a physical energy). By default, returned
-        structures use SymmetryModel() which ranks structures from most
-        symmetric to least.
+            see :mod: `pymatgen.analysis.energy_models` for more information (note
+            that this is not necessarily a physical energy). By default, returned
+            structures use SymmetryModel() which ranks structures from most
+            symmetric to least.
         :param kwargs: Additional kwargs that are passed to
         :class:`EnumerateStructureTransformation` such as min_cell_size etc.
         """
@@ -640,15 +640,15 @@ class MagOrderingTransformation(AbstractTransformation):
         :param structure: ordered Structure
         :param order_parameters: list of MagOrderParameterConstraints
         :return: A structure decorated with disordered
-        DummySpecies on which to perform the enumeration.
-        Note that the DummySpecies are super-imposed on
-        to the original sites, to make it easier to
-        retrieve the original site after enumeration is
-        performed (this approach is preferred over a simple
-        mapping since multiple species may have the same
-        DummySpecie, depending on the constraints specified).
-        This approach can also preserve site properties even after
-        enumeration.
+            DummySpecies on which to perform the enumeration.
+            Note that the DummySpecies are super-imposed on
+            to the original sites, to make it easier to
+            retrieve the original site after enumeration is
+            performed (this approach is preferred over a simple
+            mapping since multiple species may have the same
+            DummySpecie, depending on the constraints specified).
+            This approach can also preserve site properties even after
+            enumeration.
         """
 
         dummy_struct = structure.copy()

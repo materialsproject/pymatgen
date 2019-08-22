@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.molecule_matcher module &#8212; pymatgen 2019.7.30 documentation</title>
+    <title>pymatgen.analysis.molecule_matcher module &#8212; pymatgen 2019.8.14 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.14 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -42,239 +42,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-pymatgen.analysis.molecule_matcher">
-<span id="pymatgen-analysis-molecule-matcher-module"></span><h1>pymatgen.analysis.molecule_matcher module<a class="headerlink" href="#module-pymatgen.analysis.molecule_matcher" title="Permalink to this headline">¶</a></h1>
-<p>This module provides classes to perform fitting of molecule with arbitrary
-atom orders.
-This module is supposed to perform exact comparisons without the atom order
-correspondence prerequisite, while molecule_structure_comparator is supposed
-to do rough comparisons with the atom order correspondence prerequisite.</p>
-<dl class="class">
-<dt id="pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper">
-<em class="property">class </em><code class="sig-name descname">AbstractMolAtomMapper</code><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#AbstractMolAtomMapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
-<p>Abstract molecular atom order mapping class. A mapping will be able to
-find the uniform atom order of two molecules that can pair the
-geometrically equivalent atoms.</p>
-<dl class="method">
-<dt id="pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper.from_dict">
-<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#AbstractMolAtomMapper.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper.get_molecule_hash">
-<em class="property">abstract </em><code class="sig-name descname">get_molecule_hash</code><span class="sig-paren">(</span><em class="sig-param">mol</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#AbstractMolAtomMapper.get_molecule_hash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper.get_molecule_hash" title="Permalink to this definition">¶</a></dt>
-<dd><p>Defines a hash for molecules. This allows molecules to be grouped
-efficiently for comparison.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>mol</strong> – The molecule. OpenBabel OBMol or pymatgen Molecule object</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A hashable object. Examples can be string formulas, etc.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper.uniform_labels">
-<em class="property">abstract </em><code class="sig-name descname">uniform_labels</code><span class="sig-paren">(</span><em class="sig-param">mol1</em>, <em class="sig-param">mol2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#AbstractMolAtomMapper.uniform_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper.uniform_labels" title="Permalink to this definition">¶</a></dt>
-<dd><p>Pair the geometrically equivalent atoms of the molecules.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>mol1</strong> – First molecule. OpenBabel OBMol or pymatgen Molecule object.</p></li>
-<li><p><strong>mol2</strong> – Second molecule. OpenBabel OBMol or pymatgen Molecule object.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>(list1, list2) if uniform atom order is found. list1 and list2
-are for mol1 and mol2, respectively. Their length equal
-to the number of atoms. They represents the uniform atom order
-of the two molecules. The value of each element is the original
-atom index in mol1 or mol2 of the current atom in uniform atom
-order.
-(None, None) if unform atom is not available.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="pymatgen.analysis.molecule_matcher.InchiMolAtomMapper">
-<em class="property">class </em><code class="sig-name descname">InchiMolAtomMapper</code><span class="sig-paren">(</span><em class="sig-param">angle_tolerance=10.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#InchiMolAtomMapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.InchiMolAtomMapper" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper" title="pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper</span></code></a></p>
-<p>Pair atoms by inchi labels.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>angle_tolerance</strong> – Angle threshold to assume linear molecule. In degrees.</p>
-</dd>
-</dl>
-<dl class="method">
-<dt id="pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#InchiMolAtomMapper.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A JSON serializable dict representation of an object.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.from_dict">
-<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#InchiMolAtomMapper.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.get_molecule_hash">
-<code class="sig-name descname">get_molecule_hash</code><span class="sig-paren">(</span><em class="sig-param">mol</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#InchiMolAtomMapper.get_molecule_hash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.get_molecule_hash" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return inchi as molecular hash</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.uniform_labels">
-<code class="sig-name descname">uniform_labels</code><span class="sig-paren">(</span><em class="sig-param">mol1</em>, <em class="sig-param">mol2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#InchiMolAtomMapper.uniform_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.uniform_labels" title="Permalink to this definition">¶</a></dt>
-<dd><p>Pair the geometrically equivalent atoms of the molecules.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>mol1</strong> – First molecule. OpenBabel OBMol or pymatgen Molecule object.</p></li>
-<li><p><strong>mol2</strong> – Second molecule. OpenBabel OBMol or pymatgen Molecule object.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>(list1, list2) if uniform atom order is found. list1 and list2
-are for mol1 and mol2, respectively. Their length equal
-to the number of atoms. They represents the uniform atom order
-of the two molecules. The value of each element is the original
-atom index in mol1 or mol2 of the current atom in uniform atom
-order.
-(None, None) if unform atom is not available.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper">
-<em class="property">class </em><code class="sig-name descname">IsomorphismMolAtomMapper</code><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#IsomorphismMolAtomMapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper" title="pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper</span></code></a></p>
-<p>Pair atoms by isomorphism permutations in the OpenBabel::OBAlign class</p>
-<dl class="method">
-<dt id="pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#IsomorphismMolAtomMapper.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A JSON serializable dict representation of an object.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.from_dict">
-<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#IsomorphismMolAtomMapper.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.get_molecule_hash">
-<code class="sig-name descname">get_molecule_hash</code><span class="sig-paren">(</span><em class="sig-param">mol</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#IsomorphismMolAtomMapper.get_molecule_hash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.get_molecule_hash" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return inchi as molecular hash</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.uniform_labels">
-<code class="sig-name descname">uniform_labels</code><span class="sig-paren">(</span><em class="sig-param">mol1</em>, <em class="sig-param">mol2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#IsomorphismMolAtomMapper.uniform_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.uniform_labels" title="Permalink to this definition">¶</a></dt>
-<dd><p>Pair the geometrically equivalent atoms of the molecules.
-Calculate RMSD on all possible isomorphism mappings and return mapping
-with the least RMSD</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>mol1</strong> – First molecule. OpenBabel OBMol or pymatgen Molecule object.</p></li>
-<li><p><strong>mol2</strong> – Second molecule. OpenBabel OBMol or pymatgen Molecule object.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>(list1, list2) if uniform atom order is found. list1 and list2
-are for mol1 and mol2, respectively. Their length equal
-to the number of atoms. They represents the uniform atom order
-of the two molecules. The value of each element is the original
-atom index in mol1 or mol2 of the current atom in uniform atom
-order.
-(None, None) if unform atom is not available.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="pymatgen.analysis.molecule_matcher.MoleculeMatcher">
-<em class="property">class </em><code class="sig-name descname">MoleculeMatcher</code><span class="sig-paren">(</span><em class="sig-param">tolerance=0.01</em>, <em class="sig-param">mapper=&lt;pymatgen.analysis.molecule_matcher.InchiMolAtomMapper object&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#MoleculeMatcher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.MoleculeMatcher" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
-<p>Class to match molecules and identify whether molecules are the same.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>tolerance</strong> – RMSD difference threshold whether two molecules are
-different</p></li>
-<li><p><strong>mapper</strong> – MolAtomMapper object that is able to map the atoms of two
-molecule to uniform order</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="method">
-<dt id="pymatgen.analysis.molecule_matcher.MoleculeMatcher.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#MoleculeMatcher.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.MoleculeMatcher.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A JSON serializable dict representation of an object.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.molecule_matcher.MoleculeMatcher.fit">
-<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param">mol1</em>, <em class="sig-param">mol2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#MoleculeMatcher.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.MoleculeMatcher.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fit two molecules.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>mol1</strong> – First molecule. OpenBabel OBMol or pymatgen Molecule object</p></li>
-<li><p><strong>mol2</strong> – Second molecule. OpenBabel OBMol or pymatgen Molecule object</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A boolean value indicates whether two molecules are the same.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.molecule_matcher.MoleculeMatcher.from_dict">
-<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#MoleculeMatcher.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.MoleculeMatcher.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.molecule_matcher.MoleculeMatcher.get_rmsd">
-<code class="sig-name descname">get_rmsd</code><span class="sig-paren">(</span><em class="sig-param">mol1</em>, <em class="sig-param">mol2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#MoleculeMatcher.get_rmsd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.MoleculeMatcher.get_rmsd" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get RMSD between two molecule with arbitrary atom order.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>RMSD if topology of the two molecules are the same
-Infinite if  the topology is different</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.molecule_matcher.MoleculeMatcher.group_molecules">
-<code class="sig-name descname">group_molecules</code><span class="sig-paren">(</span><em class="sig-param">mol_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#MoleculeMatcher.group_molecules"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.MoleculeMatcher.group_molecules" title="Permalink to this definition">¶</a></dt>
-<dd><p>Group molecules by structural equality.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>mol_list</strong> – List of OpenBabel OBMol or pymatgen objects</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A list of lists of matched molecules
-Assumption: if s1=s2 and s2=s3, then s1=s3
-This may not be true for small tolerances.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+  <div class="section" id="pymatgen-analysis-molecule-matcher-module">
+<h1>pymatgen.analysis.molecule_matcher module<a class="headerlink" href="#pymatgen-analysis-molecule-matcher-module" title="Permalink to this headline">¶</a></h1>
 </div>
 
 
@@ -313,7 +82,7 @@ This may not be true for small tolerances.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.14 documentation</a> &#187;</li> 
       </ul>
     </div>
 
