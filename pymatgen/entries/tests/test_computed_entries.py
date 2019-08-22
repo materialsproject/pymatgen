@@ -52,7 +52,7 @@ class ComputedEntryTest(unittest.TestCase):
         self.assertEqual(self.entry.composition.reduced_formula, "LiFe4(PO4)4")
         self.assertEqual(self.entry2.composition.reduced_formula, "Fe2O3")
         self.assertEqual(self.entry5.composition.reduced_formula, "Fe2O3")
-        self.assertEqual(self.entry5.composition.get_reduced_formula_and_factor[1], 3)
+        self.assertEqual(self.entry5.composition.get_reduced_formula_and_factor()[1], 3)
 
     def test_to_from_dict(self):
         d = self.entry.as_dict()
