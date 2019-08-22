@@ -3740,7 +3740,8 @@ def plot_fermi_surface(data, structure, cbm, energy_levels=None,
             run mlab.show().
         
     Returns:
-        a Mayavi figure and a mlab module to control the plot.
+        ((mayavi.mlab.figure, mayavi.mlab)): The mlab plotter and an interactive
+            figure to control the plot.
 
     Note: Experimental. 
           Please, double check the surface shown by using some 
