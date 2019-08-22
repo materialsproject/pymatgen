@@ -8,6 +8,7 @@ import json
 from monty.json import MontyEncoder, MontyDecoder
 
 from pymatgen.core.composition import Composition
+from pymatgen.core.structure import Structure
 from monty.json import MSONable
 
 """
@@ -37,8 +38,13 @@ class ComputedEntry(MSONable):
 
     """
 
-    def __init__(self, composition, energy, correction=0.0, parameters=None,
-                 data=None, entry_id=None, attribute=None):
+    def __init__(self,
+                 composition: Composition,
+                 energy: float,
+                 correction: float = 0.0,
+                 parameters: dict = None,
+                 data: dict = None,
+                 entry_id: object = None):
         """
         Initializes a ComputedEntry.
 
@@ -57,11 +63,6 @@ class ComputedEntry(MSONable):
             data (dict): An optional dict of any additional data associated
                 with the entry. Defaults to None.
             entry_id (obj): An optional id to uniquely identify the entry.
-            attribute: Optional attribute of the entry. This can be used to
-                specify that the entry is a newly found compound, or to specify
-                a particular label for the entry, or else ... Used for further
-                analysis and plotting purposes. An attribute can be anything
-                but must be MSONable.
         """
         self.uncorrected_energy = energy
         self.composition = Composition(composition)
@@ -70,7 +71,6 @@ class ComputedEntry(MSONable):
         self.data = data if data else {}
         self.entry_id = entry_id
         self.name = self.composition.reduced_formula
-        self.attribute = attribute
 
     def normalize(self, mode: str = "formula_unit") -> None:
         """
@@ -92,18 +92,18 @@ class ComputedEntry(MSONable):
         self.correction /= factor
 
     @property
-    def is_element(self):
+    def is_element(self) -> bool:
         return self.composition.is_element
 
     @property
-    def energy(self):
+    def energy(self) -> float:
         """
         Returns the *corrected* energy of the entry.
         """
         return self.uncorrected_energy + self.correction
 
     @property
-    def energy_per_atom(self):
+    def energy_per_atom(self) -> float:
         return self.energy / self.composition.num_atoms
 
     def __repr__(self):
@@ -130,10 +130,9 @@ class ComputedEntry(MSONable):
                                for k, v in d.get("parameters", {}).items()},
                    data={k: dec.process_decoded(v)
                          for k, v in d.get("data", {}).items()},
-                   entry_id=d.get("entry_id", None),
-                   attribute=d["attribute"] if "attribute" in d else None)
+                   entry_id=d.get("entry_id", None))
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "energy": self.uncorrected_energy,
@@ -142,8 +141,7 @@ class ComputedEntry(MSONable):
                 "parameters": json.loads(json.dumps(self.parameters,
                                                     cls=MontyEncoder)),
                 "data": json.loads(json.dumps(self.data, cls=MontyEncoder)),
-                "entry_id": self.entry_id,
-                "attribute": self.attribute}
+                "entry_id": self.entry_id}
 
 
 class ComputedStructureEntry(ComputedEntry):
@@ -152,8 +150,13 @@ class ComputedStructureEntry(ComputedEntry):
     structure is needed for some analyses.
     """
 
-    def __init__(self, structure, energy, correction=0.0, parameters=None,
-                 data=None, entry_id=None):
+    def __init__(self,
+                 structure: Structure,
+                 energy: float,
+                 correction: float = 0.0,
+                 parameters: dict = None,
+                 data: dict = None,
+                 entry_id: object = None):
         """
         Initializes a ComputedStructureEntry.
 
@@ -190,7 +193,7 @@ class ComputedStructureEntry(ComputedEntry):
     def __str__(self):
         return self.__repr__()
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         d = super().as_dict()
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
