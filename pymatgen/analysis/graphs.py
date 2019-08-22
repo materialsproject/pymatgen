@@ -27,6 +27,11 @@ import networkx.algorithms.isomorphism as iso
 from networkx.readwrite import json_graph
 from networkx.drawing.nx_agraph import write_dot
 
+try:
+    import igraph
+except ModuleNotFoundError:
+    pass
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -41,11 +46,16 @@ __date__ = "August 2017"
 
 ConnectedSite = namedtuple('ConnectedSite', 'site, jimage, index, weight, dist')
 
-def compare(g1, g2, i1, i2):
+def _compare(g1, g2, i1, i2):
+    """
+    Helper function called by isomorphic to ensure comparison of node identities.
+    """
     return g1.vs[i1]['species'] == g2.vs[i2]['species']
 
-def igraph_from_nxgraph(graph):
-    import igraph
+def _igraph_from_nxgraph(graph):
+    """
+    Helper function that converts a networkx graph object into an igraph graph object.
+    """
     nodes=graph.nodes(data=True)
     new_igraph = igraph.Graph()
     for node in nodes:
@@ -53,12 +63,11 @@ def igraph_from_nxgraph(graph):
     new_igraph.add_edges([(str(edge[0]),str(edge[1])) for edge in graph.edges()])
     return new_igraph
 
-def isomorphic(frag1, frag2, use_igraph=True):
-    if use_igraph:
-        try:
-            import igraph
-        except ModuleNotFoundError:
-            use_igraph = False
+def _isomorphic(frag1, frag2, have_igraph):
+    """
+    Internal function to check if two graph objects are isomorphic, using igraph if
+    if is available and networkx if it is not.
+    """  
     f1_nodes = frag1.nodes(data=True)
     f2_nodes = frag2.nodes(data=True)
     if len(f1_nodes) != len(f2_nodes):
@@ -81,13 +90,13 @@ def isomorphic(frag1, frag2, use_igraph=True):
             f2_comp_dict[node[1]["specie"]] += 1
     if f1_comp_dict != f2_comp_dict:
         return False
-    if not use_igraph:
+    if have_igraph:
+        ifrag1 = _igraph_from_nxgraph(frag1)
+        ifrag2 = _igraph_from_nxgraph(frag2)
+        return ifrag1.isomorphic_vf2(ifrag2,node_compat_fn=_compare)
+    else:
         nm = iso.categorical_node_match("specie", "ERROR")
         return nx.is_isomorphic(frag1.to_undirected(), frag2.to_undirected(), node_match=nm)
-    else:
-        ifrag1 = igraph_from_nxgraph(frag1)
-        ifrag2 = igraph_from_nxgraph(frag2)
-        return ifrag1.isomorphic_vf2(ifrag2,node_compat_fn=compare)
 
 class StructureGraph(MSONable):
     """
@@ -1562,6 +1571,12 @@ class MoleculeGraph(MSONable):
 
         self.set_node_attributes()
 
+        try:
+            import igraph
+            self.have_igraph = True
+        except ModuleNotFoundError:
+            self.have_igraph = False
+
     @classmethod
     def with_empty_graph(cls, molecule, name="bonds",
                          edge_weight_name=None,
@@ -2059,7 +2074,7 @@ class MoleculeGraph(MSONable):
 
             return sub_mols
 
-    def build_unique_fragments(self, use_igraph=False):
+    def build_unique_fragments(self):
         """
         Find all possible fragment combinations of the MoleculeGraphs (in other
         words, all connected induced subgraphs)
@@ -2093,7 +2108,7 @@ class MoleculeGraph(MSONable):
             for frag in frag_dict[key]:
                 found = False
                 for f in unique_frags:
-                    if isomorphic(frag,f,use_igraph=use_igraph):
+                    if _isomorphic(frag,f,self.have_igraph):
                         found = True
                         break
                 if not found:
@@ -2758,7 +2773,7 @@ class MoleculeGraph(MSONable):
         return (edges == edges_other) and \
                (self.molecule == other_sorted.molecule)
 
-    def isomorphic_to(self, other, use_igraph=False):
+    def isomorphic_to(self, other):
         """
         Checks if the graphs of two MoleculeGraphs are isomorphic to one
         another. In order to prevent problems with misdirected edges, both
@@ -2774,7 +2789,7 @@ class MoleculeGraph(MSONable):
         elif len(self.graph.edges()) != len(other.graph.edges()):
             return False
         else:
-            return isomorphic(self.graph,other.graph,use_igraph)
+            return _isomorphic(self.graph,other.graph,self.have_igraph)
 
     def diff(self, other, strict=True):
         """

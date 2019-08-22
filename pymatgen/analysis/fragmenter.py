@@ -7,7 +7,7 @@ import logging
 import copy
 import numpy as np
 from monty.json import MSONable
-from pymatgen.analysis.graphs import MoleculeGraph, MolGraphSplitError, isomorphic
+from pymatgen.analysis.graphs import MoleculeGraph, MolGraphSplitError
 from pymatgen.analysis.local_env import OpenBabelNN
 from pymatgen.io.babel import BabelMolAdaptor
 
@@ -27,8 +27,7 @@ logger = logging.getLogger(__name__)
 class Fragmenter(MSONable):
 
     def __init__(self, molecule, edges=None, depth=1, open_rings=False, use_metal_edge_extender=False,
-                 opt_steps=10000, use_igraph=True, prev_unique_frag_dict=None,
-                 assume_previous_thoroughness=True):
+                 opt_steps=10000, prev_unique_frag_dict=None, assume_previous_thoroughness=True):
         """
         Standard constructor for molecule fragmentation
 
@@ -50,8 +49,6 @@ class Fragmenter(MSONable):
                 to False. Most important for ionic bonding. Note that additional metal edges may yield
                 new "rings" (e.g. -C-O-Li-O- in LiEC) that will not play nicely with ring opening.
             opt_steps (int): Number of optimization steps when opening rings. Defaults to 10000.
-            use_igraph (bool): Whether or not to use the igraph library, which is faster than networkx.
-                Defaults to True.
             prev_unique_frag_dict (dict): A dictionary of previously identified unique fragments.
                 Defaults to None. Typically only used when trying to find the set of unique fragments
                 that come from multiple molecules.
@@ -69,7 +66,6 @@ class Fragmenter(MSONable):
         self.assume_previous_thoroughness = assume_previous_thoroughness
         self.open_rings = open_rings
         self.opt_steps = opt_steps
-        self.use_igraph = use_igraph
 
         if edges is None:
             self.mol_graph = MoleculeGraph.with_local_env_strategy(molecule, OpenBabelNN(),
@@ -94,7 +90,7 @@ class Fragmenter(MSONable):
         if depth == 0: # Non-iterative, find all possible fragments:
 
             # Find all unique fragments besides those involving ring opening
-            self.all_unique_frag_dict = self.mol_graph.build_unique_fragments(self.use_igraph)
+            self.all_unique_frag_dict = self.mol_graph.build_unique_fragments()
 
             # Then, if self.open_rings is True, open all rings present in self.unique_fragments
             # in order to capture all unique fragments that require ring opening.
@@ -111,7 +107,7 @@ class Fragmenter(MSONable):
                         for fragment in self.all_unique_frag_dict[frag_key]:
                             found = False
                             for prev_frag in self.prev_unique_frag_dict[frag_key]:
-                                if isomorphic(fragment.graph,prev_frag.graph,self.use_igraph):
+                                if fragment.isomorphic_to(prev_frag):
                                     found = True
                                     break
                             if not found:
@@ -149,7 +145,7 @@ class Fragmenter(MSONable):
                         for fragment in self.level_unique_frag_dict[frag_key]:
                             found = False
                             for prev_frag in self.prev_unique_frag_dict[frag_key]:
-                                if isomorphic(fragment.graph,prev_frag.graph,self.use_igraph):
+                                if fragment.isomorphic_to(prev_frag):
                                     found = True
                             if not found:
                                 if frag_key not in self.new_unique_frag_dict:
@@ -199,7 +195,7 @@ class Fragmenter(MSONable):
                             if self.assume_previous_thoroughness and self.prev_unique_frag_dict != {}:
                                 if new_frag_key in self.prev_unique_frag_dict:
                                     for unique_fragment in self.prev_unique_frag_dict[new_frag_key]:
-                                        if isomorphic(unique_fragment.graph,fragment.graph,self.use_igraph):
+                                        if unique_fragment.isomorphic_to(fragment):
                                             proceed = False
                                             break
                             if proceed:
@@ -209,7 +205,7 @@ class Fragmenter(MSONable):
                                 else:
                                     found = False
                                     for unique_fragment in self.level_unique_frag_dict[new_frag_key]:
-                                        if isomorphic(unique_fragment.graph,fragment.graph,self.use_igraph):
+                                        if unique_fragment.isomorphic_to(fragment):
                                             found = True
                                             break
                                     if not found:
@@ -226,7 +222,7 @@ class Fragmenter(MSONable):
                             if self.assume_previous_thoroughness and self.prev_unique_frag_dict != {}:
                                 if new_frag_key in self.prev_unique_frag_dict:
                                     for unique_fragment in self.prev_unique_frag_dict[new_frag_key]:
-                                        if isomorphic(unique_fragment.graph,fragment.graph,self.use_igraph):
+                                        if unique_fragment.isomorphic_to(fragment):
                                             proceed = False
                                             break
                             if proceed:
@@ -236,7 +232,7 @@ class Fragmenter(MSONable):
                                 else:
                                     found = False
                                     for unique_fragment in self.level_unique_frag_dict[new_frag_key]:
-                                        if isomorphic(unique_fragment.graph,fragment.graph,self.use_igraph):
+                                        if unique_fragment.isomorphic_to(fragment):
                                             found = True
                                             break
                                     if not found:
@@ -273,7 +269,7 @@ class Fragmenter(MSONable):
                             else:
                                 found = False
                                 for unique_fragment in new_frag_key_dict[frag_key]:
-                                    if isomorphic(unique_fragment.graph,new_fragment.graph,self.use_igraph):
+                                    if unique_fragment.isomorphic_to(new_fragment):
                                         found = True
                                         break
                                 if not found:
@@ -281,7 +277,7 @@ class Fragmenter(MSONable):
                         else:
                             found = False
                             for unique_fragment in self.all_unique_frag_dict[frag_key]:
-                                if isomorphic(unique_fragment.graph,new_fragment.graph,self.use_igraph):
+                                if unique_fragment.isomorphic_to(new_fragment):
                                     found = True
                                     break
                             if not found:
@@ -307,7 +303,7 @@ class Fragmenter(MSONable):
                                 else:
                                     found = False
                                     for unique_fragment in new_frag_key_dict[frag_key]:
-                                        if isomorphic(unique_fragment.graph,new_fragment.graph,self.use_igraph):
+                                        if unique_fragment.isomorphic_to(new_fragment):
                                             found = True
                                             break
                                     if not found:
@@ -315,7 +311,7 @@ class Fragmenter(MSONable):
                             else:
                                 found = False
                                 for unique_fragment in self.all_unique_frag_dict[frag_key]:
-                                    if isomorphic(unique_fragment.graph,new_fragment.graph,self.use_igraph):
+                                    if unique_fragment.isomorphic_to(new_fragment):
                                         found = True
                                         break
                                 if not found:
