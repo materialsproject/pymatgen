@@ -186,7 +186,7 @@ class Fragmenter(MSONable):
         for old_frag_key in old_frag_dict:
             for old_frag in old_frag_dict[old_frag_key]:
                 for edge in old_frag.graph.edges:
-                    bond = [(edge[0],edge[1])]
+                    bond = [(edge[0], edge[1])]
                     try:
                         fragments = old_frag.split_molecule_subgraphs(bond, allow_reverse=True)
                         for fragment in fragments:
@@ -372,6 +372,4 @@ def metal_edge_extender(mol_graph):
     for metal in metal_sites:
         for idx in metal_sites[metal]:
             total_metal_edges += len(metal_sites[metal][idx])
-    print("Metal edge extension added", num_new_edges, "new edges.")
-    print("Total of", total_metal_edges, "metal edges.")
     return mol_graph

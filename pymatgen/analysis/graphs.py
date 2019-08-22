@@ -29,8 +29,9 @@ from networkx.drawing.nx_agraph import write_dot
 
 try:
     import igraph
-except ModuleNotFoundError:
-    pass
+    IGRAPH_AVAILABLE = True
+except ImportError:
+    IGRAPH_AVAILABLE = False
 
 import logging
 
@@ -63,7 +64,7 @@ def _igraph_from_nxgraph(graph):
     new_igraph.add_edges([(str(edge[0]),str(edge[1])) for edge in graph.edges()])
     return new_igraph
 
-def _isomorphic(frag1, frag2, have_igraph):
+def _isomorphic(frag1, frag2):
     """
     Internal function to check if two graph objects are isomorphic, using igraph if
     if is available and networkx if it is not.
@@ -90,7 +91,7 @@ def _isomorphic(frag1, frag2, have_igraph):
             f2_comp_dict[node[1]["specie"]] += 1
     if f1_comp_dict != f2_comp_dict:
         return False
-    if have_igraph:
+    if IGRAPH_AVAILABLE:
         ifrag1 = _igraph_from_nxgraph(frag1)
         ifrag2 = _igraph_from_nxgraph(frag2)
         return ifrag1.isomorphic_vf2(ifrag2,node_compat_fn=_compare)
@@ -1571,12 +1572,6 @@ class MoleculeGraph(MSONable):
 
         self.set_node_attributes()
 
-        try:
-            import igraph
-            self.have_igraph = True
-        except ModuleNotFoundError:
-            self.have_igraph = False
-
     @classmethod
     def with_empty_graph(cls, molecule, name="bonds",
                          edge_weight_name=None,
@@ -2108,7 +2103,7 @@ class MoleculeGraph(MSONable):
             for frag in frag_dict[key]:
                 found = False
                 for f in unique_frags:
-                    if _isomorphic(frag,f,self.have_igraph):
+                    if _isomorphic(frag,f):
                         found = True
                         break
                 if not found:
@@ -2789,7 +2784,7 @@ class MoleculeGraph(MSONable):
         elif len(self.graph.edges()) != len(other.graph.edges()):
             return False
         else:
-            return _isomorphic(self.graph,other.graph,self.have_igraph)
+            return _isomorphic(self.graph, other.graph)
 
     def diff(self, other, strict=True):
         """
