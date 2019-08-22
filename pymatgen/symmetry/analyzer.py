@@ -770,7 +770,6 @@ class SpacegroupAnalyzer:
             List of weights, in the SAME order as kpoints.
         """
         kpts = np.array(kpoints)
-        print("KPOINTS ARE", kpts)
         shift = []
         mesh = []
         for i in range(3):
