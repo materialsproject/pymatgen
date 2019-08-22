@@ -38,7 +38,7 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-__author__ = "Matthew Horton, Evan Spotte-Smith"
+__author__ = "Matthew Horton, Evan Spotte-Smith, Samuel Blau"
 __version__ = "0.1"
 __maintainer__ = "Matthew Horton"
 __email__ = "mkhorton@lbl.gov"
