@@ -3751,8 +3751,9 @@ def plot_fermi_surface(data, structure, cbm, energy_levels=None,
     cell = structure.lattice.reciprocal_lattice.matrix
 
     fact = 1 if cbm == False else -1
-    en_min = np.min(fact * data.ravel())
-    en_max = np.max(fact * data.ravel())
+    data_1d = data.ravel()
+    en_min = np.min(fact * data_1d)
+    en_max = np.max(fact * data_1d)
 
     if energy_levels is None:
         energy_levels = [en_min + 0.01] if cbm == True else \
