@@ -3692,10 +3692,10 @@ class CohpPlotter:
 
 @requires(mlab is not None, "MayAvi mlab not imported! Please install mayavi.")
 def plot_fermi_surface(data, structure, cbm, energy_levels=None,
-                       multiple_figure=True,
-                       mlab_figure=None, kpoints_dict=None, colors=None,
-                       transparency_factor=None, labels_scale_factor=0.05,
-                       points_scale_factor=0.02, interative=True):
+                       multiple_figure=True, mlab_figure=None,
+                       kpoints_dict=None, colors=None, transparency_factor=None,
+                       labels_scale_factor=0.05, points_scale_factor=0.02,
+                       interative=True):
     """
     Plot the Fermi surface at specific energy value using Boltztrap 1 FERMI
     mode.
