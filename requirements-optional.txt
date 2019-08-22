@@ -12,4 +12,3 @@ phonopy==1.11.12.121
 h5py==2.9.0
 #BoltzTraP2==18.9.1
 f90nml==1.1.2
-mayavi==4.7.1
