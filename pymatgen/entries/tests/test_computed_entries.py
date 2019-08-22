@@ -45,8 +45,8 @@ class ComputedEntryTest(unittest.TestCase):
         self.entry.correction = 1.0
         self.assertAlmostEqual(self.entry.energy, -268.38319884)
         self.assertAlmostEqual(self.entry3.energy_per_atom, 2.3 / 5)
-        self.assertAlmostEqual(self.entry3).energy_per_formula_unit, 2.3 / 1)
-        self.assertAlmostEqual(self.entry5).energy_per_formula_unit, 6.9 / 3)
+        self.assertAlmostEqual(self.entry3.energy_per_formula_unit, 2.3 / 1)
+        self.assertAlmostEqual(self.entry5.energy_per_formula_unit, 6.9 / 3)
 
     def test_composition(self):
         self.assertEqual(self.entry.composition.reduced_formula, "LiFe4(PO4)4")
