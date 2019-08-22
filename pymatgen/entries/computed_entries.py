@@ -72,6 +72,25 @@ class ComputedEntry(MSONable):
         self.name = self.composition.reduced_formula
         self.attribute = attribute
 
+    def normalize(self, mode: str = "formula_unit") -> None:
+        """
+        Normalize the entry's composition, energy and any corrections.
+        Generally, this would not have effect on any
+
+        Args:
+            mode: "formula_unit" is the default, which normalizes to
+                composition.reduced_formula. The other option is "atom", which
+                normalizes such that the composition amounts sum to 1.
+        """
+        if mode == "atom":
+            factor = self.composition.num_atoms
+            comp = self.composition / factor
+        else:
+            comp, factor = self.composition.get_reduced_composition_and_factor()
+        self.composition = comp
+        self.uncorrected_energy /= factor
+        self.correction /= factor
+
     @property
     def is_element(self):
         return self.composition.is_element
@@ -86,10 +105,6 @@ class ComputedEntry(MSONable):
     @property
     def energy_per_atom(self):
         return self.energy / self.composition.num_atoms
-
-    @property
-    def energy_per_formula_unit(self):
-        return self.energy / self.composition.get_reduced_composition_and_factor()[1]
 
     def __repr__(self):
         output = ["ComputedEntry {} - {}".format(self.entry_id,
