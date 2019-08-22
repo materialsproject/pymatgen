@@ -147,11 +147,17 @@ class MPResterTest(PymatgenTest):
 
     def test_get_entries_in_chemsys(self):
         syms = ["Li", "Fe", "O"]
+        syms2 = "Li-Fe-O"
         entries = self.rester.get_entries_in_chemsys(syms)
+        entries2 = self.rester.get_entries_in_chemsys(syms2)
         elements = set([Element(sym) for sym in syms])
         for e in entries:
             self.assertIsInstance(e, ComputedEntry)
             self.assertTrue(set(e.composition.elements).issubset(elements))
+
+        e1 = set([i.entry_id for i in entries])
+        e2 = set([i.entry_id for i in entries2])
+        self.assertTrue(e1 == e2)
 
     def test_get_structure_by_material_id(self):
         s1 = self.rester.get_structure_by_material_id("mp-1")
