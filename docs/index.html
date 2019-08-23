@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Introduction &#8212; pymatgen 2019.8.14 documentation</title>
+    <title>Introduction &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
         <li class="right" >
           <a href="installation.html" title="Requirements"
              accesskey="N">next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">pymatgen 2019.8.14 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">pymatgen 2019.8.23 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -166,9 +166,13 @@ other research groups.</p></li>
 <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
-<li><p>Update DOSCAR from lobster (&#64;JaGEO)</p></li>
-<li><p>PerturbStructureTransformation (&#64;rees-c)</p></li>
-<li><p>Misc bug fixes.</p></li>
+<li><p>pycodestyle now enforced, except on tests. Developers should install
+pycodestyle and the pre-commit hook (copy pre-commit to .git/hooks)
+provided in the repo to check before commits. CI now checks for code style
+and PRs must pass pycodestyle.</p></li>
+<li><p>chemsys str input now allowed in get_entries_in_chemsys (&#64;rkingsbury)</p></li>
+<li><p>ComputedEntry and subclasses now support a normalize().</p></li>
+<li><p>Speed improvements in fragmeter using igraph. (&#64;samblau)</p></li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </div>
@@ -728,7 +732,7 @@ to indicate the copyright and license terms:</p>
         <li class="right" >
           <a href="installation.html" title="Requirements"
              >next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">pymatgen 2019.8.14 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">pymatgen 2019.8.23 documentation</a> &#187;</li> 
       </ul>
     </div>
 

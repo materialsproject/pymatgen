@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.util.plotting &#8212; pymatgen 2019.8.14 documentation</title>
+    <title>pymatgen.util.plotting &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -228,11 +228,11 @@
     <span class="k">return</span> <span class="n">plt</span></div>
 
 
-<div class="viewcode-block" id="periodic_table_heatmap"><a class="viewcode-back" href="../../../pymatgen.util.plotting.html#pymatgen.util.plotting.periodic_table_heatmap">[docs]</a><span class="k">def</span> <span class="nf">periodic_table_heatmap</span><span class="p">(</span><span class="n">elemental_data</span><span class="p">,</span> <span class="n">cbar_label</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
-                           <span class="n">show_plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;YlOrRd&quot;</span><span class="p">,</span> <span class="n">blank_color</span><span class="o">=</span><span class="s2">&quot;grey&quot;</span><span class="p">,</span>
+<div class="viewcode-block" id="periodic_table_heatmap"><a class="viewcode-back" href="../../../pymatgen.util.plotting.html#pymatgen.util.plotting.periodic_table_heatmap">[docs]</a><span class="k">def</span> <span class="nf">periodic_table_heatmap</span><span class="p">(</span><span class="n">elemental_data</span><span class="p">,</span> <span class="n">cbar_label</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">cbar_label_size</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span>
+                           <span class="n">show_plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;YlOrRd&quot;</span><span class="p">,</span> <span class="n">cmap_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">blank_color</span><span class="o">=</span><span class="s2">&quot;grey&quot;</span><span class="p">,</span>
                            <span class="n">value_format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_row</span><span class="o">=</span><span class="mi">9</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A static method that generates a heat map overlapped on a periodic table.</span>
+<span class="sd">    A static method that generates a heat map overlayed on a periodic table.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">         elemental_data (dict): A dictionary with the element as a key and a</span>
@@ -240,12 +240,15 @@
 <span class="sd">            Elements missing in the elemental_data will be grey by default</span>
 <span class="sd">            in the final table elemental_data={&quot;Fe&quot;: 4.2, &quot;O&quot;: 5.0}.</span>
 <span class="sd">         cbar_label (string): Label of the colorbar. Default is &quot;&quot;.</span>
-<span class="sd">         figure_name (string): Name of the plot (absolute path) being saved</span>
-<span class="sd">            if not None.</span>
+<span class="sd">         cbar_label_size (float): Font size for the colorbar label. Default is 14.</span>
+<span class="sd">         cmap_range (tuple): Minimum and maximum value of the colormap scale.</span>
+<span class="sd">            If None, the colormap will autotmatically scale to the range of the</span>
+<span class="sd">            data.</span>
 <span class="sd">         show_plot (bool): Whether to show the heatmap. Default is False.</span>
 <span class="sd">         value_format (str): Formatting string to show values. If None, no value</span>
 <span class="sd">            is shown. Example: &quot;%.4f&quot; shows float to four decimals.</span>
-<span class="sd">         cmap (string): Color scheme of the heatmap. Default is &#39;coolwarm&#39;.</span>
+<span class="sd">         cmap (string): Color scheme of the heatmap. Default is &#39;YlOrRd&#39;.</span>
+<span class="sd">            Refer to the matplotlib documentation for other options.</span>
 <span class="sd">         blank_color (string): Color assigned for the missing elements in</span>
 <span class="sd">            elemental_data. Default is &quot;grey&quot;.</span>
 <span class="sd">         max_row (integer): Maximum number of rows of the periodic table to be</span>
@@ -254,8 +257,13 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Convert primitive_elemental data in the form of numpy array for plotting.</span>
-    <span class="n">max_val</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">elemental_data</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
-    <span class="n">min_val</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">elemental_data</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">cmap_range</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">max_val</span> <span class="o">=</span> <span class="n">cmap_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">min_val</span> <span class="o">=</span> <span class="n">cmap_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">max_val</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">elemental_data</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">min_val</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">elemental_data</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
     <span class="n">max_row</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">max_row</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">max_row</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
@@ -283,8 +291,10 @@
 
     <span class="c1"># Grey out missing elements in input data</span>
     <span class="n">cbar</span><span class="o">.</span><span class="n">cmap</span><span class="o">.</span><span class="n">set_under</span><span class="p">(</span><span class="n">blank_color</span><span class="p">)</span>
-    <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="n">cbar_label</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">270</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
-    <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+
+    <span class="c1"># Set the colorbar label and tick marks</span>
+    <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="n">cbar_label</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">270</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">cbar_label_size</span><span class="p">)</span>
+    <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="n">cbar_label_size</span><span class="p">)</span>
 
     <span class="c1"># Refine and make the table look nice</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
@@ -648,7 +658,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
