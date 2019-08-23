@@ -59,7 +59,6 @@
 <span class="sd">Utilities for generating nicer plots.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
@@ -266,7 +265,8 @@
     <span class="n">blank_value</span> <span class="o">=</span> <span class="n">min_val</span> <span class="o">-</span> <span class="mf">0.01</span>
 
     <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">Element</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">el</span><span class="o">.</span><span class="n">row</span> <span class="o">&gt;</span> <span class="n">max_row</span><span class="p">:</span> <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">el</span><span class="o">.</span><span class="n">row</span> <span class="o">&gt;</span> <span class="n">max_row</span><span class="p">:</span>
+            <span class="k">continue</span>
         <span class="n">value</span> <span class="o">=</span> <span class="n">elemental_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="n">blank_value</span><span class="p">)</span>
         <span class="n">value_table</span><span class="p">[</span><span class="n">el</span><span class="o">.</span><span class="n">row</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">el</span><span class="o">.</span><span class="n">group</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
 
@@ -278,7 +278,7 @@
     <span class="c1"># We set nan type values to masked values (ie blank spaces)</span>
     <span class="n">data_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_invalid</span><span class="p">(</span><span class="n">value_table</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
     <span class="n">heatmap</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">pcolor</span><span class="p">(</span><span class="n">data_mask</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">edgecolors</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">linewidths</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                        <span class="n">vmin</span><span class="o">=</span><span class="n">min_val</span><span class="o">-</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">max_val</span><span class="o">+</span><span class="mf">0.001</span><span class="p">)</span>
+                        <span class="n">vmin</span><span class="o">=</span><span class="n">min_val</span> <span class="o">-</span> <span class="mf">0.001</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">max_val</span> <span class="o">+</span> <span class="mf">0.001</span><span class="p">)</span>
     <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">heatmap</span><span class="p">)</span>
 
     <span class="c1"># Grey out missing elements in input data</span>
@@ -294,7 +294,7 @@
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">value_table</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">el</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">el</span><span class="p">):</span>
-                <span class="n">symbol</span> <span class="o">=</span> <span class="n">Element</span><span class="o">.</span><span class="n">from_row_and_group</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">symbol</span>
+                <span class="n">symbol</span> <span class="o">=</span> <span class="n">Element</span><span class="o">.</span><span class="n">from_row_and_group</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">symbol</span>
                 <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">j</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mf">0.25</span><span class="p">,</span> <span class="n">symbol</span><span class="p">,</span>
                          <span class="n">horizontalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span>
                          <span class="n">verticalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>

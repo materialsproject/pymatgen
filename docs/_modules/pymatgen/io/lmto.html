@@ -292,11 +292,11 @@
             <span class="k">pass</span>
 
         <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;HEADER&quot;</span><span class="p">,</span> <span class="s2">&quot;VERS&quot;</span><span class="p">]:</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">value</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">token</span> <span class="o">+</span> <span class="sa">r</span><span class="s2">&quot;\s*&quot;</span><span class="p">,</span> <span class="n">struc_lines</span><span class="p">[</span><span class="n">token</span><span class="p">])[</span><span class="mi">1</span><span class="p">]</span>
-                    <span class="n">structure_tokens</span><span class="p">[</span><span class="n">token</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-                <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
-                    <span class="k">pass</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">token</span> <span class="o">+</span> <span class="sa">r</span><span class="s2">&quot;\s*&quot;</span><span class="p">,</span> <span class="n">struc_lines</span><span class="p">[</span><span class="n">token</span><span class="p">])[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">structure_tokens</span><span class="p">[</span><span class="n">token</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                <span class="k">pass</span>
         <span class="k">return</span> <span class="n">LMTOCtrl</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">structure_tokens</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="LMTOCtrl.from_dict"><a class="viewcode-back" href="../../../pymatgen.io.lmto.html#pymatgen.io.lmto.LMTOCtrl.from_dict">[docs]</a>    <span class="nd">@classmethod</span>

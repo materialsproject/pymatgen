@@ -33,7 +33,6 @@ Submodules
    pymatgen.io.phonopy
    pymatgen.io.prismatic
    pymatgen.io.pwscf
-   pymatgen.io.qchem_deprecated
    pymatgen.io.shengbte
    pymatgen.io.xcrysden
    pymatgen.io.xr

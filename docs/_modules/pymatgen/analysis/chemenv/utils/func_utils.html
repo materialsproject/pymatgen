@@ -62,7 +62,6 @@
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;david.waroquiers@gmail.com&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Feb 20, 2016&quot;</span>
 
-
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.math_utils</span> <span class="k">import</span> <span class="n">power2_inverse_decreasing</span><span class="p">,</span> <span class="n">power2_decreasing_exp</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.math_utils</span> <span class="k">import</span> <span class="n">smoothstep</span><span class="p">,</span> <span class="n">smootherstep</span>
@@ -70,7 +69,6 @@
 
 
 <div class="viewcode-block" id="AbstractRatioFunction"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.func_utils.html#pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction">[docs]</a><span class="k">class</span> <span class="nc">AbstractRatioFunction</span><span class="p">:</span>
-
     <span class="n">ALLOWED_FUNCTIONS</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">options_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -163,9 +161,7 @@
         <span class="k">return</span> <span class="n">power2_inverse_power2_decreasing</span><span class="p">(</span><span class="n">vals</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s1">&#39;max&#39;</span><span class="p">]])</span></div></div>
 
 
-
 <div class="viewcode-block" id="CSMFiniteRatioFunction"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.func_utils.html#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction">[docs]</a><span class="k">class</span> <span class="nc">CSMFiniteRatioFunction</span><span class="p">(</span><span class="n">AbstractRatioFunction</span><span class="p">):</span>
-
     <span class="n">ALLOWED_FUNCTIONS</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;power2_decreasing_exp&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;max_csm&#39;</span><span class="p">,</span> <span class="s1">&#39;alpha&#39;</span><span class="p">],</span>
                          <span class="s1">&#39;smoothstep&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;lower_csm&#39;</span><span class="p">,</span> <span class="s1">&#39;upper_csm&#39;</span><span class="p">],</span>
                          <span class="s1">&#39;smootherstep&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;lower_csm&#39;</span><span class="p">,</span> <span class="s1">&#39;upper_csm&#39;</span><span class="p">]</span>
@@ -204,7 +200,6 @@
 
 
 <div class="viewcode-block" id="CSMInfiniteRatioFunction"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.func_utils.html#pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction">[docs]</a><span class="k">class</span> <span class="nc">CSMInfiniteRatioFunction</span><span class="p">(</span><span class="n">AbstractRatioFunction</span><span class="p">):</span>
-
     <span class="n">ALLOWED_FUNCTIONS</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;power2_inverse_decreasing&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;max_csm&#39;</span><span class="p">],</span>
                          <span class="s1">&#39;power2_inverse_power2_decreasing&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;max_csm&#39;</span><span class="p">]}</span>
 
@@ -248,12 +243,10 @@
 
 
 <div class="viewcode-block" id="DeltaCSMRatioFunction"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.func_utils.html#pymatgen.analysis.chemenv.utils.func_utils.DeltaCSMRatioFunction">[docs]</a><span class="k">class</span> <span class="nc">DeltaCSMRatioFunction</span><span class="p">(</span><span class="n">AbstractRatioFunction</span><span class="p">):</span>
-
     <span class="n">ALLOWED_FUNCTIONS</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;smootherstep&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;delta_csm_min&#39;</span><span class="p">,</span> <span class="s1">&#39;delta_csm_max&#39;</span><span class="p">]}</span>
 
 <div class="viewcode-block" id="DeltaCSMRatioFunction.smootherstep"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.func_utils.html#pymatgen.analysis.chemenv.utils.func_utils.DeltaCSMRatioFunction.smootherstep">[docs]</a>    <span class="k">def</span> <span class="nf">smootherstep</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vals</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">smootherstep</span><span class="p">(</span><span class="n">vals</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s1">&#39;delta_csm_min&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s1">&#39;delta_csm_max&#39;</span><span class="p">]])</span></div></div>
-
 </pre></div>
 
           </div>

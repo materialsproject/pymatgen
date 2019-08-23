@@ -216,7 +216,7 @@ def periodic_table_heatmap(elemental_data, cbar_label="", cbar_label_size=14,
     else:
         max_val = max(elemental_data.values())
         min_val = min(elemental_data.values())
-        
+
     max_row = min(max_row, 9)
 
     if max_row <= 0:
@@ -246,7 +246,7 @@ def periodic_table_heatmap(elemental_data, cbar_label="", cbar_label_size=14,
     cbar.cmap.set_under(blank_color)
 
     # Set the colorbar label and tick marks
-    cbar.set_label(cbar_label, rotation=270, labelpad=25,size=cbar_label_size)
+    cbar.set_label(cbar_label, rotation=270, labelpad=25, size=cbar_label_size)
     cbar.ax.tick_params(labelsize=cbar_label_size)
 
     # Refine and make the table look nice

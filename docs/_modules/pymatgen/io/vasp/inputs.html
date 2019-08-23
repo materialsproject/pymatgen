@@ -90,15 +90,13 @@
 <span class="sd">files.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, &quot;</span> <span class="o">+</span> \
-             <span class="s2">&quot;Vincent L Chevrier, Stephen Dacek&quot;</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, Vincent L Chevrier, Stephen Dacek&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2011, The Materials Project&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.1&quot;</span>
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyuep@gmail.com&quot;</span>
 <span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Production&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Jul 16, 2012&quot;</span>
-
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -150,13 +148,13 @@
 <span class="sd">    .. attribute:: predictor_corrector</span>
 
 <span class="sd">        Predictor corrector coordinates and derivatives for each site; i.e.</span>
-<span class="sd">        a list of three 1x3 arrays for each site (typically read in from a MD </span>
+<span class="sd">        a list of three 1x3 arrays for each site (typically read in from a MD</span>
 <span class="sd">        CONTCAR).</span>
 
 <span class="sd">    .. attribute:: predictor_corrector_preamble</span>
 
 <span class="sd">        Predictor corrector preamble contains the predictor-corrector key,</span>
-<span class="sd">        POTIM, and thermostat parameters that precede the site-specic predictor </span>
+<span class="sd">        POTIM, and thermostat parameters that precede the site-specic predictor</span>
 <span class="sd">        corrector data in MD CONTCAR</span>
 
 <span class="sd">    .. attribute:: temperature</span>
@@ -284,7 +282,7 @@
                     <span class="n">potcar</span> <span class="o">=</span> <span class="n">Potcar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">potcars</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
                     <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">sym</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">potcar</span><span class="o">.</span><span class="n">symbols</span><span class="p">]</span>
                     <span class="p">[</span><span class="n">get_el_sp</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span><span class="p">]</span>  <span class="c1"># ensure valid names</span>
-                <span class="k">except</span><span class="p">:</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                     <span class="n">names</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">Poscar</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">names</span><span class="p">,</span>
@@ -304,7 +302,7 @@
 
 <span class="sd">        2. If there are no valid default names but the input file is Vasp5-like</span>
 <span class="sd">        and contains element symbols in the 6th line, the code will use that.</span>
-<span class="sd">        </span>
+
 <span class="sd">        3. Failing (2), the code will check if a symbol is provided at the end</span>
 <span class="sd">        of each coordinate.</span>
 
@@ -356,12 +354,10 @@
             <span class="n">symbols</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
 
             <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Atoms and number of atoms in POSCAR written with vasp appear on </span>
-<span class="sd">            multiple lines when atoms of the same type are not grouped together </span>
+<span class="sd">            Atoms and number of atoms in POSCAR written with vasp appear on</span>
+<span class="sd">            multiple lines when atoms of the same type are not grouped together</span>
 <span class="sd">            and more than 20 groups are then defined ...</span>
-<span class="sd">            </span>
 <span class="sd">            Example :</span>
-<span class="sd">            </span>
 <span class="sd">            Cr16 Fe35 Ni2</span>
 <span class="sd">               1.00000000000000</span>
 <span class="sd">                 8.5415010000000002   -0.0077670000000000   -0.0007960000000000</span>
@@ -369,29 +365,29 @@
 <span class="sd">                -0.0007970000000000    0.0105720000000000    8.5356889999999996</span>
 <span class="sd">               Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Ni   Fe   Cr   Fe   Cr</span>
 <span class="sd">               Fe   Ni   Fe   Cr   Fe</span>
-<span class="sd">                 1     1     2     4     2     1     1     1     2     1     1     1     4     1     1     1     5     3     6     1</span>
-<span class="sd">                 2     1     3     2     5</span>
+<span class="sd">                 1   1   2   4   2   1   1   1     2     1     1     1     4     1     1     1     5     3     6     1</span>
+<span class="sd">                 2   1   3   2   5</span>
 <span class="sd">            Direct</span>
 <span class="sd">              ...</span>
 <span class="sd">            &quot;&quot;&quot;</span>
             <span class="n">nlines_symbols</span> <span class="o">=</span> <span class="mi">1</span>
             <span class="k">for</span> <span class="n">nlines_symbols</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">):</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="nb">int</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">5</span><span class="o">+</span><span class="n">nlines_symbols</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="nb">int</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">5</span> <span class="o">+</span> <span class="n">nlines_symbols</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
                     <span class="k">break</span>
                 <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                     <span class="k">pass</span>
-            <span class="k">for</span> <span class="n">iline_symbols</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="o">+</span><span class="n">nlines_symbols</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">iline_symbols</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">5</span> <span class="o">+</span> <span class="n">nlines_symbols</span><span class="p">):</span>
                 <span class="n">symbols</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">iline_symbols</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
             <span class="n">natoms</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">iline_natoms_start</span> <span class="o">=</span> <span class="mi">5</span><span class="o">+</span><span class="n">nlines_symbols</span>
+            <span class="n">iline_natoms_start</span> <span class="o">=</span> <span class="mi">5</span> <span class="o">+</span> <span class="n">nlines_symbols</span>
             <span class="k">for</span> <span class="n">iline_natoms</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">iline_natoms_start</span><span class="p">,</span>
-                                      <span class="n">iline_natoms_start</span><span class="o">+</span><span class="n">nlines_symbols</span><span class="p">):</span>
+                                      <span class="n">iline_natoms_start</span> <span class="o">+</span> <span class="n">nlines_symbols</span><span class="p">):</span>
                 <span class="n">natoms</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="n">iline_natoms</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()])</span>
             <span class="n">atomic_symbols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">natoms</span><span class="p">)):</span>
                 <span class="n">atomic_symbols</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">symbols</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">*</span> <span class="n">natoms</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-            <span class="n">ipos</span> <span class="o">=</span> <span class="mi">5</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="n">nlines_symbols</span>
+            <span class="n">ipos</span> <span class="o">=</span> <span class="mi">5</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">nlines_symbols</span>
 
         <span class="n">postype</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">ipos</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
 
@@ -479,9 +475,9 @@
                 <span class="n">lines</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span>
                 <span class="k">for</span> <span class="n">st</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nsites</span><span class="p">):</span>
                     <span class="n">d1</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">tok</span><span class="p">)</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="n">st</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
-                    <span class="n">d2</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">tok</span><span class="p">)</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="n">st</span><span class="o">+</span><span class="n">nsites</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
-                    <span class="n">d3</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">tok</span><span class="p">)</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="n">st</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="n">nsites</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
-                    <span class="n">predictor_corrector</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">d1</span><span class="p">,</span><span class="n">d2</span><span class="p">,</span><span class="n">d3</span><span class="p">])</span>
+                    <span class="n">d2</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">tok</span><span class="p">)</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="n">st</span> <span class="o">+</span> <span class="n">nsites</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
+                    <span class="n">d3</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">tok</span><span class="p">)</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="n">st</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">nsites</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
+                    <span class="n">predictor_corrector</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">d1</span><span class="p">,</span> <span class="n">d2</span><span class="p">,</span> <span class="n">d3</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">velocities</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="n">predictor_corrector</span> <span class="o">=</span> <span class="kc">None</span>
@@ -547,7 +543,7 @@
                 <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">velocities</span><span class="p">:</span>
                     <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">format_str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">v</span><span class="p">]))</span>
-            <span class="k">except</span><span class="p">:</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Velocities are missing or corrupted.&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">predictor_corrector</span><span class="p">:</span>
@@ -556,11 +552,11 @@
                 <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">predictor_corrector_preamble</span><span class="p">)</span>
                 <span class="n">pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">predictor_corrector</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
-                    <span class="k">for</span> <span class="n">z</span> <span class="ow">in</span> <span class="n">pred</span><span class="p">[:,</span><span class="n">col</span><span class="p">]:</span>
+                    <span class="k">for</span> <span class="n">z</span> <span class="ow">in</span> <span class="n">pred</span><span class="p">[:,</span> <span class="n">col</span><span class="p">]:</span>
                         <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">format_str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">z</span><span class="p">]))</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                    <span class="s2">&quot;Preamble information missing or corrupt. &quot;</span> 
+                    <span class="s2">&quot;Preamble information missing or corrupt. &quot;</span>
                     <span class="s2">&quot;Writing Poscar with no predictor corrector data.&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span></div>
@@ -677,8 +673,8 @@
             <span class="k">if</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;MAGMOM&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;MAGMOM&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)))</span> \
                     <span class="ow">and</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LSORBIT&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LNONCOLLINEAR&quot;</span><span class="p">)):</span>
                 <span class="n">val</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;MAGMOM&quot;</span><span class="p">])</span><span class="o">//</span><span class="mi">3</span><span class="p">):</span>
-                    <span class="n">val</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;MAGMOM&quot;</span><span class="p">][</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span><span class="p">:(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="mi">3</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;MAGMOM&quot;</span><span class="p">])</span> <span class="o">//</span> <span class="mi">3</span><span class="p">):</span>
+                    <span class="n">val</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;MAGMOM&quot;</span><span class="p">][</span><span class="n">i</span> <span class="o">*</span> <span class="mi">3</span><span class="p">:(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">3</span><span class="p">])</span>
                 <span class="n">params</span><span class="p">[</span><span class="s2">&quot;MAGMOM&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
@@ -1749,7 +1745,7 @@
 
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">keywords</span><span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span>
-        <span class="k">except</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="n">a</span><span class="p">)</span></div>
 
 
@@ -1988,7 +1984,6 @@
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_std</span><span class="p">,</span> \
                     <span class="nb">open</span><span class="p">(</span><span class="n">err_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">buffering</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_err</span><span class="p">:</span>
                 <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span><span class="n">vasp_cmd</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">f_std</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">f_err</span><span class="p">)</span></div></div>
-
 </pre></div>
 
           </div>

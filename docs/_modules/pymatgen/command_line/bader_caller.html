@@ -57,7 +57,6 @@
 <span class="kn">import</span> <span class="nn">glob</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-
 <span class="kn">from</span> <span class="nn">pymatgen.io.vasp.outputs</span> <span class="k">import</span> <span class="n">Chgcar</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="k">import</span> <span class="n">Potcar</span>
 <span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">requires</span>
@@ -132,7 +131,7 @@
 <span class="sd">        calculating charge transferred).</span>
 
 <span class="sd">    .. attribute: chgcar_ref</span>
-<span class="sd">    </span>
+
 <span class="sd">        Chgcar reference which calculated by AECCAR0 + AECCAR2.</span>
 <span class="sd">        (See http://theory.cm.utexas.edu/henkelman/code/bader/ for details.)</span>
 
@@ -207,7 +206,7 @@
 
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">stdout</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">5</span><span class="p">])</span>
-            <span class="k">except</span><span class="p">:</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>  <span class="c1"># Unknown</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">:</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Your installed version of Bader is outdated, &#39;</span>
@@ -264,10 +263,10 @@
                         <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="n">startx</span><span class="p">:</span><span class="n">startx</span> <span class="o">+</span> <span class="n">xwidth</span><span class="p">,</span> <span class="n">starty</span><span class="p">:</span><span class="n">starty</span> <span class="o">+</span> <span class="n">ywidth</span><span class="p">,</span> <span class="n">startz</span><span class="p">:</span><span class="n">startz</span> <span class="o">+</span> <span class="n">zwidth</span><span class="p">]</span>
 
                     <span class="c1"># Finds the central encompassing volume which holds all the data within a precision</span>
-                    <span class="k">def</span> <span class="nf">find_encompassing_vol</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">prec</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">):</span>
+                    <span class="k">def</span> <span class="nf">find_encompassing_vol</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">prec</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">):</span>
                         <span class="n">total</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
                         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">)):</span>
-                            <span class="n">sliced_data</span> <span class="o">=</span> <span class="n">slice_from_center</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">i</span><span class="p">)</span>
+                            <span class="n">sliced_data</span> <span class="o">=</span> <span class="n">slice_from_center</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
                             <span class="k">if</span> <span class="n">total</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">sliced_data</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.1</span><span class="p">:</span>
                                 <span class="k">return</span> <span class="n">sliced_data</span>
                         <span class="k">return</span> <span class="kc">None</span>
@@ -281,7 +280,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">atomic_densities</span> <span class="o">=</span> <span class="n">atomic_densities</span>
 
 <div class="viewcode-block" id="BaderAnalysis.rebuild_chgcar"><a class="viewcode-back" href="../../../pymatgen.command_line.bader_caller.html#pymatgen.command_line.bader_caller.BaderAnalysis.rebuild_chgcar">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">rebuild_chgcar</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span><span class="n">atomic_densities</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">rebuild_chgcar</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">atomic_densities</span><span class="p">):</span>
 
         <span class="k">pass</span></div>
 

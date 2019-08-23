@@ -285,8 +285,9 @@ creating phase diagrams of entire chemical systems.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>elements</strong> (<em>[</em><em>str</em><em>]</em>) – List of element symbols, e.g., [“Li”, “Fe”,
-“O”].</p></li>
+<li><p><strong>elements</strong> (<em>str</em><em> or </em><em>[</em><em>str</em><em>]</em>) – Chemical system string comprising element
+symbols separated by dashes, e.g., “Li-Fe-O” or List of element
+symbols, e.g., [“Li”, “Fe”, “O”].</p></li>
 <li><p><strong>compatible_only</strong> (<em>bool</em>) – Whether to return only “compatible”
 entries. Compatible entries are entries that have been
 processed using the MaterialsProjectCompatibility class,
@@ -848,7 +849,7 @@ the future.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>snl</strong> (<em>StructureNL/</em><em>[</em><em>StructureNL</em><em>]</em>) – A single StructureNL, or a list</p></li>
+<li><p><strong>snl</strong> (<em>StructureNL/</em><em>[</em><a class="reference internal" href="pymatgen.util.provenance.html#pymatgen.util.provenance.StructureNL" title="pymatgen.util.provenance.StructureNL"><em>StructureNL</em></a><em>]</em>) – A single StructureNL, or a list</p></li>
 <li><p><strong>StructureNL objects</strong> (<em>of</em>) – </p></li>
 </ul>
 </dd>

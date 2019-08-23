@@ -421,7 +421,7 @@
                       <span class="n">reorient</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adds an adsorbate at a particular coordinate.  Adsorbate</span>
-<span class="sd">        represented by a Molecule object and is translated to (0, 0, 0) if </span>
+<span class="sd">        represented by a Molecule object and is translated to (0, 0, 0) if</span>
 <span class="sd">        translate is True, or positioned relative to the input adsorbate</span>
 <span class="sd">        coordinate if translate is False.</span>
 
@@ -442,10 +442,10 @@
             <span class="n">front_atoms</span> <span class="o">=</span> <span class="n">molecule</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
             <span class="n">front_atoms</span><span class="o">.</span><span class="n">_sites</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">molecule</span><span class="o">.</span><span class="n">sites</span>
                                   <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="nb">min</span><span class="p">([</span><span class="n">s</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-                                  <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">molecule</span><span class="o">.</span><span class="n">sites</span><span class="p">])]</span>
+                                                         <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">molecule</span><span class="o">.</span><span class="n">sites</span><span class="p">])]</span>
             <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">front_atoms</span><span class="o">.</span><span class="n">center_of_mass</span>
             <span class="n">molecule</span><span class="o">.</span><span class="n">translate_sites</span><span class="p">(</span><span class="n">vector</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="n">y</span><span class="p">,</span> <span class="o">-</span><span class="n">z</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">reorient</span><span class="p">:</span>    
+        <span class="k">if</span> <span class="n">reorient</span><span class="p">:</span>
             <span class="c1"># Reorient the molecule along slab m_index</span>
             <span class="n">sop</span> <span class="o">=</span> <span class="n">get_rot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slab</span><span class="p">)</span>
             <span class="n">molecule</span><span class="o">.</span><span class="n">apply_operation</span><span class="p">(</span><span class="n">sop</span><span class="o">.</span><span class="n">inverse</span><span class="p">)</span>
@@ -505,8 +505,8 @@
 
         <span class="n">find_args</span> <span class="o">=</span> <span class="n">find_args</span> <span class="ow">or</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">coords</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_adsorption_sites</span><span class="p">(</span><span class="o">**</span><span class="n">find_args</span><span class="p">)[</span><span class="s1">&#39;all&#39;</span><span class="p">]:</span>
-            <span class="n">structs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">add_adsorbate</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> 
-                <span class="n">repeat</span><span class="o">=</span><span class="n">repeat</span><span class="p">,</span> <span class="n">translate</span><span class="o">=</span><span class="n">translate</span><span class="p">,</span> <span class="n">reorient</span><span class="o">=</span><span class="n">reorient</span><span class="p">))</span>
+            <span class="n">structs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">add_adsorbate</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span>
+                                              <span class="n">repeat</span><span class="o">=</span><span class="n">repeat</span><span class="p">,</span> <span class="n">translate</span><span class="o">=</span><span class="n">translate</span><span class="p">,</span> <span class="n">reorient</span><span class="o">=</span><span class="n">reorient</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">structs</span></div>
 
 <div class="viewcode-block" id="AdsorbateSiteFinder.adsorb_both_surfaces"><a class="viewcode-back" href="../../../pymatgen.analysis.adsorption.html#pymatgen.analysis.adsorption.AdsorbateSiteFinder.adsorb_both_surfaces">[docs]</a>    <span class="k">def</span> <span class="nf">adsorb_both_surfaces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">repeat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_lw</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
@@ -597,7 +597,7 @@
                               <span class="n">sym_slab</span><span class="o">.</span><span class="n">equivalent_indices</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
                 <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">eq_indices</span><span class="p">:</span>
                     <span class="k">if</span> <span class="s2">&quot;</span><span class="si">%.6f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sym_slab</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">!=</span> \
-                                    <span class="s2">&quot;</span><span class="si">%.6f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+                            <span class="s2">&quot;</span><span class="si">%.6f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
                         <span class="n">props</span><span class="p">[</span><span class="s2">&quot;surface_properties&quot;</span><span class="p">][</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;substitute&quot;</span>
                         <span class="n">slab</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span> <span class="n">atom</span><span class="p">)</span>
                         <span class="k">break</span>
