@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.alchemy.filters &#8212; pymatgen 2019.8.14 documentation</title>
+    <title>pymatgen.alchemy.filters &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -115,10 +115,8 @@
         <span class="c1"># set up lists to compare</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strict</span><span class="p">:</span>
             <span class="c1"># compare by atomic number</span>
-            <span class="n">atomic_number</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">Z</span>
-            <span class="n">filter_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">atomic_number</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_species</span><span class="p">))</span>
-            <span class="n">structure_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">atomic_number</span><span class="p">,</span>
-                                <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">elements</span><span class="p">))</span>
+            <span class="n">filter_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">sp</span><span class="o">.</span><span class="n">Z</span> <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_species</span><span class="p">])</span>
+            <span class="n">structure_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">sp</span><span class="o">.</span><span class="n">Z</span> <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">elements</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># compare by specie or element object</span>
             <span class="n">filter_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_species</span><span class="p">)</span>
@@ -370,7 +368,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

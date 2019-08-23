@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.entries.entry_tools &#8212; pymatgen 2019.8.14 documentation</title>
+    <title>pymatgen.entries.entry_tools &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -54,7 +54,6 @@
 <span class="sd">This module implements functions to perform various useful operations on</span>
 <span class="sd">entries, such as grouping entries by structure.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
@@ -200,7 +199,7 @@
 <span class="sd">    subsets, dumping into files, etc.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entries</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">PDEntry</span><span class="p">,</span><span class="n">ComputedEntry</span><span class="p">,</span><span class="n">ComputedStructureEntry</span><span class="p">]]):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entries</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">PDEntry</span><span class="p">,</span> <span class="n">ComputedEntry</span><span class="p">,</span> <span class="n">ComputedStructureEntry</span><span class="p">]]):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            entries: All the entries.</span>
@@ -238,10 +237,9 @@
 <span class="sd">        Removes all non-ground state entries, i.e., only keep the lowest energy</span>
 <span class="sd">        per atom entry at each composition.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">group_func</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span>
-        <span class="n">entries</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entries</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">group_func</span><span class="p">)</span>
+        <span class="n">entries</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entries</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">)</span>
         <span class="n">ground_states</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">entries</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">group_func</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">entries</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">):</span>
             <span class="n">ground_states</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">energy_per_atom</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">entries</span> <span class="o">=</span> <span class="n">ground_states</span></div>
 
@@ -333,7 +331,6 @@
                             <span class="n">comp</span><span class="p">[</span><span class="n">Element</span><span class="p">(</span><span class="n">elements</span><span class="p">[</span><span class="n">ind</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">ind</span><span class="p">])</span>
                     <span class="n">entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PDEntry</span><span class="p">(</span><span class="n">Composition</span><span class="p">(</span><span class="n">comp</span><span class="p">),</span> <span class="n">energy</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">entries</span><span class="p">)</span></div></div>
-
 </pre></div>
 
           </div>
@@ -364,7 +361,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

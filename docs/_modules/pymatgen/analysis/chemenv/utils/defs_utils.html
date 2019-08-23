@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.chemenv.utils.defs_utils &#8212; pymatgen 2019.8.14 documentation</title>
+    <title>pymatgen.analysis.chemenv.utils.defs_utils &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="../../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -62,16 +62,13 @@
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;david.waroquiers@gmail.com&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Feb 20, 2016&quot;</span>
 
-
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.coordination_geometry_utils</span> <span class="k">import</span> <span class="n">is_anion_cation_bond</span>
-
 
 <span class="n">STATS_ENV_PAPER</span> <span class="o">=</span> <span class="s1">&#39;David Waroquiers, Xavier Gonze, Gian-Marco Rignanese, Cathrin Welker-Nieuwoudt, Frank Rosowski,</span><span class="se">\n</span><span class="s1">&#39;</span> \
                   <span class="s1">&#39;Michael Goebel, Stephan Schenk, Peter Degelmann, Rute Andre, Robert Glaum, and Geoffroy Hautier,</span><span class="se">\n</span><span class="s1">&#39;</span> \
                   <span class="s1">&#39;&quot;Statistical analysis of coordination environments in oxides&quot;,</span><span class="se">\n</span><span class="s1">&#39;</span> \
                   <span class="s1">&#39;Chem. Mater., 2017, 29 (19), pp 8346-8360,</span><span class="se">\n</span><span class="s1">&#39;</span> \
                   <span class="s1">&#39;DOI: 10.1021/acs.chemmater.7b02766</span><span class="se">\n</span><span class="s1">&#39;</span>
-
 
 
 <div class="viewcode-block" id="chemenv_citations"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.defs_utils.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.chemenv_citations">[docs]</a><span class="k">def</span> <span class="nf">chemenv_citations</span><span class="p">():</span>
@@ -88,14 +85,14 @@
     <span class="n">NO_ELEMENT_TO_SAME_ELEMENT_BONDS</span> <span class="o">=</span> <span class="mi">2</span>
     <span class="n">ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS</span> <span class="o">=</span> <span class="mi">3</span>
     <span class="n">ONLY_ELEMENT_TO_OXYGEN_BONDS</span> <span class="o">=</span> <span class="mi">4</span>
-    <span class="c1">#Short versions</span>
+    <span class="c1"># Short versions</span>
     <span class="n">NONE</span> <span class="o">=</span> <span class="n">NO_ADDITIONAL_CONDITION</span>
     <span class="n">NO_AC</span> <span class="o">=</span> <span class="n">NO_ADDITIONAL_CONDITION</span>
     <span class="n">ONLY_ACB</span> <span class="o">=</span> <span class="n">ONLY_ANION_CATION_BONDS</span>
     <span class="n">NO_E2SEB</span> <span class="o">=</span> <span class="n">NO_ELEMENT_TO_SAME_ELEMENT_BONDS</span>
     <span class="n">ONLY_ACB_AND_NO_E2SEB</span> <span class="o">=</span> <span class="n">ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS</span>
     <span class="n">ONLY_E2OB</span> <span class="o">=</span> <span class="n">ONLY_ELEMENT_TO_OXYGEN_BONDS</span>
-    <span class="c1">#Dictionary mapping of integer for the condition and its &quot;description&quot;</span>
+    <span class="c1"># Dictionary mapping of integer for the condition and its &quot;description&quot;</span>
     <span class="n">CONDITION_DESCRIPTION</span> <span class="o">=</span> <span class="p">{</span><span class="n">NO_ADDITIONAL_CONDITION</span><span class="p">:</span> <span class="s1">&#39;No additional condition&#39;</span><span class="p">,</span>
                              <span class="n">ONLY_ANION_CATION_BONDS</span><span class="p">:</span> <span class="s1">&#39;Only anion-cation bonds&#39;</span><span class="p">,</span>
                              <span class="n">NO_ELEMENT_TO_SAME_ELEMENT_BONDS</span><span class="p">:</span> <span class="s1">&#39;No element-element bonds (same elements)&#39;</span><span class="p">,</span>
@@ -163,7 +160,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

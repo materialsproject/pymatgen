@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.qchem.outputs module &#8212; pymatgen 2019.8.14 documentation</title>
+    <title>pymatgen.io.qchem.outputs module &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.14 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -42,8 +42,44 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="pymatgen-io-qchem-outputs-module">
-<h1>pymatgen.io.qchem.outputs module<a class="headerlink" href="#pymatgen-io-qchem-outputs-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-pymatgen.io.qchem.outputs">
+<span id="pymatgen-io-qchem-outputs-module"></span><h1>pymatgen.io.qchem.outputs module<a class="headerlink" href="#module-pymatgen.io.qchem.outputs" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pymatgen.io.qchem.outputs.QCOutput">
+<em class="property">class </em><code class="sig-name descname">QCOutput</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/outputs.html#QCOutput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.outputs.QCOutput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Class to parse QChem output files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – Filename to parse</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.io.qchem.outputs.QCOutput.as_dict">
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/outputs.html#QCOutput.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.outputs.QCOutput.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>A JSON serializable dict representation of an object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.qchem.outputs.QCOutput.multiple_outputs_from_file">
+<em class="property">static </em><code class="sig-name descname">multiple_outputs_from_file</code><span class="sig-paren">(</span><em class="sig-param">cls</em>, <em class="sig-param">filename</em>, <em class="sig-param">keep_sub_files=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/outputs.html#QCOutput.multiple_outputs_from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.outputs.QCOutput.multiple_outputs_from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses a QChem output file with multiple calculations
+1.) Seperates the output into sub-files</p>
+<blockquote>
+<div><p>e.g. qcout -&gt; qcout.0, qcout.1, qcout.2 … qcout.N
+a.) Find delimeter for multiple calcualtions
+b.) Make seperate output sub-files</p>
+</div></blockquote>
+<p>2.) Creates seperate QCCalcs for each one from the sub-files</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.io.qchem.outputs.check_for_structure_changes">
+<code class="sig-name descname">check_for_structure_changes</code><span class="sig-paren">(</span><em class="sig-param">mol1</em>, <em class="sig-param">mol2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/outputs.html#check_for_structure_changes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.outputs.check_for_structure_changes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
 
 
@@ -82,7 +118,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.14 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
       </ul>
     </div>
 

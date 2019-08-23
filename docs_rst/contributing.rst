@@ -93,7 +93,8 @@ following must be satisfied for your contributions to be accepted into pymatgen.
    scientific convention), but generally, PEP 8 must be observed. Code style
    will be automatically checked, but to aid you, you can copy the example
    pre-commit hook into your .git/hooks directly. This will automatically run
-   pycodestyle prior to any commits.
+   pycodestyle prior to any commits. At the very least, copy pre-commit to
+   .git/hooks/pre-push.
 3. **Python 3**. We only support Python 3.5+.
 4. **Documentation** required for all modules, classes and methods. In
    particular, the method docstrings should make clear the arguments expected

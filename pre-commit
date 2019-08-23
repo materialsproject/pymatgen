@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # An example hook script to verify what is about to be committed.
 # Called by "git commit" with no arguments.  The hook should
@@ -7,4 +7,14 @@
 #
 # To enable this hook, rename this file to "pre-commit".
 
-pycodestyle pymatgen
+
+for file in $(git diff --diff-filter=d --cached --name-only | grep -E '\.(py)$')
+do
+	echo "Checking $file"
+	pycodestyle "$file"	
+	if [ $? -ne 0 ]; then
+		echo "Bad code style detected on $file. Fix before commit."
+		exit 1
+	fi
+done
+

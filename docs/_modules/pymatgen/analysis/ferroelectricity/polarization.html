@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.ferroelectricity.polarization &#8212; pymatgen 2019.8.14 documentation</title>
+    <title>pymatgen.analysis.ferroelectricity.polarization &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -76,23 +76,23 @@
 <span class="sd">See Nicola Spaldin&#39;s &quot;A beginner&#39;s guide to the modern theory of polarization&quot;</span>
 <span class="sd">(https://arxiv.org/abs/1202.1831) for an introduction to crystal polarization.</span>
 
-<span class="sd">VASP reports dipole moment values (used to derive polarization) along Cartesian </span>
+<span class="sd">VASP reports dipole moment values (used to derive polarization) along Cartesian</span>
 <span class="sd">directions (see pead.F around line 970 in the VASP source to confirm this).</span>
 <span class="sd">However, it is most convenient to perform the adjustments necessary to recover</span>
 <span class="sd">a same branch polarization by expressing the polarization along lattice directions.</span>
 <span class="sd">For this reason, calc_ionic calculates ionic contributions to the polarization</span>
-<span class="sd">along lattice directions. We provide the means to convert Cartesian direction </span>
-<span class="sd">polarizations to lattice direction polarizations in the Polarization class. </span>
+<span class="sd">along lattice directions. We provide the means to convert Cartesian direction</span>
+<span class="sd">polarizations to lattice direction polarizations in the Polarization class.</span>
 
 <span class="sd">We recommend using our calc_ionic function for calculating the ionic</span>
 <span class="sd">polarization rather than the values from OUTCAR. We find that the ionic</span>
-<span class="sd">dipole moment reported in OUTCAR differ from the naive calculation of </span>
-<span class="sd">\\sum_i Z_i r_i where i is the index of the atom, Z_i is the ZVAL from the </span>
+<span class="sd">dipole moment reported in OUTCAR differ from the naive calculation of</span>
+<span class="sd">\\sum_i Z_i r_i where i is the index of the atom, Z_i is the ZVAL from the</span>
 <span class="sd">pseudopotential file, and r is the distance in Angstroms along the lattice vectors.</span>
 <span class="sd">Note, this difference is not simply due to VASP using Cartesian directions and</span>
-<span class="sd">calc_ionic using lattice direction but rather how the ionic polarization is </span>
+<span class="sd">calc_ionic using lattice direction but rather how the ionic polarization is</span>
 <span class="sd">computed. Compare calc_ionic to VASP SUBROUTINE POINT_CHARGE_DIPOL in dipol.F in</span>
-<span class="sd">the VASP source to see the differences. We are able to recover a smooth same </span>
+<span class="sd">the VASP source to see the differences. We are able to recover a smooth same</span>
 <span class="sd">branch polarization more frequently using the naive calculation in calc_ionic</span>
 <span class="sd">than using the ionic dipole moment reported in the OUTCAR.</span>
 
@@ -346,7 +346,6 @@
                 <span class="n">lattices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_lengths_and_angles</span><span class="p">(</span>
                     <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">ravel</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">a</span><span class="p">)</span>  <span class="c1"># Use polar units (volume)</span>
 
-
         <span class="n">d_structs</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">sites</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">L</span><span class="p">):</span>
@@ -417,7 +416,7 @@
             <span class="n">convert_to_muC_per_cm2</span><span class="o">=</span><span class="n">convert_to_muC_per_cm2</span><span class="p">,</span> <span class="n">all_in_polar</span><span class="o">=</span><span class="n">all_in_polar</span><span class="p">)</span>
         <span class="c1"># reshape to preserve backwards compatibility due to changes</span>
         <span class="c1"># when switching from np.matrix to np.array</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">tot</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">tot</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span>  <span class="mi">3</span><span class="p">))</span></div>
+        <span class="k">return</span> <span class="p">(</span><span class="n">tot</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">tot</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="Polarization.get_polarization_change_norm"><a class="viewcode-back" href="../../../../pymatgen.analysis.ferroelectricity.polarization.html#pymatgen.analysis.ferroelectricity.polarization.Polarization.get_polarization_change_norm">[docs]</a>    <span class="k">def</span> <span class="nf">get_polarization_change_norm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">convert_to_muC_per_cm2</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">all_in_polar</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -444,15 +443,15 @@
         <span class="n">L</span> <span class="o">=</span> <span class="n">tot</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">sp_a</span> <span class="o">=</span> <span class="n">UnivariateSpline</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">L</span><span class="p">),</span> <span class="n">tot</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
-        <span class="k">except</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="n">sp_a</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">sp_b</span> <span class="o">=</span> <span class="n">UnivariateSpline</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">L</span><span class="p">),</span> <span class="n">tot</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
-        <span class="k">except</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="n">sp_b</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">sp_c</span> <span class="o">=</span> <span class="n">UnivariateSpline</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">L</span><span class="p">),</span> <span class="n">tot</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
-        <span class="k">except</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="n">sp_c</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">sp_a</span><span class="p">,</span> <span class="n">sp_b</span><span class="p">,</span> <span class="n">sp_c</span></div>
 
@@ -466,7 +465,7 @@
                                        <span class="n">all_in_polar</span><span class="o">=</span><span class="n">all_in_polar</span><span class="p">)</span>
         <span class="n">max_jumps</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sps</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">sp</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">sp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">max_jumps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">tot</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span> <span class="o">-</span> <span class="n">sp</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tot</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">()))))</span>
         <span class="k">return</span> <span class="n">max_jumps</span></div>
 
@@ -480,7 +479,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">sp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">same_branch_splines</span><span class="p">(</span><span class="n">convert_to_muC_per_cm2</span><span class="o">=</span><span class="n">convert_to_muC_per_cm2</span><span class="p">,</span>
                                           <span class="n">all_in_polar</span><span class="o">=</span><span class="n">all_in_polar</span><span class="p">)</span>
-        <span class="k">except</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Something went wrong.&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="n">sp_latt</span> <span class="o">=</span> <span class="p">[</span><span class="n">sp</span><span class="p">[</span><span class="n">i</span><span class="p">](</span><span class="nb">range</span><span class="p">(</span><span class="n">L</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
@@ -508,7 +507,7 @@
         <span class="n">energies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energies</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">sp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spline</span><span class="p">()</span>
-        <span class="k">except</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Energy spline failed.&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="n">spline_energies</span> <span class="o">=</span> <span class="n">sp</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">energies</span><span class="p">)))</span>
@@ -530,7 +529,7 @@
         <span class="n">energies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energies</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">sp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spline</span><span class="p">()</span>
-        <span class="k">except</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Energy spline failed.&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="n">der</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">derivative</span><span class="p">()</span>
@@ -567,7 +566,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

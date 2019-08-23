@@ -181,11 +181,11 @@ def pretty_polyfit_plot(x, y, deg=1, xlabel=None, ylabel=None, **kwargs):
     return plt
 
 
-def periodic_table_heatmap(elemental_data, cbar_label="",
-                           show_plot=False, cmap="YlOrRd", blank_color="grey",
+def periodic_table_heatmap(elemental_data, cbar_label="", cbar_label_size=14,
+                           show_plot=False, cmap="YlOrRd", cmap_range=None, blank_color="grey",
                            value_format=None, max_row=9):
     """
-    A static method that generates a heat map overlapped on a periodic table.
+    A static method that generates a heat map overlayed on a periodic table.
 
     Args:
          elemental_data (dict): A dictionary with the element as a key and a
@@ -193,12 +193,15 @@ def periodic_table_heatmap(elemental_data, cbar_label="",
             Elements missing in the elemental_data will be grey by default
             in the final table elemental_data={"Fe": 4.2, "O": 5.0}.
          cbar_label (string): Label of the colorbar. Default is "".
-         figure_name (string): Name of the plot (absolute path) being saved
-            if not None.
+         cbar_label_size (float): Font size for the colorbar label. Default is 14.
+         cmap_range (tuple): Minimum and maximum value of the colormap scale.
+            If None, the colormap will autotmatically scale to the range of the
+            data.
          show_plot (bool): Whether to show the heatmap. Default is False.
          value_format (str): Formatting string to show values. If None, no value
             is shown. Example: "%.4f" shows float to four decimals.
-         cmap (string): Color scheme of the heatmap. Default is 'coolwarm'.
+         cmap (string): Color scheme of the heatmap. Default is 'YlOrRd'.
+            Refer to the matplotlib documentation for other options.
          blank_color (string): Color assigned for the missing elements in
             elemental_data. Default is "grey".
          max_row (integer): Maximum number of rows of the periodic table to be
@@ -207,8 +210,13 @@ def periodic_table_heatmap(elemental_data, cbar_label="",
     """
 
     # Convert primitive_elemental data in the form of numpy array for plotting.
-    max_val = max(elemental_data.values())
-    min_val = min(elemental_data.values())
+    if cmap_range is not None:
+        max_val = cmap_range[1]
+        min_val = cmap_range[0]
+    else:
+        max_val = max(elemental_data.values())
+        min_val = min(elemental_data.values())
+
     max_row = min(max_row, 9)
 
     if max_row <= 0:
@@ -236,8 +244,10 @@ def periodic_table_heatmap(elemental_data, cbar_label="",
 
     # Grey out missing elements in input data
     cbar.cmap.set_under(blank_color)
-    cbar.set_label(cbar_label, rotation=270, labelpad=15)
-    cbar.ax.tick_params(labelsize=14)
+
+    # Set the colorbar label and tick marks
+    cbar.set_label(cbar_label, rotation=270, labelpad=25, size=cbar_label_size)
+    cbar.ax.tick_params(labelsize=cbar_label_size)
 
     # Refine and make the table look nice
     ax.axis('off')
