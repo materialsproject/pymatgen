@@ -17,12 +17,12 @@ from pymatgen.util.io_utils import clean_lines
 from pymatgen import Molecule, Element, Lattice, Structure, SymmOp
 
 """
-This module implements a core class LammpsData for generating/parsing 
-LAMMPS data file, and other bridging classes to build LammpsData from 
-molecules. 
+This module implements a core class LammpsData for generating/parsing
+LAMMPS data file, and other bridging classes to build LammpsData from
+molecules.
 
 Only point particle styles are supported for now (atom_style in angle,
-atomic, bond, charge, full and molecular only). See the pages below for 
+atomic, bond, charge, full and molecular only). See the pages below for
 more info.
 
     http://lammps.sandia.gov/doc/atom_style.html
@@ -353,9 +353,15 @@ class LammpsData(MSONable):
                       for k, v in types.items()]
         stats = "\n".join(count_lines + [""] + type_lines)
 
-        map_coords = lambda q: ("{:.%df}" % distance).format(q)
-        map_velos = lambda q: ("{:.%df}" % velocity).format(q)
-        map_charges = lambda q: ("{:.%df}" % charge).format(q)
+        def map_coords(q):
+            return ("{:.%df}" % distance).format(q)
+
+        def map_velos(q):
+            return ("{:.%df}" % velocity).format(q)
+
+        def map_charges(q):
+            return ("{:.%df}" % charge).format(q)
+
         formatters = {"x": map_coords, "y": map_coords, "z": map_coords,
                       "vx": map_velos, "vy": map_velos, "vz": map_velos,
                       "q": map_charges}
@@ -486,8 +492,8 @@ class LammpsData(MSONable):
                     topo_coeffs[kw].append(d)
 
         if self.topology:
-            label_topo = lambda t: tuple(masses.loc[atoms_df.loc[t, "type"],
-                                                    "label"])
+            def label_topo(t):
+                return tuple(masses.loc[atoms_df.loc[t, "type"], "label"])
             for k, v in self.topology.items():
                 ff_kw = k[:-1] + " Coeffs"
                 for topo in v.itertuples(False, None):
@@ -775,7 +781,8 @@ class LammpsData(MSONable):
 
     @classmethod
     def from_dict(cls, d):
-        decode_df = lambda s: pd.read_json(s, orient="split")
+        def decode_df(s):
+            return pd.read_json(s, orient="split")
         items = dict()
         items["box"] = LammpsBox.from_dict(d["box"])
         items["masses"] = decode_df(d["masses"])
@@ -797,7 +804,8 @@ class LammpsData(MSONable):
         return cls(**items)
 
     def as_dict(self):
-        encode_df = lambda df: df.to_json(orient="split")
+        def encode_df(df):
+            return df.to_json(orient="split")
         d = dict()
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
@@ -964,7 +972,8 @@ class ForceField(MSONable):
 
     """
 
-    _is_valid = lambda self, df: not pd.isnull(df).values.any()
+    def _is_valid(self, df):
+        return not pd.isnull(df).values.any()
 
     def __init__(self, mass_info, nonbond_coeffs=None, topo_coeffs=None):
         """
@@ -1009,9 +1018,9 @@ class ForceField(MSONable):
                 be defined MORE THAN ONCE with DIFFERENT coefficients.
 
         """
-        map_mass = lambda v: v.atomic_mass.real if isinstance(v, Element) \
-            else Element(v).atomic_mass.real if isinstance(v, str) \
-            else v
+        def map_mass(v):
+            return v.atomic_mass.real if isinstance(v, Element) else Element(v).atomic_mass.real \
+                if isinstance(v, str) else v
         index, masses, self.mass_info, atoms_map = [], [], [], {}
         for i, m in enumerate(mass_info):
             index.append(i + 1)

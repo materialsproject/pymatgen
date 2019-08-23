@@ -263,8 +263,8 @@ class QCOutput(MSONable):
         if self.data.get('opt_constraint'):
             temp_constraint = read_pattern(
                 self.text, {
-                    "key":
-                        r"Constraints and their Current Values\s+Value\s+Constraint\s+(\w+)\:\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
+                    "key": r"Constraints and their Current Values\s+Value\s+Constraint\s+(\w+)\:\s+([\d\-\.]+)\s+"
+                           r"([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
                 }).get('key')
             if temp_constraint is not None:
                 self.data["opt_constraint"] = temp_constraint[0]
@@ -432,15 +432,39 @@ class QCOutput(MSONable):
                 footer_pattern = r"^\s*gen_scfman_exception: SCF failed to converge"
             else:
                 footer_pattern = r"^\s*\-+\n\s+SCF time"
-            header_pattern = r"^\s*\-+\s+Cycle\s+Energy\s+(?:(?:DIIS)*\s+[Ee]rror)*(?:RMS Gradient)*\s+\-+(?:\s*\-+\s+OpenMP\s+Integral\s+computing\s+Module\s+(?:Release:\s+version\s+[\d\-\.]+\,\s+\w+\s+[\d\-\.]+\, Q-Chem Inc\. Pittsburgh\s+)*\-+)*\n"
-            table_pattern = r"(?:\n[a-zA-Z_\s/]+\.C::(?:WARNING energy changes are now smaller than effective accuracy\.)*(?:\s+calculation will continue, but THRESH should be increased)*(?:\s+or SCF_CONVERGENCE decreased\. )*(?:\s+effective_thresh = [\d\-\.]+e[\d\-]+)*)*(?:\s*Nonlocal correlation = [\d\-\.]+e[\d\-]+)*(?:\s*Inaccurate integrated density:\n\s+Number of electrons\s+=\s+[\d\-\.]+\n\s+Numerical integral\s+=\s+[\d\-\.]+\n\s+Relative error\s+=\s+[\d\-\.]+\s+\%\n)*\s*\d+\s+([\d\-\.]+)\s+([\d\-\.]+)e([\d\-\.\+]+)(?:\s+Convergence criterion met)*(?:\s+Preconditoned Steepest Descent)*(?:\s+Roothaan Step)*(?:\s+(?:Normal\s+)*BFGS [Ss]tep)*(?:\s+LineSearch Step)*(?:\s+Line search: overstep)*(?:\s+Dog-leg BFGS step)*(?:\s+Line search: understep)*(?:\s+Descent step)*(?:\s+Done DIIS. Switching to GDM)*(?:\s*\-+\s+Cycle\s+Energy\s+(?:(?:DIIS)*\s+[Ee]rror)*(?:RMS Gradient)*\s+\-+(?:\s*\-+\s+OpenMP\s+Integral\s+computing\s+Module\s+(?:Release:\s+version\s+[\d\-\.]+\,\s+\w+\s+[\d\-\.]+\, Q-Chem Inc\. Pittsburgh\s+)*\-+)*\n)*"
+            header_pattern = r"^\s*\-+\s+Cycle\s+Energy\s+(?:(?:DIIS)*\s+[Ee]rror)*(?:RMS Gradient)*\s+\-+" \
+                             r"(?:\s*\-+\s+OpenMP\s+Integral\s+computing\s+Module\s+" \
+                             r"(?:Release:\s+version\s+[\d\-\.]+\,\s+\w+\s+[\d\-\.]+\, " \
+                             r"Q-Chem Inc\. Pittsburgh\s+)*\-+)*\n"
+            table_pattern = r"(?:\n[a-zA-Z_\s/]+\.C::(?:WARNING energy changes are now smaller than effective " \
+                            r"accuracy\.)*(?:\s+calculation will continue, but THRESH should be increased)*" \
+                            r"(?:\s+or SCF_CONVERGENCE decreased\. )*(?:\s+effective_thresh = [\d\-\.]+e[\d\-]+)*)*" \
+                            r"(?:\s*Nonlocal correlation = [\d\-\.]+e[\d\-]+)*" \
+                            r"(?:\s*Inaccurate integrated density:\n\s+Number of electrons\s+=\s+[\d\-\.]+\n\s+" \
+                            r"Numerical integral\s+=\s+[\d\-\.]+\n\s+Relative error\s+=\s+[\d\-\.]+\s+\%\n)*\s*\d+\s+" \
+                            r"([\d\-\.]+)\s+([\d\-\.]+)e([\d\-\.\+]+)(?:\s+Convergence criterion met)*" \
+                            r"(?:\s+Preconditoned Steepest Descent)*(?:\s+Roothaan Step)*(?:\s+" \
+                            r"(?:Normal\s+)*BFGS [Ss]tep)*(?:\s+LineSearch Step)*(?:\s+Line search: overstep)*" \
+                            r"(?:\s+Dog-leg BFGS step)*(?:\s+Line search: understep)*" \
+                            r"(?:\s+Descent step)*(?:\s+Done DIIS. Switching to GDM)*" \
+                            r"(?:\s*\-+\s+Cycle\s+Energy\s+(?:(?:DIIS)*\s+[Ee]rror)*" \
+                            r"(?:RMS Gradient)*\s+\-+(?:\s*\-+\s+OpenMP\s+Integral\s+computing\s+Module\s+" \
+                            r"(?:Release:\s+version\s+[\d\-\.]+\,\s+\w+\s+[\d\-\.]+\, " \
+                            r"Q-Chem Inc\. Pittsburgh\s+)*\-+)*\n)*"
         else:
             if "SCF_failed_to_converge" in self.data.get("errors"):
                 footer_pattern = r"^\s*\d+\s*[\d\-\.]+\s+[\d\-\.]+E[\d\-\.]+\s+Convergence\s+failure\n"
             else:
                 footer_pattern = r"^\s*\-+\n"
             header_pattern = r"^\s*\-+\s+Cycle\s+Energy\s+DIIS Error\s+\-+\n"
-            table_pattern = r"(?:\s*Inaccurate integrated density:\n\s+Number of electrons\s+=\s+[\d\-\.]+\n\s+Numerical integral\s+=\s+[\d\-\.]+\n\s+Relative error\s+=\s+[\d\-\.]+\s+\%\n)*\s*\d+\s*([\d\-\.]+)\s+([\d\-\.]+)E([\d\-\.\+]+)(?:\s*\n\s*cpu\s+[\d\-\.]+\swall\s+[\d\-\.]+)*(?:\nin dftxc\.C, eleTot sum is:[\d\-\.]+, tauTot is\:[\d\-\.]+)*(?:\s+Convergence criterion met)*(?:\s+Done RCA\. Switching to DIIS)*(?:\n\s*Warning: not using a symmetric Q)*(?:\nRecomputing EXC\s*[\d\-\.]+\s*[\d\-\.]+\s*[\d\-\.]+(?:\s*\nRecomputing EXC\s*[\d\-\.]+\s*[\d\-\.]+\s*[\d\-\.]+)*)*"
+            table_pattern = r"(?:\s*Inaccurate integrated density:\n\s+Number of electrons\s+=\s+[\d\-\.]+\n\s+" \
+                            r"Numerical integral\s+=\s+[\d\-\.]+\n\s+Relative error\s+=\s+[\d\-\.]+\s+\%\n)*\s*\d+\s*" \
+                            r"([\d\-\.]+)\s+([\d\-\.]+)E([\d\-\.\+]+)(?:\s*\n\s*cpu\s+[\d\-\.]+\swall\s+[\d\-\.]+)*" \
+                            r"(?:\nin dftxc\.C, eleTot sum is:[\d\-\.]+, tauTot is\:[\d\-\.]+)*" \
+                            r"(?:\s+Convergence criterion met)*(?:\s+Done RCA\. Switching to DIIS)*" \
+                            r"(?:\n\s*Warning: not using a symmetric Q)*" \
+                            r"(?:\nRecomputing EXC\s*[\d\-\.]+\s*[\d\-\.]+\s*[\d\-\.]+" \
+                            r"(?:\s*\nRecomputing EXC\s*[\d\-\.]+\s*[\d\-\.]+\s*[\d\-\.]+)*)*"
 
         temp_scf = read_table_pattern(self.text, header_pattern, table_pattern,
                                       footer_pattern)
@@ -455,7 +479,10 @@ class QCOutput(MSONable):
         self.data["SCF"] = real_scf
 
         temp_thresh_warning = read_pattern(self.text, {
-            "key": r"\n[a-zA-Z_\s/]+\.C::WARNING energy changes are now smaller than effective accuracy\.\n[a-zA-Z_\s/]+\.C::\s+calculation will continue, but THRESH should be increased\n[a-zA-Z_\s/]+\.C::\s+or SCF_CONVERGENCE decreased\. \n[a-zA-Z_\s/]+\.C::\s+effective_thresh = ([\d\-\.]+e[\d\-]+)"
+            "key": r"\n[a-zA-Z_\s/]+\.C::WARNING energy changes are now smaller than effective accuracy"
+                   r"\.\n[a-zA-Z_\s/]+\.C::\s+calculation will continue, but THRESH should be increased\n"
+                   r"[a-zA-Z_\s/]+\.C::\s+or SCF_CONVERGENCE decreased\. \n"
+                   r"[a-zA-Z_\s/]+\.C::\s+effective_thresh = ([\d\-\.]+e[\d\-]+)"
         }).get('key')
         if temp_thresh_warning is not None:
             if len(temp_thresh_warning) == 1:
@@ -495,7 +522,8 @@ class QCOutput(MSONable):
         Parses Mulliken/ESP/RESP charges. Also parses spins given an unrestricted SCF.
         """
         if self.data.get('unrestricted', []):
-            header_pattern = r"\-+\s+Ground-State Mulliken Net Atomic Charges\s+Atom\s+Charge \(a\.u\.\)\s+Spin\s\(a\.u\.\)\s+\-+"
+            header_pattern = r"\-+\s+Ground-State Mulliken Net Atomic Charges\s+Atom\s+Charge \(a\.u\.\)\s+" \
+                             r"Spin\s\(a\.u\.\)\s+\-+"
             table_pattern = r"\s+\d+\s\w+\s+([\d\-\.]+)\s+([\d\-\.]+)"
             footer_pattern = r"\s\s\-+\s+Sum of atomic charges"
         else:
@@ -544,7 +572,8 @@ class QCOutput(MSONable):
         # Check for inaccurate integrated density
         temp_inac_integ = read_pattern(
             self.text, {
-                "key": r"Inaccurate integrated density:\n\s+Number of electrons\s+=\s+([\d\-\.]+)\n\s+Numerical integral\s+=\s+([\d\-\.]+)\n\s+Relative error\s+=\s+([\d\-\.]+)\s+\%\n"
+                "key": r"Inaccurate integrated density:\n\s+Number of electrons\s+=\s+([\d\-\.]+)\n\s+"
+                       r"Numerical integral\s+=\s+([\d\-\.]+)\n\s+Relative error\s+=\s+([\d\-\.]+)\s+\%\n"
             }).get('key')
         if temp_inac_integ is not None:
             inaccurate_integrated_density = np.zeros(shape=(len(temp_inac_integ), 3))
@@ -628,7 +657,8 @@ class QCOutput(MSONable):
         # Check if there were problems with a colinear bend
         if read_pattern(
                 self.text, {
-                    "key": r"\*\*\*ERROR\*\*\* Angle[\s\d]+is near\-linear\s+But No atom available to define colinear bend"
+                    "key": r"\*\*\*ERROR\*\*\* Angle[\s\d]+is near\-linear\s+"
+                           r"But No atom available to define colinear bend"
                 },
                 terminate_on_match=True).get('key') == [[]]:
             self.data["warnings"]["colinear_bend"] = True
@@ -680,8 +710,10 @@ class QCOutput(MSONable):
             self.text, header_pattern, table_pattern, footer_pattern)
         if parsed_optimized_geometry == [] or None:
             self.data["optimized_geometry"] = None
-            header_pattern = r"^\s+\*+\s+OPTIMIZATION CONVERGED\s+\*+\s+\*+\s+Z-matrix\s+Print:\s+\$molecule\s+[\d\-]+\s+[\d\-]+\n"
-            table_pattern = r"\s*(\w+)(?:\s+(\d+)\s+([\d\-\.]+)(?:\s+(\d+)\s+([\d\-\.]+)(?:\s+(\d+)\s+([\d\-\.]+))*)*)*(?:\s+0)*"
+            header_pattern = r"^\s+\*+\s+OPTIMIZATION CONVERGED\s+\*+\s+\*+\s+Z-matrix\s+" \
+                             r"Print:\s+\$molecule\s+[\d\-]+\s+[\d\-]+\n"
+            table_pattern = r"\s*(\w+)(?:\s+(\d+)\s+([\d\-\.]+)(?:\s+(\d+)\s+([\d\-\.]+)" \
+                            r"(?:\s+(\d+)\s+([\d\-\.]+))*)*)*(?:\s+0)*"
             footer_pattern = r"^\$end\n"
 
             self.data["optimized_zmat"] = read_table_pattern(
@@ -725,7 +757,8 @@ class QCOutput(MSONable):
         footer_pattern = r"(?:Max gradient component|Gradient time)"
 
         grad_format_length = self._get_grad_format_length(grad_header_pattern)
-        grad_table_pattern = r"(?:\s+\d+(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?)?\n\s\s\s\s[1-3]\s*(\-?[\d\.]{9,12})"
+        grad_table_pattern = r"(?:\s+\d+(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?)?\n\s\s\s\s[1-3]\s*" \
+                             r"(\-?[\d\.]{9,12})"
         if grad_format_length > 1:
             for ii in range(1, grad_format_length):
                 grad_table_pattern = grad_table_pattern + r"(?:\s*(\-?[\d\.]{9,12}))?"
@@ -828,7 +861,9 @@ class QCOutput(MSONable):
                 "frequencies":
                     r"\s*Frequency:\s+(\-?[\d\.\*]+)(?:\s+(\-?[\d\.\*]+)(?:\s+(\-?[\d\.\*]+))*)*",
                 "trans_dip":
-                    r"TransDip\s+(\-?[\d\.]{5,7}|\*{5,7})\s*(\-?[\d\.]{5,7}|\*{5,7})\s*(\-?[\d\.]{5,7}|\*{5,7})\s*(?:(\-?[\d\.]{5,7}|\*{5,7})\s*(\-?[\d\.]{5,7}|\*{5,7})\s*(\-?[\d\.]{5,7}|\*{5,7})\s*(?:(\-?[\d\.]{5,7}|\*{5,7})\s*(\-?[\d\.]{5,7}|\*{5,7})\s*(\-?[\d\.]{5,7}|\*{5,7}))*)*",
+                    r"TransDip\s+(\-?[\d\.]{5,7}|\*{5,7})\s*(\-?[\d\.]{5,7}|\*{5,7})\s*(\-?[\d\.]{5,7}|\*{5,7})\s*"
+                    r"(?:(\-?[\d\.]{5,7}|\*{5,7})\s*(\-?[\d\.]{5,7}|\*{5,7})\s*(\-?[\d\.]{5,7}|\*{5,7})\s*"
+                    r"(?:(\-?[\d\.]{5,7}|\*{5,7})\s*(\-?[\d\.]{5,7}|\*{5,7})\s*(\-?[\d\.]{5,7}|\*{5,7}))*)*",
                 "IR_intens":
                     r"\s*IR Intens:\s*(\-?[\d\.\*]+)(?:\s+(\-?[\d\.\*]+)(?:\s+(\-?[\d\.\*]+))*)*",
                 "IR_active":
@@ -911,7 +946,8 @@ class QCOutput(MSONable):
                             freqs[ii] = float("inf")
                         else:
                             raise RuntimeError(
-                                "ERROR: Encountered an undefined frequency not at the beginning or end of the frequency list, which makes no sense! Exiting...")
+                                "ERROR: Encountered an undefined frequency not at the beginning or end of the "
+                                "frequency list, which makes no sense! Exiting...")
                         if not self.data.get('completion', []):
                             if "undefined_frequency" not in self.data["errors"]:
                                 self.data["errors"] += ["undefined_frequency"]
@@ -932,8 +968,10 @@ class QCOutput(MSONable):
             self.data['IR_intens'] = intens
 
             header_pattern = r"\s*Raman Active:\s+[YESNO]+\s+(?:[YESNO]+\s+)*X\s+Y\s+Z\s+(?:X\s+Y\s+Z\s+)*"
-            table_pattern = r"\s*[a-zA-Z][a-zA-Z\s]\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*(?:([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*(?:([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+))*)*"
-            footer_pattern = r"TransDip\s+\-?[\d\.\*]+\s*\-?[\d\.\*]+\s*\-?[\d\.\*]+\s*(?:\-?[\d\.\*]+\s*\-?[\d\.\*]+\s*\-?[\d\.\*]+\s*)*"
+            table_pattern = r"\s*[a-zA-Z][a-zA-Z\s]\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*(?:([\d\-\.]+)\s*" \
+                            r"([\d\-\.]+)\s*([\d\-\.]+)\s*(?:([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+))*)*"
+            footer_pattern = r"TransDip\s+\-?[\d\.\*]+\s*\-?[\d\.\*]+\s*\-?[\d\.\*]+\s*(?:\-?[\d\.\*]+\s*\-?" \
+                             r"[\d\.\*]+\s*\-?[\d\.\*]+\s*)*"
             temp_freq_mode_vecs = read_table_pattern(
                 self.text, header_pattern, table_pattern, footer_pattern)
             freq_mode_vecs = np.zeros(
@@ -1124,7 +1162,8 @@ def check_for_structure_changes(mol1, mol2):
     for ii, site in enumerate(mol1):
         if site.specie.symbol != mol2[ii].specie.symbol:
             print(
-                "WARNING: Comparing molecules with different atom ordering! Turning off special treatment for coordinating metals.")
+                "WARNING: Comparing molecules with different atom ordering! Turning off special treatment for "
+                "coordinating metals.")
             special_elements = []
 
     special_sites = [[], []]

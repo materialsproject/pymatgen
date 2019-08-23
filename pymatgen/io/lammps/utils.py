@@ -86,8 +86,7 @@ class Polymer:
         self._create(self.monomer, self.mon_vector)
         # terminate the chain with the end_monomer
         self.n_units += 1
-        end_mon_vector = end_monomer.cart_coords[e_tail] - \
-                         end_monomer.cart_coords[e_head]
+        end_mon_vector = end_monomer.cart_coords[e_tail] - end_monomer.cart_coords[e_head]
         self._create(end_monomer, end_mon_vector)
         self.molecule = Molecule.from_sites(self.molecule.sites)
 
@@ -145,8 +144,7 @@ class Polymer:
             move_direction (numpy.array): direction along which the monomer
                 will be positioned
         """
-        translate_by = self.molecule.cart_coords[self.end] + \
-                       self.link_distance * move_direction
+        translate_by = self.molecule.cart_coords[self.end] + self.link_distance * move_direction
         monomer.translate_sites(range(len(monomer)), translate_by)
         if not self.linear_chain:
             self._align_monomer(monomer, mon_vector, move_direction)
@@ -154,8 +152,7 @@ class Polymer:
         does_cross = False
         for i, site in enumerate(monomer):
             try:
-                self.molecule.append(site.specie, site.coords,
-                                     properties=site.properties)
+                self.molecule.append(site.specie, site.coords, properties=site.properties)
             except Exception:
                 does_cross = True
                 polymer_length = len(self.molecule)
@@ -217,8 +214,7 @@ class PackmolRunner:
         if not self.control_params.get("filetype"):
             self.control_params["filetype"] = filetype
         if not self.control_params.get("output"):
-            self.control_params["output"] = "{}.{}".format(
-                output_file.split(".")[0], self.control_params["filetype"])
+            self.control_params["output"] = "{}.{}".format(output_file.split(".")[0], self.control_params["filetype"])
         if self.boxit:
             self._set_box()
 
@@ -354,7 +350,7 @@ class PackmolRunner:
         self.map_residue_to_mol = {}
         lookup = {}
         for idx, mol in enumerate(self.mols):
-            if not mol.formula in lookup:
+            if mol.formula not in lookup:
                 mol.translate_sites(indices=range(len(mol)),
                                     vector=-mol.center_of_mass)
                 lookup[mol.formula] = mol.copy()
@@ -457,7 +453,7 @@ class LammpsRunner:
         if not which(self.lammps_bin[-1]):
             raise RuntimeError(
                 "LammpsRunner requires the executable {} to be in the path. "
-                "Please download and install LAMMPS from " \
+                "Please download and install LAMMPS from "
                 "http://lammps.sandia.gov. "
                 "Don't forget to add the binary to your path".format(self.lammps_bin[-1]))
         self.input_filename = input_filename
