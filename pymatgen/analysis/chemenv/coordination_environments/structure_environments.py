@@ -771,7 +771,7 @@ class StructureEnvironments(MSONable):
         if strategy is not None:
             try:
                 strategy.add_strategy_visualization_to_subplot(subplot=subplot)
-            except:
+            except Exception:
                 pass
         if plot_type['angle_parameter'][0] == 'initial_normalized_inverted':
             subplot.axes.invert_yaxis()

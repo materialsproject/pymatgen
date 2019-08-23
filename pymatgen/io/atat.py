@@ -120,7 +120,7 @@ class Mcsqs:
                     species_str = [species_str[0], 1.0]
                 try:
                     species[Specie(species_str[0])] = float(species_str[1])
-                except:
+                except Exception:
                     species[DummySpecie(species_str[0])] = float(species_str[1])
 
             all_species.append(species)

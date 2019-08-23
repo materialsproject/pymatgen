@@ -243,7 +243,7 @@ class ExcitingInput(MSONable):
             self.indent(root)
             # output should be a string not a bytes object
             string=ET.tostring(root).decode('UTF-8')
-        except:
+        except Exception:
             raise ValueError('Incorrect celltype!')
         return string
     def write_file(self, celltype, filename, cartesian=False, bandstr=False, symprec=0.4, angle_tolerance=5):
@@ -252,7 +252,7 @@ class ExcitingInput(MSONable):
             self.indent(root)
             tree=ET.ElementTree(root)
             tree.write(filename)
-        except:
+        except Exception:
             raise ValueError('Incorrect celltype!')
         return
     # Missing PrerryPrint option in the current version of xml.etree.cElementTree

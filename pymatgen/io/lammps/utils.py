@@ -155,7 +155,7 @@ class Polymer:
             try:
                 self.molecule.append(site.specie, site.coords,
                                      properties=site.properties)
-            except:
+            except Exception:
                 does_cross = True
                 polymer_length = len(self.molecule)
                 self.molecule.remove_sites(

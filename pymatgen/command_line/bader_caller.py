@@ -160,7 +160,7 @@ class BaderAnalysis:
 
             try:
                 self.version = float(stdout.split()[5])
-            except:
+            except Exception:
                 self.version = -1  # Unknown
             if self.version < 1.0:
                 warnings.warn('Your installed version of Bader is outdated, '

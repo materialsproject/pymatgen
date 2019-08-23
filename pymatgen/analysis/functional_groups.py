@@ -146,8 +146,7 @@ class FunctionalGroupExtractor:
         specials = set()
 
         # For this function, only carbons are considered
-        carbons = [n for n in self.molgraph.graph.nodes if
-                 str(self.species[n]) == "C"]
+        carbons = [n for n in self.molgraph.graph.nodes if str(self.species[n]) == "C"]
 
         # Condition one: double/triple bonds to heteroatoms
         for node in carbons:
@@ -168,7 +167,7 @@ class FunctionalGroupExtractor:
             neighbors = self.molgraph.graph[node]
 
             for neighbor, attributes in neighbors.items():
-                if str(self.species[neighbor]) == "C"\
+                if str(self.species[neighbor]) == "C" \
                         and int(attributes[0]["weight"]) in [2, 3]:
                     specials.add(node)
                     specials.add(neighbor)

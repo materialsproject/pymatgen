@@ -550,7 +550,7 @@ class CifParser:
                 for idx, frac in enumerate(data.data[label]):
                     try:
                         frac = str2float(frac)
-                    except:
+                    except Exception:
                         # co-ordinate might not be defined e.g. '?'
                         continue
                     for comparison_frac in important_fracs:
@@ -953,7 +953,7 @@ class CifParser:
                     o_s = oxi_states.get(oxi_symbol, o_s)
                 try:
                     el = Specie(symbol, o_s)
-                except:
+                except Exception:
                     el = DummySpecie(symbol, o_s)
             else:
                 el = get_el_sp(symbol)

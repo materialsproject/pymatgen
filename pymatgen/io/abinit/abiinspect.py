@@ -541,7 +541,7 @@ class YamlTokenizer(Iterator):
     def close(self):
         try:
             self.stream.close()
-        except:
+        except Exception:
             print("Exception in YAMLTokenizer.close()")
             print("Python traceback:")
             print(straceback())

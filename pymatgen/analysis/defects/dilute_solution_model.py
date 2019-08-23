@@ -275,7 +275,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
 
             try:
                 x = nsolve(vector_func, mu, [m0, m1], module="numpy")
-            except:
+            except Exception:
                 continue
 
             c_val = c.subs(dict(zip(mu, x)))
@@ -342,7 +342,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
         else:
             try:
                 mu_vals = [trial_chem_pot[element] for element in specie_order]
-            except:
+            except Exception:
                 mu_vals = compute_mus()
 
         formation_energies = compute_def_formation_energies()
@@ -375,7 +375,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
                 if mu_vals:
                     mu_vals = [float(mu_val) for mu_val in mu_vals]
                 break
-            except:  # Go for antisite as dominant defect
+            except Exception:  # Go for antisite as dominant defect
                 mu_gs = [Symbol('mu_gs' + j.__str__()) for j in range(m)]
 
                 eqs = [mu_gs[0] - mu_gs[1] - (ln_def_conc * k_B * T - antisite_defs[i]['energy'])]
@@ -393,7 +393,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
                     if mu_vals:
                         mu_vals = [float(mu_val) for mu_val in mu_vals]
                     break
-                except:  # Go to the default option (search the space)
+                except Exception:  # Go to the default option (search the space)
                     pass
         else:
             mu_vals = compute_mus_by_search()
@@ -401,7 +401,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
     else:
         try:
             mu_vals = [trial_chem_pot[element] for element in specie_order]
-        except:
+        except Exception:
             mu_vals = compute_mus_by_search()
 
     # Compile mu's for all composition ratios in the range
@@ -417,7 +417,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
             x = nsolve(vector_func, mu, mu_vals, module="numpy")
             if x:
                 mu_vals = [float(mu_val) for mu_val in x]
-        except:
+        except Exception:
             failed_y.append(y)
             failed_i.append(i)
             continue
@@ -468,7 +468,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
             x = nsolve(vector_func, mu, trial_mu, module="numpy")
             if x:
                 mu_vals = [float(mu_val) for mu_val in x]
-        except:
+        except Exception:
             continue
         result[y] = mu_vals
         x = None
@@ -490,7 +490,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
     #        x = nsolve(vector_func,mu,trial_mu,module="numpy")
     #        if x:
     #            mu_vals = [float(mu_val) for mu_val in x]
-    #    except:
+    #    except Exception:
     #        continue
     #    result[y] = list(mu_vals)
 
@@ -1042,7 +1042,7 @@ def solute_site_preference_finder(structure,
                 if x:
                     mu_vals = [float(mu_val) for mu_val in x]
                 break
-            except:
+            except Exception:
                 continue
         else:
             raise ValueError()
@@ -1074,7 +1074,7 @@ def solute_site_preference_finder(structure,
                 try:
                     mu_vals = nsolve(vector_func, mu, [m0, m1, m2], module="numpy")
                     # Line needs to be modified to include all mus when n > 2
-                except:
+                except Exception:
                     continue
                 break
             if mu_vals:
@@ -1111,7 +1111,7 @@ def solute_site_preference_finder(structure,
                     host_mu_vals = [float(mu_val) for mu_val in host_mu_vals]
                 compute_solute_mu_by_lin_search(host_mu_vals)
                 break
-            except:  # Go for antisite as dominant defect
+            except Exception:  # Go for antisite as dominant defect
                 mu_gs = [Symbol('mu_gs' + j.__str__()) for j in range(m - 1)]
 
                 eqs = [mu_gs[0] - mu_gs[1] - (ln_def_conc * k_B * T - antisite_defs[i]['energy'])]
@@ -1129,7 +1129,7 @@ def solute_site_preference_finder(structure,
                         host_mu_vals = [float(mu_val) for mu_val in host_mu_vals]
                     mu_vals = compute_solute_mu_by_lin_search(host_mu_vals)
                     break
-                except:  # Go to the default option (search the space)
+                except Exception:  # Go to the default option (search the space)
                     pass
         else:
             mu_vals = compute_mus()
@@ -1137,7 +1137,7 @@ def solute_site_preference_finder(structure,
     else:
         try:
             mu_vals = [trial_chem_pot[element] for element in specie_order]
-        except:
+        except Exception:
             mu_vals = compute_mus()
 
     # Compile mu's for all composition ratios in the range
@@ -1156,7 +1156,7 @@ def solute_site_preference_finder(structure,
             x = nsolve(vector_func, mu, mu_vals)
             if x:
                 mu_vals = [float(mu_val) for mu_val in x]
-        except:
+        except Exception:
             continue
         result[y] = mu_vals
 

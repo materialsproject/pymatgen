@@ -179,7 +179,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         try:
             self.spg_analyzer = SpacegroupAnalyzer(self.structure_environments.structure)
             self.symops = self.spg_analyzer.get_symmetry_operations()
-        except:
+        except Exception:
             self.symops = []
 
     def equivalent_site_index_and_transform(self, psite):

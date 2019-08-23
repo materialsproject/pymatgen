@@ -128,7 +128,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
     def __repr__(self):
         try:
             return "<%s at %s>" % (self.__class__.__name__, os.path.relpath(self.filepath))
-        except:
+        except Exception:
             # relpath can fail if the code is executed in demon mode.
             return "<%s at %s>" % (self.__class__.__name__, self.filepath)
 
@@ -689,7 +689,7 @@ class NcAbinitHeader(AbinitHeader):
             else:
                 try:
                     value = astype(value)
-                except:
+                except Exception:
                     raise RuntimeError("Conversion Error for key %s, value %s" % (key, value))
 
             self[key] = value
@@ -884,7 +884,7 @@ class PawAbinitHeader(AbinitHeader):
             else:
                 try:
                     value = astype(value)
-                except:
+                except Exception:
                     raise RuntimeError("Conversion Error for key %s, with value %s" % (key, value))
 
             self[key] = value
@@ -1047,7 +1047,7 @@ class PseudoParser:
             # Parse the file and generate the pseudo.
             try:
                 pseudo = self.parse(path)
-            except:
+            except Exception:
                 pseudo = None
 
             if pseudo is not None:
@@ -1081,7 +1081,7 @@ class PseudoParser:
                     try:
                         tokens = line.split()
                         pspcod, pspxc = map(int, tokens[:2])
-                    except:
+                    except Exception:
                         msg = "%s: Cannot parse pspcod, pspxc in line\n %s" % (filename, line)
                         logger.critical(msg)
                         return None
@@ -1551,7 +1551,7 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
                             pseudos.append(p)
                         else:
                             logger.info('Skipping file %s' % f)
-                    except:
+                    except Exception:
                         logger.info('Skipping file %s' % f)
             if not pseudos:
                 logger.warning('No pseudopotentials parsed from folder %s' % top)

@@ -130,7 +130,7 @@ class File:
         """Remove the file."""
         try:
             os.remove(self.path)
-        except:
+        except Exception:
             pass
 
     def move(self, dst):
@@ -224,7 +224,7 @@ class Directory:
         for path in self.list_filepaths():
             try:
                 os.remove(path)
-            except:
+            except Exception:
                 pass
 
     def path_in(self, file_basename):

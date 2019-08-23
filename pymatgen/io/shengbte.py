@@ -8,7 +8,7 @@ from monty.json import MSONable
 
 try:
     import f90nml
-except:
+except Exception:
     f90nml = None
 
 """

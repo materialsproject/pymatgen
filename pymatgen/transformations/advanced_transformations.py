@@ -879,7 +879,7 @@ def _find_codopant(target, oxidation_state, allowed_elements=None):
                 r = sp.ionic_radius
                 if r is not None:
                     candidates.append((r, sp))
-        except:
+        except Exception:
             pass
     return min(candidates, key=lambda l: abs(l[0] / ref_radius - 1))[1]
 

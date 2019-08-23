@@ -238,7 +238,7 @@ class MagneticSpaceGroup(SymmetryGroup):
         for i in range(8, 15):
             try:
                 raw_data[i] = array('b', raw_data[i])  # construct array from sql binary blobs
-            except:
+            except Exception:
                 # array() behavior changed, need to explicitly convert buffer to str in earlier Python
                 raw_data[i] = array('b', str(raw_data[i]))
 

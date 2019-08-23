@@ -12,7 +12,7 @@ from monty.dev import requires
 try:
     import openbabel as ob
     import pybel as pb
-except:
+except Exception:
     pb = None
     ob = None
 

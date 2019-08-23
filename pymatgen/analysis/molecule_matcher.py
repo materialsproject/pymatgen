@@ -97,6 +97,7 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
     """
     Pair atoms by isomorphism permutations in the OpenBabel::OBAlign class
     """
+
     def uniform_labels(self, mol1, mol2):
         """
         Pair the geometrically equivalent atoms of the molecules.
@@ -247,7 +248,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         """
         c1x, c1y, c1z = 0.0, 0.0, 0.0
         for i in group_atoms:
-            orig_idx = ilabels[i-1]
+            orig_idx = ilabels[i - 1]
             oa1 = mol.GetAtom(orig_idx)
             c1x += float(oa1.x())
             c1y += float(oa1.y())
@@ -279,23 +280,23 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         all_atoms = set(range(1, len(ilabels) + 1))
         unique_atom_labels = sorted(all_atoms - non_unique_atoms)
 
-        #try to align molecules using unique atoms
+        # try to align molecules using unique atoms
         for i in unique_atom_labels:
-            orig_idx = ilabels[i-1]
+            orig_idx = ilabels[i - 1]
             oa1 = mol.GetAtom(orig_idx)
             a1 = vmol.NewAtom()
             a1.SetAtomicNum(oa1.GetAtomicNum())
             a1.SetVector(oa1.GetVector())
 
-        #try to align using centroids of the equivalent atoms
+        # try to align using centroids of the equivalent atoms
         if vmol.NumAtoms() < 3:
             for symm in eq_atoms:
                 c1x, c1y, c1z = self._group_centroid(mol, ilabels, symm)
                 min_distance = float("inf")
-                for i in range(1, vmol.NumAtoms()+1):
+                for i in range(1, vmol.NumAtoms() + 1):
                     va = vmol.GetAtom(i)
-                    distance = math.sqrt((c1x - va.x())**2 + (c1y - va.y())**2
-                                         + (c1z - va.z())**2)
+                    distance = math.sqrt((c1x - va.x()) ** 2 + (c1y - va.y()) ** 2
+                                         + (c1z - va.z()) ** 2)
                     if distance < min_distance:
                         min_distance = distance
                 if min_distance > 0.2:
@@ -361,10 +362,10 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             a2.SetAtomicNum(oa2.GetAtomicNum())
             a2.SetVector(oa2.GetVector())
 
-        canon_label2 = list(range(1, nheavy+1))
+        canon_label2 = list(range(1, nheavy + 1))
         for symm in eq_atoms:
             for i in symm:
-                canon_label2[i-1] = -1
+                canon_label2[i - 1] = -1
         for symm in eq_atoms:
             candidates1 = list(symm)
             candidates2 = list(symm)
@@ -378,7 +379,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
                     if d < distance:
                         distance = d
                         canon_idx = c1
-                canon_label2[c2-1] = canon_idx
+                canon_label2[c2 - 1] = canon_idx
                 candidates1.remove(canon_idx)
 
         canon_inchi_orig_map2 = [(canon, inchi, orig)
@@ -406,7 +407,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             corrected label map of all atoms of the second molecule
         """
         num_atoms = mol2.NumAtoms()
-        all_atom = set(range(1, num_atoms+1))
+        all_atom = set(range(1, num_atoms + 1))
         hydrogen_atoms1 = all_atom - set(heavy_indices1)
         hydrogen_atoms2 = all_atom - set(heavy_indices2)
         label1 = heavy_indices1 + tuple(hydrogen_atoms1)
@@ -487,7 +488,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             return True
         a1 = mol.GetAtom(1)
         a2 = mol.GetAtom(2)
-        for i in range(3, mol.NumAtoms()+1):
+        for i in range(3, mol.NumAtoms() + 1):
             angle = float(mol.GetAtom(i).GetAngle(a2, a1))
             if angle < 0.0:
                 angle = -angle
@@ -555,6 +556,7 @@ class MoleculeMatcher(MSONable):
         mapper: MolAtomMapper object that is able to map the atoms of two
             molecule to uniform order
     """
+
     @requires(ob,
               "BabelMolAdaptor requires openbabel to be installed with "
               "Python bindings. Please get it at http://openbabel.org.")
@@ -644,7 +646,7 @@ class MoleculeMatcher(MSONable):
                     for i, m in enumerate(mol_list)]
         mol_hash.sort(key=lambda x: x[1])
 
-        #Use molecular hash to pre-group molecules.
+        # Use molecular hash to pre-group molecules.
         raw_groups = tuple([tuple([m[0] for m in g]) for k, g
                             in itertools.groupby(mol_hash,
                                                  key=lambda x: x[1])])

@@ -12,7 +12,7 @@ from pymatgen.core.operations import MagSymmOp, SymmOp
 
 try:
     from typing import Union, List, Tuple
-except:
+except Exception:
     pass  # harmless, just used for type hinting in IDE
 
 __author__ = "Matthew Horton"
@@ -98,7 +98,7 @@ class JonesFaithfulTransformation:
             P = P.transpose()  # by convention
             p = [float(Fraction(x)) for x in origin_shift]
             return (P, p)
-        except:
+        except Exception:
             raise ValueError("Failed to parse transformation string.")
 
     @property

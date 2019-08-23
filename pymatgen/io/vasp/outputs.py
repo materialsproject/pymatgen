@@ -2282,7 +2282,7 @@ class Outcar:
                     self.er_bp[Spin.down] is not None:
                 self.er_bp_tot = self.er_bp[Spin.up] + self.er_bp[Spin.down]
 
-        except:
+        except Exception:
             self.er_ev_tot = None
             self.er_bp_tot = None
             raise Exception("IGPAR OUTCAR could not be parsed.")
@@ -2447,7 +2447,7 @@ class Outcar:
             self.dielectric_tensor = self.dielectric_tensor.tolist()
             self.piezo_tensor = self.piezo_tensor.tolist()
 
-        except:
+        except Exception:
             raise Exception("LEPSILON OUTCAR could not be parsed.")
 
     def read_lepsilon_ionic(self):
@@ -2535,7 +2535,7 @@ class Outcar:
             self.dielectric_ionic_tensor = self.dielectric_ionic_tensor.tolist()
             self.piezo_ionic_tensor = self.piezo_ionic_tensor.tolist()
 
-        except:
+        except Exception:
             raise Exception(
                 "ionic part of LEPSILON OUTCAR could not be parsed.")
 
@@ -2592,7 +2592,7 @@ class Outcar:
 
             micro_pyawk(self.filename, search, self)
 
-        except:
+        except Exception:
             raise Exception("LCALCPOL OUTCAR could not be parsed.")
 
     def read_pseudo_zval(self):
@@ -2624,7 +2624,7 @@ class Outcar:
             # Clean-up
             del (self.atom_symbols)
             del (self.zvals)
-        except:
+        except Exception:
             raise Exception("ZVAL dict could not be parsed.")
 
     def read_core_state_eigen(self):

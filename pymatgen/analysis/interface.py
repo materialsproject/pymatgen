@@ -344,7 +344,8 @@ class InterfaceBuilder:
         self.substrate_structures = []
         self.film_structures = []
 
-        # "slab" structure (with no vacuum) oriented with a direction along x-axis and ab plane normal aligned with z-axis
+        # "slab" structure (with no vacuum) oriented with a direction along x-axis and ab plane normal aligned with
+        # z-axis
         self.oriented_substrate = None
         self.oriented_film = None
 
@@ -469,7 +470,7 @@ class InterfaceBuilder:
         match = self.matches[match_index]
 
         # Generate substrate slab and align x axis to (100) and slab normal to (001)
-        ## Get no-vacuum structure for strained bulk calculation
+        # Get no-vacuum structure for strained bulk calculation
         self.sub_sg = SlabGenerator(self.original_substrate_structure, match['sub_miller'], substrate_layers, 0,
                                     in_unit_planes=True,
                                     reorient_lattice=False,
@@ -479,7 +480,7 @@ class InterfaceBuilder:
         self.oriented_substrate = align_x(no_vac_sub_slab)
         self.oriented_substrate.sort()
 
-        ## Get slab with vacuum
+        # Get slab with vacuum
         self.sub_sg = SlabGenerator(self.original_substrate_structure, match['sub_miller'], substrate_layers, 1,
                                     in_unit_planes=True,
                                     reorient_lattice=False,
@@ -494,7 +495,7 @@ class InterfaceBuilder:
         self.substrate_structures = sub_slabs
 
         # Generate film slab and align x axis to (100) and slab normal to (001)
-        ## Get no-vacuum structure for strained bulk calculation
+        # Get no-vacuum structure for strained bulk calculation
         self.film_sg = SlabGenerator(self.original_film_structure, match['film_miller'], film_layers, 0,
                                      in_unit_planes=True,
                                      reorient_lattice=False,
@@ -504,7 +505,7 @@ class InterfaceBuilder:
         self.oriented_film = align_x(no_vac_film_slab)
         self.oriented_film.sort()
 
-        ## Get slab with vacuum
+        # Get slab with vacuum
         self.film_sg = SlabGenerator(self.original_film_structure, match['film_miller'], film_layers, 1,
                                      in_unit_planes=True,
                                      reorient_lattice=False,
@@ -598,8 +599,6 @@ class InterfaceBuilder:
                 modified_film_structure.apply_operation(reflection, fractional=True)
             self.oriented_film.apply_operation(reflection, fractional=True)
 
-        # ------------------------------------------------------------------------------------------------------------------------
-
         sub_scaling = np.diag(np.diag(sub_transformation))
         sub_shearing = np.dot(np.linalg.inv(sub_scaling), sub_transformation)
 
@@ -614,8 +613,6 @@ class InterfaceBuilder:
             self.modified_substrate_structures.append(modified_substrate_structure)
 
         self.oriented_substrate = self.apply_transformation(self.oriented_substrate, temp_matrix)
-
-        # ------------------------------------------------------------------------------------------------------------------------
 
         film_scaling = np.diag(np.diag(film_transformation))
         film_shearing = np.dot(np.linalg.inv(film_scaling), film_transformation)
@@ -1054,7 +1051,7 @@ def third_vect(a, b):
     Returns:
         unit vector proportional to cross(a, b).
     """
-    c = np.cross(a, b);
+    c = np.cross(a, b)
     return c / np.linalg.norm(c)
 
 

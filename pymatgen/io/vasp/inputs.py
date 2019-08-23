@@ -237,7 +237,7 @@ class Poscar(MSONable):
                     potcar = Potcar.from_file(sorted(potcars)[0])
                     names = [sym.split("_")[0] for sym in potcar.symbols]
                     [get_el_sp(n) for n in names]  # ensure valid names
-                except:
+                except Exception:
                     names = None
         with zopen(filename, "rt") as f:
             return Poscar.from_string(f.read(), names,
@@ -500,7 +500,7 @@ class Poscar(MSONable):
                 lines.append("")
                 for v in self.velocities:
                     lines.append(" ".join([format_str.format(i) for i in v]))
-            except:
+            except Exception:
                 warnings.warn("Velocities are missing or corrupted.")
 
         if self.predictor_corrector:
@@ -1702,7 +1702,7 @@ class PotcarSingle:
 
         try:
             return self.keywords[a.upper()]
-        except:
+        except Exception:
             raise AttributeError(a)
 
 
