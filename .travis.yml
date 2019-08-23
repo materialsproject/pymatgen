@@ -35,7 +35,7 @@ script:
   - export PATH="$HOME/miniconda/bin:$PATH"
   - source activate test-environment
   - travis_wait 28800 pytest $EXCLUDE_TESTS pymatgen
-  - source check_code_style.sh
+  - pycodestyle pymatgen
 notifications:
   email:
     recipients:

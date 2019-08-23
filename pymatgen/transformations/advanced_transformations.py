@@ -579,8 +579,7 @@ class MagOrderingTransformation(AbstractTransformation):
         if isinstance(order_parameter, float):
             # convert to constraint format
             order_parameter = [MagOrderParameterConstraint(order_parameter=order_parameter,
-                                                           species_constraints=
-                                                           list(mag_species_spin.keys()))]
+                                                           species_constraints=list(mag_species_spin.keys()))]
         elif isinstance(order_parameter, list):
             ops = [isinstance(item, MagOrderParameterConstraint) for item in order_parameter]
             if not any(ops):
@@ -824,7 +823,10 @@ class MagOrderingTransformation(AbstractTransformation):
 
         # remove duplicate structures and group according to energy model
         m = StructureMatcher(comparator=SpinComparator())
-        key = lambda x: SpacegroupAnalyzer(x, 0.1).get_space_group_number()
+
+        def key(x):
+            return SpacegroupAnalyzer(x, 0.1).get_space_group_number()
+
         out = []
         for _, g in groupby(sorted([d["structure"] for d in alls],
                                    key=key), key):
@@ -952,17 +954,15 @@ class DopingTransformation(AbstractTransformation):
         radius = self.dopant.ionic_radius
 
         compatible_species = [
-            sp for sp in comp if sp.oxi_state == ox and
-                                 abs(sp.ionic_radius / radius - 1) < self.ionic_radius_tol]
+            sp for sp in comp if sp.oxi_state == ox and abs(sp.ionic_radius / radius - 1) < self.ionic_radius_tol]
 
         if (not compatible_species) and self.alio_tol:
             # We only consider aliovalent doping if there are no compatible
             # isovalent species.
-            compatible_species = [
-                sp for sp in comp
-                if abs(sp.oxi_state - ox) <= self.alio_tol and
-                   abs(sp.ionic_radius / radius - 1) < self.ionic_radius_tol and
-                   sp.oxi_state * ox >= 0]
+            compatible_species = [sp for sp in comp
+                                  if abs(sp.oxi_state - ox) <= self.alio_tol and
+                                  abs(sp.ionic_radius / radius - 1) < self.ionic_radius_tol and
+                                  sp.oxi_state * ox >= 0]
 
         if self.allowed_doping_species is not None:
             # Only keep allowed doping species.

@@ -193,8 +193,10 @@ class GulpIO:
         Returns:
             GULP input string specifying library option
         """
-        gulplib_set = lambda: 'GULP_LIB' in os.environ.keys()
-        readable = lambda f: os.path.isfile(f) and os.access(f, os.R_OK)
+        gulplib_set = 'GULP_LIB' in os.environ.keys()
+
+        def readable(f):
+            return os.path.isfile(f) and os.access(f, os.R_OK)
 
         # dirpath, fname = os.path.split(file_name)
         # if dirpath:  # Full path specified
@@ -689,8 +691,7 @@ class BuckinghamPotential:
                         else:
                             metal = elmnt.split('_')[0]
                             # oxi_state = metaloxi.split('_')[1][0]
-                            species_dict[elmnt] = metal + " core " + \
-                                                  row.split()[2] + "\n"
+                            species_dict[elmnt] = metal + " core " + row.split()[2] + "\n"
                     continue
 
                 if pot_flg:

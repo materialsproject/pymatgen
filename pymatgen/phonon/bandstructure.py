@@ -21,10 +21,14 @@ def get_reasonable_repetitions(natoms):
     Choose the number of repetitions
     according to the number of atoms in the system
     """
-    if (natoms < 4):        return [3, 3, 3]
-    if (4 < natoms < 15):   return [2, 2, 2]
-    if (15 < natoms < 50):  return [2, 2, 1]
-    if (50 < natoms):       return [1, 1, 1]
+    if natoms < 4:
+        return [3, 3, 3]
+    if 4 < natoms < 15:
+        return [2, 2, 2]
+    if 15 < natoms < 50:
+        return [2, 2, 1]
+    if 50 < natoms:
+        return [1, 1, 1]
 
 
 def eigenvectors_from_displacements(disp, masses):
@@ -343,8 +347,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         for b in branches_tmp:
             self.branches.append(
                 {"start_index": b[0], "end_index": b[-1],
-                 "name": str(self.qpoints[b[0]].label) + "-" +
-                         str(self.qpoints[b[-1]].label)})
+                 "name": str(self.qpoints[b[0]].label) + "-" + str(self.qpoints[b[-1]].label)})
 
         # extract the frequencies with non-analytical contribution at gamma
         if has_nac:
