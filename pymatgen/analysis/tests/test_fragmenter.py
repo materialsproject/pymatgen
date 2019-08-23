@@ -128,13 +128,6 @@ class TestFragmentMolecule(PymatgenTest):
         self.assertEqual(frag2.new_unique_fragments,295-12)
 
     @unittest.skipIf(not ob, "OpenBabel not present. Skipping...")
-    def test_PC_then_EC_depth_0(self):
-        fragPC = Fragmenter(molecule=self.pc, depth=0, open_rings=True)
-        fragEC = Fragmenter(molecule=self.ec, depth=0, open_rings=True, prev_unique_frag_dict=fragPC.unique_frag_dict)
-        self.assertEqual(fragEC.new_unique_fragments,11)
-        self.assertEqual(fragEC.total_unique_fragments,509+11)
-
-    @unittest.skipIf(not ob, "OpenBabel not present. Skipping...")
     def test_PC_then_EC_depth_10(self):
         fragPC = Fragmenter(molecule=self.pc, depth=10, open_rings=True)
         fragEC = Fragmenter(molecule=self.ec, depth=10, open_rings=True, prev_unique_frag_dict=fragPC.unique_frag_dict)

@@ -82,7 +82,9 @@ class Fragmenter(MSONable):
             self.mol_graph = metal_edge_extender(self.mol_graph)
 
         self.prev_unique_frag_dict = prev_unique_frag_dict or {}
-        self.new_unique_frag_dict = {}
+        self.new_unique_frag_dict = {} # new fragments from the given molecule not contained in prev_unique_frag_dict
+        self.all_unique_frag_dict = {} # all fragments from just the given molecule
+        self.unique_frag_dict = {} # all fragments from both the given molecule and prev_unique_frag_dict
 
         # if self.prev_unique_frag_dict != {} and self.assume_previous_thoroughness:
         #     print("WARNING: You are assuming that all subfragments of every molecule and fragment in your prev_unique_frag_dict are also included in prev_unique_frag_dict. If this is not the case, you will miss subfragments!")
@@ -96,28 +98,8 @@ class Fragmenter(MSONable):
             # in order to capture all unique fragments that require ring opening.
             if self.open_rings:
                 self._open_all_rings()
-
-            if self.prev_unique_frag_dict == {}:
-                self.new_unique_frag_dict = self.all_unique_frag_dict
-            else:
-                for frag_key in self.all_unique_frag_dict:
-                    if frag_key not in self.prev_unique_frag_dict:
-                        self.new_unique_frag_dict[frag_key] = copy.deepcopy(self.all_unique_frag_dict[frag_key])
-                    else:
-                        for fragment in self.all_unique_frag_dict[frag_key]:
-                            found = False
-                            for prev_frag in self.prev_unique_frag_dict[frag_key]:
-                                if fragment.isomorphic_to(prev_frag):
-                                    found = True
-                                    break
-                            if not found:
-                                if frag_key not in self.new_unique_frag_dict:
-                                    self.new_unique_frag_dict[frag_key] = [fragment]
-                                else:
-                                    self.new_unique_frag_dict[frag_key].append(fragment)
                             
         else: # Iterative fragment generation:
-            self.level_unique_frag_dict = {}
             self.fragments_by_level = {}
 
             # Loop through the number of levels,
@@ -135,23 +117,24 @@ class Fragmenter(MSONable):
                     else: # If not on the first level, and there are fragments present in the previous level, then
                           # perform one level of fragmentation on all fragments present in the previous level:
                         self.fragments_by_level[str(level)] = self._fragment_one_level(self.fragments_by_level[str(level-1)])
-            if self.prev_unique_frag_dict == {}:
-                self.new_unique_frag_dict = copy.deepcopy(self.level_unique_frag_dict)
-            else:
-                for frag_key in self.level_unique_frag_dict:
-                    if frag_key not in self.prev_unique_frag_dict:
-                        self.new_unique_frag_dict[frag_key] = copy.deepcopy(self.level_unique_frag_dict[frag_key])
-                    else:
-                        for fragment in self.level_unique_frag_dict[frag_key]:
-                            found = False
-                            for prev_frag in self.prev_unique_frag_dict[frag_key]:
-                                if fragment.isomorphic_to(prev_frag):
-                                    found = True
-                            if not found:
-                                if frag_key not in self.new_unique_frag_dict:
-                                    self.new_unique_frag_dict[frag_key] = [fragment]
-                                else:
-                                    self.new_unique_frag_dict[frag_key].append(fragment)
+
+        if self.prev_unique_frag_dict == {}:
+            self.new_unique_frag_dict = copy.deepcopy(self.all_unique_frag_dict)
+        else:
+            for frag_key in self.all_unique_frag_dict:
+                if frag_key not in self.prev_unique_frag_dict:
+                    self.new_unique_frag_dict[frag_key] = copy.deepcopy(self.all_unique_frag_dict[frag_key])
+                else:
+                    for fragment in self.all_unique_frag_dict[frag_key]:
+                        found = False
+                        for prev_frag in self.prev_unique_frag_dict[frag_key]:
+                            if fragment.isomorphic_to(prev_frag):
+                                found = True
+                        if not found:
+                            if frag_key not in self.new_unique_frag_dict:
+                                self.new_unique_frag_dict[frag_key] = [fragment]
+                            else:
+                                self.new_unique_frag_dict[frag_key].append(fragment)
 
         self.new_unique_fragments = 0
         for frag_key in self.new_unique_frag_dict:
@@ -187,39 +170,14 @@ class Fragmenter(MSONable):
             for old_frag in old_frag_dict[old_frag_key]:
                 for edge in old_frag.graph.edges:
                     bond = [(edge[0], edge[1])]
+                    fragments = []
                     try:
                         fragments = old_frag.split_molecule_subgraphs(bond, allow_reverse=True)
-                        ring_bond = False
                     except MolGraphSplitError:
                         ring_bond = True
-                    if not ring_bond:
-                        for fragment in fragments:
-                            new_frag_key = str(fragment.molecule.composition.alphabetical_formula)+" E"+str(len(fragment.graph.edges()))
-                            proceed = True
-                            if self.assume_previous_thoroughness and self.prev_unique_frag_dict != {}:
-                                if new_frag_key in self.prev_unique_frag_dict:
-                                    for unique_fragment in self.prev_unique_frag_dict[new_frag_key]:
-                                        if unique_fragment.isomorphic_to(fragment):
-                                            proceed = False
-                                            break
-                            if proceed:
-                                if new_frag_key not in self.level_unique_frag_dict:
-                                    self.level_unique_frag_dict[new_frag_key] = [fragment]
-                                    new_frag_dict[new_frag_key] = [fragment]
-                                else:
-                                    found = False
-                                    for unique_fragment in self.level_unique_frag_dict[new_frag_key]:
-                                        if unique_fragment.isomorphic_to(fragment):
-                                            found = True
-                                            break
-                                    if not found:
-                                        self.level_unique_frag_dict[new_frag_key].append(fragment)
-                                        if new_frag_key in new_frag_dict:
-                                            new_frag_dict[new_frag_key].append(fragment)
-                                        else:
-                                            new_frag_dict[new_frag_key] = [fragment]
-                    elif self.open_rings:
-                        fragment = open_ring(old_frag, bond, self.opt_steps)
+                        if self.open_rings:
+                            fragments = [open_ring(old_frag, bond, self.opt_steps)]
+                    for fragment in fragments:
                         new_frag_key = str(fragment.molecule.composition.alphabetical_formula)+" E"+str(len(fragment.graph.edges()))
                         proceed = True
                         if self.assume_previous_thoroughness and self.prev_unique_frag_dict != {}:
@@ -229,17 +187,17 @@ class Fragmenter(MSONable):
                                         proceed = False
                                         break
                         if proceed:
-                            if new_frag_key not in self.level_unique_frag_dict:
-                                self.level_unique_frag_dict[new_frag_key] = [fragment]
+                            if new_frag_key not in self.all_unique_frag_dict:
+                                self.all_unique_frag_dict[new_frag_key] = [fragment]
                                 new_frag_dict[new_frag_key] = [fragment]
                             else:
                                 found = False
-                                for unique_fragment in self.level_unique_frag_dict[new_frag_key]:
+                                for unique_fragment in self.all_unique_frag_dict[new_frag_key]:
                                     if unique_fragment.isomorphic_to(fragment):
                                         found = True
                                         break
                                 if not found:
-                                    self.level_unique_frag_dict[new_frag_key].append(fragment)
+                                    self.all_unique_frag_dict[new_frag_key].append(fragment)
                                     if new_frag_key in new_frag_dict:
                                         new_frag_dict[new_frag_key].append(fragment)
                                     else:
