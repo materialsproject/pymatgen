@@ -105,8 +105,7 @@ class ExcitingInput(MSONable):
                 element = symbol
             else:
                 raise ValueError("Unknown element!")
-            natoms = nodes.getiterator('atom')
-            for atom in natoms:
+            for atom in nodes.iter('atom'):
                 x, y, z = atom.get('coord').split()
                 positions.append([float(x), float(y), float(z)])
                 elements.append(element)

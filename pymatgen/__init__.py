@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import sys
 import os
 import warnings
 import ruamel.yaml as yaml
@@ -66,12 +65,6 @@ def get_structure_from_mp(formula):
                       "Project. The lowest energy structure will be returned." %
                       (len(entries), formula))
     return min(entries, key=lambda e: e.energy_per_atom).structure
-
-
-if sys.version_info < (3, 5):
-    warnings.warn("""
-Pymatgen will drop Py2k support from v2019.1.1. Pls consult the documentation
-at https://www.pymatgen.org for more details.""")
 
 
 def loadfn(fname):

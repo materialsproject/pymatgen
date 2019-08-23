@@ -475,41 +475,6 @@ class IStructureTest(PymatgenTest):
         all_nn = s.get_all_neighbors(1e-5, True)
         self.assertEqual([len(i) for i in all_nn], [0, 0, 0])
 
-    def test_get_all_neighbors_old(self):
-        s = self.struct
-
-        r = random.uniform(3, 6)
-        all_nn = s.get_all_neighbors_old(r, True, True)
-        for i in range(len(s)):
-            self.assertEqual(4, len(all_nn[i][0]))
-            self.assertEqual(len(all_nn[i]), len(s.get_neighbors_old(s[i], r)))
-
-        for site, nns in zip(s, all_nn):
-            for nn in nns:
-                self.assertTrue(nn[0].is_periodic_image(s[nn[2]]))
-                d = sum((site.coords - nn[0].coords) ** 2) ** 0.5
-                self.assertAlmostEqual(d, nn[1])
-
-        s = Structure(Lattice.cubic(1), ['Li'], [[0, 0, 0]])
-        s.make_supercell([2, 2, 2])
-        self.assertEqual(sum(map(len, s.get_all_neighbors_old(3))), 976)
-
-        all_nn = s.get_all_neighbors_old(r, include_site=False)
-        for nn in all_nn:
-            self.assertEqual(1, len(nn[0]))
-            self.assertLessEqual(nn[0][0], r)
-
-    def test_get_all_neighbors_old_outside_cell(self):
-        s = Structure(Lattice.cubic(2), ['Li', 'Li', 'Li', 'Si'],
-                      [[3.1] * 3, [0.11] * 3, [-1.91] * 3, [0.5] * 3])
-        all_nn = s.get_all_neighbors_old(0.2, True)
-        for site, nns in zip(s, all_nn):
-            for nn in nns:
-                self.assertTrue(nn[0].is_periodic_image(s[nn[2]]))
-                d = sum((site.coords - nn[0].coords) ** 2) ** 0.5
-                self.assertAlmostEqual(d, nn[1])
-        self.assertEqual(list(map(len, all_nn)), [2, 2, 2, 0])
-
     def test_get_all_neighbors_equal(self):
         s = Structure(Lattice.cubic(2), ['Li', 'Li', 'Li', 'Si'],
                       [[3.1] * 3, [0.11] * 3, [-1.91] * 3, [0.5] * 3])
