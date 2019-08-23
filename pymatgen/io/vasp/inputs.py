@@ -307,8 +307,8 @@ class Poscar(MSONable):
             symbols = lines[5].split()
 
             """
-            Atoms and number of atoms in POSCAR written with vasp appear on 
-            multiple lines when atoms of the same type are not grouped together 
+            Atoms and number of atoms in POSCAR written with vasp appear on
+            multiple lines when atoms of the same type are not grouped together
             and more than 20 groups are then defined ...
             Example :
             Cr16 Fe35 Ni2
@@ -318,8 +318,8 @@ class Poscar(MSONable):
                 -0.0007970000000000    0.0105720000000000    8.5356889999999996
                Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Ni   Fe   Cr   Fe   Cr
                Fe   Ni   Fe   Cr   Fe
-                 1     1     2     4     2     1     1     1     2     1     1     1     4     1     1     1     5     3     6     1
-                 2     1     3     2     5
+                 1   1   2   4   2   1   1   1     2     1     1     1     4     1     1     1     5     3     6     1
+                 2   1   3   2   5
             Direct
               ...
             """
