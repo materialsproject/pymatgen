@@ -198,27 +198,6 @@ class GulpIO:
         def readable(f):
             return os.path.isfile(f) and os.access(f, os.R_OK)
 
-        # dirpath, fname = os.path.split(file_name)
-        # if dirpath:  # Full path specified
-        #    if readable(file_name):
-        #        gin = 'library ' + file_name
-        #    else:
-        #        raise GulpError('GULP Library not found')
-        # else:
-        #    fpath = os.path.join(os.getcwd(), file_name)  # Check current dir
-        #    if readable(fpath):
-        #        gin = 'library ' + fpath
-        #    elif gulplib_set():
-        #        fpath = os.path.join(os.environ['GULP_LIB'], file_name)
-        #        if readable(fpath):
-        #            gin = 'library ' + file_name
-        #        else:
-        #            raise GulpError('GULP Library not found')
-        #    else:
-        #        raise GulpError('GULP Library not found')
-        # gin += "\n"
-        # return gin
-
         gin = ""
         dirpath, fname = os.path.split(file_name)
         if dirpath and readable(file_name):  # Full path specified
@@ -227,7 +206,7 @@ class GulpIO:
             fpath = os.path.join(os.getcwd(), file_name)  # Check current dir
             if readable(fpath):
                 gin = 'library ' + fpath
-            elif gulplib_set():  # Check the GULP_LIB path
+            elif gulplib_set:  # Check the GULP_LIB path
                 fpath = os.path.join(os.environ['GULP_LIB'], file_name)
                 if readable(fpath):
                     gin = 'library ' + file_name
