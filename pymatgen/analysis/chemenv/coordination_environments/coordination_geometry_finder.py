@@ -167,18 +167,14 @@ class AbstractGeometry:
                     ' and to the centroid (calculated without the central site) for coordination'
                     ' numbers >= 5 : {c}\n'.format(c=self.centre))
         elif self.centering_type == 'central_site':
-            outs.append(
-                'Points are referenced to the central site : {c}\n'.format(
-                    c=self.centre))
+            outs.append('Points are referenced to the central site : {c}\n'.format(c=self.centre))
         elif self.centering_type == 'centroid':
             if self.include_central_site_in_centroid:
-                outs.append('Points are referenced to the centroid'
-                            ' (calculated with the central site) :\n  {c}\n'.format(
-                    c=self.centre))
+                outs.append('Points are referenced to the centroid '
+                            '(calculated with the central site) :\n  {c}\n'.format(c=self.centre))
             else:
                 outs.append('Points are referenced to the centroid'
-                            ' (calculated without the central site) :\n  {c}\n'.format(
-                    c=self.centre))
+                            ' (calculated without the central site) :\n  {c}\n'.format(c=self.centre))
         return '\n'.join(outs)
 
     @classmethod
@@ -344,7 +340,7 @@ class LocalGeometryFinder:
         :param include_central_site_in_centroid: In case centering_type is 'centroid', the central site is included if
             this value is set to True.
         :param bva_distance_scale_factor: Scaling factor for the bond valence analyzer (this might be different whether
-            the structure is an experimental one, an LDA or a GGA relaxed one, or any other relaxation scheme (where 
+            the structure is an experimental one, an LDA or a GGA relaxed one, or any other relaxation scheme (where
             under- or over-estimation of bond lengths is known).
         :param structure_refinement: Refinement of the structure. Can be "none", "refined" or "symmetrized".
         :param spg_analyzer_options: Options for the SpaceGroupAnalyzer (dictionary specifying "symprec"
@@ -384,25 +380,17 @@ class LocalGeometryFinder:
             self.symmetrized_structure = None
         else:
             self.spg_analyzer = SpacegroupAnalyzer(self.initial_structure,
-                                                   symprec=
-                                                   self.spg_analyzer_options[
-                                                       'symprec'],
-                                                   angle_tolerance=
-                                                   self.spg_analyzer_options[
-                                                       'angle_tolerance'])
+                                                   symprec=self.spg_analyzer_options['symprec'],
+                                                   angle_tolerance=self.spg_analyzer_options['angle_tolerance'])
             if self.structure_refinement == self.STRUCTURE_REFINEMENT_REFINED:
                 self.structure = self.spg_analyzer.get_refined_structure()
                 self.symmetrized_structure = None
             elif self.structure_refinement == self.STRUCTURE_REFINEMENT_SYMMETRIZED:
                 self.structure = self.spg_analyzer.get_refined_structure()
-                self.spg_analyzer_refined = SpacegroupAnalyzer(self.structure,
-                                                               symprec=
-                                                               self.spg_analyzer_options[
-                                                                   'symprec'],
-                                                               angle_tolerance=
-                                                               self.spg_analyzer_options
-                                                               [
-                                                                   'angle_tolerance'])
+                self.spg_analyzer_refined = SpacegroupAnalyzer(
+                    self.structure,
+                    symprec=self.spg_analyzer_options['symprec'],
+                    angle_tolerance=self.spg_analyzer_options['angle_tolerance'])
                 self.symmetrized_structure = self.spg_analyzer_refined.get_symmetrized_structure()
 
     def get_structure(self):
@@ -505,15 +493,16 @@ class LocalGeometryFinder:
         time_init = time.process_time()
         if info is None:
             info = {}
-        info.update({'local_geometry_finder':
-                         {'parameters':
-                              {'centering_type': self.centering_type,
-                               'include_central_site_in_centroid': self.include_central_site_in_centroid,
-                               'structure_refinement': self.structure_refinement,
-                               'spg_analyzer_options': self.spg_analyzer_options
-                               }
-                          }
-                     })
+        info.update({
+            'local_geometry_finder': {
+                'parameters': {
+                    'centering_type': self.centering_type,
+                    'include_central_site_in_centroid': self.include_central_site_in_centroid,
+                    'structure_refinement': self.structure_refinement,
+                    'spg_analyzer_options': self.spg_analyzer_options
+                }
+            }
+        })
         if only_symbols is not None:
             self.allcg = AllCoordinationGeometries(
                 permutations_safe_override=self.permutations_safe_override,
@@ -538,8 +527,7 @@ class LocalGeometryFinder:
         # Include atoms that are in the list of "only_atoms" if it is provided
         if only_atoms is not None:
             sites_indices = [isite for isite in sites_indices
-                             if any([at in [sp.symbol for sp in self.structure[
-                    isite].species]
+                             if any([at in [sp.symbol for sp in self.structure[isite].species]
                                      for at in only_atoms])]
 
         # Exclude atoms that are in the list of excluded atoms
@@ -588,7 +576,7 @@ class LocalGeometryFinder:
         else:
             se = StructureEnvironments(voronoi=self.detailed_voronoi, valences=self.valences,
                                        sites_map=self.sites_map, equivalent_sites=self.equivalent_sites,
-                                       ce_list=[None]*len(self.structure), structure=self.structure,
+                                       ce_list=[None] * len(self.structure), structure=self.structure,
                                        info=info)
 
         # Set up the coordination numbers that have to be computed based on min_cn, max_cn and possibly the settings
@@ -597,7 +585,7 @@ class LocalGeometryFinder:
             min_cn = 1
         if max_cn is None:
             max_cn = 13
-        all_cns = range(min_cn, max_cn+1)
+        all_cns = range(min_cn, max_cn + 1)
         do_recompute = False
         if recompute is not None:
             if 'cns' in recompute:
@@ -610,23 +598,23 @@ class LocalGeometryFinder:
         breakit = False
 
         if optimization > 0:
-            self.detailed_voronoi.local_planes = [None]*len(self.structure)
-            self.detailed_voronoi.separations = [None]*len(self.structure)
+            self.detailed_voronoi.local_planes = [None] * len(self.structure)
+            self.detailed_voronoi.separations = [None] * len(self.structure)
 
         # Loop on all the sites
         for isite in range(len(self.structure)):
             if isite not in sites_indices:
                 logging.debug(' ... in site #{:d}/{:d} ({}) : '
-                             'skipped'.format(isite, len(self.structure),
-                                              self.structure[isite].species_string))
+                              'skipped'.format(isite, len(self.structure),
+                                               self.structure[isite].species_string))
                 continue
             if breakit:
                 logging.debug(' ... in site #{:d}/{:d} ({}) : '
-                             'skipped (timelimit)'.format(isite, len(self.structure),
-                                                          self.structure[isite].species_string))
+                              'skipped (timelimit)'.format(isite, len(self.structure),
+                                                           self.structure[isite].species_string))
                 continue
             logging.debug(' ... in site #{:d}/{:d} ({})'.format(isite, len(self.structure),
-                                                               self.structure[isite].species_string))
+                                                                self.structure[isite].species_string))
             t1 = time.process_time()
             if optimization > 0:
                 self.detailed_voronoi.local_planes[isite] = OrderedDict()
@@ -677,7 +665,7 @@ class LocalGeometryFinder:
                                         continue
                                     if new_nb_set in [ta['new_nb_set'] for ta in to_add_from_hints]:
                                         has_nb_set = True
-                                    elif not cn_new_nb_set in se.neighbors_sets[isite]:
+                                    elif cn_new_nb_set not in se.neighbors_sets[isite]:
                                         has_nb_set = False
                                     else:
                                         has_nb_set = new_nb_set in se.neighbors_sets[isite][cn_new_nb_set]
@@ -719,7 +707,7 @@ class LocalGeometryFinder:
             max_time_one_site = max(max_time_one_site, t2 - t1)
             logging.debug('    ... computed in {:.2f} seconds'.format(t2 - t1))
         time_end = time.process_time()
-        logging.debug('    ... compute_structure_environments ended in {:.2f} seconds'.format(time_end-time_init))
+        logging.debug('    ... compute_structure_environments ended in {:.2f} seconds'.format(time_end - time_init))
         return se
 
     def update_nb_set_environments(self, se, isite, cn, inb_set, nb_set, recompute=False, optimization=None):
@@ -791,8 +779,7 @@ class LocalGeometryFinder:
             central_site=self.structure.cart_coords[isite],
             bare_coords=coords,
             centering_type=self.centering_type,
-            include_central_site_in_centroid=
-            self.include_central_site_in_centroid,
+            include_central_site_in_centroid=self.include_central_site_in_centroid,
             optimization=optimization)
 
     def setup_test_perfect_environment(self, symbol, randomness=False,
@@ -837,7 +824,7 @@ class LocalGeometryFinder:
 
         # Scaling the test environment
         if random_scale == 'RANDOM':
-            scale = 0.1*np.random.random_sample() + 0.95
+            scale = 0.1 * np.random.random_sample() + 0.95
         elif random_scale == 'NONE':
             scale = 1.0
         else:
@@ -855,9 +842,9 @@ class LocalGeometryFinder:
             ux = uu[0]
             uy = uu[1]
             uz = uu[2]
-            RR = [[ux*ux+(1.0-ux*ux)*cc, ux*uy*(1.0-cc)-uz*ss, ux*uz*(1.0-cc)+uy*ss],
-                  [ux*uy*(1.0-cc)+uz*ss, uy*uy+(1.0-uy*uy)*cc, uy*uz*(1.0-cc)-ux*ss],
-                  [ux*uz*(1.0-cc)-uy*ss, uy*uz*(1.0-cc)+ux*ss, uz*uz+(1.0-uz*uz)*cc]]
+            RR = [[ux * ux + (1.0 - ux * ux) * cc, ux * uy * (1.0 - cc) - uz * ss, ux * uz * (1.0 - cc) + uy * ss],
+                  [ux * uy * (1.0 - cc) + uz * ss, uy * uy + (1.0 - uy * uy) * cc, uy * uz * (1.0 - cc) - ux * ss],
+                  [ux * uz * (1.0 - cc) - uy * ss, uy * uz * (1.0 - cc) + ux * ss, uz * uz + (1.0 - uz * uz) * cc]]
         elif random_rotation == 'NONE':
             RR = [[1.0, 0.0, 0.0],
                   [0.0, 1.0, 0.0],
@@ -877,7 +864,7 @@ class LocalGeometryFinder:
 
         # Translating the test environment
         if random_translation == 'RANDOM':
-            translation = 10.0 * (2.0*np.random.random_sample(3)-1.0)
+            translation = 10.0 * (2.0 * np.random.random_sample(3) - 1.0)
         elif random_translation == 'NONE':
             translation = np.zeros(3, np.float)
         else:
@@ -973,10 +960,10 @@ class LocalGeometryFinder:
             return result_dict
         result_dict = {}
         for geometry in test_geometries:
-            self.perfect_geometry = AbstractGeometry.from_cg(cg=geometry,
-                                                             centering_type=self.centering_type,
-                                                             include_central_site_in_centroid=
-                                                             self.include_central_site_in_centroid)
+            self.perfect_geometry = AbstractGeometry.from_cg(
+                cg=geometry,
+                centering_type=self.centering_type,
+                include_central_site_in_centroid=self.include_central_site_in_centroid)
             points_perfect = self.perfect_geometry.points_wcs_ctwcc()
             cgsm = self.coordination_geometry_symmetry_measures(geometry,
                                                                 points_perfect=points_perfect,
@@ -1107,10 +1094,10 @@ class LocalGeometryFinder:
 
         result_dict = {}
         for geometry in test_geometries:
-            self.perfect_geometry = AbstractGeometry.from_cg(cg=geometry,
-                                                             centering_type=self.centering_type,
-                                                             include_central_site_in_centroid=
-                                                             self.include_central_site_in_centroid)
+            self.perfect_geometry = AbstractGeometry.from_cg(
+                cg=geometry,
+                centering_type=self.centering_type,
+                include_central_site_in_centroid=self.include_central_site_in_centroid)
             points_perfect = self.perfect_geometry.points_wcs_ctwcc()
             cgsm = self.coordination_geometry_symmetry_measures_sepplane_optim(geometry,
                                                                                points_perfect=points_perfect,
@@ -1448,7 +1435,8 @@ class LocalGeometryFinder:
                     raise ValueError(
                         'Wrong number of points to initialize separation plane')
                 # Takes a lot of time and happens rarely ...
-                # if any([plane.is_same_plane_as(plane2) for comb2, plane2 in nb_set.local_planes.items() if plane2 is not None]):
+                # if any([plane.is_same_plane_as(plane2) for comb2, plane2 in nb_set.local_planes.items()
+                #         if plane2 is not None]):
                 #     continue
                 nb_set.local_planes[ipoints_combination] = plane
                 # Get the separations for this plane
@@ -1582,7 +1570,7 @@ class LocalGeometryFinder:
                 perm1 = [separation_perm[ii] for ii in sep_perm]
                 pp = [perm1[ii] for ii in argref_separation]
                 # Skip permutations that have already been performed
-                if tested_permutations != False and coordination_geometry.equivalent_indices is not None:
+                if (not tested_permutations) and coordination_geometry.equivalent_indices is not None:
                     tuple_ref_perm = coordination_geometry.ref_permutation(pp)
                     if tuple_ref_perm in tested_permutations:
                         continue
@@ -1679,7 +1667,8 @@ class LocalGeometryFinder:
             permutations_symmetry_measures.append(sm_info)
 
         if len(permutations_symmetry_measures) > 0:
-            return permutations_symmetry_measures, permutations, [sepplane.algorithm_type] * len(permutations), stop_search
+            return permutations_symmetry_measures, permutations, [sepplane.algorithm_type] * len(
+                permutations), stop_search
         else:
             return [], [], [], stop_search
 
@@ -1750,7 +1739,8 @@ class LocalGeometryFinder:
             permutations_symmetry_measures.append(sm_info)
 
         if len(permutations_symmetry_measures) > 0:
-            return permutations_symmetry_measures, permutations, [sepplane.algorithm_type] * len(permutations), stop_search
+            return permutations_symmetry_measures, permutations, [sepplane.algorithm_type] * len(
+                permutations), stop_search
         else:
             return [], [], [], stop_search
 
