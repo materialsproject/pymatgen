@@ -2104,7 +2104,7 @@ class MoleculeGraph(MSONable):
             for frag in frag_dict[key]:
                 found = False
                 for f in unique_frags:
-                    if _isomorphic(frag,f):
+                    if _isomorphic(frag, f):
                         found = True
                         break
                 if not found:

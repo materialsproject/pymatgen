@@ -90,8 +90,8 @@ class Fragmenter(MSONable):
             # in order to capture all unique fragments that require ring opening.
             if self.open_rings:
                 self._open_all_rings()
-                            
-        else: # Iterative fragment generation:
+
+        else:  # Iterative fragment generation:
             self.fragments_by_level = {}
 
             # Loop through the number of levels,
