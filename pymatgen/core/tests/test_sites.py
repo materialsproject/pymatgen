@@ -227,7 +227,8 @@ class PeriodicSiteTest(PymatgenTest):
         self.assertArrayAlmostEqual(site.frac_coords, [0.015, 0.0325, 0.05])
 
     def test_repr(self):
-        self.assertEqual(self.propertied_site.__repr__(), "PeriodicSite: Fe2+ (2.5000, 3.5000, 4.5000) [0.2500, 0.3500, 0.4500]")
+        self.assertEqual(self.propertied_site.__repr__(),
+                         "PeriodicSite: Fe2+ (2.5000, 3.5000, 4.5000) [0.2500, 0.3500, 0.4500]")
 
 
 def get_distance_and_image_old(site1, site2, jimage=None):
@@ -255,11 +256,11 @@ def get_distance_and_image_old(site1, site2, jimage=None):
 
     .. note::
         Assumes the primitive cell vectors are sufficiently not skewed such
-        that the condition \|a\|cos(ab_angle) < \|b\| for all possible cell
+        that the condition \\|a\\|cos(ab_angle) < \\|b\\| for all possible cell
         vector pairs. ** this method does not check this condition **
     """
     if jimage is None:
-        #Old algorithm
+        # Old algorithm
         jimage = -np.array(np.around(site2.frac_coords - site1.frac_coords),
                            int)
     mapped_vec = site1.lattice.get_cartesian_coords(jimage
@@ -268,7 +269,7 @@ def get_distance_and_image_old(site1, site2, jimage=None):
     dist = np.linalg.norm(mapped_vec)
     return dist, jimage
 
+
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
     import unittest
     unittest.main()

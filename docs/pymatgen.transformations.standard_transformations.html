@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.transformations.standard_transformations module &#8212; pymatgen 2019.7.30 documentation</title>
+    <title>pymatgen.transformations.standard_transformations module &#8212; pymatgen 2019.8.14 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.14 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -651,14 +651,20 @@ returned as a ranked list.</p>
 
 <dl class="class">
 <dt id="pymatgen.transformations.standard_transformations.PerturbStructureTransformation">
-<em class="property">class </em><code class="sig-name descname">PerturbStructureTransformation</code><span class="sig-paren">(</span><em class="sig-param">amplitude=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#PerturbStructureTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PerturbStructureTransformation" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">PerturbStructureTransformation</code><span class="sig-paren">(</span><em class="sig-param">distance=0.01</em>, <em class="sig-param">min_distance=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#PerturbStructureTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PerturbStructureTransformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>This transformation perturbs a structure by a specified distance in random
 directions. Used for breaking symmetries.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>amplitude</strong> (<em>float</em>) – Amplitude of perturbation in angstroms. All sites
-will be perturbed by exactly that amplitude in a random direction.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>distance</strong> (<em>float</em>) – Distance of perturbation in angstroms. All sites
+will be perturbed by exactly that distance in a random direction.</p></li>
+<li><p><strong>min_distance</strong> (<em>None</em><em>, </em><em>int</em><em>, or </em><em>float</em>) – if None, all displacements will be
+equidistant. If int or float, perturb each site a
+distance drawn from the uniform distribution between
+‘min_distance’ and ‘distance’.</p></li>
+</ul>
 </dd>
 </dl>
 <dl class="method">
@@ -1126,7 +1132,7 @@ returned as a ranked list.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.14 documentation</a> &#187;</li> 
       </ul>
     </div>
 

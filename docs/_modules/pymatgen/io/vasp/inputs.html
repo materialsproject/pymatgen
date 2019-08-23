@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.vasp.inputs &#8212; pymatgen 2019.7.30 documentation</title>
+    <title>pymatgen.io.vasp.inputs &#8212; pymatgen 2019.8.14 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -249,6 +249,7 @@
 
 <span class="sd">        The code will try its best to determine the elements in the POSCAR in</span>
 <span class="sd">        the following order:</span>
+
 <span class="sd">        1. If check_for_POTCAR is True, the code will try to check if a POTCAR</span>
 <span class="sd">        is in the same directory as the POSCAR and use elements from that by</span>
 <span class="sd">        default. (This is the VASP default sequence of priority).</span>
@@ -296,11 +297,14 @@
 
 <span class="sd">        The code will try its best to determine the elements in the POSCAR in</span>
 <span class="sd">        the following order:</span>
+
 <span class="sd">        1. If default_names are supplied and valid, it will use those. Usually,</span>
 <span class="sd">        default names comes from an external source, such as a POTCAR in the</span>
 <span class="sd">        same directory.</span>
+
 <span class="sd">        2. If there are no valid default names but the input file is Vasp5-like</span>
 <span class="sd">        and contains element symbols in the 6th line, the code will use that.</span>
+<span class="sd">        </span>
 <span class="sd">        3. Failing (2), the code will check if a symbol is provided at the end</span>
 <span class="sd">        of each coordinate.</span>
 
@@ -2015,7 +2019,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

@@ -326,12 +326,12 @@ class DoscarTest(unittest.TestCase):
     def setUp(self):
         # first for spin polarized version
         doscar = os.path.join(test_dir_doscar, "DOSCAR.lobster.spin")
-        vasprun = os.path.join(test_dir_doscar, "vasprun.xml.lobster.spin")
+        poscar = os.path.join(test_dir_doscar, "POSCAR.lobster.spin_DOS")
+        # not spin polarized
         doscar2 = os.path.join(test_dir_doscar, "DOSCAR.lobster.nonspin")
-        vasprun2 = os.path.join(test_dir_doscar, "vasprun.xml.lobster.nonspin")
-
-        self.DOSCAR_spin_pol = Doscar(doscar=doscar, vasprun=vasprun)
-        self.DOSCAR_nonspin_pol = Doscar(doscar=doscar2, vasprun=vasprun2)
+        poscar2 = os.path.join(test_dir_doscar, "POSCAR.lobster.nonspin_DOS")
+        self.DOSCAR_spin_pol = Doscar(doscar=doscar, structure_file=poscar)
+        self.DOSCAR_nonspin_pol = Doscar(doscar=doscar2, structure_file=poscar2)
 
         with open(os.path.join(test_dir_doscar, 'structure_KF.json'), 'r') as f:
             data = json.load(f)

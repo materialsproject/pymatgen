@@ -25,14 +25,12 @@ from pymatgen.util.provenance import is_valid_bibtex
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
 from io import open
 
-
 __author__ = 'Anubhav Jain'
 __copyright__ = 'Copyright 2013, The Materials Project'
 __version__ = '0.1'
 __maintainer__ = 'Anubhav Jain'
 __email__ = 'ajain@lbl.gov'
 __date__ = 'Aug 27, 2013'
-
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -118,6 +116,7 @@ class CostDBElements(CostDBCSV):
     """
     Singleton object that provides the cost data for elements
     """
+
     def __init__(self):
         CostDBCSV.__init__(
             self, os.path.join(module_dir, "costdb_elements.csv"))
@@ -184,4 +183,4 @@ class CostAnalyzer:
         """
         comp = comp if isinstance(comp, Composition) else Composition(comp)
         return self.get_cost_per_mol(comp) / (
-            comp.weight.to("kg") * const.N_A)
+                comp.weight.to("kg") * const.N_A)

@@ -19,7 +19,6 @@ __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
-
 from math import pi, acos
 import numpy as np
 import itertools
@@ -393,15 +392,15 @@ def get_max_bond_lengths(structure, el_radius_updates=None):
     """
     Provides max bond length estimates for a structure based on the JMol
     table and algorithms.
-    
+
     Args:
         structure: (structure)
         el_radius_updates: (dict) symbol->float to update atomic radii
-    
-    Returns: (dict) - (Element1, Element2) -> float. The two elements are 
+
+    Returns: (dict) - (Element1, Element2) -> float. The two elements are
         ordered by Z.
     """
-    #jmc = JMolCoordFinder(el_radius_updates)
+    # jmc = JMolCoordFinder(el_radius_updates)
     jmnn = JmolNN(el_radius_updates=el_radius_updates)
 
     bonds_lens = {}
@@ -635,7 +634,7 @@ def sulfide_type(structure):
         while len(neighbors) == 0:
             neighbors = structure.get_neighbors(site, search_radius)
             search_radius *= 2
-            if search_radius > max(structure.lattice.abc)*2:
+            if search_radius > max(structure.lattice.abc) * 2:
                 break
 
         neighbors = sorted(neighbors, key=lambda n: n[1])
@@ -657,5 +656,3 @@ def sulfide_type(structure):
         return "polysulfide"
     else:
         return "sulfide"
-
-

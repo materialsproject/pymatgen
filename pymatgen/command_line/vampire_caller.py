@@ -23,9 +23,9 @@ Please download at https://vampire.york.ac.uk/download/ and
 follow the instructions to compile the executable.
 
 If you use this module, please cite the following:
-    
+
 "Atomistic spin model simulations of magnetic nanomaterials."
-R. F. L. Evans, W. J. Fan, P. Chureemart, T. A. Ostler, M. O. A. Ellis 
+R. F. L. Evans, W. J. Fan, P. Chureemart, T. A. Ostler, M. O. A. Ellis
 and R. W. Chantrell. J. Phys.: Condens. Matter 26, 103202 (2014)
 """
 
@@ -46,25 +46,26 @@ class VampireCaller:
         "Please follow the instructions at https://vampire.york.ac.uk/download/.",
     )
     def __init__(
-        self,
-        ordered_structures,
-        energies,
-        mc_box_size=4.0,
-        equil_timesteps=2000,
-        mc_timesteps=4000,
-        save_inputs=False,
-        hm=None,
-        user_input_settings=None,
+            self,
+            ordered_structures,
+            energies,
+            mc_box_size=4.0,
+            equil_timesteps=2000,
+            mc_timesteps=4000,
+            save_inputs=False,
+            hm=None,
+            user_input_settings=None,
     ):
 
         """
-        Run Vampire on a material with magnetic ordering and exchange parameter information to compute the critical temperature with classical Monte Carlo.
+        Run Vampire on a material with magnetic ordering and exchange parameter information to compute the critical
+        temperature with classical Monte Carlo.
 
         user_input_settings is a dictionary that can contain:
         * start_t (int): Start MC sim at this temp, defaults to 0 K.
         * end_t (int): End MC sim at this temp, defaults to 1500 K.
         * temp_increment (int): Temp step size, defaults to 25 K.
-        
+
         Args:
             ordered_structures (list): Structure objects with magmoms.
             energies (list): Energies of each relaxed magnetic structure.
@@ -123,8 +124,8 @@ class VampireCaller:
         self.mat_name = str(hm.ordered_structures_[0].composition.reduced_formula)
 
         # Switch to scratch dir which automatically cleans up vampire inputs files unless user specifies to save them
-        # with ScratchDir('/scratch', copy_from_current_on_enter=self.save_inputs, copy_to_current_on_exit=self.save_inputs) as temp_dir:
-
+        # with ScratchDir('/scratch', copy_from_current_on_enter=self.save_inputs,
+        #                 copy_to_current_on_exit=self.save_inputs) as temp_dir:
         #     os.chdir(temp_dir)
 
         # Create input files
@@ -396,7 +397,7 @@ class VampireOutput:
         """
         This class processes results from a Vampire Monte Carlo simulation
         and returns the critical temperature.
-        
+
         Args:
             vamp_stdout (txt file): stdout from running vampire-serial.
 
@@ -409,11 +410,10 @@ class VampireOutput:
         self._parse_stdout(vamp_stdout, nmats)
 
     def _parse_stdout(self, vamp_stdout, nmats):
-
         names = (
-            ["T", "m_total"]
-            + ["m_" + str(i) for i in range(1, nmats + 1)]
-            + ["X_x", "X_y", "X_z", "X_m", "nan"]
+                ["T", "m_total"]
+                + ["m_" + str(i) for i in range(1, nmats + 1)]
+                + ["X_x", "X_y", "X_z", "X_m", "nan"]
         )
 
         # Parsing vampire MC output

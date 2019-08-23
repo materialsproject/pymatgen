@@ -6,7 +6,6 @@ from argparse import ArgumentParser
 
 import logging
 
-
 __author__ = 'waroquiers'
 
 

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.transformations.advanced_transformations &#8212; pymatgen 2019.7.30 documentation</title>
+    <title>pymatgen.transformations.advanced_transformations &#8212; pymatgen 2019.8.14 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -540,13 +540,13 @@
 <span class="sd">        dependent on how many sites satisfy that motif.</span>
 
 <span class="sd">        :param order_parameter (float): any number from 0.0 to 1.0,</span>
-<span class="sd">        typically 0.5 (antiferromagnetic) or 1.0 (ferromagnetic)</span>
+<span class="sd">            typically 0.5 (antiferromagnetic) or 1.0 (ferromagnetic)</span>
 <span class="sd">        :param species_constraint (list): str or list of strings</span>
-<span class="sd">        of Specie symbols that the constraint should apply to</span>
+<span class="sd">            of Specie symbols that the constraint should apply to</span>
 <span class="sd">        :param site_constraint_name (str): name of the site property</span>
-<span class="sd">        that the constraint should apply to, e.g. &quot;coordination_no&quot;</span>
+<span class="sd">            that the constraint should apply to, e.g. &quot;coordination_no&quot;</span>
 <span class="sd">        :param site_constraints (list): list of values of the site</span>
-<span class="sd">        property that the constraints should apply to</span>
+<span class="sd">            property that the constraints should apply to</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># validation</span>
@@ -605,19 +605,19 @@
 <span class="sd">        approximation first.</span>
 
 <span class="sd">        :param mag_species_spin: A mapping of elements/species to their</span>
-<span class="sd">        spin magnitudes, e.g. {&quot;Fe3+&quot;: 5, &quot;Mn3+&quot;: 4}</span>
+<span class="sd">            spin magnitudes, e.g. {&quot;Fe3+&quot;: 5, &quot;Mn3+&quot;: 4}</span>
 <span class="sd">        :param order_parameter (float or list): if float, a specifies a</span>
-<span class="sd">        global order parameter and can take values from 0.0 to 1.0</span>
-<span class="sd">        (e.g. 0.5 for antiferromagnetic or 1.0 for ferromagnetic), if</span>
-<span class="sd">        list has to be a list of</span>
-<span class="sd">        :class: `pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint`</span>
-<span class="sd">        to specify more complicated orderings, see documentation for</span>
-<span class="sd">        MagOrderParameterConstraint more details on usage</span>
+<span class="sd">            global order parameter and can take values from 0.0 to 1.0</span>
+<span class="sd">            (e.g. 0.5 for antiferromagnetic or 1.0 for ferromagnetic), if</span>
+<span class="sd">            list has to be a list of</span>
+<span class="sd">            :class: `pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint`</span>
+<span class="sd">            to specify more complicated orderings, see documentation for</span>
+<span class="sd">            MagOrderParameterConstraint more details on usage</span>
 <span class="sd">        :param energy_model: Energy model to rank the returned structures,</span>
-<span class="sd">        see :mod: `pymatgen.analysis.energy_models` for more information (note</span>
-<span class="sd">        that this is not necessarily a physical energy). By default, returned</span>
-<span class="sd">        structures use SymmetryModel() which ranks structures from most</span>
-<span class="sd">        symmetric to least.</span>
+<span class="sd">            see :mod: `pymatgen.analysis.energy_models` for more information (note</span>
+<span class="sd">            that this is not necessarily a physical energy). By default, returned</span>
+<span class="sd">            structures use SymmetryModel() which ranks structures from most</span>
+<span class="sd">            symmetric to least.</span>
 <span class="sd">        :param kwargs: Additional kwargs that are passed to</span>
 <span class="sd">        :class:`EnumerateStructureTransformation` such as min_cell_size etc.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -687,15 +687,15 @@
 <span class="sd">        :param structure: ordered Structure</span>
 <span class="sd">        :param order_parameters: list of MagOrderParameterConstraints</span>
 <span class="sd">        :return: A structure decorated with disordered</span>
-<span class="sd">        DummySpecies on which to perform the enumeration.</span>
-<span class="sd">        Note that the DummySpecies are super-imposed on</span>
-<span class="sd">        to the original sites, to make it easier to</span>
-<span class="sd">        retrieve the original site after enumeration is</span>
-<span class="sd">        performed (this approach is preferred over a simple</span>
-<span class="sd">        mapping since multiple species may have the same</span>
-<span class="sd">        DummySpecie, depending on the constraints specified).</span>
-<span class="sd">        This approach can also preserve site properties even after</span>
-<span class="sd">        enumeration.</span>
+<span class="sd">            DummySpecies on which to perform the enumeration.</span>
+<span class="sd">            Note that the DummySpecies are super-imposed on</span>
+<span class="sd">            to the original sites, to make it easier to</span>
+<span class="sd">            retrieve the original site after enumeration is</span>
+<span class="sd">            performed (this approach is preferred over a simple</span>
+<span class="sd">            mapping since multiple species may have the same</span>
+<span class="sd">            DummySpecie, depending on the constraints specified).</span>
+<span class="sd">            This approach can also preserve site properties even after</span>
+<span class="sd">            enumeration.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">dummy_struct</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -1423,7 +1423,8 @@
 <span class="sd">    number of atoms in the supercell falls in the range [&#39;min_atoms&#39;, &#39;max_atoms&#39;].</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_atoms</span><span class="o">=-</span><span class="n">np</span><span class="o">.</span><span class="n">Inf</span><span class="p">,</span> <span class="n">max_atoms</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">Inf</span><span class="p">,</span> <span class="n">num_nn_dists</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_atoms</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_atoms</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num_nn_dists</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+                 <span class="n">force_diagonal_transformation</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a supercell structure given a Pymatgen structure suitable for</span>
 <span class="sd">        Compressed Sensing Lattice Dynamics (CSLD). See papers below for details</span>
@@ -1440,15 +1441,24 @@
 <span class="sd">            num_nn_dists (int): number of multiples of atomic nearest neighbor</span>
 <span class="sd">                distances to force all directions of the supercell to be at</span>
 <span class="sd">                least as large</span>
+<span class="sd">            force_diagonal_transformation (bool): If true, return a</span>
+<span class="sd">                transformation with a diagonal transformation matrix. Else,</span>
+<span class="sd">                do not impose this constraint (leading to a better result).</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            Supercell structure (Structure)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">min_atoms</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">min_atoms</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">Inf</span>
+        <span class="k">if</span> <span class="n">max_atoms</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">max_atoms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">Inf</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">min_atoms</span> <span class="o">=</span> <span class="n">min_atoms</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_atoms</span> <span class="o">=</span> <span class="n">max_atoms</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">num_nn_cutoff</span> <span class="o">=</span> <span class="n">num_nn_dists</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_nn_dists</span> <span class="o">=</span> <span class="n">num_nn_dists</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">force_diagonal_transformation</span> <span class="o">=</span> <span class="n">force_diagonal_transformation</span>
 
         <span class="c1"># Variables to be solved for by &#39;apply_transformation()&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">smallest_dim</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># smallest direction of the resulting supercell</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">smallest_dim</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># norm of smallest direction of the resulting supercell</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">trans_mat</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># transformation matrix</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nn_dist</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -1520,7 +1530,7 @@
                 <span class="n">row_idx_to_fix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">absolute</span><span class="p">(</span><span class="n">zero_col</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">absolute</span><span class="p">(</span><span class="n">zero_col</span><span class="p">)))[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">row_idx_to_fix</span><span class="p">:</span>
                     <span class="n">arr_rounded</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">zero_col_idx</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_round_away_from_zero</span><span class="p">(</span><span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">zero_col_idx</span><span class="p">])</span>
-        <span class="k">return</span> <span class="n">arr_rounded</span>
+        <span class="k">return</span> <span class="n">arr_rounded</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
 
 <div class="viewcode-block" id="CubicSupercellTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.CubicSupercellTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1551,44 +1561,48 @@
             <span class="n">sc_not_found</span> <span class="o">=</span> <span class="kc">True</span>
 
             <span class="c1"># minimum distance any direction of the supercell must be as large as</span>
-            <span class="n">hard_sc_size_threshold</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nn_dist</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_nn_cutoff</span>
+            <span class="n">hard_sc_size_threshold</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nn_dist</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_nn_dists</span>
 
-            <span class="c1"># target_threshold is used as the desired cubic side lengths of the supercell</span>
-            <span class="n">target_sc_size</span> <span class="o">=</span> <span class="n">hard_sc_size_threshold</span>
-
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">force_diagonal_transformation</span><span class="p">:</span>
+                <span class="c1"># trans_mat_diagonal holds the diagonal of the trans_mat</span>
+                <span class="n">trans_mat_diagonal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+                <span class="n">trans_mat_diagonal_update</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># target_threshold is used as the desired cubic side lengths of the supercell</span>
+                <span class="n">target_sc_size</span> <span class="o">=</span> <span class="n">hard_sc_size_threshold</span>
             <span class="k">while</span> <span class="n">sc_not_found</span><span class="p">:</span>
-                <span class="n">target_sc_lat_vecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">target_sc_size</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">force_diagonal_transformation</span><span class="p">:</span>
+                    <span class="c1"># Update trans_mat (with diagonal constraint)</span>
+                    <span class="n">trans_mat_diagonal</span> <span class="o">+=</span> <span class="n">trans_mat_diagonal_update</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">trans_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">trans_mat_diagonal</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Update trans_mat (without diagonal constraint)</span>
+                    <span class="n">target_sc_lat_vecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">target_sc_size</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">trans_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">lat_vecs</span><span class="p">)</span> <span class="o">@</span> <span class="n">target_sc_lat_vecs</span>
 
-                <span class="bp">self</span><span class="o">.</span><span class="n">trans_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">lat_vecs</span><span class="p">)</span> <span class="o">@</span> <span class="n">target_sc_lat_vecs</span>
-
-                <span class="c1"># round the entries of T and force T to be nonsingular</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">trans_mat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_round_and_make_arr_singular</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trans_mat</span><span class="p">)</span>
+                    <span class="c1"># round the entries of T and force T to be nonsingular</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">trans_mat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_round_and_make_arr_singular</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trans_mat</span><span class="p">)</span>
 
                 <span class="n">proposed_sc_lat_vecs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trans_mat</span> <span class="o">@</span> <span class="n">lat_vecs</span>
 
-                <span class="c1"># Check how many nearest neighbors the proposed supercell allows</span>
-                <span class="n">scBasesNorms</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">proposed_sc_lat_vecs</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
-                                <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">proposed_sc_lat_vecs</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
-                                <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">proposed_sc_lat_vecs</span><span class="p">[</span><span class="mi">2</span><span class="p">])]</span>
-                <span class="n">maxNorm</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">scBasesNorms</span><span class="p">)</span>
-                <span class="n">maxIndex</span> <span class="o">=</span> <span class="n">scBasesNorms</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">maxNorm</span><span class="p">)</span>
-                <span class="n">idx</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
-                <span class="n">idx</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">maxIndex</span><span class="p">)</span>
-                <span class="n">a</span> <span class="o">=</span> <span class="n">proposed_sc_lat_vecs</span><span class="p">[</span><span class="n">maxIndex</span><span class="p">]</span>
-                <span class="n">b</span> <span class="o">=</span> <span class="n">proposed_sc_lat_vecs</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
-                <span class="n">c</span> <span class="o">=</span> <span class="n">proposed_sc_lat_vecs</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
-                <span class="n">projb_a</span> <span class="o">=</span> <span class="n">_proj</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
-                <span class="n">projc_a</span> <span class="o">=</span> <span class="n">_proj</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
+                <span class="c1"># Find the shortest dimension length and direction</span>
+                <span class="n">a</span> <span class="o">=</span> <span class="n">proposed_sc_lat_vecs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">b</span> <span class="o">=</span> <span class="n">proposed_sc_lat_vecs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">c</span> <span class="o">=</span> <span class="n">proposed_sc_lat_vecs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
 
-                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">projb_a</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">projc_a</span><span class="p">):</span>
-                    <span class="n">length</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">a</span> <span class="o">-</span> <span class="n">projb_a</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">length</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">a</span> <span class="o">-</span> <span class="n">projc_a</span><span class="p">)</span>
-                <span class="n">width</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">projb_a</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
-                <span class="n">ab_normal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>  <span class="c1"># get normal direction from AB plane</span>
-                <span class="n">height</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">_proj</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">ab_normal</span><span class="p">))</span>  <span class="c1"># project c onto AB plane normal</span>
+                <span class="n">length1_vec</span> <span class="o">=</span> <span class="n">c</span> <span class="o">-</span> <span class="n">_proj</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="c1">#a-c plane</span>
+                <span class="n">length2_vec</span> <span class="o">=</span> <span class="n">a</span> <span class="o">-</span> <span class="n">_proj</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+                <span class="n">length3_vec</span> <span class="o">=</span> <span class="n">b</span> <span class="o">-</span> <span class="n">_proj</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="c1">#b-a plane</span>
+                <span class="n">length4_vec</span> <span class="o">=</span> <span class="n">a</span> <span class="o">-</span> <span class="n">_proj</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+                <span class="n">length5_vec</span> <span class="o">=</span> <span class="n">b</span> <span class="o">-</span> <span class="n">_proj</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="c1">#b-c plane</span>
+                <span class="n">length6_vec</span> <span class="o">=</span> <span class="n">c</span> <span class="o">-</span> <span class="n">_proj</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+                <span class="n">length_vecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">length1_vec</span><span class="p">,</span> <span class="n">length2_vec</span><span class="p">,</span> <span class="n">length3_vec</span><span class="p">,</span>
+                                        <span class="n">length4_vec</span><span class="p">,</span> <span class="n">length5_vec</span><span class="p">,</span> <span class="n">length6_vec</span><span class="p">])</span>
 
-                <span class="bp">self</span><span class="o">.</span><span class="n">smallest_dim</span> <span class="o">=</span> <span class="nb">min</span><span class="p">([</span><span class="n">length</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">])</span>
+                <span class="n">lengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">length_vecs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">smallest_dim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amin</span><span class="p">(</span><span class="n">lengths</span><span class="p">)</span> <span class="c1">#shortest length</span>
+                <span class="n">smallest_dim_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">lengths</span><span class="p">)</span>
+                <span class="n">smallest_dim_vec</span> <span class="o">=</span> <span class="n">length_vecs</span><span class="p">[</span><span class="n">smallest_dim_idx</span><span class="p">]</span> <span class="c1"># shortest direction</span>
 
                 <span class="c1"># Get number of atoms</span>
                 <span class="n">superstructure</span> <span class="o">=</span> <span class="n">SupercellTransformation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trans_mat</span><span class="p">)</span><span class="o">.</span><span class="n">apply_transformation</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
@@ -1600,7 +1614,28 @@
                     <span class="k">return</span> <span class="n">superstructure</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="c1"># Increase threshold until proposed supercell meets requirements</span>
-                    <span class="n">target_sc_size</span> <span class="o">+=</span> <span class="mf">0.1</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">force_diagonal_transformation</span><span class="p">:</span>
+                        <span class="c1">#Find which supercell lattice vector contributes most to</span>
+                        <span class="c1"># the shortest dimension</span>
+                        <span class="n">sc_latvec1_proj_mag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span>
+                                                <span class="n">_proj</span><span class="p">(</span><span class="n">proposed_sc_lat_vecs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                                      <span class="n">smallest_dim_vec</span><span class="p">))</span>
+                        <span class="n">sc_latvec2_proj_mag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span>
+                                                <span class="n">_proj</span><span class="p">(</span><span class="n">proposed_sc_lat_vecs</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                                      <span class="n">smallest_dim_vec</span><span class="p">))</span>
+                        <span class="n">sc_latvec3_proj_mag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span>
+                                                <span class="n">_proj</span><span class="p">(</span><span class="n">proposed_sc_lat_vecs</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                                                      <span class="n">smallest_dim_vec</span><span class="p">))</span>
+                        <span class="n">sc_latvec_proj_mags</span> <span class="o">=</span> <span class="p">[</span><span class="n">sc_latvec1_proj_mag</span><span class="p">,</span>
+                                               <span class="n">sc_latvec2_proj_mag</span><span class="p">,</span>
+                                               <span class="n">sc_latvec3_proj_mag</span><span class="p">]</span>
+                        <span class="n">sc_proj_max_idx</span> <span class="o">=</span> <span class="n">sc_latvec_proj_mags</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">sc_latvec_proj_mags</span><span class="p">))</span>
+
+                        <span class="c1">#Increase the corresponding supercell lattice vector size</span>
+                        <span class="n">trans_mat_diagonal_update</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">trans_mat_diagonal_update</span><span class="p">,</span> <span class="n">sc_proj_max_idx</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">target_sc_size</span> <span class="o">+=</span> <span class="mf">0.1</span>
                     <span class="k">if</span> <span class="n">num_at</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_atoms</span><span class="p">:</span>
                         <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s1">&#39;While trying to solve for the &#39;</span>
                                              <span class="s1">&#39;supercell, the max number of atoms&#39;</span>
@@ -1615,149 +1650,6 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span></div>
-
-
-<div class="viewcode-block" id="PerturbSitesTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.PerturbSitesTransformation">[docs]</a><span class="k">class</span> <span class="nc">PerturbSitesTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Generates supercells where the atoms have been displaced around their</span>
-<span class="sd">    ideal sites.</span>
-
-<span class="sd">    The algorithm is as follows:</span>
-<span class="sd">    - Generate a list of distances between &#39;min_displacement&#39; and</span>
-<span class="sd">      &#39;max_displacement&#39;.</span>
-<span class="sd">    - If &#39;min_random_distance&#39; is None, a structure is generated for each of</span>
-<span class="sd">      the displacement distances where all atoms are displaced in random</span>
-<span class="sd">      directions from their original locations by the displacement distance.</span>
-<span class="sd">    - If &#39;structures_per_displacement_distance&#39; is greater than 1, multiple</span>
-<span class="sd">      structures per displacement distance will be generated.</span>
-<span class="sd">    - If &#39;min_random_distance&#39; is a number (float less than &#39;min_displacement&#39;),</span>
-<span class="sd">      for each displacement distance, the atoms will be perturbed in a random</span>
-<span class="sd">      direction and by a random amount sample uniformly between</span>
-<span class="sd">      &#39;min_random_distance&#39; and the displacement distance.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                 <span class="n">max_displacement</span><span class="o">=</span><span class="mf">0.30</span><span class="p">,</span>
-                 <span class="n">min_displacement</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
-                 <span class="n">num_displacements</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-                 <span class="n">structures_per_displacement_distance</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                 <span class="n">min_random_distance</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Args:</span>
-<span class="sd">            max_displacement (float): maximum displacement distance for</span>
-<span class="sd">                perturbing the structure (Angstroms)</span>
-<span class="sd">            min_displacement (float): minimum displacement distance for</span>
-<span class="sd">                perturbing the structure (Angstroms)</span>
-<span class="sd">            num_displacements (int): number of unique displacement distances to</span>
-<span class="sd">                try, uniformly distributed between &#39;min_displacement&#39; and</span>
-<span class="sd">                &#39;max_displacement&#39;.</span>
-<span class="sd">            structures_per_displacement_distance (int): number of perturbed</span>
-<span class="sd">                structures to generate for each unique displacement distance.</span>
-<span class="sd">            min_random_distance (Optional float): If None (default), then for a</span>
-<span class="sd">                given perturbed structure, all atoms will move the same distance</span>
-<span class="sd">                from their original locations. If float, then for a given</span>
-<span class="sd">                perturbed structure, the distances that atoms move will be</span>
-<span class="sd">                uniformly distributed from a minimum distance of</span>
-<span class="sd">                &#39;min_random_distance&#39; to one of the displacement distances</span>
-<span class="sd">                uniformly sampled between &#39;min_displacement&#39; and</span>
-<span class="sd">                &#39;max_displacement&#39;.</span>
-<span class="sd">        Returns:</span>
-<span class="sd">            List of randomly displaced structures (List of Structures)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">max_disp</span> <span class="o">=</span> <span class="n">max_displacement</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">min_disp</span> <span class="o">=</span> <span class="n">min_displacement</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">num_disps</span> <span class="o">=</span> <span class="n">num_displacements</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">structures_per_disp</span> <span class="o">=</span> <span class="n">structures_per_displacement_distance</span>
-
-        <span class="k">if</span> <span class="n">min_random_distance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">min_random_distance</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">min_random_distance</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">min_random_distance</span> <span class="o">=</span> <span class="kc">None</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">disps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">min_displacement</span><span class="p">,</span> <span class="n">max_displacement</span><span class="p">,</span>
-                                 <span class="n">num</span><span class="o">=</span><span class="n">num_displacements</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_random_displacements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">natom</span><span class="p">,</span> <span class="n">rmax</span><span class="p">,</span> <span class="n">rmin</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        ***Adapted from csld.util.mathtool</span>
-<span class="sd">        This function is not meant to be called directly.</span>
-<span class="sd">        Generates matrix of size (natom, 3) where each row vector has</span>
-<span class="sd">            Gaussian-sampled coordinates.</span>
-<span class="sd">        If &#39;rmin&#39;=None, then all row vectors will have magnitude &#39;rmax&#39;.</span>
-<span class="sd">        Else, magnitudes are uniformly distributed between &#39;rmin&#39; and &#39;rmax&#39;.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            natom (int): number of atoms to be displaced (i.e. number of displacement</span>
-<span class="sd">                vectors to generate)</span>
-<span class="sd">            rmax (float): max displacement distance that each atom can move</span>
-<span class="sd">            rmin (float): min displacement distance that each atom can move</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            Matrix of size (natom, 3) where each row is a displacement</span>
-<span class="sd">                vector for a single atom (np.ndarray)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="c1"># Gaussian sampled displacements. Size: (natom, 3)</span>
-        <span class="n">dx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">natom</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
-
-        <span class="c1"># Norms of each row</span>
-        <span class="n">dx_norms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-
-        <span class="c1"># Displacement distances</span>
-        <span class="n">disp_dists</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">natom</span><span class="p">,</span> <span class="n">rmax</span><span class="p">)</span> <span class="k">if</span> <span class="n">rmin</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">rmin</span><span class="p">,</span> <span class="n">rmax</span><span class="p">,</span> <span class="n">natom</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="mi">0</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dx_norms</span><span class="p">:</span>
-            <span class="c1"># Renormalize Gaussian vectors with &#39;disp_dists&#39;</span>
-            <span class="k">return</span> <span class="n">dx</span> <span class="o">*</span> <span class="p">(</span><span class="n">disp_dists</span> <span class="o">/</span> <span class="n">dx_norms</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># Protect against dividing by 0</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_random_displacements</span><span class="p">(</span><span class="n">natom</span><span class="p">,</span> <span class="n">rmax</span><span class="p">,</span> <span class="n">rmin</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_perturb_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">max_disp</span><span class="p">,</span> <span class="n">floor_disp</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        *** Adapted from CSLD&#39;s &#39;polaron_main&#39; file</span>
-<span class="sd">        All atoms move in a random direction (with each coordinate sampled</span>
-<span class="sd">        from the Normal distribution - see &#39;_random_displacements()&#39;).</span>
-<span class="sd">        If &#39;floor_disp&#39; is None, all atoms will move a distance of &#39;max_disp&#39;.</span>
-<span class="sd">        Else, atoms will move with distances uniformly distributed in the range,</span>
-<span class="sd">        [&#39;floor_disp&#39;, &#39;max_disp&#39;].</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="n">na</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">num_sites</span>
-        <span class="n">max_disp</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">max_disp</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">max_disp</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
-            <span class="c1"># generate random displacements</span>
-            <span class="n">dr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_random_displacements</span><span class="p">(</span><span class="n">na</span><span class="p">,</span> <span class="n">max_disp</span><span class="p">,</span> <span class="n">floor_disp</span><span class="p">)</span>
-
-            <span class="c1"># Perturb structure with the random displacements</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">_sites</span><span class="p">)):</span>
-                <span class="n">structure</span><span class="o">.</span><span class="n">translate_sites</span><span class="p">([</span><span class="n">i</span><span class="p">],</span> <span class="n">dr</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">frac_coords</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                                          <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">structure</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s1">&#39;Displacement entered is not a float.&#39;</span><span class="p">)</span>
-
-<div class="viewcode-block" id="PerturbSitesTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.PerturbSitesTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
-        <span class="c1"># Return a list of perturbed structures</span>
-
-        <span class="n">perturbed_structures</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">disp_val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">disps</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">cell</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structures_per_disp</span><span class="p">):</span>
-                <span class="n">perturbed_structure</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-                <span class="n">perturbed_structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_perturb_structure</span><span class="p">(</span><span class="n">perturbed_structure</span><span class="p">,</span>
-                                                              <span class="n">disp_val</span><span class="p">,</span>
-                                                              <span class="bp">self</span><span class="o">.</span><span class="n">min_random_distance</span><span class="p">)</span>
-                <span class="n">perturbed_structures</span> <span class="o">+=</span> <span class="p">[</span><span class="n">perturbed_structure</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">perturbed_structures</span></div>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="kc">None</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="kc">True</span></div>
 
 
 <div class="viewcode-block" id="AddAdsorbateTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.AddAdsorbateTransformation">[docs]</a><span class="k">class</span> <span class="nc">AddAdsorbateTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
@@ -1945,7 +1837,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

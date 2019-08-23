@@ -45,14 +45,14 @@ class HeisenbergMapper:
         orderings and find the magnetic ground state. Then enumerate magnetic
         states with the ground state as the input structure, find the subset
         of supercells that map to the ground state, and do static calculations
-        for these orderings.  
+        for these orderings.
 
         Args:
             ordered_structures (list): Structure objects with magmoms.
             energies (list): Energies of each relaxed magnetic structure.
             cutoff (float): Cutoff in Angstrom for nearest neighbor search.
                 Defaults to 0 (only NN, no NNN, etc.)
-            tol (float): Tolerance (in Angstrom) on nearest neighbor distances 
+            tol (float): Tolerance (in Angstrom) on nearest neighbor distances
                 being equal.
 
         Parameters:
@@ -68,7 +68,7 @@ class HeisenbergMapper:
             dists (dict): NN, NNN, and NNNN interaction distances
             ex_mat (DataFrame): Invertible Heisenberg Hamiltonian for each
                 graph.
-            ex_params (dict): Exchange parameter values (meV/atom) 
+            ex_params (dict): Exchange parameter values (meV/atom)
 
         """
 
@@ -146,7 +146,7 @@ class HeisenbergMapper:
             structure (Structure): ground state Structure object.
 
         Returns:
-            unique_site_ids (dict): maps tuples of equivalent site indices to a 
+            unique_site_ids (dict): maps tuples of equivalent site indices to a
                 unique int identifier
             wyckoff_ids (dict): maps tuples of equivalent site indices to their
                 wyckoff symbols
@@ -353,7 +353,7 @@ class HeisenbergMapper:
 
                 # Ignore the row if it is a duplicate to avoid singular matrix
                 if ex_mat.append(ex_row)[j_columns].equals(
-                    ex_mat.append(ex_row)[j_columns].drop_duplicates(keep="first")
+                        ex_mat.append(ex_row)[j_columns].drop_duplicates(keep="first")
                 ):
                     e_index = self.ordered_structures.index(sgraph.structure)
                     ex_row.at[sgraph_index, "E"] = self.energies[e_index]
@@ -399,7 +399,6 @@ class HeisenbergMapper:
 
         # Only 1 NN interaction
         if len(j_names) < 3:
-
             # Estimate exchange by J ~ E_AFM - E_FM
             j_avg = self.estimate_exchange()
             ex_params = {"<J>": j_avg}
@@ -501,7 +500,7 @@ class HeisenbergMapper:
             afm_struct (Structure): afm structure with 'magmom' site property
             fm_e (float): fm energy
             afm_e (float): afm energy
-        
+
         Returns:
             j_avg (float): Average exchange parameter (meV/atom)
 
@@ -523,10 +522,10 @@ class HeisenbergMapper:
 
         # If m_avg for FM config is < 1 we won't get sensibile results.
         if m_avg < 1:
-            iamthedanger = """ 
+            iamthedanger = """
                 Local magnetic moments are small (< 1 muB / atom). The
                 exchange parameters may be wrong, but <J> and the mean
-                field critical temperature estimate may be OK. 
+                field critical temperature estimate may be OK.
                 """
             logging.warning(iamthedanger)
 
@@ -575,7 +574,7 @@ class HeisenbergMapper:
             mft_t = max(eigenvals)
 
         if mft_t > 1500:  # Not sensible!
-            stayoutofmyterritory = """ 
+            stayoutofmyterritory = """
                 This mean field estimate is too high! Probably
                 the true low energy orderings were not given as inputs.
                 """
@@ -587,7 +586,7 @@ class HeisenbergMapper:
         """
         Get a StructureGraph with edges and weights that correspond to exchange
         interactions and J_ij values, respectively.
-        
+
         Args:
             filename (str): if not None, save interaction graph to filename.
         Returns:
@@ -645,8 +644,8 @@ class HeisenbergMapper:
         Args:
             i (int): index of ith site
             j (int): index of jth site
-            dist (float): distance (Angstrom) between sites 
-                (10E-2 precision) 
+            dist (float): distance (Angstrom) between sites
+                (10E-2 precision)
 
         Returns:
             j_exc (float): Exchange parameter in meV
@@ -690,7 +689,8 @@ class HeisenbergScreener:
     def __init__(self, structures, energies):
         """Clean and screen magnetic orderings.
 
-        This class pre-processes magnetic orderings and energies for HeisenbergMapper. It prioritizes low-energy orderings with large and localized magnetic moments.
+        This class pre-processes magnetic orderings and energies for HeisenbergMapper. It prioritizes low-energy
+        orderings with large and localized magnetic moments.
 
         Args:
             structures (list): Structure objects with magnetic moments.
@@ -722,7 +722,7 @@ class HeisenbergScreener:
         Takes magnetic structures and performs the following operations
         - Erases nonmagnetic ions and gives all ions ['magmom'] site prop
         - Checks for duplicate/degenerate orderings
-        - Sorts by energy 
+        - Sorts by energy
 
         Args:
             structures (list): Structure objects with magmoms.

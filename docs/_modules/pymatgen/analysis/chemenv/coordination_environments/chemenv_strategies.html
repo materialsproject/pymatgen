@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies &#8212; pymatgen 2019.7.30 documentation</title>
+    <title>pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies &#8212; pymatgen 2019.8.14 documentation</title>
     <link rel="stylesheet" href="../../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -205,7 +205,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Abstract constructor for the all chemenv strategies.</span>
 <span class="sd">        :param structure_environments: StructureEnvironments object containing all the information on the</span>
-<span class="sd">        coordination of the sites in a structure</span>
+<span class="sd">            coordination of the sites in a structure</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">structure_environments</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">structure_environments</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -286,9 +286,9 @@
 <span class="sd">        Applies the strategy to the structure_environments object in order to get the neighbors of a given site.</span>
 <span class="sd">        :param site: Site for which the neighbors are looked for</span>
 <span class="sd">        :param structure_environments: StructureEnvironments object containing all the information needed to get the</span>
-<span class="sd">        neighbors of the site</span>
+<span class="sd">            neighbors of the site</span>
 <span class="sd">        :return: The list of neighbors of the site. For complex strategies, where one allows multiple solutions, this</span>
-<span class="sd">        can return a list of list of neighbors</span>
+<span class="sd">            can return a list of list of neighbors</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
@@ -307,7 +307,7 @@
 <span class="sd">        a given site.</span>
 <span class="sd">        :param site: Site for which the coordination environment is looked for</span>
 <span class="sd">        :return: The coordination environment of the site. For complex strategies, where one allows multiple</span>
-<span class="sd">        solutions, this can return a list of coordination environments for the site</span>
+<span class="sd">            solutions, this can return a list of coordination environments for the site</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
@@ -318,7 +318,7 @@
 <span class="sd">        a given site.</span>
 <span class="sd">        :param site: Site for which the coordination environment is looked for</span>
 <span class="sd">        :return: The coordination environment of the site. For complex strategies, where one allows multiple</span>
-<span class="sd">        solutions, this can return a list of coordination environments for the site</span>
+<span class="sd">            solutions, this can return a list of coordination environments for the site</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
@@ -331,7 +331,7 @@
 <span class="sd">        a given site.</span>
 <span class="sd">        :param site: Site for which the coordination environment is looked for</span>
 <span class="sd">        :return: The coordination environment of the site. For complex strategies, where one allows multiple</span>
-<span class="sd">        solutions, this can return a list of coordination environments for the site</span>
+<span class="sd">            solutions, this can return a list of coordination environments for the site</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
@@ -657,7 +657,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructor for the SimpleAbundanceChemenvStrategy.</span>
 <span class="sd">        :param structure_environments: StructureEnvironments object containing all the information on the</span>
-<span class="sd">        coordination of the sites in a structure</span>
+<span class="sd">            coordination of the sites in a structure</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;SimpleAbundanceChemenvStrategy not yet implemented&#39;</span><span class="p">)</span>
         <span class="n">AbstractChemenvStrategy</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure_environments</span><span class="p">,</span> <span class="n">symmetry_measure_type</span><span class="o">=</span><span class="n">symmetry_measure_type</span><span class="p">)</span>
@@ -1653,7 +1653,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructor for the WeightedNbSetChemenvStrategy.</span>
 <span class="sd">        :param structure_environments: StructureEnvironments object containing all the information on the</span>
-<span class="sd">        coordination of the sites in a structure</span>
+<span class="sd">            coordination of the sites in a structure</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">AbstractChemenvStrategy</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure_environments</span><span class="p">,</span> <span class="n">symmetry_measure_type</span><span class="o">=</span><span class="n">symmetry_measure_type</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_additional_condition</span> <span class="o">=</span> <span class="n">additional_condition</span>
@@ -1696,7 +1696,7 @@
                 <span class="k">if</span> <span class="n">cn_map</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">weights_additional_info</span><span class="p">[</span><span class="s1">&#39;weights&#39;</span><span class="p">][</span><span class="n">isite</span><span class="p">]:</span>
                     <span class="n">weights_additional_info</span><span class="p">[</span><span class="s1">&#39;weights&#39;</span><span class="p">][</span><span class="n">isite</span><span class="p">][</span><span class="n">cn_map</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
                 <span class="n">weights_additional_info</span><span class="p">[</span><span class="s1">&#39;weights&#39;</span><span class="p">][</span><span class="n">isite</span><span class="p">][</span><span class="n">cn_map</span><span class="p">][</span><span class="n">weight_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">w_nb_set</span>
-                <span class="k">if</span> <span class="n">w_nb_set</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">return_all</span> <span class="ow">or</span> <span class="n">w_nb_set</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
                     <span class="n">cn_maps_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cn_map</span><span class="p">)</span>
             <span class="n">cn_maps</span> <span class="o">=</span> <span class="n">cn_maps_new</span>
         <span class="k">for</span> <span class="n">cn_map</span><span class="p">,</span> <span class="n">weights</span> <span class="ow">in</span> <span class="n">weights_additional_info</span><span class="p">[</span><span class="s1">&#39;weights&#39;</span><span class="p">][</span><span class="n">isite</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -1875,7 +1875,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructor for the MultiWeightsChemenvStrategy.</span>
 <span class="sd">        :param structure_environments: StructureEnvironments object containing all the information on the</span>
-<span class="sd">        coordination of the sites in a structure</span>
+<span class="sd">            coordination of the sites in a structure</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_additional_condition</span> <span class="o">=</span> <span class="n">additional_condition</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dist_ang_area_weight</span> <span class="o">=</span> <span class="n">dist_ang_area_weight</span>
@@ -2039,7 +2039,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

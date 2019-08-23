@@ -12,7 +12,6 @@ from itertools import combinations
 Utilities for generating nicer plots.
 """
 
-
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
@@ -219,7 +218,8 @@ def periodic_table_heatmap(elemental_data, cbar_label="",
     blank_value = min_val - 0.01
 
     for el in Element:
-        if el.row > max_row: continue
+        if el.row > max_row:
+            continue
         value = elemental_data.get(el.symbol, blank_value)
         value_table[el.row - 1, el.group - 1] = value
 
@@ -231,7 +231,7 @@ def periodic_table_heatmap(elemental_data, cbar_label="",
     # We set nan type values to masked values (ie blank spaces)
     data_mask = np.ma.masked_invalid(value_table.tolist())
     heatmap = ax.pcolor(data_mask, cmap=cmap, edgecolors='w', linewidths=1,
-                        vmin=min_val-0.001, vmax=max_val+0.001)
+                        vmin=min_val - 0.001, vmax=max_val + 0.001)
     cbar = fig.colorbar(heatmap)
 
     # Grey out missing elements in input data
@@ -247,7 +247,7 @@ def periodic_table_heatmap(elemental_data, cbar_label="",
     for i, row in enumerate(value_table):
         for j, el in enumerate(row):
             if not np.isnan(el):
-                symbol = Element.from_row_and_group(i+1, j+1).symbol
+                symbol = Element.from_row_and_group(i + 1, j + 1).symbol
                 plt.text(j + 0.5, i + 0.25, symbol,
                          horizontalalignment='center',
                          verticalalignment='center', fontsize=14)

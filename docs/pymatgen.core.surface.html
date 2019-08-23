@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.surface module &#8212; pymatgen 2019.7.30 documentation</title>
+    <title>pymatgen.core.surface module &#8212; pymatgen 2019.8.14 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.14 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -831,28 +831,18 @@ defined as {(“P”, “O”): 3}.</p>
 find the surface sites and apply operations like doping.</p>
 </dd>
 </dl>
-<p>There are three cases where the slab in not centered:
-1. The slab region is completely between two vacuums in the</p>
-<blockquote>
-<div><p>box but not necessarily centered. We simply shift the
+<p>There are three cases where the slab in not centered:</p>
+<p>1. The slab region is completely between two vacuums in the
+box but not necessarily centered. We simply shift the
 slab by the difference in its center of mass and 0.5
 along the c direction.</p>
-</div></blockquote>
-<ol class="arabic simple" start="2">
-<li><dl class="simple">
-<dt>The slab completely spills outside the box from the bottom</dt><dd><p>and into the top. This makes it incredibly difficult to
+<p>2. The slab completely spills outside the box from the bottom
+and into the top. This makes it incredibly difficult to
 locate surface sites. We iterate through all sites that
 spill over (z&gt;c) and shift all sites such that this specific
 site is now on the other side. Repeat for all sites with z&gt;c.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>This is a simpler case of scenario 2. Either the top or bottom</dt><dd><p>slab sites are at c=0 or c=1. Treat as scenario 2.</p>
-</dd>
-</dl>
-</li>
-</ol>
+<p>3. This is a simpler case of scenario 2. Either the top or bottom
+slab sites are at c=0 or c=1. Treat as scenario 2.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>slab</strong> (<a class="reference internal" href="#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab"><em>Slab</em></a>) – Slab structure to center</p>
@@ -1095,7 +1085,7 @@ miller index to.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.14 documentation</a> &#187;</li> 
       </ul>
     </div>
 

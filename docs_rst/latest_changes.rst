@@ -1,9 +1,8 @@
 Change log
 ==========
 
-v2019.7.30
+v2019.8.14
 ----------
-* Bug fixes (@shyuep, @mfherbst)
-* More type hint annotations (@shyuep)
-* Improvements to BabelMolAdaptor (@smheidrich)
-* Convenience Transformations for AdsorbateSiteFinder (@mkhorton)
+* Update DOSCAR from lobster (@JaGEO)
+* PerturbStructureTransformation (@rees-c)
+* Misc bug fixes.

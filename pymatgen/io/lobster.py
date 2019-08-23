@@ -145,12 +145,9 @@ class Cohpcar:
                                     "sites": bond_data["sites"]}
 
             elif label in orb_cohp:
-                orb_cohp[label].update({bond_data["orb_label"]:
-                                            {"COHP": cohp,
-                                             "ICOHP": icohp,
-                                             "orbitals": orbs,
-                                             "length": bond_data["length"],
-                                             "sites": bond_data["sites"]}})
+                orb_cohp[label].update(
+                    {bond_data["orb_label"]: {"COHP": cohp, "ICOHP": icohp, "orbitals": orbs,
+                                              "length": bond_data["length"], "sites": bond_data["sites"]}})
             else:
                 # present for Lobster versions older than Lobster 2.2.0
                 if bondnumber == 0:
@@ -311,7 +308,6 @@ class Icohplist:
                 if self.is_spin_polarized:
                     icohp[Spin.down] = float(data[bond + num_bonds + 1].split()[4])
 
-
             elif version == '3.1.1':
                 label = "%s" % (line[0])
                 atom1 = str(line[1])
@@ -365,7 +361,7 @@ class Doscar:
 
     Args:
         doscar: DOSCAR filename, typically "DOSCAR.lobster"
-        vasprun: vasprun filename, typically "vasprun.xml"
+        structure_file: for vasp, this is typically "POSCAR"
         dftprogram: so far only "vasp" is implemented
 
     .. attribute:: completedos
@@ -382,8 +378,10 @@ class Doscar:
         numpy array of the energies at which the DOS was calculated (in eV, relative to Efermi)
 
     .. attribute:: tdensities
-        tdensities[Spin.up]: numpy array of the total density of states for the Spin.up contribution at each of the energies
-        tdensities[Spin.down]: numpy array of the total density of states for the Spin.down contribution at each of the energies
+        tdensities[Spin.up]: numpy array of the total density of states for the Spin.up contribution at each of the
+            energies
+        tdensities[Spin.down]: numpy array of the total density of states for the Spin.down contribution at each of the
+            energies
 
         if is_spin_polarized=False:
         tdensities[Spin.up]: numpy array of the total density of states
@@ -394,18 +392,11 @@ class Doscar:
 
     """
 
-    def __init__(self, doscar="DOSCAR.lobster", vasprun="vasprun.xml", dftprogram="Vasp"):
+    def __init__(self, doscar="DOSCAR.lobster", structure_file="POSCAR", dftprogram="Vasp"):
 
         self._doscar = doscar
         if dftprogram == "Vasp":
-            self._vasprun = vasprun
-            self._VASPRUN = Vasprun(filename=self._vasprun, ionic_step_skip=None,
-                                    ionic_step_offset=0, parse_dos=False,
-                                    parse_eigen=False, parse_projected_eigen=False,
-                                    parse_potcar_file=False, occu_tol=1e-8,
-                                    exception_on_bad_xml=True)
-            self._final_structure = self._VASPRUN.final_structure
-            self._is_spin_polarized = self._VASPRUN.is_spin
+            self._final_structure = Structure.from_file(structure_file)
 
         self._parse_doscar()
 
@@ -430,8 +421,13 @@ class Doscar:
                 cdos[nd] = np.array(line)
             dos.append(cdos)
         f.close()
-
         doshere = np.array(dos[0])
+        if len(doshere[0, :]) == 5:
+            self._is_spin_polarized = True
+        elif len(doshere[0, :]) == 3:
+            self._is_spin_polarized = False
+        else:
+            raise ValueError("There is something wrong with the DOSCAR. Can't extract spin polarization.")
         energies = doshere[:, 0]
         if not self._is_spin_polarized:
             tdensities[Spin.up] = doshere[:, 1]
@@ -749,26 +745,28 @@ class Lobsterout:
             return False
 
     def _has_DOSCAR(self, data):
-        if 'writing DOSCAR.lobster...' in data and not 'SKIPPING writing DOSCAR.lobster...' in data:
+        if 'writing DOSCAR.lobster...' in data and 'SKIPPING writing DOSCAR.lobster...' not in data:
             return True
         else:
             return False
 
     def _has_COOPCAR(self, data):
-        if 'writing COOPCAR.lobster and ICOOPLIST.lobster...' in data and not 'SKIPPING writing COOPCAR.lobster and ICOOPLIST.lobster...' in data:
+        if 'writing COOPCAR.lobster and ICOOPLIST.lobster...' in data and \
+                'SKIPPING writing COOPCAR.lobster and ICOOPLIST.lobster...' not in data:
             return True
         else:
             return False
 
     def _has_COHPCAR(self, data):
-        if 'writing COHPCAR.lobster and ICOHPLIST.lobster...' in data and not 'SKIPPING writing COHPCAR.lobster and ICOHPLIST.lobster...' in data:
+        if 'writing COHPCAR.lobster and ICOHPLIST.lobster...' in data and \
+                'SKIPPING writing COHPCAR.lobster and ICOHPLIST.lobster...' not in data:
             return True
         else:
             return False
 
     def _has_CHARGE(self, data):
         # weitere optionen testen -> auch hier kann uebersprungen werden
-        if not 'SKIPPING writing CHARGE.lobster...' in data:
+        if 'SKIPPING writing CHARGE.lobster...' not in data:
             return True
         else:
             return False
@@ -829,14 +827,13 @@ class Lobsterout:
 
             if len(splitrow) > 2:
                 if splitrow[2] == 'spilling:':
-                    # print(splitrow)
                     if splitrow[1] == 'charge':
                         charge_spilling.append(np.float(splitrow[3].replace('%', '')) / 100.0)
                     if splitrow[1] == 'total':
                         total_spilling.append(np.float(splitrow[3].replace('%', '')) / 100.0)
 
             if len(charge_spilling) == number_of_spins and len(total_spilling) == number_of_spins:
-                break;
+                break
 
         return charge_spilling, total_spilling
 
@@ -923,48 +920,53 @@ class Fatband:
     """
     reads in FATBAND_x_y.lobster files
     Args:
-      filenames (list or string): can be a list of file names or a path to a folder folder from which all "FATBAND_*" files will be read
-      vasprun: corresponding vasprun file
-      Kpointsfile: KPOINTS file for bandstructure calculation, typically "KPOINTS"
+        filenames (list or string): can be a list of file names or a path to a folder folder from which all "FATBAND_*"
+            files will be read
+        vasprun: corresponding vasprun file
+        Kpointsfile: KPOINTS file for bandstructure calculation, typically "KPOINTS"
 
-      .. attribute: efermi
-      efermi that was read in from vasprun.xml
+    .. attribute: efermi
 
-      .. attribute: eigenvals
-      {Spin.up:[][],Spin.down:[][]}, the first index of the array
+        efermi that was read in from vasprun.xml
+
+    .. attribute: eigenvals
+        {Spin.up:[][],Spin.down:[][]}, the first index of the array
             [][] refers to the band and the second to the index of the
             kpoint. The kpoints are ordered according to the order of the
             kpoints array. If the band structure is not spin polarized, we
             only store one data set under Spin.up.
 
-      .. attribute: is_spinpolarized
-      Boolean that tells you whether this was a spin-polarized calculation
+    .. attribute: is_spinpolarized
 
-      .. attribute: kpoints_array
-        list of kpoint as numpy arrays, in frac_coords of the
-            given lattice by default
+        Boolean that tells you whether this was a spin-polarized calculation
 
-      .. attribute: label_dict
-     (dict) of {} this link a kpoint (in frac coords or
-            cartesian coordinates depending on the coords).
+    .. attribute: kpoints_array
 
-      .. attribute: lattice
-      lattice object of reciprocal lattice as read in from vasprun.xml
+        list of kpoint as numpy arrays, in frac_coords of the given lattice by default
 
-      .. attribute: nbands
-      number of bands used in the calculation
+    .. attribute: label_dict
 
-      .. attribute: p_eigenvals
-      dict of orbital projections as {spin: array of dict}.
-      The indices of the array are [band_index, kpoint_index].
-      The dict is then built the following way:
-      {"string of element": "string of orbital as read in from FATBAND file"}
-      If the band structure is not spin polarized, we only store one data set under Spin.up.
+         (dict) of {} this link a kpoint (in frac coords or cartesian coordinates depending on the coords).
 
-      .. attribute: structure
-      structure read in from vasprun.xml
+    .. attribute: lattice
 
+        lattice object of reciprocal lattice as read in from vasprun.xml
 
+    .. attribute: nbands
+
+        number of bands used in the calculation
+
+    .. attribute: p_eigenvals
+
+        dict of orbital projections as {spin: array of dict}.
+        The indices of the array are [band_index, kpoint_index].
+        The dict is then built the following way:
+        {"string of element": "string of orbital as read in from FATBAND file"}
+        If the band structure is not spin polarized, we only store one data set under Spin.up.
+
+    .. attribute: structure
+
+        structure read in from vasprun.xml
     """
 
     def __init__(self, filenames=".", vasprun='vasprun.xml', Kpointsfile='KPOINTS'):
@@ -986,7 +988,7 @@ class Fatband:
         atomnames = []
         orbital_names = []
 
-        if type(filenames) is not type([]) or filenames is None:
+        if not isinstance(filenames, list) or filenames is None:
             filenames_new = []
             if filenames is None:
                 filenames = '.'
@@ -994,7 +996,7 @@ class Fatband:
                 if fnmatch.fnmatch(file, 'FATBAND_*.lobster'):
                     filenames_new.append(os.path.join(filenames, file))
             filenames = filenames_new
-        if (len(filenames)) == 0:
+        if len(filenames) == 0:
             raise ValueError("No FATBAND files in folder or given")
         for ifilename, filename in enumerate(filenames):
             with zopen(filename, "rt") as f:
@@ -1012,7 +1014,8 @@ class Fatband:
             if atom not in atom_orbital_dict:
                 atom_orbital_dict[atom] = []
             atom_orbital_dict[atom].append(orbital_names[iatom])
-        # test if there are the same orbitals twice or if two different formats were used or if all necessary orbitals are there
+        # test if there are the same orbitals twice or if two different formats were used or if all necessary orbitals
+        # are there
         for key, items in atom_orbital_dict.items():
             if len(set(items)) != len(items):
                 raise (ValueError("The are two FATBAND files for the same atom and orbital. The program will stop."))
@@ -1021,8 +1024,9 @@ class Fatband:
                 split.append(item.split("_")[0])
             for orb, number in collections.Counter(split).items():
                 if number != 1 and number != 3 and number != 5 and number != 7:
-                    raise (ValueError(
-                        "Make sure all relevant orbitals were generated and that no duplicates (2p and 2p_x) are present"))
+                    raise ValueError(
+                        "Make sure all relevant orbitals were generated and that no duplicates (2p and 2p_x) are "
+                        "present")
 
         kpoints_array = []
         for ifilename, filename in enumerate(filenames):
@@ -1236,13 +1240,13 @@ class Lobsterin(dict, MSONable):
                     if k1.lower() == key_here.lower():
                         new_key = key_here
 
-                if type(v1) == type(''):
+                if isinstance(v1, str):
                     if v1.strip().lower() != other[new_key].strip().lower():
 
                         different_param[k1.upper()] = {"lobsterin1": v1, "lobsterin2": other[new_key]}
                     else:
                         similar_param[k1.upper()] = v1
-                elif type(v1) == type([]):
+                elif isinstance(v1, list):
                     new_set1 = set([element.strip().lower() for element in v1])
                     new_set2 = set([element.strip().lower() for element in other[new_key]])
                     if new_set1 != new_set2:
@@ -1431,7 +1435,8 @@ class Lobsterin(dict, MSONable):
             POSCAR_input (str): path to POSCAR
             KPOINTS_output (str): path to output KPOINTS
             reciprocal_density (int): Grid density
-            from_grid (bool): If True KPOINTS will be generated with the help of a grid given in input_grid. Otherwise, they will be generated from the reciprocal_density
+            from_grid (bool): If True KPOINTS will be generated with the help of a grid given in input_grid. Otherwise,
+                they will be generated from the reciprocal_density
             input_grid (list): grid to generate the KPOINTS file
             line_mode (bool): If True, band structure will be generated
             kpoints_line_density (int): density of the lines in the band structure
@@ -1490,7 +1495,8 @@ class Lobsterin(dict, MSONable):
             kpath = HighSymmKpath(structure, symprec=symprec)
             if not np.allclose(kpath.prim.lattice.matrix, structure.lattice.matrix):
                 raise ValueError(
-                    "You are not using the standard primitive cell. The k-path is not correct. Please generate a standard primitive cell first.")
+                    "You are not using the standard primitive cell. The k-path is not correct. Please generate a "
+                    "standard primitive cell first.")
 
             frac_k_points, labels = kpath.get_kpoints(
                 line_density=kpoints_line_density,
@@ -1588,17 +1594,18 @@ class Lobsterin(dict, MSONable):
             POSCAR_input(str): path to POSCAR
             INCAR_input(str): path to INCAR
             POTCAR_input (str): path to POTCAR
-            dict_for_basis (dict): can be provided: it should look the following: dict_for_basis={"Fe":'3p 3d 4s 4f', "C": '2s 2p'} and will overwrite all settings from POTCAR_input
+            dict_for_basis (dict): can be provided: it should look the following:
+                dict_for_basis={"Fe":'3p 3d 4s 4f', "C": '2s 2p'} and will overwrite all settings from POTCAR_input
 
-            option (str): 'standard' will start a normal lobster run where COHPs, COOPs, DOS, CHARGE etc. will be calculated
-                        'standard_from_projection' will start a normal lobster run from a projection
-                        'standard_with_fatband' will do a fatband calculation, run over all orbitals
-                        'onlyprojection' will only do a projection
-                        'onlydos' will only calculate a projected dos
-                        'onlycohp' will only calculate cohp
-                        'onlycoop' will only calculate coop
-                        'onlycohpcoop' will only calculate cohp and coop
-
+            option (str): 'standard' will start a normal lobster run where COHPs, COOPs, DOS, CHARGE etc. will be
+                calculated
+                'standard_from_projection' will start a normal lobster run from a projection
+                'standard_with_fatband' will do a fatband calculation, run over all orbitals
+                'onlyprojection' will only do a projection
+                'onlydos' will only calculate a projected dos
+                'onlycohp' will only calculate cohp
+                'onlycoop' will only calculate coop
+                'onlycohpcoop' will only calculate cohp and coop
 
         Returns:
             Lobsterin Object with standard settings
@@ -1617,7 +1624,7 @@ class Lobsterin(dict, MSONable):
         Lobsterindict['COHPstartEnergy'] = -15.0
         Lobsterindict['COHPendEnergy'] = 5.0
 
-        if option == 'standard' or option == 'onlycohp' or option == 'onlycoop' or option == 'onlycohpcoop' or option == 'standard_with_fatband':
+        if option in ['standard', 'onlycohp', 'onlycoop', 'onlycohpcoop', 'standard_with_fatband']:
             # every interaction with a distance of 6.0 is checked
             Lobsterindict['cohpGenerator'] = "from 0.1 to 6.0 orbitalwise"
             # the projection is saved
@@ -1687,7 +1694,8 @@ class Bandoverlaps:
         filename: filename of the "bandOverlaps.lobster" file
 
     .. attribute: bandoverlapsdict is a dict of the following form:
-                 {spin:{"kpoint as string": {"maxDeviation": float that describes the max deviation, "matrix": 2D array of the size number of bands times number of bands including the overlap matrices with } }}
+        {spin:{"kpoint as string": {"maxDeviation": float that describes the max deviation, "matrix": 2D
+        array of the size number of bands times number of bands including the overlap matrices with } }}
 
     .. attribute: maxDeviation is a list of floats describing the maximal Deviation for each problematic kpoint
 
@@ -1722,7 +1730,7 @@ class Bandoverlaps:
                         kpoint_array.append(str(kpointel))
 
             elif "maxDeviation" in line:
-                if not spin in self.bandoverlapsdict:
+                if spin not in self.bandoverlapsdict:
                     self.bandoverlapsdict[spin] = {}
                 if not " ".join(kpoint_array) in self.bandoverlapsdict[spin]:
                     self.bandoverlapsdict[spin][" ".join(kpoint_array)] = {}
@@ -1755,7 +1763,9 @@ class Bandoverlaps:
     def has_good_quality_check_occupied_bands(self, number_occ_bands_spin_up, number_occ_bands_spin_down=None,
                                               spin_polarized=False, limit_deviation=0.1) -> bool:
         """
-        will check if the deviation from the ideal bandoverlap of all occupied bands is smaller or equal to limit_deviation
+        will check if the deviation from the ideal bandoverlap of all occupied bands is smaller or equal to
+        limit_deviation
+
         Args:
         number_occ_bands_spin_up (int): number of occupied bands of spin up
         number_occ_bands_spin_down (int): number of occupied bands of spin down
