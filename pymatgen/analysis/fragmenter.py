@@ -74,18 +74,12 @@ class Fragmenter(MSONable):
             self.mol_graph = MoleculeGraph.with_edges(molecule, edges)
 
         if ("Li" in molecule.composition or "Mg" in molecule.composition) and use_metal_edge_extender:
-            # print("Extending lithium and magnesium edges to ensure that we capture coordination to nearby common coordinators: O, N, F, and Cl.")
-            # if self.open_rings:
-            #     print("WARNING: Metal edge extension while opening rings can yeild unphysical fragments!")
             self.mol_graph = metal_edge_extender(self.mol_graph)
 
         self.prev_unique_frag_dict = prev_unique_frag_dict or {}
-        self.new_unique_frag_dict = {} # new fragments from the given molecule not contained in prev_unique_frag_dict
-        self.all_unique_frag_dict = {} # all fragments from just the given molecule
-        self.unique_frag_dict = {} # all fragments from both the given molecule and prev_unique_frag_dict
-
-        # if self.prev_unique_frag_dict != {} and self.assume_previous_thoroughness:
-        #     print("WARNING: You are assuming that all subfragments of every molecule and fragment in your prev_unique_frag_dict are also included in prev_unique_frag_dict. If this is not the case, you will miss subfragments!")
+        self.new_unique_frag_dict = {}  # new fragments from the given molecule not contained in prev_unique_frag_dict
+        self.all_unique_frag_dict = {}  # all fragments from just the given molecule
+        self.unique_frag_dict = {}  # all fragments from both the given molecule and prev_unique_frag_dict
 
         if depth == 0:  # Non-iterative, find all possible fragments:
 
@@ -114,9 +108,10 @@ class Fragmenter(MSONable):
                     if num_frags_prev_level == 0:
                         # Nothing left to fragment, so exit the loop:
                         break
-                    else: # If not on the first level, and there are fragments present in the previous level, then
-                          # perform one level of fragmentation on all fragments present in the previous level:
-                        self.fragments_by_level[str(level)] = self._fragment_one_level(self.fragments_by_level[str(level-1)])
+                    else:  # If not on the first level, and there are fragments present in the previous level, then
+                        # perform one level of fragmentation on all fragments present in the previous level:
+                        self.fragments_by_level[str(level)] = self._fragment_one_level(
+                            self.fragments_by_level[str(level-1)])
 
         if self.prev_unique_frag_dict == {}:
             self.new_unique_frag_dict = copy.deepcopy(self.all_unique_frag_dict)
@@ -178,7 +173,8 @@ class Fragmenter(MSONable):
                         if self.open_rings:
                             fragments = [open_ring(old_frag, bond, self.opt_steps)]
                     for fragment in fragments:
-                        new_frag_key = str(fragment.molecule.composition.alphabetical_formula)+" E"+str(len(fragment.graph.edges()))
+                        new_frag_key = str(fragment.molecule.composition.alphabetical_formula)+" E"+str(
+                            len(fragment.graph.edges()))
                         proceed = True
                         if self.assume_previous_thoroughness and self.prev_unique_frag_dict != {}:
                             if new_frag_key in self.prev_unique_frag_dict:
