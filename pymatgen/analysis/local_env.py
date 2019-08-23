@@ -336,7 +336,7 @@ class NearNeighbors:
             structure (Structure): input structure.
             n (integer): index of site for which to determine near-neighbor
                 information.
- 
+
         Returns:
             siw (list of dicts): each dictionary provides information
                 about a single near neighbor, where key 'site' gives
@@ -931,7 +931,7 @@ class VoronoiNN(NearNeighbors):
             structure (Structure): input structure.
             n (integer): index of site for which to determine near-neighbor
                 sites.
- 
+
         Returns:
             siw (list of tuples (Site, array, float)): tuples, each one
                 of which represents a coordinated site, its image location,
@@ -1022,8 +1022,8 @@ class JmolNN(NearNeighbors):
     Args:
         tol (float): tolerance parameter for bond determination
             (default: 0.56).
-        el_radius_updates: (dict) symbol->float to override default atomic 
-            radii table values 
+        el_radius_updates: (dict) symbol->float to override default atomic
+            radii table values
     """
 
     def __init__(self, tol=0.56, min_bond_distance=0.4, el_radius_updates=None):
@@ -1063,7 +1063,7 @@ class JmolNN(NearNeighbors):
             structure (Structure): input structure.
             n (integer): index of site for which to determine near
                 neighbors.
- 
+
         Returns:
             siw (list of tuples (Site, array, float)): tuples, each one
                 of which represents a neighbor site, its image location,
@@ -1129,7 +1129,7 @@ class MinimumDistanceNN(NearNeighbors):
             structure (Structure): input structure.
             n (integer): index of site for which to determine near
                 neighbors.
- 
+
         Returns:
             siw (list of tuples (Site, array, float)): tuples, each one
                 of which represents a neighbor site, its image location,
@@ -1457,7 +1457,7 @@ class MinimumOKeeffeNN(NearNeighbors):
             structure (Structure): input structure.
             n (integer): index of site for which to determine near
                 neighbors.
- 
+
         Returns:
             siw (list of tuples (Site, array, float)): tuples, each one
                 of which represents a neighbor site, its image location,
@@ -2657,7 +2657,7 @@ class LocalStructOrderParams:
                             elif t in ["T", "tri_pyr", "sq_pyr", "pent_pyr",
                                        "hex_pyr"]:
                                 tmp = self._params[i]['IGW_EP'] * (
-                                            thetak * ipi - 0.5)
+                                        thetak * ipi - 0.5)
                                 qsptheta[i][j][kc] += exp(-0.5 * tmp * tmp)
                                 norms[i][j][kc] += 1
                             elif t in ["sq_plan", "oct", "oct_legacy",
@@ -2696,8 +2696,8 @@ class LocalStructOrderParams:
                                     tmp = self._params[i]['IGW_SPP'] * (
                                             thetak * ipi - 1.0)
                                     qsptheta[i][j][kc] += (
-                                                self._params[i]['w_SPP'] *
-                                                exp(-0.5 * tmp * tmp))
+                                            self._params[i]['w_SPP'] *
+                                            exp(-0.5 * tmp * tmp))
                                     norms[i][j][kc] += self._params[i]['w_SPP']
                             elif t == "sq_face_cap_trig_pris":
                                 if thetak < self._params[i]['TA3']:
@@ -2877,7 +2877,7 @@ class LocalStructOrderParams:
                                                     tmp = cos(phi)
                                                     tmp2 = self._params[i][
                                                                5] * (
-                                                                       thetam * ipi - 0.5)
+                                                                   thetam * ipi - 0.5)
                                                     qsptheta[i][j][
                                                         kc] += tmp * tmp * exp(
                                                         -0.5 * tmp2 * tmp2)
@@ -2901,8 +2901,8 @@ class LocalStructOrderParams:
                                                                     0.81649658)
                                                     tmp2 = self._params[i][
                                                                6] * (
-                                                                       thetam * ipi - \
-                                                                       twothird)
+                                                                   thetam * ipi - \
+                                                                   twothird)
                                                     qsptheta[i][j][kc] += exp(
                                                         -0.5 * tmp * tmp) * \
                                                                           exp(

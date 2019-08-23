@@ -549,11 +549,9 @@ class InterfacialReactivity:
         Cp_std = Cp_dict[element]
         S_std = S_dict[element]
         PV_correction = ideal_gas_const * temp * np.log(pres / std_pres)
-        TS_correction = - Cp_std * (temp * np.log(temp)
-                                    - std_temp * np.log(std_temp)) \
-                        + Cp_std * (temp - std_temp) \
-                                 * (1 + np.log(std_temp)) \
-                        - S_std * (temp - std_temp)
+        TS_correction = - Cp_std * (temp * np.log(temp) - std_temp * np.log(std_temp)) \
+             + Cp_std * (temp - std_temp) * (1 + np.log(std_temp)) \
+             - S_std * (temp - std_temp)
 
         dG = PV_correction + TS_correction
         # Convert to eV/molecule unit.
