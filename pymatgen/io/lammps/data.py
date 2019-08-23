@@ -13,7 +13,6 @@ from monty.json import MSONable
 from monty.dev import deprecated
 from ruamel.yaml import YAML
 
-
 from pymatgen.util.io_utils import clean_lines
 from pymatgen import Molecule, Element, Lattice, Structure, SymmOp
 
@@ -37,7 +36,6 @@ __version__ = "1.0"
 __maintainer__ = "Zhi Deng"
 __email__ = "z4deng@eng.ucsd.edu"
 __date__ = "Aug 1, 2018"
-
 
 SECTION_KEYWORDS = {"atom": ["Atoms", "Velocities", "Masses",
                              "Ellipsoids", "Lines", "Triangles", "Bodies"],
@@ -77,7 +75,6 @@ ATOMS_HEADERS = {"angle": ["molecule-ID", "type", "x", "y", "z"],
 class LammpsBox(MSONable):
     """
     Object for representing a simulation box in LAMMPS settings.
-
     """
 
     def __init__(self, bounds, tilt=None):
@@ -101,7 +98,7 @@ class LammpsBox(MSONable):
         self.tilt = None
         if tilt is not None:
             tilt_arr = np.array(tilt)
-            assert tilt_arr.shape == (3,),\
+            assert tilt_arr.shape == (3,), \
                 "Expecting a (3,) array for box_tilt," \
                 " got {}".format(tilt_arr.shape)
             self.tilt = tilt_arr.tolist()
@@ -243,7 +240,7 @@ class LammpsData(MSONable):
         """
 
         if velocities is not None:
-            assert len(velocities) == len(atoms),\
+            assert len(velocities) == len(atoms), \
                 "Inconsistency found between atoms and velocities"
 
         if force_field:
@@ -681,7 +678,7 @@ class LammpsData(MSONable):
 
         """
         atom_types = set.union(*[t.species for t in topologies])
-        assert atom_types.issubset(ff.maps["Atoms"].keys()),\
+        assert atom_types.issubset(ff.maps["Atoms"].keys()), \
             "Unknown atom type found in topologies"
 
         items = dict(box=box, atom_style=atom_style, masses=ff.masses,
@@ -870,7 +867,7 @@ class Topology(MSONable):
         # validate shape
         if charges is not None:
             charge_arr = np.array(charges)
-            assert charge_arr.shape == (len(sites),),\
+            assert charge_arr.shape == (len(sites),), \
                 "Wrong format for charges"
             charges = charge_arr.tolist()
         if velocities is not None:
@@ -1090,7 +1087,7 @@ class ForceField(MSONable):
         type_counts = sum([len(dt) for dt in distinct_types])
         type_union = set.union(*distinct_types)
         assert len(type_union) == type_counts, "Duplicated items found " \
-            "under different coefficients in %s" % kw
+                                               "under different coefficients in %s" % kw
         atoms = set(np.ravel(list(itertools.chain(*distinct_types))))
         assert atoms.issubset(self.maps["Atoms"].keys()), \
             "Undefined atom type found in %s" % kw
@@ -1101,7 +1098,7 @@ class ForceField(MSONable):
 
         def process_data(data):
             df = pd.DataFrame(data)
-            assert self._is_valid(df),\
+            assert self._is_valid(df), \
                 "Invalid coefficients with rows varying in length"
             n, c = df.shape
             df.columns = ["coeff%d" % i for i in range(1, c + 1)]

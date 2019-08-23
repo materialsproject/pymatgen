@@ -10,7 +10,6 @@ import warnings
 import glob
 import numpy as np
 
-
 from pymatgen.io.vasp.outputs import Chgcar
 from pymatgen.io.vasp.inputs import Potcar
 from monty.dev import requires
@@ -85,7 +84,7 @@ class BaderAnalysis:
         calculating charge transferred).
 
     .. attribute: chgcar_ref
-    
+
         Chgcar reference which calculated by AECCAR0 + AECCAR2.
         (See http://theory.cm.utexas.edu/henkelman/code/bader/ for details.)
 
@@ -217,10 +216,10 @@ class BaderAnalysis:
                         return data[startx:startx + xwidth, starty:starty + ywidth, startz:startz + zwidth]
 
                     # Finds the central encompassing volume which holds all the data within a precision
-                    def find_encompassing_vol(data,prec=1e-3):
+                    def find_encompassing_vol(data, prec=1e-3):
                         total = np.sum(data)
                         for i in range(np.max(data.shape)):
-                            sliced_data = slice_from_center(data,i,i,i)
+                            sliced_data = slice_from_center(data, i, i, i)
                             if total - np.sum(sliced_data) < 0.1:
                                 return sliced_data
                         return None
@@ -234,7 +233,7 @@ class BaderAnalysis:
                 self.atomic_densities = atomic_densities
 
     @classmethod
-    def rebuild_chgcar(cls,atomic_densities):
+    def rebuild_chgcar(cls, atomic_densities):
 
         pass
 

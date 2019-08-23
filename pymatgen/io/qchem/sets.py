@@ -119,7 +119,7 @@ class QChemDictSet(QCInput):
             myrem["solvent_method"] = "smd"
             myrem["ideriv"] = "1"
             if self.smd_solvent == "custom" or self.smd_solvent == "other":
-                if self.custom_smd == None:
+                if self.custom_smd is None:
                     raise ValueError(
                         'A user-defined SMD requires passing custom_smd, a string' +
                         ' of seven comma separated values in the following order:' +

@@ -4387,7 +4387,7 @@ class Wavecar:
             kpoint (int):   the index of the kpoint for the wavefunction
             band (int):     the index of the band for the wavefunction
             spin (int):     optional argument to specify the spin. If the
-                                Wavecar has ISPIN = 2, spin == None generates a
+                                Wavecar has ISPIN = 2, spin is None generates a
                                 Chgcar with total spin and magnetization, and
                                 spin == {0, 1} specifies just the spin up or
                                 down component.

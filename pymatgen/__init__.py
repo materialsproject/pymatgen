@@ -9,11 +9,10 @@ import ruamel.yaml as yaml
 from fnmatch import fnmatch
 
 __author__ = "Pymatgen Development Team"
-__email__ ="pymatgen@googlegroups.com"
+__email__ = "pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong"
-__maintainer_email__ ="shyuep@gmail.com"
+__maintainer_email__ = "shyuep@gmail.com"
 __version__ = "2019.8.14"
-
 
 SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
 
@@ -35,13 +34,6 @@ def _load_pmg_settings():
 
 
 SETTINGS = _load_pmg_settings()
-
-
-# Order of imports is important on some systems to avoid
-# failures when loading shared libraries.
-# import spglib
-# from . import optimization, util
-# del(spglib, optimization, util)
 
 # Useful aliases for commonly used objects and modules.
 # Allows from pymatgen import <class> for quick usage.

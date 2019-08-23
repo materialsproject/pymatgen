@@ -68,10 +68,8 @@ class ContainsSpecieFilter(AbstractStructureFilter):
         # set up lists to compare
         if not self._strict:
             # compare by atomic number
-            atomic_number = lambda x: x.Z
-            filter_set = set(map(atomic_number, self._species))
-            structure_set = set(map(atomic_number,
-                                structure.composition.elements))
+            filter_set = set([sp.Z for sp in self._species])
+            structure_set = set([sp.Z for sp in structure.composition.elements])
         else:
             # compare by specie or element object
             filter_set = set(self._species)

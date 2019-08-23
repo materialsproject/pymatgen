@@ -28,7 +28,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "ongsp@ucsd.edu"
 __date__ = "4/4/14"
 
-
 SYMM_DATA = None
 
 
@@ -378,26 +377,22 @@ class SpaceGroup(SymmetryGroup):
 
         if crys_system == "cubic":
             a = abc[0]
-            return check(abc, [a, a, a], tol) and\
-                check(angles, [90, 90, 90], angle_tol)
+            return check(abc, [a, a, a], tol) and check(angles, [90, 90, 90], angle_tol)
         elif crys_system == "hexagonal" or (
                 crys_system == "trigonal" and (
-                    self.symbol.endswith("H") or
-                    self.int_number in [143, 144, 145, 147, 149, 150, 151, 152,
-                                        153, 154, 156, 157, 158, 159, 162, 163,
-                                        164, 165])):
+                self.symbol.endswith("H") or
+                self.int_number in [143, 144, 145, 147, 149, 150, 151, 152,
+                                    153, 154, 156, 157, 158, 159, 162, 163,
+                                    164, 165])):
             a = abc[0]
-            return check(abc, [a, a, None], tol)\
-                and check(angles, [90, 90, 120], angle_tol)
+            return check(abc, [a, a, None], tol) and check(angles, [90, 90, 120], angle_tol)
         elif crys_system == "trigonal":
             a = abc[0]
             alpha = angles[0]
-            return check(abc, [a, a, a], tol) \
-                   and check(angles, [alpha, alpha, alpha], angle_tol)
+            return check(abc, [a, a, a], tol) and check(angles, [alpha, alpha, alpha], angle_tol)
         elif crys_system == "tetragonal":
             a = abc[0]
-            return check(abc, [a, a, None], tol) and\
-                check(angles, [90, 90, 90], angle_tol)
+            return check(abc, [a, a, None], tol) and check(angles, [90, 90, 90], angle_tol)
         elif crys_system == "orthorhombic":
             return check(angles, [90, 90, 90], angle_tol)
         elif crys_system == "monoclinic":

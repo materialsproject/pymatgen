@@ -668,9 +668,9 @@ class MagOrderingTransformation(AbstractTransformation):
         # one dummy species for each order parameter constraint
         dummy_species_symbols = [next(dummy_species_gen) for i in range(len(order_parameters))]
         dummy_species = [{
-                             DummySpecie(symbol, properties={'spin': Spin.up}): constraint.order_parameter,
-                             DummySpecie(symbol, properties={'spin': Spin.down}): 1 - constraint.order_parameter
-                         } for symbol, constraint in zip(dummy_species_symbols, order_parameters)]
+            DummySpecie(symbol, properties={'spin': Spin.up}): constraint.order_parameter,
+            DummySpecie(symbol, properties={'spin': Spin.down}): 1 - constraint.order_parameter
+        } for symbol, constraint in zip(dummy_species_symbols, order_parameters)]
 
         sites_to_add = []
 
@@ -953,7 +953,7 @@ class DopingTransformation(AbstractTransformation):
 
         compatible_species = [
             sp for sp in comp if sp.oxi_state == ox and
-            abs(sp.ionic_radius / radius - 1) < self.ionic_radius_tol]
+                                 abs(sp.ionic_radius / radius - 1) < self.ionic_radius_tol]
 
         if (not compatible_species) and self.alio_tol:
             # We only consider aliovalent doping if there are no compatible
@@ -961,8 +961,8 @@ class DopingTransformation(AbstractTransformation):
             compatible_species = [
                 sp for sp in comp
                 if abs(sp.oxi_state - ox) <= self.alio_tol and
-                abs(sp.ionic_radius / radius - 1) < self.ionic_radius_tol and
-                sp.oxi_state * ox >= 0]
+                   abs(sp.ionic_radius / radius - 1) < self.ionic_radius_tol and
+                   sp.oxi_state * ox >= 0]
 
         if self.allowed_doping_species is not None:
             # Only keep allowed doping species.
@@ -1262,6 +1262,7 @@ class DisorderOrderedTransformation(AbstractTransformation):
 
         return disorder_mapping
 
+
 class GrainBoundaryTransformation(AbstractTransformation):
     """
     A transformation that creates a gb from a bulk structure.
@@ -1354,7 +1355,7 @@ class GrainBoundaryTransformation(AbstractTransformation):
             self.rm_ratio,
             self.quick_gen)
         return gb_struct
-      
+
     @property
     def inverse(self):
         return None
@@ -1362,6 +1363,7 @@ class GrainBoundaryTransformation(AbstractTransformation):
     @property
     def is_one_to_many(self):
         return False
+
 
 class CubicSupercellTransformation(AbstractTransformation):
     """
@@ -1411,8 +1413,8 @@ class CubicSupercellTransformation(AbstractTransformation):
         self.force_diagonal_transformation = force_diagonal_transformation
 
         # Variables to be solved for by 'apply_transformation()'
-        self.smallest_dim = None # norm of smallest direction of the resulting supercell
-        self.trans_mat = None # transformation matrix
+        self.smallest_dim = None  # norm of smallest direction of the resulting supercell
+        self.trans_mat = None  # transformation matrix
         self.nn_dist = None
 
     def _round_away_from_zero(self, x):
@@ -1462,7 +1464,7 @@ class CubicSupercellTransformation(AbstractTransformation):
             # indices of zero rows
             zero_row_idxs = np.where(~arr_rounded.any(axis=1))[0]
 
-            for zero_row_idx in zero_row_idxs: # loop over zero rows
+            for zero_row_idx in zero_row_idxs:  # loop over zero rows
                 zero_row = arr[zero_row_idx, :]
 
                 # Find the element of the zero row with the largest absolute
@@ -1473,7 +1475,8 @@ class CubicSupercellTransformation(AbstractTransformation):
                 col_idx_to_fix = col_idx_to_fix[np.random.randint(len(col_idx_to_fix))]
 
                 # Round the chosen element away from zero
-                arr_rounded[zero_row_idx, col_idx_to_fix] = self._round_away_from_zero(arr[zero_row_idx, col_idx_to_fix])
+                arr_rounded[zero_row_idx, col_idx_to_fix] = self._round_away_from_zero(
+                    arr[zero_row_idx, col_idx_to_fix])
 
         # Repeat process for zero columns
         if (~arr_rounded.any(axis=0)).any():  # Check for zero columns in T_rounded
@@ -1543,19 +1546,19 @@ class CubicSupercellTransformation(AbstractTransformation):
                 b = proposed_sc_lat_vecs[1]
                 c = proposed_sc_lat_vecs[2]
 
-                length1_vec = c - _proj(c, a) #a-c plane
+                length1_vec = c - _proj(c, a)  # a-c plane
                 length2_vec = a - _proj(a, c)
-                length3_vec = b - _proj(b, a) #b-a plane
+                length3_vec = b - _proj(b, a)  # b-a plane
                 length4_vec = a - _proj(a, b)
-                length5_vec = b - _proj(b, c) #b-c plane
+                length5_vec = b - _proj(b, c)  # b-c plane
                 length6_vec = c - _proj(c, b)
                 length_vecs = np.array([length1_vec, length2_vec, length3_vec,
                                         length4_vec, length5_vec, length6_vec])
 
                 lengths = np.linalg.norm(length_vecs, axis=1)
-                self.smallest_dim = np.amin(lengths) #shortest length
+                self.smallest_dim = np.amin(lengths)  # shortest length
                 smallest_dim_idx = np.argmin(lengths)
-                smallest_dim_vec = length_vecs[smallest_dim_idx] # shortest direction
+                smallest_dim_vec = length_vecs[smallest_dim_idx]  # shortest direction
 
                 # Get number of atoms
                 superstructure = SupercellTransformation(self.trans_mat).apply_transformation(structure)
@@ -1568,23 +1571,23 @@ class CubicSupercellTransformation(AbstractTransformation):
                 else:
                     # Increase threshold until proposed supercell meets requirements
                     if self.force_diagonal_transformation:
-                        #Find which supercell lattice vector contributes most to
+                        # Find which supercell lattice vector contributes most to
                         # the shortest dimension
                         sc_latvec1_proj_mag = np.linalg.norm(
-                                                _proj(proposed_sc_lat_vecs[0],
-                                                      smallest_dim_vec))
+                            _proj(proposed_sc_lat_vecs[0],
+                                  smallest_dim_vec))
                         sc_latvec2_proj_mag = np.linalg.norm(
-                                                _proj(proposed_sc_lat_vecs[1],
-                                                      smallest_dim_vec))
+                            _proj(proposed_sc_lat_vecs[1],
+                                  smallest_dim_vec))
                         sc_latvec3_proj_mag = np.linalg.norm(
-                                                _proj(proposed_sc_lat_vecs[2],
-                                                      smallest_dim_vec))
+                            _proj(proposed_sc_lat_vecs[2],
+                                  smallest_dim_vec))
                         sc_latvec_proj_mags = [sc_latvec1_proj_mag,
                                                sc_latvec2_proj_mag,
                                                sc_latvec3_proj_mag]
                         sc_proj_max_idx = sc_latvec_proj_mags.index(max(sc_latvec_proj_mags))
 
-                        #Increase the corresponding supercell lattice vector size
+                        # Increase the corresponding supercell lattice vector size
                         trans_mat_diagonal_update = np.array([0, 0, 0])
                         np.put(trans_mat_diagonal_update, sc_proj_max_idx, 1)
                     else:

@@ -36,6 +36,7 @@ class Polymer:
     Generate polymer chain via Random walk. At each position there are
     a total of 5 possible moves(excluding the previous direction).
     """
+
     def __init__(self, start_monomer, s_head, s_tail,
                  monomer, head, tail,
                  end_monomer, e_head, e_tail,
@@ -99,7 +100,7 @@ class Polymer:
             mon_vector (numpy.array): molecule vector that starts from the
                 start atom index to the end atom index
         """
-        while self.length != (self.n_units-1):
+        while self.length != (self.n_units - 1):
             if self.linear_chain:
                 move_direction = np.array(mon_vector) / np.linalg.norm(mon_vector)
             else:
@@ -111,9 +112,9 @@ class Polymer:
         pick a move at random from the list of moves
         """
         nmoves = len(self.moves)
-        move = np.random.randint(1, nmoves+1)
+        move = np.random.randint(1, nmoves + 1)
         while self.prev_move == (move + 3) % nmoves:
-            move = np.random.randint(1, nmoves+1)
+            move = np.random.randint(1, nmoves + 1)
         self.prev_move = move
         return np.array(self.moves[move])
 
@@ -243,10 +244,10 @@ class PackmolRunner:
         """
         net_volume = 0.0
         for idx, mol in enumerate(self.mols):
-            length = max([np.max(mol.cart_coords[:, i])-np.min(mol.cart_coords[:, i])
-                           for i in range(3)]) + 2.0
-            net_volume += (length**3.0) * float(self.param_list[idx]['number'])
-        length = net_volume**(1.0/3.0)
+            length = max([np.max(mol.cart_coords[:, i]) - np.min(mol.cart_coords[:, i])
+                          for i in range(3)]) + 2.0
+            net_volume += (length ** 3.0) * float(self.param_list[idx]['number'])
+        length = net_volume ** (1.0 / 3.0)
         for idx, mol in enumerate(self.mols):
             self.param_list[idx]['inside box'] = '0.0 0.0 0.0 {} {} {}'.format(
                 length, length, length)
@@ -270,7 +271,7 @@ class PackmolRunner:
                         idx, self.control_params["filetype"])).encode("ascii")
                 # pdb
                 if self.control_params["filetype"] == "pdb":
-                    self.write_pdb(mol, filename, num=idx+1)
+                    self.write_pdb(mol, filename, num=idx + 1)
                 # all other filetypes
                 else:
                     a = BabelMolAdaptor(mol)
