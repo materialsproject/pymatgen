@@ -527,6 +527,21 @@ class CompositionTest(PymatgenTest):
                           Composition,
                           "NaClX", strict=True)
 
+    def test_remove_charges(self):
+        cmp1 = Composition({'Al3+': 2.0, 'O2-': 3.0})
+        cmp2 = Composition({'Al': 2.0, 'O': 3.0})
+        self.assertNotEqual(cmp1, cmp2)
+
+        cmp1.remove_charges()
+        self.assertNotEqual(cmp1, cmp2)
+
+        cmp1 = Composition({'Fe3+': 2.0, 'Fe2+': 3.0, 'O2-': 6.0})
+        cmp2 = Composition({'Fe': 5.0, 'O': 6.0})
+        self.assertNotEqual(cmp1, cmp2)
+
+        cmp1.remove_charges()
+        self.assertNotEqual(cmp1, cmp2)
+
 
 class ChemicalPotentialTest(unittest.TestCase):
 
