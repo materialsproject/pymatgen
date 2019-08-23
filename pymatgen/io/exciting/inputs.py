@@ -104,7 +104,7 @@ class ExcitingInput(MSONable):
                 # Try to recognize the element symbol
                 element = symbol
             else:
-                raise NLValueError("Unknown element!")
+                raise ValueError("Unknown element!")
             natoms = nodes.getiterator('atom')
             for atom in natoms:
                 x, y, z = atom.get('coord').split()
@@ -112,7 +112,7 @@ class ExcitingInput(MSONable):
                 elements.append(element)
                 # Obtain lockxyz for each atom
                 if atom.get('lockxyz') is not None:
-                    lxy = []
+                    lxyz = []
                     for l in atom.get('lockxyz').split():
                         if l == 'True' or l == 'true':
                             lxyz.append(True)
@@ -197,8 +197,7 @@ class ExcitingInput(MSONable):
         # write atomic positions for each species
         index = 0
         for i in new_struct.types_of_specie:
-            species = ET.SubElement(structure, 'species', speciesfile=i.symbol +
-                                                                      '.xml')
+            species = ET.SubElement(structure, 'species', speciesfile=i.symbol + '.xml')
             sites = new_struct.indices_from_symbol(i.symbol)
 
             for j in sites:
@@ -209,8 +208,8 @@ class ExcitingInput(MSONable):
                 if cartesian:
                     coord2 = []
                     for k in range(3):
-                        inter = (new_struct[j].frac_coords[k] * basis[0][k] + \
-                                 new_struct[j].frac_coords[k] * basis[1][k] + \
+                        inter = (new_struct[j].frac_coords[k] * basis[0][k] +
+                                 new_struct[j].frac_coords[k] * basis[1][k] +
                                  new_struct[j].frac_coords[k] * basis[2][k]) * ang2bohr
                         coord2.append(inter)
                     coord = "%16.8f %16.8f %16.8f" % (coord2[0],

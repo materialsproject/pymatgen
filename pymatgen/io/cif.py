@@ -29,7 +29,6 @@ from pymatgen.electronic_structure.core import Magmom
 from pymatgen.core.operations import MagSymmOp
 from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 
-
 """
 Wrapper classes for Cif input and output from Structures.
 """
@@ -392,8 +391,8 @@ class CifParser:
                                   if str2float(x) != 0]
             if len(attached_hydrogens) > 0:
                 self.warnings.append("Structure has implicit hydrogens defined, "
-                                   "parsed structure unlikely to be suitable for use "
-                                   "in calculations unless hydrogens added.")
+                                     "parsed structure unlikely to be suitable for use "
+                                     "in calculations unless hydrogens added.")
 
         # Check to see if "_atom_site_type_symbol" exists, as some test CIFs do
         # not contain this key.
@@ -477,7 +476,6 @@ class CifParser:
                         del data.data[original_key][id]
 
             if len(idxs_to_remove) > 0:
-
                 self.warnings.append("Pauling file corrections applied.")
 
                 data.data["_atom_site_label"] += new_atom_site_label
@@ -543,7 +541,7 @@ class CifParser:
 
         # check for finite precision frac co-ordinates (e.g. 0.6667 instead of 0.6666666...7)
         # this can sometimes cause serious issues when applying symmetry operations
-        important_fracs = (1/3., 2/3.)
+        important_fracs = (1 / 3., 2 / 3.)
         fracs_to_change = {}
         for label in ('_atom_site_fract_x', '_atom_site_fract_y', '_atom_site_fract_z'):
             if label in data.data.keys():
@@ -554,7 +552,7 @@ class CifParser:
                         # co-ordinate might not be defined e.g. '?'
                         continue
                     for comparison_frac in important_fracs:
-                        if abs(1 - frac/comparison_frac) < 1e-4:
+                        if abs(1 - frac / comparison_frac) < 1e-4:
                             fracs_to_change[(label, idx)] = str(comparison_frac)
         if fracs_to_change:
             self.warnings.append("Some fractional co-ordinates rounded to ideal values to "
@@ -694,7 +692,7 @@ class CifParser:
                         if spg:
                             symops = SpaceGroup(spg).symmetry_ops
                             msg = "No _symmetry_equiv_pos_as_xyz type key found. " \
-                                    "Spacegroup from %s used." % symmetry_label
+                                  "Spacegroup from %s used." % symmetry_label
                             warnings.warn(msg)
                             self.warnings.append(msg)
                             break
@@ -710,7 +708,7 @@ class CifParser:
                                 symops = [SymmOp.from_xyz_string(s)
                                           for s in xyz]
                                 msg = "No _symmetry_equiv_pos_as_xyz type key found. " \
-                                        "Spacegroup from %s used." % symmetry_label
+                                      "Spacegroup from %s used." % symmetry_label
                                 warnings.warn(msg)
                                 self.warnings.append(msg)
                                 break
@@ -790,7 +788,7 @@ class CifParser:
                 # get BNS number for MagneticSpaceGroup()
                 # by converting string to list of ints
                 id = list(map(int, (
-                data.data.get("_space_group_magn.number_BNS").split("."))))
+                    data.data.get("_space_group_magn.number_BNS").split("."))))
 
             msg = MagneticSpaceGroup(id)
 
@@ -976,8 +974,8 @@ class CifParser:
                 if num_h > 0:
                     comp_d["H"] = num_h
                     self.warnings.append("Structure has implicit hydrogens defined, "
-                                       "parsed structure unlikely to be suitable for use "
-                                       "in calculations unless hydrogens added.")
+                                         "parsed structure unlikely to be suitable for use "
+                                         "in calculations unless hydrogens added.")
                 comp = Composition(comp_d)
                 if not match:
                     coord_to_species[coord] = comp
@@ -991,7 +989,7 @@ class CifParser:
                     if not set(c.elements) == {Element("O"), Element("H")}]
         if any([o > 1 for o in sum_occu]):
             msg = "Some occupancies (%s) sum to > 1! If they are within " \
-                    "the tolerance, they will be rescaled." % str(sum_occu)
+                  "the tolerance, they will be rescaled." % str(sum_occu)
             warnings.warn(msg)
             self.warnings.append(msg)
 
@@ -1162,7 +1160,6 @@ class CifParser:
                                                           bibtex_entry.get('page_last', ''))
                 bibtex_entry.pop('page_first', None)  # and remove page_first, page_list if present
                 bibtex_entry.pop('page_last', None)
-
 
             # cite keys are given as cif-reference-idx in order they are found
             entries['cif-reference-{}'.format(idx)] = Entry('article', list(bibtex_entry.items()))
