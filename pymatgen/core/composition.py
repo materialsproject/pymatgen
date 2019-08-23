@@ -768,13 +768,18 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         return Composition(collections.Counter(species))
 
     def remove_charges(self):
+        """
+        Returns:
+            Composition object without charge decoration
+            {"Fe": 2.0, "O":3.0}
+        """
         d = collections.Counter()
 
         for e, f in self.items():
             e = re.findall(r"[A-z]+", str(e))[0]
             d[str(e)] += f
 
-        return(Composition(d))
+        return Composition(d)
 
     def _get_oxid_state_guesses(self, all_oxi_states, max_sites,
                                 oxi_states_override, target_charge):
