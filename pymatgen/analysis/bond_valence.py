@@ -502,23 +502,22 @@ def get_z_ordered_elmap(comp):
 
 
 def add_oxidation_state_by_site_fraction(structure, oxidation_states):
-        """
-        Add oxidation states to a structure by fractional site.
+    """
+    Add oxidation states to a structure by fractional site.
 
-        Args:
-            oxidation_states (list): List of list of oxidation states for each
-                site fraction for each site.
-                E.g., [[2, 4], [3], [-2], [-2], [-2]]
-        """
-        try:
-            for i, site in enumerate(structure):
-                new_sp = collections.defaultdict(float)
-                for j, (el, occu) in enumerate(get_z_ordered_elmap(site
-                        .species)):
-                    specie = Specie(el.symbol, oxidation_states[i][j])
-                    new_sp[specie] += occu
-                structure[i] = new_sp
-            return structure
-        except IndexError:
-            raise ValueError("Oxidation state of all sites must be "
-                             "specified in the list.")
+    Args:
+        oxidation_states (list): List of list of oxidation states for each
+            site fraction for each site.
+            E.g., [[2, 4], [3], [-2], [-2], [-2]]
+    """
+    try:
+        for i, site in enumerate(structure):
+            new_sp = collections.defaultdict(float)
+            for j, (el, occu) in enumerate(get_z_ordered_elmap(site.species)):
+                specie = Specie(el.symbol, oxidation_states[i][j])
+                new_sp[specie] += occu
+            structure[i] = new_sp
+        return structure
+    except IndexError:
+        raise ValueError("Oxidation state of all sites must be "
+                         "specified in the list.")

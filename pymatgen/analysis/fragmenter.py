@@ -11,7 +11,6 @@ from pymatgen.analysis.graphs import MoleculeGraph, MolGraphSplitError
 from pymatgen.analysis.local_env import OpenBabelNN
 from pymatgen.io.babel import BabelMolAdaptor
 
-
 __author__ = "Samuel Blau"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "2.0"
@@ -19,7 +18,6 @@ __maintainer__ = "Samuel Blau"
 __email__ = "samblau1@gmail.com"
 __status__ = "Beta"
 __date__ = "8/21/19"
-
 
 logger = logging.getLogger(__name__)
 
@@ -89,7 +87,7 @@ class Fragmenter(MSONable):
         # if self.prev_unique_frag_dict != {} and self.assume_previous_thoroughness:
         #     print("WARNING: You are assuming that all subfragments of every molecule and fragment in your prev_unique_frag_dict are also included in prev_unique_frag_dict. If this is not the case, you will miss subfragments!")
 
-        if depth == 0: # Non-iterative, find all possible fragments:
+        if depth == 0:  # Non-iterative, find all possible fragments:
 
             # Find all unique fragments besides those involving ring opening
             self.all_unique_frag_dict = self.mol_graph.build_unique_fragments()
@@ -106,11 +104,13 @@ class Fragmenter(MSONable):
             for level in range(depth):
                 # If on the first level, perform one level of fragmentation on the principle molecule graph:
                 if level == 0:
-                    self.fragments_by_level["0"] = self._fragment_one_level({str(self.mol_graph.molecule.composition.alphabetical_formula)+" E"+str(len(self.mol_graph.graph.edges())): [self.mol_graph]})
+                    self.fragments_by_level["0"] = self._fragment_one_level({str(
+                        self.mol_graph.molecule.composition.alphabetical_formula) + " E" + str(
+                        len(self.mol_graph.graph.edges())): [self.mol_graph]})
                 else:
                     num_frags_prev_level = 0
-                    for key in self.fragments_by_level[str(level-1)]:
-                        num_frags_prev_level += len(self.fragments_by_level[str(level-1)][key])
+                    for key in self.fragments_by_level[str(level - 1)]:
+                        num_frags_prev_level += len(self.fragments_by_level[str(level - 1)][key])
                     if num_frags_prev_level == 0:
                         # Nothing left to fragment, so exit the loop:
                         break
@@ -212,9 +212,10 @@ class Fragmenter(MSONable):
         we find. We also temporarily add the principle molecule graph to self.unique_fragments
         so that its rings are opened as well.
         """
-        mol_key = str(self.mol_graph.molecule.composition.alphabetical_formula)+" E"+str(len(self.mol_graph.graph.edges()))
+        mol_key = str(self.mol_graph.molecule.composition.alphabetical_formula) + " E" + str(
+            len(self.mol_graph.graph.edges()))
         self.all_unique_frag_dict[mol_key] = [self.mol_graph]
-        new_frag_keys = {"0":[]}
+        new_frag_keys = {"0": []}
         new_frag_key_dict = {}
         for key in self.all_unique_frag_dict:
             for fragment in self.all_unique_frag_dict[key]:
@@ -222,7 +223,8 @@ class Fragmenter(MSONable):
                 if ring_edges != []:
                     for bond in ring_edges[0]:
                         new_fragment = open_ring(fragment, [bond], self.opt_steps)
-                        frag_key = str(new_fragment.molecule.composition.alphabetical_formula)+" E"+str(len(new_fragment.graph.edges()))
+                        frag_key = str(new_fragment.molecule.composition.alphabetical_formula) + " E" + str(
+                            len(new_fragment.graph.edges()))
                         if frag_key not in self.all_unique_frag_dict:
                             if frag_key not in new_frag_keys["0"]:
                                 new_frag_keys["0"].append(copy.deepcopy(frag_key))
@@ -250,13 +252,14 @@ class Fragmenter(MSONable):
             new_frag_key_dict = {}
             idx += 1
             new_frag_keys[str(idx)] = []
-            for key in new_frag_keys[str(idx-1)]:
+            for key in new_frag_keys[str(idx - 1)]:
                 for fragment in self.all_unique_frag_dict[key]:
                     ring_edges = fragment.find_rings()
                     if ring_edges != []:
                         for bond in ring_edges[0]:
                             new_fragment = open_ring(fragment, [bond], self.opt_steps)
-                            frag_key = str(new_fragment.molecule.composition.alphabetical_formula)+" E"+str(len(new_fragment.graph.edges()))
+                            frag_key = str(new_fragment.molecule.composition.alphabetical_formula) + " E" + str(
+                                len(new_fragment.graph.edges()))
                             if frag_key not in self.all_unique_frag_dict:
                                 if frag_key not in new_frag_keys[str(idx)]:
                                     new_frag_keys[str(idx)].append(copy.deepcopy(frag_key))
@@ -291,9 +294,10 @@ def open_ring(mol_graph, bond, opt_steps):
     to be returned.
     """
     obmol = BabelMolAdaptor.from_molecule_graph(mol_graph)
-    obmol.remove_bond(bond[0][0]+1, bond[0][1]+1)
-    obmol.localopt(steps=opt_steps,forcefield='uff')
-    return MoleculeGraph.with_local_env_strategy(obmol.pymatgen_mol, OpenBabelNN(), reorder=False, extend_structure=False)
+    obmol.remove_bond(bond[0][0] + 1, bond[0][1] + 1)
+    obmol.localopt(steps=opt_steps, forcefield='uff')
+    return MoleculeGraph.with_local_env_strategy(obmol.pymatgen_mol, OpenBabelNN(), reorder=False,
+                                                 extend_structure=False)
 
 
 def metal_edge_extender(mol_graph):
@@ -301,18 +305,19 @@ def metal_edge_extender(mol_graph):
     Function to identify and add missed edges in ionic bonding of Li and Mg ions.
     """
     metal_sites = {"Li": {}, "Mg": {}}
-    coordinators = ["O","N","F","Cl"]
+    coordinators = ["O", "N", "F", "Cl"]
     num_new_edges = 0
     for idx in mol_graph.graph.nodes():
         if mol_graph.graph.nodes()[idx]["specie"] in metal_sites:
-            metal_sites[mol_graph.graph.nodes()[idx]["specie"]][idx] = [site[2] for site in mol_graph.get_connected_sites(idx)]
+            metal_sites[mol_graph.graph.nodes()[idx]["specie"]][idx] = [site[2] for site in
+                                                                        mol_graph.get_connected_sites(idx)]
     for metal in metal_sites:
         for idx in metal_sites[metal]:
-            for ii,site in enumerate(mol_graph.molecule):
+            for ii, site in enumerate(mol_graph.molecule):
                 if ii != idx and ii not in metal_sites[metal][idx]:
                     if str(site.specie) in coordinators:
                         if site.distance(mol_graph.molecule[idx]) < 2.5:
-                            mol_graph.add_edge(idx,ii)
+                            mol_graph.add_edge(idx, ii)
                             num_new_edges += 1
                             metal_sites[metal][idx].append(ii)
     total_metal_edges = 0
@@ -322,11 +327,11 @@ def metal_edge_extender(mol_graph):
     if total_metal_edges == 0:
         for metal in metal_sites:
             for idx in metal_sites[metal]:
-                for ii,site in enumerate(mol_graph.molecule):
+                for ii, site in enumerate(mol_graph.molecule):
                     if ii != idx and ii not in metal_sites[metal][idx]:
                         if str(site.specie) in coordinators:
                             if site.distance(mol_graph.molecule[idx]) < 3.5:
-                                mol_graph.add_edge(idx,ii)
+                                mol_graph.add_edge(idx, ii)
                                 num_new_edges += 1
                                 metal_sites[metal][idx].append(ii)
     total_metal_edges = 0

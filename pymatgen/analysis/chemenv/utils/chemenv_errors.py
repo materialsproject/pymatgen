@@ -48,7 +48,7 @@ class BVAValencesNotFoundChemenvError(AbstractChemenvError):
         self.structure = structure
 
     def __str__(self):
-        return 'The valences were not found for the following structure : \n' +\
+        return 'The valences were not found for the following structure : \n' + \
                self.structure.composition.reduced_formula
 
 

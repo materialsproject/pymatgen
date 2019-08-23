@@ -146,7 +146,7 @@ class NEBPathfinder:
         #
 
         # print("Getting path from {} to {} (coords wrt V grid)".format(start, end))
-        
+
         # Set parameters
         if not dr:
             dr = np.array(
@@ -204,9 +204,9 @@ class NEBPathfinder:
             ds_minus[-1] = (ds_minus[-1] - ds_minus[-1])
             Fpot = edV
             Fel = keff * (la.norm(ds_plus) - la.norm(ds0_plus)) * (
-                ds_plus / la.norm(ds_plus))
+                    ds_plus / la.norm(ds_plus))
             Fel += keff * (la.norm(ds_minus) - la.norm(ds0_minus)) * (
-                ds_minus / la.norm(ds_minus))
+                    ds_minus / la.norm(ds_minus))
             s -= h * (Fpot + Fel)
 
             # Fix endpoints
@@ -299,9 +299,8 @@ class StaticPotential(metaclass=ABCMeta):
             np.ndindex(v_dim[0] + 1, v_dim[1] + 1, v_dim[2] + 1))])
         v_ogrid = padded_v.reshape(
             ((v_dim[0] + 1) * (v_dim[1] + 1) * (v_dim[2] + 1), -1))
-        ngrid_a, ngrid_b, ngrid_c = np.mgrid[0: v_dim[0]: v_dim[0] / new_dim[0],
-                                    0: v_dim[1]: v_dim[1] / new_dim[1],
-                                    0: v_dim[2]: v_dim[2] / new_dim[2]]
+        ngrid_a, ngrid_b, ngrid_c = np.mgrid[0: v_dim[0]: v_dim[0] / new_dim[0], 0: v_dim[1]: v_dim[1] / new_dim[1],
+                                             0: v_dim[2]: v_dim[2] / new_dim[2]]
 
         v_ngrid = scipy.interpolate.griddata(ogrid_list, v_ogrid,
                                              (ngrid_a, ngrid_b, ngrid_c),
@@ -350,7 +349,7 @@ class StaticPotential(metaclass=ABCMeta):
         gauss = scipy.stats.norm.pdf(gauss_dist)
         gauss = gauss / np.sum(gauss, dtype=float)
         padded_v = np.pad(self.__v, (
-        (r_disc[0], r_disc[0]), (r_disc[1], r_disc[1]), (r_disc[2], r_disc[2])),
+            (r_disc[0], r_disc[0]), (r_disc[1], r_disc[1]), (r_disc[2], r_disc[2])),
                           mode='wrap')
         smeared_v = scipy.signal.convolve(padded_v, gauss, mode='valid')
         self.__v = smeared_v

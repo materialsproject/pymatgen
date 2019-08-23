@@ -67,33 +67,29 @@ class BandstructureLoader:
         self.kpoints = np.array([kp.frac_coords for kp in bs_obj.kpoints])
 
         if structure is None:
-            try:
-                self.structure = bs_obj.structure
-            except:
-                BaseException('No structure found in the bs obj.')
+            self.structure = bs_obj.structure
         else:
             self.structure = structure
 
         self.atoms = AseAtomsAdaptor.get_atoms(self.structure)
         self.proj = None
 
-
         if len(bs_obj.bands) == 1:
             e = list(bs_obj.bands.values())[0]
             self.ebands = e * units.eV
             self.dosweight = 2.0
             if bs_obj.projections:
-                    self.proj = bs_obj.projections[Spin.up].transpose((1,0,3,2))
+                self.proj = bs_obj.projections[Spin.up].transpose((1, 0, 3, 2))
 
         elif len(bs_obj.bands) == 2:
             if not spin:
                 raise BaseException("spin-polarized bs, you need to select a spin")
-            elif spin in (-1,1):
+            elif spin in (-1, 1):
                 e = bs_obj.bands[Spin(spin)]
                 self.ebands = e * units.eV
                 self.dosweight = 1.0
                 if bs_obj.projections:
-                    self.proj = bs_obj.projections[Spin(spin)].transpose((1,0,3,2))
+                    self.proj = bs_obj.projections[Spin(spin)].transpose((1, 0, 3, 2))
 
         self.lattvec = self.atoms.get_cell().T * units.Angstrom
         self.mommat = None
@@ -128,33 +124,31 @@ class BandstructureLoader:
         # for iband in range(len(self.ebands)):
         # BoltzTraP2.misc.info(iband, bandmin[iband], bandmax[iband], (
         # (bandmin[iband] < emax) & (bandmax[iband] > emin)))
-        self.ebands = self.ebands[nemin:nemax+1]
+        self.ebands = self.ebands[nemin:nemax + 1]
 
         if isinstance(self.proj, np.ndarray):
-            self.proj = self.proj[:,nemin:nemax+1,:,:]
-
+            self.proj = self.proj[:, nemin:nemax + 1, :, :]
 
         if self.mommat is not None:
-            self.mommat = self.mommat[:, nemin:nemax+1, :]
+            self.mommat = self.mommat[:, nemin:nemax + 1, :]
         # Removing bands may change the number of valence electrons
         if self.nelect is not None:
             self.nelect -= self.dosweight * nemin
         return nemin, nemax
 
-    def set_upper_lower_bands(self,e_lower,e_upper):
+    def set_upper_lower_bands(self, e_lower, e_upper):
         """
             Set fake upper/lower bands, useful to set the same energy
             range in the spin up/down bands when calculating the DOS
         """
-        lower_band = e_lower*np.ones((1,self.ebands.shape[1]))
-        upper_band = e_upper*np.ones((1,self.ebands.shape[1]))
+        lower_band = e_lower * np.ones((1, self.ebands.shape[1]))
+        upper_band = e_upper * np.ones((1, self.ebands.shape[1]))
 
-        self.ebands = np.vstack((lower_band,self.ebands,upper_band))
-        if isinstance(self.proj,np.ndarray):
-            proj_lower = self.proj[:,0:1,:,:]
-            proj_upper = self.proj[:,-1:,:,:]
-            self.proj = np.concatenate((proj_lower,self.proj,proj_upper),axis=1)
-
+        self.ebands = np.vstack((lower_band, self.ebands, upper_band))
+        if isinstance(self.proj, np.ndarray):
+            proj_lower = self.proj[:, 0:1, :, :]
+            proj_upper = self.proj[:, -1:, :, :]
+            self.proj = np.concatenate((proj_lower, self.proj, proj_upper), axis=1)
 
     def get_volume(self):
         try:
@@ -221,7 +215,7 @@ class VasprunLoader:
         self.ebands = self.ebands[nemin:nemax]
 
         if isinstance(self.proj, np.ndarray):
-            self.proj = self.proj[:,nemin:nemax,:,:]
+            self.proj = self.proj[:, nemin:nemax, :, :]
 
         if self.mommat is not None:
             self.mommat = self.mommat[:, nemin:nemax, :]
@@ -229,7 +223,6 @@ class VasprunLoader:
         if self.nelect is not None:
             self.nelect -= self.dosweight * nemin
         return nemin, nemax
-
 
     def get_volume(self):
         try:
@@ -312,7 +305,7 @@ class BztInterpolator:
                 npts_mu: number of energy points of the Dos
                 T: parameter used to smooth the Dos
         """
-        spin = self.data.spin if isinstance(self.data.spin,int) else 1
+        spin = self.data.spin if isinstance(self.data.spin, int) else 1
 
         energies, densities, vvdos, cdos = BL.BTPDOS(self.eband, self.vvband, npts=npts_mu)
         if T is not None:
@@ -328,15 +321,15 @@ class BztInterpolator:
 
     def get_partial_doses(self, tdos, npts_mu, T):
         """
-            Return a CompleteDos object interpolating the projections
+        Return a CompleteDos object interpolating the projections
 
-            tdos: total dos previously calculated
-            npts_mu: number of energy points of the Dos
-            T: parameter used to smooth the Dos
+        tdos: total dos previously calculated
+        npts_mu: number of energy points of the Dos
+        T: parameter used to smooth the Dos
         """
-        spin = self.data.spin if isinstance(self.data.spin,int) else 1
+        spin = self.data.spin if isinstance(self.data.spin, int) else 1
 
-        if not isinstance(self.data.proj,np.ndarray):
+        if not isinstance(self.data.proj, np.ndarray):
             raise BoltztrapError("No projections loaded.")
 
         bkp_data_ebands = np.copy(self.data.ebands)
@@ -347,7 +340,8 @@ class BztInterpolator:
             if site not in pdoss:
                 pdoss[site] = {}
             for iorb, orb in enumerate(Orbital):
-                if iorb == self.data.proj.shape[-1]: break
+                if iorb == self.data.proj.shape[-1]:
+                    break
 
                 if orb not in pdoss[site]:
                     pdoss[site][orb] = {}
@@ -580,7 +574,8 @@ class BztPlotter:
             Function to plot the transport properties.
 
             Args:
-                prop_y: property to plot among ("Conductivity","Seebeck","Kappa","Carrier_conc","Hall_carrier_conc_trace"). Abbreviations are possible, like "S" for "Seebeck"
+                prop_y: property to plot among ("Conductivity","Seebeck","Kappa","Carrier_conc",
+                    "Hall_carrier_conc_trace"). Abbreviations are possible, like "S" for "Seebeck"
                 prop_x: independent variable in the x-axis among ('mu','doping','temp')
                 prop_z: third variable to plot multiple curves ('doping','temp')
                 output: 'avg_eigs' to plot the average of the eigenvalues of the properties
@@ -646,7 +641,7 @@ class BztPlotter:
             if prop_z == 'temp' and prop_x == 'mu':
                 for temp in temps:
                     ti = temps_all.index(temp)
-                    prop_out = p_array[ti]  if idx_prop == 6 else np.abs(p_array[ti])
+                    prop_out = p_array[ti] if idx_prop == 6 else np.abs(p_array[ti])
                     plt.semilogy(mu, prop_out, label=str(temp) + ' K')
 
                 plt.xlabel(r"$\mu$ (eV)", fontsize=30)
@@ -723,24 +718,24 @@ class BztPlotter:
         if self.bzt_interp is None:
             raise BoltztrapError("BztInterpolator not present")
 
-        tdos = self.bzt_interp.get_dos(T=T,npts_mu=npoints)
-        #print(npoints)
+        tdos = self.bzt_interp.get_dos(T=T, npts_mu=npoints)
+        # print(npoints)
         dosPlotter = DosPlotter()
-        dosPlotter.add_dos('Total',tdos)
+        dosPlotter.add_dos('Total', tdos)
 
         return dosPlotter
 
-def merge_up_down_doses(dos_up,dos_dn):
 
+def merge_up_down_doses(dos_up, dos_dn):
     cdos = Dos(dos_up.efermi, dos_up.energies,
                {Spin.up: dos_up.densities[Spin.up], Spin.down: dos_dn.densities[Spin.down]})
 
-    if hasattr(dos_up,'pdos') and hasattr(dos_dn,'pdos'):
+    if hasattr(dos_up, 'pdos') and hasattr(dos_dn, 'pdos'):
         pdoss = {}
         for site in dos_up.pdos:
-            pdoss.setdefault(site,{})
+            pdoss.setdefault(site, {})
             for orb in dos_up.pdos[site]:
-                pdoss[site].setdefault(orb,{})
+                pdoss[site].setdefault(orb, {})
                 pdoss[site][orb][Spin.up] = dos_up.pdos[site][orb][Spin.up]
                 pdoss[site][orb][Spin.down] = dos_dn.pdos[site][orb][Spin.down]
 

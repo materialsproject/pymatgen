@@ -204,7 +204,7 @@ class Critic2Caller:
 
         2. If AECCAR* files are present, constructs a temporary reference
         file as AECCAR0 + AECCAR2.
-        
+
         3. Runs critic2 analysis twice: once for charge, and a second time
         for the charge difference (magnetization density).
 
@@ -526,7 +526,7 @@ class Critic2Output(MSONable):
                     from_idx = _remap(int(l[6]) - 1)
                     to_idx = _remap(int(l[10]) - 1)
                     self._add_edge(idx, from_idx=from_idx, from_lvec=(int(l[7]), int(l[8]), int(l[9])),
-                                  to_idx=to_idx, to_lvec=(int(l[11]), int(l[12]), int(l[13])))
+                                   to_idx=to_idx, to_lvec=(int(l[11]), int(l[12]), int(l[13])))
 
         self._map = node_mapping
 

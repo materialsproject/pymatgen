@@ -12,7 +12,7 @@ from monty.dev import requires
 try:
     import openbabel as ob
     import pybel as pb
-except:
+except Exception:
     pb = None
     ob = None
 
@@ -148,7 +148,8 @@ class BabelMolAdaptor:
             idx2: The atom index of the other atom participating in the bond
         """
         for obbond in ob.OBMolBondIter(self._obmol):
-            if (obbond.GetBeginAtomIdx() == idx1 and obbond.GetEndAtomIdx() == idx2) or (obbond.GetBeginAtomIdx() == idx2 and obbond.GetEndAtomIdx() == idx1):
+            if (obbond.GetBeginAtomIdx() == idx1 and obbond.GetEndAtomIdx() == idx2) or (
+                    obbond.GetBeginAtomIdx() == idx2 and obbond.GetEndAtomIdx() == idx1):
                 self._obmol.DeleteBond(obbond)
 
     def rotor_conformer(self, *rotor_args, algo="WeightedRotorSearch",
@@ -202,7 +203,7 @@ class BabelMolAdaptor:
         """
         A combined method to first generate 3D structures from 0D or 2D
         structures and then find the minimum energy conformer:
-        
+
         1. Use OBBuilder to create a 3D structure using rules and ring templates
         2. Do 250 steps of a steepest descent geometry optimization with the
            MMFF94 forcefield
@@ -317,7 +318,7 @@ class BabelMolAdaptor:
         """
         mols = pb.readfile(str(file_format), str(filename))
         if return_all_molecules:
-            return [ BabelMolAdaptor(mol.OBMol) for mol in mols ]
+            return [BabelMolAdaptor(mol.OBMol) for mol in mols]
         else:
             return BabelMolAdaptor(next(mols).OBMol)
 

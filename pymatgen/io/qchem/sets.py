@@ -119,7 +119,7 @@ class QChemDictSet(QCInput):
             myrem["solvent_method"] = "smd"
             myrem["ideriv"] = "1"
             if self.smd_solvent == "custom" or self.smd_solvent == "other":
-                if self.custom_smd == None:
+                if self.custom_smd is None:
                     raise ValueError(
                         'A user-defined SMD requires passing custom_smd, a string' +
                         ' of seven comma separated values in the following order:' +
@@ -151,7 +151,7 @@ class QChemDictSet(QCInput):
     def write(self, input_file):
         self.write_file(input_file)
         if self.smd_solvent == "custom" or self.smd_solvent == "other":
-            with zopen(os.path.join(os.path.dirname(input_file),"solvent_data"), 'wt') as f:
+            with zopen(os.path.join(os.path.dirname(input_file), "solvent_data"), 'wt') as f:
                 f.write(self.custom_smd)
 
 

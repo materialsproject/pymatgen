@@ -117,12 +117,8 @@ class Substitutor(MSONable):
                 # check if: species are in the domain,
                 # and the probability of subst. is above the threshold
                 els = s['structure'].composition.elements
-                if len(els) == len(permut) and \
-                                len(list(set(els) & set(
-                                    self.get_allowed_species()))) == \
-                                len(els) and self._sp.cond_prob_list(permut,
-                                                                     els) > \
-                        self._threshold:
+                if len(els) == len(permut) and len(list(set(els) & set(self.get_allowed_species()))) == \
+                        len(els) and self._sp.cond_prob_list(permut, els) > self._threshold:
 
                     clean_subst = {els[i]: permut[i]
                                    for i in range(0, len(els))
@@ -179,7 +175,7 @@ class Substitutor(MSONable):
         if len(chemsys) != len(chemical_system):
             return False
         for el in chemsys:
-            if not el in chemical_system:
+            if el not in chemical_system:
                 return False
         return True
 

@@ -251,8 +251,7 @@ class DiffusionAnalyzer(MSONable):
                     dcomponents = dc[:, i:i + 1, :]
                 elif smoothed == "constant":
                     dx = dc[:, i:i + avg_nsteps, :] - dc[:, 0:avg_nsteps, :]
-                    dcomponents = dc[:, i:i + avg_nsteps, :] \
-                        - dc[:, 0:avg_nsteps, :]
+                    dcomponents = dc[:, i:i + avg_nsteps, :] - dc[:, 0:avg_nsteps, :]
                 else:
                     dx = dc[:, n:, :] - dc[:, :-n, :]
                     dcomponents = dc[:, n:, :] - dc[:, :-n, :]
@@ -314,7 +313,7 @@ class DiffusionAnalyzer(MSONable):
             # We divide dt by 1000 to avoid overflow errors in some systems (
             # e.g., win). This is subsequently corrected where denom is used.
             denom = (n * np.sum((dt / 1000) ** 2) - np.sum(dt / 1000) ** 2) * (
-                n - 2)
+                    n - 2)
             self.diffusivity_std_dev = np.sqrt(n * res[0] / denom) / 60 / 1000
             self.chg_diffusivity_std_dev = np.sqrt(n * res_chg[0] / denom) / 60 / 1000
             self.conductivity = self.diffusivity * conv_factor
@@ -324,10 +323,8 @@ class DiffusionAnalyzer(MSONable):
             self.diffusivity_components = m_components / 20
             self.diffusivity_components_std_dev = np.sqrt(
                 n * m_components_res / denom) / 20 / 1000
-            self.conductivity_components = self.diffusivity_components * \
-                conv_factor
-            self.conductivity_components_std_dev = \
-                self.diffusivity_components_std_dev * conv_factor
+            self.conductivity_components = self.diffusivity_components * conv_factor
+            self.conductivity_components_std_dev = self.diffusivity_components_std_dev * conv_factor
 
             # Drift and displacement information.
             self.drift = drift
@@ -417,7 +414,7 @@ class DiffusionAnalyzer(MSONable):
         but doesn't constitute melting).
 
         Args:
-            plt (matplotlib.pyplot): If plt is supplied, changes will be made 
+            plt (matplotlib.pyplot): If plt is supplied, changes will be made
                 to an existing plot. Otherwise, a new plot will be created.
             granularity (int): Number of structures to match
             matching_s (Structure): Optionally match to a disordered structure
@@ -581,7 +578,7 @@ class DiffusionAnalyzer(MSONable):
                 typically need to supply both variables. This stipulates the
                 initial structure from which the current set of displacements
                 are computed.
-            \\*\\*kwargs: kwargs supported by the :class:`DiffusionAnalyzer`_. 
+            \\*\\*kwargs: kwargs supported by the :class:`DiffusionAnalyzer`_.
                 Examples include smoothed, min_obs, avg_nsteps.
         """
         p, l = [], []
@@ -603,7 +600,7 @@ class DiffusionAnalyzer(MSONable):
         f_disp = np.cumsum(dp, axis=1)
         c_disp = []
         for i in f_disp:
-            c_disp.append( [ np.dot(d, m) for d, m in zip(i, l[1:]) ] )
+            c_disp.append([np.dot(d, m) for d, m in zip(i, l[1:])])
         disp = np.array(c_disp)
 
         # If is NVT-AIMD, clear lattice data.
@@ -640,7 +637,7 @@ class DiffusionAnalyzer(MSONable):
                 typically need to supply both variables. This stipulates the
                 initial stricture from which the current set of displacements
                 are computed.
-            \\*\\*kwargs: kwargs supported by the :class:`DiffusionAnalyzer`_. 
+            \\*\\*kwargs: kwargs supported by the :class:`DiffusionAnalyzer`_.
                 Examples include smoothed, min_obs, avg_nsteps.
         """
 
@@ -708,7 +705,7 @@ class DiffusionAnalyzer(MSONable):
                 typically need to supply both variables. This stipulates the
                 initial structure from which the current set of displacements
                 are computed.
-            \\*\\*kwargs: kwargs supported by the :class:`DiffusionAnalyzer`_. 
+            \\*\\*kwargs: kwargs supported by the :class:`DiffusionAnalyzer`_.
                 Examples include smoothed, min_obs, avg_nsteps.
         """
         if ncores is not None and len(filepaths) > 1:
@@ -791,8 +788,7 @@ def get_conversion_factor(structure, species, temperature):
     n = structure.composition[species]
 
     vol = structure.volume * 1e-24  # units cm^3
-    return 1000 * n / (vol * const.N_A) * z ** 2 * (const.N_A * const.e) ** 2 \
-        / (const.R * temperature)
+    return 1000 * n / (vol * const.N_A) * z ** 2 * (const.N_A * const.e) ** 2 / (const.R * temperature)
 
 
 def _get_vasprun(args):
@@ -822,7 +818,7 @@ def fit_arrhenius(temps, diffusivities):
     n = len(temps)
     if n > 2:
         std_Ea = (res[0] / (n - 2) / (
-        n * np.var(t_1))) ** 0.5 * const.k / const.e
+                n * np.var(t_1))) ** 0.5 * const.k / const.e
     else:
         std_Ea = None
     return -w[0] * const.k / const.e, np.exp(w[1]), std_Ea

@@ -122,7 +122,7 @@ def lower_and_check_unique(dict_to_check):
         to_return (dict): An identical dictionary but with all keys made
             lower case and no identical keys present.
     """
-    if dict_to_check == None:
+    if dict_to_check is None:
         return None
     else:
         to_return = {}
