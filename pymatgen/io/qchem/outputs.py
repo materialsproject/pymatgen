@@ -1132,6 +1132,12 @@ class QCOutput(MSONable):
                 },
                 terminate_on_match=True).get('key') == [[]]:
             self.data["errors"] += ["licensing_error"]
+        elif read_pattern(
+                self.text, {
+                    "key": r"Could not open driver file in ReadDriverFromDisk"
+                },
+                terminate_on_match=True).get('key') == [[]]:
+            self.data["errors"] += ["driver_error"]
         else:
             tmp_failed_line_searches = read_pattern(
                 self.text, {
