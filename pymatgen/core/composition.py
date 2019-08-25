@@ -526,7 +526,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
                               "d-block", "f-block")
 
         if category not in allowed_categories:
-            raise ValueError("Please pick a category from: {}".format(", ".join(allowed_categories)))
+            raise ValueError("Please pick a category from: {}".format(
+                ", ".join(allowed_categories)))
 
         if "block" in category:
             return any([category[0] in el.block for el in self.elements])
@@ -766,6 +767,22 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         # Return the new object
         return Composition(collections.Counter(species))
 
+    def remove_charges(self):
+        """
+        Removes the charges from any species in a Composition object.
+        
+        Returns:
+            Composition object without charge decoration, for example
+            {"Fe3+": 2.0, "O2-":3.0} becomes {"Fe": 2.0, "O":3.0}
+        """
+        d = collections.Counter()
+
+        for e, f in self.items():
+            e = re.findall(r"[A-z]+", str(e))[0]
+            d[str(e)] += f
+
+        return Composition(d)
+
     def _get_oxid_state_guesses(self, all_oxi_states, max_sites,
                                 oxi_states_override, target_charge):
         """
@@ -887,7 +904,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
                 el_sum_sol = dict(zip(els, x))  # element->oxid_sum
                 # normalize oxid_sum by amount to get avg oxid state
                 sol = {el: v / el_amt[el] for el, v in el_sum_sol.items()}
-                all_sols.append(sol)  # add the solution to the list of solutions
+                # add the solution to the list of solutions
+                all_sols.append(sol)
 
                 # determine the score for this solution
                 score = 0
@@ -896,7 +914,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
                 all_scores.append(score)
 
                 # collect the combination of oxidation states for each site
-                all_oxid_combo.append(dict((e, el_best_oxid_combo[idx][v]) for idx, (e, v) in enumerate(zip(els, x))))
+                all_oxid_combo.append(
+                    dict((e, el_best_oxid_combo[idx][v]) for idx, (e, v) in enumerate(zip(els, x))))
 
         # sort the solutions by highest to lowest score
         if len(all_scores) > 0:
