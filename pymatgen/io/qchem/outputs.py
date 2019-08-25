@@ -14,7 +14,7 @@ from monty.json import jsanitize
 from monty.json import MSONable
 from pymatgen.core import Molecule
 
-from pymatgen.analysis.graphs import MoleculeGraph, isomorphic
+from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
 import networkx as nx
 
@@ -1132,6 +1132,12 @@ class QCOutput(MSONable):
                 },
                 terminate_on_match=True).get('key') == [[]]:
             self.data["errors"] += ["licensing_error"]
+        elif read_pattern(
+                self.text, {
+                    "key": r"Could not open driver file in ReadDriverFromDisk"
+                },
+                terminate_on_match=True).get('key') == [[]]:
+            self.data["errors"] += ["driver_error"]
         else:
             tmp_failed_line_searches = read_pattern(
                 self.text, {
@@ -1188,7 +1194,7 @@ def check_for_structure_changes(mol1, mol2):
                                                            reorder=False,
                                                            extend_structure=False)
     last_graph = last_mol_graph.graph
-    if isomorphic(initial_mol_graph.graph, last_mol_graph.graph, True):
+    if initial_mol_graph.isomorphic_to(last_mol_graph):
         return "no_change"
     else:
         if nx.is_connected(initial_graph.to_undirected()) and not nx.is_connected(last_graph.to_undirected()):

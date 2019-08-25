@@ -8,7 +8,7 @@ import logging
 from monty.json import MSONable
 
 from pymatgen.core.structure import Molecule
-from pymatgen.analysis.graphs import MoleculeGraph, MolGraphSplitError, isomorphic
+from pymatgen.analysis.graphs import MoleculeGraph, MolGraphSplitError
 from pymatgen.analysis.local_env import OpenBabelNN
 from pymatgen.analysis.fragmenter import open_ring
 from pymatgen.io.babel import BabelMolAdaptor
@@ -127,7 +127,7 @@ class BondDissociationEnergies(MSONable):
                 RO_frag = open_ring(self.mol_graph, bonds, 1000)
                 frag_done = False
                 for done_RO_frag in self.done_RO_frags:
-                    if isomorphic(RO_frag.graph, done_RO_frag.graph):
+                    if RO_frag.isomorphic_to(done_RO_frag):
                         frag_done = True
                 if not frag_done:
                     # If this is a new fragment, save the record and then search for relevant fragment entries:
@@ -172,12 +172,12 @@ class BondDissociationEnergies(MSONable):
             # As above, we begin by making sure we haven't already encountered an identical pair of fragments:
             frags_done = False
             for frag_pair in self.done_frag_pairs:
-                if isomorphic(frag_pair[0].graph, frags[0].graph):
-                    if isomorphic(frag_pair[1].graph, frags[1].graph):
+                if frag_pair[0].isomorphic_to(frags[0]):
+                    if frag_pair[1].isomorphic_to(frags[1]):
                         frags_done = True
                         break
-                elif isomorphic(frag_pair[1].graph, frags[0].graph):
-                    if isomorphic(frag_pair[0].graph, frags[1].graph):
+                elif frag_pair[1].isomorphic_to(frags[0]):
+                    if frag_pair[0].isomorphic_to(frags[1]):
                         frags_done = True
                         break
             if not frags_done:
@@ -243,12 +243,11 @@ class BondDissociationEnergies(MSONable):
         initial_entries = []
         final_entries = []
         for entry in self.filtered_entries:
-            if isomorphic(frag.graph, entry["initial_molgraph"].graph) and isomorphic(frag.graph,
-                                                                                      entry["final_molgraph"].graph):
+            if frag.isomorphic_to(entry["initial_molgraph"]) and frag.isomorphic_to(entry["final_molgraph"]):
                 entries += [entry]
-            elif isomorphic(frag.graph, entry["initial_molgraph"].graph):
+            elif frag.isomorphic_to(entry["initial_molgraph"]):
                 initial_entries += [entry]
-            elif isomorphic(frag.graph, entry["final_molgraph"].graph):
+            elif frag.isomorphic_to(entry["final_molgraph"]):
                 final_entries += [entry]
         return [entries, initial_entries, final_entries]
 
@@ -279,7 +278,7 @@ class BondDissociationEnergies(MSONable):
                                                                             reorder=False,
                                                                             extend_structure=False)
             # Classify any potential structural change that occured during optimization:
-            if isomorphic(entry["initial_molgraph"].graph, entry["final_molgraph"].graph):
+            if entry["initial_molgraph"].isomorphic_to(entry["final_molgraph"]):
                 entry["structure_change"] = "no_change"
             else:
                 initial_graph = entry["initial_molgraph"].graph
@@ -296,9 +295,8 @@ class BondDissociationEnergies(MSONable):
             # Check for uniqueness
             for ii, filtered_entry in enumerate(self.filtered_entries):
                 if filtered_entry["formula_pretty"] == entry["formula_pretty"]:
-                    if isomorphic(filtered_entry["initial_molgraph"].graph,
-                                  entry["initial_molgraph"].graph) and isomorphic(
-                            filtered_entry["final_molgraph"].graph, entry["final_molgraph"].graph) and \
+                    if filtered_entry["initial_molgraph"].isomorphic_to(entry["initial_molgraph"]) and \
+                            filtered_entry["final_molgraph"].isomorphic_to(entry["final_molgraph"]) and \
                             filtered_entry["initial_molecule"]["charge"] == entry["initial_molecule"]["charge"]:
                         found_similar_entry = True
                         # If two entries are found that pass the above similarity check, take the one with the lower
