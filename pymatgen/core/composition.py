@@ -769,9 +769,11 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
 
     def remove_charges(self):
         """
+        Removes the charges from any species in a Composition object.
+        
         Returns:
-            Composition object without charge decoration
-            {"Fe": 2.0, "O":3.0}
+            Composition object without charge decoration, for example
+            {"Fe3+": 2.0, "O2-":3.0} becomes {"Fe": 2.0, "O":3.0}
         """
         d = collections.Counter()
 
