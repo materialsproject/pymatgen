@@ -1799,3 +1799,40 @@ class Bandoverlaps:
                                     return False
 
         return True
+
+
+class Grosspop:
+    """
+    Class to read in GROSSPOP.lobster files.
+    Args:
+        filename: filename of the "GROSSPOP.lobster" file
+
+    .. attribute: list_dict_grosspop
+       which is a list of dicts including all information about the grosspopulations, one sample dict looks like this:
+        {'element': 'O', 'Mulliken GP': {'2s': '1.80', '2p_y': '1.83', '2p_z': '1.79', '2p_x': '1.75', 'total': '7.18'},
+         'Loewdin GP': {'2s': '1.60', '2p_y': '1.82', '2p_z': '1.77', '2p_x': '1.73', 'total': '6.92'}}
+        The 0. entry of the list refers to the first atom in GROSSPOP.lobster and so on.
+    """
+
+    def __init__(self, filename="GROSSPOP.lobster"):
+
+        # opens file
+        with zopen(filename, "rt") as f:
+            contents = f.read().split("\n")
+
+        self.list_dict_grosspop = []
+        # transfers content of file to list of dict
+        for line in contents[3:]:
+            cleanline = [i for i in line.split(" ") if not i == '']
+            if len(cleanline) == 5:
+                smalldict = {}
+                smalldict["element"] = cleanline[1]
+                smalldict["Mulliken GP"] = {}
+                smalldict["Loewdin GP"] = {}
+                smalldict["Mulliken GP"][cleanline[2]] = float(cleanline[3])
+                smalldict["Loewdin GP"][cleanline[2]] = float(cleanline[4])
+            elif len(cleanline) > 0:
+                smalldict["Mulliken GP"][cleanline[0]] = float(cleanline[1])
+                smalldict["Loewdin GP"][cleanline[0]] = float(cleanline[2])
+                if 'total' in cleanline[0]:
+                    self.list_dict_grosspop.append(smalldict)
