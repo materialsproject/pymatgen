@@ -1,12 +1,13 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
-
+import platform
+import re
 import unittest
 import warnings
 import random
-from pymatgen import SETTINGS
+import sys
+from pymatgen import SETTINGS, __version__ as pmg_version
 from pymatgen.ext.matproj import MPRester, MPRestError
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure, Composition
@@ -48,6 +49,7 @@ class MPResterTest(PymatgenTest):
 
     def tearDown(self):
         warnings.simplefilter("default")
+        self.rester.session.close()
 
     def test_get_all_materials_ids_doc(self):
         mids = self.rester.get_materials_ids("Al2O3")
@@ -55,6 +57,13 @@ class MPResterTest(PymatgenTest):
         doc = self.rester.get_doc(mids.pop(0))
         self.assertEqual(doc["pretty_formula"], "Al2O3")
 
+    def test_get_xas_data(self):
+        # Test getting XAS data
+        data = self.rester.get_xas_data("mp-19017", "Li")
+        self.assertEqual("mp-19017,Li", data['mid_and_el'])
+        self.assertAlmostEqual(data['spectrum']['x'][0], 55.178, places=2)
+        self.assertAlmostEqual(data['spectrum']['y'][0], 0.0164634, places=2)
+        
     def test_get_data(self):
         props = ["energy", "energy_per_atom", "formation_energy_per_atom",
                  "nsites", "unit_cell_formula", "pretty_formula", "is_hubbard",
@@ -98,7 +107,7 @@ class MPResterTest(PymatgenTest):
                 obj = self.rester.get_data("mp-19017", prop=prop)[0][prop]
                 self.assertIsInstance(obj, ComputedEntry)
 
-        #Test chemsys search
+        # Test chemsys search
         data = self.rester.get_data('Fe-Li-O', prop='unit_cell_formula')
         self.assertTrue(len(data) > 1)
         elements = {Element("Li"), Element("Fe"), Element("O")}
@@ -139,11 +148,17 @@ class MPResterTest(PymatgenTest):
 
     def test_get_entries_in_chemsys(self):
         syms = ["Li", "Fe", "O"]
+        syms2 = "Li-Fe-O"
         entries = self.rester.get_entries_in_chemsys(syms)
+        entries2 = self.rester.get_entries_in_chemsys(syms2)
         elements = set([Element(sym) for sym in syms])
         for e in entries:
             self.assertIsInstance(e, ComputedEntry)
             self.assertTrue(set(e.composition.elements).issubset(elements))
+
+        e1 = set([i.entry_id for i in entries])
+        e2 = set([i.entry_id for i in entries2])
+        self.assertTrue(e1 == e2)
 
     def test_get_structure_by_material_id(self):
         s1 = self.rester.get_structure_by_material_id("mp-1")
@@ -339,6 +354,9 @@ class MPResterTest(PymatgenTest):
 
     def test_get_surface_data(self):
         data = self.rester.get_surface_data("mp-126") # Pt
+        one_surf = self.rester.get_surface_data('mp-129', miller_index=[-2, -3, 1])
+        self.assertAlmostEqual(one_surf['surface_energy'], 2.99156963, places=2)
+        self.assertArrayAlmostEqual(one_surf['miller_index'], [3, 2, 1])
         self.assertIn("surfaces", data)
         surfaces = data["surfaces"]
         self.assertTrue(len(surfaces) > 0)
@@ -356,6 +374,27 @@ class MPResterTest(PymatgenTest):
     def test_get_cohesive_energy(self):
         ecoh = self.rester.get_cohesive_energy("mp-13")
         self.assertTrue(ecoh, 5.04543279)
+
+    def test_get_gb_data(self):
+        mo_gbs = self.rester.get_gb_data(chemsys='Mo')
+        self.assertEqual(len(mo_gbs), 10)
+        mo_gbs_s5 = self.rester.get_gb_data(pretty_formula='Mo', sigma=5)
+        self.assertEqual(len(mo_gbs_s5), 3)
+        mo_s3_112 = self.rester.get_gb_data(material_id='mp-129', sigma=3,
+                                            gb_plane=[1, -1, -2],
+                                            include_work_of_separation=True)
+        self.assertEqual(len(mo_s3_112), 1)
+        gb_f = mo_s3_112[0]['final_structure']
+        self.assertArrayAlmostEqual(gb_f.rotation_axis, [1, 1, 0])
+        self.assertAlmostEqual(gb_f.rotation_angle, 109.47122, places=4)
+        self.assertAlmostEqual(mo_s3_112[0]['gb_energy'], 0.47965, places=2)
+        self.assertAlmostEqual(mo_s3_112[0]['work_of_separation'], 6.318144, places=2)
+        self.assertIn("Mo24", gb_f.formula)
+        hcp_s7 = self.rester.get_gb_data(material_id='mp-87', gb_plane=[0, 0, 0, 1],
+                                         include_work_of_separation=True)
+        self.assertAlmostEqual(hcp_s7[0]['gb_energy'], 1.12, places=2)
+        self.assertAlmostEqual(hcp_s7[0]['work_of_separation'], 2.46, places=2)
+
 
     def test_get_interface_reactions(self):
         kinks = self.rester.get_interface_reactions("LiCoO2", "Li3PS4")
@@ -403,6 +442,21 @@ class MPResterTest(PymatgenTest):
 
         crit = MPRester.parse_criteria("POPO2")
         self.assertIn("P2O3", crit["pretty_formula"]["$in"])
+
+    def test_include_user_agent(self):
+        headers = self.rester.session.headers
+        self.assertIn("user-agent", headers, msg="Include user-agent header by default")
+        m = re.match(
+            r"pymatgen/(\d+)\.(\d+)\.(\d+) \(Python/(\d+)\.(\d)+\.(\d+) ([^\/]*)/([^\)]*)\)",
+            headers['user-agent'])
+        self.assertIsNotNone(m, msg="Unexpected user-agent value {}".format(headers['user-agent']))
+        self.assertEqual(m.groups()[:3], tuple(pmg_version.split(".")))
+        self.assertEqual(
+            m.groups()[3:6],
+            tuple(str(n) for n in (sys.version_info.major, sys.version_info.minor, sys.version_info.micro))
+        )
+        self.rester = MPRester(include_user_agent=False)
+        self.assertNotIn("user-agent", self.rester.session.headers, msg="user-agent header unwanted")
 
 
 if __name__ == "__main__":

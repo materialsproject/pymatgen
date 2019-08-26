@@ -102,7 +102,7 @@ class GrainBoundary(Structure):
         self.init_cell = init_cell
         self.vacuum_thickness = vacuum_thickness
         self.ab_shift = ab_shift
-        super(GrainBoundary, self).__init__(
+        super().__init__(
             lattice, species, coords, validate_proximity=validate_proximity,
             coords_are_cartesian=coords_are_cartesian,
             site_properties=site_properties)
@@ -208,20 +208,18 @@ class GrainBoundary(Structure):
             "Join plane: %s" % (self.join_plane,),
             "vacuum thickness: %s" % (self.vacuum_thickness,),
             "ab_shift: %s" % (self.ab_shift,), ]
-        to_s = lambda x: "%0.6f" % x
-        outs.append("abc   : " + " ".join([to_s(i).rjust(10)
-                                           for i in self.lattice.abc]))
-        outs.append("angles: " + " ".join([to_s(i).rjust(10)
-                                           for i in self.lattice.angles]))
+
+        def to_s(x, rjust=10):
+            return ("%0.6f" % x).rjust(rjust)
+        outs.append("abc   : " + " ".join([to_s(i) for i in self.lattice.abc]))
+        outs.append("angles: " + " ".join([to_s(i) for i in self.lattice.angles]))
         outs.append("Sites ({i})".format(i=len(self)))
         for i, site in enumerate(self):
-            outs.append(" ".join([str(i + 1), site.species_string,
-                                  " ".join([to_s(j).rjust(12)
-                                            for j in site.frac_coords])]))
+            outs.append(" ".join([str(i + 1), site.species_string, " ".join([to_s(j, 12) for j in site.frac_coords])]))
         return "\n".join(outs)
 
     def as_dict(self):
-        d = super(GrainBoundary, self).as_dict()
+        d = super().as_dict()
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         d["init_cell"] = self.init_cell.as_dict()
@@ -414,8 +412,8 @@ class GrainBoundaryGenerator:
         elif lat_type == 'o':
             logger.info('Make sure this is for orthorhombic system')
             if ratio is None:
-                raise RuntimeError('CSL donot exist if all axial ratios are irrational'
-                                   'for orthorhombic system')
+                raise RuntimeError('CSL does not exist if all axial ratios are irrational '
+                                   'for an orthorhombic system')
             elif len(ratio) != 3:
                 raise RuntimeError('Orthorhombic system needs correct c2:b2:a2 ratio')
         elif lat_type == 'h':
@@ -567,7 +565,7 @@ class GrainBoundaryGenerator:
             normal_v_plane = np.cross(t_matrix[0], t_matrix[1])
             unit_normal_v = normal_v_plane / np.linalg.norm(normal_v_plane)
             unit_ab_adjust = (t_matrix[2] - np.dot(unit_normal_v, t_matrix[2]) * unit_normal_v) \
-                             / np.dot(unit_normal_v, t_matrix[2])
+                / np.dot(unit_normal_v, t_matrix[2])
         else:
             oriended_unit_cell = top_grain.copy()
             unit_ab_adjust = 0.0
@@ -631,8 +629,7 @@ class GrainBoundaryGenerator:
 
         # construct the coords, move top grain with translation_v
         all_coords = []
-        grain_labels = bottom_grain.site_properties['grain_label'] \
-                       + top_grain.site_properties['grain_label']
+        grain_labels = bottom_grain.site_properties['grain_label'] + top_grain.site_properties['grain_label']
         for site in bottom_grain:
             all_coords.append(site.coords)
         for site in top_grain:

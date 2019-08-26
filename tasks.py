@@ -4,7 +4,6 @@ Pyinvoke tasks.py file for automating releases and admin stuff.
 Author: Shyue Ping Ong
 """
 
-
 from invoke import task
 import glob
 import os
@@ -63,7 +62,7 @@ def make_doc(ctx):
                 with open(f, 'w') as fid:
                     fid.write("".join(newoutput))
         ctx.run("make html")
-        
+
         ctx.run("cp _static/* ../docs/html/_static")
 
     with cd("docs"):
@@ -124,27 +123,29 @@ def contribute_dash(ctx):
         ctx.run('git push')
     ctx.run("rm pymatgen.tgz")
 
+
 @task
 def submit_dash_pr(ctx):
     with cd("../Dash-User-Contributions/docsets/pymatgen"):
-
         payload = {
-          "title": "Update pymatgen docset to v%s" % NEW_VER,
-          "body": "Update pymatgen docset to v%s" % NEW_VER,
-          "head": "Dash-User-Contributions:master",
-          "base": "master"
+            "title": "Update pymatgen docset to v%s" % NEW_VER,
+            "body": "Update pymatgen docset to v%s" % NEW_VER,
+            "head": "Dash-User-Contributions:master",
+            "base": "master"
         }
         response = requests.post(
             "https://api.github.com/repos/materialsvirtuallab/Dash-User-Contributions/pulls",
             data=json.dumps(payload))
         print(response.text)
 
+
 @task
 def update_doc(ctx):
     make_doc(ctx)
     try:
         contribute_dash(ctx)
-    except:
+        ctx.run("mv pymatgen.tgz ..", warn=True)
+    except Exception:
         pass
     ctx.run("cp docs_rst/conf-normal.py docs_rst/conf.py")
     make_doc(ctx)
@@ -245,9 +246,9 @@ def post_discourse(ctx):
     )
     print(response.text)
 
+
 @task
 def update_changelog(ctx):
-
     output = subprocess.check_output(["git", "log", "--pretty=format:%s",
                                       "v%s..HEAD" % CURRENT_VER])
     lines = ["* " + l for l in output.decode("utf-8").strip().split("\n")]
@@ -270,7 +271,11 @@ def release(ctx, notest=False, nodoc=False):
         ctx.run("nosetests")
     publish(ctx)
     if not nodoc:
-        update_doc(ctx)
+        # update_doc(ctx)
+        make_doc(ctx)
+        ctx.run("git add .")
+        ctx.run("git commit -a -m \"Update docs\"")
+        ctx.run("git push")
     merge_stable(ctx)
     release_github(ctx)
     post_discourse(ctx)

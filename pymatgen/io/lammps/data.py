@@ -15,17 +15,16 @@ from monty.dev import deprecated
 from monty.serialization import loadfn
 from ruamel.yaml import YAML
 
-
 from pymatgen.util.io_utils import clean_lines
 from pymatgen import Molecule, Element, Lattice, Structure, SymmOp
 
 """
-This module implements a core class LammpsData for generating/parsing 
-LAMMPS data file, and other bridging classes to build LammpsData from 
-molecules. 
+This module implements a core class LammpsData for generating/parsing
+LAMMPS data file, and other bridging classes to build LammpsData from
+molecules.
 
 Only point particle styles are supported for now (atom_style in angle,
-atomic, bond, charge, full and molecular only). See the pages below for 
+atomic, bond, charge, full and molecular only). See the pages below for
 more info.
 
     http://lammps.sandia.gov/doc/atom_style.html
@@ -80,7 +79,6 @@ ATOMS_HEADERS = {"angle": ["molecule-ID", "type", "x", "y", "z"],
 class LammpsBox(MSONable):
     """
     Object for representing a simulation box in LAMMPS settings.
-
     """
 
     def __init__(self, bounds, tilt=None):
@@ -104,7 +102,7 @@ class LammpsBox(MSONable):
         self.tilt = None
         if tilt is not None:
             tilt_arr = np.array(tilt)
-            assert tilt_arr.shape == (3,),\
+            assert tilt_arr.shape == (3,), \
                 "Expecting a (3,) array for box_tilt," \
                 " got {}".format(tilt_arr.shape)
             self.tilt = tilt_arr.tolist()
@@ -246,7 +244,7 @@ class LammpsData(MSONable):
         """
 
         if velocities is not None:
-            assert len(velocities) == len(atoms),\
+            assert len(velocities) == len(atoms), \
                 "Inconsistency found between atoms and velocities"
 
         if force_field:
@@ -360,9 +358,14 @@ class LammpsData(MSONable):
                       for k, v in types.items()]
         stats = "\n".join(count_lines + [""] + type_lines)
 
-        map_coords = lambda q: ("{:.%df}" % distance).format(q)
-        map_velos = lambda q: ("{:.%df}" % velocity).format(q)
-        map_charges = lambda q: ("{:.%df}" % charge).format(q)
+        def map_coords(q):
+            return ("{:.%df}" % distance).format(q)
+
+        def map_velos(q):
+            return ("{:.%df}" % velocity).format(q)
+
+        def map_charges(q):
+            return ("{:.%df}" % charge).format(q)
         float_format = '{:.9f}'.format
         float_format_2 = '{:.1f}'.format
         int_format = '{:.0f}'.format
@@ -529,8 +532,8 @@ class LammpsData(MSONable):
                     topo_coeffs[kw].append(d)
 
         if self.topology:
-            label_topo = lambda t: tuple(masses.loc[atoms_df.loc[t, "type"],
-                                                    "label"])
+            def label_topo(t):
+                return tuple(masses.loc[atoms_df.loc[t, "type"], "label"])
             for k, v in self.topology.items():
                 ff_kw = k[:-1] + " Coeffs"
                 for topo in v.itertuples(False, None):
@@ -725,7 +728,7 @@ class LammpsData(MSONable):
 
         """
         atom_types = set.union(*[t.species for t in topologies])
-        assert atom_types.issubset(ff.maps["Atoms"].keys()),\
+        assert atom_types.issubset(ff.maps["Atoms"].keys()), \
             "Unknown atom type found in topologies"
 
         items = dict(box=box, atom_style=atom_style, masses=ff.masses,
@@ -822,7 +825,8 @@ class LammpsData(MSONable):
 
     @classmethod
     def from_dict(cls, d):
-        decode_df = lambda s: pd.read_json(s, orient="split")
+        def decode_df(s):
+            return pd.read_json(s, orient="split")
         items = dict()
         items["box"] = LammpsBox.from_dict(d["box"])
         items["masses"] = decode_df(d["masses"])
@@ -844,7 +848,8 @@ class LammpsData(MSONable):
         return cls(**items)
 
     def as_dict(self):
-        encode_df = lambda df: df.to_json(orient="split")
+        def encode_df(df):
+            return df.to_json(orient="split")
         d = dict()
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
@@ -914,7 +919,7 @@ class Topology(MSONable):
         # validate shape
         if charges is not None:
             charge_arr = np.array(charges)
-            assert charge_arr.shape == (len(sites),),\
+            assert charge_arr.shape == (len(sites),), \
                 "Wrong format for charges"
             charges = charge_arr.tolist()
         if velocities is not None:
@@ -1011,7 +1016,8 @@ class ForceField(MSONable):
 
     """
 
-    _is_valid = lambda self, df: not pd.isnull(df).values.any()
+    def _is_valid(self, df):
+        return not pd.isnull(df).values.any()
 
     def __init__(self, mass_info, nonbond_coeffs=None, topo_coeffs=None):
         """
@@ -1056,9 +1062,9 @@ class ForceField(MSONable):
                 be defined MORE THAN ONCE with DIFFERENT coefficients.
 
         """
-        map_mass = lambda v: v.atomic_mass.real if isinstance(v, Element) \
-            else Element(v).atomic_mass.real if isinstance(v, str) \
-            else v
+        def map_mass(v):
+            return v.atomic_mass.real if isinstance(v, Element) else Element(v).atomic_mass.real \
+                if isinstance(v, str) else v
         index, masses, self.mass_info, atoms_map = [], [], [], {}
         for i, m in enumerate(mass_info):
             index.append(i + 1)
@@ -1134,7 +1140,7 @@ class ForceField(MSONable):
         type_counts = sum([len(dt) for dt in distinct_types])
         type_union = set.union(*distinct_types)
         assert len(type_union) == type_counts, "Duplicated items found " \
-            "under different coefficients in %s" % kw
+                                               "under different coefficients in %s" % kw
         atoms = set(np.ravel(list(itertools.chain(*distinct_types))))
         assert atoms.issubset(self.maps["Atoms"].keys()), \
             "Undefined atom type found in %s" % kw
@@ -1145,7 +1151,7 @@ class ForceField(MSONable):
 
         def process_data(data):
             df = pd.DataFrame(data)
-            assert self._is_valid(df),\
+            assert self._is_valid(df), \
                 "Invalid coefficients with rows varying in length"
             n, c = df.shape
             df.columns = ["coeff%d" % i for i in range(1, c + 1)]

@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.chemenv.utils.chemenv_config &#8212; pymatgen 2019.3.13 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.chemenv.utils.chemenv_config &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="../../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -71,7 +69,6 @@
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Feb 20, 2016&quot;</span>
 
 
-
 <div class="viewcode-block" id="ChemEnvConfig"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.chemenv_config.html#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig">[docs]</a><span class="k">class</span> <span class="nc">ChemEnvConfig</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class used to store the configuration of the chemenv package :</span>
@@ -79,20 +76,23 @@
 <span class="sd">     - ICSD database access</span>
 <span class="sd">     - Default options (strategies, ...)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">DEFAULT_PACKAGE_OPTIONS</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;default_strategy&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;strategy&#39;</span><span class="p">:</span> <span class="s1">&#39;SimplestChemenvStrategy&#39;</span><span class="p">,</span>
-                                                    <span class="s1">&#39;strategy_options&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;distance_cutoff&#39;</span><span class="p">:</span> <span class="n">strategies_class_lookup</span><span class="p">[</span><span class="s1">&#39;SimplestChemenvStrategy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">DEFAULT_DISTANCE_CUTOFF</span><span class="p">,</span>
-                                                                         <span class="s1">&#39;angle_cutoff&#39;</span><span class="p">:</span> <span class="n">strategies_class_lookup</span><span class="p">[</span><span class="s1">&#39;SimplestChemenvStrategy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">DEFAULT_ANGLE_CUTOFF</span><span class="p">,</span>
-                                                                         <span class="s1">&#39;additional_condition&#39;</span><span class="p">:</span> <span class="n">strategies_class_lookup</span><span class="p">[</span><span class="s1">&#39;SimplestChemenvStrategy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">DEFAULT_ADDITIONAL_CONDITION</span><span class="p">,</span>
-                                                                         <span class="s1">&#39;continuous_symmetry_measure_cutoff&#39;</span><span class="p">:</span> <span class="n">strategies_class_lookup</span><span class="p">[</span><span class="s1">&#39;SimplestChemenvStrategy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF</span><span class="p">}},</span>
-                               <span class="s1">&#39;default_max_distance_factor&#39;</span><span class="p">:</span> <span class="mf">1.5</span>
-                               <span class="p">}</span>
+    <span class="n">DEFAULT_PACKAGE_OPTIONS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;default_strategy&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;strategy&#39;</span><span class="p">:</span> <span class="s1">&#39;SimplestChemenvStrategy&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;strategy_options&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;distance_cutoff&#39;</span><span class="p">:</span> <span class="n">strategies_class_lookup</span><span class="p">[</span><span class="s1">&#39;SimplestChemenvStrategy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">DEFAULT_DISTANCE_CUTOFF</span><span class="p">,</span>
+                <span class="s1">&#39;angle_cutoff&#39;</span><span class="p">:</span> <span class="n">strategies_class_lookup</span><span class="p">[</span><span class="s1">&#39;SimplestChemenvStrategy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">DEFAULT_ANGLE_CUTOFF</span><span class="p">,</span>
+                <span class="s1">&#39;additional_condition&#39;</span><span class="p">:</span> <span class="n">strategies_class_lookup</span><span class="p">[</span><span class="s1">&#39;SimplestChemenvStrategy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">DEFAULT_ADDITIONAL_CONDITION</span><span class="p">,</span>
+                <span class="s1">&#39;continuous_symmetry_measure_cutoff&#39;</span><span class="p">:</span>
+                    <span class="n">strategies_class_lookup</span><span class="p">[</span><span class="s1">&#39;SimplestChemenvStrategy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF</span><span class="p">}},</span>
+        <span class="s1">&#39;default_max_distance_factor&#39;</span><span class="p">:</span> <span class="mf">1.5</span>
+    <span class="p">}</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">package_options</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">SETTINGS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PMG_MAPI_KEY&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span> 
+        <span class="k">if</span> <span class="n">SETTINGS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PMG_MAPI_KEY&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">materials_project_configuration</span> <span class="o">=</span> <span class="n">SETTINGS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PMG_MAPI_KEY&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">materials_project_configuration</span> <span class="o">=</span> <span class="kc">None</span>
-
 
         <span class="k">if</span> <span class="n">package_options</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">package_options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_PACKAGE_OPTIONS</span>
@@ -150,7 +150,8 @@
                     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;       </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">option_dict</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">allowed_values</span><span class="p">))</span>
                     <span class="n">test</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;     Your choice : &#39;</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">test</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">package_options</span><span class="p">[</span><span class="s1">&#39;default_strategy&#39;</span><span class="p">][</span><span class="s1">&#39;strategy_options&#39;</span><span class="p">][</span><span class="n">option</span><span class="p">]</span> <span class="o">=</span> <span class="n">option_dict</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">](</span><span class="n">strategy_class</span><span class="o">.</span><span class="n">STRATEGY_OPTIONS</span><span class="p">[</span><span class="n">option</span><span class="p">][</span><span class="s1">&#39;default&#39;</span><span class="p">])</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">package_options</span><span class="p">[</span><span class="s1">&#39;default_strategy&#39;</span><span class="p">][</span><span class="s1">&#39;strategy_options&#39;</span><span class="p">][</span><span class="n">option</span><span class="p">]</span> <span class="o">=</span> <span class="n">option_dict</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">](</span>
+                            <span class="n">strategy_class</span><span class="o">.</span><span class="n">STRATEGY_OPTIONS</span><span class="p">[</span><span class="n">option</span><span class="p">][</span><span class="s1">&#39;default&#39;</span><span class="p">])</span>
                         <span class="k">break</span>
                     <span class="k">try</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">package_options</span><span class="p">[</span><span class="s1">&#39;default_strategy&#39;</span><span class="p">][</span><span class="s1">&#39;strategy_options&#39;</span><span class="p">][</span><span class="n">option</span><span class="p">]</span> <span class="o">=</span> <span class="n">option_dict</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">](</span><span class="n">test</span><span class="p">)</span>
@@ -176,7 +177,7 @@
             <span class="n">root_dir</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/.chemenv&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">home</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">exists</span><span class="p">(</span><span class="n">root_dir</span><span class="p">):</span>
             <span class="n">makedirs</span><span class="p">(</span><span class="n">root_dir</span><span class="p">)</span>
-        <span class="n">config_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;package_options&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">package_options</span><span class="p">}</span>  
+        <span class="n">config_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;package_options&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">package_options</span><span class="p">}</span>
         <span class="n">config_file</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/config.json&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">root_dir</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">exists</span><span class="p">(</span><span class="n">config_file</span><span class="p">):</span>
             <span class="n">test</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Overwrite existing configuration ? (&lt;Y&gt; + &lt;ENTER&gt; to confirm)&#39;</span><span class="p">)</span>
@@ -199,8 +200,8 @@
             <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
             <span class="n">config_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
             <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-            <span class="k">return</span> <span class="n">ChemEnvConfig</span><span class="p">(</span><span class="n">package_options</span><span class="o">=</span><span class="n">config_dict</span><span class="p">[</span><span class="s1">&#39;package_options&#39;</span><span class="p">])</span> 
-            
+            <span class="k">return</span> <span class="n">ChemEnvConfig</span><span class="p">(</span><span class="n">package_options</span><span class="o">=</span><span class="n">config_dict</span><span class="p">[</span><span class="s1">&#39;package_options&#39;</span><span class="p">])</span>
+
         <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Unable to load configuration from file &quot;</span><span class="si">{}</span><span class="s1">&quot; ...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">config_file</span><span class="p">))</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39; ... loading default configuration&#39;</span><span class="p">)</span>
@@ -213,13 +214,11 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -237,7 +236,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -245,7 +244,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

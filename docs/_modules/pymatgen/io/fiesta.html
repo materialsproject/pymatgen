@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.fiesta &#8212; pymatgen 2019.3.13 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.io.fiesta &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -62,7 +60,7 @@
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Molecule</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This module implements input and output processing for Fiesta (http://perso.neel.cnrs.fr/xavier.blase/fiesta/index.html).</span>
+<span class="sd">This module implements input and output for Fiesta (http://perso.neel.cnrs.fr/xavier.blase/fiesta/index.html).</span>
 
 <span class="sd">and</span>
 
@@ -81,7 +79,7 @@
 <div class="viewcode-block" id="Nwchem2Fiesta"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.Nwchem2Fiesta">[docs]</a><span class="k">class</span> <span class="nc">Nwchem2Fiesta</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    To run NWCHEM2FIESTA inside python:</span>
-<span class="sd">    </span>
+
 <span class="sd">    If nwchem.nw is the input, nwchem.out the output, and structure.movecs the</span>
 <span class="sd">    &quot;movecs&quot; file, the syntax to run NWCHEM2FIESTA is: NWCHEM2FIESTA</span>
 <span class="sd">    nwchem.nw  nwchem.nwout  structure.movecs &gt; log_n2f</span>
@@ -215,7 +213,8 @@
 <span class="sd">        filename: Filename to read.</span>
 
 <span class="sd">        Basis set are stored in data as a dict:</span>
-<span class="sd">         :key l_zeta_ng for each nl orbitals which contain list of tuple (alpha, coef) for each of the ng gaussians in l_zeta orbital</span>
+<span class="sd">        :key l_zeta_ng for each nl orbitals which contain list of tuple (alpha, coef) for each of the ng gaussians</span>
+<span class="sd">        in l_zeta orbital</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
@@ -351,8 +350,8 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        copy in the desired folder the needed auxiliary basis set &quot;X2.ion&quot; where X is a specie.</span>
 <span class="sd">        :param auxiliary_folder: folder where the auxiliary basis sets are stored</span>
-<span class="sd">        :param auxiliary_basis_set_type: type of basis set (string to be found in the extension of the file name; must be in lower case)</span>
-<span class="sd">               ex: C2.ion_aug_cc_pvtz_RI_Weigend find &quot;aug_cc_pvtz&quot;</span>
+<span class="sd">        :param auxiliary_basis_set_type: type of basis set (string to be found in the extension of the file name; must</span>
+<span class="sd">            be in lower case). ex: C2.ion_aug_cc_pvtz_RI_Weigend find &quot;aug_cc_pvtz&quot;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">list_files</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">auxiliary_folder</span><span class="p">)</span>
@@ -360,8 +359,7 @@
         <span class="k">for</span> <span class="n">specie</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">symbol_set</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">list_files</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">find</span><span class="p">(</span>
-                                <span class="n">specie</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;2&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">and</span> <span class="n">file</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">find</span><span class="p">(</span>
-                        <span class="n">auxiliary_basis_set_type</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                        <span class="n">specie</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;2&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">and</span> <span class="n">file</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">auxiliary_basis_set_type</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
                     <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">auxiliary_folder</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">file</span><span class="p">,</span>
                                     <span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">specie</span> <span class="o">+</span> <span class="s2">&quot;2.ion&quot;</span><span class="p">)</span></div>
 
@@ -417,7 +415,7 @@
 <span class="sd">        :param TDDFT_dump: boolen</span>
 <span class="sd">        :return: set the do_tddft variable to one in cell.in</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">TDDFT_dump</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">TDDFT_dump</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">BSE_TDDFT_options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">do_bse</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">do_tddft</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">BSE_TDDFT_options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">do_bse</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">do_tddft</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
@@ -479,8 +477,7 @@
 
         <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="p">:</span>
             <span class="n">o</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
-                                           <span class="n">site</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span>
-                    <span class="n">symbols</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+                                           <span class="n">site</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">symbols</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
 
         <span class="n">o</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;=========================================&quot;</span><span class="p">)</span>
 
@@ -502,8 +499,7 @@
         <span class="n">geometry</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="p">:</span>
             <span class="n">geometry</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
-                                                  <span class="n">site</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span>
-                    <span class="n">symbols</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+                                                  <span class="n">site</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">symbols</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
 
         <span class="n">t</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;# number of atoms and species</span>
 <span class="s2">   $nat    $nsp</span>
@@ -893,13 +889,11 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -917,7 +911,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -925,7 +919,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

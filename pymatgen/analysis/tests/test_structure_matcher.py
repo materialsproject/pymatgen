@@ -667,6 +667,21 @@ class StructureMatcherTest(PymatgenTest):
         self.assertTrue(sm_sites.fit(s1, s2))
         self.assertFalse(sm_atoms.fit(s1, s2))
 
+    def test_disordered_to_disordered(self):
+        sm_atoms = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5,
+                                    primitive_cell=False, scale=True,
+                                    attempt_supercell=True,
+                                    allow_subset=False,
+                                    comparator=OrderDisorderElementComparator())
+        lp = Lattice.orthorhombic(10, 20, 30)
+        coords = [[0., 0., 0.], [0.5, 0.5, 0.5]]
+        s1 = Structure(lp, [{'Na': 0.5, "Cl": 0.5}, {'Na': 0.5, "Cl": 0.5}],
+                       coords)
+        s2 = Structure(lp, [{'Na': 0.5, "Cl": 0.5}, {'Na': 0.5, "Br": 0.5}],
+                       coords)
+
+        self.assertFalse(sm_atoms.fit(s1, s2))
+
     def test_occupancy_comparator(self):
 
         lp = Lattice.orthorhombic(10, 20, 30)

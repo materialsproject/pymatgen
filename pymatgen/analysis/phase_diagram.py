@@ -35,7 +35,6 @@ __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "May 16, 2011"
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -147,8 +146,7 @@ class GrandPotPDEntry(PDEntry):
         self.chempots = chempots
         new_comp_map = {el: comp[el] for el in comp.elements
                         if el not in chempots}
-        super(GrandPotPDEntry, self).__init__(new_comp_map, grandpot,
-                                              entry.name)
+        super().__init__(new_comp_map, grandpot, entry.name)
         self.name = name if name else entry.name
 
     @property
@@ -204,7 +202,7 @@ class TransformedPDEntry(PDEntry):
     """
 
     def __init__(self, comp, original_entry):
-        super(TransformedPDEntry, self).__init__(comp, original_entry.energy)
+        super().__init__(comp, original_entry.energy)
         self.original_entry = original_entry
         self.name = original_entry.name
 
@@ -218,8 +216,7 @@ class TransformedPDEntry(PDEntry):
 
     def __repr__(self):
         output = ["TransformedPDEntry {}".format(self.composition),
-                  " with original composition {}"
-                      .format(self.original_entry.composition),
+                  " with original composition {}".format(self.original_entry.composition),
                   ", E = {:.4f}".format(self.original_entry.energy)]
         return "".join(output)
 
@@ -318,14 +315,12 @@ class PhaseDiagram(MSONable):
         elements = list(elements)
         dim = len(elements)
 
-        get_reduced_comp = lambda e: e.composition.reduced_composition
-
-        entries = sorted(entries, key=get_reduced_comp)
+        entries = sorted(entries, key=lambda e: e.composition.reduced_composition)
 
         el_refs = {}
         min_entries = []
         all_entries = []
-        for c, g in itertools.groupby(entries, key=get_reduced_comp):
+        for c, g in itertools.groupby(entries, key=lambda e: e.composition.reduced_composition):
             g = list(g)
             min_entry = min(g, key=lambda e: e.energy_per_atom)
             if c.is_element:
@@ -604,7 +599,7 @@ class PhaseDiagram(MSONable):
         return self._get_facet_chempots(facet)
 
     def get_all_chempots(self, comp):
-        #note the top part takes from format of _get_facet_and_simplex,
+        # note the top part takes from format of _get_facet_and_simplex,
         #   but wants to return all facets rather than the first one that meets this criteria
         c = self.pd_coords(comp)
         allfacets = []
@@ -835,7 +830,7 @@ class PhaseDiagram(MSONable):
             [e for e in self.elements if e != dep_elt])
 
         for e in self.elements:
-            if not e in target_comp.elements:
+            if e not in target_comp.elements:
                 target_comp = target_comp + Composition({e: 0.0})
         coeff = [-target_comp[e] for e in self.elements if e != dep_elt]
         for e in chempot_ranges.keys():
@@ -850,8 +845,7 @@ class PhaseDiagram(MSONable):
                         res = {}
                         for i in range(len(elts)):
                             res[elts[i]] = v[i] + muref[i]
-                        res[dep_elt] = (np.dot(v + muref, coeff) + ef) / \
-                                       target_comp[dep_elt]
+                        res[dep_elt] = (np.dot(v + muref, coeff) + ef) / target_comp[dep_elt]
                         already_in = False
                         for di in all_coords:
                             dict_equals = True
@@ -888,7 +882,7 @@ class PhaseDiagram(MSONable):
         chempot_ranges = self.get_chempot_range_map(
             [e for e in self.elements if e != open_elt])
         for e in self.elements:
-            if not e in target_comp.elements:
+            if e not in target_comp.elements:
                 target_comp = target_comp + Composition({e: 0.0})
         coeff = [-target_comp[e] for e in self.elements if e != open_elt]
         max_open = -float('inf')
@@ -904,15 +898,11 @@ class PhaseDiagram(MSONable):
                 for s in chempot_ranges[e]:
                     for v in s._coords:
                         all_coords.append(v)
-                        if (np.dot(v + muref, coeff) + ef) / target_comp[
-                                open_elt] > max_open:
-                            max_open = (np.dot(v + muref, coeff) + ef) / \
-                                       target_comp[open_elt]
+                        if (np.dot(v + muref, coeff) + ef) / target_comp[open_elt] > max_open:
+                            max_open = (np.dot(v + muref, coeff) + ef) / target_comp[open_elt]
                             max_mus = v
-                        if (np.dot(v + muref, coeff) + ef) / target_comp[
-                                open_elt] < min_open:
-                            min_open = (np.dot(v + muref, coeff) + ef) / \
-                                       target_comp[open_elt]
+                        if (np.dot(v + muref, coeff) + ef) / target_comp[open_elt] < min_open:
+                            min_open = (np.dot(v + muref, coeff) + ef) / target_comp[open_elt]
                             min_mus = v
         elts = [e for e in self.elements if e != open_elt]
         res = {}
@@ -967,7 +957,7 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
         for e in entries:
             if len(set(e.composition.elements).intersection(set(elements))) > 0:
                 all_entries.append(GrandPotPDEntry(e, self.chempots))
-        super(GrandPotentialPhaseDiagram, self).__init__(all_entries, elements)
+        super().__init__(all_entries, elements)
 
     def __str__(self):
         output = []
@@ -1027,7 +1017,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
         (pentries, species_mapping) = \
             self.transform_entries(entries, terminal_compositions)
         self.species_mapping = species_mapping
-        super(CompoundPhaseDiagram, self).__init__(
+        super().__init__(
             pentries, elements=species_mapping.values())
 
     def transform_entries(self, entries, terminal_compositions):
@@ -1149,7 +1139,8 @@ class ReactionDiagram:
         rxn_entries = []
         done = []
 
-        fmt = lambda fl: float_fmt % fl
+        def fmt(fl):
+            return float_fmt % fl
 
         for facet in pd.facets:
             for face in itertools.combinations(facet, len(facet) - 1):
@@ -1223,9 +1214,9 @@ class ReactionDiagram:
         self.entry2 = entry2
         self.rxn_entries = rxn_entries
         self.labels = collections.OrderedDict()
-        for i, e in enumerate(rxn_entries): 
+        for i, e in enumerate(rxn_entries):
             self.labels[str(i + 1)] = e.attribute
-            e.name = str(i + 1) 
+            e.name = str(i + 1)
         self.all_entries = all_entries
         self.pd = pd
 
@@ -1247,7 +1238,7 @@ class ReactionDiagram:
             self.rxn_entries + [entry1, entry2],
             [Composition(entry1.composition.reduced_formula),
              Composition(entry2.composition.reduced_formula)],
-            normalize_terminal_compositions=False) 
+            normalize_terminal_compositions=False)
         return cpd
 
 
@@ -1423,7 +1414,7 @@ class PDPlotter:
         element_energy = evolution[0]['chempot']
         for i, d in enumerate(evolution):
             v = -(d["chempot"] - element_energy)
-            print ("index= %s, -\u0394\u03BC=%.4f(eV)," % (i, v), d["reaction"])
+            print("index= %s, -\u0394\u03BC=%.4f(eV)," % (i, v), d["reaction"])
             if i != 0:
                 plt.plot([x2, x2], [y1, d["evolution"] / num_atoms],
                          'k', linewidth=2.5)
@@ -1489,7 +1480,7 @@ class PDPlotter:
                 #  ICSD or from the MP) one.
                 for x, y in labels.keys():
                     if labels[(x, y)].attribute is None or \
-                                    labels[(x, y)].attribute == "existing":
+                            labels[(x, y)].attribute == "existing":
                         plt.plot(x, y, "ko", **self.plotkwargs)
                     else:
                         plt.plot(x, y, "k*", **self.plotkwargs)
@@ -1520,7 +1511,7 @@ class PDPlotter:
             if process_attributes:
                 for x, y in labels.keys():
                     if labels[(x, y)].attribute is None or \
-                                    labels[(x, y)].attribute == "existing":
+                            labels[(x, y)].attribute == "existing":
                         plt.plot(x, y, "o", markerfacecolor=vals_stable[ii],
                                  markersize=12)
                     else:
@@ -1733,9 +1724,7 @@ class PDPlotter:
             coords = []
             contain_zero = any([comp.get_atomic_fraction(el) == 0
                                 for el in elements])
-            is_boundary = (not contain_zero) and \
-                          sum([comp.get_atomic_fraction(el) for el in
-                               elements]) == 1
+            is_boundary = (not contain_zero) and sum([comp.get_atomic_fraction(el) for el in elements]) == 1
             for line in lines:
                 (x, y) = line.coords.transpose()
                 plt.plot(x, y, "k-")
@@ -1940,8 +1929,7 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
             yup = coord[1]
             nameup = stable_entries[coord].name
 
-    if (not nameup in ordering) or (not nameright in ordering) or \
-            (not nameleft in ordering):
+    if (nameup not in ordering) or (nameright not in ordering) or (nameleft not in ordering):
         raise ValueError(
             'Error in ordering_phase_diagram : \n"{up}", "{left}" and "{'
             'right}"'
@@ -1972,10 +1960,8 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
                 newx = np.zeros_like(x)
                 newy = np.zeros_like(y)
                 for ii, xx in enumerate(x):
-                    newx[ii] = c120 * (xx - cc[0]) - s120 * (y[ii] - cc[1]) + \
-                               cc[0]
-                    newy[ii] = s120 * (xx - cc[0]) + c120 * (y[ii] - cc[1]) + \
-                               cc[1]
+                    newx[ii] = c120 * (xx - cc[0]) - s120 * (y[ii] - cc[1]) + cc[0]
+                    newy[ii] = s120 * (xx - cc[0]) + c120 * (y[ii] - cc[1]) + cc[1]
                 newlines.append([newx, newy])
             newstable_entries = {
                 (c120 * (c[0] - cc[0]) - s120 * (c[1] - cc[1]) + cc[0],
@@ -2014,10 +2000,8 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
                 newx = np.zeros_like(x)
                 newy = np.zeros_like(y)
                 for ii, xx in enumerate(x):
-                    newx[ii] = c240 * (xx - cc[0]) - s240 * (y[ii] - cc[1]) + \
-                               cc[0]
-                    newy[ii] = s240 * (xx - cc[0]) + c240 * (y[ii] - cc[1]) + \
-                               cc[1]
+                    newx[ii] = c240 * (xx - cc[0]) - s240 * (y[ii] - cc[1]) + cc[0]
+                    newy[ii] = s240 * (xx - cc[0]) + c240 * (y[ii] - cc[1]) + cc[1]
                 newlines.append([newx, newy])
             newstable_entries = {
                 (c240 * (c[0] - cc[0]) - s240 * (c[1] - cc[1]) + cc[0],

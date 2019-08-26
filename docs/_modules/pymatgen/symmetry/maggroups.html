@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.symmetry.maggroups &#8212; pymatgen 2019.3.13 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.symmetry.maggroups &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -55,7 +53,6 @@
 <span class="kn">from</span> <span class="nn">fractions</span> <span class="k">import</span> <span class="n">Fraction</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">monty.design_patterns</span> <span class="k">import</span> <span class="n">cached_class</span>
-
 
 <span class="kn">import</span> <span class="nn">textwrap</span>
 
@@ -78,6 +75,7 @@
 
 <span class="n">MAGSYMM_DATA</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;symm_data_magnetic.sqlite&quot;</span><span class="p">)</span>
 
+
 <div class="viewcode-block" id="MagneticSpaceGroup"><a class="viewcode-back" href="../../../pymatgen.symmetry.maggroups.html#pymatgen.symmetry.maggroups.MagneticSpaceGroup">[docs]</a><span class="nd">@cached_class</span>
 <span class="k">class</span> <span class="nc">MagneticSpaceGroup</span><span class="p">(</span><span class="n">SymmetryGroup</span><span class="p">):</span>
 
@@ -88,7 +86,7 @@
 <span class="sd">        as a string. To create a magnetic structure in pymatgen, the</span>
 <span class="sd">        Structure.from_magnetic_spacegroup() method can be used, which</span>
 <span class="sd">        relies on this class.</span>
-<span class="sd">        </span>
+
 <span class="sd">        The main difference between magnetic space groups and normal</span>
 <span class="sd">        crystallographic space groups is the inclusion of a time reversal</span>
 <span class="sd">        operator that acts on an atom&#39;s magnetic moment. This is</span>
@@ -96,11 +94,11 @@
 <span class="sd">        operation in its label, e.g. the standard crystallographic</span>
 <span class="sd">        space group Pnma has magnetic subgroups Pn&#39;ma, Pnm&#39;a, Pnma&#39;,</span>
 <span class="sd">        Pn&#39;m&#39;a, Pnm&#39;a&#39;, Pn&#39;ma&#39;, Pn&#39;m&#39;a&#39;.</span>
-<span class="sd">        </span>
+
 <span class="sd">        The magnetic space groups are classified as one of 4 types</span>
 <span class="sd">        where G = magnetic space group, and F = parent crystallographic</span>
 <span class="sd">        space group:</span>
-<span class="sd">        </span>
+
 <span class="sd">        1.  G=F no time reversal, i.e. the same as corresponding</span>
 <span class="sd">            crystallographic group</span>
 <span class="sd">        2.  G=F+F1&#39;, &quot;grey&quot; groups, where avg. magnetic moment is zero,</span>
@@ -108,13 +106,13 @@
 <span class="sd">        3.  G=D+(F-D)1&#39;, where D is an equi-translation subgroup of F of</span>
 <span class="sd">            index 2, lattice translations do not include time reversal</span>
 <span class="sd">        4.  G=D+(F-D)1&#39;, where D is an equi-class subgroup of F of index 2</span>
-<span class="sd">        </span>
+
 <span class="sd">        There are two common settings for magnetic space groups, BNS</span>
 <span class="sd">        and OG. In case 4, the BNS setting != OG setting, and so a</span>
 <span class="sd">        transformation to go between the two settings is required:</span>
 <span class="sd">        specifically, the BNS setting is derived from D, and the OG</span>
 <span class="sd">        setting is derived from F.</span>
-<span class="sd">        </span>
+
 <span class="sd">        This means that the OG setting refers to the unit cell if magnetic</span>
 <span class="sd">        order is neglected, and requires multiple unit cells to reproduce</span>
 <span class="sd">        the full crystal periodicity when magnetic moments are present.</span>
@@ -122,11 +120,11 @@
 <span class="sd">        electronic structure calculations and the BNS setting is preferred.</span>
 <span class="sd">        However, this class does contain information on the OG setting and</span>
 <span class="sd">        can be initialized from OG labels or numbers if required.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Conventions: ITC monoclinic unique axis b, monoclinic cell choice 1,</span>
 <span class="sd">        hexagonal axis for trigonal groups, origin choice 2 for groups with</span>
 <span class="sd">        more than one origin choice (ISO-MAG).</span>
-<span class="sd">        </span>
+
 <span class="sd">        Raw data comes from ISO-MAG, ISOTROPY Software Suite, iso.byu.edu</span>
 <span class="sd">        http://stokes.byu.edu/iso/magnetic_data.txt</span>
 <span class="sd">        with kind permission from Professor Branton Campbell, BYU</span>
@@ -136,12 +134,12 @@
 <span class="sd">            of Crystallography, 2013) www.iucr.org/publ/978-0-9553602-2-0.</span>
 <span class="sd">        (2) C. J. Bradley and A. P. Cracknell, The Mathematical Theory of</span>
 <span class="sd">            Symmetry in Solids (Clarendon Press, Oxford, 1972).</span>
-<span class="sd">        </span>
+
 <span class="sd">        See http://stokes.byu.edu/iso/magneticspacegroupshelp.php for more</span>
 <span class="sd">        information on magnetic symmetry.</span>
-<span class="sd">        </span>
+
 <span class="sd">        :param id: BNS number supplied as list of 2 ints or BNS label as</span>
-<span class="sd">        str or index as int (1-1651) to iterate over all space groups&quot;&quot;&quot;</span>
+<span class="sd">            str or index as int (1-1651) to iterate over all space groups&quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -157,12 +155,12 @@
         <span class="n">c</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="nb">id</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">id</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>  <span class="c1"># remove any white space</span>
-            <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM space_groups WHERE BNS_label=?;&#39;</span><span class="p">,</span> <span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="p">))</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM space_groups WHERE BNS_label=?;&#39;</span><span class="p">,</span> <span class="p">(</span><span class="nb">id</span><span class="p">,))</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM space_groups WHERE BNS1=? AND BNS2=?;&#39;</span><span class="p">,</span> <span class="p">(</span><span class="nb">id</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">id</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="c1"># OG3 index is a &#39;master&#39; index, going from 1 to 1651</span>
-            <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM space_groups WHERE OG3=?;&#39;</span><span class="p">,</span> <span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="p">))</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM space_groups WHERE OG3=?;&#39;</span><span class="p">,</span> <span class="p">(</span><span class="nb">id</span><span class="p">,))</span>
         <span class="n">raw_data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">fetchone</span><span class="p">())</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;magtype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">raw_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># int from 1 to 4</span>
@@ -173,8 +171,8 @@
 
         <span class="k">def</span> <span class="nf">_get_point_operator</span><span class="p">(</span><span class="n">idx</span><span class="p">):</span>
             <span class="sd">&#39;&#39;&#39;Retrieve information on point operator (rotation matrix and Seitz label).&#39;&#39;&#39;</span>
-            <span class="nb">hex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;bns_number&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">168</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;bns_number&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">194</span>
-            <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;SELECT symbol, matrix FROM point_operators WHERE idx=? AND hex=?;&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">idx</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nb">hex</span><span class="p">))</span>
+            <span class="nb">hex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;bns_number&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">143</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;bns_number&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">194</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;SELECT symbol, matrix FROM point_operators WHERE idx=? AND hex=?;&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">hex</span><span class="p">))</span>
             <span class="n">op</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
             <span class="n">op</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;symbol&#39;</span><span class="p">:</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;matrix&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;f&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)}</span>
             <span class="k">return</span> <span class="n">op</span>
@@ -183,13 +181,13 @@
             <span class="sd">&#39;&#39;&#39;Parses compact binary representation into list of MagSymmOps.&#39;&#39;&#39;</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># e.g. if magtype != 4, OG setting == BNS setting, and b == [] for OG symmops</span>
                 <span class="k">return</span> <span class="kc">None</span>
-            <span class="n">raw_symops</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">6</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">),</span> <span class="mi">6</span><span class="p">)]</span>
+            <span class="n">raw_symops</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="mi">6</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">),</span> <span class="mi">6</span><span class="p">)]</span>
 
             <span class="n">symops</span> <span class="o">=</span> <span class="p">[]</span>
 
             <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">raw_symops</span><span class="p">:</span>
                 <span class="n">point_operator</span> <span class="o">=</span> <span class="n">_get_point_operator</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-                <span class="n">translation_vec</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">r</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">/</span><span class="n">r</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">/</span><span class="n">r</span><span class="p">[</span><span class="mi">4</span><span class="p">]]</span>
+                <span class="n">translation_vec</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">r</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">r</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">/</span> <span class="n">r</span><span class="p">[</span><span class="mi">4</span><span class="p">]]</span>
                 <span class="n">time_reversal</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
                 <span class="n">op</span> <span class="o">=</span> <span class="n">MagSymmOp</span><span class="o">.</span><span class="n">from_rotation_and_translation_and_time_reversal</span><span class="p">(</span><span class="n">rotation_matrix</span><span class="o">=</span><span class="n">point_operator</span><span class="p">[</span><span class="s1">&#39;matrix&#39;</span><span class="p">],</span>
                                                                                <span class="n">translation_vec</span><span class="o">=</span><span class="n">translation_vec</span><span class="p">,</span>
@@ -214,7 +212,7 @@
 
             <span class="k">def</span> <span class="nf">get_label</span><span class="p">(</span><span class="n">idx</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">idx</span> <span class="o">&lt;=</span> <span class="mi">25</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">97</span><span class="o">+</span><span class="n">idx</span><span class="p">)</span>  <span class="c1"># returns a-z when idx 0-25</span>
+                    <span class="k">return</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">97</span> <span class="o">+</span> <span class="n">idx</span><span class="p">)</span>  <span class="c1"># returns a-z when idx 0-25</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">return</span> <span class="s1">&#39;alpha&#39;</span>  <span class="c1"># when a-z labels exhausted, use alpha, only relevant for a few space groups</span>
 
@@ -222,18 +220,18 @@
             <span class="n">n</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># nth Wyckoff site</span>
             <span class="n">num_wyckoff</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">wyckoff_sites</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">num_wyckoff</span><span class="p">:</span>
-                <span class="n">m</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="o">+</span><span class="n">o</span><span class="p">]</span>  <span class="c1"># multiplicity</span>
-                <span class="n">label</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="o">+</span><span class="n">o</span><span class="p">]</span><span class="o">*</span><span class="n">m</span><span class="p">)</span><span class="o">+</span><span class="n">get_label</span><span class="p">(</span><span class="n">num_wyckoff</span><span class="o">-</span><span class="n">n</span><span class="p">)</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="mi">1</span> <span class="o">+</span> <span class="n">o</span><span class="p">]</span>  <span class="c1"># multiplicity</span>
+                <span class="n">label</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">2</span> <span class="o">+</span> <span class="n">o</span><span class="p">]</span> <span class="o">*</span> <span class="n">m</span><span class="p">)</span> <span class="o">+</span> <span class="n">get_label</span><span class="p">(</span><span class="n">num_wyckoff</span> <span class="o">-</span> <span class="n">n</span><span class="p">)</span>
                 <span class="n">sites</span> <span class="o">=</span> <span class="p">[]</span>
                 <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
-                    <span class="n">s</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="mi">3</span><span class="o">+</span><span class="n">o</span><span class="o">+</span><span class="p">(</span><span class="n">j</span><span class="o">*</span><span class="mi">22</span><span class="p">):</span><span class="mi">3</span><span class="o">+</span><span class="n">o</span><span class="o">+</span><span class="p">(</span><span class="n">j</span><span class="o">*</span><span class="mi">22</span><span class="p">)</span><span class="o">+</span><span class="mi">22</span><span class="p">]</span>  <span class="c1"># data corresponding to specific Wyckoff position</span>
-                    <span class="n">translation_vec</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">s</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">s</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">/</span><span class="n">s</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span>
-                    <span class="n">matrix</span> <span class="o">=</span> <span class="p">[[</span><span class="n">s</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">6</span><span class="p">]],</span>
-                              <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">8</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">9</span><span class="p">]],</span>
-                              <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="mi">10</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">11</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">12</span><span class="p">]]]</span>
-                    <span class="n">matrix_magmom</span> <span class="o">=</span> <span class="p">[[</span><span class="n">s</span><span class="p">[</span><span class="mi">13</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">14</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">15</span><span class="p">]],</span>
-                                     <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="mi">16</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">17</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">18</span><span class="p">]],</span>
-                                     <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="mi">19</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">20</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">21</span><span class="p">]]]</span>
+                    <span class="n">s</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="mi">3</span> <span class="o">+</span> <span class="n">o</span> <span class="o">+</span> <span class="p">(</span><span class="n">j</span> <span class="o">*</span> <span class="mi">22</span><span class="p">):</span><span class="mi">3</span> <span class="o">+</span> <span class="n">o</span> <span class="o">+</span> <span class="p">(</span><span class="n">j</span> <span class="o">*</span> <span class="mi">22</span><span class="p">)</span> <span class="o">+</span> <span class="mi">22</span><span class="p">]</span>  <span class="c1"># data corresponding to specific Wyckoff position</span>
+                    <span class="n">translation_vec</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">s</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">s</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">s</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span>
+                    <span class="n">matrix</span> <span class="o">=</span> <span class="p">[[</span><span class="n">s</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">10</span><span class="p">]],</span>
+                              <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">8</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">11</span><span class="p">]],</span>
+                              <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">9</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">12</span><span class="p">]]]</span>
+                    <span class="n">matrix_magmom</span> <span class="o">=</span> <span class="p">[[</span><span class="n">s</span><span class="p">[</span><span class="mi">13</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">16</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">19</span><span class="p">]],</span>
+                                     <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="mi">14</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">17</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">20</span><span class="p">]],</span>
+                                     <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="mi">15</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">18</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">21</span><span class="p">]]]</span>
                     <span class="c1"># store string representation, e.g. (x,y,z;mx,my,mz)</span>
                     <span class="n">wyckoff_str</span> <span class="o">=</span> <span class="s2">&quot;(</span><span class="si">{}</span><span class="s2">;</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">transformation_to_string</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">translation_vec</span><span class="p">),</span>
                                                    <span class="n">transformation_to_string</span><span class="p">(</span><span class="n">matrix_magmom</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;m&#39;</span><span class="p">))</span>
@@ -247,7 +245,7 @@
                 <span class="n">wyckoff_sites</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">label</span><span class="p">,</span>
                                       <span class="s1">&#39;str&#39;</span><span class="p">:</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;str&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">])})</span>
                 <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="n">o</span> <span class="o">+=</span> <span class="n">m</span><span class="o">*</span><span class="mi">22</span> <span class="o">+</span> <span class="mi">2</span>
+                <span class="n">o</span> <span class="o">+=</span> <span class="n">m</span> <span class="o">*</span> <span class="mi">22</span> <span class="o">+</span> <span class="mi">2</span>
 
             <span class="k">return</span> <span class="n">wyckoff_sites</span>
 
@@ -255,15 +253,15 @@
             <span class="sd">&#39;&#39;&#39;Parses compact binary representation into list of lattice vectors/centerings.&#39;&#39;&#39;</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">None</span>
-            <span class="n">raw_lattice</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">4</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">),</span> <span class="mi">4</span><span class="p">)]</span>
+            <span class="n">raw_lattice</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="mi">4</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">),</span> <span class="mi">4</span><span class="p">)]</span>
 
             <span class="n">lattice</span> <span class="o">=</span> <span class="p">[]</span>
 
             <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">raw_lattice</span><span class="p">:</span>
-                <span class="n">lattice</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;vector&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">r</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">r</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">/</span><span class="n">r</span><span class="p">[</span><span class="mi">3</span><span class="p">]],</span>
-                                <span class="s1">&#39;str&#39;</span><span class="p">:</span> <span class="s1">&#39;(</span><span class="si">{0}</span><span class="s1">,</span><span class="si">{1}</span><span class="s1">,</span><span class="si">{2}</span><span class="s1">)+&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">Fraction</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">r</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span><span class="o">.</span><span class="n">limit_denominator</span><span class="p">(),</span>
-                                                               <span class="n">Fraction</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">r</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span><span class="o">.</span><span class="n">limit_denominator</span><span class="p">(),</span>
-                                                               <span class="n">Fraction</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">/</span><span class="n">r</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span><span class="o">.</span><span class="n">limit_denominator</span><span class="p">())})</span>
+                <span class="n">lattice</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;vector&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">r</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">r</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">r</span><span class="p">[</span><span class="mi">3</span><span class="p">]],</span>
+                                <span class="s1">&#39;str&#39;</span><span class="p">:</span> <span class="s1">&#39;(</span><span class="si">{0}</span><span class="s1">,</span><span class="si">{1}</span><span class="s1">,</span><span class="si">{2}</span><span class="s1">)+&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">Fraction</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">r</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span><span class="o">.</span><span class="n">limit_denominator</span><span class="p">(),</span>
+                                                               <span class="n">Fraction</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">r</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span><span class="o">.</span><span class="n">limit_denominator</span><span class="p">(),</span>
+                                                               <span class="n">Fraction</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">r</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span><span class="o">.</span><span class="n">limit_denominator</span><span class="p">())})</span>
 
             <span class="k">return</span> <span class="n">lattice</span>
 
@@ -273,10 +271,10 @@
                 <span class="k">return</span> <span class="kc">None</span>
             <span class="c1"># capital letters used here by convention,</span>
             <span class="c1"># IUCr defines P and p specifically</span>
-            <span class="n">P</span> <span class="o">=</span> <span class="p">[[</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span>
-                 <span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">5</span><span class="p">]],</span>
-                 <span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">8</span><span class="p">]]]</span>
-            <span class="n">p</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span><span class="o">/</span><span class="n">b</span><span class="p">[</span><span class="mi">12</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span><span class="o">/</span><span class="n">b</span><span class="p">[</span><span class="mi">12</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">11</span><span class="p">]</span><span class="o">/</span><span class="n">b</span><span class="p">[</span><span class="mi">12</span><span class="p">]]</span>
+            <span class="n">P</span> <span class="o">=</span> <span class="p">[[</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">6</span><span class="p">]],</span>
+                 <span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">7</span><span class="p">]],</span>
+                 <span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">8</span><span class="p">]]]</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span> <span class="o">/</span> <span class="n">b</span><span class="p">[</span><span class="mi">12</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">/</span> <span class="n">b</span><span class="p">[</span><span class="mi">12</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">11</span><span class="p">]</span> <span class="o">/</span> <span class="n">b</span><span class="p">[</span><span class="mi">12</span><span class="p">]]</span>
             <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">P</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
             <span class="n">P_string</span> <span class="o">=</span> <span class="n">transformation_to_string</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">components</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">))</span>
             <span class="n">p_string</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">,</span><span class="si">{}</span><span class="s2">,</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">Fraction</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">limit_denominator</span><span class="p">(),</span>
@@ -287,7 +285,7 @@
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">15</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">raw_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">array</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">raw_data</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>  <span class="c1"># construct array from sql binary blobs</span>
-            <span class="k">except</span><span class="p">:</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                 <span class="c1"># array() behavior changed, need to explicitly convert buffer to str in earlier Python</span>
                 <span class="n">raw_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">array</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">raw_data</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
 
@@ -305,16 +303,16 @@
     <span class="k">def</span> <span class="nf">from_og</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize from Opechowski and Guccione (OG) label or number.</span>
-<span class="sd">        </span>
+
 <span class="sd">        :param id: OG number supplied as list of 3 ints or</span>
-<span class="sd">        or OG label as str</span>
-<span class="sd">        :return: </span>
+<span class="sd">            or OG label as str</span>
+<span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">db</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">MAGSYMM_DATA</span><span class="p">)</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;SELECT BNS_label FROM space_groups WHERE OG_label=?&#39;</span><span class="p">,</span> <span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="p">))</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;SELECT BNS_label FROM space_groups WHERE OG_label=?&#39;</span><span class="p">,</span> <span class="p">(</span><span class="nb">id</span><span class="p">,))</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;SELECT BNS_label FROM space_groups WHERE OG1=? and OG2=? and OG3=?&#39;</span><span class="p">,</span> <span class="p">(</span><span class="nb">id</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">id</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="nb">id</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
         <span class="n">bns_label</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
@@ -370,7 +368,7 @@
                                                                                        <span class="n">time_reversal</span><span class="o">=</span><span class="n">op</span><span class="o">.</span><span class="n">time_reversal</span><span class="p">)</span>
                     <span class="n">centered_ops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_op</span><span class="p">)</span>
 
-        <span class="n">ops</span> <span class="o">=</span> <span class="n">ops</span><span class="o">+</span><span class="n">centered_ops</span>
+        <span class="n">ops</span> <span class="o">=</span> <span class="n">ops</span> <span class="o">+</span> <span class="n">centered_ops</span>
 
         <span class="k">return</span> <span class="n">ops</span>
 
@@ -380,7 +378,7 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            p: Point as a 3x1 array.</span>
-<span class="sd">            m: A magnetic moment, compatible with </span>
+<span class="sd">            m: A magnetic moment, compatible with</span>
 <span class="sd">            :class:`pymatgen.electronic_structure.core.Magmom`</span>
 <span class="sd">            tol: Tolerance for determining if sites are the same. 1e-5 should</span>
 <span class="sd">                be sufficient for most purposes. Set to 0 for exact matching</span>
@@ -422,20 +420,17 @@
 
         <span class="k">if</span> <span class="n">crys_system</span> <span class="o">==</span> <span class="s2">&quot;cubic&quot;</span><span class="p">:</span>
             <span class="n">a</span> <span class="o">=</span> <span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="k">return</span> <span class="n">check</span><span class="p">(</span><span class="n">abc</span><span class="p">,</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">],</span> <span class="n">tol</span><span class="p">)</span> <span class="ow">and</span>\
-                <span class="n">check</span><span class="p">(</span><span class="n">angles</span><span class="p">,</span> <span class="p">[</span><span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">],</span> <span class="n">angle_tol</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">check</span><span class="p">(</span><span class="n">abc</span><span class="p">,</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">],</span> <span class="n">tol</span><span class="p">)</span> <span class="ow">and</span> <span class="n">check</span><span class="p">(</span><span class="n">angles</span><span class="p">,</span> <span class="p">[</span><span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">],</span> <span class="n">angle_tol</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">crys_system</span> <span class="o">==</span> <span class="s2">&quot;hexagonal&quot;</span> <span class="ow">or</span> <span class="p">(</span><span class="n">crys_system</span> <span class="o">==</span> <span class="s2">&quot;trigonal&quot;</span> <span class="ow">and</span>
                                             <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;H&quot;</span><span class="p">)):</span>
             <span class="n">a</span> <span class="o">=</span> <span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="k">return</span> <span class="n">check</span><span class="p">(</span><span class="n">abc</span><span class="p">,</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">tol</span><span class="p">)</span>\
-                <span class="ow">and</span> <span class="n">check</span><span class="p">(</span><span class="n">angles</span><span class="p">,</span> <span class="p">[</span><span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">120</span><span class="p">],</span> <span class="n">angle_tol</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">check</span><span class="p">(</span><span class="n">abc</span><span class="p">,</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">tol</span><span class="p">)</span> <span class="ow">and</span> <span class="n">check</span><span class="p">(</span><span class="n">angles</span><span class="p">,</span> <span class="p">[</span><span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">120</span><span class="p">],</span> <span class="n">angle_tol</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">crys_system</span> <span class="o">==</span> <span class="s2">&quot;trigonal&quot;</span><span class="p">:</span>
             <span class="n">a</span> <span class="o">=</span> <span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">return</span> <span class="n">check</span><span class="p">(</span><span class="n">abc</span><span class="p">,</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">],</span> <span class="n">tol</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">crys_system</span> <span class="o">==</span> <span class="s2">&quot;tetragonal&quot;</span><span class="p">:</span>
             <span class="n">a</span> <span class="o">=</span> <span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="k">return</span> <span class="n">check</span><span class="p">(</span><span class="n">abc</span><span class="p">,</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">tol</span><span class="p">)</span> <span class="ow">and</span>\
-                <span class="n">check</span><span class="p">(</span><span class="n">angles</span><span class="p">,</span> <span class="p">[</span><span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">],</span> <span class="n">angle_tol</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">check</span><span class="p">(</span><span class="n">abc</span><span class="p">,</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">tol</span><span class="p">)</span> <span class="ow">and</span> <span class="n">check</span><span class="p">(</span><span class="n">angles</span><span class="p">,</span> <span class="p">[</span><span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">],</span> <span class="n">angle_tol</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">crys_system</span> <span class="o">==</span> <span class="s2">&quot;orthorhombic&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">check</span><span class="p">(</span><span class="n">angles</span><span class="p">,</span> <span class="p">[</span><span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">],</span> <span class="n">angle_tol</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">crys_system</span> <span class="o">==</span> <span class="s2">&quot;monoclinic&quot;</span><span class="p">:</span>
@@ -467,10 +462,10 @@
                                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;bns_lattice&#39;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">3</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>  <span class="c1"># don&#39;t show (1,0,0)+ (0,1,0)+ (0,0,1)+</span>
 
         <span class="n">desc</span><span class="p">[</span><span class="s1">&#39;bns_wyckoff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">textwrap</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">wyckoff_data</span><span class="p">[</span><span class="s1">&#39;str&#39;</span><span class="p">],</span>
-                                                       <span class="n">initial_indent</span><span class="o">=</span><span class="n">wyckoff_data</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span><span class="o">+</span><span class="s2">&quot;  &quot;</span><span class="p">,</span>
-                                                       <span class="n">subsequent_indent</span><span class="o">=</span><span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">wyckoff_data</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span><span class="o">+</span><span class="s2">&quot;  &quot;</span><span class="p">),</span>
+                                                       <span class="n">initial_indent</span><span class="o">=</span><span class="n">wyckoff_data</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;  &quot;</span><span class="p">,</span>
+                                                       <span class="n">subsequent_indent</span><span class="o">=</span><span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">wyckoff_data</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;  &quot;</span><span class="p">),</span>
                                                        <span class="n">break_long_words</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">break_on_hyphens</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-                                        <span class="k">for</span> <span class="n">wyckoff_data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;bns_wyckoff&#39;</span><span class="p">]])</span>
+                                         <span class="k">for</span> <span class="n">wyckoff_data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;bns_wyckoff&#39;</span><span class="p">]])</span>
 
         <span class="n">desc</span><span class="p">[</span><span class="s1">&#39;og_bns_transformation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;OG-BNS Transform: (</span><span class="si">{}</span><span class="s1">)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;og_bns_transform&#39;</span><span class="p">])</span>
                                          <span class="k">if</span> <span class="n">desc</span><span class="p">[</span><span class="s1">&#39;magtype&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">4</span> <span class="ow">and</span> <span class="n">include_og</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
@@ -530,12 +525,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_str</span><span class="p">(</span><span class="n">include_og</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 
+
 <span class="k">def</span> <span class="nf">_write_all_magnetic_space_groups_to_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Write all magnetic space groups to a human-readable text file.</span>
 <span class="sd">    Should contain same information as text files provided by ISO-MAG.</span>
-<span class="sd">    :param filename: </span>
-<span class="sd">    :return: </span>
+<span class="sd">    :param filename:</span>
+<span class="sd">    :return:</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Data parsed from raw data from:</span><span class="se">\n</span><span class="s1">&#39;</span>
          <span class="s1">&#39;ISO-MAG, ISOTROPY Software Suite, iso.byu.edu</span><span class="se">\n</span><span class="s1">&#39;</span>
@@ -557,13 +553,11 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -581,7 +575,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -589,7 +583,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

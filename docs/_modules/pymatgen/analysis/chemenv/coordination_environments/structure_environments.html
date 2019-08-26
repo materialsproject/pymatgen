@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.chemenv.coordination_environments.structure_environments &#8212; pymatgen 2019.3.13 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.chemenv.coordination_environments.structure_environments &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="../../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -68,7 +66,6 @@
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;david.waroquiers@gmail.com&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Feb 20, 2016&quot;</span>
 
-
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.sites</span> <span class="k">import</span> <span class="n">PeriodicSite</span>
@@ -84,6 +81,7 @@
 <span class="n">allcg</span> <span class="o">=</span> <span class="n">AllCoordinationGeometries</span><span class="p">()</span>
 <span class="n">symbol_cn_mapping</span> <span class="o">=</span> <span class="n">allcg</span><span class="o">.</span><span class="n">get_symbol_cn_mapping</span><span class="p">()</span>
 
+
 <div class="viewcode-block" id="StructureEnvironments"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments">[docs]</a><span class="k">class</span> <span class="nc">StructureEnvironments</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class used to store the chemical environments of a given structure.</span>
@@ -94,6 +92,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Class used to store a given set of neighbors of a given site (based on the detailed_voronoi).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">isite</span><span class="p">,</span> <span class="n">detailed_voronoi</span><span class="p">,</span> <span class="n">site_voronoi_indices</span><span class="p">,</span> <span class="n">sources</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">isite</span> <span class="o">=</span> <span class="n">isite</span>
@@ -155,7 +154,7 @@
 
         <span class="nd">@property</span>
         <span class="k">def</span> <span class="nf">sphere_fraction_angles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-            <span class="k">return</span> <span class="p">[</span><span class="mf">0.25</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">voronoi</span><span class="p">[</span><span class="n">inb</span><span class="p">][</span><span class="s1">&#39;angle&#39;</span><span class="p">]</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="k">for</span> <span class="n">inb</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_voronoi_indices</span><span class="p">]</span>
+            <span class="k">return</span> <span class="p">[</span><span class="mf">0.25</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">voronoi</span><span class="p">[</span><span class="n">inb</span><span class="p">][</span><span class="s1">&#39;angle&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="k">for</span> <span class="n">inb</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_voronoi_indices</span><span class="p">]</span>
 
         <span class="nd">@property</span>
         <span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -198,7 +197,7 @@
                     <span class="k">if</span> <span class="n">idist</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                         <span class="n">plateau</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="n">plateau</span> <span class="o">=</span> <span class="n">all_nbs_normalized_distances_sorted</span><span class="p">[</span><span class="n">idist</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">maxdist</span>
+                        <span class="n">plateau</span> <span class="o">=</span> <span class="n">all_nbs_normalized_distances_sorted</span><span class="p">[</span><span class="n">idist</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">maxdist</span>
                     <span class="k">break</span>
             <span class="k">if</span> <span class="n">plateau</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Plateau not found ...&#39;</span><span class="p">)</span>
@@ -218,7 +217,7 @@
                     <span class="k">if</span> <span class="n">iang</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                         <span class="n">plateau</span> <span class="o">=</span> <span class="n">minang</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="n">plateau</span> <span class="o">=</span> <span class="n">minang</span> <span class="o">-</span> <span class="n">all_nbs_normalized_angles_sorted</span><span class="p">[</span><span class="n">iang</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="n">plateau</span> <span class="o">=</span> <span class="n">minang</span> <span class="o">-</span> <span class="n">all_nbs_normalized_angles_sorted</span><span class="p">[</span><span class="n">iang</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
                     <span class="k">break</span>
             <span class="k">if</span> <span class="n">plateau</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Plateau not found ...&#39;</span><span class="p">)</span>
@@ -314,14 +313,14 @@
             <span class="n">move_ap_index</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
                 <span class="n">last_pt</span> <span class="o">=</span> <span class="n">sorted_points</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-                <span class="k">if</span> <span class="n">move_ap_index</span><span class="p">:</span> <span class="c1"># &quot;Move&quot; the angle parameter</span>
+                <span class="k">if</span> <span class="n">move_ap_index</span><span class="p">:</span>  <span class="c1"># &quot;Move&quot; the angle parameter</span>
                     <span class="n">idp</span> <span class="o">=</span> <span class="n">last_pt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                     <span class="n">iap</span> <span class="o">=</span> <span class="kc">None</span>
                     <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">new_pts</span><span class="p">:</span>
                         <span class="k">if</span> <span class="n">pt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">idp</span> <span class="ow">and</span> <span class="n">pt</span> <span class="o">!=</span> <span class="n">last_pt</span><span class="p">:</span>
                             <span class="n">iap</span> <span class="o">=</span> <span class="n">pt</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
                             <span class="k">break</span>
-                <span class="k">else</span><span class="p">:</span>             <span class="c1"># &quot;Move&quot; the distance parameter</span>
+                <span class="k">else</span><span class="p">:</span>  <span class="c1"># &quot;Move&quot; the distance parameter</span>
                     <span class="n">idp</span> <span class="o">=</span> <span class="kc">None</span>
                     <span class="n">iap</span> <span class="o">=</span> <span class="n">last_pt</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
                     <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">new_pts</span><span class="p">:</span>
@@ -389,7 +388,7 @@
 <span class="sd">        :param sites_map: Mapping of equivalent sites to the unequivalent sites that have been computed.</span>
 <span class="sd">        :param equivalent_sites: List of list of equivalent sites of the structure</span>
 <span class="sd">        :param struct_sites_to_irreducible_site_list_map: Maps the index of a site to the index of the item in the</span>
-<span class="sd">        list of equivalent sites to which the site belongs.</span>
+<span class="sd">            list of equivalent sites to which the site belongs.</span>
 <span class="sd">        :param ce_list: List of chemical environments</span>
 <span class="sd">        :param structure: Structure object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -397,7 +396,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">valences</span> <span class="o">=</span> <span class="n">valences</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sites_map</span> <span class="o">=</span> <span class="n">sites_map</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">equivalent_sites</span> <span class="o">=</span> <span class="n">equivalent_sites</span>
-        <span class="c1">#self.struct_sites_to_irreducible_site_list_map = struct_sites_to_irreducible_site_list_map</span>
+        <span class="c1"># self.struct_sites_to_irreducible_site_list_map = struct_sites_to_irreducible_site_list_map</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ce_list</span> <span class="o">=</span> <span class="n">ce_list</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
         <span class="k">if</span> <span class="n">neighbors_sets</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -412,8 +411,7 @@
             <span class="k">return</span>
         <span class="k">if</span> <span class="n">additional_conditions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">additional_conditions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">AC</span><span class="o">.</span><span class="n">ALL</span>
-        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">AC</span><span class="o">.</span><span class="n">ONLY_ACB</span> <span class="ow">in</span> <span class="n">additional_conditions</span> <span class="ow">or</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">AC</span><span class="o">.</span><span class="n">ONLY_ACB_AND_NO_E2SEB</span><span class="p">)</span> <span class="ow">and</span> <span class="n">valences</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">AC</span><span class="o">.</span><span class="n">ONLY_ACB</span> <span class="ow">in</span> <span class="n">additional_conditions</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">AC</span><span class="o">.</span><span class="n">ONLY_ACB_AND_NO_E2SEB</span><span class="p">)</span> <span class="ow">and</span> <span class="n">valences</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ChemenvError</span><span class="p">(</span><span class="s1">&#39;StructureEnvironments&#39;</span><span class="p">,</span> <span class="s1">&#39;init_neighbors_sets&#39;</span><span class="p">,</span>
                                <span class="s1">&#39;Valences are not given while only_anion_cation_bonds are allowed. Cannot continue&#39;</span><span class="p">)</span>
         <span class="n">site_distance_parameters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">voronoi</span><span class="o">.</span><span class="n">neighbors_normalized_distances</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span>
@@ -544,9 +542,9 @@
 <span class="sd">        :param plot_type: How to plot the coordinations</span>
 <span class="sd">        :param title: Title for the figure</span>
 <span class="sd">        :param max_dist: Maximum distance to be plotted when the plotting of the distance is set to &#39;initial_normalized&#39;</span>
-<span class="sd">                         or &#39;initial_real&#39; (Warning: this is not the same meaning in both cases! In the first case,</span>
-<span class="sd">                         the closest atom lies at a &quot;normalized&quot; distance of 1.0 so that 2.0 means refers to this</span>
-<span class="sd">                         normalized distance while in the second case, the real distance is used)</span>
+<span class="sd">            or &#39;initial_real&#39; (Warning: this is not the same meaning in both cases! In the first case, the closest atom</span>
+<span class="sd">            lies at a &quot;normalized&quot; distance of 1.0 so that 2.0 means refers to this normalized distance while in the</span>
+<span class="sd">            second case, the real distance is used)</span>
 <span class="sd">        :param figsize: Size of the figure to be plotted</span>
 <span class="sd">        :return: Nothing returned, just plot the figure</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -599,7 +597,7 @@
                 <span class="k">for</span> <span class="n">mp_symbol</span><span class="p">,</span> <span class="n">cg_dict</span> <span class="ow">in</span> <span class="n">mingeoms</span><span class="p">:</span>
                     <span class="n">csm</span> <span class="o">=</span> <span class="n">cg_dict</span><span class="p">[</span><span class="s1">&#39;other_symmetry_measures&#39;</span><span class="p">][</span><span class="n">symmetry_measure_type</span><span class="p">]</span>
                     <span class="n">subplot</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ix</span><span class="p">,</span> <span class="n">csm</span><span class="p">,</span> <span class="s1">&#39;ob&#39;</span><span class="p">)</span>
-                    <span class="n">subplot</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">mp_symbol</span><span class="p">,</span> <span class="n">xy</span> <span class="o">=</span> <span class="p">(</span><span class="n">ix</span><span class="p">,</span> <span class="n">csm</span><span class="p">))</span>
+                    <span class="n">subplot</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">mp_symbol</span><span class="p">,</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="n">ix</span><span class="p">,</span> <span class="n">csm</span><span class="p">))</span>
                 <span class="n">cn_maps</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">cn</span><span class="p">,</span> <span class="n">inb_set</span><span class="p">))</span>
                 <span class="n">ix</span> <span class="o">+=</span> <span class="mi">1</span>
 
@@ -625,7 +623,7 @@
             <span class="n">ymax_wd</span> <span class="o">=</span> <span class="mf">2.5</span>
             <span class="n">yticks_wd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">ymax_wd</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">ymax_wd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="mf">1.1</span><span class="o">*</span><span class="n">max_wd</span><span class="p">)</span>
+            <span class="n">ymax_wd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="mf">1.1</span> <span class="o">*</span> <span class="n">max_wd</span><span class="p">)</span>
             <span class="n">yticks_wd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">ymax_wd</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
 
         <span class="n">yticks_wa</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
@@ -639,24 +637,22 @@
         <span class="n">ydmax</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">frac_top</span>
 
         <span class="k">def</span> <span class="nf">yang</span><span class="p">(</span><span class="n">wa</span><span class="p">):</span>
-            <span class="k">return</span> <span class="p">(</span><span class="n">yamax</span><span class="o">-</span><span class="n">yamin</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">wa</span><span class="p">)</span> <span class="o">+</span> <span class="n">yamin</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">yamax</span> <span class="o">-</span> <span class="n">yamin</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">wa</span><span class="p">)</span> <span class="o">+</span> <span class="n">yamin</span>
 
         <span class="k">def</span> <span class="nf">ydist</span><span class="p">(</span><span class="n">wd</span><span class="p">):</span>
             <span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">wd</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">ymax_wd</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">ydmax</span> <span class="o">-</span> <span class="n">ydmin</span><span class="p">)</span> <span class="o">+</span> <span class="n">ydmin</span>
 
         <span class="k">for</span> <span class="n">ix</span><span class="p">,</span> <span class="n">was</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">all_was</span><span class="p">):</span>
-            <span class="n">subplot_distang</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="mf">0.2</span><span class="o">+</span><span class="n">ix</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">was</span><span class="p">),</span> <span class="n">yang</span><span class="p">(</span><span class="n">was</span><span class="p">),</span> <span class="s1">&#39;&lt;g&#39;</span><span class="p">)</span>
+            <span class="n">subplot_distang</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="mf">0.2</span> <span class="o">+</span> <span class="n">ix</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">was</span><span class="p">),</span> <span class="n">yang</span><span class="p">(</span><span class="n">was</span><span class="p">),</span> <span class="s1">&#39;&lt;g&#39;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">ix</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.3</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.1</span>
-            <span class="n">subplot_distang</span><span class="o">.</span><span class="n">fill_between</span><span class="p">([</span><span class="o">-</span><span class="mf">0.5</span><span class="o">+</span><span class="n">ix</span><span class="p">,</span> <span class="mf">0.5</span><span class="o">+</span><span class="n">ix</span><span class="p">],</span>
+            <span class="n">subplot_distang</span><span class="o">.</span><span class="n">fill_between</span><span class="p">([</span><span class="o">-</span><span class="mf">0.5</span> <span class="o">+</span> <span class="n">ix</span><span class="p">,</span> <span class="mf">0.5</span> <span class="o">+</span> <span class="n">ix</span><span class="p">],</span>
                                          <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">,</span>
                                          <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=-</span><span class="mi">1000</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">ix</span><span class="p">,</span> <span class="n">wds</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">all_wds</span><span class="p">):</span>
-            <span class="n">subplot_distang</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="mf">0.2</span><span class="o">+</span><span class="n">ix</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">wds</span><span class="p">),</span> <span class="n">ydist</span><span class="p">(</span><span class="n">wds</span><span class="p">),</span> <span class="s1">&#39;sm&#39;</span><span class="p">)</span>
-
-
+            <span class="n">subplot_distang</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="mf">0.2</span> <span class="o">+</span> <span class="n">ix</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">wds</span><span class="p">),</span> <span class="n">ydist</span><span class="p">(</span><span class="n">wds</span><span class="p">),</span> <span class="s1">&#39;sm&#39;</span><span class="p">)</span>
 
         <span class="n">subplot_distang</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">cn_maps</span><span class="p">)],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span> <span class="s1">&#39;k--&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 
@@ -678,12 +674,11 @@
         <span class="n">fake_subplot_ang</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_label_position</span><span class="p">(</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
         <span class="n">fake_subplot_dist</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_label_position</span><span class="p">(</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
 
-
         <span class="n">subplot_distang</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">])</span>
         <span class="n">subplot</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cn_maps</span><span class="p">)))</span>
         <span class="n">subplot</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Continuous symmetry measure&#39;</span><span class="p">)</span>
-        <span class="n">subplot</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">cn_maps</span><span class="p">)</span><span class="o">-</span><span class="mf">0.5</span><span class="p">])</span>
-        <span class="n">subplot_distang</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">cn_maps</span><span class="p">)</span><span class="o">-</span><span class="mf">0.5</span><span class="p">])</span>
+        <span class="n">subplot</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">cn_maps</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">])</span>
+        <span class="n">subplot_distang</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">cn_maps</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">])</span>
         <span class="n">subplot</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">cn_map</span><span class="p">)</span> <span class="k">for</span> <span class="n">cn_map</span> <span class="ow">in</span> <span class="n">cn_maps</span><span class="p">])</span>
 
         <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">subplot</span></div>
@@ -699,9 +694,9 @@
 <span class="sd">        :param plot_type: How to plot the coordinations</span>
 <span class="sd">        :param title: Title for the figure</span>
 <span class="sd">        :param max_dist: Maximum distance to be plotted when the plotting of the distance is set to &#39;initial_normalized&#39;</span>
-<span class="sd">                         or &#39;initial_real&#39; (Warning: this is not the same meaning in both cases! In the first case,</span>
-<span class="sd">                         the closest atom lies at a &quot;normalized&quot; distance of 1.0 so that 2.0 means refers to this</span>
-<span class="sd">                         normalized distance while in the second case, the real distance is used)</span>
+<span class="sd">            or &#39;initial_real&#39; (Warning: this is not the same meaning in both cases! In the first case, the closest atom</span>
+<span class="sd">            lies at a &quot;normalized&quot; distance of 1.0 so that 2.0 means refers to this normalized distance while in the</span>
+<span class="sd">            second case, the real distance is used)</span>
 <span class="sd">        :param figsize: Size of the figure to be plotted</span>
 <span class="sd">        :return: The figure object to be plotted or saved to file</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -714,14 +709,14 @@
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Plotting Chemical Environments requires matplotlib ... exiting &quot;plot&quot; function&#39;</span><span class="p">)</span>
             <span class="k">return</span>
 
-        <span class="c1">#Initializes the figure</span>
+        <span class="c1"># Initializes the figure</span>
         <span class="k">if</span> <span class="n">figsize</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">fig</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">fig</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
         <span class="n">subplot</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
 
-        <span class="c1">#Initializes the distance and angle parameters</span>
+        <span class="c1"># Initializes the distance and angle parameters</span>
         <span class="k">if</span> <span class="n">plot_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">plot_type</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;distance_parameter&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;initial_normalized&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
                          <span class="s1">&#39;angle_parameter&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;initial_normalized_inverted&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)}</span>
@@ -741,10 +736,12 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">exponent</span> <span class="o">=</span> <span class="n">plot_type</span><span class="p">[</span><span class="s1">&#39;distance_parameter&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;exponent&#39;</span><span class="p">]</span>
             <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;Distance parameter : $1.0-</span><span class="se">\\</span><span class="s1">frac{{1.0}}{{</span><span class="se">\\</span><span class="s1">alpha^{{</span><span class="si">{:d}</span><span class="s1">}}}}$&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">exponent</span><span class="p">)</span>
+
             <span class="k">def</span> <span class="nf">dp_func</span><span class="p">(</span><span class="n">dp</span><span class="p">):</span>
-                <span class="k">return</span> <span class="mf">1.0</span><span class="o">-</span><span class="mf">1.0</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">dp</span><span class="p">,</span> <span class="n">exponent</span><span class="p">)</span>
+                <span class="k">return</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">dp</span><span class="p">,</span> <span class="n">exponent</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">plot_type</span><span class="p">[</span><span class="s1">&#39;distance_parameter&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;initial_normalized&#39;</span><span class="p">:</span>
             <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;Distance parameter : $</span><span class="se">\\</span><span class="s1">alpha$&#39;</span>
+
             <span class="k">def</span> <span class="nf">dp_func</span><span class="p">(</span><span class="n">dp</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">dp</span>
         <span class="k">else</span><span class="p">:</span>
@@ -753,10 +750,12 @@
 
         <span class="k">if</span> <span class="n">plot_type</span><span class="p">[</span><span class="s1">&#39;angle_parameter&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;one_minus_gamma&#39;</span><span class="p">:</span>
             <span class="n">ylabel</span> <span class="o">=</span> <span class="s1">&#39;Angle parameter : $1.0-</span><span class="se">\\</span><span class="s1">gamma$&#39;</span>
+
             <span class="k">def</span> <span class="nf">ap_func</span><span class="p">(</span><span class="n">ap</span><span class="p">):</span>
-                <span class="k">return</span> <span class="mf">1.0</span><span class="o">-</span><span class="n">ap</span>
+                <span class="k">return</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">ap</span>
         <span class="k">elif</span> <span class="n">plot_type</span><span class="p">[</span><span class="s1">&#39;angle_parameter&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;initial_normalized_inverted&#39;</span><span class="p">,</span> <span class="s1">&#39;initial_normalized&#39;</span><span class="p">]:</span>
             <span class="n">ylabel</span> <span class="o">=</span> <span class="s1">&#39;Angle parameter : $</span><span class="se">\\</span><span class="s1">gamma$&#39;</span>
+
             <span class="k">def</span> <span class="nf">ap_func</span><span class="p">(</span><span class="n">ap</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">ap</span>
         <span class="k">else</span><span class="p">:</span>
@@ -798,13 +797,13 @@
                                 <span class="p">(</span><span class="n">nb_set_surface_pts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">nb_set_surface_pts</span><span class="p">[</span><span class="n">ipt</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">nb_set_surface_pts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">nb_set_surface_pts</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mf">0.06</span> <span class="ow">and</span>
-                      <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">nb_set_surface_pts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">dist_limits</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="n">nb_set_surface_pts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mf">0.125</span><span class="p">):</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">nb_set_surface_pts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">dist_limits</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="n">nb_set_surface_pts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mf">0.125</span><span class="p">):</span>
                     <span class="n">xytext</span> <span class="o">=</span> <span class="p">((</span><span class="nb">min</span><span class="p">(</span><span class="n">nb_set_surface_pts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">dist_limits</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="n">nb_set_surface_pts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
                               <span class="p">(</span><span class="n">nb_set_surface_pts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">nb_set_surface_pts</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
                     <span class="n">subplot</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">mytext</span><span class="p">,</span> <span class="n">xy</span><span class="o">=</span><span class="n">xytext</span><span class="p">,</span>
                                      <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">myinvcolor</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="s1">&#39;x-small&#39;</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">nb_set_surface_pts</span><span class="p">[</span><span class="n">ipt</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">nb_set_surface_pts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mf">0.1</span> <span class="ow">and</span>
-                    <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">nb_set_surface_pts</span><span class="p">[</span><span class="n">ipt</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">dist_limits</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="n">nb_set_surface_pts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mf">0.125</span><span class="p">):</span>
+                      <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">nb_set_surface_pts</span><span class="p">[</span><span class="n">ipt</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">dist_limits</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="n">nb_set_surface_pts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mf">0.125</span><span class="p">):</span>
                     <span class="n">xytext</span> <span class="o">=</span> <span class="n">patch_center</span>
                     <span class="n">subplot</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">mytext</span><span class="p">,</span> <span class="n">xy</span><span class="o">=</span><span class="n">xytext</span><span class="p">,</span>
                                      <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">myinvcolor</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="s1">&#39;x-small&#39;</span><span class="p">)</span>
@@ -820,7 +819,7 @@
         <span class="k">if</span> <span class="n">strategy</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">strategy</span><span class="o">.</span><span class="n">add_strategy_visualization_to_subplot</span><span class="p">(</span><span class="n">subplot</span><span class="o">=</span><span class="n">subplot</span><span class="p">)</span>
-            <span class="k">except</span><span class="p">:</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                 <span class="k">pass</span>
         <span class="k">if</span> <span class="n">plot_type</span><span class="p">[</span><span class="s1">&#39;angle_parameter&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;initial_normalized_inverted&#39;</span><span class="p">:</span>
             <span class="n">subplot</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
@@ -830,7 +829,7 @@
         <span class="n">cb</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s1">&#39;Continuous symmetry measure&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">subplot</span></div>
 
-<div class="viewcode-block" id="StructureEnvironments.plot_environments"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.plot_environments">[docs]</a>    <span class="k">def</span> <span class="nf">plot_environments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">isite</span><span class="p">,</span> <span class="n">plot_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Coordination numbers&#39;</span><span class="p">,</span> <span class="n">max_dist</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+<div class="viewcode-block" id="StructureEnvironments.plot_environments"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.plot_environments">[docs]</a>    <span class="k">def</span> <span class="nf">plot_environments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isite</span><span class="p">,</span> <span class="n">plot_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Coordination numbers&#39;</span><span class="p">,</span> <span class="n">max_dist</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
                           <span class="n">additional_condition</span><span class="o">=</span><span class="n">AC</span><span class="o">.</span><span class="n">ONLY_ACB</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plotting of the coordination numbers of a given site for all the distfactor/angfactor parameters. If the</span>
@@ -840,9 +839,9 @@
 <span class="sd">        :param plot_type: How to plot the coordinations</span>
 <span class="sd">        :param title: Title for the figure</span>
 <span class="sd">        :param max_dist: Maximum distance to be plotted when the plotting of the distance is set to &#39;initial_normalized&#39;</span>
-<span class="sd">                         or &#39;initial_real&#39; (Warning: this is not the same meaning in both cases! In the first case,</span>
-<span class="sd">                         the closest atom lies at a &quot;normalized&quot; distance of 1.0 so that 2.0 means refers to this</span>
-<span class="sd">                         normalized distance while in the second case, the real distance is used)</span>
+<span class="sd">            or &#39;initial_real&#39; (Warning: this is not the same meaning in both cases! In the first case, the closest atom</span>
+<span class="sd">            lies at a &quot;normalized&quot; distance of 1.0 so that 2.0 means refers to this normalized distance while in the</span>
+<span class="sd">            second case, the real distance is used)</span>
 <span class="sd">        :param figsize: Size of the figure to be plotted</span>
 <span class="sd">        :return: Nothing returned, just plot the figure</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -853,10 +852,10 @@
             <span class="k">return</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="StructureEnvironments.save_environments_figure"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.save_environments_figure">[docs]</a>    <span class="k">def</span> <span class="nf">save_environments_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">isite</span><span class="p">,</span> <span class="n">imagename</span><span class="o">=</span><span class="s1">&#39;image.png&#39;</span><span class="p">,</span> <span class="n">plot_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Coordination numbers&#39;</span><span class="p">,</span>
+<div class="viewcode-block" id="StructureEnvironments.save_environments_figure"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.save_environments_figure">[docs]</a>    <span class="k">def</span> <span class="nf">save_environments_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isite</span><span class="p">,</span> <span class="n">imagename</span><span class="o">=</span><span class="s1">&#39;image.png&#39;</span><span class="p">,</span> <span class="n">plot_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Coordination numbers&#39;</span><span class="p">,</span>
                                  <span class="n">max_dist</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">additional_condition</span><span class="o">=</span><span class="n">AC</span><span class="o">.</span><span class="n">ONLY_ACB</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">fig</span><span class="p">,</span> <span class="n">subplot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_environments_figure</span><span class="p">(</span><span class="n">isite</span><span class="o">=</span><span class="n">isite</span><span class="p">,</span> <span class="n">plot_type</span><span class="o">=</span><span class="n">plot_type</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">max_dist</span><span class="o">=</span><span class="n">max_dist</span><span class="p">,</span>
-                                           <span class="n">additional_condition</span><span class="o">=</span><span class="n">additional_condition</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
+                                                    <span class="n">additional_condition</span><span class="o">=</span><span class="n">additional_condition</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">fig</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">imagename</span><span class="p">)</span></div>
@@ -1069,6 +1068,7 @@
 <span class="sd">        Class used to store a given set of neighbors of a given site (based on a list of sites, the voronoi</span>
 <span class="sd">        container is not part of the LightStructureEnvironments object).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">isite</span><span class="p">,</span> <span class="n">all_nbs_sites</span><span class="p">,</span> <span class="n">all_nbs_sites_indices</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">isite</span> <span class="o">=</span> <span class="n">isite</span>
@@ -1122,7 +1122,7 @@
 <div class="viewcode-block" id="LightStructureEnvironments.NeighborsSet.as_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.NeighborsSet.as_dict">[docs]</a>        <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;isite&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">isite</span><span class="p">,</span>
                     <span class="s1">&#39;all_nbs_sites_indices&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_nbs_sites_indices_unsorted</span><span class="p">}</span></div>
-                    <span class="c1"># &#39;all_nbs_sites_indices_unsorted&#39;: self.all_nbs_sites_indices_unsorted}</span>
+            <span class="c1"># &#39;all_nbs_sites_indices_unsorted&#39;: self.all_nbs_sites_indices_unsorted}</span>
 
 <div class="viewcode-block" id="LightStructureEnvironments.NeighborsSet.from_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.NeighborsSet.from_dict">[docs]</a>        <span class="nd">@classmethod</span>
         <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dd</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">all_nbs_sites</span><span class="p">):</span>
@@ -1218,28 +1218,28 @@
 
 <div class="viewcode-block" id="LightStructureEnvironments.setup_statistic_lists"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.setup_statistic_lists">[docs]</a>    <span class="k">def</span> <span class="nf">setup_statistic_lists</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">statistics_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;valences_origin&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">valences_origin</span><span class="p">,</span>
-                                <span class="s1">&#39;anion_list&#39;</span><span class="p">:</span> <span class="p">{},</span>                                                    <span class="c1"># OK</span>
-                                <span class="s1">&#39;anion_number&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>                                                <span class="c1"># OK</span>
-                                <span class="s1">&#39;anion_atom_list&#39;</span><span class="p">:</span> <span class="p">{},</span>                                               <span class="c1"># OK</span>
-                                <span class="s1">&#39;anion_atom_number&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>                                           <span class="c1"># OK</span>
-                                <span class="s1">&#39;cation_list&#39;</span><span class="p">:</span> <span class="p">{},</span>                                                   <span class="c1"># OK</span>
-                                <span class="s1">&#39;cation_number&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>                                               <span class="c1"># OK</span>
-                                <span class="s1">&#39;cation_atom_list&#39;</span><span class="p">:</span> <span class="p">{},</span>                                              <span class="c1"># OK</span>
-                                <span class="s1">&#39;cation_atom_number&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>                                          <span class="c1"># OK</span>
-                                <span class="s1">&#39;neutral_list&#39;</span><span class="p">:</span> <span class="p">{},</span>                                                  <span class="c1"># OK</span>
-                                <span class="s1">&#39;neutral_number&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>                                              <span class="c1"># OK</span>
-                                <span class="s1">&#39;neutral_atom_list&#39;</span><span class="p">:</span> <span class="p">{},</span>                                             <span class="c1"># OK</span>
-                                <span class="s1">&#39;neutral_atom_number&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>                                         <span class="c1"># OK</span>
-                                <span class="s1">&#39;atom_coordination_environments_present&#39;</span><span class="p">:</span> <span class="p">{},</span>                        <span class="c1"># OK</span>
-                                <span class="s1">&#39;ion_coordination_environments_present&#39;</span><span class="p">:</span> <span class="p">{},</span>                         <span class="c1"># OK</span>
-                                <span class="s1">&#39;coordination_environments_ion_present&#39;</span><span class="p">:</span> <span class="p">{},</span>                         <span class="c1"># OK</span>
-                                <span class="s1">&#39;coordination_environments_atom_present&#39;</span><span class="p">:</span> <span class="p">{},</span>                        <span class="c1"># OK</span>
-                                <span class="s1">&#39;fraction_ion_coordination_environments_present&#39;</span><span class="p">:</span> <span class="p">{},</span>                <span class="c1"># OK</span>
-                                <span class="s1">&#39;fraction_atom_coordination_environments_present&#39;</span><span class="p">:</span> <span class="p">{},</span>               <span class="c1"># OK</span>
-                                <span class="s1">&#39;fraction_coordination_environments_ion_present&#39;</span><span class="p">:</span> <span class="p">{},</span>                <span class="c1"># OK</span>
-                                <span class="s1">&#39;fraction_coordination_environments_atom_present&#39;</span><span class="p">:</span> <span class="p">{},</span>               <span class="c1"># OK</span>
-                                <span class="s1">&#39;count_ion_present&#39;</span><span class="p">:</span> <span class="p">{},</span>                                             <span class="c1"># OK</span>
-                                <span class="s1">&#39;count_atom_present&#39;</span><span class="p">:</span> <span class="p">{},</span>                                            <span class="c1"># OK</span>
+                                <span class="s1">&#39;anion_list&#39;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># OK</span>
+                                <span class="s1">&#39;anion_number&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># OK</span>
+                                <span class="s1">&#39;anion_atom_list&#39;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># OK</span>
+                                <span class="s1">&#39;anion_atom_number&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># OK</span>
+                                <span class="s1">&#39;cation_list&#39;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># OK</span>
+                                <span class="s1">&#39;cation_number&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># OK</span>
+                                <span class="s1">&#39;cation_atom_list&#39;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># OK</span>
+                                <span class="s1">&#39;cation_atom_number&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># OK</span>
+                                <span class="s1">&#39;neutral_list&#39;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># OK</span>
+                                <span class="s1">&#39;neutral_number&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># OK</span>
+                                <span class="s1">&#39;neutral_atom_list&#39;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># OK</span>
+                                <span class="s1">&#39;neutral_atom_number&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># OK</span>
+                                <span class="s1">&#39;atom_coordination_environments_present&#39;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># OK</span>
+                                <span class="s1">&#39;ion_coordination_environments_present&#39;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># OK</span>
+                                <span class="s1">&#39;coordination_environments_ion_present&#39;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># OK</span>
+                                <span class="s1">&#39;coordination_environments_atom_present&#39;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># OK</span>
+                                <span class="s1">&#39;fraction_ion_coordination_environments_present&#39;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># OK</span>
+                                <span class="s1">&#39;fraction_atom_coordination_environments_present&#39;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># OK</span>
+                                <span class="s1">&#39;fraction_coordination_environments_ion_present&#39;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># OK</span>
+                                <span class="s1">&#39;fraction_coordination_environments_atom_present&#39;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># OK</span>
+                                <span class="s1">&#39;count_ion_present&#39;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># OK</span>
+                                <span class="s1">&#39;count_atom_present&#39;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># OK</span>
                                 <span class="s1">&#39;count_coordination_environments_present&#39;</span><span class="p">:</span> <span class="p">{}}</span>
         <span class="n">atom_stat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">statistics_dict</span><span class="p">[</span><span class="s1">&#39;atom_coordination_environments_present&#39;</span><span class="p">]</span>
         <span class="n">ce_atom_stat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">statistics_dict</span><span class="p">[</span><span class="s1">&#39;coordination_environments_atom_present&#39;</span><span class="p">]</span>
@@ -1562,6 +1562,7 @@
                    <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span>
                    <span class="n">valences</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;valences&#39;</span><span class="p">])</span></div></div>
 
+
 <div class="viewcode-block" id="ChemicalEnvironments"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments">[docs]</a><span class="k">class</span> <span class="nc">ChemicalEnvironments</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class used to store all the information about the chemical environment of a given site for a given list of</span>
@@ -1581,8 +1582,6 @@
                                       <span class="s1">&#39;yet implemented&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mp_symbol</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">mp_symbol</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord_geoms</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord_geoms</span><span class="p">[</span><span class="n">mp_symbol</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1774,7 +1773,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">p2l_map</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">key</span><span class="p">):</span> <span class="nb">int</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;coord_geoms&#39;</span><span class="p">][</span><span class="n">cg</span><span class="p">][</span><span class="s1">&#39;perfect2local_map&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
             <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;other_symmetry_measures&#39;</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;coord_geoms&#39;</span><span class="p">][</span><span class="n">cg</span><span class="p">]</span> <span class="ow">and</span>
-                        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;coord_geoms&#39;</span><span class="p">][</span><span class="n">cg</span><span class="p">][</span><span class="s1">&#39;other_symmetry_measures&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+                    <span class="n">d</span><span class="p">[</span><span class="s1">&#39;coord_geoms&#39;</span><span class="p">][</span><span class="n">cg</span><span class="p">][</span><span class="s1">&#39;other_symmetry_measures&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
                 <span class="n">other_csms</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;coord_geoms&#39;</span><span class="p">][</span><span class="n">cg</span><span class="p">][</span><span class="s1">&#39;other_symmetry_measures&#39;</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">other_csms</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1797,13 +1796,11 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -1821,7 +1818,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1829,7 +1826,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

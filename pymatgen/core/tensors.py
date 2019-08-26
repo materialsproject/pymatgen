@@ -40,6 +40,8 @@ reverse_voigt_map = np.array([[0, 5, 4],
 
 DEFAULT_QUAD = loadfn(os.path.join(os.path.dirname(__file__),
                                    "quad_data.json"))
+
+
 class Tensor(np.ndarray, MSONable):
     """
     Base class for doing useful general operations on Nth order tensors,
@@ -592,9 +594,9 @@ class Tensor(np.ndarray, MSONable):
         # TODO: refactor rank inheritance to make this easier
         indices = np.array(indices)
         if voigt_rank:
-            shape = ([3]*(voigt_rank % 2) + [6]*(voigt_rank // 2))
+            shape = ([3] * (voigt_rank % 2) + [6] * (voigt_rank // 2))
         else:
-            shape = np.ceil(np.max(indices+1, axis=0) / 3.) * 3
+            shape = np.ceil(np.max(indices + 1, axis=0) / 3.) * 3
         base = np.zeros(shape.astype(int))
         for v, idx in zip(values, indices):
             base[tuple(idx)] = v
@@ -641,10 +643,11 @@ class Tensor(np.ndarray, MSONable):
             def merge(old, new):
                 gmask = np.abs(old) > prec
                 nmask = np.abs(new) > prec
-                new_mask = np.logical_not(gmask)*nmask
-                avg_mask = gmask*nmask
+                new_mask = np.logical_not(gmask) * nmask
+                avg_mask = gmask * nmask
                 old[avg_mask] = (old[avg_mask] + new[avg_mask]) / 2.
                 old[new_mask] = new[new_mask]
+
             if verbose:
                 print("Preconditioning for {} symmops".format(len(sops)))
             for sop in sops:
@@ -666,7 +669,7 @@ class Tensor(np.ndarray, MSONable):
 
         assert guess.shape == self.shape, "Guess must have same shape"
         converged = False
-        test_new, test_old = [guess.copy()]*2
+        test_new, test_old = [guess.copy()] * 2
         for i in range(maxiter):
             test_new = test_old.fit_to_structure(structure)
             if vsym:
@@ -720,6 +723,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
     A sequence of tensors that can be used for fitting data
     or for having a tensor expansion
     """
+
     def __init__(self, tensor_list, base_class=Tensor):
         self.tensors = [base_class(t) if not isinstance(t, base_class)
                         else t for t in tensor_list]
@@ -822,8 +826,8 @@ class SquareTensor(Tensor):
                 voigt-notation vector with the tensor entries
         """
 
-        obj = super(SquareTensor, cls).__new__(cls, input_array, vscale,
-                                               check_rank=2)
+        obj = super().__new__(cls, input_array, vscale,
+                              check_rank=2)
         return obj.view(cls)
 
     @property
@@ -866,8 +870,7 @@ class SquareTensor(Tensor):
         det = np.abs(np.linalg.det(self))
         if include_improper:
             det = np.abs(det)
-        return (np.abs(self.inv - self.trans) < tol).all() \
-            and (np.abs(det - 1.) < tol)
+        return (np.abs(self.inv - self.trans) < tol).all() and (np.abs(det - 1.) < tol)
 
     def refine_rotation(self):
         """
@@ -968,6 +971,7 @@ class TensorMapping(collections.abc.MutableMapping):
     and should be used with care.
 
     """
+
     def __init__(self, tensors=None, values=None, tol=1e-5):
         """
         Initialize a TensorMapping
@@ -1036,8 +1040,8 @@ class TensorMapping(collections.abc.MutableMapping):
 
 
 @deprecated(message="get_tkd_value is deprecated and will be removed in "
-            "pymatgen version 2019.1.1, please use the TensorMapping "
-            "class instead")
+                    "pymatgen version 2019.1.1, please use the TensorMapping "
+                    "class instead")
 def get_tkd_value(tensor_keyed_dict, tensor, allclose_kwargs=None):
     """
     Helper function to find a value in a tensor-keyed-
@@ -1062,8 +1066,8 @@ def get_tkd_value(tensor_keyed_dict, tensor, allclose_kwargs=None):
 
 
 @deprecated(message="set_tkd_value is deprecated and will be removed in "
-            "pymatgen version 2019.1.1, please use the TensorMapping "
-            "class instead")
+                    "pymatgen version 2019.1.1, please use the TensorMapping "
+                    "class instead")
 def set_tkd_value(tensor_keyed_dict, tensor, set_value, allclose_kwargs=None):
     if allclose_kwargs is None:
         allclose_kwargs = {}

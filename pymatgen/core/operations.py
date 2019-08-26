@@ -489,7 +489,7 @@ class MagSymmOp(SymmOp):
     def operate_magmom(self, magmom):
         """
         Apply time reversal operator on the magnetic moment. Note that
-        magnetic moments transform as axial vectors, not polar vectors. 
+        magnetic moments transform as axial vectors, not polar vectors.
 
         See 'Symmetry and magnetic structures', Rodríguez-Carvajal and
         Bourée for a good discussion. DOI: 10.1051/epjconf/20122200010
@@ -514,11 +514,11 @@ class MagSymmOp(SymmOp):
     def from_symmop(cls, symmop, time_reversal):
         """
         Initialize a MagSymmOp from a SymmOp and time reversal operator.
-        
+
         Args:
             symmop (SymmOp): SymmOp
             time_reversal (int): Time reversal operator, +1 or -1.
-        
+
         Returns:
             MagSymmOp object
         """
@@ -559,7 +559,7 @@ class MagSymmOp(SymmOp):
         symmop = SymmOp.from_xyz_string(xyzt_string.rsplit(',', 1)[0])
         try:
             time_reversal = int(xyzt_string.rsplit(',', 1)[1])
-        except:
+        except Exception:
             raise Exception("Time reversal operator could not be parsed.")
         return MagSymmOp.from_symmop(symmop, time_reversal)
 

@@ -433,7 +433,7 @@ class EventsParser:
                         event = yaml.load(doc.text)   # Can't use ruamel safe_load!
                         #yaml.load(doc.text, Loader=ruamel.yaml.Loader)
                         #print(event.yaml_tag, type(event))
-                    except:
+                    except Exception:
                         #raise
                         # Wrong YAML doc. Check tha doc tag and instantiate the proper event.
                         message = "Malformatted YAML document at line: %d\n" % doc.lineno
@@ -518,7 +518,7 @@ class EventHandler(MSONable, metaclass=abc.ABCMeta):
 
     def __init__(self):
         """Simple init for compatibility with introspection in as_dict/from_dict"""
-        return super(EventHandler,self).__init__()
+        return super().__init__()
 
     @classmethod
     def cls2str(cls):

@@ -13,7 +13,7 @@ import glob
 import subprocess
 
 import numpy as np
-from pymatgen.util.typing import PathLike
+
 from numpy.linalg import det
 from collections import OrderedDict, namedtuple
 from hashlib import md5
@@ -28,14 +28,14 @@ from tabulate import tabulate
 
 import scipy.constants as const
 
-from pymatgen import SETTINGS
+from pymatgen import SETTINGS, __version__
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element, get_el_sp
 from pymatgen.electronic_structure.core import Magmom
-from monty.design_patterns import cached_class
 from pymatgen.util.string import str_delimited
 from pymatgen.util.io_utils import clean_lines
+from pymatgen.util.typing import PathLike
 from monty.json import MSONable
 
 """
@@ -43,15 +43,13 @@ Classes for reading/manipulating/writing VASP input files. All major VASP input
 files.
 """
 
-__author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, " + \
-             "Vincent L Chevrier, Stephen Dacek"
+__author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, Vincent L Chevrier, Stephen Dacek"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Jul 16, 2012"
-
 
 logger = logging.getLogger(__name__)
 
@@ -103,13 +101,13 @@ class Poscar(MSONable):
     .. attribute:: predictor_corrector
 
         Predictor corrector coordinates and derivatives for each site; i.e.
-        a list of three 1x3 arrays for each site (typically read in from a MD 
+        a list of three 1x3 arrays for each site (typically read in from a MD
         CONTCAR).
 
     .. attribute:: predictor_corrector_preamble
 
         Predictor corrector preamble contains the predictor-corrector key,
-        POTIM, and thermostat parameters that precede the site-specic predictor 
+        POTIM, and thermostat parameters that precede the site-specic predictor
         corrector data in MD CONTCAR
 
     .. attribute:: temperature
@@ -193,7 +191,7 @@ class Poscar(MSONable):
                     raise ValueError(name + " array must be same length as" +
                                      " the structure.")
                 value = value.tolist()
-        super(Poscar, self).__setattr__(name, value)
+        super().__setattr__(name, value)
 
     @staticmethod
     def from_file(filename, check_for_POTCAR=True, read_velocities=True):
@@ -202,6 +200,7 @@ class Poscar(MSONable):
 
         The code will try its best to determine the elements in the POSCAR in
         the following order:
+
         1. If check_for_POTCAR is True, the code will try to check if a POTCAR
         is in the same directory as the POSCAR and use elements from that by
         default. (This is the VASP default sequence of priority).
@@ -236,7 +235,7 @@ class Poscar(MSONable):
                     potcar = Potcar.from_file(sorted(potcars)[0])
                     names = [sym.split("_")[0] for sym in potcar.symbols]
                     [get_el_sp(n) for n in names]  # ensure valid names
-                except:
+                except Exception:
                     names = None
         with zopen(filename, "rt") as f:
             return Poscar.from_string(f.read(), names,
@@ -249,11 +248,14 @@ class Poscar(MSONable):
 
         The code will try its best to determine the elements in the POSCAR in
         the following order:
+
         1. If default_names are supplied and valid, it will use those. Usually,
         default names comes from an external source, such as a POTCAR in the
         same directory.
+
         2. If there are no valid default names but the input file is Vasp5-like
         and contains element symbols in the 6th line, the code will use that.
+
         3. Failing (2), the code will check if a symbol is provided at the end
         of each coordinate.
 
@@ -305,12 +307,10 @@ class Poscar(MSONable):
             symbols = lines[5].split()
 
             """
-            Atoms and number of atoms in POSCAR written with vasp appear on 
-            multiple lines when atoms of the same type are not grouped together 
+            Atoms and number of atoms in POSCAR written with vasp appear on
+            multiple lines when atoms of the same type are not grouped together
             and more than 20 groups are then defined ...
-            
             Example :
-            
             Cr16 Fe35 Ni2
                1.00000000000000
                  8.5415010000000002   -0.0077670000000000   -0.0007960000000000
@@ -318,29 +318,29 @@ class Poscar(MSONable):
                 -0.0007970000000000    0.0105720000000000    8.5356889999999996
                Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Ni   Fe   Cr   Fe   Cr
                Fe   Ni   Fe   Cr   Fe
-                 1     1     2     4     2     1     1     1     2     1     1     1     4     1     1     1     5     3     6     1
-                 2     1     3     2     5
+                 1   1   2   4   2   1   1   1     2     1     1     1     4     1     1     1     5     3     6     1
+                 2   1   3   2   5
             Direct
               ...
             """
             nlines_symbols = 1
             for nlines_symbols in range(1, 11):
                 try:
-                    int(lines[5+nlines_symbols].split()[0])
+                    int(lines[5 + nlines_symbols].split()[0])
                     break
                 except ValueError:
                     pass
-            for iline_symbols in range(6, 5+nlines_symbols):
+            for iline_symbols in range(6, 5 + nlines_symbols):
                 symbols.extend(lines[iline_symbols].split())
             natoms = []
-            iline_natoms_start = 5+nlines_symbols
+            iline_natoms_start = 5 + nlines_symbols
             for iline_natoms in range(iline_natoms_start,
-                                      iline_natoms_start+nlines_symbols):
+                                      iline_natoms_start + nlines_symbols):
                 natoms.extend([int(i) for i in lines[iline_natoms].split()])
             atomic_symbols = list()
             for i in range(len(natoms)):
                 atomic_symbols.extend([symbols[i]] * natoms[i])
-            ipos = 5+2*nlines_symbols
+            ipos = 5 + 2 * nlines_symbols
 
         postype = lines[ipos].split()[0]
 
@@ -428,9 +428,9 @@ class Poscar(MSONable):
                 lines = lines[3:]
                 for st in range(nsites):
                     d1 = [float(tok) for tok in lines[st].split()]
-                    d2 = [float(tok) for tok in lines[st+nsites].split()]
-                    d3 = [float(tok) for tok in lines[st+2*nsites].split()]
-                    predictor_corrector.append([d1,d2,d3])
+                    d2 = [float(tok) for tok in lines[st + nsites].split()]
+                    d3 = [float(tok) for tok in lines[st + 2 * nsites].split()]
+                    predictor_corrector.append([d1, d2, d3])
         else:
             velocities = None
             predictor_corrector = None
@@ -496,7 +496,7 @@ class Poscar(MSONable):
                 lines.append("")
                 for v in self.velocities:
                     lines.append(" ".join([format_str.format(i) for i in v]))
-            except:
+            except Exception:
                 warnings.warn("Velocities are missing or corrupted.")
 
         if self.predictor_corrector:
@@ -505,11 +505,11 @@ class Poscar(MSONable):
                 lines.append(self.predictor_corrector_preamble)
                 pred = np.array(self.predictor_corrector)
                 for col in range(3):
-                    for z in pred[:,col]:
+                    for z in pred[:, col]:
                         lines.append(" ".join([format_str.format(i) for i in z]))
             else:
                 warnings.warn(
-                    "Preamble information missing or corrupt. " 
+                    "Preamble information missing or corrupt. "
                     "Writing Poscar with no predictor corrector data.")
 
         return "\n".join(lines) + "\n"
@@ -618,7 +618,7 @@ class Incar(dict, MSONable):
         Args:
             params (dict): A set of input parameters as a dictionary.
         """
-        super(Incar, self).__init__()
+        super().__init__()
         if params:
 
             # if Incar contains vector-like magmoms given as a list
@@ -626,8 +626,8 @@ class Incar(dict, MSONable):
             if (params.get("MAGMOM") and isinstance(params["MAGMOM"][0], (int, float))) \
                     and (params.get("LSORBIT") or params.get("LNONCOLLINEAR")):
                 val = []
-                for i in range(len(params["MAGMOM"])//3):
-                    val.append(params["MAGMOM"][i*3:(i+1)*3])
+                for i in range(len(params["MAGMOM"]) // 3):
+                    val.append(params["MAGMOM"][i * 3:(i + 1) * 3])
                 params["MAGMOM"] = val
 
             self.update(params)
@@ -638,7 +638,7 @@ class Incar(dict, MSONable):
         valid INCAR tags. Also cleans the parameter and val by stripping
         leading and trailing white spaces.
         """
-        super(Incar, self).__setitem__(
+        super().__setitem__(
             key.strip(), Incar.proc_val(key.strip(), val.strip())
             if isinstance(val, str) else val)
 
@@ -1056,8 +1056,8 @@ class Kpoints(MSONable):
         Returns:
             Kpoints
         """
-        comment = "pymatgen 4.7.6+ generated KPOINTS with grid density = " + \
-            "%.0f / atom" % kppa
+        comment = "pymatgen v%s with grid density = %.0f / atom" % (
+            __version__, kppa)
         if math.fabs((math.floor(kppa ** (1 / 3) + 0.5)) ** 3 - kppa) < 1:
             kppa += kppa * 0.01
         latt = structure.lattice
@@ -1698,7 +1698,7 @@ class PotcarSingle:
 
         try:
             return self.keywords[a.upper()]
-        except:
+        except Exception:
             raise AttributeError(a)
 
 
@@ -1727,7 +1727,7 @@ class Potcar(list, MSONable):
     def __init__(self, symbols=None, functional=None, sym_potcar_map=None):
         if functional is None:
             functional = SETTINGS.get("PMG_DEFAULT_FUNCTIONAL", "PBE")
-        super(Potcar, self).__init__()
+        super().__init__()
         self.functional = functional
         if symbols is not None:
             self.set_symbols(symbols, functional, sym_potcar_map)
@@ -1841,7 +1841,7 @@ class VaspInput(dict, MSONable):
 
     def __init__(self, incar, kpoints, poscar, potcar, optional_files=None,
                  **kwargs):
-        super(VaspInput, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.update({'INCAR': incar,
                      'KPOINTS': kpoints,
                      'POSCAR': poscar,
@@ -1937,4 +1937,3 @@ class VaspInput(dict, MSONable):
             with open(output_file, 'w') as f_std, \
                     open(err_file, "w", buffering=1) as f_err:
                 subprocess.check_call(vasp_cmd, stdout=f_std, stderr=f_err)
-

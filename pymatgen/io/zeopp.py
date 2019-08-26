@@ -88,7 +88,7 @@ class ZeoCssr(Cssr):
     """
 
     def __init__(self, structure):
-        super(ZeoCssr, self).__init__(structure)
+        super().__init__(structure)
 
     def __str__(self):
         """
@@ -98,16 +98,10 @@ class ZeoCssr(Cssr):
         Also coordinate system is rotated from xyz to zxy
         """
         output = [
-            "{:.4f} {:.4f} {:.4f}"
-                # .format(*self.structure.lattice.abc),
-                .format(self.structure.lattice.c,
-                        self.structure.lattice.a,
-                        self.structure.lattice.b),
-            "{:.2f} {:.2f} {:.2f} SPGR =  1 P 1    OPT = 1"
-                # .format(*self.structure.lattice.angles),
-                .format(self.structure.lattice.gamma,
-                        self.structure.lattice.alpha,
-                        self.structure.lattice.beta),
+            "{:.4f} {:.4f} {:.4f}".format(self.structure.lattice.c, self.structure.lattice.a, self.structure.lattice.b),
+            "{:.2f} {:.2f} {:.2f} SPGR =  1 P 1    OPT = 1".format(self.structure.lattice.gamma,
+                                                                   self.structure.lattice.alpha,
+                                                                   self.structure.lattice.beta),
             "{} 0".format(len(self.structure)),
             "0 {}".format(self.structure.formula)
         ]
@@ -120,10 +114,8 @@ class ZeoCssr(Cssr):
             # specie = site.specie.symbol
             specie = site.species_string
             output.append(
-                "{} {} {:.4f} {:.4f} {:.4f} 0 0 0 0 0 0 0 0 {:.4f}"
-                    .format(
+                "{} {} {:.4f} {:.4f} {:.4f} 0 0 0 0 0 0 0 0 {:.4f}".format(
                     i + 1, specie, site.c, site.a, site.b, charge
-                    # i+1, site.specie, site.a, site.b, site.c, site.charge
                 )
             )
 
@@ -193,7 +185,7 @@ class ZeoVoronoiXYZ(XYZ):
     """
 
     def __init__(self, mol):
-        super(ZeoVoronoiXYZ, self).__init__(mol)
+        super().__init__(mol)
 
     @staticmethod
     def from_string(contents):
@@ -250,7 +242,6 @@ class ZeoVoronoiXYZ(XYZ):
         for site in self._mol:
             output.append(fmtstr.format(
                 site.specie.symbol, site.z, site.x, site.y,
-                # site.specie, site.x, site.y, site.z,
                 site.properties['voronoi_radius']
             ))
         return "\n".join(output)

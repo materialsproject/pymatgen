@@ -29,23 +29,23 @@ the distortion.
 See Nicola Spaldin's "A beginner's guide to the modern theory of polarization"
 (https://arxiv.org/abs/1202.1831) for an introduction to crystal polarization.
 
-VASP reports dipole moment values (used to derive polarization) along Cartesian 
+VASP reports dipole moment values (used to derive polarization) along Cartesian
 directions (see pead.F around line 970 in the VASP source to confirm this).
 However, it is most convenient to perform the adjustments necessary to recover
 a same branch polarization by expressing the polarization along lattice directions.
 For this reason, calc_ionic calculates ionic contributions to the polarization
-along lattice directions. We provide the means to convert Cartesian direction 
-polarizations to lattice direction polarizations in the Polarization class. 
+along lattice directions. We provide the means to convert Cartesian direction
+polarizations to lattice direction polarizations in the Polarization class.
 
 We recommend using our calc_ionic function for calculating the ionic
 polarization rather than the values from OUTCAR. We find that the ionic
-dipole moment reported in OUTCAR differ from the naive calculation of 
-\\sum_i Z_i r_i where i is the index of the atom, Z_i is the ZVAL from the 
+dipole moment reported in OUTCAR differ from the naive calculation of
+\\sum_i Z_i r_i where i is the index of the atom, Z_i is the ZVAL from the
 pseudopotential file, and r is the distance in Angstroms along the lattice vectors.
 Note, this difference is not simply due to VASP using Cartesian directions and
-calc_ionic using lattice direction but rather how the ionic polarization is 
+calc_ionic using lattice direction but rather how the ionic polarization is
 computed. Compare calc_ionic to VASP SUBROUTINE POINT_CHARGE_DIPOL in dipol.F in
-the VASP source to see the differences. We are able to recover a smooth same 
+the VASP source to see the differences. We are able to recover a smooth same
 branch polarization more frequently using the naive calculation in calc_ionic
 than using the ionic dipole moment reported in the OUTCAR.
 
@@ -299,7 +299,6 @@ class Polarization:
                 lattices[i] = Lattice.from_lengths_and_angles(
                     np.array(l) * units.ravel()[-1], a)  # Use polar units (volume)
 
-
         d_structs = []
         sites = []
         for i in range(L):
@@ -370,7 +369,7 @@ class Polarization:
             convert_to_muC_per_cm2=convert_to_muC_per_cm2, all_in_polar=all_in_polar)
         # reshape to preserve backwards compatibility due to changes
         # when switching from np.matrix to np.array
-        return (tot[-1] - tot[0]).reshape((1,  3))
+        return (tot[-1] - tot[0]).reshape((1, 3))
 
     def get_polarization_change_norm(self, convert_to_muC_per_cm2=True, all_in_polar=True):
         """
@@ -397,15 +396,15 @@ class Polarization:
         L = tot.shape[0]
         try:
             sp_a = UnivariateSpline(range(L), tot[:, 0].ravel())
-        except:
+        except Exception:
             sp_a = None
         try:
             sp_b = UnivariateSpline(range(L), tot[:, 1].ravel())
-        except:
+        except Exception:
             sp_b = None
         try:
             sp_c = UnivariateSpline(range(L), tot[:, 2].ravel())
-        except:
+        except Exception:
             sp_c = None
         return sp_a, sp_b, sp_c
 
@@ -419,7 +418,7 @@ class Polarization:
                                        all_in_polar=all_in_polar)
         max_jumps = [None, None, None]
         for i, sp in enumerate(sps):
-            if sp != None:
+            if sp is not None:
                 max_jumps[i] = max(tot[:, i].ravel() - sp(range(len(tot[:, i].ravel()))))
         return max_jumps
 
@@ -433,7 +432,7 @@ class Polarization:
         try:
             sp = self.same_branch_splines(convert_to_muC_per_cm2=convert_to_muC_per_cm2,
                                           all_in_polar=all_in_polar)
-        except:
+        except Exception:
             print("Something went wrong.")
             return None
         sp_latt = [sp[i](range(L)) for i in range(3)]
@@ -461,7 +460,7 @@ class EnergyTrend:
         energies = self.energies
         try:
             sp = self.spline()
-        except:
+        except Exception:
             print("Energy spline failed.")
             return None
         spline_energies = sp(range(len(energies)))
@@ -483,7 +482,7 @@ class EnergyTrend:
         energies = self.energies
         try:
             sp = self.spline()
-        except:
+        except Exception:
             print("Energy spline failed.")
             return None
         der = sp.derivative()

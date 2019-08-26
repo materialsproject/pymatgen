@@ -9,7 +9,6 @@ from pymatgen.core.structure import Structure
 This module implements symmetry-related structure forms.
 """
 
-
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
@@ -27,7 +26,7 @@ class SymmetrizedStructure(Structure):
 
     Args:
         structure (Structure): Original structure
-        spacegroup (SpacegroupOperations): An input SpacegroupOperations from 
+        spacegroup (SpacegroupOperations): An input SpacegroupOperations from
             SpacegroupAnalyzer.
         equivalent_positions: Equivalent positions from SpacegroupAnalyzer.
 
@@ -47,7 +46,7 @@ class SymmetrizedStructure(Structure):
         #     "%d%s" % (list(self.site_labels).count(self.site_labels[i]),
         #               wyckoff_letters[i]) for i in range(len(structure))]
 
-        super(SymmetrizedStructure, self).__init__(
+        super().__init__(
             structure.lattice, [site.species for site in structure],
             structure.frac_coords, site_properties=structure.site_properties)
 

@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.qadapters &#8212; pymatgen 2019.3.13 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.io.abinit.qadapters &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -217,7 +215,7 @@
 <span class="sd">        To create an instance from an INI file, use:</span>
 <span class="sd">           OmpEnv.from_file(filename)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">OmpEnv</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="n">err_msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -1313,28 +1311,28 @@
 <span class="s2">&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">set_qname</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qname</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">SlurmAdapter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">set_qname</span><span class="p">(</span><span class="n">qname</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_qname</span><span class="p">(</span><span class="n">qname</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">qname</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="p">[</span><span class="s2">&quot;partition&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">qname</span>
 
     <span class="k">def</span> <span class="nf">set_mpi_procs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mpi_procs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the number of CPUs used for MPI.&quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">SlurmAdapter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">set_mpi_procs</span><span class="p">(</span><span class="n">mpi_procs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_mpi_procs</span><span class="p">(</span><span class="n">mpi_procs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="p">[</span><span class="s2">&quot;ntasks&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mpi_procs</span>
 
     <span class="k">def</span> <span class="nf">set_omp_threads</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">omp_threads</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">SlurmAdapter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">set_omp_threads</span><span class="p">(</span><span class="n">omp_threads</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_omp_threads</span><span class="p">(</span><span class="n">omp_threads</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="p">[</span><span class="s2">&quot;cpus_per_task&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">omp_threads</span>
 
     <span class="k">def</span> <span class="nf">set_mem_per_proc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mem_mb</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the memory per process in megabytes&quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">SlurmAdapter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">set_mem_per_proc</span><span class="p">(</span><span class="n">mem_mb</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_mem_per_proc</span><span class="p">(</span><span class="n">mem_mb</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="p">[</span><span class="s2">&quot;mem_per_cpu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mem_per_proc</span>
         <span class="c1"># Remove mem if it&#39;s defined.</span>
         <span class="c1">#self.qparams.pop(&quot;mem&quot;, None)</span>
 
     <span class="k">def</span> <span class="nf">set_timelimit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timelimit</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">SlurmAdapter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">set_timelimit</span><span class="p">(</span><span class="n">timelimit</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_timelimit</span><span class="p">(</span><span class="n">timelimit</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">qu</span><span class="o">.</span><span class="n">time2slurm</span><span class="p">(</span><span class="n">timelimit</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_id</span><span class="p">):</span>
@@ -1386,7 +1384,7 @@
                 <span class="c1"># output should of the form &#39;2561553.sdb&#39; or &#39;352353.jessup&#39; - just grab the first part for job id</span>
                 <span class="n">queue_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">3</span><span class="p">])</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Job submission was successful and queue_id is </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">queue_id</span><span class="p">))</span>
-            <span class="k">except</span><span class="p">:</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                 <span class="c1"># probably error parsing job code</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s1">&#39;Could not parse job id following slurm...&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">SubmitResults</span><span class="p">(</span><span class="n">qid</span><span class="o">=</span><span class="n">queue_id</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="n">err</span><span class="p">,</span> <span class="n">process</span><span class="o">=</span><span class="n">process</span><span class="p">)</span>
@@ -1452,17 +1450,17 @@
 <span class="s2">&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">set_qname</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qname</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">PbsProAdapter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">set_qname</span><span class="p">(</span><span class="n">qname</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_qname</span><span class="p">(</span><span class="n">qname</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">qname</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="p">[</span><span class="s2">&quot;queue&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">qname</span>
 
     <span class="k">def</span> <span class="nf">set_timelimit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timelimit</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">PbsProAdapter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">set_timelimit</span><span class="p">(</span><span class="n">timelimit</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_timelimit</span><span class="p">(</span><span class="n">timelimit</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="p">[</span><span class="s2">&quot;walltime&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">qu</span><span class="o">.</span><span class="n">time2pbspro</span><span class="p">(</span><span class="n">timelimit</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">set_mem_per_proc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mem_mb</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the memory per process in megabytes&quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">PbsProAdapter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">set_mem_per_proc</span><span class="p">(</span><span class="n">mem_mb</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_mem_per_proc</span><span class="p">(</span><span class="n">mem_mb</span><span class="p">)</span>
         <span class="c1">#self.qparams[&quot;mem&quot;] = self.mem_per_proc</span>
 
     <span class="k">def</span> <span class="nf">cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_id</span><span class="p">):</span>
@@ -1747,7 +1745,7 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="c1"># output should of the form &#39;2561553.sdb&#39; or &#39;352353.jessup&#39; - just grab the first part for job id</span>
                 <span class="n">queue_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
-            <span class="k">except</span><span class="p">:</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                 <span class="c1"># probably error parsing job code</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Could not parse job id following qsub...&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">SubmitResults</span><span class="p">(</span><span class="n">qid</span><span class="o">=</span><span class="n">queue_id</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="n">err</span><span class="p">,</span> <span class="n">process</span><span class="o">=</span><span class="n">process</span><span class="p">)</span>
@@ -1860,26 +1858,26 @@
 <span class="s2">$$</span><span class="si">{qverbatim}</span><span class="s2"></span>
 <span class="s2">&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">set_qname</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qname</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">SGEAdapter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">set_qname</span><span class="p">(</span><span class="n">qname</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_qname</span><span class="p">(</span><span class="n">qname</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">qname</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="p">[</span><span class="s2">&quot;queue_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">qname</span>
 
     <span class="k">def</span> <span class="nf">set_mpi_procs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mpi_procs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the number of CPUs used for MPI.&quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">SGEAdapter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">set_mpi_procs</span><span class="p">(</span><span class="n">mpi_procs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_mpi_procs</span><span class="p">(</span><span class="n">mpi_procs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="p">[</span><span class="s2">&quot;ncpus&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mpi_procs</span>
 
     <span class="k">def</span> <span class="nf">set_omp_threads</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">omp_threads</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">SGEAdapter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">set_omp_threads</span><span class="p">(</span><span class="n">omp_threads</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_omp_threads</span><span class="p">(</span><span class="n">omp_threads</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Cannot use omp_threads with SGE&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">set_mem_per_proc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mem_mb</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the memory per process in megabytes&quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">SGEAdapter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">set_mem_per_proc</span><span class="p">(</span><span class="n">mem_mb</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_mem_per_proc</span><span class="p">(</span><span class="n">mem_mb</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="p">[</span><span class="s2">&quot;mem_per_slot&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mem_per_proc</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;M&quot;</span>
 
     <span class="k">def</span> <span class="nf">set_timelimit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timelimit</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">SGEAdapter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">set_timelimit</span><span class="p">(</span><span class="n">timelimit</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_timelimit</span><span class="p">(</span><span class="n">timelimit</span><span class="p">)</span>
         <span class="c1"># Same convention as pbspro e.g. [hours:minutes:]seconds</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="p">[</span><span class="s2">&quot;walltime&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">qu</span><span class="o">.</span><span class="n">time2pbspro</span><span class="p">(</span><span class="n">timelimit</span><span class="p">)</span>
 
@@ -1902,7 +1900,7 @@
                 <span class="c1"># output should of the form</span>
                 <span class="c1"># Your job 1659048 (&quot;NAME_OF_JOB&quot;) has been submitted</span>
                 <span class="n">queue_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)[</span><span class="mi">2</span><span class="p">])</span>
-            <span class="k">except</span><span class="p">:</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                 <span class="c1"># probably error parsing job code</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Could not parse job id following qsub...&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">SubmitResults</span><span class="p">(</span><span class="n">qid</span><span class="o">=</span><span class="n">queue_id</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="n">err</span><span class="p">,</span> <span class="n">process</span><span class="o">=</span><span class="n">process</span><span class="p">)</span>
@@ -1963,15 +1961,15 @@
 
     <span class="k">def</span> <span class="nf">set_mpi_procs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mpi_procs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the number of CPUs used for MPI.&quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">MOABAdapter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">set_mpi_procs</span><span class="p">(</span><span class="n">mpi_procs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_mpi_procs</span><span class="p">(</span><span class="n">mpi_procs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="p">[</span><span class="s2">&quot;procs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mpi_procs</span>
 
     <span class="k">def</span> <span class="nf">set_timelimit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timelimit</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">MOABAdapter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">set_timelimit</span><span class="p">(</span><span class="n">timelimit</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_timelimit</span><span class="p">(</span><span class="n">timelimit</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="p">[</span><span class="s2">&quot;walltime&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">qu</span><span class="o">.</span><span class="n">time2slurm</span><span class="p">(</span><span class="n">timelimit</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">set_mem_per_proc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mem_mb</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">MOABAdapter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">set_mem_per_proc</span><span class="p">(</span><span class="n">mem_mb</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_mem_per_proc</span><span class="p">(</span><span class="n">mem_mb</span><span class="p">)</span>
         <span class="c1">#TODO</span>
         <span class="c1">#raise NotImplementedError(&quot;set_mem_per_cpu&quot;)</span>
 
@@ -1996,7 +1994,7 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="c1"># output should be the queue_id</span>
                 <span class="n">queue_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
-            <span class="k">except</span><span class="p">:</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                 <span class="c1"># probably error parsing job code</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s1">&#39;Could not parse job id following msub...&#39;</span><span class="p">)</span>
 
@@ -2055,27 +2053,27 @@
 <span class="s2">&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">set_qname</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qname</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">BlueGeneAdapter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">set_qname</span><span class="p">(</span><span class="n">qname</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_qname</span><span class="p">(</span><span class="n">qname</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">qname</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">qname</span>
 
     <span class="c1">#def set_mpi_procs(self, mpi_procs):</span>
     <span class="c1">#    &quot;&quot;&quot;Set the number of CPUs used for MPI.&quot;&quot;&quot;</span>
-    <span class="c1">#    super(BlueGeneAdapter, self).set_mpi_procs(mpi_procs)</span>
+    <span class="c1">#    super().set_mpi_procs(mpi_procs)</span>
     <span class="c1">#    #self.qparams[&quot;ntasks&quot;] = mpi_procs</span>
 
     <span class="c1">#def set_omp_threads(self, omp_threads):</span>
-    <span class="c1">#    super(BlueGeneAdapter, self).set_omp_threads(omp_threads)</span>
+    <span class="c1">#    super().set_omp_threads(omp_threads)</span>
     <span class="c1">#    #self.qparams[&quot;cpus_per_task&quot;] = omp_threads</span>
 
     <span class="c1">#def set_mem_per_proc(self, mem_mb):</span>
     <span class="c1">#    &quot;&quot;&quot;Set the memory per process in megabytes&quot;&quot;&quot;</span>
-    <span class="c1">#    super(BlueGeneAdapter, self).set_mem_per_proc(mem_mb)</span>
+    <span class="c1">#    super().set_mem_per_proc(mem_mb)</span>
     <span class="c1">#    #self.qparams[&quot;mem_per_cpu&quot;] = self.mem_per_proc</span>
 
     <span class="k">def</span> <span class="nf">set_timelimit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timelimit</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Limits are specified with the format hh:mm:ss (hours:minutes:seconds)&quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">BlueGeneAdapter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">set_timelimit</span><span class="p">(</span><span class="n">timelimit</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_timelimit</span><span class="p">(</span><span class="n">timelimit</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="p">[</span><span class="s2">&quot;wall_clock_limit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">qu</span><span class="o">.</span><span class="n">time2loadlever</span><span class="p">(</span><span class="n">timelimit</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_id</span><span class="p">):</span>
@@ -2116,7 +2114,7 @@
                 <span class="n">token</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">3</span><span class="p">]</span>
                 <span class="n">s</span> <span class="o">=</span> <span class="n">token</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
                 <span class="n">queue_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-            <span class="k">except</span><span class="p">:</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                 <span class="c1"># probably error parsing job code</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Could not parse job id following llsubmit...&quot;</span><span class="p">)</span>
                 <span class="k">raise</span>
@@ -2156,13 +2154,11 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -2180,7 +2176,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -2188,7 +2184,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

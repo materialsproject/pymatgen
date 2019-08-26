@@ -335,6 +335,15 @@ class CovalentBondNNTest(PymatgenTest):
         acetylene = strat.get_nn_info(self.acetylene, 0)
         self.assertAlmostEqual(acetylene[0]["weight"], 1.19, places=2)
 
+    def test_bonded_structure(self):
+        strat = CovalentBondNN()
+
+        benzene = strat.get_bonded_structure(self.benzene)
+        self.assertEqual(len(benzene.find_rings()), 1)
+
+        acetylene = strat.get_bonded_structure(self.acetylene)
+        self.assertEqual(len(acetylene.graph.nodes), 4)
+
     def tearDown(self):
         del self.benzene
         del self.acetylene
@@ -368,6 +377,8 @@ class MiniDistNNTest(PymatgenTest):
             [1.595, 0.92, 2.155]], coords_are_cartesian=True)
 
     def test_all_nn_classes(self):
+        self.assertAlmostEqual(MinimumDistanceNN(cutoff=5, get_all_sites=True).get_cn(
+            self.cscl, 0), 14)
         self.assertAlmostEqual(MinimumDistanceNN().get_cn(
             self.diamond, 0), 4)
         self.assertAlmostEqual(MinimumDistanceNN().get_cn(

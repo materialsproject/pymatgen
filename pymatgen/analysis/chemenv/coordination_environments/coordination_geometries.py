@@ -28,7 +28,6 @@ from monty.json import MSONable, MontyDecoder
 import json
 import os
 
-
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
 UNKNOWN_ENVIRONMENT_SYMBOL = 'UNKNOWN'
@@ -67,7 +66,7 @@ class ExplicitPermutationsAlgorithm(AbstractChemenvAlgorithm):
         """
             Initializes a separation plane for a given perfect coordination geometry
         """
-        super(ExplicitPermutationsAlgorithm, self).__init__(
+        super().__init__(
             algorithm_type=EXPLICIT_PERMUTATIONS)
         self._permutations = permutations
 
@@ -103,23 +102,24 @@ class SeparationPlane(AbstractChemenvAlgorithm):
             Initializes a separation plane for a given perfect coordination geometry
 
             :param mirror_plane: True if the separation plane is a mirror plane, in which case there is a correspondence
-            of the points in each point_group (can reduce the number of permutations)
+                of the points in each point_group (can reduce the number of permutations)
             :param ordered_plane : True if the order of the points in the plane can be taken into account to reduce the
-            number of permutations
+                number of permutations
             :param plane_points: Indices of the points that are in the plane in the perfect structure (and should be
-            found in the defective one as well)
+                found in the defective one as well)
             :param point_groups: The two groups of points separated by the plane
             :param plane_type: can be "MIRROR", if the plane is a mirror plane going through the central site,
-             'BASAL_THROUGH_CENTER', if the plane is a basal plane (no point on the "left" side) going through the central
-             site, 'BASAL', if the is a basal plane not going through the central site, 'UNEQUILIBRATED_THROUGH_CENTER', if
-             the plane cuts the geometry in two groups of points with different numbers of points on each side, and is going
-             through the centre, 'UNEQUILIBRATED', if the plane cuts the geometry in two groups of points with different
-             numbers of points on each side, and is not going through the centre, 'EQUILIBRATED_THROUGH_CENTER', if the
-             plane cuts the geometry in two groups of points of the same size, is going through the centre but is not a
-             mirror plane, 'EQUILIBRATED', if the plane cuts the geometry in two groups of points of the same size, is not
-             going through the centre but is not a mirror plane.
+                'BASAL_THROUGH_CENTER', if the plane is a basal plane (no point on the "left" side) going through the
+                central site, 'BASAL', if the is a basal plane not going through the central site,
+                'UNEQUILIBRATED_THROUGH_CENTER', if the plane cuts the geometry in two groups of points with different
+                numbers of points on each side, and is going through the centre, 'UNEQUILIBRATED', if the plane cuts
+                the geometry in two groups of points with different numbers of points on each side, and is not going
+                through the centre, 'EQUILIBRATED_THROUGH_CENTER', if the plane cuts the geometry in two groups of
+                points of the same size, is going through the centre but is not a mirror plane, 'EQUILIBRATED', if the
+                plane cuts the geometry in two groups of points of the same size, is not
+                going through the centre but is not a mirror plane.
             """
-        super(SeparationPlane, self).__init__(algorithm_type=SEPARATION_PLANE)
+        super().__init__(algorithm_type=SEPARATION_PLANE)
         self.mirror_plane = mirror_plane
         self.plane_points = plane_points
         self.point_groups = point_groups
@@ -230,7 +230,9 @@ class SeparationPlane(AbstractChemenvAlgorithm):
                        self.point_groups[1]))
         ordered_point_groups = [False,
                                 False] if ordered_point_groups is None else ordered_point_groups
-        rotate = lambda s, n: s[-n:] + s[:-n]
+
+        def rotate(s, n):
+            return s[-n:] + s[:-n]
         if ordered_plane and self.ordered_plane:
             plane_perms = [rotate(plane, ii) for ii in range(len(plane))]
             inv_plane = plane[::-1]
@@ -317,8 +319,9 @@ class CoordinationGeometry:
     """
     Class used to store the ideal representation of a chemical environment or "coordination geometry"
     """
-    CSM_SKIP_SEPARATION_PLANE_ALGO = 10.0 # Default value of continuous symmetry measure below which no further
-                                        #  search is performed for the separation plane algorithms
+    CSM_SKIP_SEPARATION_PLANE_ALGO = 10.0  # Default value of continuous symmetry measure below which no further
+
+    #  search is performed for the separation plane algorithms
 
     class NeighborsSetsHints:
 
@@ -426,12 +429,12 @@ class CoordinationGeometry:
         :param points: The list of the coordinates of all the points of this coordination geometry.
         :param separation_planes: List of separation facets to help set up the permutations
         :param permutation_safe_override: Computes all the permutations if set to True (overrides the plane separation
-        algorithms or any other algorithm, for testing purposes)
+            algorithms or any other algorithm, for testing purposes)
         :param plane_ordering_override: Computes all the permutations of the plane separation algorithm if set to False
-        otherwise, uses the anticlockwise ordering of the separation facets (for testing purposes)
+            otherwise, uses the anticlockwise ordering of the separation facets (for testing purposes)
         :param deactivate: deactivates this coordination geometry in the search
         :param faces : list of the faces with their vertices given in a clockwise or anticlockwise order, for drawing
-        purposes
+            purposes
         :param : list of edges, for drawing purposes
         """
         self._mp_symbol = mp_symbol
@@ -585,11 +588,11 @@ class CoordinationGeometry:
                 for ipt1 in range(len(self.points)):
                     pt1 = np.array(self.points[ipt1])
                     mindist_cation_anion = min(mindist_cation_anion,
-                                               np.linalg.norm(pt1-self.central_site))
-                    for ipt2 in range(ipt1+1, len(self.points)):
+                                               np.linalg.norm(pt1 - self.central_site))
+                    for ipt2 in range(ipt1 + 1, len(self.points)):
                         pt2 = np.array(self.points[ipt2])
                         mindist_anions = min(mindist_anions,
-                                             np.linalg.norm(pt1-pt2))
+                                             np.linalg.norm(pt1 - pt2))
                 anion_radius = mindist_anions / 2.0
                 cation_radius = mindist_cation_anion - anion_radius
                 self._pauling_stability_ratio = cation_radius / anion_radius
@@ -771,6 +774,7 @@ class CoordinationGeometry:
         pmeshes.append({"pmesh_string": out})
         return pmeshes
 
+
 class AllCoordinationGeometries(dict):
     """
     Class used to store all the reference "coordination geometries" (list with instances of the CoordinationGeometry
@@ -921,7 +925,7 @@ class AllCoordinationGeometries(dict):
         if coordination is None:
             for gg in self.cg_list:
                 if gg.points is not None and (
-                            (not gg.deactivate) or include_deactivated):
+                        (not gg.deactivate) or include_deactivated):
                     if returned == 'cg':
                         geom.append(gg)
                     elif returned == 'mp_symbol':
@@ -1131,8 +1135,8 @@ class AllCoordinationGeometries(dict):
                         else:
                             addinfo = ''
                         mystring += ' - {mp} : {name}{addinfo}\n'.format(mp=cg.mp_symbol,
-                                                                  name=cg.get_name(),
-                                                                  addinfo=addinfo)
+                                                                         name=cg.get_name(),
+                                                                         addinfo=addinfo)
                 elif type == 'all_geometries':
                     for cg in self.get_geometries(coordination=cn):
                         mystring += ' - {mp} : {name}\n'.format(mp=cg.mp_symbol,

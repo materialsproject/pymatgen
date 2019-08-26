@@ -41,7 +41,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "May 14, 2016"
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -176,7 +175,8 @@ class SpacegroupAnalyzer:
         """
         n = self._space_group_data["number"]
 
-        f = lambda i, j: i <= n <= j
+        def f(i, j):
+            return i <= n <= j
         cs = {"triclinic": (1, 2), "monoclinic": (3, 15),
               "orthorhombic": (16, 74), "tetragonal": (75, 142),
               "trigonal": (143, 167), "hexagonal": (168, 194),
@@ -372,10 +372,9 @@ class SpacegroupAnalyzer:
             np.array(mesh), self._cell, is_shift=shift, symprec=self._symprec)
 
         results = []
-        tmp_map = list(mapping)
-        for i in np.unique(mapping):
+        for i, count in zip(*np.unique(mapping, return_counts=True)):
             results.append(((grid[i] + shift * (0.5, 0.5, 0.5)) / mesh,
-                            tmp_map.count(i)))
+                            count))
         return results
 
     def get_conventional_to_primitive_transformation_matrix(self, international_monoclinic=True):
@@ -401,7 +400,7 @@ class SpacegroupAnalyzer:
             # check if the conventional representation is hexagonal or
             # rhombohedral
             lengths, angles = conv.lattice.lengths_and_angles
-            if abs(lengths[0]-lengths[2]) < 0.0001:
+            if abs(lengths[0] - lengths[2]) < 0.0001:
                 transf = np.eye
             else:
                 transf = np.array([[-1, 1, 1], [2, 1, 1], [-1, -2, 1]],
@@ -443,7 +442,7 @@ class SpacegroupAnalyzer:
         if "P" in self.get_space_group_symbol() or lattice == "hexagonal":
             return conv
 
-        transf = self.get_conventional_to_primitive_transformation_matrix(\
+        transf = self.get_conventional_to_primitive_transformation_matrix(
             international_monoclinic=international_monoclinic)
 
         new_sites = []
@@ -516,7 +515,8 @@ class SpacegroupAnalyzer:
                 for i in range(2):
                     transf[i][sorted_dic[i]['orig_index']] = 1
                 c = latt.abc[2]
-            elif self.get_space_group_symbol().startswith("A"): #change to C-centering to match Setyawan/Curtarolo convention
+            elif self.get_space_group_symbol().startswith(
+                    "A"):  # change to C-centering to match Setyawan/Curtarolo convention
                 transf[2] = [1, 0, 0]
                 a, b = sorted(latt.abc[1:])
                 sorted_dic = sorted([{'vec': latt.matrix[i],
@@ -618,7 +618,7 @@ class SpacegroupAnalyzer:
                     transf = np.zeros(shape=(3, 3))
                     for c in range(len(sorted_dic)):
                         transf[c][sorted_dic[c]['orig_index']] = 1
-            #if not C-setting
+            # if not C-setting
             else:
                 # try all permutations of the axis
                 # keep the ones with the non-90 angle=alpha
@@ -677,7 +677,7 @@ class SpacegroupAnalyzer:
             latt = Lattice(new_matrix)
 
         elif latt_type == "triclinic":
-            #we use a LLL Minkowski-like reduction for the triclinic cells
+            # we use a LLL Minkowski-like reduction for the triclinic cells
             struct = struct.get_reduced_structure("LLL")
 
             a, b, c = latt.lengths_and_angles[0]
@@ -685,14 +685,14 @@ class SpacegroupAnalyzer:
                                   for i in latt.lengths_and_angles[1]]
             new_matrix = None
             test_matrix = [[a, 0, 0],
-                          [b * cos(gamma), b * sin(gamma), 0.0],
-                          [c * cos(beta),
-                           c * (cos(alpha) - cos(beta) * cos(gamma)) /
-                           sin(gamma),
-                           c * math.sqrt(sin(gamma) ** 2 - cos(alpha) ** 2
-                                         - cos(beta) ** 2
-                                         + 2 * cos(alpha) * cos(beta)
-                                         * cos(gamma)) / sin(gamma)]]
+                           [b * cos(gamma), b * sin(gamma), 0.0],
+                           [c * cos(beta),
+                            c * (cos(alpha) - cos(beta) * cos(gamma)) /
+                            sin(gamma),
+                            c * math.sqrt(sin(gamma) ** 2 - cos(alpha) ** 2
+                                          - cos(beta) ** 2
+                                          + 2 * cos(alpha) * cos(beta)
+                                          * cos(gamma)) / sin(gamma)]]
 
             def is_all_acute_or_obtuse(m):
                 recp_angles = np.array(Lattice(m).reciprocal_lattice.angles)
@@ -780,12 +780,12 @@ class SpacegroupAnalyzer:
                 if not nonzero:
                     mesh.append(1)
                 else:
-                    m = np.abs(np.round(1/np.array(nonzero)))
+                    m = np.abs(np.round(1 / np.array(nonzero)))
                     mesh.append(int(max(m)))
                 shift.append(0)
             else:
                 # Monk
-                m = np.abs(np.round(0.5/np.array(nonzero)))
+                m = np.abs(np.round(0.5 / np.array(nonzero)))
                 mesh.append(int(max(m)))
                 shift.append(1)
 
@@ -805,7 +805,7 @@ class SpacegroupAnalyzer:
                 not all([v == 1 for v in mapped.values()])):
             raise ValueError("Unable to find 1:1 corresponding between input "
                              "kpoints and irreducible grid!")
-        return [w/sum(weights) for w in weights]
+        return [w / sum(weights) for w in weights]
 
     def is_laue(self):
 
@@ -1184,7 +1184,7 @@ class PointGroupAnalyzer:
                             self.rot_sym.append((test_axis, r))
                             break
             if rot_present[2] and rot_present[3] and (
-                        rot_present[4] or rot_present[5]):
+                    rot_present[4] or rot_present[5]):
                 break
 
     def get_pointgroup(self):
@@ -1562,7 +1562,7 @@ class SpacegroupOperations(list):
     def __init__(self, int_symbol, int_number, symmops):
         self.int_symbol = int_symbol
         self.int_number = int_number
-        super(SpacegroupOperations, self).__init__(symmops)
+        super().__init__(symmops)
 
     def are_symmetrically_equivalent(self, sites1, sites2, symm_prec=1e-3):
         """
@@ -1584,6 +1584,7 @@ class SpacegroupOperations(list):
             (bool): Whether the two sets of sites are symmetrically
             equivalent.
         """
+
         def in_sites(site):
             for test_site in sites1:
                 if test_site.is_periodic_image(site, symm_prec, False):
@@ -1622,9 +1623,10 @@ class PointGroupOperations(list):
 
         Schoenflies symbol of the point group.
     """
+
     def __init__(self, sch_symbol, operations, tol=0.1):
         self.sch_symbol = sch_symbol
-        super(PointGroupOperations, self).__init__(
+        super().__init__(
             generate_full_symmops(operations, tol))
 
     def __str__(self):

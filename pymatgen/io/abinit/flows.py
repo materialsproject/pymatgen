@@ -22,7 +22,7 @@ from pprint import pprint
 from tabulate import tabulate
 from pydispatch import dispatcher
 from collections import OrderedDict
-from monty.collections import as_set, dict2namedtuple
+from monty.collections import dict2namedtuple
 from monty.string import list_strings, is_string, make_banner
 from monty.operator import operator_from_str
 from monty.io import FileLock
@@ -62,6 +62,21 @@ __all__ = [
 ]
 
 
+def as_set(obj):
+    """
+    Convert obj into a set, returns None if obj is None.
+
+    >>> assert as_set(None) is None and as_set(1) == set([1]) and as_set(range(1,3)) == set([1, 2])
+    """
+    if obj is None or isinstance(obj, collections.abc.Set):
+        return obj
+
+    if not isinstance(obj, collections.abc.Iterable):
+        return set((obj,))
+    else:
+        return set(obj)
+
+
 class FlowResults(NodeResults):
 
     JSON_SCHEMA = NodeResults.JSON_SCHEMA.copy()
@@ -72,7 +87,7 @@ class FlowResults(NodeResults):
     @classmethod
     def from_node(cls, flow):
         """Initialize an instance from a Work instance."""
-        new = super(FlowResults, cls).from_node(flow)
+        new = super().from_node(flow)
 
         # Will put all files found in outdir in GridFs
         d = {os.path.basename(f): f for f in flow.outdir.list_filepaths()}
@@ -156,7 +171,7 @@ class Flow(Node, NodeContainer, MSONable):
         if isinstance(obj, cls): return obj
         if is_string(obj):
             return cls.pickle_load(obj)
-        elif isinstance(obj, collections.Mapping):
+        elif isinstance(obj, collections.abc.Mapping):
             return cls.from_dict(obj)
         else:
             raise TypeError("Don't know how to convert type %s into a Flow" % type(obj))
@@ -174,7 +189,7 @@ class Flow(Node, NodeContainer, MSONable):
                           -1 denotes the latest version supported by the python interpreter.
             remove: attempt to remove working directory `workdir` if directory already exists.
         """
-        super(Flow, self).__init__()
+        super().__init__()
 
         if workdir is not None:
             if remove and os.path.exists(workdir): shutil.rmtree(workdir)
@@ -308,7 +323,7 @@ class Flow(Node, NodeContainer, MSONable):
         if remove_lock and os.path.exists(filepath + ".lock"):
             try:
                 os.remove(filepath + ".lock")
-            except:
+            except Exception:
                 pass
 
         with FileLock(filepath):
@@ -2506,7 +2521,7 @@ class G0W0WithQptdmFlow(Flow):
             manager: :class:`TaskManager` object used to submit the jobs
                      Initialized from manager.yml if manager is None.
         """
-        super(G0W0WithQptdmFlow, self).__init__(workdir, manager=manager)
+        super().__init__(workdir, manager=manager)
 
         # Register the first work (GS + NSCF calculation)
         bands_work = self.register_work(BandStructureWork(scf_input, nscf_input))
@@ -2791,7 +2806,7 @@ class PhononFlow(Flow):
         print("Final DDB file available at %s" % out_ddb)
 
         # Call the method of the super class.
-        retcode = super(PhononFlow, self).finalize()
+        retcode = super().finalize()
         return retcode
 
 
@@ -2866,7 +2881,7 @@ class NonLinearCoeffFlow(Flow):
         print("Final DDB file available at %s" % out_ddb)
 
         # Call the method of the super class.
-        retcode = super(NonLinearCoeffFlow, self).finalize()
+        retcode = super().finalize()
         print("retcode", retcode)
         #if retcode != 0: return retcode
         return retcode
@@ -2950,7 +2965,7 @@ def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, 
         # Parse the file to get the perturbations.
         try:
             irred_perts = yaml_read_irred_perts(fake_task.log_file.path)
-        except:
+        except Exception:
             print("Error in %s" % fake_task.log_file.path)
             raise
 

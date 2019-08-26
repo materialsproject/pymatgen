@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.electronic_structure.plotter &#8212; pymatgen 2019.3.13 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.electronic_structure.plotter &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -35,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -343,12 +341,10 @@
                 <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">ticks</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">ticks</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">][</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]:</span>
                         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;already print label... &quot;</span>
-                                     <span class="s2">&quot;skipping label </span><span class="si">{i}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                            <span class="n">i</span><span class="o">=</span><span class="n">ticks</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]))</span>
+                                     <span class="s2">&quot;skipping label </span><span class="si">{i}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="n">ticks</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]))</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Adding a line at </span><span class="si">{d}</span><span class="s2">&quot;</span>
-                                     <span class="s2">&quot; for label </span><span class="si">{l}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                            <span class="n">d</span><span class="o">=</span><span class="n">ticks</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">l</span><span class="o">=</span><span class="n">ticks</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]))</span>
+                                     <span class="s2">&quot; for label </span><span class="si">{l}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">ticks</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">l</span><span class="o">=</span><span class="n">ticks</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]))</span>
                         <span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">ticks</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Adding a line at </span><span class="si">{d}</span><span class="s2"> for label </span><span class="si">{l}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
@@ -495,9 +491,9 @@
             <span class="c1"># band with one spline rather than fitting with piecewise splines</span>
             <span class="c1"># (splines are ill-suited to fit discontinuities).</span>
             <span class="c1">#</span>
-            <span class="c1"># The number of splines used to fit a band is determined by the </span>
-            <span class="c1"># number of branches (high symmetry lines) defined in the </span>
-            <span class="c1"># BandStructureSymmLine object (see BandStructureSymmLine._branches). </span>
+            <span class="c1"># The number of splines used to fit a band is determined by the</span>
+            <span class="c1"># number of branches (high symmetry lines) defined in the</span>
+            <span class="c1"># BandStructureSymmLine object (see BandStructureSymmLine._branches).</span>
 
             <span class="n">warning</span> <span class="o">=</span> <span class="s2">&quot;WARNING! Distance / branch </span><span class="si">{d}</span><span class="s2">, band </span><span class="si">{i}</span><span class="s2"> cannot be &quot;</span> <span class="o">+</span> \
                       <span class="s2">&quot;interpolated.</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> \
@@ -594,11 +590,11 @@
             <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">is_metal</span><span class="p">()</span> <span class="ow">and</span> <span class="n">vbm_cbm_marker</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">cbm</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;cbm&#39;</span><span class="p">]:</span>
-                        <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">cbm</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cbm</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span>
-                                    <span class="n">s</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">cbm</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cbm</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span>
+                                <span class="n">s</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">vbm</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;vbm&#39;</span><span class="p">]:</span>
-                        <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">vbm</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">vbm</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span>
-                                    <span class="n">s</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">vbm</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">vbm</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span>
+                                <span class="n">s</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
 
         <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 
@@ -754,7 +750,7 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bs</span><span class="o">.</span><span class="n">projections</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;try to plot projections&quot;</span>
                              <span class="s2">&quot; on a band structure without any&quot;</span><span class="p">)</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">BSPlotterProjected</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">bs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">bs</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_projections_by_branches</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dictio</span><span class="p">):</span>
         <span class="n">proj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">get_projections_on_elements_and_orbitals</span><span class="p">(</span><span class="n">dictio</span><span class="p">)</span>
@@ -795,6 +791,9 @@
 <span class="sd">                format is {Element:[Orbitals]} for instance</span>
 <span class="sd">                {&#39;Cu&#39;:[&#39;d&#39;,&#39;s&#39;],&#39;O&#39;:[&#39;p&#39;]} will give projections for Cu on</span>
 <span class="sd">                d and s orbitals and on oxygen p.</span>
+<span class="sd">                If you use this class to plot LobsterBandStructureSymmLine,</span>
+<span class="sd">                the orbitals are named as in the FATBAND filename, e.g.</span>
+<span class="sd">                &quot;2p&quot; or &quot;2p_x&quot;</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            a pylab object with different subfigures for each projection</span>
@@ -834,18 +833,13 @@
                             <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span>
                                     <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">][</span><span class="n">b</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">)][</span><span class="n">i</span><span class="p">])):</span>
                                 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;distances&#39;</span><span class="p">][</span><span class="n">b</span><span class="p">][</span><span class="n">j</span><span class="p">],</span>
-                                         <span class="n">data</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">][</span><span class="n">b</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">)][</span><span class="n">i</span><span class="p">][</span>
-                                             <span class="n">j</span><span class="p">],</span> <span class="s1">&#39;ro&#39;</span><span class="p">,</span>
-                                         <span class="n">markersize</span><span class="o">=</span>
-                                         <span class="n">proj</span><span class="p">[</span><span class="n">b</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">)][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">el</span><span class="p">)][</span>
-                                             <span class="n">o</span><span class="p">]</span> <span class="o">*</span> <span class="mf">15.0</span><span class="p">)</span>
+                                         <span class="n">data</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">][</span><span class="n">b</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">)][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">],</span> <span class="s1">&#39;ro&#39;</span><span class="p">,</span>
+                                         <span class="n">markersize</span><span class="o">=</span><span class="n">proj</span><span class="p">[</span><span class="n">b</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">)][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">el</span><span class="p">)][</span><span class="n">o</span><span class="p">]</span> <span class="o">*</span> <span class="mf">15.0</span><span class="p">)</span>
                         <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">][</span><span class="n">b</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">)][</span><span class="n">i</span><span class="p">])):</span>
                             <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;distances&#39;</span><span class="p">][</span><span class="n">b</span><span class="p">][</span><span class="n">j</span><span class="p">],</span>
                                      <span class="n">data</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">][</span><span class="n">b</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">)][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">],</span>
                                      <span class="s1">&#39;bo&#39;</span><span class="p">,</span>
-                                     <span class="n">markersize</span><span class="o">=</span>
-                                     <span class="n">proj</span><span class="p">[</span><span class="n">b</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">)][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">el</span><span class="p">)][</span>
-                                         <span class="n">o</span><span class="p">]</span> <span class="o">*</span> <span class="mf">15.0</span><span class="p">)</span>
+                                     <span class="n">markersize</span><span class="o">=</span><span class="n">proj</span><span class="p">[</span><span class="n">b</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">)][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">el</span><span class="p">)][</span><span class="n">o</span><span class="p">]</span> <span class="o">*</span> <span class="mf">15.0</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">ylim</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">is_metal</span><span class="p">():</span>
                         <span class="k">if</span> <span class="n">zero_to_efermi</span><span class="p">:</span>
@@ -1063,7 +1057,7 @@
                         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                             <span class="s2">&quot;You give a incorrect index of symmetry lines: </span><span class="si">%s</span><span class="s2">. The index should be in &quot;</span>
                             <span class="s2">&quot;range of [1, </span><span class="si">%s</span><span class="s2">].&quot;</span> <span class="o">%</span> <span class="p">(</span>
-                            <span class="nb">str</span><span class="p">(</span><span class="n">index</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">num_branches</span><span class="p">)))</span>
+                                <span class="nb">str</span><span class="p">(</span><span class="n">index</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">num_branches</span><span class="p">)))</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1090,7 +1084,7 @@
                             <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">anum</span><span class="p">)]</span> <span class="o">=</span> <span class="p">{}</span>
                             <span class="k">for</span> <span class="n">morb</span> <span class="ow">in</span> <span class="n">dictio</span><span class="p">[</span><span class="n">elt</span><span class="p">]:</span>
                                 <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">anum</span><span class="p">)][</span><span class="n">morb</span><span class="p">]</span> <span class="o">=</span> \
-                                <span class="n">proj</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="n">setos</span><span class="p">[</span><span class="n">morb</span><span class="p">]][</span><span class="n">anum</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                                    <span class="n">proj</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="n">setos</span><span class="p">[</span><span class="n">morb</span><span class="p">]][</span><span class="n">anum</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
                     <span class="n">proj_br</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">)][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edict</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">is_spin_polarized</span><span class="p">:</span>
@@ -1102,7 +1096,7 @@
                                 <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">anum</span><span class="p">)]</span> <span class="o">=</span> <span class="p">{}</span>
                                 <span class="k">for</span> <span class="n">morb</span> <span class="ow">in</span> <span class="n">dictio</span><span class="p">[</span><span class="n">elt</span><span class="p">]:</span>
                                     <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">anum</span><span class="p">)][</span><span class="n">morb</span><span class="p">]</span> <span class="o">=</span> \
-                                    <span class="n">proj</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="n">setos</span><span class="p">[</span><span class="n">morb</span><span class="p">]][</span><span class="n">anum</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                                        <span class="n">proj</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="n">setos</span><span class="p">[</span><span class="n">morb</span><span class="p">]][</span><span class="n">anum</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
                         <span class="n">proj_br</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">)][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edict</span><span class="p">)</span>
 
         <span class="c1"># Adjusting  projections for plot</span>
@@ -1143,7 +1137,7 @@
                                         <span class="n">sprojection</span> <span class="o">=</span> <span class="mf">0.0</span>
                                         <span class="k">for</span> <span class="n">anum</span> <span class="ow">in</span> <span class="n">sum_atoms</span><span class="p">[</span><span class="n">elt</span><span class="p">]:</span>
                                             <span class="n">sprojection</span> <span class="o">+=</span> \
-                                            <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">anum</span><span class="p">)][</span><span class="n">morb</span><span class="p">]</span>
+                                                <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">anum</span><span class="p">)][</span><span class="n">morb</span><span class="p">]</span>
                                         <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">dictpa_d</span><span class="p">[</span><span class="n">elt</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]][</span>
                                             <span class="n">morb</span><span class="p">]</span> <span class="o">=</span> <span class="n">sprojection</span>
                                 <span class="k">else</span><span class="p">:</span>
@@ -1153,8 +1147,7 @@
                             <span class="n">proj_br_d</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">)][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edict</span><span class="p">)</span>
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">is_spin_polarized</span><span class="p">:</span>
                         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nb_bands</span><span class="p">):</span>
-                            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">br</span><span class="p">[</span><span class="s1">&#39;end_index&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">br</span><span class="p">[</span>
-                                <span class="s1">&#39;start_index&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">br</span><span class="p">[</span><span class="s1">&#39;end_index&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">br</span><span class="p">[</span><span class="s1">&#39;start_index&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
                                 <span class="n">atoms_morbs</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span>
                                     <span class="n">proj_br</span><span class="p">[</span><span class="n">branch</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">)][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span>
                                 <span class="n">edict</span> <span class="o">=</span> <span class="p">{}</span>
@@ -1168,8 +1161,8 @@
                                             <span class="n">sprojection</span> <span class="o">=</span> <span class="mf">0.0</span>
                                             <span class="k">for</span> <span class="n">anum</span> <span class="ow">in</span> <span class="n">sum_atoms</span><span class="p">[</span><span class="n">elt</span><span class="p">]:</span>
                                                 <span class="n">sprojection</span> <span class="o">+=</span> \
-                                                <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">anum</span><span class="p">)][</span>
-                                                    <span class="n">morb</span><span class="p">]</span>
+                                                    <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">anum</span><span class="p">)][</span>
+                                                        <span class="n">morb</span><span class="p">]</span>
                                             <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">dictpa_d</span><span class="p">[</span><span class="n">elt</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]][</span>
                                                 <span class="n">morb</span><span class="p">]</span> <span class="o">=</span> <span class="n">sprojection</span>
                                     <span class="k">else</span><span class="p">:</span>
@@ -1190,11 +1183,11 @@
                                         <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
                                         <span class="k">for</span> <span class="n">morb</span> <span class="ow">in</span> <span class="n">dictio_d</span><span class="p">[</span><span class="n">elt</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
                                             <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span> <span class="o">=</span> \
-                                            <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span>
+                                                <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span>
                                         <span class="n">sprojection</span> <span class="o">=</span> <span class="mf">0.0</span>
                                         <span class="k">for</span> <span class="n">morb</span> <span class="ow">in</span> <span class="n">sum_morbs</span><span class="p">[</span><span class="n">elt</span><span class="p">]:</span>
                                             <span class="n">sprojection</span> <span class="o">+=</span> \
-                                            <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span>
+                                                <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span>
                                         <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span>
                                             <span class="n">dictio_d</span><span class="p">[</span><span class="n">elt</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">sprojection</span>
                                 <span class="k">else</span><span class="p">:</span>
@@ -1204,8 +1197,7 @@
                             <span class="n">proj_br_d</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">)][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edict</span><span class="p">)</span>
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">is_spin_polarized</span><span class="p">:</span>
                         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nb_bands</span><span class="p">):</span>
-                            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">br</span><span class="p">[</span><span class="s1">&#39;end_index&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">br</span><span class="p">[</span>
-                                <span class="s1">&#39;start_index&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">br</span><span class="p">[</span><span class="s1">&#39;end_index&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">br</span><span class="p">[</span><span class="s1">&#39;start_index&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
                                 <span class="n">atoms_morbs</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span>
                                     <span class="n">proj_br</span><span class="p">[</span><span class="n">branch</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">)][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span>
                                 <span class="n">edict</span> <span class="o">=</span> <span class="p">{}</span>
@@ -1214,12 +1206,10 @@
                                         <span class="k">for</span> <span class="n">anum</span> <span class="ow">in</span> <span class="n">dictpa_d</span><span class="p">[</span><span class="n">elt</span><span class="p">]:</span>
                                             <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
                                             <span class="k">for</span> <span class="n">morb</span> <span class="ow">in</span> <span class="n">dictio_d</span><span class="p">[</span><span class="n">elt</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
-                                                <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span> <span class="o">=</span> \
-                                                <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span>
+                                                <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span> <span class="o">=</span> <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span>
                                             <span class="n">sprojection</span> <span class="o">=</span> <span class="mf">0.0</span>
                                             <span class="k">for</span> <span class="n">morb</span> <span class="ow">in</span> <span class="n">sum_morbs</span><span class="p">[</span><span class="n">elt</span><span class="p">]:</span>
-                                                <span class="n">sprojection</span> <span class="o">+=</span> \
-                                                <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span>
+                                                <span class="n">sprojection</span> <span class="o">+=</span> <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span>
                                             <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span>
                                                 <span class="n">dictio_d</span><span class="p">[</span><span class="n">elt</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">sprojection</span>
                                     <span class="k">else</span><span class="p">:</span>
@@ -1240,11 +1230,11 @@
                                         <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
                                         <span class="k">for</span> <span class="n">morb</span> <span class="ow">in</span> <span class="n">dictio_d</span><span class="p">[</span><span class="n">elt</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
                                             <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span> <span class="o">=</span> \
-                                            <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span>
+                                                <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span>
                                         <span class="n">sprojection</span> <span class="o">=</span> <span class="mf">0.0</span>
                                         <span class="k">for</span> <span class="n">morb</span> <span class="ow">in</span> <span class="n">sum_morbs</span><span class="p">[</span><span class="n">elt</span><span class="p">]:</span>
                                             <span class="n">sprojection</span> <span class="o">+=</span> \
-                                            <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span>
+                                                <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span>
                                         <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span>
                                             <span class="n">dictio_d</span><span class="p">[</span><span class="n">elt</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">sprojection</span>
 
@@ -1253,7 +1243,7 @@
                                         <span class="n">sprojection</span> <span class="o">=</span> <span class="mf">0.0</span>
                                         <span class="k">for</span> <span class="n">anum</span> <span class="ow">in</span> <span class="n">sum_atoms</span><span class="p">[</span><span class="n">elt</span><span class="p">]:</span>
                                             <span class="n">sprojection</span> <span class="o">+=</span> \
-                                            <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">anum</span><span class="p">)][</span><span class="n">morb</span><span class="p">]</span>
+                                                <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">anum</span><span class="p">)][</span><span class="n">morb</span><span class="p">]</span>
                                         <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">dictpa_d</span><span class="p">[</span><span class="n">elt</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]][</span>
                                             <span class="n">morb</span><span class="p">]</span> <span class="o">=</span> <span class="n">sprojection</span>
 
@@ -1261,12 +1251,12 @@
                                     <span class="k">for</span> <span class="n">anum</span> <span class="ow">in</span> <span class="n">sum_atoms</span><span class="p">[</span><span class="n">elt</span><span class="p">]:</span>
                                         <span class="k">for</span> <span class="n">morb</span> <span class="ow">in</span> <span class="n">sum_morbs</span><span class="p">[</span><span class="n">elt</span><span class="p">]:</span>
                                             <span class="n">sprojection</span> <span class="o">+=</span> \
-                                            <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">anum</span><span class="p">)][</span><span class="n">morb</span><span class="p">]</span>
+                                                <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">anum</span><span class="p">)][</span><span class="n">morb</span><span class="p">]</span>
                                     <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">dictpa_d</span><span class="p">[</span><span class="n">elt</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]][</span>
                                         <span class="n">dictio_d</span><span class="p">[</span><span class="n">elt</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">sprojection</span>
 
                                 <span class="k">elif</span> <span class="p">(</span><span class="n">elt</span> <span class="ow">in</span> <span class="n">sum_atoms</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
-                                    <span class="n">elt</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sum_morbs</span><span class="p">):</span>
+                                        <span class="n">elt</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sum_morbs</span><span class="p">):</span>
                                     <span class="k">for</span> <span class="n">anum</span> <span class="ow">in</span> <span class="n">dictpa_d</span><span class="p">[</span><span class="n">elt</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
                                         <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">]</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span>
                                             <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">])</span>
@@ -1275,21 +1265,19 @@
                                         <span class="n">sprojection</span> <span class="o">=</span> <span class="mf">0.0</span>
                                         <span class="k">for</span> <span class="n">anum</span> <span class="ow">in</span> <span class="n">sum_atoms</span><span class="p">[</span><span class="n">elt</span><span class="p">]:</span>
                                             <span class="n">sprojection</span> <span class="o">+=</span> \
-                                            <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">anum</span><span class="p">)][</span><span class="n">morb</span><span class="p">]</span>
+                                                <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">anum</span><span class="p">)][</span><span class="n">morb</span><span class="p">]</span>
                                         <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">dictpa_d</span><span class="p">[</span><span class="n">elt</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]][</span>
                                             <span class="n">morb</span><span class="p">]</span> <span class="o">=</span> <span class="n">sprojection</span>
 
                                 <span class="k">elif</span> <span class="p">(</span><span class="n">elt</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sum_atoms</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
-                                    <span class="n">elt</span> <span class="ow">in</span> <span class="n">sum_morbs</span><span class="p">):</span>
+                                        <span class="n">elt</span> <span class="ow">in</span> <span class="n">sum_morbs</span><span class="p">):</span>
                                     <span class="k">for</span> <span class="n">anum</span> <span class="ow">in</span> <span class="n">dictpa_d</span><span class="p">[</span><span class="n">elt</span><span class="p">]:</span>
                                         <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
                                         <span class="k">for</span> <span class="n">morb</span> <span class="ow">in</span> <span class="n">dictio_d</span><span class="p">[</span><span class="n">elt</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
-                                            <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span> <span class="o">=</span> \
-                                            <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span>
+                                            <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span> <span class="o">=</span> <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span>
                                         <span class="n">sprojection</span> <span class="o">=</span> <span class="mf">0.0</span>
                                         <span class="k">for</span> <span class="n">morb</span> <span class="ow">in</span> <span class="n">sum_morbs</span><span class="p">[</span><span class="n">elt</span><span class="p">]:</span>
-                                            <span class="n">sprojection</span> <span class="o">+=</span> \
-                                            <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span>
+                                            <span class="n">sprojection</span> <span class="o">+=</span> <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span>
                                         <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span>
                                             <span class="n">dictio_d</span><span class="p">[</span><span class="n">elt</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">sprojection</span>
 
@@ -1297,53 +1285,44 @@
                                     <span class="k">for</span> <span class="n">anum</span> <span class="ow">in</span> <span class="n">dictpa_d</span><span class="p">[</span><span class="n">elt</span><span class="p">]:</span>
                                         <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
                                         <span class="k">for</span> <span class="n">morb</span> <span class="ow">in</span> <span class="n">dictio_d</span><span class="p">[</span><span class="n">elt</span><span class="p">]:</span>
-                                            <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span> <span class="o">=</span> \
-                                            <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span>
+                                            <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span> <span class="o">=</span> <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span>
                             <span class="n">proj_br_d</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">)][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edict</span><span class="p">)</span>
 
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">is_spin_polarized</span><span class="p">:</span>
                         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nb_bands</span><span class="p">):</span>
-                            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">br</span><span class="p">[</span><span class="s1">&#39;end_index&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">br</span><span class="p">[</span>
-                                <span class="s1">&#39;start_index&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-                                <span class="n">atoms_morbs</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span>
-                                    <span class="n">proj_br</span><span class="p">[</span><span class="n">branch</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">)][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span>
+                            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">br</span><span class="p">[</span><span class="s1">&#39;end_index&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">br</span><span class="p">[</span><span class="s1">&#39;start_index&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                                <span class="n">atoms_morbs</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">proj_br</span><span class="p">[</span><span class="n">branch</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">)][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span>
                                 <span class="n">edict</span> <span class="o">=</span> <span class="p">{}</span>
                                 <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="n">dictpa</span><span class="p">:</span>
                                     <span class="k">if</span> <span class="p">(</span><span class="n">elt</span> <span class="ow">in</span> <span class="n">sum_atoms</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
-                                        <span class="n">elt</span> <span class="ow">in</span> <span class="n">sum_morbs</span><span class="p">):</span>
+                                            <span class="n">elt</span> <span class="ow">in</span> <span class="n">sum_morbs</span><span class="p">):</span>
                                         <span class="k">for</span> <span class="n">anum</span> <span class="ow">in</span> <span class="n">dictpa_d</span><span class="p">[</span><span class="n">elt</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
                                             <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
                                             <span class="k">for</span> <span class="n">morb</span> <span class="ow">in</span> <span class="n">dictio_d</span><span class="p">[</span><span class="n">elt</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
-                                                <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span> <span class="o">=</span> \
-                                                <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span>
+                                                <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span> <span class="o">=</span> <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span>
                                             <span class="n">sprojection</span> <span class="o">=</span> <span class="mf">0.0</span>
                                             <span class="k">for</span> <span class="n">morb</span> <span class="ow">in</span> <span class="n">sum_morbs</span><span class="p">[</span><span class="n">elt</span><span class="p">]:</span>
-                                                <span class="n">sprojection</span> <span class="o">+=</span> \
-                                                <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span>
-                                            <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span>
-                                                <span class="n">dictio_d</span><span class="p">[</span><span class="n">elt</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">sprojection</span>
+                                                <span class="n">sprojection</span> <span class="o">+=</span> <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span>
+                                            <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">dictio_d</span><span class="p">[</span><span class="n">elt</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">sprojection</span>
 
                                         <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">dictpa_d</span><span class="p">[</span><span class="n">elt</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
                                         <span class="k">for</span> <span class="n">morb</span> <span class="ow">in</span> <span class="n">dictio_d</span><span class="p">[</span><span class="n">elt</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
                                             <span class="n">sprojection</span> <span class="o">=</span> <span class="mf">0.0</span>
                                             <span class="k">for</span> <span class="n">anum</span> <span class="ow">in</span> <span class="n">sum_atoms</span><span class="p">[</span><span class="n">elt</span><span class="p">]:</span>
-                                                <span class="n">sprojection</span> <span class="o">+=</span> \
-                                                <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">anum</span><span class="p">)][</span>
-                                                    <span class="n">morb</span><span class="p">]</span>
-                                            <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">dictpa_d</span><span class="p">[</span><span class="n">elt</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]][</span>
-                                                <span class="n">morb</span><span class="p">]</span> <span class="o">=</span> <span class="n">sprojection</span>
+                                                <span class="n">sprojection</span> <span class="o">+=</span> <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">anum</span><span class="p">)][</span><span class="n">morb</span><span class="p">]</span>
+                                            <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">dictpa_d</span><span class="p">[</span><span class="n">elt</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]][</span><span class="n">morb</span><span class="p">]</span> <span class="o">=</span> <span class="n">sprojection</span>
 
                                         <span class="n">sprojection</span> <span class="o">=</span> <span class="mf">0.0</span>
                                         <span class="k">for</span> <span class="n">anum</span> <span class="ow">in</span> <span class="n">sum_atoms</span><span class="p">[</span><span class="n">elt</span><span class="p">]:</span>
                                             <span class="k">for</span> <span class="n">morb</span> <span class="ow">in</span> <span class="n">sum_morbs</span><span class="p">[</span><span class="n">elt</span><span class="p">]:</span>
                                                 <span class="n">sprojection</span> <span class="o">+=</span> \
-                                                <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">anum</span><span class="p">)][</span>
-                                                    <span class="n">morb</span><span class="p">]</span>
+                                                    <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">anum</span><span class="p">)][</span>
+                                                        <span class="n">morb</span><span class="p">]</span>
                                         <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">dictpa_d</span><span class="p">[</span><span class="n">elt</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]][</span>
                                             <span class="n">dictio_d</span><span class="p">[</span><span class="n">elt</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">sprojection</span>
 
                                     <span class="k">elif</span> <span class="p">(</span><span class="n">elt</span> <span class="ow">in</span> <span class="n">sum_atoms</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
-                                        <span class="n">elt</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sum_morbs</span><span class="p">):</span>
+                                            <span class="n">elt</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sum_morbs</span><span class="p">):</span>
                                         <span class="k">for</span> <span class="n">anum</span> <span class="ow">in</span> <span class="n">dictpa_d</span><span class="p">[</span><span class="n">elt</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
                                             <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">]</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span>
                                                 <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">])</span>
@@ -1352,22 +1331,22 @@
                                             <span class="n">sprojection</span> <span class="o">=</span> <span class="mf">0.0</span>
                                             <span class="k">for</span> <span class="n">anum</span> <span class="ow">in</span> <span class="n">sum_atoms</span><span class="p">[</span><span class="n">elt</span><span class="p">]:</span>
                                                 <span class="n">sprojection</span> <span class="o">+=</span> \
-                                                <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">anum</span><span class="p">)][</span>
-                                                    <span class="n">morb</span><span class="p">]</span>
+                                                    <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">anum</span><span class="p">)][</span>
+                                                        <span class="n">morb</span><span class="p">]</span>
                                             <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">dictpa_d</span><span class="p">[</span><span class="n">elt</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]][</span>
                                                 <span class="n">morb</span><span class="p">]</span> <span class="o">=</span> <span class="n">sprojection</span>
 
                                     <span class="k">elif</span> <span class="p">(</span><span class="n">elt</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sum_atoms</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
-                                        <span class="n">elt</span> <span class="ow">in</span> <span class="n">sum_morbs</span><span class="p">):</span>
+                                            <span class="n">elt</span> <span class="ow">in</span> <span class="n">sum_morbs</span><span class="p">):</span>
                                         <span class="k">for</span> <span class="n">anum</span> <span class="ow">in</span> <span class="n">dictpa_d</span><span class="p">[</span><span class="n">elt</span><span class="p">]:</span>
                                             <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
                                             <span class="k">for</span> <span class="n">morb</span> <span class="ow">in</span> <span class="n">dictio_d</span><span class="p">[</span><span class="n">elt</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
                                                 <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span> <span class="o">=</span> \
-                                                <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span>
+                                                    <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span>
                                             <span class="n">sprojection</span> <span class="o">=</span> <span class="mf">0.0</span>
                                             <span class="k">for</span> <span class="n">morb</span> <span class="ow">in</span> <span class="n">sum_morbs</span><span class="p">[</span><span class="n">elt</span><span class="p">]:</span>
                                                 <span class="n">sprojection</span> <span class="o">+=</span> \
-                                                <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span>
+                                                    <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span>
                                             <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span>
                                                 <span class="n">dictio_d</span><span class="p">[</span><span class="n">elt</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">sprojection</span>
 
@@ -1376,7 +1355,7 @@
                                             <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
                                             <span class="k">for</span> <span class="n">morb</span> <span class="ow">in</span> <span class="n">dictio_d</span><span class="p">[</span><span class="n">elt</span><span class="p">]:</span>
                                                 <span class="n">edict</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span> <span class="o">=</span> \
-                                                <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span>
+                                                    <span class="n">atoms_morbs</span><span class="p">[</span><span class="n">elt</span> <span class="o">+</span> <span class="n">anum</span><span class="p">][</span><span class="n">morb</span><span class="p">]</span>
                                 <span class="n">proj_br_d</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">)][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edict</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">proj_br_d</span><span class="p">,</span> <span class="n">dictio_d</span><span class="p">,</span> <span class="n">dictpa_d</span><span class="p">,</span> <span class="n">indices</span>
@@ -1468,10 +1447,7 @@
 <span class="sd">            f_3 = 9 f_2 = 10 f_1 = 11 f0 = 12 f1 = 13 f2 = 14 f3 = 15</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">dictio</span><span class="p">,</span> <span class="n">sum_morbs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Orbitals_SumOrbitals</span><span class="p">(</span><span class="n">dictio</span><span class="p">,</span> <span class="n">sum_morbs</span><span class="p">)</span>
-        <span class="n">dictpa</span><span class="p">,</span> <span class="n">sum_atoms</span><span class="p">,</span> <span class="n">number_figs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_number_of_subfigures</span><span class="p">(</span><span class="n">dictio</span><span class="p">,</span>
-                                                                    <span class="n">dictpa</span><span class="p">,</span>
-                                                                    <span class="n">sum_atoms</span><span class="p">,</span>
-                                                                    <span class="n">sum_morbs</span><span class="p">)</span>
+        <span class="n">dictpa</span><span class="p">,</span> <span class="n">sum_atoms</span><span class="p">,</span> <span class="n">number_figs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_number_of_subfigures</span><span class="p">(</span><span class="n">dictio</span><span class="p">,</span> <span class="n">dictpa</span><span class="p">,</span> <span class="n">sum_atoms</span><span class="p">,</span> <span class="n">sum_morbs</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Number of subfigures: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">number_figs</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">number_figs</span> <span class="o">&gt;</span> <span class="mi">9</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span>
@@ -1540,17 +1516,12 @@
                                     <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
                                         <span class="n">data</span><span class="p">[</span><span class="s1">&#39;distances&#39;</span><span class="p">][</span><span class="n">b</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">shift</span><span class="p">[</span><span class="n">br</span><span class="p">],</span>
                                         <span class="n">data</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">][</span><span class="n">b</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">)][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">],</span>
-                                        <span class="s1">&#39;co&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span> \
-                                            <span class="n">proj_br_d</span><span class="p">[</span><span class="n">br</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">)][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">][</span>
-                                                <span class="n">elt</span> <span class="o">+</span> <span class="n">numa</span><span class="p">][</span><span class="n">o</span><span class="p">]</span> <span class="o">*</span> <span class="mf">15.0</span><span class="p">)</span>
+                                        <span class="s1">&#39;co&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="n">proj_br_d</span><span class="p">[</span><span class="n">br</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">)][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="n">elt</span> <span class="o">+</span> <span class="n">numa</span><span class="p">][</span><span class="n">o</span><span class="p">]</span> <span class="o">*</span> <span class="mf">15.0</span><span class="p">)</span>
 
-                            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span>
-                                    <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">][</span><span class="n">b</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">)][</span><span class="n">i</span><span class="p">])):</span>
+                            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">][</span><span class="n">b</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">)][</span><span class="n">i</span><span class="p">])):</span>
                                 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;distances&#39;</span><span class="p">][</span><span class="n">b</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">shift</span><span class="p">[</span><span class="n">br</span><span class="p">],</span>
                                          <span class="n">data</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">][</span><span class="n">b</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">)][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">],</span>
-                                         <span class="s1">&#39;go&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span> \
-                                             <span class="n">proj_br_d</span><span class="p">[</span><span class="n">br</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">)][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">][</span>
-                                                 <span class="n">elt</span> <span class="o">+</span> <span class="n">numa</span><span class="p">][</span><span class="n">o</span><span class="p">]</span> <span class="o">*</span> <span class="mf">15.0</span><span class="p">)</span>
+                                         <span class="s1">&#39;go&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="n">proj_br_d</span><span class="p">[</span><span class="n">br</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">)][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="n">elt</span> <span class="o">+</span> <span class="n">numa</span><span class="p">][</span><span class="n">o</span><span class="p">]</span> <span class="o">*</span> <span class="mf">15.0</span><span class="p">)</span>
 
                     <span class="k">if</span> <span class="n">ylim</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">is_metal</span><span class="p">():</span>
@@ -1695,7 +1666,7 @@
                             <span class="k">if</span> <span class="n">orb</span> <span class="o">==</span> <span class="s1">&#39;s&#39;</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">orb</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                                     <span class="s2">&quot;The invalid orbital &#39;</span><span class="si">%s</span><span class="s2">&#39; was put into sum_orbs[&#39;</span><span class="si">%s</span><span class="s2">&#39;].&quot;</span> <span class="o">%</span> <span class="p">(</span>
-                                    <span class="n">orb</span><span class="p">,</span> <span class="n">elt</span><span class="p">))</span>
+                                        <span class="n">orb</span><span class="p">,</span> <span class="n">elt</span><span class="p">))</span>
                             <span class="k">else</span><span class="p">:</span>
                                 <span class="n">sum_morbs</span><span class="p">[</span><span class="n">elt</span><span class="p">]</span> <span class="o">=</span> <span class="n">individual_orbs</span><span class="p">[</span><span class="n">dictio</span><span class="p">[</span><span class="n">elt</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span>
                                 <span class="n">dictio</span><span class="p">[</span><span class="n">elt</span><span class="p">]</span> <span class="o">=</span> <span class="n">individual_orbs</span><span class="p">[</span><span class="n">dictio</span><span class="p">[</span><span class="n">elt</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span>
@@ -1788,7 +1759,7 @@
                             <span class="k">else</span><span class="p">:</span>
                                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                                     <span class="s2">&quot;You put wrong site numbers in &#39;dictpa[</span><span class="si">%s</span><span class="s2">]&#39;: </span><span class="si">%s</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="p">(</span>
-                                    <span class="n">elt</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">number</span><span class="p">)))</span>
+                                        <span class="n">elt</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">number</span><span class="p">)))</span>
                         <span class="n">nelems</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="n">dictpa</span><span class="p">[</span><span class="n">elt</span><span class="p">])</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
                         <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">nelems</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">nelems</span><span class="p">):</span>
                             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -1806,17 +1777,16 @@
                 <span class="s2">&quot;The number of keys in &#39;dictio&#39; and &#39;dictpa&#39; are not the same.&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="n">dictio</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="k">if</span> <span class="n">elt</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dictpa</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span> <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
-                    <span class="s2">&quot;The element &#39;</span><span class="si">%s</span><span class="s2">&#39; is not in both dictpa and dictio.&quot;</span> <span class="o">%</span> <span class="n">elt</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">elt</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dictpa</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;The element &#39;</span><span class="si">%s</span><span class="s2">&#39; is not in both dictpa and dictio.&quot;</span> <span class="o">%</span> <span class="n">elt</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="n">dictpa</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="k">if</span> <span class="n">elt</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dictio</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span> <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
-                    <span class="s2">&quot;The element &#39;</span><span class="si">%s</span><span class="s2">&#39; in not in both dictpa and dictio.&quot;</span> <span class="o">%</span> <span class="n">elt</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">elt</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dictio</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;The element &#39;</span><span class="si">%s</span><span class="s2">&#39; in not in both dictpa and dictio.&quot;</span> <span class="o">%</span> <span class="n">elt</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">sum_atoms</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;You do not want to sum projection over atoms.&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sum_atoms</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="s2">&quot;The invalid type of &#39;sum_atoms&#39; was bound. It should be dict type.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sum_atoms</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The invalid type of &#39;sum_atoms&#39; was bound. It should be dict type.&quot;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">sum_atoms</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;The &#39;sum_atoms&#39; is empty. We cannot do anything.&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1850,7 +1820,7 @@
                                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                                         <span class="s2">&quot;You cannot sum projection with atom number &#39;</span><span class="si">%s</span><span class="s2">&#39; because it is not &quot;</span>
                                         <span class="s2">&quot;metioned in dicpta[</span><span class="si">%s</span><span class="s2">]&quot;</span> <span class="o">%</span> <span class="p">(</span>
-                                        <span class="nb">str</span><span class="p">(</span><span class="n">number</span><span class="p">),</span> <span class="n">elt</span><span class="p">))</span>
+                                            <span class="nb">str</span><span class="p">(</span><span class="n">number</span><span class="p">),</span> <span class="n">elt</span><span class="p">))</span>
                             <span class="k">else</span><span class="p">:</span>
                                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                                     <span class="s2">&quot;You put wrong site numbers in &#39;sum_atoms[</span><span class="si">%s</span><span class="s2">]&#39;.&quot;</span> <span class="o">%</span> <span class="n">elt</span><span class="p">)</span>
@@ -1894,7 +1864,7 @@
             <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="n">sum_morbs</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">elt</span> <span class="ow">in</span> <span class="n">sum_atoms</span><span class="p">:</span>
                     <span class="n">decrease</span> <span class="o">+=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sum_morbs</span><span class="p">[</span><span class="n">elt</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span>
-                    <span class="nb">len</span><span class="p">(</span><span class="n">dictpa</span><span class="p">[</span><span class="n">elt</span><span class="p">])</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">sum_atoms</span><span class="p">[</span><span class="n">elt</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                            <span class="nb">len</span><span class="p">(</span><span class="n">dictpa</span><span class="p">[</span><span class="n">elt</span><span class="p">])</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">sum_atoms</span><span class="p">[</span><span class="n">elt</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">decrease</span> <span class="o">+=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sum_morbs</span><span class="p">[</span><span class="n">elt</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">dictpa</span><span class="p">[</span><span class="n">elt</span><span class="p">])</span>
             <span class="n">number_figs</span> <span class="o">=</span> <span class="n">max_number_figs</span> <span class="o">-</span> <span class="n">decrease</span>
@@ -2054,14 +2024,14 @@
         <span class="k">for</span> <span class="n">branch</span> <span class="ow">in</span> <span class="n">branches</span><span class="p">:</span>
             <span class="n">n_distance</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">l_branches</span><span class="p">[</span><span class="n">branch</span><span class="p">])</span>
             <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">mid$&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">label</span><span class="p">[</span><span class="n">branch</span><span class="p">])</span> <span class="ow">and</span> <span class="p">(</span>
-                <span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">mid$&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">label</span><span class="p">[</span><span class="n">branch</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]):</span>
+                    <span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">mid$&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">label</span><span class="p">[</span><span class="n">branch</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]):</span>
                 <span class="n">n_label</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">label</span><span class="p">[</span><span class="n">branch</span><span class="p">],</span> <span class="n">label</span><span class="p">[</span><span class="n">branch</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]])</span>
             <span class="k">elif</span> <span class="p">(</span><span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">mid$&quot;</span> <span class="ow">in</span> <span class="n">label</span><span class="p">[</span><span class="n">branch</span><span class="p">])</span> <span class="ow">and</span> <span class="p">(</span>
-                <span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">mid$&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">label</span><span class="p">[</span><span class="n">branch</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]):</span>
+                    <span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">mid$&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">label</span><span class="p">[</span><span class="n">branch</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]):</span>
                 <span class="n">n_label</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="p">[</span><span class="n">label</span><span class="p">[</span><span class="n">branch</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;$&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">label</span><span class="p">[</span><span class="n">branch</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]])</span>
             <span class="k">elif</span> <span class="p">(</span><span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">mid$&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">label</span><span class="p">[</span><span class="n">branch</span><span class="p">])</span> <span class="ow">and</span> <span class="p">(</span>
-                <span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">mid$&quot;</span> <span class="ow">in</span> <span class="n">label</span><span class="p">[</span><span class="n">branch</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]):</span>
+                    <span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">mid$&quot;</span> <span class="ow">in</span> <span class="n">label</span><span class="p">[</span><span class="n">branch</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]):</span>
                 <span class="n">n_label</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">label</span><span class="p">[</span><span class="n">branch</span><span class="p">],</span> <span class="n">label</span><span class="p">[</span><span class="n">branch</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;$&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]])</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">n_label</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">label</span><span class="p">[</span><span class="n">branch</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;$&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
@@ -2120,12 +2090,10 @@
                 <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">n_ticks</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">n_ticks</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">][</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]:</span>
                         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;already print label... &quot;</span>
-                                     <span class="s2">&quot;skipping label </span><span class="si">{i}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                            <span class="n">i</span><span class="o">=</span><span class="n">n_ticks</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]))</span>
+                                     <span class="s2">&quot;skipping label </span><span class="si">{i}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="n">n_ticks</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]))</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Adding a line at </span><span class="si">{d}</span><span class="s2">&quot;</span>
-                                     <span class="s2">&quot; for label </span><span class="si">{l}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                            <span class="n">d</span><span class="o">=</span><span class="n">n_ticks</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">l</span><span class="o">=</span><span class="n">n_ticks</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]))</span>
+                                     <span class="s2">&quot; for label </span><span class="si">{l}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">n_ticks</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">l</span><span class="o">=</span><span class="n">n_ticks</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]))</span>
                         <span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">n_ticks</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Adding a line at </span><span class="si">{d}</span><span class="s2"> for label </span><span class="si">{l}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
@@ -2143,7 +2111,7 @@
 
 <div class="viewcode-block" id="BSDOSPlotter"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BSDOSPlotter">[docs]</a><span class="k">class</span> <span class="nc">BSDOSPlotter</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A joint, aligned band structure and density of states plot. Contributions </span>
+<span class="sd">    A joint, aligned band structure and density of states plot. Contributions</span>
 <span class="sd">    from Jan Pohls as well as the online example from Germain Salvato-Vallverdu:</span>
 <span class="sd">    http://gvallver.perso.univ-pau.fr/?p=587</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -2193,13 +2161,13 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a matplotlib plot object.</span>
 <span class="sd">        Args:</span>
-<span class="sd">            bs (BandStructureSymmLine): the bandstructure to plot. Projection </span>
+<span class="sd">            bs (BandStructureSymmLine): the bandstructure to plot. Projection</span>
 <span class="sd">                data must exist for projected plots.</span>
-<span class="sd">            dos (Dos): the Dos to plot. Projection data must exist (i.e., </span>
+<span class="sd">            dos (Dos): the Dos to plot. Projection data must exist (i.e.,</span>
 <span class="sd">                CompleteDos) for projected plots.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            matplotlib.pyplot object on which you can call commands like show() </span>
+<span class="sd">            matplotlib.pyplot object on which you can call commands like show()</span>
 <span class="sd">            and savefig()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">import</span> <span class="nn">matplotlib.lines</span> <span class="k">as</span> <span class="nn">mlines</span>
@@ -2215,13 +2183,12 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">elements</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="n">rgb_legend</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rgb_legend</span> <span class="ow">and</span> <span class="n">bs_projection</span> <span class="ow">and</span> \
-                     <span class="n">bs_projection</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;elements&quot;</span> <span class="ow">and</span> \
-                     <span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+        <span class="n">rgb_legend</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rgb_legend</span> <span class="ow">and</span> <span class="n">bs_projection</span> <span class="ow">and</span> <span class="n">bs_projection</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;elements&quot;</span> <span class="ow">and</span> \
+            <span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">bs_projection</span> <span class="ow">and</span> <span class="n">bs_projection</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;elements&quot;</span> <span class="ow">and</span> \
                 <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="ow">or</span>
-                     <span class="ow">not</span> <span class="n">bs</span><span class="o">.</span><span class="n">get_projection_on_elements</span><span class="p">()):</span>
+                 <span class="ow">not</span> <span class="n">bs</span><span class="o">.</span><span class="n">get_projection_on_elements</span><span class="p">()):</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                 <span class="s2">&quot;Cannot get element projected data; either the projection data &quot;</span>
                 <span class="s2">&quot;doesn&#39;t exist, or you don&#39;t have a compound with exactly 2 &quot;</span>
@@ -2236,10 +2203,13 @@
         <span class="c1"># initialize all the k-point labels and k-point x-distances for bs plot</span>
         <span class="n">xlabels</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># all symmetry point labels on x-axis</span>
         <span class="n">xlabel_distances</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># positions of symmetry point x-labels</span>
-        <span class="n">x_distances</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># x positions of kpoint data</span>
+
+        <span class="n">x_distances_list</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">prev_right_klabel</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># used to determine which branches require a midline separator</span>
 
         <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">bs</span><span class="o">.</span><span class="n">branches</span><span class="p">):</span>
+            <span class="n">x_distances</span> <span class="o">=</span> <span class="p">[]</span>
+
             <span class="c1"># get left and right kpoint labels of this branch</span>
             <span class="n">left_k</span><span class="p">,</span> <span class="n">right_k</span> <span class="o">=</span> <span class="n">l</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
 
@@ -2272,6 +2242,7 @@
             <span class="n">x_distances</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xlabel_distances</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">npts</span><span class="p">):</span>
                 <span class="n">x_distances</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x_distances</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">distance_interval</span><span class="p">)</span>
+            <span class="n">x_distances_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x_distances</span><span class="p">)</span>
 
         <span class="c1"># set up bs and dos plot</span>
         <span class="n">gs</span> <span class="o">=</span> <span class="n">GridSpec</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">width_ratios</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="n">dos</span> <span class="k">else</span> <span class="n">GridSpec</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -2283,7 +2254,7 @@
             <span class="n">dos_ax</span> <span class="o">=</span> <span class="n">mplt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
         <span class="c1"># set basic axes limits for the plot</span>
-        <span class="n">bs_ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x_distances</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">bs_ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x_distances_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
         <span class="n">bs_ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">emin</span><span class="p">,</span> <span class="n">emax</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">dos</span><span class="p">:</span>
             <span class="n">dos_ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">emin</span><span class="p">,</span> <span class="n">emax</span><span class="p">)</span>
@@ -2297,7 +2268,7 @@
                          <span class="n">family</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">font</span><span class="p">)</span>
 
         <span class="c1"># add BS fermi level line at E=0 and gridlines</span>
-        <span class="n">bs_ax</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">xmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">xmax</span><span class="o">=</span><span class="n">x_distances</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">bs_ax</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">xmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">xmax</span><span class="o">=</span><span class="n">x_distances_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
         <span class="n">bs_ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">emin</span><span class="p">,</span> <span class="n">emax</span> <span class="o">+</span> <span class="mf">1E-5</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">egrid_interval</span><span class="p">))</span>
         <span class="n">bs_ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">emin</span><span class="p">,</span> <span class="n">emax</span> <span class="o">+</span> <span class="mf">1E-5</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">egrid_interval</span><span class="p">),</span>
                               <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tick_fontsize</span><span class="p">)</span>
@@ -2328,11 +2299,17 @@
             <span class="k">if</span> <span class="n">spin</span> <span class="ow">in</span> <span class="n">band_energies</span><span class="p">:</span>
                 <span class="n">linestyles</span> <span class="o">=</span> <span class="s2">&quot;solid&quot;</span> <span class="k">if</span> <span class="n">spin</span> <span class="o">==</span> <span class="n">Spin</span><span class="o">.</span><span class="n">up</span> <span class="k">else</span> <span class="s2">&quot;dotted&quot;</span>
                 <span class="k">for</span> <span class="n">band_idx</span><span class="p">,</span> <span class="n">band</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">band_energies</span><span class="p">[</span><span class="n">spin</span><span class="p">]):</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_rgbline</span><span class="p">(</span><span class="n">bs_ax</span><span class="p">,</span> <span class="n">x_distances</span><span class="p">,</span> <span class="n">band</span><span class="p">,</span>
-                                  <span class="n">colordata</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="n">band_idx</span><span class="p">,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">],</span>
-                                  <span class="n">colordata</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="n">band_idx</span><span class="p">,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">],</span>
-                                  <span class="n">colordata</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="n">band_idx</span><span class="p">,</span> <span class="p">:,</span> <span class="mi">2</span><span class="p">],</span>
-                                  <span class="n">linestyles</span><span class="o">=</span><span class="n">linestyles</span><span class="p">)</span>
+                    <span class="n">current_pos</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="k">for</span> <span class="n">x_distances</span> <span class="ow">in</span> <span class="n">x_distances_list</span><span class="p">:</span>
+                        <span class="n">sub_band</span> <span class="o">=</span> <span class="n">band</span><span class="p">[</span><span class="n">current_pos</span><span class="p">:</span> <span class="n">current_pos</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_distances</span><span class="p">)]</span>
+
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_rgbline</span><span class="p">(</span><span class="n">bs_ax</span><span class="p">,</span> <span class="n">x_distances</span><span class="p">,</span> <span class="n">sub_band</span><span class="p">,</span>
+                                      <span class="n">colordata</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="n">band_idx</span><span class="p">,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">][</span><span class="n">current_pos</span><span class="p">:</span> <span class="n">current_pos</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_distances</span><span class="p">)],</span>
+                                      <span class="n">colordata</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="n">band_idx</span><span class="p">,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">][</span><span class="n">current_pos</span><span class="p">:</span> <span class="n">current_pos</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_distances</span><span class="p">)],</span>
+                                      <span class="n">colordata</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="n">band_idx</span><span class="p">,</span> <span class="p">:,</span> <span class="mi">2</span><span class="p">][</span><span class="n">current_pos</span><span class="p">:</span> <span class="n">current_pos</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_distances</span><span class="p">)],</span>
+                                      <span class="n">linestyles</span><span class="o">=</span><span class="n">linestyles</span><span class="p">)</span>
+
+                        <span class="n">current_pos</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_distances</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">dos</span><span class="p">:</span>
             <span class="c1"># Plot the DOS and projected DOS</span>
@@ -2343,9 +2320,9 @@
                     <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;total&quot;</span> <span class="k">if</span> <span class="n">spin</span> <span class="o">==</span> <span class="n">Spin</span><span class="o">.</span><span class="n">up</span> <span class="k">else</span> <span class="kc">None</span>
                     <span class="n">dos_ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">dos_densities</span><span class="p">,</span> <span class="n">dos_energies</span><span class="p">,</span>
                                 <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
-                    <span class="n">dos_ax</span><span class="o">.</span><span class="n">fill_betweenx</span><span class="p">(</span><span class="n">dos_energies</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span><span class="n">dos_densities</span><span class="p">,</span>
-                                        <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">),</span>
-                                        <span class="n">facecolor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">))</span>
+                    <span class="n">dos_ax</span><span class="o">.</span><span class="n">fill_betweenx</span><span class="p">(</span><span class="n">dos_energies</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">dos_densities</span><span class="p">,</span>
+                                         <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">),</span>
+                                         <span class="n">facecolor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">))</span>
 
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dos_projection</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="k">pass</span>
@@ -2379,9 +2356,7 @@
             <span class="c1"># get index of lowest and highest energy being plotted, used to help auto-scale DOS x-axis</span>
             <span class="n">emin_idx</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dos_energies</span><span class="p">)</span> <span class="k">if</span>
                             <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">emin</span><span class="p">)</span>
-            <span class="n">emax_idx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dos_energies</span><span class="p">)</span> <span class="o">-</span> \
-                       <span class="nb">next</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">dos_energies</span><span class="p">))</span>
-                            <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">emax</span><span class="p">)</span>
+            <span class="n">emax_idx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dos_energies</span><span class="p">)</span> <span class="o">-</span> <span class="nb">next</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">dos_energies</span><span class="p">))</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">emax</span><span class="p">)</span>
 
             <span class="c1"># determine DOS x-axis range</span>
             <span class="n">dos_xmin</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">Spin</span><span class="o">.</span><span class="n">down</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dos</span><span class="o">.</span><span class="n">densities</span> <span class="k">else</span> <span class="o">-</span><span class="nb">max</span><span class="p">(</span>
@@ -2520,7 +2495,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Draw an RGB triangle legend on the desired axis</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">loc</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">loc</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">):</span>
             <span class="n">loc</span> <span class="o">=</span> <span class="mi">2</span>
 
         <span class="kn">from</span> <span class="nn">mpl_toolkits.axes_grid1.inset_locator</span> <span class="k">import</span> <span class="n">inset_axes</span>
@@ -2568,7 +2543,7 @@
     <span class="k">def</span> <span class="nf">_rb_line</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">r_label</span><span class="p">,</span> <span class="n">b_label</span><span class="p">,</span> <span class="n">loc</span><span class="p">):</span>
         <span class="c1"># Draw an rb bar legend on the desired axis</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">loc</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">loc</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">):</span>
             <span class="n">loc</span> <span class="o">=</span> <span class="mi">2</span>
         <span class="kn">from</span> <span class="nn">mpl_toolkits.axes_grid1.inset_locator</span> <span class="k">import</span> <span class="n">inset_axes</span>
         <span class="n">inset_ax</span> <span class="o">=</span> <span class="n">inset_axes</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">loc</span><span class="p">)</span>
@@ -2583,7 +2558,7 @@
                           <span class="p">[</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">i</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">]])</span>
 
         <span class="c1"># plot the bar</span>
-        <span class="n">inset_ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mf">250.</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+        <span class="n">inset_ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mf">250.</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
         <span class="n">inset_ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.7</span><span class="p">])</span>
         <span class="n">inset_ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">1.35</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">b_label</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">13</span><span class="p">,</span>
                       <span class="n">family</span><span class="o">=</span><span class="s1">&#39;Times New Roman&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
@@ -2649,8 +2624,8 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot respect to the chemical potential of the Seebeck effective mass</span>
 <span class="sd">        calculated as explained in Ref.</span>
-<span class="sd">        Gibbs, Z. M. et al., Effective mass and fermi surface complexity factor </span>
-<span class="sd">        from ab initio band structure calculations. </span>
+<span class="sd">        Gibbs, Z. M. et al., Effective mass and fermi surface complexity factor</span>
+<span class="sd">        from ab initio band structure calculations.</span>
 <span class="sd">        npj Computational Materials 3, 8 (2017).</span>
 
 <span class="sd">        Args:</span>
@@ -2709,19 +2684,19 @@
 <div class="viewcode-block" id="BoltztrapPlotter.plot_complexity_factor_mu"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BoltztrapPlotter.plot_complexity_factor_mu">[docs]</a>    <span class="k">def</span> <span class="nf">plot_complexity_factor_mu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temps</span><span class="o">=</span><span class="p">[</span><span class="mi">300</span><span class="p">],</span> <span class="n">output</span><span class="o">=</span><span class="s1">&#39;average&#39;</span><span class="p">,</span>
                                   <span class="n">Lambda</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Plot respect to the chemical potential of the Fermi surface complexity </span>
+<span class="sd">        Plot respect to the chemical potential of the Fermi surface complexity</span>
 <span class="sd">        factor calculated as explained in Ref.</span>
-<span class="sd">        Gibbs, Z. M. et al., Effective mass and fermi surface complexity factor </span>
-<span class="sd">        from ab initio band structure calculations. </span>
+<span class="sd">        Gibbs, Z. M. et al., Effective mass and fermi surface complexity factor</span>
+<span class="sd">        from ab initio band structure calculations.</span>
 <span class="sd">        npj Computational Materials 3, 8 (2017).</span>
-<span class="sd">        </span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            output: &#39;average&#39; returns the complexity factor calculated using the average</span>
 <span class="sd">                    of the three diagonal components of the seebeck and conductivity tensors.</span>
 <span class="sd">                    &#39;tensor&#39; returns the complexity factor respect to the three</span>
 <span class="sd">                    diagonal components of seebeck and conductivity tensors.</span>
 <span class="sd">            temps:  list of temperatures of calculated seebeck and conductivity.</span>
-<span class="sd">            Lambda: fitting parameter used to model the scattering (0.5 means constant </span>
+<span class="sd">            Lambda: fitting parameter used to model the scattering (0.5 means constant</span>
 <span class="sd">                    relaxation time).</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            a matplotlib object</span>
@@ -2911,7 +2886,7 @@
 
 <div class="viewcode-block" id="BoltztrapPlotter.plot_seebeck_temp"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BoltztrapPlotter.plot_seebeck_temp">[docs]</a>    <span class="k">def</span> <span class="nf">plot_seebeck_temp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doping</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s1">&#39;average&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Plot the Seebeck coefficient in function of temperature for different </span>
+<span class="sd">        Plot the Seebeck coefficient in function of temperature for different</span>
 <span class="sd">        doping levels.</span>
 
 <span class="sd">        Args:</span>
@@ -2972,7 +2947,7 @@
 <span class="sd">            output: with &#39;average&#39; you get an average of the three directions</span>
 <span class="sd">                    with &#39;eigs&#39; you get all the three directions.</span>
 <span class="sd">            relaxation_time: specify a constant relaxation time value</span>
-<span class="sd">        </span>
+
 <span class="sd">        Returns:</span>
 <span class="sd">            a matplotlib object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -3031,7 +3006,7 @@
 <span class="sd">            output: with &#39;average&#39; you get an average of the three directions</span>
 <span class="sd">                    with &#39;eigs&#39; you get all the three directions.</span>
 <span class="sd">            relaxation_time: specify a constant relaxation time value</span>
-<span class="sd">        </span>
+
 <span class="sd">        Returns:</span>
 <span class="sd">            a matplotlib object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -3087,7 +3062,7 @@
 <span class="sd">            output: with &#39;average&#39; you get an average of the three directions</span>
 <span class="sd">                    with &#39;eigs&#39; you get all the three directions.</span>
 <span class="sd">            relaxation_time: specify a constant relaxation time value</span>
-<span class="sd">        </span>
+
 <span class="sd">        Returns:</span>
 <span class="sd">            a matplotlib object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -3132,7 +3107,7 @@
 
 <div class="viewcode-block" id="BoltztrapPlotter.plot_eff_mass_temp"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BoltztrapPlotter.plot_eff_mass_temp">[docs]</a>    <span class="k">def</span> <span class="nf">plot_eff_mass_temp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doping</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s1">&#39;average&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Plot the average effective mass in function of temperature </span>
+<span class="sd">        Plot the average effective mass in function of temperature</span>
 <span class="sd">        for different doping levels.</span>
 
 <span class="sd">        Args:</span>
@@ -3243,7 +3218,7 @@
 <span class="sd">            output: with &#39;average&#39; you get an average of the three directions</span>
 <span class="sd">                    with &#39;eigs&#39; you get all the three directions.</span>
 <span class="sd">            relaxation_time: specify a constant relaxation time value</span>
-<span class="sd">        </span>
+
 <span class="sd">        Returns:</span>
 <span class="sd">            a matplotlib object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -3295,7 +3270,7 @@
 <span class="sd">            output: with &#39;average&#39; you get an average of the three directions</span>
 <span class="sd">                    with &#39;eigs&#39; you get all the three directions.</span>
 <span class="sd">            relaxation_time: specify a constant relaxation time value</span>
-<span class="sd">        </span>
+
 <span class="sd">        Returns:</span>
 <span class="sd">            a matplotlib object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -3347,7 +3322,7 @@
 <span class="sd">            output: with &#39;average&#39; you get an average of the three directions</span>
 <span class="sd">                    with &#39;eigs&#39; you get all the three directions.</span>
 <span class="sd">            relaxation_time: specify a constant relaxation time value</span>
-<span class="sd">        </span>
+
 <span class="sd">        Returns:</span>
 <span class="sd">            a matplotlib object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -3389,7 +3364,7 @@
 
 <div class="viewcode-block" id="BoltztrapPlotter.plot_eff_mass_dop"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BoltztrapPlotter.plot_eff_mass_dop">[docs]</a>    <span class="k">def</span> <span class="nf">plot_eff_mass_dop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temps</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s1">&#39;average&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Plot the average effective mass in function of doping levels </span>
+<span class="sd">        Plot the average effective mass in function of doping levels</span>
 <span class="sd">        for different temperatures.</span>
 
 <span class="sd">        Args:</span>
@@ -3398,7 +3373,7 @@
 <span class="sd">            output: with &#39;average&#39; you get an average of the three directions</span>
 <span class="sd">                    with &#39;eigs&#39; you get all the three directions.</span>
 <span class="sd">            relaxation_time: specify a constant relaxation time value</span>
-<span class="sd">        </span>
+
 <span class="sd">        Returns:</span>
 <span class="sd">            a matplotlib object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -3517,6 +3492,7 @@
 <span class="sd">            Defaults to False for COHPs.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zero_at_efermi</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">are_coops</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">zero_at_efermi</span> <span class="o">=</span> <span class="n">zero_at_efermi</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">are_coops</span> <span class="o">=</span> <span class="n">are_coops</span>
@@ -3663,7 +3639,7 @@
                 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">ylim</span><span class="p">,</span> <span class="s2">&quot;k--&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_cohps</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;efermi&#39;</span><span class="p">],</span>
-                         <span class="bp">self</span><span class="o">.</span><span class="n">_cohps</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;efermi&#39;</span><span class="p">]],</span> <span class="n">ylim</span><span class="p">,</span>
+                          <span class="bp">self</span><span class="o">.</span><span class="n">_cohps</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;efermi&#39;</span><span class="p">]],</span> <span class="n">ylim</span><span class="p">,</span>
                          <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="n">ncolors</span><span class="p">],</span>
                          <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -3672,7 +3648,7 @@
                 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xlim</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;k--&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xlim</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_cohps</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;efermi&#39;</span><span class="p">],</span>
-                         <span class="bp">self</span><span class="o">.</span><span class="n">_cohps</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;efermi&#39;</span><span class="p">]],</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">_cohps</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;efermi&#39;</span><span class="p">]],</span>
                          <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="n">ncolors</span><span class="p">],</span>
                          <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
@@ -3728,22 +3704,22 @@
 <span class="sd">    Plot the Fermi surface at specific energy value.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        data: energy values in a 3D grid from a CUBE file </span>
-<span class="sd">              via read_cube_file function, or from a </span>
+<span class="sd">        data: energy values in a 3D grid from a CUBE file</span>
+<span class="sd">              via read_cube_file function, or from a</span>
 <span class="sd">              BoltztrapAnalyzer.fermi_surface_data</span>
 <span class="sd">        structure: structure object of the material</span>
-<span class="sd">        energy_levels: list of energy value of the fermi surface. </span>
-<span class="sd">                       By default 0 eV correspond to the VBM, as in </span>
+<span class="sd">        energy_levels: list of energy value of the fermi surface.</span>
+<span class="sd">                       By default 0 eV correspond to the VBM, as in</span>
 <span class="sd">                       the plot of band structure along symmetry line.</span>
 <span class="sd">                       Default: max energy value + 0.01 eV</span>
-<span class="sd">        cbm: Boolean value to specify if the considered band is </span>
+<span class="sd">        cbm: Boolean value to specify if the considered band is</span>
 <span class="sd">             a conduction band or not</span>
 <span class="sd">        multiple_figure: if True a figure for each energy level will be shown.</span>
 <span class="sd">                         If False all the surfaces will be shown in the same figure.</span>
 <span class="sd">                         In this las case, tune the transparency factor.</span>
 <span class="sd">        mlab_figure: provide a previous figure to plot a new surface on it.</span>
 <span class="sd">        kpoints_dict: dictionary of kpoints to show in the plot.</span>
-<span class="sd">                      example: {&quot;K&quot;:[0.5,0.0,0.5]}, </span>
+<span class="sd">                      example: {&quot;K&quot;:[0.5,0.0,0.5]},</span>
 <span class="sd">                      where the coords are fractional.</span>
 <span class="sd">        color: tuple (r,g,b) of integers to define the color of the surface.</span>
 <span class="sd">        transparency_factor: list of values in the range [0,1] to tune</span>
@@ -3754,12 +3730,12 @@
 <span class="sd">                    If False a non interactive figure will be shown, but</span>
 <span class="sd">                    it is possible to plot other surfaces on the same figure.</span>
 <span class="sd">                    To make it interactive, run mlab.show().</span>
-<span class="sd">        </span>
+
 <span class="sd">    Returns:</span>
 <span class="sd">        a Mayavi figure and a mlab module to control the plot.</span>
 
-<span class="sd">    Note: Experimental. </span>
-<span class="sd">          Please, double check the surface shown by using some </span>
+<span class="sd">    Note: Experimental.</span>
+<span class="sd">          Please, double check the surface shown by using some</span>
 <span class="sd">          other software and report issues.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -3772,13 +3748,12 @@
     <span class="n">bz</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">reciprocal_lattice</span><span class="o">.</span><span class="n">get_wigner_seitz_cell</span><span class="p">()</span>
     <span class="n">cell</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">reciprocal_lattice</span><span class="o">.</span><span class="n">matrix</span>
 
-    <span class="n">fact</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">cbm</span> <span class="o">==</span> <span class="kc">False</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="n">fact</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">cbm</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
     <span class="n">en_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">fact</span> <span class="o">*</span> <span class="n">data</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
     <span class="n">en_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">fact</span> <span class="o">*</span> <span class="n">data</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
 
     <span class="k">if</span> <span class="n">energy_levels</span> <span class="o">==</span> <span class="p">[]:</span>
-        <span class="n">energy_levels</span> <span class="o">=</span> <span class="p">[</span><span class="n">en_min</span> <span class="o">+</span> <span class="mf">0.01</span><span class="p">]</span> <span class="k">if</span> <span class="n">cbm</span> <span class="o">==</span> <span class="kc">True</span> <span class="k">else</span> \
-            <span class="p">[</span><span class="n">en_max</span> <span class="o">-</span> <span class="mf">0.01</span><span class="p">]</span>
+        <span class="n">energy_levels</span> <span class="o">=</span> <span class="p">[</span><span class="n">en_min</span> <span class="o">+</span> <span class="mf">0.01</span><span class="p">]</span> <span class="k">if</span> <span class="n">cbm</span> <span class="k">else</span> <span class="p">[</span><span class="n">en_max</span> <span class="o">-</span> <span class="mf">0.01</span><span class="p">]</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Energy level set to: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">energy_levels</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot; eV&quot;</span><span class="p">)</span>
 
     <span class="k">else</span><span class="p">:</span>
@@ -3794,7 +3769,7 @@
     <span class="k">if</span> <span class="n">mlab_figure</span><span class="p">:</span>
         <span class="n">fig</span> <span class="o">=</span> <span class="n">mlab_figure</span>
 
-    <span class="k">if</span> <span class="n">mlab_figure</span> <span class="o">==</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">multiple_figure</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">mlab_figure</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">multiple_figure</span><span class="p">:</span>
         <span class="n">fig</span> <span class="o">=</span> <span class="n">mlab</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">1024</span><span class="p">,</span> <span class="mi">768</span><span class="p">),</span> <span class="n">bgcolor</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">iface</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bz</span><span class="p">)):</span>
             <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">bz</span><span class="p">[</span><span class="n">iface</span><span class="p">],</span> <span class="mi">2</span><span class="p">):</span>
@@ -3850,9 +3825,9 @@
 
         <span class="n">polydata</span><span class="o">.</span><span class="n">points</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">polydata</span><span class="o">.</span><span class="n">points</span><span class="p">)</span> <span class="o">-</span> <span class="p">[</span><span class="n">cx</span><span class="p">,</span> <span class="n">cy</span><span class="p">,</span> <span class="n">cz</span><span class="p">])</span> <span class="o">*</span> <span class="mi">2</span>
 
-        <span class="c1">#mlab.view(distance=&#39;auto&#39;)</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">isometric_view</span><span class="p">()</span> 
-    <span class="k">if</span> <span class="n">interative</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="c1"># mlab.view(distance=&#39;auto&#39;)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">isometric_view</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">interative</span><span class="p">:</span>
         <span class="n">mlab</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">mlab</span></div>
@@ -4153,7 +4128,7 @@
     <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim3d</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_zlim3d</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
+    <span class="c1"># ax.set_aspect(&#39;equal&#39;)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">fig</span></div>
@@ -4165,7 +4140,7 @@
 <span class="sd">    Plots a 3D ellipsoid rappresenting the Hessian matrix in input.</span>
 <span class="sd">    Useful to get a graphical visualization of the effective mass</span>
 <span class="sd">    of a band in a single k-point.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        hessian: the Hessian matrix</span>
 <span class="sd">        center: the center of the ellipsoid in reciprocal coords (Default)</span>
@@ -4174,7 +4149,7 @@
 <span class="sd">        ax: matplotlib :class:`Axes` or None if a new figure should be created.</span>
 <span class="sd">        coords_are_cartesian: Set to True if you are providing a center in</span>
 <span class="sd">                              cartesian coordinates. Defaults to False.</span>
-<span class="sd">        kwargs: kwargs passed to the matplotlib function &#39;plot_wireframe&#39;. </span>
+<span class="sd">        kwargs: kwargs passed to the matplotlib function &#39;plot_wireframe&#39;.</span>
 <span class="sd">                Color defaults to blue, rstride and cstride</span>
 <span class="sd">                default to 4, alpha defaults to 0.2.</span>
 <span class="sd">    Returns:</span>
@@ -4240,13 +4215,11 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -4264,7 +4237,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -4272,7 +4245,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
