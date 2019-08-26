@@ -386,138 +386,14 @@ class LammpsData(MSONable):
         parts = []
         for k, v in body_dict.items():
             index = True if k != "PairIJ Coeffs" else False
-            if k == 'Improper Coeffs':
+            if k in ['Bond Coeffs', 'Angle Coeffs', 'Dihedral Coeffs', 'Improper Coeffs']:
                 listofdf = np.array_split(v, len(v.index))
                 df_string = ''
                 for i in range(len(listofdf)):
                     if isinstance(listofdf[i].iloc[0]['coeff1'], str):
-                        if listofdf[i].iloc[0]['coeff1'].startswith('crossq'):
-                            formatters = {**default_formatters, **coeffs['improper_coeff']['crossq']}
-                        elif listofdf[i].iloc[0]['coeff1'].startswith('cvff'):
-                            formatters = {**default_formatters, **coeffs['improper_coeff']['cvff']}
-                        elif listofdf[i].iloc[0]['coeff1'] == 'distance':
-                            formatters = {**default_formatters, **coeffs['improper_coeff']['distance']}
-                        elif listofdf[i].iloc[0]['coeff1'] == 'distharm':
-                            formatters = {**default_formatters, **coeffs['improper_coeff']['distharm']}
-                        elif listofdf[i].iloc[0]['coeff1'] == 'sqdistharm':
-                            formatters = {**default_formatters, **coeffs['improper_coeff']['distharm']}
-                        elif listofdf[i].iloc[0]['coeff1'].startswith('fourier'):
-                            formatters = {**default_formatters, **coeffs['improper_coeff']['fourier']}
-                        elif listofdf[i].iloc[0]['coeff1'].startswith('harmonic'):
-                            formatters = {**default_formatters, **coeffs['improper_coeff']['harmonic']}
-                        elif listofdf[i].iloc[0]['coeff1'].startswith('inversion'):
-                            formatters = {**default_formatters, **coeffs['improper_coeff']['inversion']}
-                        elif listofdf[i].iloc[0]['coeff1'].startswith('ring'):
-                            formatters = {**default_formatters, **coeffs['improper_coeff']['ring']}
-                        elif listofdf[i].iloc[0]['coeff1'].startswith('umbrella'):
-                            formatters = {**default_formatters, **coeffs['improper_coeff']['umbrella']}
-                        else:
-                            formatters = default_formatters
-                        line_string = \
-                            listofdf[i].to_string(header=False, formatters=formatters,
-                                                  index_names=False, index=index, na_rep='')
-                    else:
-                        line_string = \
-                            v.to_string(header=False, formatters=default_formatters,
-                                        index_names=False, index=index,
-                                        na_rep='').splitlines()[i]
-                    df_string += line_string.replace('nan', '').rstrip() + '\n'
-            elif k == 'Dihedral Coeffs':
-                listofdf = np.array_split(v, len(v.index))
-                df_string = ''
-                for i in range(len(listofdf)):
-                    if isinstance(listofdf[i].iloc[0]['coeff1'], str):
-                        if listofdf[i].iloc[0]['coeff1'] == 'multi/harmonic':
-                            formatters = {**default_formatters, **coeffs['dihedral_coeff']['multi_harmonic']}
-                        elif listofdf[i].iloc[0]['coeff1'].startswith('charmm'):
-                            formatters = {**default_formatters, **coeffs['dihedral_coeff']['charmm']}
-                        elif listofdf[i].iloc[0]['coeff1'] == 'cosine/shift/exp':
-                            formatters = {**default_formatters, **coeffs['dihedral_coeff']['cosine/shift/exp']}
-                        elif listofdf[i].iloc[0]['coeff1'].startswith('harmonic'):
-                            formatters = {**default_formatters, **coeffs['dihedral_coeff']['harmonic']}
-                        elif listofdf[i].iloc[0]['coeff1'].startswith('fourier'):
-                            formatters = {**default_formatters, **coeffs['dihedral_coeff']['fourier']}
-                        elif listofdf[i].iloc[0]['coeff1'].startswith('helix'):
-                            formatters = {**default_formatters, **coeffs['dihedral_coeff']['helix']}
-                        elif listofdf[i].iloc[0]['coeff1'] == 'nharmonic':
-                            formatters = {**default_formatters, **coeffs['dihedral_coeff']['nharmonic']}
-                        elif listofdf[i].iloc[0]['coeff1'].startswith('opls'):
-                            formatters = {**default_formatters, **coeffs['dihedral_coeff']['opls']}
-                        elif listofdf[i].iloc[0]['coeff1'].startswith('quadratic'):
-                            formatters = {**default_formatters, **coeffs['dihedral_coeff']['quadratic']}
-                        elif listofdf[i].iloc[0]['coeff1'] == 'spherical':
-                            formatters = {**default_formatters, **coeffs['dihedral_coeff']['spherical']}
-                        else:
-                            formatters = default_formatters
-                        line_string = \
-                            listofdf[i].to_string(header=False, formatters=formatters,
-                                                  index_names=False, index=index, na_rep='')
-                    else:
-                        line_string = \
-                            v.to_string(header=False, formatters=default_formatters,
-                                        index_names=False, index=index,
-                                        na_rep='').splitlines()[i]
-                    df_string += line_string.replace('nan', '').rstrip() + '\n'
-            elif k == 'Bond Coeffs':
-                listofdf = np.array_split(v, len(v.index))
-                df_string = ''
-                for i in range(len(listofdf)):
-                    if isinstance(listofdf[i].iloc[0]['coeff1'], str):
-                        if listofdf[i].iloc[0]['coeff1'].startswith('fene'):
-                            formatters = {**default_formatters, **coeffs['bond_coeff']['fene']}
-                        elif listofdf[i].iloc[0]['coeff1'].startswith('gromos'):
-                            formatters = {**default_formatters, **coeffs['bond_coeff']['gromos']}
-                        elif listofdf[i].iloc[0]['coeff1'].startswith('harmonic'):
-                            formatters = {**default_formatters, **coeffs['bond_coeff']['harmonic']}
-                        elif listofdf[i].iloc[0]['coeff1'] == 'mm3':
-                            formatters = {**default_formatters, **coeffs['bond_coeff']['mm3']}
-                        elif listofdf[i].iloc[0]['coeff1'].startswith('morse'):
-                            formatters = {**default_formatters, **coeffs['bond_coeff']['morse']}
-                        elif listofdf[i].iloc[0]['coeff1'].startswith('nonlinear'):
-                            formatters = {**default_formatters, **coeffs['bond_coeff']['nonlinear']}
-                        elif listofdf[i].iloc[0]['coeff1'].startswith('oxdna'):
-                            formatters = {**default_formatters, **coeffs['bond_coeff']['oxdna']}
-                        elif listofdf[i].iloc[0]['coeff1'].startswith('quartic'):
-                            formatters = {**default_formatters, **coeffs['bond_coeff']['quartic']}
-                        else:
-                            formatters = default_formatters
-                        line_string = \
-                            listofdf[i].to_string(header=False, formatters=formatters,
-                                                  index_names=False, index=index, na_rep='')
-                    else:
-                        line_string = \
-                            v.to_string(header=False, formatters=default_formatters,
-                                        index_names=False, index=index,
-                                        na_rep='').splitlines()[i]
-                    df_string += line_string.replace('nan', '').rstrip() + '\n'
-            elif k == 'Angle Coeffs':
-                listofdf = np.array_split(v, len(v.index))
-                df_string = ''
-                for i in range(len(listofdf)):
-                    if isinstance(listofdf[i].iloc[0]['coeff1'], str):
-                        if listofdf[i].iloc[0]['coeff1'].startswith('charmm'):
-                            formatters = {**default_formatters, **coeffs['angle_coeff']['charmm']}
-                        elif listofdf[i].iloc[0]['coeff1'] == 'cosine/buck6d':
-                            formatters = {**default_formatters, **coeffs['angle_coeff']['cosine/buck6d']}
-                        elif listofdf[i].iloc[0]['coeff1'].startswith('cosine/periodic'):
-                            formatters = {**default_formatters, **coeffs['angle_coeff']['cosine/periodic']}
-                        elif listofdf[i].iloc[0]['coeff1'].startswith('cosine'):
-                            formatters = {**default_formatters, **coeffs['angle_coeff']['cosine']}
-                        elif listofdf[i].iloc[0]['coeff1'] == 'cross':
-                            formatters = {**default_formatters, **coeffs['angle_coeff']['cross']}
-                        elif listofdf[i].iloc[0]['coeff1'].startswith('dipole'):
-                            formatters = {**default_formatters, **coeffs['angle_coeff']['dipole']}
-                        elif listofdf[i].iloc[0]['coeff1'].startswith('fourier'):
-                            formatters = {**default_formatters, **coeffs['angle_coeff']['fourier']}
-                        elif listofdf[i].iloc[0]['coeff1'].startswith('harmonic'):
-                            formatters = {**default_formatters, **coeffs['angle_coeff']['harmonic']}
-                        elif listofdf[i].iloc[0]['coeff1'] == 'mm3':
-                            formatters = {**default_formatters, **coeffs['angle_coeff']['mm3']}
-                        elif listofdf[i].iloc[0]['coeff1'].startswith('sdk'):
-                            formatters = {**default_formatters, **coeffs['angle_coeff']['sdk']}
-                        elif listofdf[i].iloc[0]['coeff1'].startswith('quartic'):
-                            formatters = {**default_formatters, **coeffs['angle_coeff']['quartic']}
-                        else:
+                        try:
+                            formatters = {**default_formatters, **coeffs[k][listofdf[i].iloc[0]['coeff1']]}
+                        except KeyError:
                             formatters = default_formatters
                         line_string = \
                             listofdf[i].to_string(header=False, formatters=formatters,
