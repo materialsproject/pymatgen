@@ -725,7 +725,7 @@ class MoleculeGraphTest(unittest.TestCase):
         mol_graph_strat = MoleculeGraph.with_local_env_strategy(
             self.pc, OpenBabelNN(), reorder=False, extend_structure=False
         )
-        self.assertTrue(isomorphic(mol_graph_edges.graph,mol_graph_strat.graph))
+        self.assertTrue(mol_graph_edges.isomorphic_to(mol_graph_strat))
 
     def test_properties(self):
         self.assertEqual(self.cyclohexene.name, "bonds")
@@ -944,8 +944,8 @@ class MoleculeGraphTest(unittest.TestCase):
         )
         # If they are equal, they must also be isomorphic
         eth_copy = copy.deepcopy(self.ethylene)
-        self.assertTrue(isomorphic(self.ethylene.graph,eth_copy.graph))
-        self.assertFalse(isomorphic(self.butadiene.graph,self.ethylene.graph))
+        self.assertTrue(self.ethylene.isomorphic_to(eth_copy))
+        self.assertFalse(self.butadiene.isomorphic_to(self.ethylene))
 
     def test_substitute(self):
         molecule = FunctionalGroups["methyl"]

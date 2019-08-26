@@ -848,14 +848,10 @@ class CompleteDos(Dos):
             for at in self.structure:
                 dd = {}
                 for orb, pdos in self.pdos[at].items():
-                    dd[str(orb)] = {"densities": {str(int(spin)): list(dens)
-                                                  for spin,
-                                                      dens in pdos.items()}}
+                    dd[str(orb)] = {"densities": {str(int(spin)): list(dens) for spin, dens in pdos.items()}}
                 d["pdos"].append(dd)
-            d["atom_dos"] = {str(at): dos.as_dict() for at,
-                                                        dos in self.get_element_dos().items()}
-            d["spd_dos"] = {str(orb): dos.as_dict() for orb,
-                                                        dos in self.get_spd_dos().items()}
+            d["atom_dos"] = {str(at): dos.as_dict() for at, dos in self.get_element_dos().items()}
+            d["spd_dos"] = {str(orb): dos.as_dict() for orb, dos in self.get_spd_dos().items()}
         return d
 
     def __str__(self):
@@ -920,7 +916,8 @@ class LobsterCompleteDos(CompleteDos):
     def get_spd_dos(self):
         """
         Get orbital projected Dos.
-        For example, if 3s and 4s are included in the basis of some element, they will be both summed in the orbital projected DOS
+        For example, if 3s and 4s are included in the basis of some element, they will be both summed in the orbital
+        projected DOS
 
         Returns:
             dict of {orbital: Dos}, e.g. {"s": Dos object, ...}

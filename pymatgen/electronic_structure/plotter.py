@@ -299,12 +299,10 @@ class BSPlotter:
                 if i != 0:
                     if ticks['label'][i] == ticks['label'][i - 1]:
                         logger.debug("already print label... "
-                                     "skipping label {i}".format(
-                            i=ticks['label'][i]))
+                                     "skipping label {i}".format(i=ticks['label'][i]))
                     else:
                         logger.debug("Adding a line at {d}"
-                                     " for label {l}".format(
-                            d=ticks['distance'][i], l=ticks['label'][i]))
+                                     " for label {l}".format(d=ticks['distance'][i], l=ticks['label'][i]))
                         plt.axvline(ticks['distance'][i], color='k')
                 else:
                     logger.debug("Adding a line at {d} for label {l}".format(
@@ -451,9 +449,9 @@ class BSPlotter:
             # band with one spline rather than fitting with piecewise splines
             # (splines are ill-suited to fit discontinuities).
             #
-            # The number of splines used to fit a band is determined by the 
-            # number of branches (high symmetry lines) defined in the 
-            # BandStructureSymmLine object (see BandStructureSymmLine._branches). 
+            # The number of splines used to fit a band is determined by the
+            # number of branches (high symmetry lines) defined in the
+            # BandStructureSymmLine object (see BandStructureSymmLine._branches).
 
             warning = "WARNING! Distance / branch {d}, band {i} cannot be " + \
                       "interpolated.\n" + \
@@ -550,11 +548,11 @@ class BSPlotter:
             plt.ylim(ylim)
             if not self._bs.is_metal() and vbm_cbm_marker:
                 for cbm in data['cbm']:
-                        plt.scatter(cbm[0], cbm[1], color='r', marker='o',
-                                    s=100)
+                    plt.scatter(cbm[0], cbm[1], color='r', marker='o',
+                                s=100)
                 for vbm in data['vbm']:
-                        plt.scatter(vbm[0], vbm[1], color='g', marker='o',
-                                    s=100)
+                    plt.scatter(vbm[0], vbm[1], color='g', marker='o',
+                                s=100)
 
         plt.tight_layout()
 
@@ -793,18 +791,13 @@ class BSPlotterProjected(BSPlotter):
                             for j in range(
                                     len(data['energy'][b][str(Spin.up)][i])):
                                 plt.plot(data['distances'][b][j],
-                                         data['energy'][b][str(Spin.down)][i][
-                                             j], 'ro',
-                                         markersize=
-                                         proj[b][str(Spin.down)][i][j][str(el)][
-                                             o] * 15.0)
+                                         data['energy'][b][str(Spin.down)][i][j], 'ro',
+                                         markersize=proj[b][str(Spin.down)][i][j][str(el)][o] * 15.0)
                         for j in range(len(data['energy'][b][str(Spin.up)][i])):
                             plt.plot(data['distances'][b][j],
                                      data['energy'][b][str(Spin.up)][i][j],
                                      'bo',
-                                     markersize=
-                                     proj[b][str(Spin.up)][i][j][str(el)][
-                                         o] * 15.0)
+                                     markersize=proj[b][str(Spin.up)][i][j][str(el)][o] * 15.0)
                 if ylim is None:
                     if self._bs.is_metal():
                         if zero_to_efermi:
@@ -1022,7 +1015,7 @@ class BSPlotterProjected(BSPlotter):
                         raise ValueError(
                             "You give a incorrect index of symmetry lines: %s. The index should be in "
                             "range of [1, %s]." % (
-                            str(index), str(num_branches)))
+                                str(index), str(num_branches)))
                     else:
                         indices.append(index - 1)
         else:
@@ -1049,7 +1042,7 @@ class BSPlotterProjected(BSPlotter):
                             edict[elt + str(anum)] = {}
                             for morb in dictio[elt]:
                                 edict[elt + str(anum)][morb] = \
-                                proj[Spin.up][i][j][setos[morb]][anum - 1]
+                                    proj[Spin.up][i][j][setos[morb]][anum - 1]
                     proj_br[-1][str(Spin.up)][i].append(edict)
 
             if self._bs.is_spin_polarized:
@@ -1061,7 +1054,7 @@ class BSPlotterProjected(BSPlotter):
                                 edict[elt + str(anum)] = {}
                                 for morb in dictio[elt]:
                                     edict[elt + str(anum)][morb] = \
-                                    proj[Spin.up][i][j][setos[morb]][anum - 1]
+                                        proj[Spin.up][i][j][setos[morb]][anum - 1]
                         proj_br[-1][str(Spin.down)][i].append(edict)
 
         # Adjusting  projections for plot
@@ -1102,7 +1095,7 @@ class BSPlotterProjected(BSPlotter):
                                         sprojection = 0.0
                                         for anum in sum_atoms[elt]:
                                             sprojection += \
-                                            atoms_morbs[elt + str(anum)][morb]
+                                                atoms_morbs[elt + str(anum)][morb]
                                         edict[elt + dictpa_d[elt][-1]][
                                             morb] = sprojection
                                 else:
@@ -1112,8 +1105,7 @@ class BSPlotterProjected(BSPlotter):
                             proj_br_d[-1][str(Spin.up)][i].append(edict)
                     if self._bs.is_spin_polarized:
                         for i in range(self._nb_bands):
-                            for j in range(br['end_index'] - br[
-                                'start_index'] + 1):
+                            for j in range(br['end_index'] - br['start_index'] + 1):
                                 atoms_morbs = copy.deepcopy(
                                     proj_br[branch][str(Spin.down)][i][j])
                                 edict = {}
@@ -1127,8 +1119,8 @@ class BSPlotterProjected(BSPlotter):
                                             sprojection = 0.0
                                             for anum in sum_atoms[elt]:
                                                 sprojection += \
-                                                atoms_morbs[elt + str(anum)][
-                                                    morb]
+                                                    atoms_morbs[elt + str(anum)][
+                                                        morb]
                                             edict[elt + dictpa_d[elt][-1]][
                                                 morb] = sprojection
                                     else:
@@ -1149,11 +1141,11 @@ class BSPlotterProjected(BSPlotter):
                                         edict[elt + anum] = {}
                                         for morb in dictio_d[elt][:-1]:
                                             edict[elt + anum][morb] = \
-                                            atoms_morbs[elt + anum][morb]
+                                                atoms_morbs[elt + anum][morb]
                                         sprojection = 0.0
                                         for morb in sum_morbs[elt]:
                                             sprojection += \
-                                            atoms_morbs[elt + anum][morb]
+                                                atoms_morbs[elt + anum][morb]
                                         edict[elt + anum][
                                             dictio_d[elt][-1]] = sprojection
                                 else:
@@ -1163,8 +1155,7 @@ class BSPlotterProjected(BSPlotter):
                             proj_br_d[-1][str(Spin.up)][i].append(edict)
                     if self._bs.is_spin_polarized:
                         for i in range(self._nb_bands):
-                            for j in range(br['end_index'] - br[
-                                'start_index'] + 1):
+                            for j in range(br['end_index'] - br['start_index'] + 1):
                                 atoms_morbs = copy.deepcopy(
                                     proj_br[branch][str(Spin.down)][i][j])
                                 edict = {}
@@ -1173,12 +1164,10 @@ class BSPlotterProjected(BSPlotter):
                                         for anum in dictpa_d[elt]:
                                             edict[elt + anum] = {}
                                             for morb in dictio_d[elt][:-1]:
-                                                edict[elt + anum][morb] = \
-                                                atoms_morbs[elt + anum][morb]
+                                                edict[elt + anum][morb] = atoms_morbs[elt + anum][morb]
                                             sprojection = 0.0
                                             for morb in sum_morbs[elt]:
-                                                sprojection += \
-                                                atoms_morbs[elt + anum][morb]
+                                                sprojection += atoms_morbs[elt + anum][morb]
                                             edict[elt + anum][
                                                 dictio_d[elt][-1]] = sprojection
                                     else:
@@ -1199,11 +1188,11 @@ class BSPlotterProjected(BSPlotter):
                                         edict[elt + anum] = {}
                                         for morb in dictio_d[elt][:-1]:
                                             edict[elt + anum][morb] = \
-                                            atoms_morbs[elt + anum][morb]
+                                                atoms_morbs[elt + anum][morb]
                                         sprojection = 0.0
                                         for morb in sum_morbs[elt]:
                                             sprojection += \
-                                            atoms_morbs[elt + anum][morb]
+                                                atoms_morbs[elt + anum][morb]
                                         edict[elt + anum][
                                             dictio_d[elt][-1]] = sprojection
 
@@ -1212,7 +1201,7 @@ class BSPlotterProjected(BSPlotter):
                                         sprojection = 0.0
                                         for anum in sum_atoms[elt]:
                                             sprojection += \
-                                            atoms_morbs[elt + str(anum)][morb]
+                                                atoms_morbs[elt + str(anum)][morb]
                                         edict[elt + dictpa_d[elt][-1]][
                                             morb] = sprojection
 
@@ -1220,12 +1209,12 @@ class BSPlotterProjected(BSPlotter):
                                     for anum in sum_atoms[elt]:
                                         for morb in sum_morbs[elt]:
                                             sprojection += \
-                                            atoms_morbs[elt + str(anum)][morb]
+                                                atoms_morbs[elt + str(anum)][morb]
                                     edict[elt + dictpa_d[elt][-1]][
                                         dictio_d[elt][-1]] = sprojection
 
                                 elif (elt in sum_atoms) and (
-                                    elt not in sum_morbs):
+                                        elt not in sum_morbs):
                                     for anum in dictpa_d[elt][:-1]:
                                         edict[elt + anum] = copy.deepcopy(
                                             atoms_morbs[elt + anum])
@@ -1234,21 +1223,19 @@ class BSPlotterProjected(BSPlotter):
                                         sprojection = 0.0
                                         for anum in sum_atoms[elt]:
                                             sprojection += \
-                                            atoms_morbs[elt + str(anum)][morb]
+                                                atoms_morbs[elt + str(anum)][morb]
                                         edict[elt + dictpa_d[elt][-1]][
                                             morb] = sprojection
 
                                 elif (elt not in sum_atoms) and (
-                                    elt in sum_morbs):
+                                        elt in sum_morbs):
                                     for anum in dictpa_d[elt]:
                                         edict[elt + anum] = {}
                                         for morb in dictio_d[elt][:-1]:
-                                            edict[elt + anum][morb] = \
-                                            atoms_morbs[elt + anum][morb]
+                                            edict[elt + anum][morb] = atoms_morbs[elt + anum][morb]
                                         sprojection = 0.0
                                         for morb in sum_morbs[elt]:
-                                            sprojection += \
-                                            atoms_morbs[elt + anum][morb]
+                                            sprojection += atoms_morbs[elt + anum][morb]
                                         edict[elt + anum][
                                             dictio_d[elt][-1]] = sprojection
 
@@ -1256,53 +1243,44 @@ class BSPlotterProjected(BSPlotter):
                                     for anum in dictpa_d[elt]:
                                         edict[elt + anum] = {}
                                         for morb in dictio_d[elt]:
-                                            edict[elt + anum][morb] = \
-                                            atoms_morbs[elt + anum][morb]
+                                            edict[elt + anum][morb] = atoms_morbs[elt + anum][morb]
                             proj_br_d[-1][str(Spin.up)][i].append(edict)
 
                     if self._bs.is_spin_polarized:
                         for i in range(self._nb_bands):
-                            for j in range(br['end_index'] - br[
-                                'start_index'] + 1):
-                                atoms_morbs = copy.deepcopy(
-                                    proj_br[branch][str(Spin.down)][i][j])
+                            for j in range(br['end_index'] - br['start_index'] + 1):
+                                atoms_morbs = copy.deepcopy(proj_br[branch][str(Spin.down)][i][j])
                                 edict = {}
                                 for elt in dictpa:
                                     if (elt in sum_atoms) and (
-                                        elt in sum_morbs):
+                                            elt in sum_morbs):
                                         for anum in dictpa_d[elt][:-1]:
                                             edict[elt + anum] = {}
                                             for morb in dictio_d[elt][:-1]:
-                                                edict[elt + anum][morb] = \
-                                                atoms_morbs[elt + anum][morb]
+                                                edict[elt + anum][morb] = atoms_morbs[elt + anum][morb]
                                             sprojection = 0.0
                                             for morb in sum_morbs[elt]:
-                                                sprojection += \
-                                                atoms_morbs[elt + anum][morb]
-                                            edict[elt + anum][
-                                                dictio_d[elt][-1]] = sprojection
+                                                sprojection += atoms_morbs[elt + anum][morb]
+                                            edict[elt + anum][dictio_d[elt][-1]] = sprojection
 
                                         edict[elt + dictpa_d[elt][-1]] = {}
                                         for morb in dictio_d[elt][:-1]:
                                             sprojection = 0.0
                                             for anum in sum_atoms[elt]:
-                                                sprojection += \
-                                                atoms_morbs[elt + str(anum)][
-                                                    morb]
-                                            edict[elt + dictpa_d[elt][-1]][
-                                                morb] = sprojection
+                                                sprojection += atoms_morbs[elt + str(anum)][morb]
+                                            edict[elt + dictpa_d[elt][-1]][morb] = sprojection
 
                                         sprojection = 0.0
                                         for anum in sum_atoms[elt]:
                                             for morb in sum_morbs[elt]:
                                                 sprojection += \
-                                                atoms_morbs[elt + str(anum)][
-                                                    morb]
+                                                    atoms_morbs[elt + str(anum)][
+                                                        morb]
                                         edict[elt + dictpa_d[elt][-1]][
                                             dictio_d[elt][-1]] = sprojection
 
                                     elif (elt in sum_atoms) and (
-                                        elt not in sum_morbs):
+                                            elt not in sum_morbs):
                                         for anum in dictpa_d[elt][:-1]:
                                             edict[elt + anum] = copy.deepcopy(
                                                 atoms_morbs[elt + anum])
@@ -1311,22 +1289,22 @@ class BSPlotterProjected(BSPlotter):
                                             sprojection = 0.0
                                             for anum in sum_atoms[elt]:
                                                 sprojection += \
-                                                atoms_morbs[elt + str(anum)][
-                                                    morb]
+                                                    atoms_morbs[elt + str(anum)][
+                                                        morb]
                                             edict[elt + dictpa_d[elt][-1]][
                                                 morb] = sprojection
 
                                     elif (elt not in sum_atoms) and (
-                                        elt in sum_morbs):
+                                            elt in sum_morbs):
                                         for anum in dictpa_d[elt]:
                                             edict[elt + anum] = {}
                                             for morb in dictio_d[elt][:-1]:
                                                 edict[elt + anum][morb] = \
-                                                atoms_morbs[elt + anum][morb]
+                                                    atoms_morbs[elt + anum][morb]
                                             sprojection = 0.0
                                             for morb in sum_morbs[elt]:
                                                 sprojection += \
-                                                atoms_morbs[elt + anum][morb]
+                                                    atoms_morbs[elt + anum][morb]
                                             edict[elt + anum][
                                                 dictio_d[elt][-1]] = sprojection
 
@@ -1335,7 +1313,7 @@ class BSPlotterProjected(BSPlotter):
                                             edict[elt + anum] = {}
                                             for morb in dictio_d[elt]:
                                                 edict[elt + anum][morb] = \
-                                                atoms_morbs[elt + anum][morb]
+                                                    atoms_morbs[elt + anum][morb]
                                 proj_br_d[-1][str(Spin.down)][i].append(edict)
 
         return proj_br_d, dictio_d, dictpa_d, indices
@@ -1427,10 +1405,7 @@ class BSPlotterProjected(BSPlotter):
             f_3 = 9 f_2 = 10 f_1 = 11 f0 = 12 f1 = 13 f2 = 14 f3 = 15
         """
         dictio, sum_morbs = self._Orbitals_SumOrbitals(dictio, sum_morbs)
-        dictpa, sum_atoms, number_figs = self._number_of_subfigures(dictio,
-                                                                    dictpa,
-                                                                    sum_atoms,
-                                                                    sum_morbs)
+        dictpa, sum_atoms, number_figs = self._number_of_subfigures(dictio, dictpa, sum_atoms, sum_morbs)
         print('Number of subfigures: %s' % str(number_figs))
         if number_figs > 9:
             print(
@@ -1499,17 +1474,12 @@ class BSPlotterProjected(BSPlotter):
                                     plt.plot(
                                         data['distances'][b][j] - shift[br],
                                         data['energy'][b][str(Spin.down)][i][j],
-                                        'co', markersize= \
-                                            proj_br_d[br][str(Spin.down)][i][j][
-                                                elt + numa][o] * 15.0)
+                                        'co', markersize=proj_br_d[br][str(Spin.down)][i][j][elt + numa][o] * 15.0)
 
-                            for j in range(
-                                    len(data['energy'][b][str(Spin.up)][i])):
+                            for j in range(len(data['energy'][b][str(Spin.up)][i])):
                                 plt.plot(data['distances'][b][j] - shift[br],
                                          data['energy'][b][str(Spin.up)][i][j],
-                                         'go', markersize= \
-                                             proj_br_d[br][str(Spin.up)][i][j][
-                                                 elt + numa][o] * 15.0)
+                                         'go', markersize=proj_br_d[br][str(Spin.up)][i][j][elt + numa][o] * 15.0)
 
                     if ylim is None:
                         if self._bs.is_metal():
@@ -1654,7 +1624,7 @@ class BSPlotterProjected(BSPlotter):
                             if orb == 's' or len(orb) > 1:
                                 raise ValueError(
                                     "The invalid orbital '%s' was put into sum_orbs['%s']." % (
-                                    orb, elt))
+                                        orb, elt))
                             else:
                                 sum_morbs[elt] = individual_orbs[dictio[elt][0]]
                                 dictio[elt] = individual_orbs[dictio[elt][0]]
@@ -1747,7 +1717,7 @@ class BSPlotterProjected(BSPlotter):
                             else:
                                 raise ValueError(
                                     "You put wrong site numbers in 'dictpa[%s]': %s." % (
-                                    elt, str(number)))
+                                        elt, str(number)))
                         nelems = Counter(dictpa[elt]).values()
                         if sum(nelems) > len(nelems):
                             raise ValueError(
@@ -1765,17 +1735,16 @@ class BSPlotterProjected(BSPlotter):
                 "The number of keys in 'dictio' and 'dictpa' are not the same.")
         else:
             for elt in dictio.keys():
-                if elt not in dictpa.keys(): raise KeyError(
-                    "The element '%s' is not in both dictpa and dictio." % elt)
+                if elt not in dictpa.keys():
+                    raise KeyError("The element '%s' is not in both dictpa and dictio." % elt)
             for elt in dictpa.keys():
-                if elt not in dictio.keys(): raise KeyError(
-                    "The element '%s' in not in both dictpa and dictio." % elt)
+                if elt not in dictio.keys():
+                    raise KeyError("The element '%s' in not in both dictpa and dictio." % elt)
 
         if sum_atoms is None:
             print("You do not want to sum projection over atoms.")
-        elif (not isinstance(sum_atoms, dict)):
-            raise TypeError(
-                "The invalid type of 'sum_atoms' was bound. It should be dict type.")
+        elif not isinstance(sum_atoms, dict):
+            raise TypeError("The invalid type of 'sum_atoms' was bound. It should be dict type.")
         elif len(sum_atoms.keys()) == 0:
             raise KeyError("The 'sum_atoms' is empty. We cannot do anything.")
         else:
@@ -1809,7 +1778,7 @@ class BSPlotterProjected(BSPlotter):
                                     raise ValueError(
                                         "You cannot sum projection with atom number '%s' because it is not "
                                         "metioned in dicpta[%s]" % (
-                                        str(number), elt))
+                                            str(number), elt))
                             else:
                                 raise ValueError(
                                     "You put wrong site numbers in 'sum_atoms[%s]'." % elt)
@@ -1853,7 +1822,7 @@ class BSPlotterProjected(BSPlotter):
             for elt in sum_morbs:
                 if elt in sum_atoms:
                     decrease += (len(sum_morbs[elt]) - 1) * (
-                    len(dictpa[elt]) - len(sum_atoms[elt]) + 1)
+                            len(dictpa[elt]) - len(sum_atoms[elt]) + 1)
                 else:
                     decrease += (len(sum_morbs[elt]) - 1) * len(dictpa[elt])
             number_figs = max_number_figs - decrease
@@ -2013,14 +1982,14 @@ class BSPlotterProjected(BSPlotter):
         for branch in branches:
             n_distance.append(l_branches[branch])
             if ("$\\mid$" not in label[branch]) and (
-                "$\\mid$" not in label[branch + 1]):
+                    "$\\mid$" not in label[branch + 1]):
                 n_label.append([label[branch], label[branch + 1]])
             elif ("$\\mid$" in label[branch]) and (
-                "$\\mid$" not in label[branch + 1]):
+                    "$\\mid$" not in label[branch + 1]):
                 n_label.append(
                     [label[branch].split("$")[-1], label[branch + 1]])
             elif ("$\\mid$" not in label[branch]) and (
-                "$\\mid$" in label[branch + 1]):
+                    "$\\mid$" in label[branch + 1]):
                 n_label.append([label[branch], label[branch + 1].split("$")[0]])
             else:
                 n_label.append([label[branch].split("$")[-1],
@@ -2079,12 +2048,10 @@ class BSPlotterProjected(BSPlotter):
                 if i != 0:
                     if n_ticks['label'][i] == n_ticks['label'][i - 1]:
                         logger.debug("already print label... "
-                                     "skipping label {i}".format(
-                            i=n_ticks['label'][i]))
+                                     "skipping label {i}".format(i=n_ticks['label'][i]))
                     else:
                         logger.debug("Adding a line at {d}"
-                                     " for label {l}".format(
-                            d=n_ticks['distance'][i], l=n_ticks['label'][i]))
+                                     " for label {l}".format(d=n_ticks['distance'][i], l=n_ticks['label'][i]))
                         plt.axvline(n_ticks['distance'][i], color='k')
                 else:
                     logger.debug("Adding a line at {d} for label {l}".format(
@@ -2100,11 +2067,9 @@ class BSPlotterProjected(BSPlotter):
         return plt, shift
 
 
-
-
 class BSDOSPlotter:
     """
-    A joint, aligned band structure and density of states plot. Contributions 
+    A joint, aligned band structure and density of states plot. Contributions
     from Jan Pohls as well as the online example from Germain Salvato-Vallverdu:
     http://gvallver.perso.univ-pau.fr/?p=587
     """
@@ -2154,13 +2119,13 @@ class BSDOSPlotter:
         """
         Get a matplotlib plot object.
         Args:
-            bs (BandStructureSymmLine): the bandstructure to plot. Projection 
+            bs (BandStructureSymmLine): the bandstructure to plot. Projection
                 data must exist for projected plots.
-            dos (Dos): the Dos to plot. Projection data must exist (i.e., 
+            dos (Dos): the Dos to plot. Projection data must exist (i.e.,
                 CompleteDos) for projected plots.
 
         Returns:
-            matplotlib.pyplot object on which you can call commands like show() 
+            matplotlib.pyplot object on which you can call commands like show()
             and savefig()
         """
         import matplotlib.lines as mlines
@@ -2176,13 +2141,12 @@ class BSDOSPlotter:
         else:
             elements = []
 
-        rgb_legend = self.rgb_legend and bs_projection and \
-                     bs_projection.lower() == "elements" and \
-                     len(elements) in [2, 3]
+        rgb_legend = self.rgb_legend and bs_projection and bs_projection.lower() == "elements" and \
+            len(elements) in [2, 3]
 
         if bs_projection and bs_projection.lower() == "elements" and \
                 (len(elements) not in [2, 3] or
-                     not bs.get_projection_on_elements()):
+                 not bs.get_projection_on_elements()):
             warnings.warn(
                 "Cannot get element projected data; either the projection data "
                 "doesn't exist, or you don't have a compound with exactly 2 "
@@ -2314,9 +2278,9 @@ class BSDOSPlotter:
                     label = "total" if spin == Spin.up else None
                     dos_ax.plot(dos_densities, dos_energies,
                                 color=(0.6, 0.6, 0.6), label=label)
-                    dos_ax.fill_betweenx(dos_energies, 0,dos_densities,
-                                        color=(0.7, 0.7, 0.7),
-                                        facecolor=(0.7, 0.7, 0.7))
+                    dos_ax.fill_betweenx(dos_energies, 0, dos_densities,
+                                         color=(0.7, 0.7, 0.7),
+                                         facecolor=(0.7, 0.7, 0.7))
 
                     if self.dos_projection is None:
                         pass
@@ -2350,9 +2314,7 @@ class BSDOSPlotter:
             # get index of lowest and highest energy being plotted, used to help auto-scale DOS x-axis
             emin_idx = next(x[0] for x in enumerate(dos_energies) if
                             x[1] >= emin)
-            emax_idx = len(dos_energies) - \
-                       next(x[0] for x in enumerate(reversed(dos_energies))
-                            if x[1] <= emax)
+            emax_idx = len(dos_energies) - next(x[0] for x in enumerate(reversed(dos_energies)) if x[1] <= emax)
 
             # determine DOS x-axis range
             dos_xmin = 0 if Spin.down not in dos.densities else -max(
@@ -2491,7 +2453,7 @@ class BSDOSPlotter:
         """
         Draw an RGB triangle legend on the desired axis
         """
-        if not loc in range(1, 11):
+        if loc not in range(1, 11):
             loc = 2
 
         from mpl_toolkits.axes_grid1.inset_locator import inset_axes
@@ -2539,7 +2501,7 @@ class BSDOSPlotter:
     def _rb_line(ax, r_label, b_label, loc):
         # Draw an rb bar legend on the desired axis
 
-        if not loc in range(1, 11):
+        if loc not in range(1, 11):
             loc = 2
         from mpl_toolkits.axes_grid1.inset_locator import inset_axes
         inset_ax = inset_axes(ax, width=1.2, height=0.4, loc=loc)
@@ -2620,8 +2582,8 @@ class BoltztrapPlotter:
         """
         Plot respect to the chemical potential of the Seebeck effective mass
         calculated as explained in Ref.
-        Gibbs, Z. M. et al., Effective mass and fermi surface complexity factor 
-        from ab initio band structure calculations. 
+        Gibbs, Z. M. et al., Effective mass and fermi surface complexity factor
+        from ab initio band structure calculations.
         npj Computational Materials 3, 8 (2017).
 
         Args:
@@ -2680,19 +2642,19 @@ class BoltztrapPlotter:
     def plot_complexity_factor_mu(self, temps=[300], output='average',
                                   Lambda=0.5):
         """
-        Plot respect to the chemical potential of the Fermi surface complexity 
+        Plot respect to the chemical potential of the Fermi surface complexity
         factor calculated as explained in Ref.
-        Gibbs, Z. M. et al., Effective mass and fermi surface complexity factor 
-        from ab initio band structure calculations. 
+        Gibbs, Z. M. et al., Effective mass and fermi surface complexity factor
+        from ab initio band structure calculations.
         npj Computational Materials 3, 8 (2017).
-        
+
         Args:
             output: 'average' returns the complexity factor calculated using the average
                     of the three diagonal components of the seebeck and conductivity tensors.
                     'tensor' returns the complexity factor respect to the three
                     diagonal components of seebeck and conductivity tensors.
             temps:  list of temperatures of calculated seebeck and conductivity.
-            Lambda: fitting parameter used to model the scattering (0.5 means constant 
+            Lambda: fitting parameter used to model the scattering (0.5 means constant
                     relaxation time).
         Returns:
             a matplotlib object
@@ -2882,7 +2844,7 @@ class BoltztrapPlotter:
 
     def plot_seebeck_temp(self, doping='all', output='average'):
         """
-        Plot the Seebeck coefficient in function of temperature for different 
+        Plot the Seebeck coefficient in function of temperature for different
         doping levels.
 
         Args:
@@ -2943,7 +2905,7 @@ class BoltztrapPlotter:
             output: with 'average' you get an average of the three directions
                     with 'eigs' you get all the three directions.
             relaxation_time: specify a constant relaxation time value
-        
+
         Returns:
             a matplotlib object
         """
@@ -3002,7 +2964,7 @@ class BoltztrapPlotter:
             output: with 'average' you get an average of the three directions
                     with 'eigs' you get all the three directions.
             relaxation_time: specify a constant relaxation time value
-        
+
         Returns:
             a matplotlib object
         """
@@ -3058,7 +3020,7 @@ class BoltztrapPlotter:
             output: with 'average' you get an average of the three directions
                     with 'eigs' you get all the three directions.
             relaxation_time: specify a constant relaxation time value
-        
+
         Returns:
             a matplotlib object
         """
@@ -3103,7 +3065,7 @@ class BoltztrapPlotter:
 
     def plot_eff_mass_temp(self, doping='all', output='average'):
         """
-        Plot the average effective mass in function of temperature 
+        Plot the average effective mass in function of temperature
         for different doping levels.
 
         Args:
@@ -3214,7 +3176,7 @@ class BoltztrapPlotter:
             output: with 'average' you get an average of the three directions
                     with 'eigs' you get all the three directions.
             relaxation_time: specify a constant relaxation time value
-        
+
         Returns:
             a matplotlib object
         """
@@ -3266,7 +3228,7 @@ class BoltztrapPlotter:
             output: with 'average' you get an average of the three directions
                     with 'eigs' you get all the three directions.
             relaxation_time: specify a constant relaxation time value
-        
+
         Returns:
             a matplotlib object
         """
@@ -3318,7 +3280,7 @@ class BoltztrapPlotter:
             output: with 'average' you get an average of the three directions
                     with 'eigs' you get all the three directions.
             relaxation_time: specify a constant relaxation time value
-        
+
         Returns:
             a matplotlib object
         """
@@ -3360,7 +3322,7 @@ class BoltztrapPlotter:
 
     def plot_eff_mass_dop(self, temps='all', output='average'):
         """
-        Plot the average effective mass in function of doping levels 
+        Plot the average effective mass in function of doping levels
         for different temperatures.
 
         Args:
@@ -3369,7 +3331,7 @@ class BoltztrapPlotter:
             output: with 'average' you get an average of the three directions
                     with 'eigs' you get all the three directions.
             relaxation_time: specify a constant relaxation time value
-        
+
         Returns:
             a matplotlib object
         """
@@ -3488,6 +3450,7 @@ class CohpPlotter:
             Defaults to False for COHPs.
 
     """
+
     def __init__(self, zero_at_efermi=True, are_coops=False):
         self.zero_at_efermi = zero_at_efermi
         self.are_coops = are_coops
@@ -3634,7 +3597,7 @@ class CohpPlotter:
                 plt.plot([0, 0], ylim, "k--", linewidth=2)
             else:
                 plt.plot([self._cohps[key]['efermi'],
-                         self._cohps[key]['efermi']], ylim,
+                          self._cohps[key]['efermi']], ylim,
                          color=colors[i % ncolors],
                          linestyle='--', linewidth=2)
         else:
@@ -3643,7 +3606,7 @@ class CohpPlotter:
                 plt.plot(xlim, [0, 0], "k--", linewidth=2)
             else:
                 plt.plot(xlim, [self._cohps[key]['efermi'],
-                         self._cohps[key]['efermi']],
+                                self._cohps[key]['efermi']],
                          color=colors[i % ncolors],
                          linestyle='--', linewidth=2)
 
@@ -3743,8 +3706,8 @@ def plot_fermi_surface(data, structure, cbm, energy_levels=None,
         ((mayavi.mlab.figure, mayavi.mlab)): The mlab plotter and an interactive
             figure to control the plot.
 
-    Note: Experimental. 
-          Please, double check the surface shown by using some 
+    Note: Experimental.
+          Please, double check the surface shown by using some
           other software and report issues.
     """
     bz = structure.lattice.reciprocal_lattice.get_wigner_seitz_cell()
@@ -4156,7 +4119,7 @@ def plot_ellipsoid(hessian, center, lattice=None, rescale=1.0, ax=None,
     Plots a 3D ellipsoid rappresenting the Hessian matrix in input.
     Useful to get a graphical visualization of the effective mass
     of a band in a single k-point.
-    
+
     Args:
         hessian: the Hessian matrix
         center: the center of the ellipsoid in reciprocal coords (Default)
@@ -4165,7 +4128,7 @@ def plot_ellipsoid(hessian, center, lattice=None, rescale=1.0, ax=None,
         ax: matplotlib :class:`Axes` or None if a new figure should be created.
         coords_are_cartesian: Set to True if you are providing a center in
                               cartesian coordinates. Defaults to False.
-        kwargs: kwargs passed to the matplotlib function 'plot_wireframe'. 
+        kwargs: kwargs passed to the matplotlib function 'plot_wireframe'.
                 Color defaults to blue, rstride and cstride
                 default to 4, alpha defaults to 0.2.
     Returns:
@@ -4223,5 +4186,3 @@ def plot_ellipsoid(hessian, center, lattice=None, rescale=1.0, ax=None,
                         color=color[i])
 
     return fig, ax
-
-

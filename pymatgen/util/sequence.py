@@ -16,6 +16,7 @@ def get_chunks(sequence, size=1):
     return [sequence[i * size:(i + 1) * size]
             for i in range(chunks)]
 
+
 class PBarSafe:
     def __init__(self, total):
         self.total = total
@@ -29,6 +30,7 @@ class PBarSafe:
     def report(self):
         print("{} of {} done {:.1%}".format(
             self.done, self.total, self.done / self.total))
+
 
 try:
     # noinspection PyUnresolvedReferences

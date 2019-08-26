@@ -14,9 +14,12 @@ from monty.functools import lazy_property
 This module defines classes to represent the phonon density of states, etc.
 """
 
-
-BOLTZ_THZ_PER_K = const.value("Boltzmann constant in Hz/K") / const.tera # Boltzmann constant in THz/K
+BOLTZ_THZ_PER_K = const.value("Boltzmann constant in Hz/K") / const.tera  # Boltzmann constant in THz/K
 THZ_TO_J = const.value("hertz-joule relationship") * const.tera
+
+
+def coth(x):
+    return 1.0 / np.tanh(x)
 
 
 class PhononDos(MSONable):
@@ -89,8 +92,8 @@ class PhononDos(MSONable):
         Args:
             frequency: frequency to return the density for.
         """
-        return  get_linear_interpolated_value(self.frequencies,
-                                              self.densities, frequency)
+        return get_linear_interpolated_value(self.frequencies,
+                                             self.densities, frequency)
 
     def __str__(self):
         """
@@ -165,7 +168,8 @@ class PhononDos(MSONable):
         freqs = self._positive_frequencies
         dens = self._positive_densities
 
-        csch2 = lambda x: 1.0 / (np.sinh(x) ** 2)
+        def csch2(x):
+            return 1.0 / (np.sinh(x) ** 2)
 
         wd2kt = freqs / (2 * BOLTZ_THZ_PER_K * t)
         cv = np.trapz(wd2kt ** 2 * csch2(wd2kt) * dens, x=freqs)
@@ -200,8 +204,6 @@ class PhononDos(MSONable):
         freqs = self._positive_frequencies
         dens = self._positive_densities
 
-        coth = lambda x: 1.0 / np.tanh(x)
-
         wd2kt = freqs / (2 * BOLTZ_THZ_PER_K * t)
         s = np.trapz((wd2kt * coth(wd2kt) - np.log(2 * np.sinh(wd2kt))) * dens, x=freqs)
 
@@ -230,13 +232,11 @@ class PhononDos(MSONable):
             Phonon contribution to the internal energy
         """
 
-        if t==0:
+        if t == 0:
             return self.zero_point_energy(structure=structure)
 
         freqs = self._positive_frequencies
         dens = self._positive_densities
-
-        coth = lambda x: 1.0 / np.tanh(x)
 
         wd2kt = freqs / (2 * BOLTZ_THZ_PER_K * t)
         e = np.trapz(freqs * coth(wd2kt) * dens, x=freqs) / 2
@@ -266,7 +266,7 @@ class PhononDos(MSONable):
             Phonon contribution to the Helmholtz free energy
         """
 
-        if t==0:
+        if t == 0:
             return self.zero_point_energy(structure=structure)
 
         freqs = self._positive_frequencies
@@ -325,6 +325,7 @@ class CompletePhononDos(PhononDos):
 
         Dict of partial densities of the form {Site:Densities}
     """
+
     def __init__(self, structure, total_dos, pdoss):
         super().__init__(
             frequencies=total_dos.frequencies, densities=total_dos.densities)

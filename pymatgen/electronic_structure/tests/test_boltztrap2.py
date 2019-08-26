@@ -15,7 +15,7 @@ try:
         merge_up_down_doses
 
     BOLTZTRAP2_PRESENT = True
-except:
+except Exception:
     BOLTZTRAP2_PRESENT = False
 
 BOLTZTRAP2_PRESENT = False

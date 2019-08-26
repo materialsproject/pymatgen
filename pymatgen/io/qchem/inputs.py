@@ -138,7 +138,7 @@ class QCInput(MSONable):
         opt = None
         pcm = None
         solvent = None
-        smx=None
+        smx = None
         if "opt" in sections:
             opt = cls.read_opt(string)
         if "pcm" in sections:

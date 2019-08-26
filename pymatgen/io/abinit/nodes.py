@@ -580,7 +580,7 @@ class Node(metaclass=abc.ABCMeta):
             if self.is_task:
                 try:
                     return self.pos_str
-                except:
+                except Exception:
                     return os.path.basename(self.workdir)
             else:
                 return os.path.basename(self.workdir)
@@ -1146,7 +1146,7 @@ class HistoryRecord:
         if self.args:
             try:
                 msg = msg % self.args
-            except:
+            except Exception:
                 msg += str(self.args)
 
         if asctime: msg = "[" + self.asctime + "] " + msg

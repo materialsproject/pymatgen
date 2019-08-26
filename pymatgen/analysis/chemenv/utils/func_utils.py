@@ -15,7 +15,6 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-
 import numpy as np
 from pymatgen.analysis.chemenv.utils.math_utils import power2_inverse_decreasing, power2_decreasing_exp
 from pymatgen.analysis.chemenv.utils.math_utils import smoothstep, smootherstep
@@ -23,7 +22,6 @@ from pymatgen.analysis.chemenv.utils.math_utils import power2_inverse_power2_dec
 
 
 class AbstractRatioFunction:
-
     ALLOWED_FUNCTIONS = {}
 
     def __init__(self, function, options_dict=None):
@@ -116,9 +114,7 @@ class RatioFunction(AbstractRatioFunction):
         return power2_inverse_power2_decreasing(vals, edges=[0.0, self.__dict__['max']])
 
 
-
 class CSMFiniteRatioFunction(AbstractRatioFunction):
-
     ALLOWED_FUNCTIONS = {'power2_decreasing_exp': ['max_csm', 'alpha'],
                          'smoothstep': ['lower_csm', 'upper_csm'],
                          'smootherstep': ['lower_csm', 'upper_csm']
@@ -157,7 +153,6 @@ class CSMFiniteRatioFunction(AbstractRatioFunction):
 
 
 class CSMInfiniteRatioFunction(AbstractRatioFunction):
-
     ALLOWED_FUNCTIONS = {'power2_inverse_decreasing': ['max_csm'],
                          'power2_inverse_power2_decreasing': ['max_csm']}
 
@@ -201,9 +196,7 @@ class CSMInfiniteRatioFunction(AbstractRatioFunction):
 
 
 class DeltaCSMRatioFunction(AbstractRatioFunction):
-
     ALLOWED_FUNCTIONS = {'smootherstep': ['delta_csm_min', 'delta_csm_max']}
 
     def smootherstep(self, vals):
         return smootherstep(vals, edges=[self.__dict__['delta_csm_min'], self.__dict__['delta_csm_max']])
-

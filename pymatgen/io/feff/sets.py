@@ -170,8 +170,7 @@ class FEFFDictSet(AbstractFeffInputSet):
             del self.config_dict["_del"]
         # k-space feff only for small systems. The hardcoded system size in
         # feff is around 14 atoms.
-        self.small_system = True if (len(self.structure) < 14 and \
-                                     'EXAFS' not in self.config_dict) else False
+        self.small_system = True if (len(self.structure) < 14 and 'EXAFS' not in self.config_dict) else False
 
     def header(self, source='', comment=''):
         """

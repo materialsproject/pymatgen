@@ -41,6 +41,9 @@ jobs:
             source activate test-environment
             pip install --quiet -e .
             pytest --ignore=pymatgen/analysis/tests/test_pourbaix_diagram.py --cov=pymatgen --cov-report html:coverage_reports pymatgen
+            echo "pycodestyle checks..."
+            pycodestyle pymatgen
+            echo "--- Done ---"
             # Command line tests
             pmg structure --convert --filenames test_files/Li2O.cif POSCAR.pmg
             pmg structure --convert --filenames POSCAR.pmg pmg.cif
