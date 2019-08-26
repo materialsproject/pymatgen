@@ -637,13 +637,13 @@ class LammpsData(MSONable):
             sio = StringIO("".join(sec_lines[2:]))  # skip the 2nd line
             if kw.endswith("Coeffs") and not kw.startswith("PairIJ"):
                 df_list = [pd.read_csv(StringIO(line), header=None, comment="#",
-                         delim_whitespace=True) for line in sec_lines[2:] if line.strip()]
+                                       delim_whitespace=True) for line in sec_lines[2:] if line.strip()]
                 df = pd.concat(df_list, ignore_index=True)
                 names = ["id"] + ["coeff%d" % i
                                   for i in range(1, df.shape[1])]
             else:
                 df = pd.read_csv(sio, header=None, comment="#",
-                             delim_whitespace=True)
+                                 delim_whitespace=True)
                 if kw == "PairIJ Coeffs":
                     names = ["id1", "id2"] + ["coeff%d" % i
                                               for i in range(1, df.shape[1] - 1)]
@@ -1233,7 +1233,7 @@ class CombinedData(LammpsData):
         ff_kws = [k for k in all_ff_kws if k in self.mols[0].force_field]
         self.force_field = {}
         for kw in ff_kws:
-            self.force_field[kw] = pd.concat([mol.force_field[kw] for mol in self.mols \
+            self.force_field[kw] = pd.concat([mol.force_field[kw] for mol in self.mols
                                               if kw in mol.force_field], ignore_index=True)
             self.force_field[kw].index += 1
 
@@ -1254,7 +1254,7 @@ class CombinedData(LammpsData):
         self.atoms.update(coordinates)
 
         self.velocities = None
-        assert self.mols[0].velocities == None, "Velocities not supported"
+        assert self.mols[0].velocities is None, "Velocities not supported"
 
         self.topology = {}
         atom_count = 0
@@ -1275,8 +1275,8 @@ class CombinedData(LammpsData):
                     count[kw] += len(self.mols[i].force_field[kw[:-1]+" Coeffs"])
             atom_count += len(self.mols[i].atoms) * self.nums[i]
         for kw in SECTION_KEYWORDS["topology"]:
-                if kw in self.topology:
-                    self.topology[kw].index += 1
+            if kw in self.topology:
+                self.topology[kw].index += 1
 
     @classmethod
     def parse_xyz(cls, filename):
