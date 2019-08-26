@@ -304,7 +304,8 @@ class LammpsData(MSONable):
     def get_string(self, distance=6, velocity=8, charge=4):
         """
         Returns the string representation of LammpsData, essentially
-        the string to be written to a file.
+        the string to be written to a file. Support hybrid style
+        coeffs read and write.
 
         Args:
             distance (int): No. of significant figures to output for
