@@ -426,26 +426,26 @@ class ForceConstantMatrix:
             if op[0] == op[3] and op[1] == op[2]:
                 transpose = 1
             if transpose == 0 and same == 0:
-                D[3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3] = np.zeros(
+                D[3 * op[0]:3 * op[0] + 3, 3 * op[1]:3 * op[1] + 3] = np.zeros(
                     [3, 3]
                 )
-                D[3 * op[1]: 3 * op[1] + 3, 3 * op[0]: 3 * op[0] + 3] = np.zeros(
+                D[3 * op[1]:3 * op[1] + 3, 3 * op[0]:3 * op[0] + 3] = np.zeros(
                     [3, 3]
                 )
 
                 for symop in op[4]:
 
-                    tempfcm = D[3 * op[2]: 3 * op[2] + 3, 3 * op[3]: 3 * op[3] + 3]
+                    tempfcm = D[3 * op[2]:3 * op[2] + 3, 3 * op[3]:3 * op[3] + 3]
                     tempfcm = symop.transform_tensor(tempfcm)
-                    D[3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3] += tempfcm
+                    D[3 * op[0]:3 * op[0] + 3, 3 * op[1]:3 * op[1] + 3] += tempfcm
 
                 if len(op[4]) != 0:
-                    D[3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3] = D[
-                        3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3
+                    D[3 * op[0]:3 * op[0] + 3, 3 * op[1]:3 * op[1] + 3] = D[
+                        3 * op[0]:3 * op[0] + 3, 3 * op[1]:3 * op[1] + 3
                     ] / len(op[4])
 
-                D[3 * op[1]: 3 * op[1] + 3, 3 * op[0]: 3 * op[0] + 3] = D[
-                    3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3
+                D[3 * op[1]:3 * op[1] + 3, 3 * op[0]:3 * op[0] + 3] = D[
+                    3 * op[0]:3 * op[0] + 3, 3 * op[1]:3 * op[1] + 3
                 ].T
                 continue
             else:
@@ -469,10 +469,10 @@ class ForceConstantMatrix:
                     temp_tensor_sum = (temp_tensor_sum + temp_tensor_sum.T) / 2
 
                 D[
-                    3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3
+                    3 * op[0]:3 * op[0] + 3, 3 * op[1]:3 * op[1] + 3
                 ] = temp_tensor_sum
                 D[
-                    3 * op[1]: 3 * op[1] + 3, 3 * op[0]: 3 * op[0] + 3
+                    3 * op[1]:3 * op[1] + 3, 3 * op[0]:3 * op[0] + 3
                 ] = temp_tensor_sum.T
 
         return D
@@ -500,29 +500,29 @@ class ForceConstantMatrix:
             if op[0] == op[3] and op[1] == op[2]:
                 transpose = 1
             if transpose == 0 and same == 0:
-                D[3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3] = np.zeros(
+                D[3 * op[0]:3 * op[0] + 3, 3 * op[1]:3 * op[1] + 3] = np.zeros(
                     [3, 3]
                 )
 
                 for symop in op[4]:
 
-                    tempfcm = D[3 * op[2]: 3 * op[2] + 3, 3 * op[3]: 3 * op[3] + 3]
+                    tempfcm = D[3 * op[2]:3 * op[2] + 3, 3 * op[3]:3 * op[3] + 3]
                     tempfcm = symop.transform_tensor(tempfcm)
 
-                    D[3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3] += tempfcm
+                    D[3 * op[0]:3 * op[0] + 3, 3 * op[1]:3 * op[1] + 3] += tempfcm
 
                 if len(op[4]) != 0:
-                    D[3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3] = D[
-                        3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3
+                    D[3 * op[0]:3 * op[0] + 3, 3 * op[1]:3 * op[1] + 3] = D[
+                        3 * op[0]:3 * op[0] + 3, 3 * op[1]:3 * op[1] + 3
                     ] / len(op[4])
-                D[3 * op[1]: 3 * op[1] + 3, 3 * op[0]: 3 * op[0] + 3] = D[
-                    3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3
+                D[3 * op[1]:3 * op[1] + 3, 3 * op[0]:3 * op[0] + 3] = D[
+                    3 * op[0]:3 * op[0] + 3, 3 * op[1]:3 * op[1] + 3
                 ].T
                 continue
             else:
 
                 temp_tensor = Tensor(
-                    D[3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3]
+                    D[3 * op[0]:3 * op[0] + 3, 3 * op[1]:3 * op[1] + 3]
                 )
                 temp_tensor_sum = sum(
                     [
@@ -535,7 +535,7 @@ class ForceConstantMatrix:
                         len(self.sharedops[op[0]][op[1]])
                     )
 
-                ## Apply the proper transformation if there is an equivalent already
+                # Apply the proper transformation if there is an equivalent already
                 if op[0] != op[1]:
 
                     for pair in range(len(op[4])):
@@ -547,8 +547,8 @@ class ForceConstantMatrix:
                 else:
                     temp_tensor_sum = (temp_tensor_sum + temp_tensor_sum.T) / 2
 
-            D[3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3] = temp_tensor_sum
-            D[3 * op[1]: 3 * op[1] + 3, 3 * op[0]: 3 * op[0] + 3] = temp_tensor_sum.T
+            D[3 * op[0]:3 * op[0] + 3, 3 * op[1]:3 * op[1] + 3] = temp_tensor_sum
+            D[3 * op[1]:3 * op[1] + 3, 3 * op[0]:3 * op[0] + 3] = temp_tensor_sum.T
 
         return D
 
@@ -572,7 +572,7 @@ class ForceConstantMatrix:
         check = 0
         count = 0
         while check == 0:
-            ## if resymmetrizing brings back unstable modes 20 times, the method breaks
+            # if resymmetrizing brings back unstable modes 20 times, the method breaks
             if count > 20:
                 check = 1
                 break
@@ -632,7 +632,7 @@ class ForceConstantMatrix:
             pastrow = 0
             total = np.zeros([3, 3])
             for col in range(numsites):
-                total = total + X[0:3, col * 3: col * 3 + 3]
+                total = total + X[0:3, col * 3:col * 3 + 3]
 
             total = total / (numsites)
             for op in operations:
@@ -643,31 +643,31 @@ class ForceConstantMatrix:
                 if op[0] == op[3] and op[1] == op[2]:
                     transpose = 1
                 if transpose == 0 and same == 0:
-                    D[3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3] = np.zeros(
+                    D[3 * op[0]:3 * op[0] + 3, 3 * op[1]:3 * op[1] + 3] = np.zeros(
                         [3, 3]
                     )
 
                     for symop in op[4]:
 
                         tempfcm = D[
-                            3 * op[2]: 3 * op[2] + 3, 3 * op[3]: 3 * op[3] + 3
+                            3 * op[2]:3 * op[2] + 3, 3 * op[3]:3 * op[3] + 3
                         ]
                         tempfcm = symop.transform_tensor(tempfcm)
 
                         D[
-                            3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3
+                            3 * op[0]:3 * op[0] + 3, 3 * op[1]:3 * op[1] + 3
                         ] += tempfcm
 
                     if len(op[4]) != 0:
-                        D[3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3] = D[
-                            3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3
+                        D[3 * op[0]:3 * op[0] + 3, 3 * op[1]:3 * op[1] + 3] = D[
+                            3 * op[0]:3 * op[0] + 3, 3 * op[1]:3 * op[1] + 3
                         ] / len(op[4])
-                    D[3 * op[1]: 3 * op[1] + 3, 3 * op[0]: 3 * op[0] + 3] = D[
-                        3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3
+                    D[3 * op[1]:3 * op[1] + 3, 3 * op[0]:3 * op[0] + 3] = D[
+                        3 * op[0]:3 * op[0] + 3, 3 * op[1]:3 * op[1] + 3
                     ].T
                     continue
                 else:
-                    ## Get the difference in the sum up to this point
+                    # Get the difference in the sum up to this point
                     currrow = op[0]
                     if currrow != pastrow:
                         total = np.zeros([3, 3])
@@ -675,20 +675,20 @@ class ForceConstantMatrix:
                             total = (
                                 total
                                 + X[
-                                    currrow * 3: currrow * 3 + 3, col * 3: col * 3 + 3
+                                    currrow * 3:currrow * 3 + 3, col * 3:col * 3 + 3
                                 ]
                             )
                         for col in range(currrow):
                             total = (
                                 total
                                 - D[
-                                    currrow * 3: currrow * 3 + 3, col * 3: col * 3 + 3
+                                    currrow * 3:currrow * 3 + 3, col * 3:col * 3 + 3
                                 ]
                             )
                         total = total / (numsites - currrow)
                     pastrow = currrow
 
-                    ## Apply the point symmetry operations of the site
+                    # Apply the point symmetry operations of the site
                     temp_tensor = Tensor(total)
                     temp_tensor_sum = sum(
                         [
@@ -702,7 +702,7 @@ class ForceConstantMatrix:
                             len(self.sharedops[op[0]][op[1]])
                         )
 
-                    ## Apply the proper transformation if there is an equivalent already
+                    # Apply the proper transformation if there is an equivalent already
                     if op[0] != op[1]:
 
                         for pair in range(len(op[4])):
@@ -715,10 +715,10 @@ class ForceConstantMatrix:
                         temp_tensor_sum = (temp_tensor_sum + temp_tensor_sum.T) / 2
 
                     D[
-                        3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3
+                        3 * op[0]:3 * op[0] + 3, 3 * op[1]:3 * op[1] + 3
                     ] = temp_tensor_sum
                     D[
-                        3 * op[1]: 3 * op[1] + 3, 3 * op[0]: 3 * op[0] + 3
+                        3 * op[1]:3 * op[1] + 3, 3 * op[0]:3 * op[0] + 3
                     ] = temp_tensor_sum.T
             fcm = fcm - D
 
