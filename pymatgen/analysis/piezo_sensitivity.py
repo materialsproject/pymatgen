@@ -31,9 +31,9 @@ class BornEffectiveCharge:
 
     def __init__(self, structure, bec, pointops, tol=1e-3):
         """
-        Create an BornEffectiveChargeTensor object defined by a 
+        Create an BornEffectiveChargeTensor object defined by a
         structure, point operations of the structure's atomic sites.
-        Note that the constructor uses __new__ rather than __init__ 
+        Note that the constructor uses __new__ rather than __init__
         according to the standard method ofsubclassing numpy ndarrays.
 
         Args:
@@ -53,21 +53,21 @@ class BornEffectiveCharge:
 
     def get_BEC_operations(self, eigtol=1e-05, opstol=1e-03):
         """
-        Returns the symmetry operations which maps the tensors 
+        Returns the symmetry operations which maps the tensors
         belonging to equivalent sites onto each other in the form
         [site index 1, site index 2, [Symmops mapping from site
         index 1 to site index 2]]
 
 
         Args:
-            eigtol (float): tolerance for determining if two sites are 
+            eigtol (float): tolerance for determining if two sites are
             related by symmetry
             opstol (float): tolerance for determining if a symmetry
             operation relates two sites
 
-        Return: 
-            list of symmetry operations mapping equivalent sites and 
-            the indexes of those sites. 
+        Return:
+            list of symmetry operations mapping equivalent sites and
+            the indexes of those sites.
         """
         bec = self.bec
         struc = self.structure
@@ -108,7 +108,7 @@ class BornEffectiveCharge:
             for op in uniquepointops:
                 new = op.transform_tensor(self.bec[relations[atom][1]])
 
-                ## Check the matrix it references
+                # Check the matrix it references
                 if np.allclose(new, self.bec[relations[atom][0]], atol=opstol):
                     BEC_operations[atom][2].append(op)
 
@@ -116,7 +116,7 @@ class BornEffectiveCharge:
 
     def get_rand_BEC(self, max_charge=1):
         """
-        Generate a random born effective charge tensor which obeys a structure's 
+        Generate a random born effective charge tensor which obeys a structure's
         symmetry and the acoustic sum rule
 
         Args:
@@ -185,13 +185,13 @@ class BornEffectiveCharge:
 
 class InternalStrainTensor:
     """
-    This class describes the Nx3x3x3 internal tensor defined by a 
+    This class describes the Nx3x3x3 internal tensor defined by a
     structure, point operations of the structure's atomic sites.
     """
 
     def __init__(self, structure, ist, pointops, tol=1e-3):
         """
-        Create an InternalStrainTensor object.  
+        Create an InternalStrainTensor object.
 
         Args:
             input_matrix (Nx3x3x3 array-like): the Nx3x3x3 array-like
@@ -211,7 +211,7 @@ class InternalStrainTensor:
 
     def get_IST_operations(self, opstol=1e-03):
         """
-        Returns the symmetry operations which maps the tensors 
+        Returns the symmetry operations which maps the tensors
         belonging to equivalent sites onto each other in the form
         [site index 1, site index 2, [Symmops mapping from site
         index 1 to site index 2]]
@@ -221,9 +221,9 @@ class InternalStrainTensor:
             opstol (float): tolerance for determining if a symmetry
             operation relates two sites
 
-        Return: 
-            list of symmetry operations mapping equivalent sites and 
-            the indexes of those sites. 
+        Return:
+            list of symmetry operations mapping equivalent sites and
+            the indexes of those sites.
         """
 
         struc = self.structure
@@ -244,7 +244,7 @@ class InternalStrainTensor:
                 for op in uniquepointops:
                     new = op.transform_tensor(self.ist[j])
 
-                    ## Check the matrix it references
+                    # Check the matrix it references
                     if np.allclose(new, self.ist[atom], atol=opstol):
                         IST_operations[atom].append([j, op])
 
@@ -252,7 +252,7 @@ class InternalStrainTensor:
 
     def get_rand_IST(self, max_force=1):
         """
-        Generate a random internal strain tensor which obeys a structure's 
+        Generate a random internal strain tensor which obeys a structure's
         symmetry and the acoustic sum rule
 
         Args:
@@ -285,14 +285,14 @@ class InternalStrainTensor:
 
 class ForceConstantMatrix:
     """
-    This class describes the NxNx3x3 force constant matrix defined by a 
+    This class describes the NxNx3x3 force constant matrix defined by a
     structure, point operations of the structure's atomic sites, and the
-    shared symmetry operations between pairs of atomic sites. 
+    shared symmetry operations between pairs of atomic sites.
     """
 
     def __init__(self, structure, fcm, pointops, sharedops, tol=1e-3):
         """
-        Create an ForceConstantMatrix object. 
+        Create an ForceConstantMatrix object.
 
         Args:
             input_matrix (NxNx3x3 array-like): the NxNx3x3 array-like
@@ -307,21 +307,21 @@ class ForceConstantMatrix:
 
     def get_FCM_operations(self, eigtol=1e-05, opstol=1e-05):
         """
-        Returns the symmetry operations which maps the tensors 
+        Returns the symmetry operations which maps the tensors
         belonging to equivalent sites onto each other in the form
         [site index 1a, site index 1b, site index 2a, site index 2b,
         [Symmops mapping from site index 1a, 1b to site index 2a, 2b]]
 
 
         Args:
-            eigtol (float): tolerance for determining if two sites are 
+            eigtol (float): tolerance for determining if two sites are
             related by symmetry
             opstol (float): tolerance for determining if a symmetry
             operation relates two sites
 
-        Return: 
-            list of symmetry operations mapping equivalent sites and 
-            the indexes of those sites. 
+        Return:
+            list of symmetry operations mapping equivalent sites and
+            the indexes of those sites.
         """
         struc = self.structure
         ops = sga(struc).get_symmetry_operations(cartesian=True)
@@ -404,7 +404,7 @@ class ForceConstantMatrix:
 
     def get_unstable_FCM(self, max_force=1):
         """
-        Generate an unsymmeterized force constant matrix 
+        Generate an unsymmeterized force constant matrix
 
         Args:
             max_charge (float): maximum born effective charge value
@@ -426,26 +426,26 @@ class ForceConstantMatrix:
             if op[0] == op[3] and op[1] == op[2]:
                 transpose = 1
             if transpose == 0 and same == 0:
-                D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = np.zeros(
+                D[3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3] = np.zeros(
                     [3, 3]
                 )
-                D[3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3] = np.zeros(
+                D[3 * op[1]: 3 * op[1] + 3, 3 * op[0]: 3 * op[0] + 3] = np.zeros(
                     [3, 3]
                 )
 
                 for symop in op[4]:
 
-                    tempfcm = D[3 * op[2] : 3 * op[2] + 3, 3 * op[3] : 3 * op[3] + 3]
+                    tempfcm = D[3 * op[2]: 3 * op[2] + 3, 3 * op[3]: 3 * op[3] + 3]
                     tempfcm = symop.transform_tensor(tempfcm)
-                    D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] += tempfcm
+                    D[3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3] += tempfcm
 
                 if len(op[4]) != 0:
-                    D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = D[
-                        3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
+                    D[3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3] = D[
+                        3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3
                     ] / len(op[4])
 
-                D[3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3] = D[
-                    3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
+                D[3 * op[1]: 3 * op[1] + 3, 3 * op[0]: 3 * op[0] + 3] = D[
+                    3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3
                 ].T
                 continue
             else:
@@ -469,10 +469,10 @@ class ForceConstantMatrix:
                     temp_tensor_sum = (temp_tensor_sum + temp_tensor_sum.T) / 2
 
                 D[
-                    3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
+                    3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3
                 ] = temp_tensor_sum
                 D[
-                    3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3
+                    3 * op[1]: 3 * op[1] + 3, 3 * op[0]: 3 * op[0] + 3
                 ] = temp_tensor_sum.T
 
         return D
@@ -482,7 +482,7 @@ class ForceConstantMatrix:
         Generate a symmeterized force constant matrix from an unsymmeterized matrix
 
         Args:
-            unsymmetrized_fcm (numpy array): unsymmeterized force constant matrix 
+            unsymmetrized_fcm (numpy array): unsymmeterized force constant matrix
             max_charge (float): maximum born effective charge value
 
         Return:
@@ -500,29 +500,29 @@ class ForceConstantMatrix:
             if op[0] == op[3] and op[1] == op[2]:
                 transpose = 1
             if transpose == 0 and same == 0:
-                D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = np.zeros(
+                D[3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3] = np.zeros(
                     [3, 3]
                 )
 
                 for symop in op[4]:
 
-                    tempfcm = D[3 * op[2] : 3 * op[2] + 3, 3 * op[3] : 3 * op[3] + 3]
+                    tempfcm = D[3 * op[2]: 3 * op[2] + 3, 3 * op[3]: 3 * op[3] + 3]
                     tempfcm = symop.transform_tensor(tempfcm)
 
-                    D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] += tempfcm
+                    D[3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3] += tempfcm
 
                 if len(op[4]) != 0:
-                    D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = D[
-                        3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
+                    D[3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3] = D[
+                        3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3
                     ] / len(op[4])
-                D[3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3] = D[
-                    3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
+                D[3 * op[1]: 3 * op[1] + 3, 3 * op[0]: 3 * op[0] + 3] = D[
+                    3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3
                 ].T
                 continue
             else:
 
                 temp_tensor = Tensor(
-                    D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3]
+                    D[3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3]
                 )
                 temp_tensor_sum = sum(
                     [
@@ -547,20 +547,20 @@ class ForceConstantMatrix:
                 else:
                     temp_tensor_sum = (temp_tensor_sum + temp_tensor_sum.T) / 2
 
-            D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = temp_tensor_sum
-            D[3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3] = temp_tensor_sum.T
+            D[3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3] = temp_tensor_sum
+            D[3 * op[1]: 3 * op[1] + 3, 3 * op[0]: 3 * op[0] + 3] = temp_tensor_sum.T
 
         return D
 
     def get_stable_FCM(self, fcm, fcmasum=10):
 
         """
-        Generate a symmeterized force constant matrix that obeys the objects symmetry 
+        Generate a symmeterized force constant matrix that obeys the objects symmetry
         constraints, has no unstable modes and also obeys the acoustic sum rule through an
         iterative procedure
 
         Args:
-            fcm (numpy array): unsymmeterized force constant matrix 
+            fcm (numpy array): unsymmeterized force constant matrix
             fcmasum (int): number of iterations to attempt to obey the acoustic sum
                 rule
 
@@ -607,11 +607,11 @@ class ForceConstantMatrix:
 
     def get_asum_FCM(self, fcm, numiter=15):
         """
-        Generate a symmeterized force constant matrix that obeys the objects symmetry 
+        Generate a symmeterized force constant matrix that obeys the objects symmetry
         constraints and obeys the acoustic sum rule through an iterative procedure
 
         Args:
-            fcm (numpy array): 3Nx3N unsymmeterized force constant matrix 
+            fcm (numpy array): 3Nx3N unsymmeterized force constant matrix
             numiter (int): number of iterations to attempt to obey the acoustic sum
                 rule
 
@@ -632,7 +632,7 @@ class ForceConstantMatrix:
             pastrow = 0
             total = np.zeros([3, 3])
             for col in range(numsites):
-                total = total + X[0:3, col * 3 : col * 3 + 3]
+                total = total + X[0:3, col * 3: col * 3 + 3]
 
             total = total / (numsites)
             for op in operations:
@@ -643,27 +643,27 @@ class ForceConstantMatrix:
                 if op[0] == op[3] and op[1] == op[2]:
                     transpose = 1
                 if transpose == 0 and same == 0:
-                    D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = np.zeros(
+                    D[3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3] = np.zeros(
                         [3, 3]
                     )
 
                     for symop in op[4]:
 
                         tempfcm = D[
-                            3 * op[2] : 3 * op[2] + 3, 3 * op[3] : 3 * op[3] + 3
+                            3 * op[2]: 3 * op[2] + 3, 3 * op[3]: 3 * op[3] + 3
                         ]
                         tempfcm = symop.transform_tensor(tempfcm)
 
                         D[
-                            3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
+                            3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3
                         ] += tempfcm
 
                     if len(op[4]) != 0:
-                        D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = D[
-                            3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
+                        D[3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3] = D[
+                            3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3
                         ] / len(op[4])
-                    D[3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3] = D[
-                        3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
+                    D[3 * op[1]: 3 * op[1] + 3, 3 * op[0]: 3 * op[0] + 3] = D[
+                        3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3
                     ].T
                     continue
                 else:
@@ -675,14 +675,14 @@ class ForceConstantMatrix:
                             total = (
                                 total
                                 + X[
-                                    currrow * 3 : currrow * 3 + 3, col * 3 : col * 3 + 3
+                                    currrow * 3: currrow * 3 + 3, col * 3: col * 3 + 3
                                 ]
                             )
                         for col in range(currrow):
                             total = (
                                 total
                                 - D[
-                                    currrow * 3 : currrow * 3 + 3, col * 3 : col * 3 + 3
+                                    currrow * 3: currrow * 3 + 3, col * 3: col * 3 + 3
                                 ]
                             )
                         total = total / (numsites - currrow)
@@ -715,10 +715,10 @@ class ForceConstantMatrix:
                         temp_tensor_sum = (temp_tensor_sum + temp_tensor_sum.T) / 2
 
                     D[
-                        3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
+                        3 * op[0]: 3 * op[0] + 3, 3 * op[1]: 3 * op[1] + 3
                     ] = temp_tensor_sum
                     D[
-                        3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3
+                        3 * op[1]: 3 * op[1] + 3, 3 * op[0]: 3 * op[0] + 3
                     ] = temp_tensor_sum.T
             fcm = fcm - D
 
@@ -728,7 +728,7 @@ class ForceConstantMatrix:
     def get_rand_FCM(self, asum=15, force=10):
         """
         Generate a symmeterized force constant matrix from an unsymmeterized matrix
-        that has no unstable modes and also obeys the acoustic sum rule through an 
+        that has no unstable modes and also obeys the acoustic sum rule through an
         iterative procedure
 
         Args:
@@ -780,13 +780,13 @@ def get_piezo(BEC, IST, FCM, rcond=0.0001):
     symmetry
 
     Args:
-        BEC (numpy array): Nx3x3 array representing the born effective charge tensor 
-        IST (numpy array): Nx3x3x3 array representing the internal strain tensor 
-        FCM (numpy array): NxNx3x3 array representing the born effective charge tensor 
+        BEC (numpy array): Nx3x3 array representing the born effective charge tensor
+        IST (numpy array): Nx3x3x3 array representing the internal strain tensor
+        FCM (numpy array): NxNx3x3 array representing the born effective charge tensor
         rcondy (float): condition for excluding eigenvalues in the pseudoinverse
 
     Return:
-        3x3x3 calculated Piezo tensor 
+        3x3x3 calculated Piezo tensor
     """
 
     numsites = len(BEC)
@@ -815,12 +815,12 @@ def rand_piezo(struc, pointops, sharedops, BEC, IST, FCM, anumiter=10):
         struc (pymatgen structure): structure whose symmetry operations the piezo tensor must obey
         pointops: list of point operations obeyed by a single atomic site
         sharedops: list of point operations shared by a pair of atomic sites
-        BEC (numpy array): Nx3x3 array representing the born effective charge tensor 
-        IST (numpy array): Nx3x3x3 array representing the internal strain tensor 
-        FCM (numpy array): NxNx3x3 array representing the born effective charge tensor 
+        BEC (numpy array): Nx3x3 array representing the born effective charge tensor
+        IST (numpy array): Nx3x3x3 array representing the internal strain tensor
+        FCM (numpy array): NxNx3x3 array representing the born effective charge tensor
         anumiter (int): number of iterations for acoustic sum rule convergence
     Return:
-        list in the form of [Nx3x3 random born effective charge tenosr, 
+        list in the form of [Nx3x3 random born effective charge tenosr,
         Nx3x3x3 random internal strain tensor, NxNx3x3 random force constant matrix, 3x3x3 piezo tensor]
     """
     numsites = len(struc.sites)

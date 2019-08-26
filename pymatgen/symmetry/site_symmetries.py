@@ -13,7 +13,7 @@ def get_site_symmetries(struc, precision=0.1):
 
     Args:
         struc: Pymatgen structure
-        precision (float): tolerance to find symmetry operaitons 
+        precision (float): tolerance to find symmetry operaitons
 
     Return:
         list of lists of point operations for each atomic site
