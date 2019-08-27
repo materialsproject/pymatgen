@@ -3701,7 +3701,6 @@ def plot_fermi_surface(data, structure, cbm, energy_levels=None,
             If False a non interactive figure will be shown, but it is possible
             to plot other surfaces on the same figure. To make it interactive,
             run mlab.show().
-        
     Returns:
         ((mayavi.mlab.figure, mayavi.mlab)): The mlab plotter and an interactive
             figure to control the plot.
@@ -3713,14 +3712,13 @@ def plot_fermi_surface(data, structure, cbm, energy_levels=None,
     bz = structure.lattice.reciprocal_lattice.get_wigner_seitz_cell()
     cell = structure.lattice.reciprocal_lattice.matrix
 
-    fact = 1 if cbm == False else -1
+    fact = 1 if not cbm else -1
     data_1d = data.ravel()
     en_min = np.min(fact * data_1d)
     en_max = np.max(fact * data_1d)
 
     if energy_levels is None:
-        energy_levels = [en_min + 0.01] if cbm == True else \
-            [en_max - 0.01]
+        energy_levels = [en_min + 0.01] if cbm else [en_max - 0.01]
         print("Energy level set to: " + str(energy_levels[0]) + " eV")
 
     else:
@@ -3803,7 +3801,7 @@ def plot_fermi_surface(data, structure, cbm, energy_levels=None,
 
         polydata.points = (np.array(polydata.points) - [cx, cy, cz]) * 2
 
-        #mlab.view(distance='auto')
+        # mlab.view(distance='auto')
         fig.scene.isometric_view()
 
     if interative:
