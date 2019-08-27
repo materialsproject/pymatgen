@@ -1,14 +1,13 @@
 version: 2
 jobs:
-  py3test:
+  build:
     working_directory: ~/pymatgen
     docker:
       - image: materialsvirtuallab/circle-ci-pmg-py3:3.7.3
-#        environment:
-#          PMG_MAPI_ENDPOINT: https://zola.lbl.gov/rest/v2
-    # parallelism: 4
     steps:
       - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}
       - run:
           command: |
             export PATH=$HOME/miniconda3/bin:$PATH
@@ -25,6 +24,18 @@ jobs:
             export CFLAGS=$CFLAGS" -std=gnu++11"
             pip install BoltzTraP2
             export CFLAGS=${CFLAGS%% -std=gnu++11}
+      - save_cache:
+          key: dependency-cache-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}
+          paths:
+            - test-environment
+  test:
+    working_directory: ~/pymatgen
+    docker:
+      - image: materialsvirtuallab/circle-ci-pmg-py3:3.7.3
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}
       - run:
           command: |
             export PATH=$HOME/miniconda3/bin:$PATH
@@ -41,9 +52,6 @@ jobs:
             source activate test-environment
             pip install --quiet -e .
             pytest --ignore=pymatgen/analysis/tests/test_pourbaix_diagram.py --cov=pymatgen --cov-report html:coverage_reports pymatgen
-            echo "pycodestyle checks..."
-            pycodestyle pymatgen
-            echo "--- Done ---"
             # Command line tests
             pmg structure --convert --filenames test_files/Li2O.cif POSCAR.pmg
             pmg structure --convert --filenames POSCAR.pmg pmg.cif
@@ -55,9 +63,32 @@ jobs:
           destination: tr1
       - store_test_results:
           path: coverage_reports/
+  stylecheck:
+    working_directory: ~/pymatgen
+    docker:
+      - image: materialsvirtuallab/circle-ci-pmg-py3:3.7.3
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}
+      - run:
+          command: |
+            export PATH=$HOME/miniconda3/bin:$PATH
+            # Add executables and path.
+            source activate test-environment
+            pip install --quiet -e .
+            echo "pycodestyle checks..."
+            pycodestyle pymatgen
+            echo "--- Done ---"
 
 workflows:
   version: 2
   build_and_test:
     jobs:
-      - py3test
+      - build
+      - test:
+          requires:
+            - build
+      - stylecheck:
+          requires:
+            - build
