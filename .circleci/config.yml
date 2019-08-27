@@ -33,6 +33,7 @@ jobs:
     docker:
       - image: materialsvirtuallab/circle-ci-pmg-py3:3.7.3
     steps:
+      - checkout
       - run:
           command: |
             export PATH=$HOME/miniconda3/bin:$PATH
@@ -65,6 +66,7 @@ jobs:
     docker:
       - image: materialsvirtuallab/circle-ci-pmg-py3:3.7.3
     steps:
+      - checkout
       - run:
           command: |
             export PATH=$HOME/miniconda3/bin:$PATH
