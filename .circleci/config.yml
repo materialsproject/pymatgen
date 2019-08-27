@@ -27,7 +27,7 @@ jobs:
       - save_cache:
           key: dependency-cache-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}
           paths:
-            - test-environment
+            - /root/miniconda3/envs/test-environment
   test:
     working_directory: ~/pymatgen
     docker:
