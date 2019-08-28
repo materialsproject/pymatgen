@@ -2324,8 +2324,7 @@ class Outcar:
             def born_section_start(results, match):
                 results.born_ion = -1
 
-            search.append([r"BORN EFFECTIVE CHARGES " +
-                           r"\(in e, cummulative output\)",
+            search.append([r"BORN EFFECTIVE CHARGES ",
                            None, born_section_start])
 
             def born_ion(results, match):
