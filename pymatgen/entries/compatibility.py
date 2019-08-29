@@ -11,7 +11,6 @@ import abc
 import warnings
 
 from collections import defaultdict
-from typing import Sequence
 from math import sqrt
 
 from monty.design_patterns import cached_class
@@ -169,7 +168,6 @@ class GasCorrection(Correction):
     Correct gas energies to obtain the right formation energies. Note that
     this depends on calculations being run within the same input set.
     """
-
     def __init__(self, config_file, error_file=None):
         c = loadfn(config_file)
         self.name = c['Name']
@@ -290,7 +288,7 @@ class AnionCorrection(Correction):
                             comp["O"]
                         error = sqrt(error**2 + (self.oxide_errors["ozonide"] * comp["O"])**2)
                     elif Element("O") in comp.elements and len(comp.elements)\
-                                                > 1:
+                            > 1:
                         correction += self.oxide_correction['oxide'] * \
                                       comp["O"]
                         error = sqrt(error**2 + (self.oxide_errors["oxide"] * comp["O"])**2)
@@ -366,7 +364,6 @@ class UCorrection(Correction):
                         "MgO2", "CaO2", "SrO2", "BaO2"]
     common_superoxides = ["LiO2", "NaO2", "KO2", "RbO2", "CsO2"]
     ozonides = ["LiO3", "NaO3", "KO3", "NaO5"]
-
 
     def __init__(self, config_file, input_set, compat_type, error_file=None):
         if compat_type not in ['GGA', 'Advanced']:

@@ -806,9 +806,11 @@ class TestCorrectionErrorsCompatibility(unittest.TestCase):
 
         entry2_corrected = self.compat.process_entry(self.entry2)
         self.assertAlmostEqual(entry2_corrected.data['correction_error'], sqrt((3*0.008018952265981852)**2 + (4*0.0016538603787238481)**2))
-
         entry_sulfide_corrected = self.compat.process_entry(self.entry_sulfide)
         self.assertAlmostEqual(entry_sulfide_corrected.data['correction_error'], 0.012165375087004127)
+
+        entry_fluoride_corrected = self.compat.process_entry(self.entry_fluoride)
+        self.assertAlmostEqual(entry_fluoride_corrected.data['correction_error'], 0.008018952265981852)
 
         entry_fluoride_corrected = self.compat.process_entry(self.entry_fluoride)
         self.assertAlmostEqual(entry_fluoride_corrected.data['correction_error'], 0.008018952265981852)
