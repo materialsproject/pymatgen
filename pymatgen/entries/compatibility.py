@@ -8,6 +8,7 @@ import abc
 import warnings
 
 from collections import defaultdict
+from math import sqrt
 
 from monty.design_patterns import cached_class
 from monty.serialization import loadfn
@@ -82,7 +83,9 @@ class Correction(metaclass=abc.ABCMeta):
         Raises:
             CompatibilityError if entry is not compatible.
         """
-        entry.correction += self.get_correction(entry)
+        corr = self.get_correction(entry)
+        entry.correction += corr[0]
+        entry.data['correction_error'] = corr[1]
         return entry
 
 
@@ -155,7 +158,7 @@ class PotcarCorrection(Correction):
         if {self.valid_potcars.get(str(el))
                 for el in entry.composition.elements} != psp_settings:
             raise CompatibilityError('Incompatible potcar')
-        return 0
+        return 0, 0
 
     def __str__(self):
         return "{} Potcar Correction".format(self.input_set.__name__)
@@ -170,21 +173,26 @@ class GasCorrection(Correction):
     Args:
         config_file: Path to the selected compatibility.yaml config file.
     """
-
-    def __init__(self, config_file):
+    def __init__(self, config_file, error_file=None):
         c = loadfn(config_file)
         self.name = c['Name']
         self.cpd_energies = c['Advanced']['CompoundEnergies']
+        if error_file:
+            e = loadfn(error_file)
+            self.cpd_errors = e['Advanced']['CompoundEnergies']
+        else:
+            self.cpd_errors = defaultdict(float)
 
     def get_correction(self, entry):
         comp = entry.composition
 
         rform = entry.composition.reduced_formula
         if rform in self.cpd_energies:
-            return self.cpd_energies[rform] * comp.num_atoms \
-                   - entry.uncorrected_energy
-
-        return 0
+            correction = self.cpd_energies[rform] * comp.num_atoms \
+                - entry.uncorrected_energy
+            error = self.cpd_errors[rform] * comp.num_atoms
+            return correction, error
+        return 0, 0
 
     def __str__(self):
         return "{} Gas Correction".format(self.name)
@@ -201,21 +209,28 @@ class AnionCorrection(Correction):
         correct_peroxide: Specify whether peroxide/superoxide/ozonide
             corrections are to be applied or not.
     """
-
-    def __init__(self, config_file, correct_peroxide=True):
+    def __init__(self, config_file, error_file=None, correct_peroxide=True):
         c = loadfn(config_file)
         self.oxide_correction = c['OxideCorrections']
         self.sulfide_correction = c.get('SulfideCorrections', defaultdict(
             float))
         self.name = c['Name']
         self.correct_peroxide = correct_peroxide
+        if error_file:
+            e = loadfn(error_file)
+            self.oxide_errors = e['OxideCorrections']
+            self.sulfide_errors = e.get('SulfideCorrections', defaultdict(float))
+        else:
+            self.oxide_errors = defaultdict(float)
+            self.sulfide_errors = defaultdict(float)
 
     def get_correction(self, entry):
         comp = entry.composition
         if len(comp) == 1:  # Skip element entry
-            return 0
+            return 0, 0
 
         correction = 0
+        error = 0
         # Check for sulfide corrections
         if Element("S") in comp:
             sf_type = "sulfide"
@@ -225,6 +240,8 @@ class AnionCorrection(Correction):
                 sf_type = sulfide_type(entry.structure)
             if sf_type in self.sulfide_correction:
                 correction += self.sulfide_correction[sf_type] * comp["S"]
+                error = sqrt(error**2 + (self.sulfide_errors[sf_type] * comp['S'])**2)
+
 
         # Check for oxide, peroxide, superoxide, and ozonide corrections.
         if Element("O") in comp:
@@ -234,19 +251,25 @@ class AnionCorrection(Correction):
                         ox_corr = self.oxide_correction[
                             entry.data["oxide_type"]]
                         correction += ox_corr * comp["O"]
+                        ox_error = self.oxide_errors[entry.data["oxide_type"]]
+                        error = sqrt(error**2 + (ox_error*comp['O'])**2)
                     if entry.data["oxide_type"] == "hydroxide":
                         ox_corr = self.oxide_correction["oxide"]
                         correction += ox_corr * comp["O"]
+                        ox_error = self.oxide_errors['oxide']
+                        error = sqrt(error**2 + (ox_error*comp['O'])**2)
 
                 elif hasattr(entry, "structure"):
                     ox_type, nbonds = oxide_type(entry.structure, 1.05,
                                                  return_nbonds=True)
                     if ox_type in self.oxide_correction:
                         correction += self.oxide_correction[ox_type] * \
-                                      nbonds
+                            nbonds
+                        error = sqrt(error**2 + (self.oxide_errors[ox_type] * nbonds)**2)
                     elif ox_type == "hydroxide":
                         correction += self.oxide_correction["oxide"] * \
                                       comp["O"]
+                        error = sqrt(error**2 + (self.oxide_errors["oxide"] * comp["O"])**2)
                 else:
                     warnings.warn(
                         "No structure or oxide_type parameter present. Note "
@@ -256,21 +279,26 @@ class AnionCorrection(Correction):
                     rform = entry.composition.reduced_formula
                     if rform in UCorrection.common_peroxides:
                         correction += self.oxide_correction["peroxide"] * \
-                                      comp["O"]
+                            comp["O"]
+                        error = sqrt(error**2 + (self.oxide_errors["peroxide"] * comp["O"])**2)
                     elif rform in UCorrection.common_superoxides:
                         correction += self.oxide_correction["superoxide"] * \
-                                      comp["O"]
+                            comp["O"]
+                        error = sqrt(error**2 + (self.oxide_errors["superoxide"] * comp["O"])**2)
                     elif rform in UCorrection.ozonides:
                         correction += self.oxide_correction["ozonide"] * \
-                                      comp["O"]
-                    elif Element("O") in comp.elements and len(comp.elements) \
+                            comp["O"]
+                        error = sqrt(error**2 + (self.oxide_errors["ozonide"] * comp["O"])**2)
+                    elif Element("O") in comp.elements and len(comp.elements)\
                             > 1:
                         correction += self.oxide_correction['oxide'] * \
                                       comp["O"]
+                        error = sqrt(error**2 + (self.oxide_errors["oxide"] * comp["O"])**2)
             else:
                 correction += self.oxide_correction['oxide'] * comp["O"]
+                error = sqrt(error**2 + (self.oxide_errors['oxide'] * comp["O"])**2)            
 
-        return correction
+        return correction, error
 
     def __str__(self):
         return "{} Anion Correction".format(self.name)
@@ -285,26 +313,34 @@ class AqueousCorrection(Correction):
     Args:
         config_file: Path to the selected compatibility.yaml config file.
     """
-
-    def __init__(self, config_file):
+    def __init__(self, config_file, error_file=None):
         c = loadfn(config_file)
         self.cpd_energies = c['AqueousCompoundEnergies']
         self.name = c["Name"]
+        if error_file:
+            e = loadfn(error_file)
+            self.cpd_errors = e.get('AqueousCompoundEnergies', defaultdict(float))
+        else:
+            self.cpd_errors = defaultdict(float)
 
     def get_correction(self, entry):
         comp = entry.composition
         rform = comp.reduced_formula
         cpdenergies = self.cpd_energies
         correction = 0
+        error = 0
         if rform in cpdenergies:
             if rform in ["H2", "H2O"]:
                 correction = cpdenergies[rform] * comp.num_atoms \
-                             - entry.uncorrected_energy - entry.correction
+                    - entry.uncorrected_energy - entry.correction
+                error = sqrt(error**2 + (self.cpd_errors[rform] * comp.num_atoms \
+                    - entry.uncorrected_energy - entry.correction)**2)
             else:
                 correction += cpdenergies[rform] * comp.num_atoms
+                error = sqrt(error**2 + (self.cpd_errors[rform] * comp.num_atoms)**2)
         if not rform == "H2O":
-            correction += 0.5 * 2.46 * min(comp["H"] / 2.0, comp["O"])
-        return correction
+            correction += 0.5 * 2.46 * min(comp["H"]/2.0, comp["O"])
+        return correction, error
 
     def __str__(self):
         return "{} Aqueous Correction".format(self.name)
@@ -341,7 +377,7 @@ class UCorrection(Correction):
     common_superoxides = ["LiO2", "NaO2", "KO2", "RbO2", "CsO2"]
     ozonides = ["LiO3", "NaO3", "KO3", "NaO5"]
 
-    def __init__(self, config_file, input_set, compat_type):
+    def __init__(self, config_file, input_set, compat_type, error_file=None):
         if compat_type not in ['GGA', 'Advanced']:
             raise CompatibilityError("Invalid compat_type {}"
                                      .format(compat_type))
@@ -359,6 +395,13 @@ class UCorrection(Correction):
         self.name = c["Name"]
         self.compat_type = compat_type
 
+        if error_file:
+            e = loadfn(error_file)
+            self.u_errors = e['Advanced']['UCorrections']
+        else:
+            self.u_errors = {}
+
+
     def get_correction(self, entry):
         if entry.parameters.get("run_type", "GGA") == "HF":
             raise CompatibilityError('Invalid run type')
@@ -371,8 +414,10 @@ class UCorrection(Correction):
                           key=lambda el: el.X)
         most_electroneg = elements[-1].symbol
         correction = 0
+        error = 0
         ucorr = self.u_corrections.get(most_electroneg, {})
         usettings = self.u_settings.get(most_electroneg, {})
+        uerrors = self.u_errors.get(most_electroneg, defaultdict(float))
 
         for el in comp.elements:
             sym = el.symbol
@@ -382,8 +427,9 @@ class UCorrection(Correction):
                                          (calc_u.get(sym, 0), sym))
             if sym in ucorr:
                 correction += float(ucorr[sym]) * comp[el]
+                error = sqrt(error**2 + (float(uerrors[sym]) * comp[el])**2)
 
-        return correction
+        return correction, error
 
     def __str__(self):
         return "{} {} Correction".format(self.name, self.compat_type)
@@ -418,10 +464,15 @@ class Compatibility(MSONable):
             returned.
         """
         try:
-            corrections = self.get_corrections_dict(entry)
+            corrections, errors = self.get_corrections_dict(entry)
         except CompatibilityError:
             return None
         entry.correction = sum(corrections.values())
+        tot_error = 0
+        for e in errors.values():
+            tot_error += e**2
+        tot_error = sqrt(tot_error)
+        entry.data['correction_error'] = tot_error
         return entry
 
     def get_corrections_dict(self, entry):
@@ -435,11 +486,13 @@ class Compatibility(MSONable):
             ({correction_name: value})
         """
         corrections = {}
+        errors = {}
         for c in self.corrections:
-            val = c.get_correction(entry)
+            val, e = c.get_correction(entry)
             if val != 0:
                 corrections[str(c)] = val
-        return corrections
+                errors[str(c)] = e
+        return corrections, errors
 
     def process_entries(self, entries):
         """
@@ -468,6 +521,7 @@ class Compatibility(MSONable):
             {"Compatibility": "string",
             "Uncorrected_energy": float,
             "Corrected_energy": float,
+            "Correction_error:" float,
             "Corrections": [{"Name of Correction": {
             "Value": float, "Explanation": "string"}]}
         """
@@ -475,18 +529,22 @@ class Compatibility(MSONable):
         if centry is None:
             uncorrected_energy = entry.uncorrected_energy
             corrected_energy = None
+            correction_error = None
         else:
             uncorrected_energy = centry.uncorrected_energy
             corrected_energy = centry.energy
+            correction_error = centry.data['correction_error']
         d = {"compatibility": self.__class__.__name__,
              "uncorrected_energy": uncorrected_energy,
-             "corrected_energy": corrected_energy}
+             "corrected_energy": corrected_energy,
+             "correction_error": correction_error}
         corrections = []
-        corr_dict = self.get_corrections_dict(entry)
+        corr_dict, error_dict = self.get_corrections_dict(entry)
         for c in self.corrections:
             cd = {"name": str(c),
                   "description": c.__doc__.split("Args")[0].strip(),
-                  "value": corr_dict.get(str(c), 0)}
+                  "value": corr_dict.get(str(c), 0),
+                  "error": error_dict.get(str(c), 0)}
             corrections.append(cd)
         d["corrections"] = corrections
         return d
@@ -542,12 +600,13 @@ class MaterialsProjectCompatibility(Compatibility):
         self.compat_type = compat_type
         self.correct_peroxide = correct_peroxide
         self.check_potcar_hash = check_potcar_hash
-        fp = os.path.join(MODULE_DIR, "MPCompatibility.yaml")
+        fp = os.path.join(MODULE_DIR, "test_compatibility.yaml")
+        fp_error = os.path.join(MODULE_DIR, 'test_compatibility_errors.yaml')
         super().__init__(
             [PotcarCorrection(MPRelaxSet, check_hash=check_potcar_hash),
-             GasCorrection(fp),
-             AnionCorrection(fp, correct_peroxide=correct_peroxide),
-             UCorrection(fp, MPRelaxSet, compat_type)])
+             GasCorrection(fp, error_file=fp_error),
+             AnionCorrection(fp, error_file=fp_error, correct_peroxide=correct_peroxide),
+             UCorrection(fp, MPRelaxSet, compat_type, error_file=fp_error)])
 
 
 class MITCompatibility(Compatibility):
