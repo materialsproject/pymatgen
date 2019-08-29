@@ -796,7 +796,8 @@ class CombinedDataTest(unittest.TestCase):
         cls.coord = CombinedData. \
             parse_xyz(filename=os.path.join(test_dir, "ec_fec.xyz"))
         cls.ec_fec1 = CombinedData. \
-            from_files(cls.coord, [1200, 300], os.path.join(test_dir, "ec.data"),
+            from_files(os.path.join(test_dir, "ec_fec.xyz"), [1200, 300],
+                       os.path.join(test_dir, "ec.data"),
                        os.path.join(test_dir, "fec.data"))
         cls.ec_fec2 = CombinedData. \
             from_lammpsdata([cls.ec, cls.fec], ['EC', 'FEC'], [1200, 300], cls.coord)

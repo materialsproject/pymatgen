@@ -401,7 +401,7 @@ class LammpsData(MSONable):
                             formatters = default_formatters
                         line_string = \
                             df.to_string(header=False, formatters=formatters,
-                                                  index_names=False, index=index, na_rep='')
+                                         index_names=False, index=index, na_rep='')
                     else:
                         line_string = \
                             v.to_string(header=False, formatters=default_formatters,
@@ -1296,12 +1296,12 @@ class CombinedData(LammpsData):
         return df
 
     @classmethod
-    def from_files(cls, coordinates, list_of_numbers, *filenames):
+    def from_files(cls, coordinate_file, list_of_numbers, *filenames):
         """
         Constructor that parse a series of data file.
 
         Args:
-            coordinates (Pandas.DataFrame): Coordinates of atoms.
+            coordinate_file (str): The filename of xyz coordinates.
             list_of_numbers (list): A list of numbers specifying counts for each
                 clusters parsed from files.
             filenames (str): A series of filenames in string format.
@@ -1309,6 +1309,7 @@ class CombinedData(LammpsData):
         names = []
         mols = []
         styles = []
+        coordinates = cls.parse_xyz(filename=coordinate_file)
         for i in range(0, len(filenames)):
             exec("cluster%d = LammpsData.from_file(filenames[i])" % (i + 1))
             names.append("cluster%d" % (i + 1))
