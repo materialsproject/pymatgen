@@ -393,14 +393,14 @@ class LammpsData(MSONable):
             if k in ['Bond Coeffs', 'Angle Coeffs', 'Dihedral Coeffs', 'Improper Coeffs']:
                 listofdf = np.array_split(v, len(v.index))
                 df_string = ''
-                for i in range(len(listofdf)):
-                    if isinstance(listofdf[i].iloc[0]['coeff1'], str):
+                for i, df in enumerate(listofdf):
+                    if isinstance(df.iloc[0]['coeff1'], str):
                         try:
-                            formatters = {**default_formatters, **coeffs[k][listofdf[i].iloc[0]['coeff1']]}
+                            formatters = {**default_formatters, **coeffs[k][df.iloc[0]['coeff1']]}
                         except KeyError:
                             formatters = default_formatters
                         line_string = \
-                            listofdf[i].to_string(header=False, formatters=formatters,
+                            df.to_string(header=False, formatters=formatters,
                                                   index_names=False, index=index, na_rep='')
                     else:
                         line_string = \
@@ -1240,14 +1240,14 @@ class CombinedData(LammpsData):
         self.atoms = pd.DataFrame()
         mol_count = 0
         type_count = 0
-        for i in range(len(self.mols)):
-            temp = self.mols[i].atoms
+        for i, mol in enumerate(self.mols):
+            temp = mol.atoms
             temp['molecule-ID'] += mol_count
             temp['type'] += type_count
             for j in range(self.nums[i]):
                 self.atoms = self.atoms.append(temp, ignore_index=True)
                 temp['molecule-ID'] += 1
-            type_count += len(self.mols[i].masses)
+            type_count += len(mol.masses)
             mol_count += self.nums[i]
         self.atoms.index += 1
         assert len(self.atoms) == len(coordinates), 'Wrong number of coordinates.'
@@ -1259,21 +1259,21 @@ class CombinedData(LammpsData):
         self.topology = {}
         atom_count = 0
         count = {"Bonds": 0, "Angles": 0, "Dihedrals": 0, "Impropers": 0}
-        for i in range(len(self.mols)):
+        for i, mol in enumerate(self.mols):
             for kw in SECTION_KEYWORDS["topology"]:
-                if kw in self.mols[i].topology:
+                if kw in mol.topology:
                     if kw not in self.topology:
                         self.topology[kw] = pd.DataFrame()
-                    temp = self.mols[i].topology[kw]
+                    temp = mol.topology[kw]
                     temp['type'] += count[kw]
                     for col in temp.columns[1:]:
                         temp[col] += atom_count
                     for j in range(self.nums[i]):
                         self.topology[kw] = self.topology[kw].append(temp, ignore_index=True)
                         for col in temp.columns[1:]:
-                            temp[col] += len(self.mols[i].atoms)
-                    count[kw] += len(self.mols[i].force_field[kw[:-1]+" Coeffs"])
-            atom_count += len(self.mols[i].atoms) * self.nums[i]
+                            temp[col] += len(mol.atoms)
+                    count[kw] += len(mol.force_field[kw[:-1]+" Coeffs"])
+            atom_count += len(mol.atoms) * self.nums[i]
         for kw in SECTION_KEYWORDS["topology"]:
             if kw in self.topology:
                 self.topology[kw].index += 1
