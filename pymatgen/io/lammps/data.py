@@ -1241,12 +1241,12 @@ class CombinedData(LammpsData):
         mol_count = 0
         type_count = 0
         for i, mol in enumerate(self.mols):
-            temp = mol.atoms
-            temp['molecule-ID'] += mol_count
-            temp['type'] += type_count
+            atoms_df = mol.atoms
+            atoms_df['molecule-ID'] += mol_count
+            atoms_df['type'] += type_count
             for j in range(self.nums[i]):
-                self.atoms = self.atoms.append(temp, ignore_index=True)
-                temp['molecule-ID'] += 1
+                self.atoms = self.atoms.append(atoms_df, ignore_index=True)
+                atoms_df['molecule-ID'] += 1
             type_count += len(mol.masses)
             mol_count += self.nums[i]
         self.atoms.index += 1
@@ -1264,14 +1264,14 @@ class CombinedData(LammpsData):
                 if kw in mol.topology:
                     if kw not in self.topology:
                         self.topology[kw] = pd.DataFrame()
-                    temp = mol.topology[kw]
-                    temp['type'] += count[kw]
-                    for col in temp.columns[1:]:
-                        temp[col] += atom_count
+                    topo_df = mol.topology[kw]
+                    topo_df['type'] += count[kw]
+                    for col in topo_df.columns[1:]:
+                        topo_df[col] += atom_count
                     for j in range(self.nums[i]):
-                        self.topology[kw] = self.topology[kw].append(temp, ignore_index=True)
-                        for col in temp.columns[1:]:
-                            temp[col] += len(mol.atoms)
+                        self.topology[kw] = self.topology[kw].append(topo_df, ignore_index=True)
+                        for col in topo_df.columns[1:]:
+                            topo_df[col] += len(mol.atoms)
                     count[kw] += len(mol.force_field[kw[:-1]+" Coeffs"])
             atom_count += len(mol.atoms) * self.nums[i]
         for kw in SECTION_KEYWORDS["topology"]:
