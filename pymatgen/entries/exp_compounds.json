@@ -1,0 +1,1447 @@
+[
+  {
+    "formula": "Li2O",
+    "exp energy": -6.197429093324477,
+    "uncertainty": 0.010365327133842576,
+    "warnings": null
+  },
+  {
+    "formula": "Na2O",
+    "exp energy": -4.302647293258054,
+    "uncertainty": 0.008292261707074063,
+    "warnings": null
+  },
+  {
+    "formula": "K2O",
+    "exp energy": -3.7646868150116237,
+    "uncertainty": 0.030059448688143475,
+    "warnings": null
+  },
+  {
+    "formula": "Rb2O",
+    "exp energy": -3.512809365659249,
+    "uncertainty": 0.08706874792427766,
+    "warnings": null
+  },
+  {
+    "formula": "Cs2O",
+    "exp energy": -3.5864031883095318,
+    "uncertainty": 0.030059448688143475,
+    "warnings": null
+  },
+  {
+    "formula": "MgO",
+    "exp energy": -6.2357808037196945,
+    "uncertainty": 0.0041461308535370315,
+    "warnings": null
+  },
+  {
+    "formula": "CaO",
+    "exp energy": -6.580946197276652,
+    "uncertainty": 0.008292261707074063,
+    "warnings": null
+  },
+  {
+    "formula": "SrO",
+    "exp energy": -6.136273663234806,
+    "uncertainty": 0.03938824310860179,
+    "warnings": null
+  },
+  {
+    "formula": "BaO",
+    "exp energy": -5.681235802059117,
+    "uncertainty": 0.021767186981069414,
+    "warnings": null
+  },
+  {
+    "formula": "Al2O3",
+    "exp energy": -17.369178678180006,
+    "uncertainty": 0.013474925273995351,
+    "warnings": null
+  },
+  {
+    "formula": "Li2O2",
+    "exp energy": -6.570580870142809,
+    "uncertainty": 0.08706874792427766,
+    "warnings": null
+  },
+  {
+    "formula": "Na2O2",
+    "exp energy": -5.317412819661242,
+    "uncertainty": 0.06530156094320823,
+    "warnings": null
+  },
+  {
+    "formula": "K2O2",
+    "exp energy": -5.130836931252076,
+    "uncertainty": 0.0,
+    "warnings": null
+  },
+  {
+    "formula": "BaO2",
+    "exp energy": -6.574727000996346,
+    "uncertainty": 0.12127432746595813,
+    "warnings": null
+  },
+  {
+    "formula": "SrO2",
+    "exp energy": -6.566434739289272,
+    "uncertainty": 0.15651643972102292,
+    "warnings": null
+  },
+  {
+    "formula": "CsO2",
+    "exp energy": -2.966556625705745,
+    "uncertainty": 0.021767186981069414,
+    "warnings": null
+  },
+  {
+    "formula": "NaO2",
+    "exp energy": -2.70224078379276,
+    "uncertainty": 0.0342055795416805,
+    "warnings": null
+  },
+  {
+    "formula": "KO2",
+    "exp energy": -2.948935569578213,
+    "uncertainty": 0.02591331783460644,
+    "warnings": null
+  },
+  {
+    "formula": "LiF",
+    "exp energy": -6.3746761873131845,
+    "uncertainty": 0.013474925273995351,
+    "warnings": null
+  },
+  {
+    "formula": "NaF",
+    "exp energy": -5.937259382265028,
+    "uncertainty": 0.01762105612753238,
+    "warnings": null
+  },
+  {
+    "formula": "KF",
+    "exp energy": -5.867811690468283,
+    "uncertainty": 0.01762105612753238,
+    "warnings": null
+  },
+  {
+    "formula": "RbF",
+    "exp energy": -5.758975755562936,
+    "uncertainty": 0.01762105612753238,
+    "warnings": null
+  },
+  {
+    "formula": "CsF",
+    "exp energy": -5.737208568581866,
+    "uncertainty": 0.013474925273995351,
+    "warnings": null
+  },
+  {
+    "formula": "MgF2",
+    "exp energy": -11.652700763865825,
+    "uncertainty": 0.013474925273995351,
+    "warnings": null
+  },
+  {
+    "formula": "CaF2",
+    "exp energy": -12.742096645632678,
+    "uncertainty": 0.0,
+    "warnings": null
+  },
+  {
+    "formula": "SrF2",
+    "exp energy": -12.6156396545998,
+    "uncertainty": 0.030059448688143475,
+    "warnings": null
+  },
+  {
+    "formula": "BaF2",
+    "exp energy": -12.529607439388908,
+    "uncertainty": 0.04353437396213883,
+    "warnings": null
+  },
+  {
+    "formula": "AlF3",
+    "exp energy": -15.65579010295583,
+    "uncertainty": 0.013474925273995351,
+    "warnings": null
+  },
+  {
+    "formula": "LiCl",
+    "exp energy": -4.233199601461308,
+    "uncertainty": 0.0041461308535370315,
+    "warnings": null
+  },
+  {
+    "formula": "NaCl",
+    "exp energy": -4.263259050149452,
+    "uncertainty": 0.0041461308535370315,
+    "warnings": null
+  },
+  {
+    "formula": "KCl",
+    "exp energy": -4.525501826635669,
+    "uncertainty": 0.0041461308535370315,
+    "warnings": null
+  },
+  {
+    "formula": "RbCl",
+    "exp energy": -4.509953835934906,
+    "uncertainty": 0.008292261707074063,
+    "warnings": null
+  },
+  {
+    "formula": "CsCl",
+    "exp energy": -4.5887303221521085,
+    "uncertainty": 0.0041461308535370315,
+    "warnings": null
+  },
+  {
+    "formula": "MgCl2",
+    "exp energy": -6.648320823646628,
+    "uncertainty": 0.008292261707074063,
+    "warnings": null
+  },
+  {
+    "formula": "CaCl2",
+    "exp energy": -8.24043507140485,
+    "uncertainty": 0.0342055795416805,
+    "warnings": null
+  },
+  {
+    "formula": "SrCl2",
+    "exp energy": -8.591819661242113,
+    "uncertainty": 0.02591331783460644,
+    "warnings": null
+  },
+  {
+    "formula": "BaCl2",
+    "exp energy": -8.878939222849553,
+    "uncertainty": 0.13060312188641646,
+    "warnings": null
+  },
+  {
+    "formula": "AlCl3",
+    "exp energy": -7.313774825639322,
+    "uncertainty": 0.01762105612753238,
+    "warnings": null
+  },
+  {
+    "formula": "LiBr",
+    "exp energy": -3.6382298239787447,
+    "uncertainty": 0.010365327133842576,
+    "warnings": null
+  },
+  {
+    "formula": "NaBr",
+    "exp energy": -3.7449926934573234,
+    "uncertainty": 0.0041461308535370315,
+    "warnings": null
+  },
+  {
+    "formula": "KBr",
+    "exp energy": -4.079792759880438,
+    "uncertainty": 0.0041461308535370315,
+    "warnings": null
+  },
+  {
+    "formula": "RbBr",
+    "exp energy": -4.090158087014281,
+    "uncertainty": 0.008292261707074063,
+    "warnings": null
+  },
+  {
+    "formula": "CsBr",
+    "exp energy": -4.2021036200597806,
+    "uncertainty": 0.008292261707074063,
+    "warnings": null
+  },
+  {
+    "formula": "MgBr2",
+    "exp energy": -5.434541016273663,
+    "uncertainty": 0.02591331783460644,
+    "warnings": null
+  },
+  {
+    "formula": "CaBr2",
+    "exp energy": -7.07744536698771,
+    "uncertainty": 0.04353437396213883,
+    "warnings": null
+  },
+  {
+    "formula": "SrBr2",
+    "exp energy": -7.442304882098971,
+    "uncertainty": 0.01762105612753238,
+    "warnings": null
+  },
+  {
+    "formula": "BaBr2",
+    "exp energy": -7.85380836931252,
+    "uncertainty": 0.01762105612753238,
+    "warnings": null
+  },
+  {
+    "formula": "AlBr3",
+    "exp energy": -5.299791763533709,
+    "uncertainty": 0.0,
+    "warnings": null
+  },
+  {
+    "formula": "LiI",
+    "exp energy": -2.801747924277649,
+    "uncertainty": 0.05597276652274991,
+    "warnings": null
+  },
+  {
+    "formula": "NaI",
+    "exp energy": -2.9841776818332777,
+    "uncertainty": 0.008292261707074063,
+    "warnings": null
+  },
+  {
+    "formula": "KI",
+    "exp energy": -3.397754234473597,
+    "uncertainty": 0.0,
+    "warnings": null
+  },
+  {
+    "formula": "RbI",
+    "exp energy": -3.4392155430089675,
+    "uncertainty": 0.05182663566921288,
+    "warnings": null
+  },
+  {
+    "formula": "CsI",
+    "exp energy": -3.590549319163068,
+    "uncertainty": 0.08706874792427766,
+    "warnings": null
+  },
+  {
+    "formula": "MgI2",
+    "exp energy": -3.803038525406841,
+    "uncertainty": 0.06944769179674527,
+    "warnings": null
+  },
+  {
+    "formula": "SrI2",
+    "exp energy": -5.820131185652607,
+    "uncertainty": 0.021767186981069414,
+    "warnings": null
+  },
+  {
+    "formula": "AlI3",
+    "exp energy": -3.2049591497841248,
+    "uncertainty": 0.06115543008967121,
+    "warnings": null
+  },
+  {
+    "formula": "Li3N",
+    "exp energy": -1.7082059116572568,
+    "uncertainty": 0.013474925273995351,
+    "warnings": null
+  },
+  {
+    "formula": "Mg3N2",
+    "exp energy": -4.783598472268349,
+    "uncertainty": 0.07359382265028229,
+    "warnings": null
+  },
+  {
+    "formula": "Ca3N2",
+    "exp energy": -4.5534882098970435,
+    "uncertainty": 0.13060312188641646,
+    "warnings": null
+  },
+  {
+    "formula": "Ba3N2",
+    "exp energy": -3.534576552640319,
+    "uncertainty": 0.3254712720026569,
+    "warnings": {
+      "unstable": "e_above_hull = 0.111 eV/atom"
+    }
+  },
+  {
+    "formula": "AlN",
+    "exp energy": -3.300320159415476,
+    "uncertainty": 0.021767186981069414,
+    "warnings": null
+  },
+  {
+    "formula": "Li2S",
+    "exp energy": -4.632264696114247,
+    "uncertainty": 0.021767186981069414,
+    "warnings": null
+  },
+  {
+    "formula": "Na2S",
+    "exp energy": -3.7947462636997678,
+    "uncertainty": 0.13060312188641646,
+    "warnings": null
+  },
+  {
+    "formula": "K2S",
+    "exp energy": -3.9035821986051142,
+    "uncertainty": 0.13060312188641646,
+    "warnings": null
+  },
+  {
+    "formula": "Rb2S",
+    "exp energy": -3.742919628030555,
+    "uncertainty": 0.21663533709730984,
+    "warnings": null
+  },
+  {
+    "formula": "MgS",
+    "exp energy": -3.5822570574559944,
+    "uncertainty": 0.04353437396213883,
+    "warnings": null
+  },
+  {
+    "formula": "CaS",
+    "exp energy": -4.904872799734307,
+    "uncertainty": 0.03938824310860179,
+    "warnings": null
+  },
+  {
+    "formula": "SrS",
+    "exp energy": -4.6923835934905345,
+    "uncertainty": 0.168954832281634,
+    "warnings": null
+  },
+  {
+    "formula": "BaS",
+    "exp energy": -4.805365659249419,
+    "uncertainty": 0.0342055795416805,
+    "warnings": null
+  },
+  {
+    "formula": "Al2S3",
+    "exp energy": -7.498277648621721,
+    "uncertainty": 0.0,
+    "warnings": null
+  },
+  {
+    "formula": "Li2Se",
+    "exp energy": -4.354473928927266,
+    "uncertainty": 0.08706874792427766,
+    "warnings": null
+  },
+  {
+    "formula": "CaSe",
+    "exp energy": -3.8165134506808367,
+    "uncertainty": 0.3472384589837263,
+    "warnings": null
+  },
+  {
+    "formula": "Al2Se3",
+    "exp energy": -5.876103952175356,
+    "uncertainty": 0.2601697110594487,
+    "warnings": null
+  },
+  {
+    "formula": "Mg2Si",
+    "exp energy": -0.8198973762869478,
+    "uncertainty": 0.08188608435735636,
+    "warnings": null
+  },
+  {
+    "formula": "CaSi",
+    "exp energy": -1.561018266356692,
+    "uncertainty": 0.09536100963135169,
+    "warnings": null
+  },
+  {
+    "formula": "Mg3Sb2",
+    "exp energy": -3.109598140152773,
+    "uncertainty": 0.15133377615410162,
+    "warnings": null
+  },
+  {
+    "formula": "Ca3Sb2",
+    "exp energy": -7.545958153437397,
+    "uncertainty": 0.3907728329458651,
+    "warnings": {
+      "unstable": "e_above_hull = 0.418 eV/atom"
+    }
+  },
+  {
+    "formula": "AlSb",
+    "exp energy": -0.5203394221188974,
+    "uncertainty": 0.010365327133842576,
+    "warnings": null
+  },
+  {
+    "formula": "Li2Te",
+    "exp energy": -3.685910328794421,
+    "uncertainty": 0.0,
+    "warnings": null
+  },
+  {
+    "formula": "Na2Te",
+    "exp energy": -3.4692749916971106,
+    "uncertainty": 0.2601697110594487,
+    "warnings": null
+  },
+  {
+    "formula": "MgTe",
+    "exp energy": -2.168426436399867,
+    "uncertainty": 0.2601697110594487,
+    "warnings": {
+      "large_uncertainty": "uncertainty = 11.998%"
+    }
+  },
+  {
+    "formula": "Al2Te3",
+    "exp energy": -3.3044662902690134,
+    "uncertainty": 0.09536100963135169,
+    "warnings": null
+  },
+  {
+    "formula": "V2O5",
+    "exp energy": -16.068330122882763,
+    "uncertainty": 0.01762105612753238,
+    "warnings": null
+  },
+  {
+    "formula": "VO2",
+    "exp energy": -7.398770508136831,
+    "uncertainty": 0.010365327133842576,
+    "warnings": null
+  },
+  {
+    "formula": "V2O3",
+    "exp energy": -12.633260710727335,
+    "uncertainty": 0.01762105612753238,
+    "warnings": null
+  },
+  {
+    "formula": "VO",
+    "exp energy": -4.475748256393224,
+    "uncertainty": 0.021767186981069414,
+    "warnings": null
+  },
+  {
+    "formula": "CrO3",
+    "exp energy": -6.084447027565593,
+    "uncertainty": 0.11298206575888409,
+    "warnings": null
+  },
+  {
+    "formula": "Cr2O3",
+    "exp energy": -11.761536698771172,
+    "uncertainty": 0.07773995350381932,
+    "warnings": null
+  },
+  {
+    "formula": "MnO2",
+    "exp energy": -5.399298904018598,
+    "uncertainty": 0.013474925273995351,
+    "warnings": null
+  },
+  {
+    "formula": "Mn2O3",
+    "exp energy": -9.931019926934573,
+    "uncertainty": 0.021767186981069414,
+    "warnings": null
+  },
+  {
+    "formula": "Mn3O4",
+    "exp energy": -14.380854865493193,
+    "uncertainty": 0.01762105612753238,
+    "warnings": null
+  },
+  {
+    "formula": "MnO",
+    "exp energy": -3.9896144138160077,
+    "uncertainty": 0.013474925273995351,
+    "warnings": null
+  },
+  {
+    "formula": "Fe2O3",
+    "exp energy": -8.534810362005977,
+    "uncertainty": 0.0342055795416805,
+    "warnings": null
+  },
+  {
+    "formula": "Fe3O4",
+    "exp energy": -11.493074726004647,
+    "uncertainty": 0.04353437396213883,
+    "warnings": null
+  },
+  {
+    "formula": "Co3O4",
+    "exp energy": -9.432447691796746,
+    "uncertainty": 0.047680504815675845,
+    "warnings": null
+  },
+  {
+    "formula": "CoO",
+    "exp energy": -2.46383825971438,
+    "uncertainty": 0.006219196280305546,
+    "warnings": null
+  },
+  {
+    "formula": "NiO",
+    "exp energy": -2.484568913982066,
+    "uncertainty": 0.013474925273995351,
+    "warnings": null
+  },
+  {
+    "formula": "CuO",
+    "exp energy": -1.6781464629691132,
+    "uncertainty": 0.01762105612753238,
+    "warnings": null
+  },
+  {
+    "formula": "Cu2O",
+    "exp energy": -1.795274659581534,
+    "uncertainty": 0.021767186981069414,
+    "warnings": null
+  },
+  {
+    "formula": "MoO3",
+    "exp energy": -7.724241780139489,
+    "uncertainty": 0.008292261707074063,
+    "warnings": null
+  },
+  {
+    "formula": "MoO2",
+    "exp energy": -6.093775821986051,
+    "uncertainty": 0.01762105612753238,
+    "warnings": null
+  },
+  {
+    "formula": "CoCr2O4",
+    "exp energy": -14.845221521089337,
+    "uncertainty": 0.06944769179674527,
+    "warnings": null
+  },
+  {
+    "formula": "MnFe2O4",
+    "exp energy": -12.736913982065758,
+    "uncertainty": 0.05182663566921288,
+    "warnings": null
+  },
+  {
+    "formula": "FeCr2O4",
+    "exp energy": -14.992409166389903,
+    "uncertainty": 0.05182663566921288,
+    "warnings": null
+  },
+  {
+    "formula": "CoFe2O4",
+    "exp energy": -11.284731650614413,
+    "uncertainty": 0.047680504815675845,
+    "warnings": null
+  },
+  {
+    "formula": "CuFeO2",
+    "exp energy": -5.317412819661242,
+    "uncertainty": 0.04353437396213883,
+    "warnings": null
+  },
+  {
+    "formula": "CuFe2O4",
+    "exp energy": -10.044001992693456,
+    "uncertainty": 0.0,
+    "warnings": null
+  },
+  {
+    "formula": "NiCr2O4",
+    "exp energy": -14.259580538027233,
+    "uncertainty": 0.04353437396213883,
+    "warnings": null
+  },
+  {
+    "formula": "CuCr2O4",
+    "exp energy": -13.405477582198605,
+    "uncertainty": 0.07773995350381932,
+    "warnings": null
+  },
+  {
+    "formula": "MnMoO4",
+    "exp energy": -12.351323812686813,
+    "uncertainty": 0.09950714048488873,
+    "warnings": null
+  },
+  {
+    "formula": "FeMoO4",
+    "exp energy": -10.989319827299902,
+    "uncertainty": 0.12542045831949516,
+    "warnings": null
+  },
+  {
+    "formula": "BaV2O6",
+    "exp energy": -23.65367651942876,
+    "uncertainty": 0.06944769179674527,
+    "warnings": {
+      "not_in_pymatgen": "computed data not in pymatgen"
+    }
+  },
+  {
+    "formula": "Ca3V2O8",
+    "exp energy": -39.1570963135171,
+    "uncertainty": 0.08706874792427766,
+    "warnings": null
+  },
+  {
+    "formula": "Ca2V2O7",
+    "exp energy": -31.9542304882099,
+    "uncertainty": 0.06944769179674527,
+    "warnings": null
+  },
+  {
+    "formula": "CaV2O6",
+    "exp energy": -24.138773829292596,
+    "uncertainty": 0.05597276652274991,
+    "warnings": null
+  },
+  {
+    "formula": "MgV2O6",
+    "exp energy": -22.812011956160745,
+    "uncertainty": 0.05597276652274991,
+    "warnings": null
+  },
+  {
+    "formula": "Mg2V2O7",
+    "exp energy": -29.382592826303547,
+    "uncertainty": 0.08706874792427766,
+    "warnings": null
+  },
+  {
+    "formula": "Na3VO4",
+    "exp energy": -19.08671338425772,
+    "uncertainty": 0.10883593490534706,
+    "warnings": null
+  },
+  {
+    "formula": "Na4V2O7",
+    "exp energy": -31.48157157090667,
+    "uncertainty": 0.10883593490534706,
+    "warnings": null
+  },
+  {
+    "formula": "NaVO3",
+    "exp energy": -12.351323812686813,
+    "uncertainty": 0.10883593490534706,
+    "warnings": null
+  },
+  {
+    "formula": "CaCr2O4",
+    "exp energy": -18.965439056791762,
+    "uncertainty": 0.0,
+    "warnings": null
+  },
+  {
+    "formula": "Cs2CrO4",
+    "exp energy": -14.815162072401195,
+    "uncertainty": 0.0342055795416805,
+    "warnings": null
+  },
+  {
+    "formula": "K2CrO4",
+    "exp energy": -14.410914314181333,
+    "uncertainty": 0.04353437396213883,
+    "warnings": null
+  },
+  {
+    "formula": "MgCr2O4",
+    "exp energy": -18.427478578545333,
+    "uncertainty": 0.0342055795416805,
+    "warnings": null
+  },
+  {
+    "formula": "NaCrO2",
+    "exp energy": -9.08520923281302,
+    "uncertainty": 0.047680504815675845,
+    "warnings": null
+  },
+  {
+    "formula": "Na2CrO4",
+    "exp energy": -13.830455994686151,
+    "uncertainty": 0.09536100963135169,
+    "warnings": null
+  },
+  {
+    "formula": "ZnCr2O4",
+    "exp energy": -16.046562935901694,
+    "uncertainty": 0.047680504815675845,
+    "warnings": null
+  },
+  {
+    "formula": "MnAl2O4",
+    "exp energy": -21.77133311192295,
+    "uncertainty": 0.06530156094320823,
+    "warnings": null
+  },
+  {
+    "formula": "Mn2TiO4",
+    "exp energy": -18.13932248422451,
+    "uncertainty": 0.0,
+    "warnings": {
+      "polyanion": "contains TiO4"
+    }
+  },
+  {
+    "formula": "MnTiO3",
+    "exp energy": -14.086479574892062,
+    "uncertainty": 0.0,
+    "warnings": {
+      "polyanion": "contains TiO3"
+    }
+  },
+  {
+    "formula": "Ca2Fe2O5",
+    "exp energy": -22.117535038193292,
+    "uncertainty": 0.05597276652274991,
+    "warnings": null
+  },
+  {
+    "formula": "CaFe2O4",
+    "exp energy": -15.335501494520093,
+    "uncertainty": 0.0,
+    "warnings": null
+  },
+  {
+    "formula": "FeAl2O4",
+    "exp energy": -20.38341580870143,
+    "uncertainty": 0.02591331783460644,
+    "warnings": null
+  },
+  {
+    "formula": "Fe2TiO4",
+    "exp energy": -15.560429093324478,
+    "uncertainty": 0.12127432746595813,
+    "warnings": {
+      "polyanion": "contains TiO4"
+    }
+  },
+  {
+    "formula": "FeTiO3",
+    "exp energy": -12.828128860843572,
+    "uncertainty": 0.06115543008967121,
+    "warnings": {
+      "polyanion": "contains TiO3"
+    }
+  },
+  {
+    "formula": "LiFeO2",
+    "exp energy": -7.970936565924942,
+    "uncertainty": 0.05597276652274991,
+    "warnings": null
+  },
+  {
+    "formula": "NaFeO2",
+    "exp energy": -7.238107937562271,
+    "uncertainty": 0.06115543008967121,
+    "warnings": null
+  },
+  {
+    "formula": "ZnFe2O4",
+    "exp energy": -12.221757223513782,
+    "uncertainty": 0.06115543008967121,
+    "warnings": null
+  },
+  {
+    "formula": "CoAl2O4",
+    "exp energy": -20.179218864164728,
+    "uncertainty": 0.03938824310860179,
+    "warnings": null
+  },
+  {
+    "formula": "CoTiO3",
+    "exp energy": -12.516132514114911,
+    "uncertainty": 0.03938824310860179,
+    "warnings": {
+      "polyanion": "contains TiO3"
+    }
+  },
+  {
+    "formula": "NiAl2O4",
+    "exp energy": -19.90661076054467,
+    "uncertainty": 0.047680504815675845,
+    "warnings": null
+  },
+  {
+    "formula": "NiTiO3",
+    "exp energy": -12.460159747592161,
+    "uncertainty": 0.06530156094320823,
+    "warnings": {
+      "polyanion": "contains TiO3"
+    }
+  },
+  {
+    "formula": "CuAl2O4",
+    "exp energy": -20.179218864164728,
+    "uncertainty": 0.047680504815675845,
+    "warnings": null
+  },
+  {
+    "formula": "BaMoO4",
+    "exp energy": -15.7169455330455,
+    "uncertainty": 0.06944769179674527,
+    "warnings": null
+  },
+  {
+    "formula": "CaMoO4",
+    "exp energy": -16.024795748920624,
+    "uncertainty": 0.0342055795416805,
+    "warnings": null
+  },
+  {
+    "formula": "Cs2MoO4",
+    "exp energy": -15.699324476917969,
+    "uncertainty": 0.0,
+    "warnings": null
+  },
+  {
+    "formula": "MgMoO4",
+    "exp energy": -14.515604118233146,
+    "uncertainty": 0.05182663566921288,
+    "warnings": {
+      "not_in_pymatgen": "computed data not in pymatgen"
+    }
+  },
+  {
+    "formula": "Na2MoO4",
+    "exp energy": -15.903521421454666,
+    "uncertainty": 0.11712819661242112,
+    "warnings": null
+  },
+  {
+    "formula": "Na2Mo2O7",
+    "exp energy": -24.47253736300232,
+    "uncertainty": 0.13060312188641646,
+    "warnings": null
+  },
+  {
+    "formula": "SrMoO4",
+    "exp energy": -16.0590013284623,
+    "uncertainty": 0.10365327133842576,
+    "warnings": null
+  },
+  {
+    "formula": "CoCO3",
+    "exp energy": -7.28164231152441,
+    "uncertainty": 0.13060312188641646,
+    "warnings": {
+      "polyanion": "contains CO3"
+    }
+  },
+  {
+    "formula": "Co(NO3)2",
+    "exp energy": -4.366912321487877,
+    "uncertainty": 0.03938824310860179,
+    "warnings": {
+      "polyanion": "contains NO3"
+    }
+  },
+  {
+    "formula": "CoSO4",
+    "exp energy": -9.20752009299236,
+    "uncertainty": 0.01762105612753238,
+    "warnings": {
+      "polyanion": "contains SO4"
+    }
+  },
+  {
+    "formula": "CoSeO3",
+    "exp energy": -5.984939887080703,
+    "uncertainty": 0.10883593490534706,
+    "warnings": {
+      "polyanion": "contains SeO3"
+    }
+  },
+  {
+    "formula": "Co2SiO4",
+    "exp energy": -14.497983062105613,
+    "uncertainty": 0.047680504815675845,
+    "warnings": {
+      "polyanion": "contains SiO4"
+    }
+  },
+  {
+    "formula": "CoWO4",
+    "exp energy": -11.839276652274991,
+    "uncertainty": 0.03938824310860179,
+    "warnings": {
+      "polyanion": "contains WO4"
+    }
+  },
+  {
+    "formula": "Cr(CO)6",
+    "exp energy": -11.167603454001995,
+    "uncertainty": 0.04353437396213883,
+    "warnings": {
+      "unstable": "e_above_hull = 0.508 eV/atom"
+    }
+  },
+  {
+    "formula": "Cr2(SO4)3",
+    "exp energy": -30.383883427432746,
+    "uncertainty": 0.16480870142809695,
+    "warnings": {
+      "polyanion": "contains SO4"
+    }
+  },
+  {
+    "formula": "CuSO4",
+    "exp energy": -7.995813351046164,
+    "uncertainty": 0.013474925273995351,
+    "warnings": {
+      "polyanion": "contains SO4"
+    }
+  },
+  {
+    "formula": "FeCO3",
+    "exp energy": -7.676561275323812,
+    "uncertainty": 0.0342055795416805,
+    "warnings": {
+      "polyanion": "contains CO3"
+    }
+  },
+  {
+    "formula": "FeOCl",
+    "exp energy": -4.233199601461308,
+    "uncertainty": 0.08706874792427766,
+    "warnings": null
+  },
+  {
+    "formula": "FeSO4",
+    "exp energy": -9.614877449352374,
+    "uncertainty": 0.10883593490534706,
+    "warnings": {
+      "polyanion": "contains SO4"
+    }
+  },
+  {
+    "formula": "Fe2(SO4)3",
+    "exp energy": -26.745653603454002,
+    "uncertainty": 0.05182663566921288,
+    "warnings": {
+      "polyanion": "contains SO4"
+    }
+  },
+  {
+    "formula": "Fe2(SeO3)3",
+    "exp energy": -17.685321155762207,
+    "uncertainty": 0.15133377615410162,
+    "warnings": {
+      "polyanion": "contains SeO3",
+      "not_in_pymatgen": "computed data not in pymatgen"
+    }
+  },
+  {
+    "formula": "Fe2SiO4",
+    "exp energy": -15.248432746595816,
+    "uncertainty": 0.08188608435735636,
+    "warnings": {
+      "polyanion": "contains SiO4"
+    }
+  },
+  {
+    "formula": "FeWO4",
+    "exp energy": -12.260108933909,
+    "uncertainty": 0.05597276652274991,
+    "warnings": {
+      "polyanion": "contains WO4"
+    }
+  },
+  {
+    "formula": "KFeO2",
+    "exp energy": -7.152,
+    "uncertainty": 0,
+    "warnings": null
+  },
+  {
+    "formula": "MnCO3",
+    "exp energy": -9.138072401195616,
+    "uncertainty": 0.047680504815675845,
+    "warnings": {
+      "polyanion": "contains CO3"
+    }
+  },
+  {
+    "formula": "MnSO4",
+    "exp energy": -11.05047525738957,
+    "uncertainty": 0.047680504815675845,
+    "warnings": {
+      "polyanion": "contains SO4"
+    }
+  },
+  {
+    "formula": "Mn2SiO4",
+    "exp energy": -17.941344735968116,
+    "uncertainty": 0.04353437396213883,
+    "warnings": {
+      "polyanion": "contains SiO4"
+    }
+  },
+  {
+    "formula": "MnSiO3",
+    "exp energy": -13.691560611092662,
+    "uncertainty": 0.02591331783460644,
+    "warnings": null
+  },
+  {
+    "formula": "MnWO4",
+    "exp energy": -13.535044171371634,
+    "uncertainty": 0.09536100963135169,
+    "warnings": {
+      "polyanion": "contains WO4"
+    }
+  },
+  {
+    "formula": "Mo(CO)6",
+    "exp energy": -10.985173696446363,
+    "uncertainty": 0.10883593490534706,
+    "warnings": {
+      "unstable": "e_above_hull = 0.419 eV/atom"
+    }
+  },
+  {
+    "formula": "NiCO3",
+    "exp energy": -7.216340750581201,
+    "uncertainty": 0.13060312188641646,
+    "warnings": {
+      "polyanion": "contains CO3"
+    }
+  },
+  {
+    "formula": "NiSO4",
+    "exp energy": -9.051003653271337,
+    "uncertainty": 0.013474925273995351,
+    "warnings": {
+      "polyanion": "contains SO4"
+    }
+  },
+  {
+    "formula": "NiSeO3",
+    "exp energy": -5.881286615742278,
+    "uncertainty": 0.0,
+    "warnings": {
+      "polyanion": "contains SeO3"
+    }
+  },
+  {
+    "formula": "Ni2SiO4",
+    "exp energy": -14.51975024908668,
+    "uncertainty": 0.09536100963135169,
+    "warnings": {
+      "polyanion": "contains SiO4"
+    }
+  },
+  {
+    "formula": "NiWO4",
+    "exp energy": -11.700381268681499,
+    "uncertainty": 0.021767186981069414,
+    "warnings": {
+      "polyanion": "contains WO4"
+    }
+  },
+  {
+    "formula": "VOCl3",
+    "exp energy": -7.623698106941215,
+    "uncertainty": 0.06115543008967121,
+    "warnings": {
+      "polyanion": "contains OCl3"
+    }
+  },
+  {
+    "formula": "AlOCl",
+    "exp energy": -8.222814015277315,
+    "uncertainty": 0.013474925273995351,
+    "warnings": null
+  },
+  {
+    "formula": "Ba3Al2O6",
+    "exp energy": -36.364677183659914,
+    "uncertainty": 0.13060312188641646,
+    "warnings": null
+  },
+  {
+    "formula": "BaAl2O4",
+    "exp energy": -24.091093324476915,
+    "uncertainty": 0.08188608435735636,
+    "warnings": null
+  },
+  {
+    "formula": "BeBr2",
+    "exp energy": -3.685910328794421,
+    "uncertainty": 0.13060312188641646,
+    "warnings": null
+  },
+  {
+    "formula": "BeCl2",
+    "exp energy": -5.087302557289937,
+    "uncertainty": 0.0342055795416805,
+    "warnings": null
+  },
+  {
+    "formula": "BeF2",
+    "exp energy": -10.643117901029559,
+    "uncertainty": 0.04353437396213883,
+    "warnings": null
+  },
+  {
+    "formula": "BeI2",
+    "exp energy": -1.9559372301560942,
+    "uncertainty": 0.21663533709730984,
+    "warnings": {
+      "large_uncertainty": "uncertainty = 11.076%"
+    }
+  },
+  {
+    "formula": "Be3N2",
+    "exp energy": -6.110360345400199,
+    "uncertainty": 0.026949850547990702,
+    "warnings": null
+  },
+  {
+    "formula": "BeO",
+    "exp energy": -6.316630355363667,
+    "uncertainty": 0.0342055795416805,
+    "warnings": null
+  },
+  {
+    "formula": "BeAl2O4",
+    "exp energy": -23.852690800398538,
+    "uncertainty": 0.06115543008967121,
+    "warnings": null
+  },
+  {
+    "formula": "BeAl6O10",
+    "exp energy": -58.29563633344404,
+    "uncertainty": 0.10365327133842576,
+    "warnings": null
+  },
+  {
+    "formula": "BeS",
+    "exp energy": -2.420303885752242,
+    "uncertainty": 0.04353437396213883,
+    "warnings": null
+  },
+  {
+    "formula": "Ca3Al2O6",
+    "exp energy": -37.206341746927926,
+    "uncertainty": 0.047680504815675845,
+    "warnings": null
+  },
+  {
+    "formula": "CaAl2O4",
+    "exp energy": -24.10871438060445,
+    "uncertainty": 0.021767186981069414,
+    "warnings": null
+  },
+  {
+    "formula": "CaAl4O7",
+    "exp energy": -41.451979740949845,
+    "uncertainty": 0.0342055795416805,
+    "warnings": null
+  },
+  {
+    "formula": "CaOCl2",
+    "exp energy": -7.736680172700099,
+    "uncertainty": 0.0,
+    "warnings": {
+      "not_in_pymatgen": "computed data not in pymatgen"
+    }
+  },
+  {
+    "formula": "GaBr3",
+    "exp energy": -4.007235469943541,
+    "uncertainty": 0.02591331783460644,
+    "warnings": null
+  },
+  {
+    "formula": "GaCl3",
+    "exp energy": -5.438687147127201,
+    "uncertainty": 0.047680504815675845,
+    "warnings": null
+  },
+  {
+    "formula": "GaI3",
+    "exp energy": -2.480422783128529,
+    "uncertainty": 0.12542045831949516,
+    "warnings": null
+  },
+  {
+    "formula": "GaN",
+    "exp energy": -1.1360398538691465,
+    "uncertainty": 0.09536100963135169,
+    "warnings": null
+  },
+  {
+    "formula": "Ga2O3",
+    "exp energy": -11.28887778146795,
+    "uncertainty": 0.047680504815675845,
+    "warnings": null
+  },
+  {
+    "formula": "GaS",
+    "exp energy": -2.168426436399867,
+    "uncertainty": 0.19486815011624045,
+    "warnings": null
+  },
+  {
+    "formula": "Ga2S3",
+    "exp energy": -5.3516183992029225,
+    "uncertainty": 0.13060312188641646,
+    "warnings": null
+  },
+  {
+    "formula": "GaSb",
+    "exp energy": -0.4550378611756891,
+    "uncertainty": 0.01762105612753238,
+    "warnings": null
+  },
+  {
+    "formula": "GaSe",
+    "exp energy": -1.6480870142809696,
+    "uncertainty": 0.13060312188641646,
+    "warnings": null
+  },
+  {
+    "formula": "Ga2Se3",
+    "exp energy": -4.237345732314846,
+    "uncertainty": 0.13060312188641646,
+    "warnings": null
+  },
+  {
+    "formula": "GaTe",
+    "exp energy": -1.3008485552972433,
+    "uncertainty": 0.13060312188641646,
+    "warnings": {
+      "large_uncertainty": "uncertainty = 10.040%"
+    }
+  },
+  {
+    "formula": "Ga2Te3",
+    "exp energy": -2.849428429093324,
+    "uncertainty": 0.17310096313517104,
+    "warnings": null
+  },
+  {
+    "formula": "KCaCl3",
+    "exp energy": -12.897576552640317,
+    "uncertainty": 0.0,
+    "warnings": null
+  },
+  {
+    "formula": "K3AlF6",
+    "exp energy": -34.478187645300565,
+    "uncertainty": 0.14304151444702756,
+    "warnings": null
+  },
+  {
+    "formula": "Li3AlF6",
+    "exp energy": -34.99852706741947,
+    "uncertainty": 0.06115543008967121,
+    "warnings": null
+  },
+  {
+    "formula": "Li2BeF4",
+    "exp energy": -23.55727897708402,
+    "uncertainty": 0.047680504815675845,
+    "warnings": null
+  },
+  {
+    "formula": "LiBeF3",
+    "exp energy": -17.109008967120555,
+    "uncertainty": 0.05597276652274991,
+    "warnings": {
+      "not_in_pymatgen": "computed data not in pymatgen"
+    }
+  },
+  {
+    "formula": "LiAlO2",
+    "exp energy": -12.32126436399867,
+    "uncertainty": 0.04353437396213883,
+    "warnings": null
+  },
+  {
+    "formula": "MgAl2O4",
+    "exp energy": -23.9739651278645,
+    "uncertainty": 0.02591331783460644,
+    "warnings": null
+  },
+  {
+    "formula": "NaAlCl4",
+    "exp energy": -11.800924941879773,
+    "uncertainty": 0.0342055795416805,
+    "warnings": null
+  },
+  {
+    "formula": "Na3AlF6",
+    "exp energy": -34.330999999999996,
+    "uncertainty": 0.05182663566921288,
+    "warnings": null
+  },
+  {
+    "formula": "NaAlO2",
+    "exp energy": -11.800924941879773,
+    "uncertainty": 0.06115543008967121,
+    "warnings": null
+  },
+  {
+    "formula": "VF4",
+    "exp energy": -14.54566356692129,
+    "uncertainty": 0.17310096313517104,
+    "warnings": null
+  },
+  {
+    "formula": "CrF2",
+    "exp energy": -8.036238126868149,
+    "uncertainty": 0.12127432746595813,
+    "warnings": null
+  },
+  {
+    "formula": "CrF3",
+    "exp energy": -12.013414148123548,
+    "uncertainty": 0.08706874792427766,
+    "warnings": null
+  },
+  {
+    "formula": "MnF2",
+    "exp energy": -8.777359016937893,
+    "uncertainty": 0.0,
+    "warnings": null
+  },
+  {
+    "formula": "FeF2",
+    "exp energy": -7.3293228163400865,
+    "uncertainty": 0.08706874792427766,
+    "warnings": null
+  },
+  {
+    "formula": "CoF2",
+    "exp energy": -6.96031717037529,
+    "uncertainty": 0.09536100963135169,
+    "warnings": null
+  },
+  {
+    "formula": "CoF3",
+    "exp energy": -8.187571903022251,
+    "uncertainty": 0.13060312188641646,
+    "warnings": null
+  },
+  {
+    "formula": "NiF2",
+    "exp energy": -6.817275655928263,
+    "uncertainty": 0.021767186981069414,
+    "warnings": null
+  },
+  {
+    "formula": "CuF2",
+    "exp energy": -5.585874792427765,
+    "uncertainty": 0.08706874792427766,
+    "warnings": null
+  },
+  {
+    "formula": "MoF5",
+    "exp energy": -14.380854865493193,
+    "uncertainty": 0.04353437396213883,
+    "warnings": null
+  }
+]
