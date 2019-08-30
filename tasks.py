@@ -25,7 +25,7 @@ def make_doc(ctx):
     with open("CHANGES.rst") as f:
         contents = f.read()
 
-    toks = re.split("\-{3,}", contents)
+    toks = re.split(r"\-{3,}", contents)
     n = len(toks[0].split()[-1])
     changes = [toks[0]]
     changes.append("\n" + "\n".join(toks[1].strip().split("\n")[0:-1]))
@@ -36,7 +36,7 @@ def make_doc(ctx):
 
     with cd("docs_rst"):
         ctx.run("cp ../CHANGES.rst change_log.rst")
-        ctx.run("rm pymatgen.*.rst")
+        ctx.run("rm pymatgen.*.rst", warn=True)
         ctx.run("sphinx-apidoc --separate -d 7 -o . -f ../pymatgen")
         ctx.run("rm pymatgen*.tests.*rst")
         for f in glob.glob("*.rst"):
@@ -66,11 +66,11 @@ def make_doc(ctx):
         ctx.run("cp _static/* ../docs/html/_static")
 
     with cd("docs"):
-        ctx.run("rm *.html")
-        ctx.run("cp -r html/* .")
-        ctx.run("rm -r html")
-        ctx.run("rm -r doctrees")
-        ctx.run("rm -r _sources")
+        ctx.run("rm *.html", warn=True)
+        ctx.run("cp -r html/* .", warn=True)
+        ctx.run("rm -r html", warn=True)
+        ctx.run("rm -r doctrees", warn=True)
+        ctx.run("rm -r _sources", warn=True)
         ctx.run("rm -r _build", warn=True)
 
         # This makes sure pymatgen.org works to redirect to the Gihub page
