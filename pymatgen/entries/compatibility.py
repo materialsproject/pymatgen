@@ -167,19 +167,23 @@ class PotcarCorrection(Correction):
 @cached_class
 class GasCorrection(Correction):
     """
-    Correct gas energies to obtain the right formation energies. Note that
-    this depends on calculations being run within the same input set.
+    Correct energies of diatomic gases to obtain the right formation energies.
+   
+    Note that this depends on calculations being run within the same input set.
 
-    Args:
-        config_file: Path to the selected compatibility.yaml config file.
+    References:
+        Persson, K. A.; Waldwick, B.; Lazic, P.; Ceder, G. Prediction of Solid-Aqueous 
+        Equilibria: Scheme to Combine First-Principles Calculations of Solids with 
+        Experimental Aqueous States. Phys. Rev. B - Condens. Matter Mater. Phys. 
+        2012, 85 (23), 1–12. https://doi.org/10.1103/PhysRevB.85.235438.
     """
     def __init__(self, config_file, error_file=None):
         c = loadfn(config_file)
         self.name = c['Name']
-        self.cpd_energies = c['Advanced']['CompoundEnergies']
+        self.cpd_energies = c['GasCorrections']
         if error_file:
             e = loadfn(error_file)
-            self.cpd_errors = e['Advanced']['CompoundEnergies']
+            self.cpd_errors = e['GasCorrections']
         else:
             self.cpd_errors = defaultdict(float)
 
@@ -211,15 +215,15 @@ class AnionCorrection(Correction):
     """
     def __init__(self, config_file, error_file=None, correct_peroxide=True):
         c = loadfn(config_file)
-        self.oxide_correction = c['OxideCorrections']
-        self.sulfide_correction = c.get('SulfideCorrections', defaultdict(
+        self.oxide_correction = c['AnionCorrections']
+        self.sulfide_correction = c.get('AnionCorrections', defaultdict(
             float))
         self.name = c['Name']
         self.correct_peroxide = correct_peroxide
         if error_file:
             e = loadfn(error_file)
-            self.oxide_errors = e['OxideCorrections']
-            self.sulfide_errors = e.get('SulfideCorrections', defaultdict(float))
+            self.oxide_errors = e['AnionCorrections']
+            self.sulfide_errors = e.get('AnionCorrections', defaultdict(float))
         else:
             self.oxide_errors = defaultdict(float)
             self.sulfide_errors = defaultdict(float)
