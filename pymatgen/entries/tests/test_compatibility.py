@@ -18,7 +18,7 @@ __date__ = "Mar 19, 2012"
 import os
 import unittest
 
-from math import sqrt
+from math import sqrt, isnan
 
 from monty.json import MontyDecoder
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility, \
@@ -292,10 +292,10 @@ class MITCompatibilityTest(unittest.TestCase):
         self.assertAlmostEqual(self.compat.process_entry(self.entry_F).correction, -1.723)
         self.assertAlmostEqual(self.compat.process_entry(self.entry_S).correction, -1.113)
 
-        #Check that correction error is 0
-        self.assertEqual(self.compat.process_entry(self.entry_O).data['correction_error'], 0)
-        self.assertEqual(self.compat.process_entry(self.entry_F).data['correction_error'], 0)
-        self.assertEqual(self.compat.process_entry(self.entry_S).data['correction_error'], 0)
+        #Check that correction error is nan
+        self.assertTrue(isnan(self.compat.process_entry(self.entry_O).data['correction_error']))
+        self.assertTrue(isnan(self.compat.process_entry(self.entry_F).data['correction_error']))
+        self.assertTrue(isnan(self.compat.process_entry(self.entry_S).data['correction_error']))
 
     def test_U_value(self):
         # MIT should have a U value for Fe containing sulfides
