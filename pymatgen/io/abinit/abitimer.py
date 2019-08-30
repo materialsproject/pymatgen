@@ -186,7 +186,7 @@ class AbinitTimerParser(collections.abc.Iterable):
                 else:
                     try:
                         parse_line(line)
-                    except:
+                    except Exception:
                         parser_failed = True
 
                     if not parser_failed:
@@ -635,7 +635,7 @@ class AbinitTimer:
     def get_section(self, section_name):
         try:
             idx = self.section_names.index(section_name)
-        except:
+        except Exception:
             raise
         sect = self.sections[idx]
         assert sect.name == section_name

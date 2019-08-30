@@ -14,7 +14,7 @@ solids. Usefull for predicting PDOS character from structural information.
 
 
 class MolecularOrbitals:
-    '''
+    """
     Represents the character of bands in a solid. The input is a chemical
     formula, since no structural characteristics are taken into account.
 
@@ -30,10 +30,10 @@ class MolecularOrbitals:
     >>> MOs = MolecularOrbitals('SrTiO3')
     >>> MOs.band_edges
     {'HOMO':['O','2p',-0.338381], 'LUMO':['Ti','3d',-0.17001], 'metal':False}
-    '''
+    """
 
     def __init__(self, formula):
-        '''
+        """
         Args:
             chemical formula as a string. formula must have integer subscripts
             Ex: 'SrTiO3'
@@ -49,7 +49,7 @@ class MolecularOrbitals:
                          orbital (HOMO), lowest unocupied molecular orbital
                          (LUMO), and whether the material is predicted to be a
                          metal
-        '''
+        """
         self.composition = Composition(formula).as_dict()
         self.elements = self.composition.keys()
         for subscript in self.composition.values():
@@ -108,7 +108,7 @@ class MolecularOrbitals:
             homo = partial_filled[-1]
             try:
                 lumo = orbitals[len(partial_filled)]
-            except:
+            except Exception:
                 lumo = None
 
         if homo == lumo:

@@ -4,8 +4,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.command_line.vampire_caller &#8212; pymatgen 2019.7.30 documentation</title>
-    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <title>pymatgen.command_line.vampire_caller &#8212; pymatgen 2019.8.23 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -41,7 +41,6 @@
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.command_line.vampire_caller</h1><div class="highlight"><pre>
@@ -70,9 +69,9 @@
 <span class="sd">follow the instructions to compile the executable.</span>
 
 <span class="sd">If you use this module, please cite the following:</span>
-<span class="sd">    </span>
+
 <span class="sd">&quot;Atomistic spin model simulations of magnetic nanomaterials.&quot;</span>
-<span class="sd">R. F. L. Evans, W. J. Fan, P. Chureemart, T. A. Ostler, M. O. A. Ellis </span>
+<span class="sd">R. F. L. Evans, W. J. Fan, P. Chureemart, T. A. Ostler, M. O. A. Ellis</span>
 <span class="sd">and R. W. Chantrell. J. Phys.: Condens. Matter 26, 103202 (2014)</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -93,25 +92,26 @@
         <span class="s2">&quot;Please follow the instructions at https://vampire.york.ac.uk/download/.&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">ordered_structures</span><span class="p">,</span>
-        <span class="n">energies</span><span class="p">,</span>
-        <span class="n">mc_box_size</span><span class="o">=</span><span class="mf">4.0</span><span class="p">,</span>
-        <span class="n">equil_timesteps</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span>
-        <span class="n">mc_timesteps</span><span class="o">=</span><span class="mi">4000</span><span class="p">,</span>
-        <span class="n">save_inputs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">hm</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">user_input_settings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">ordered_structures</span><span class="p">,</span>
+            <span class="n">energies</span><span class="p">,</span>
+            <span class="n">mc_box_size</span><span class="o">=</span><span class="mf">4.0</span><span class="p">,</span>
+            <span class="n">equil_timesteps</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span>
+            <span class="n">mc_timesteps</span><span class="o">=</span><span class="mi">4000</span><span class="p">,</span>
+            <span class="n">save_inputs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">hm</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">user_input_settings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Run Vampire on a material with magnetic ordering and exchange parameter information to compute the critical temperature with classical Monte Carlo.</span>
+<span class="sd">        Run Vampire on a material with magnetic ordering and exchange parameter information to compute the critical</span>
+<span class="sd">        temperature with classical Monte Carlo.</span>
 
 <span class="sd">        user_input_settings is a dictionary that can contain:</span>
 <span class="sd">        * start_t (int): Start MC sim at this temp, defaults to 0 K.</span>
 <span class="sd">        * end_t (int): End MC sim at this temp, defaults to 1500 K.</span>
 <span class="sd">        * temp_increment (int): Temp step size, defaults to 25 K.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            ordered_structures (list): Structure objects with magmoms.</span>
 <span class="sd">            energies (list): Energies of each relaxed magnetic structure.</span>
@@ -170,8 +170,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">mat_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">hm</span><span class="o">.</span><span class="n">ordered_structures_</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">)</span>
 
         <span class="c1"># Switch to scratch dir which automatically cleans up vampire inputs files unless user specifies to save them</span>
-        <span class="c1"># with ScratchDir(&#39;/scratch&#39;, copy_from_current_on_enter=self.save_inputs, copy_to_current_on_exit=self.save_inputs) as temp_dir:</span>
-
+        <span class="c1"># with ScratchDir(&#39;/scratch&#39;, copy_from_current_on_enter=self.save_inputs,</span>
+        <span class="c1">#                 copy_to_current_on_exit=self.save_inputs) as temp_dir:</span>
         <span class="c1">#     os.chdir(temp_dir)</span>
 
         <span class="c1"># Create input files</span>
@@ -443,7 +443,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This class processes results from a Vampire Monte Carlo simulation</span>
 <span class="sd">        and returns the critical temperature.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            vamp_stdout (txt file): stdout from running vampire-serial.</span>
 
@@ -456,11 +456,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_parse_stdout</span><span class="p">(</span><span class="n">vamp_stdout</span><span class="p">,</span> <span class="n">nmats</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_parse_stdout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vamp_stdout</span><span class="p">,</span> <span class="n">nmats</span><span class="p">):</span>
-
         <span class="n">names</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">[</span><span class="s2">&quot;T&quot;</span><span class="p">,</span> <span class="s2">&quot;m_total&quot;</span><span class="p">]</span>
-            <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;m_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nmats</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
-            <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;X_x&quot;</span><span class="p">,</span> <span class="s2">&quot;X_y&quot;</span><span class="p">,</span> <span class="s2">&quot;X_z&quot;</span><span class="p">,</span> <span class="s2">&quot;X_m&quot;</span><span class="p">,</span> <span class="s2">&quot;nan&quot;</span><span class="p">]</span>
+                <span class="p">[</span><span class="s2">&quot;T&quot;</span><span class="p">,</span> <span class="s2">&quot;m_total&quot;</span><span class="p">]</span>
+                <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;m_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nmats</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+                <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;X_x&quot;</span><span class="p">,</span> <span class="s2">&quot;X_y&quot;</span><span class="p">,</span> <span class="s2">&quot;X_z&quot;</span><span class="p">,</span> <span class="s2">&quot;X_m&quot;</span><span class="p">,</span> <span class="s2">&quot;nan&quot;</span><span class="p">]</span>
         <span class="p">)</span>
 
         <span class="c1"># Parsing vampire MC output</span>
@@ -475,21 +474,6 @@
 </pre></div>
 
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -502,7 +486,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

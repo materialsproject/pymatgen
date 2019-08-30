@@ -27,15 +27,12 @@ from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.analysis.reaction_calculator import ComputedReaction
 
 
-
 """
 This module implements Compatibility corrections for mixing runs of different
 functionals.
 """
 
-
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-
 
 __author__ = "Shyue Ping Ong, Anubhav Jain, Stephen Dacek, Sai Jayaraman"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -50,6 +47,7 @@ class CompatibilityError(Exception):
     Exception class for Compatibility. Raised by attempting correction
     on incompatible calculation
     """
+
     def __init__(self, msg):
         self.msg = msg
 
@@ -152,7 +150,7 @@ class PotcarCorrection(Correction):
             if entry.parameters.get("potcar_spec"):
                 psp_settings = set([d.get("hash")
                                     for d in entry.parameters[
-                                    "potcar_spec"] if d])
+                                        "potcar_spec"] if d])
             else:
                 raise ValueError('Cannot check hash '
                                  'without potcar_spec field')
@@ -160,14 +158,14 @@ class PotcarCorrection(Correction):
             if entry.parameters.get("potcar_spec"):
                 psp_settings = set([d.get("titel").split()[1]
                                     for d in entry.parameters[
-                                    "potcar_spec"] if d])
+                                        "potcar_spec"] if d])
             else:
                 psp_settings = set([sym.split()[1]
                                     for sym in entry.parameters[
-                                    "potcar_symbols"] if sym])
+                                        "potcar_symbols"] if sym])
 
-        if {self.valid_potcars.get(str(el)) for el in
-                entry.composition.elements} != psp_settings:
+        if {self.valid_potcars.get(str(el))
+                for el in entry.composition.elements} != psp_settings:
             raise CompatibilityError('Incompatible potcar')
         return 0, 0
 
@@ -184,6 +182,7 @@ class GasCorrection(Correction):
     Args:
         config_file: Path to the selected compatibility.yaml config file.
     """
+
     def __init__(self, config_file, error_file=None):
         c = loadfn(config_file)
         self.name = c['Name']
@@ -459,6 +458,7 @@ class Compatibility(MSONable):
     Args:
         corrections: List of corrections to apply.
     """
+
     def __init__(self, corrections):
         self.corrections = corrections
 

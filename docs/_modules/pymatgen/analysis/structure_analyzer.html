@@ -4,8 +4,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.structure_analyzer &#8212; pymatgen 2019.8.14 documentation</title>
-    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <title>pymatgen.analysis.structure_analyzer &#8212; pymatgen 2019.8.23 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -41,7 +41,6 @@
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.analysis.structure_analyzer</h1><div class="highlight"><pre>
@@ -65,7 +64,6 @@
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyuep@gmail.com&quot;</span>
 <span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Production&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Sep 23, 2011&quot;</span>
-
 
 <span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">pi</span><span class="p">,</span> <span class="n">acos</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -440,15 +438,15 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Provides max bond length estimates for a structure based on the JMol</span>
 <span class="sd">    table and algorithms.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        structure: (structure)</span>
 <span class="sd">        el_radius_updates: (dict) symbol-&gt;float to update atomic radii</span>
-<span class="sd">    </span>
-<span class="sd">    Returns: (dict) - (Element1, Element2) -&gt; float. The two elements are </span>
+
+<span class="sd">    Returns: (dict) - (Element1, Element2) -&gt; float. The two elements are</span>
 <span class="sd">        ordered by Z.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1">#jmc = JMolCoordFinder(el_radius_updates)</span>
+    <span class="c1"># jmc = JMolCoordFinder(el_radius_updates)</span>
     <span class="n">jmnn</span> <span class="o">=</span> <span class="n">JmolNN</span><span class="p">(</span><span class="n">el_radius_updates</span><span class="o">=</span><span class="n">el_radius_updates</span><span class="p">)</span>
 
     <span class="n">bonds_lens</span> <span class="o">=</span> <span class="p">{}</span>
@@ -682,7 +680,7 @@
         <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">neighbors</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">neighbors</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">search_radius</span><span class="p">)</span>
             <span class="n">search_radius</span> <span class="o">*=</span> <span class="mi">2</span>
-            <span class="k">if</span> <span class="n">search_radius</span> <span class="o">&gt;</span> <span class="nb">max</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">abc</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">search_radius</span> <span class="o">&gt;</span> <span class="nb">max</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">abc</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span><span class="p">:</span>
                 <span class="k">break</span>
 
         <span class="n">neighbors</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">neighbors</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">n</span><span class="p">:</span> <span class="n">n</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
@@ -704,26 +702,9 @@
         <span class="k">return</span> <span class="s2">&quot;polysulfide&quot;</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;sulfide&quot;</span></div>
-
-
 </pre></div>
 
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -736,7 +717,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

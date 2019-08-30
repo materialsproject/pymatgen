@@ -664,7 +664,7 @@ class PyFlowScheduler:
         """The function that will be executed by the scheduler."""
         try:
             return self._callback()
-        except:
+        except Exception:
             # All exceptions raised here will trigger the shutdown!
             s = straceback()
             self.exceptions.append(s)
@@ -854,7 +854,7 @@ class PyFlowScheduler:
         """
         try:
             return self._send_email(msg, tag)
-        except:
+        except Exception:
             self.exceptions.append(straceback())
             return -2
 

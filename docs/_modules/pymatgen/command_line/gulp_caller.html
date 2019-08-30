@@ -4,8 +4,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.command_line.gulp_caller &#8212; pymatgen 2019.8.14 documentation</title>
-    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <title>pymatgen.command_line.gulp_caller &#8212; pymatgen 2019.8.23 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -41,7 +41,6 @@
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.command_line.gulp_caller</h1><div class="highlight"><pre>
@@ -74,10 +73,7 @@
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.bond_valence</span> <span class="k">import</span> <span class="n">BVAnalyzer</span>
 
-
-
 <span class="kn">from</span> <span class="nn">monty.tempfile</span> <span class="k">import</span> <span class="n">ScratchDir</span>
-
 
 <span class="n">_anions</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">Element</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="s2">&quot;F&quot;</span><span class="p">,</span> <span class="s2">&quot;Cl&quot;</span><span class="p">,</span> <span class="s2">&quot;Br&quot;</span><span class="p">,</span> <span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="s2">&quot;P&quot;</span><span class="p">]))</span>
 <span class="n">_cations</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">Element</span><span class="p">,</span> <span class="p">[</span>
@@ -90,16 +86,16 @@
     <span class="s2">&quot;Tm&quot;</span><span class="p">,</span> <span class="s2">&quot;Yb&quot;</span><span class="p">,</span> <span class="s2">&quot;Lu&quot;</span>
 <span class="p">]))</span>
 <span class="n">_gulp_kw</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="c1">#Control of calculation type</span>
+    <span class="c1"># Control of calculation type</span>
     <span class="s2">&quot;angle&quot;</span><span class="p">,</span> <span class="s2">&quot;bond&quot;</span><span class="p">,</span> <span class="s2">&quot;cosmo&quot;</span><span class="p">,</span> <span class="s2">&quot;cosmic&quot;</span><span class="p">,</span> <span class="s2">&quot;cost&quot;</span><span class="p">,</span> <span class="s2">&quot;defect&quot;</span><span class="p">,</span> <span class="s2">&quot;distance&quot;</span><span class="p">,</span>
     <span class="s2">&quot;eem&quot;</span><span class="p">,</span> <span class="s2">&quot;efg&quot;</span><span class="p">,</span> <span class="s2">&quot;fit&quot;</span><span class="p">,</span> <span class="s2">&quot;free_energy&quot;</span><span class="p">,</span> <span class="s2">&quot;gasteiger&quot;</span><span class="p">,</span> <span class="s2">&quot;genetic&quot;</span><span class="p">,</span>
     <span class="s2">&quot;gradients&quot;</span><span class="p">,</span> <span class="s2">&quot;md&quot;</span><span class="p">,</span> <span class="s2">&quot;montecarlo&quot;</span><span class="p">,</span> <span class="s2">&quot;noautobond&quot;</span><span class="p">,</span> <span class="s2">&quot;noenergy&quot;</span><span class="p">,</span> <span class="s2">&quot;optimise&quot;</span><span class="p">,</span>
     <span class="s2">&quot;pot&quot;</span><span class="p">,</span> <span class="s2">&quot;predict&quot;</span><span class="p">,</span> <span class="s2">&quot;preserve_Q&quot;</span><span class="p">,</span> <span class="s2">&quot;property&quot;</span><span class="p">,</span> <span class="s2">&quot;phonon&quot;</span><span class="p">,</span> <span class="s2">&quot;qeq&quot;</span><span class="p">,</span> <span class="s2">&quot;qbond&quot;</span><span class="p">,</span>
     <span class="s2">&quot;single&quot;</span><span class="p">,</span> <span class="s2">&quot;sm&quot;</span><span class="p">,</span> <span class="s2">&quot;static_first&quot;</span><span class="p">,</span> <span class="s2">&quot;torsion&quot;</span><span class="p">,</span> <span class="s2">&quot;transition_state&quot;</span><span class="p">,</span>
-    <span class="c1">#Geometric variable specification</span>
+    <span class="c1"># Geometric variable specification</span>
     <span class="s2">&quot;breathe&quot;</span><span class="p">,</span> <span class="s2">&quot;bulk_noopt&quot;</span><span class="p">,</span> <span class="s2">&quot;cellonly&quot;</span><span class="p">,</span> <span class="s2">&quot;conp&quot;</span><span class="p">,</span> <span class="s2">&quot;conv&quot;</span><span class="p">,</span> <span class="s2">&quot;isotropic&quot;</span><span class="p">,</span>
     <span class="s2">&quot;orthorhombic&quot;</span><span class="p">,</span> <span class="s2">&quot;nobreathe&quot;</span><span class="p">,</span> <span class="s2">&quot;noflgs&quot;</span><span class="p">,</span> <span class="s2">&quot;shell&quot;</span><span class="p">,</span> <span class="s2">&quot;unfix&quot;</span><span class="p">,</span>
-    <span class="c1">#Algorithm</span>
+    <span class="c1"># Algorithm</span>
     <span class="s2">&quot;c6&quot;</span><span class="p">,</span> <span class="s2">&quot;dipole&quot;</span><span class="p">,</span> <span class="s2">&quot;fbfgs&quot;</span><span class="p">,</span> <span class="s2">&quot;fix_molecule&quot;</span><span class="p">,</span> <span class="s2">&quot;full&quot;</span><span class="p">,</span> <span class="s2">&quot;hill&quot;</span><span class="p">,</span> <span class="s2">&quot;kfull&quot;</span><span class="p">,</span>
     <span class="s2">&quot;marvinSE&quot;</span><span class="p">,</span> <span class="s2">&quot;madelung&quot;</span><span class="p">,</span> <span class="s2">&quot;minimum_image&quot;</span><span class="p">,</span> <span class="s2">&quot;molecule&quot;</span><span class="p">,</span> <span class="s2">&quot;molmec&quot;</span><span class="p">,</span> <span class="s2">&quot;molq&quot;</span><span class="p">,</span>
     <span class="s2">&quot;newda&quot;</span><span class="p">,</span> <span class="s2">&quot;noanisotropic_2b&quot;</span><span class="p">,</span> <span class="s2">&quot;nod2sym&quot;</span><span class="p">,</span> <span class="s2">&quot;nodsymmetry&quot;</span><span class="p">,</span>
@@ -108,20 +104,20 @@
     <span class="s2">&quot;noreal&quot;</span><span class="p">,</span> <span class="s2">&quot;norecip&quot;</span><span class="p">,</span> <span class="s2">&quot;norepulsive&quot;</span><span class="p">,</span> <span class="s2">&quot;nosasinitevery&quot;</span><span class="p">,</span> <span class="s2">&quot;nosderv&quot;</span><span class="p">,</span>
     <span class="s2">&quot;nozeropt&quot;</span><span class="p">,</span> <span class="s2">&quot;numerical&quot;</span><span class="p">,</span> <span class="s2">&quot;qiter&quot;</span><span class="p">,</span> <span class="s2">&quot;qok&quot;</span><span class="p">,</span> <span class="s2">&quot;spatial&quot;</span><span class="p">,</span> <span class="s2">&quot;storevectors&quot;</span><span class="p">,</span>
     <span class="s2">&quot;nomolecularinternalke&quot;</span><span class="p">,</span> <span class="s2">&quot;voight&quot;</span><span class="p">,</span> <span class="s2">&quot;zsisa&quot;</span><span class="p">,</span>
-    <span class="c1">#Optimisation method</span>
+    <span class="c1"># Optimisation method</span>
     <span class="s2">&quot;conjugate&quot;</span><span class="p">,</span> <span class="s2">&quot;dfp&quot;</span><span class="p">,</span> <span class="s2">&quot;lbfgs&quot;</span><span class="p">,</span> <span class="s2">&quot;numdiag&quot;</span><span class="p">,</span> <span class="s2">&quot;positive&quot;</span><span class="p">,</span> <span class="s2">&quot;rfo&quot;</span><span class="p">,</span> <span class="s2">&quot;unit&quot;</span><span class="p">,</span>
-    <span class="c1">#Output control</span>
+    <span class="c1"># Output control</span>
     <span class="s2">&quot;average&quot;</span><span class="p">,</span> <span class="s2">&quot;broaden_dos&quot;</span><span class="p">,</span> <span class="s2">&quot;cartesian&quot;</span><span class="p">,</span> <span class="s2">&quot;compare&quot;</span><span class="p">,</span> <span class="s2">&quot;conserved&quot;</span><span class="p">,</span>
     <span class="s2">&quot;dcharge&quot;</span><span class="p">,</span> <span class="s2">&quot;dynamical_matrix&quot;</span><span class="p">,</span>
     <span class="s2">&quot;eigenvectors&quot;</span><span class="p">,</span> <span class="s2">&quot;global&quot;</span><span class="p">,</span> <span class="s2">&quot;hessian&quot;</span><span class="p">,</span> <span class="s2">&quot;hexagonal&quot;</span><span class="p">,</span> <span class="s2">&quot;intensity&quot;</span><span class="p">,</span> <span class="s2">&quot;linmin&quot;</span><span class="p">,</span>
     <span class="s2">&quot;meanke&quot;</span><span class="p">,</span> <span class="s2">&quot;nodensity_out&quot;</span><span class="p">,</span> <span class="s2">&quot;nodpsym&quot;</span><span class="p">,</span> <span class="s2">&quot;nofirst_point&quot;</span><span class="p">,</span> <span class="s2">&quot;nofrequency&quot;</span><span class="p">,</span>
     <span class="s2">&quot;nokpoints&quot;</span><span class="p">,</span> <span class="s2">&quot;operators&quot;</span><span class="p">,</span> <span class="s2">&quot;outcon&quot;</span><span class="p">,</span> <span class="s2">&quot;prt_eam&quot;</span><span class="p">,</span> <span class="s2">&quot;prt_two&quot;</span><span class="p">,</span>
     <span class="s2">&quot;prt_regi_before&quot;</span><span class="p">,</span> <span class="s2">&quot;qsas&quot;</span><span class="p">,</span> <span class="s2">&quot;restore&quot;</span><span class="p">,</span> <span class="s2">&quot;save&quot;</span><span class="p">,</span> <span class="s2">&quot;terse&quot;</span><span class="p">,</span>
-    <span class="c1">#Structure control</span>
+    <span class="c1"># Structure control</span>
     <span class="s2">&quot;full&quot;</span><span class="p">,</span> <span class="s2">&quot;hexagonal&quot;</span><span class="p">,</span> <span class="s2">&quot;lower_symmetry&quot;</span><span class="p">,</span> <span class="s2">&quot;nosymmetry&quot;</span><span class="p">,</span>
-    <span class="c1">#PDF control</span>
+    <span class="c1"># PDF control</span>
     <span class="s2">&quot;PDF&quot;</span><span class="p">,</span> <span class="s2">&quot;PDFcut&quot;</span><span class="p">,</span> <span class="s2">&quot;PDFbelow&quot;</span><span class="p">,</span> <span class="s2">&quot;PDFkeep&quot;</span><span class="p">,</span> <span class="s2">&quot;coreinfo&quot;</span><span class="p">,</span> <span class="s2">&quot;nowidth&quot;</span><span class="p">,</span> <span class="s2">&quot;nopartial&quot;</span><span class="p">,</span>
-    <span class="c1">#Miscellaneous</span>
+    <span class="c1"># Miscellaneous</span>
     <span class="s2">&quot;nomodcoord&quot;</span><span class="p">,</span> <span class="s2">&quot;oldunits&quot;</span><span class="p">,</span> <span class="s2">&quot;zero_potential&quot;</span>
 <span class="p">}</span>
 
@@ -139,7 +135,7 @@
 <span class="sd">        Args:</span>
 <span class="sd">            \\*args: 1st line keywords</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1">#if len(list(filter(lambda x: x in _gulp_kw, args))) != len(args):</span>
+        <span class="c1"># if len(list(filter(lambda x: x in _gulp_kw, args))) != len(args):</span>
         <span class="c1">#    raise GulpError(&quot;Wrong keywords given&quot;)</span>
         <span class="n">gin</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
         <span class="n">gin</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
@@ -243,29 +239,10 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            GULP input string specifying library option</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">gulplib_set</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="s1">&#39;GULP_LIB&#39;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-        <span class="n">readable</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">f</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">R_OK</span><span class="p">)</span>
+        <span class="n">gulplib_set</span> <span class="o">=</span> <span class="s1">&#39;GULP_LIB&#39;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
 
-        <span class="c1">#dirpath, fname = os.path.split(file_name)</span>
-        <span class="c1">#if dirpath:  # Full path specified</span>
-        <span class="c1">#    if readable(file_name):</span>
-        <span class="c1">#        gin = &#39;library &#39; + file_name</span>
-        <span class="c1">#    else:</span>
-        <span class="c1">#        raise GulpError(&#39;GULP Library not found&#39;)</span>
-        <span class="c1">#else:</span>
-        <span class="c1">#    fpath = os.path.join(os.getcwd(), file_name)  # Check current dir</span>
-        <span class="c1">#    if readable(fpath):</span>
-        <span class="c1">#        gin = &#39;library &#39; + fpath</span>
-        <span class="c1">#    elif gulplib_set():</span>
-        <span class="c1">#        fpath = os.path.join(os.environ[&#39;GULP_LIB&#39;], file_name)</span>
-        <span class="c1">#        if readable(fpath):</span>
-        <span class="c1">#            gin = &#39;library &#39; + file_name</span>
-        <span class="c1">#        else:</span>
-        <span class="c1">#            raise GulpError(&#39;GULP Library not found&#39;)</span>
-        <span class="c1">#    else:</span>
-        <span class="c1">#        raise GulpError(&#39;GULP Library not found&#39;)</span>
-        <span class="c1">#gin += &quot;\n&quot;</span>
-        <span class="c1">#return gin</span>
+        <span class="k">def</span> <span class="nf">readable</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">R_OK</span><span class="p">)</span>
 
         <span class="n">gin</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="n">dirpath</span><span class="p">,</span> <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
@@ -275,7 +252,7 @@
             <span class="n">fpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">file_name</span><span class="p">)</span>  <span class="c1"># Check current dir</span>
             <span class="k">if</span> <span class="n">readable</span><span class="p">(</span><span class="n">fpath</span><span class="p">):</span>
                 <span class="n">gin</span> <span class="o">=</span> <span class="s1">&#39;library &#39;</span> <span class="o">+</span> <span class="n">fpath</span>
-            <span class="k">elif</span> <span class="n">gulplib_set</span><span class="p">():</span>         <span class="c1"># Check the GULP_LIB path</span>
+            <span class="k">elif</span> <span class="n">gulplib_set</span><span class="p">:</span>  <span class="c1"># Check the GULP_LIB path</span>
                 <span class="n">fpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;GULP_LIB&#39;</span><span class="p">],</span> <span class="n">file_name</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">readable</span><span class="p">(</span><span class="n">fpath</span><span class="p">):</span>
                     <span class="n">gin</span> <span class="o">=</span> <span class="s1">&#39;library &#39;</span> <span class="o">+</span> <span class="n">file_name</span>
@@ -323,7 +300,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">val_dict</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="c1">#If structure is oxidation state decorated, use that first.</span>
+                <span class="c1"># If structure is oxidation state decorated, use that first.</span>
                 <span class="n">el</span> <span class="o">=</span> <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">structure</span><span class="p">]</span>
                 <span class="n">valences</span> <span class="o">=</span> <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">oxi_state</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">structure</span><span class="p">]</span>
                 <span class="n">val_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="n">valences</span><span class="p">))</span>
@@ -333,7 +310,7 @@
                 <span class="n">valences</span> <span class="o">=</span> <span class="n">bv</span><span class="o">.</span><span class="n">get_valences</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
                 <span class="n">val_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="n">valences</span><span class="p">))</span>
 
-        <span class="c1">#Try bush library first</span>
+        <span class="c1"># Try bush library first</span>
         <span class="n">bpb</span> <span class="o">=</span> <span class="n">BuckinghamPotential</span><span class="p">(</span><span class="s1">&#39;bush&#39;</span><span class="p">)</span>
         <span class="n">bpl</span> <span class="o">=</span> <span class="n">BuckinghamPotential</span><span class="p">(</span><span class="s1">&#39;lewis&#39;</span><span class="p">)</span>
         <span class="n">gin</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
@@ -353,12 +330,12 @@
                 <span class="n">gin</span> <span class="o">+=</span> <span class="n">bpb</span><span class="o">.</span><span class="n">spring_dict</span><span class="p">[</span><span class="n">el</span><span class="p">]</span>
                 <span class="k">continue</span>
 
-            <span class="c1">#Try lewis library next if element is not in bush</span>
-            <span class="c1">#use_lewis = True</span>
+            <span class="c1"># Try lewis library next if element is not in bush</span>
+            <span class="c1"># use_lewis = True</span>
             <span class="k">if</span> <span class="n">el</span> <span class="o">!=</span> <span class="s2">&quot;O&quot;</span><span class="p">:</span>  <span class="c1"># For metals the key is &quot;Metal_OxiState+&quot;</span>
                 <span class="n">k</span> <span class="o">=</span> <span class="n">el</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">val_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]))</span> <span class="o">+</span> <span class="s1">&#39;+&#39;</span>
                 <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">bpl</span><span class="o">.</span><span class="n">species_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                    <span class="c1">#use_lewis = False</span>
+                    <span class="c1"># use_lewis = False</span>
                     <span class="k">raise</span> <span class="n">GulpError</span><span class="p">(</span><span class="s2">&quot;Element </span><span class="si">{}</span><span class="s2"> not in library&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
                 <span class="n">gin</span> <span class="o">+=</span> <span class="s2">&quot;species</span><span class="se">\n</span><span class="s2">&quot;</span>
                 <span class="n">gin</span> <span class="o">+=</span> <span class="n">bpl</span><span class="o">.</span><span class="n">species_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
@@ -388,7 +365,7 @@
 <span class="sd">            uc (Default=True): Unit Cell Flag.</span>
 <span class="sd">            keywords: GULP first line keywords.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1">#gin=&quot;static noelectrostatics \n &quot;</span>
+        <span class="c1"># gin=&quot;static noelectrostatics \n &quot;</span>
         <span class="n">gin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">keyword_line</span><span class="p">(</span><span class="o">*</span><span class="n">keywords</span><span class="p">)</span>
         <span class="n">gin</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure_lines</span><span class="p">(</span>
             <span class="n">structure</span><span class="p">,</span> <span class="n">cell_flg</span><span class="o">=</span><span class="n">periodic</span><span class="p">,</span> <span class="n">frac_flg</span><span class="o">=</span><span class="n">periodic</span><span class="p">,</span>
@@ -443,7 +420,7 @@
             <span class="k">raise</span> <span class="n">GulpError</span><span class="p">(</span><span class="s2">&quot;Energy not found in Gulp output&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="GulpIO.get_relaxed_structure"><a class="viewcode-back" href="../../../pymatgen.command_line.gulp_caller.html#pymatgen.command_line.gulp_caller.GulpIO.get_relaxed_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_relaxed_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gout</span><span class="p">):</span>
-        <span class="c1">#Find the structure lines</span>
+        <span class="c1"># Find the structure lines</span>
         <span class="n">structure_lines</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">cell_param_lines</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">output_lines</span> <span class="o">=</span> <span class="n">gout</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -504,7 +481,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
 
-        <span class="c1">#Process the structure lines</span>
+        <span class="c1"># Process the structure lines</span>
         <span class="k">if</span> <span class="n">structure_lines</span><span class="p">:</span>
             <span class="n">sp</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">coords</span> <span class="o">=</span> <span class="p">[]</span>
@@ -540,6 +517,7 @@
 <span class="sd">        Args:</span>
 <span class="sd">            cmd: Command. Defaults to gulp.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">def</span> <span class="nf">is_exe</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">X_OK</span><span class="p">)</span>
 
@@ -737,9 +715,8 @@
                                 <span class="n">species_dict</span><span class="p">[</span><span class="s2">&quot;O_shel&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span>
                         <span class="k">else</span><span class="p">:</span>
                             <span class="n">metal</span> <span class="o">=</span> <span class="n">elmnt</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-                            <span class="c1">#oxi_state = metaloxi.split(&#39;_&#39;)[1][0]</span>
-                            <span class="n">species_dict</span><span class="p">[</span><span class="n">elmnt</span><span class="p">]</span> <span class="o">=</span> <span class="n">metal</span> <span class="o">+</span> <span class="s2">&quot; core &quot;</span> <span class="o">+</span> \
-                                <span class="n">row</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                            <span class="c1"># oxi_state = metaloxi.split(&#39;_&#39;)[1][0]</span>
+                            <span class="n">species_dict</span><span class="p">[</span><span class="n">elmnt</span><span class="p">]</span> <span class="o">=</span> <span class="n">metal</span> <span class="o">+</span> <span class="s2">&quot; core &quot;</span> <span class="o">+</span> <span class="n">row</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
                     <span class="k">continue</span>
 
                 <span class="k">if</span> <span class="n">pot_flg</span><span class="p">:</span>
@@ -750,16 +727,16 @@
                             <span class="n">pot_dict</span><span class="p">[</span><span class="s2">&quot;O&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span>
                         <span class="k">else</span><span class="p">:</span>
                             <span class="n">metal</span> <span class="o">=</span> <span class="n">elmnt</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-                            <span class="c1">#oxi_state = metaloxi.split(&#39;_&#39;)[1][0]</span>
+                            <span class="c1"># oxi_state = metaloxi.split(&#39;_&#39;)[1][0]</span>
                             <span class="n">pot_dict</span><span class="p">[</span><span class="n">elmnt</span><span class="p">]</span> <span class="o">=</span> <span class="n">metal</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                            <span class="n">row</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">:])</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                                <span class="n">row</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">:])</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
                     <span class="k">continue</span>
 
                 <span class="k">if</span> <span class="n">spring_flg</span><span class="p">:</span>
                     <span class="n">spring_dict</span><span class="p">[</span><span class="n">elmnt</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span>
 
             <span class="k">if</span> <span class="n">bush_lewis_flag</span> <span class="o">==</span> <span class="s2">&quot;bush&quot;</span><span class="p">:</span>
-                <span class="c1">#Fill the null keys in spring dict with empty strings</span>
+                <span class="c1"># Fill the null keys in spring dict with empty strings</span>
                 <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">pot_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                     <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">spring_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                         <span class="n">spring_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
@@ -786,21 +763,6 @@
 </pre></div>
 
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -813,7 +775,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

@@ -22,7 +22,7 @@ from pprint import pprint
 from tabulate import tabulate
 from pydispatch import dispatcher
 from collections import OrderedDict
-from monty.collections import as_set, dict2namedtuple
+from monty.collections import dict2namedtuple
 from monty.string import list_strings, is_string, make_banner
 from monty.operator import operator_from_str
 from monty.io import FileLock
@@ -323,7 +323,7 @@ class Flow(Node, NodeContainer, MSONable):
         if remove_lock and os.path.exists(filepath + ".lock"):
             try:
                 os.remove(filepath + ".lock")
-            except:
+            except Exception:
                 pass
 
         with FileLock(filepath):
@@ -2965,7 +2965,7 @@ def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, 
         # Parse the file to get the perturbations.
         try:
             irred_perts = yaml_read_irred_perts(fake_task.log_file.path)
-        except:
+        except Exception:
             print("Error in %s" % fake_task.log_file.path)
             raise
 

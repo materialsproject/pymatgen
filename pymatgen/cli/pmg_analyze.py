@@ -26,7 +26,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "ongsp@ucsd.edu"
 __date__ = "Aug 13 2016"
 
-
 SAVE_FILE = "vasp_data.gz"
 
 
@@ -50,7 +49,7 @@ def get_energies(rootdir, reanalyze, verbose, detailed, sort, fmt):
     queen = BorgQueen(drone, number_of_drones=ncpus)
     if os.path.exists(SAVE_FILE) and not reanalyze:
         msg = "Using previously assimilated data from {}.".format(SAVE_FILE) \
-            + " Use -r to force re-analysis."
+              + " Use -r to force re-analysis."
         queen.load_data(SAVE_FILE)
     else:
         if ncpus > 1:
@@ -73,7 +72,7 @@ def get_energies(rootdir, reanalyze, verbose, detailed, sort, fmt):
             delta_vol = "{:.2f}".format(e.data["delta_volume"] * 100)
         else:
             delta_vol = e.structure.volume / \
-                e.data["initial_structure"].volume - 1
+                        e.data["initial_structure"].volume - 1
             delta_vol = "{:.2f}".format(delta_vol * 100)
         all_data.append((e.data["filename"].replace("./", ""),
                          re.sub(r"\s+", "", e.composition.formula),
@@ -111,7 +110,7 @@ def get_magnetizations(mydir, ion_list):
                     data.append(row)
                     if len(all_ions) > max_row:
                         max_row = len(all_ions)
-                except:
+                except Exception:
                     pass
 
     for d in data:
@@ -124,7 +123,6 @@ def get_magnetizations(mydir, ion_list):
 
 
 def analyze(args):
-
     default_energies = not (args.get_energies or args.ion_list)
 
     if args.get_energies or default_energies:

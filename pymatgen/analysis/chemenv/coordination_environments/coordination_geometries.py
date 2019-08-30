@@ -28,7 +28,6 @@ from monty.json import MSONable, MontyDecoder
 import json
 import os
 
-
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
 UNKNOWN_ENVIRONMENT_SYMBOL = 'UNKNOWN'
@@ -110,13 +109,14 @@ class SeparationPlane(AbstractChemenvAlgorithm):
                 found in the defective one as well)
             :param point_groups: The two groups of points separated by the plane
             :param plane_type: can be "MIRROR", if the plane is a mirror plane going through the central site,
-                'BASAL_THROUGH_CENTER', if the plane is a basal plane (no point on the "left" side) going through the central
-                site, 'BASAL', if the is a basal plane not going through the central site, 'UNEQUILIBRATED_THROUGH_CENTER', if
-                the plane cuts the geometry in two groups of points with different numbers of points on each side, and is going
-                through the centre, 'UNEQUILIBRATED', if the plane cuts the geometry in two groups of points with different
-                numbers of points on each side, and is not going through the centre, 'EQUILIBRATED_THROUGH_CENTER', if the
-                plane cuts the geometry in two groups of points of the same size, is going through the centre but is not a
-                mirror plane, 'EQUILIBRATED', if the plane cuts the geometry in two groups of points of the same size, is not
+                'BASAL_THROUGH_CENTER', if the plane is a basal plane (no point on the "left" side) going through the
+                central site, 'BASAL', if the is a basal plane not going through the central site,
+                'UNEQUILIBRATED_THROUGH_CENTER', if the plane cuts the geometry in two groups of points with different
+                numbers of points on each side, and is going through the centre, 'UNEQUILIBRATED', if the plane cuts
+                the geometry in two groups of points with different numbers of points on each side, and is not going
+                through the centre, 'EQUILIBRATED_THROUGH_CENTER', if the plane cuts the geometry in two groups of
+                points of the same size, is going through the centre but is not a mirror plane, 'EQUILIBRATED', if the
+                plane cuts the geometry in two groups of points of the same size, is not
                 going through the centre but is not a mirror plane.
             """
         super().__init__(algorithm_type=SEPARATION_PLANE)
@@ -230,7 +230,9 @@ class SeparationPlane(AbstractChemenvAlgorithm):
                        self.point_groups[1]))
         ordered_point_groups = [False,
                                 False] if ordered_point_groups is None else ordered_point_groups
-        rotate = lambda s, n: s[-n:] + s[:-n]
+
+        def rotate(s, n):
+            return s[-n:] + s[:-n]
         if ordered_plane and self.ordered_plane:
             plane_perms = [rotate(plane, ii) for ii in range(len(plane))]
             inv_plane = plane[::-1]
@@ -317,8 +319,9 @@ class CoordinationGeometry:
     """
     Class used to store the ideal representation of a chemical environment or "coordination geometry"
     """
-    CSM_SKIP_SEPARATION_PLANE_ALGO = 10.0 # Default value of continuous symmetry measure below which no further
-                                        #  search is performed for the separation plane algorithms
+    CSM_SKIP_SEPARATION_PLANE_ALGO = 10.0  # Default value of continuous symmetry measure below which no further
+
+    #  search is performed for the separation plane algorithms
 
     class NeighborsSetsHints:
 
@@ -585,11 +588,11 @@ class CoordinationGeometry:
                 for ipt1 in range(len(self.points)):
                     pt1 = np.array(self.points[ipt1])
                     mindist_cation_anion = min(mindist_cation_anion,
-                                               np.linalg.norm(pt1-self.central_site))
-                    for ipt2 in range(ipt1+1, len(self.points)):
+                                               np.linalg.norm(pt1 - self.central_site))
+                    for ipt2 in range(ipt1 + 1, len(self.points)):
                         pt2 = np.array(self.points[ipt2])
                         mindist_anions = min(mindist_anions,
-                                             np.linalg.norm(pt1-pt2))
+                                             np.linalg.norm(pt1 - pt2))
                 anion_radius = mindist_anions / 2.0
                 cation_radius = mindist_cation_anion - anion_radius
                 self._pauling_stability_ratio = cation_radius / anion_radius
@@ -771,6 +774,7 @@ class CoordinationGeometry:
         pmeshes.append({"pmesh_string": out})
         return pmeshes
 
+
 class AllCoordinationGeometries(dict):
     """
     Class used to store all the reference "coordination geometries" (list with instances of the CoordinationGeometry
@@ -921,7 +925,7 @@ class AllCoordinationGeometries(dict):
         if coordination is None:
             for gg in self.cg_list:
                 if gg.points is not None and (
-                            (not gg.deactivate) or include_deactivated):
+                        (not gg.deactivate) or include_deactivated):
                     if returned == 'cg':
                         geom.append(gg)
                     elif returned == 'mp_symbol':
@@ -1131,8 +1135,8 @@ class AllCoordinationGeometries(dict):
                         else:
                             addinfo = ''
                         mystring += ' - {mp} : {name}{addinfo}\n'.format(mp=cg.mp_symbol,
-                                                                  name=cg.get_name(),
-                                                                  addinfo=addinfo)
+                                                                         name=cg.get_name(),
+                                                                         addinfo=addinfo)
                 elif type == 'all_geometries':
                     for cg in self.get_geometries(coordination=cn):
                         mystring += ' - {mp} : {name}\n'.format(mp=cg.mp_symbol,

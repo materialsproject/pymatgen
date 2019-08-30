@@ -4,8 +4,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.ewald &#8212; pymatgen 2019.8.14 documentation</title>
-    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <title>pymatgen.analysis.ewald &#8212; pymatgen 2019.8.23 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -41,7 +41,6 @@
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.analysis.ewald</h1><div class="highlight"><pre>
@@ -160,7 +159,7 @@
 
         <span class="c1"># Compute the correction for a charged cell</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_charged_cell_energy</span> <span class="o">=</span> <span class="o">-</span> <span class="n">EwaldSummation</span><span class="o">.</span><span class="n">CONV_FACT</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> \
-                                    <span class="n">structure</span><span class="o">.</span><span class="n">volume</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eta</span> <span class="o">*</span> <span class="n">structure</span><span class="o">.</span><span class="n">charge</span> <span class="o">**</span> <span class="mi">2</span>
+            <span class="n">structure</span><span class="o">.</span><span class="n">volume</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eta</span> <span class="o">*</span> <span class="n">structure</span><span class="o">.</span><span class="n">charge</span> <span class="o">**</span> <span class="mi">2</span>
 
 <div class="viewcode-block" id="EwaldSummation.compute_partial_energy"><a class="viewcode-back" href="../../../pymatgen.analysis.ewald.html#pymatgen.analysis.ewald.EwaldSummation.compute_partial_energy">[docs]</a>    <span class="k">def</span> <span class="nf">compute_partial_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">removed_indices</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -297,18 +296,17 @@
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
                 <span class="s2">&quot;Forces are available only if compute_forces is True!&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_forces</span>
-        
+
 <div class="viewcode-block" id="EwaldSummation.get_site_energy"><a class="viewcode-back" href="../../../pymatgen.analysis.ewald.html#pymatgen.analysis.ewald.EwaldSummation.get_site_energy">[docs]</a>    <span class="k">def</span> <span class="nf">get_site_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site_index</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Compute the energy for a single site in the structure</span>
-<span class="sd">        </span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            site_index (int): Index of site</span>
 <span class="sd">        ReturnS:</span>
 <span class="sd">            (float) - Energy of that site&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_charged</span><span class="p">:</span>
             <span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Per atom energies for charged structures not supported in EwaldSummation&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_recip</span><span class="p">[:,</span><span class="n">site_index</span><span class="p">])</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_real</span><span class="p">[:,</span><span class="n">site_index</span><span class="p">])</span> \
-            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_point</span><span class="p">[</span><span class="n">site_index</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_recip</span><span class="p">[:,</span> <span class="n">site_index</span><span class="p">])</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_real</span><span class="p">[:,</span> <span class="n">site_index</span><span class="p">])</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_point</span><span class="p">[</span><span class="n">site_index</span><span class="p">]</span></div>
 
     <span class="k">def</span> <span class="nf">_calc_recip</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -359,7 +357,7 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_forces</span><span class="p">:</span>
                 <span class="n">pref</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">expval</span> <span class="o">/</span> <span class="n">g2</span> <span class="o">*</span> <span class="n">oxistates</span>
                 <span class="n">factor</span> <span class="o">=</span> <span class="n">prefactor</span> <span class="o">*</span> <span class="n">pref</span> <span class="o">*</span> <span class="p">(</span>
-                    <span class="n">sreal</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">gr</span><span class="p">)</span> <span class="o">-</span> <span class="n">simag</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">gr</span><span class="p">))</span>
+                        <span class="n">sreal</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">gr</span><span class="p">)</span> <span class="o">-</span> <span class="n">simag</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">gr</span><span class="p">))</span>
 
                 <span class="n">forces</span> <span class="o">+=</span> <span class="n">factor</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">g</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
 
@@ -385,7 +383,7 @@
 
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numsites</span><span class="p">):</span>
             <span class="n">nfcoords</span><span class="p">,</span> <span class="n">rij</span><span class="p">,</span> <span class="n">js</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_points_in_sphere</span><span class="p">(</span><span class="n">fcoords</span><span class="p">,</span>
-                                    <span class="n">coords</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rmax</span><span class="p">,</span> <span class="n">zip_results</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                                                                        <span class="n">coords</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rmax</span><span class="p">,</span> <span class="n">zip_results</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
             <span class="c1"># remove the rii term</span>
             <span class="n">inds</span> <span class="o">=</span> <span class="n">rij</span> <span class="o">&gt;</span> <span class="mf">1e-8</span>
@@ -423,17 +421,17 @@
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_forces</span><span class="p">:</span>
             <span class="n">output</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Real = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_space_energy</span><span class="p">),</span>
-                  <span class="s2">&quot;Reciprocal = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reciprocal_space_energy</span><span class="p">),</span>
-                  <span class="s2">&quot;Point = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">point_energy</span><span class="p">),</span>
-                  <span class="s2">&quot;Total = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_energy</span><span class="p">),</span>
-                  <span class="s2">&quot;Forces:</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">forces</span><span class="p">)</span>
-                  <span class="p">]</span>           
+                      <span class="s2">&quot;Reciprocal = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reciprocal_space_energy</span><span class="p">),</span>
+                      <span class="s2">&quot;Point = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">point_energy</span><span class="p">),</span>
+                      <span class="s2">&quot;Total = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_energy</span><span class="p">),</span>
+                      <span class="s2">&quot;Forces:</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">forces</span><span class="p">)</span>
+                      <span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">output</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Real = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_space_energy</span><span class="p">),</span>
-                  <span class="s2">&quot;Reciprocal = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reciprocal_space_energy</span><span class="p">),</span>
-                  <span class="s2">&quot;Point = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">point_energy</span><span class="p">),</span>
-                  <span class="s2">&quot;Total = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_energy</span><span class="p">),</span>
-                  <span class="s2">&quot;Forces were not computed&quot;</span><span class="p">]</span>
+                      <span class="s2">&quot;Reciprocal = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reciprocal_space_energy</span><span class="p">),</span>
+                      <span class="s2">&quot;Point = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">point_energy</span><span class="p">),</span>
+                      <span class="s2">&quot;Total = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_energy</span><span class="p">),</span>
+                      <span class="s2">&quot;Forces were not computed&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output</span><span class="p">)</span></div>
 
 
@@ -523,7 +521,7 @@
 <span class="sd">        ewald sum calls recursive function to iterate through permutations</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_algo</span> <span class="o">==</span> <span class="n">EwaldMinimizer</span><span class="o">.</span><span class="n">ALGO_FAST</span> <span class="ow">or</span> \
-                        <span class="bp">self</span><span class="o">.</span><span class="n">_algo</span> <span class="o">==</span> <span class="n">EwaldMinimizer</span><span class="o">.</span><span class="n">ALGO_BEST_FIRST</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_algo</span> <span class="o">==</span> <span class="n">EwaldMinimizer</span><span class="o">.</span><span class="n">ALGO_BEST_FIRST</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recurse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_m_list</span><span class="p">,</span>
                                  <span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span><span class="p">))))</span></div>
 
@@ -537,7 +535,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">bisect</span><span class="o">.</span><span class="n">insort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_output_lists</span><span class="p">,</span> <span class="p">[</span><span class="n">matrix_sum</span><span class="p">,</span> <span class="n">m_list</span><span class="p">])</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_algo</span> <span class="o">==</span> <span class="n">EwaldMinimizer</span><span class="o">.</span><span class="n">ALGO_BEST_FIRST</span> <span class="ow">and</span> \
-                        <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_output_lists</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_to_return</span><span class="p">:</span>
+                <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_output_lists</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_to_return</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_finished</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_output_lists</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_to_return</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_output_lists</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
@@ -594,8 +592,7 @@
             <span class="n">interaction_correction</span> <span class="o">=</span> <span class="n">average_correction</span> <span class="o">*</span> <span class="n">speedup_parameter</span> \
                 <span class="o">+</span> <span class="n">interaction_correction</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">speedup_parameter</span><span class="p">)</span>
 
-        <span class="n">best_case</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">sums</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">fractions</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> \
-            <span class="o">+</span> <span class="n">interaction_correction</span>
+        <span class="n">best_case</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">sums</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">fractions</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">interaction_correction</span>
 
         <span class="k">return</span> <span class="n">best_case</span></div>
 
@@ -710,21 +707,6 @@
 </pre></div>
 
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -737,7 +719,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

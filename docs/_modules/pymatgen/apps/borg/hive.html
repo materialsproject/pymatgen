@@ -4,8 +4,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.apps.borg.hive &#8212; pymatgen 2019.8.14 documentation</title>
-    <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
+    <title>pymatgen.apps.borg.hive &#8212; pymatgen 2019.8.23 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -41,7 +41,6 @@
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.apps.borg.hive</h1><div class="highlight"><pre>
@@ -69,14 +68,12 @@
 <span class="sd">This module define the various drones used to assimilate data.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyuep@gmail.com&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Mar 18, 2012&quot;</span>
-
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -195,11 +192,11 @@
         <span class="k">if</span> <span class="s2">&quot;relax1&quot;</span> <span class="ow">in</span> <span class="n">subdirs</span> <span class="ow">and</span> <span class="s2">&quot;relax2&quot;</span> <span class="ow">in</span> <span class="n">subdirs</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[</span><span class="n">parent</span><span class="p">]</span>
         <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">parent</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;/relax1&quot;</span><span class="p">))</span> <span class="ow">and</span> \
-           <span class="p">(</span><span class="ow">not</span> <span class="n">parent</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;/relax2&quot;</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span>
-               <span class="nb">len</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="s2">&quot;vasprun.xml*&quot;</span><span class="p">)))</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="p">(</span>
-               <span class="nb">len</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="s2">&quot;POSCAR*&quot;</span><span class="p">)))</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span>
-               <span class="nb">len</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="s2">&quot;OSZICAR*&quot;</span><span class="p">)))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
-           <span class="p">):</span>
+                <span class="p">(</span><span class="ow">not</span> <span class="n">parent</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;/relax2&quot;</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="s2">&quot;vasprun.xml*&quot;</span><span class="p">)))</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="s2">&quot;POSCAR*&quot;</span><span class="p">)))</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="s2">&quot;OSZICAR*&quot;</span><span class="p">)))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="p">):</span>
             <span class="k">return</span> <span class="p">[</span><span class="n">parent</span><span class="p">]</span>
         <span class="k">return</span> <span class="p">[]</span></div>
 
@@ -250,14 +247,14 @@
                     <span class="n">files_to_parse</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">search_str</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="p">(</span>
-                    <span class="s2">&quot;INCAR&quot;</span><span class="p">,</span> <span class="s2">&quot;POTCAR&quot;</span><span class="p">,</span> <span class="s2">&quot;CONTCAR&quot;</span><span class="p">,</span> <span class="s2">&quot;OSZICAR&quot;</span><span class="p">,</span> <span class="s2">&quot;POSCAR&quot;</span><span class="p">,</span> <span class="s2">&quot;DYNMAT&quot;</span>
+                        <span class="s2">&quot;INCAR&quot;</span><span class="p">,</span> <span class="s2">&quot;POTCAR&quot;</span><span class="p">,</span> <span class="s2">&quot;CONTCAR&quot;</span><span class="p">,</span> <span class="s2">&quot;OSZICAR&quot;</span><span class="p">,</span> <span class="s2">&quot;POSCAR&quot;</span><span class="p">,</span> <span class="s2">&quot;DYNMAT&quot;</span>
                 <span class="p">):</span>
                     <span class="n">files</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filename</span> <span class="o">+</span> <span class="s2">&quot;*&quot;</span><span class="p">)))</span>
                     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
                         <span class="k">continue</span>
                     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">filename</span> <span class="o">==</span> <span class="s2">&quot;INCAR&quot;</span> <span class="ow">or</span> \
-                       <span class="n">filename</span> <span class="o">==</span> <span class="s2">&quot;POTCAR&quot;</span> <span class="ow">or</span> <span class="n">filename</span> <span class="o">==</span> <span class="s2">&quot;DYNMAT&quot;</span><span class="p">:</span>
-                        <span class="n">files_to_parse</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="o">=</span> <span class="n">files</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>\
+                            <span class="n">filename</span> <span class="o">==</span> <span class="s2">&quot;POTCAR&quot;</span> <span class="ow">or</span> <span class="n">filename</span> <span class="o">==</span> <span class="s2">&quot;DYNMAT&quot;</span><span class="p">:</span>
+                        <span class="n">files_to_parse</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="o">=</span> <span class="n">files</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> \
                             <span class="k">if</span> <span class="n">filename</span> <span class="o">==</span> <span class="s2">&quot;POTCAR&quot;</span> <span class="k">else</span> <span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                     <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                         <span class="c1"># Since multiple files are ambiguous, we will always</span>
@@ -272,7 +269,7 @@
                             <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> files found. </span><span class="si">%s</span><span class="s2"> is being parsed.&quot;</span> <span class="o">%</span>
                             <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">),</span> <span class="n">files_to_parse</span><span class="p">[</span><span class="n">filename</span><span class="p">]))</span>
 
-            <span class="n">poscar</span><span class="p">,</span> <span class="n">contcar</span><span class="p">,</span> <span class="n">incar</span><span class="p">,</span> <span class="n">potcar</span><span class="p">,</span> <span class="n">oszicar</span><span class="p">,</span> <span class="n">dynmat</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="mi">6</span>
+            <span class="n">poscar</span><span class="p">,</span> <span class="n">contcar</span><span class="p">,</span> <span class="n">incar</span><span class="p">,</span> <span class="n">potcar</span><span class="p">,</span> <span class="n">oszicar</span><span class="p">,</span> <span class="n">dynmat</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span>
             <span class="k">if</span> <span class="s1">&#39;POSCAR&#39;</span> <span class="ow">in</span> <span class="n">files_to_parse</span><span class="p">:</span>
                 <span class="n">poscar</span> <span class="o">=</span> <span class="n">Poscar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">files_to_parse</span><span class="p">[</span><span class="s2">&quot;POSCAR&quot;</span><span class="p">])</span>
             <span class="k">if</span> <span class="s1">&#39;CONTCAR&#39;</span> <span class="ow">in</span> <span class="n">files_to_parse</span><span class="p">:</span>
@@ -286,12 +283,12 @@
             <span class="k">if</span> <span class="s1">&#39;DYNMAT&#39;</span> <span class="ow">in</span> <span class="n">files_to_parse</span><span class="p">:</span>
                 <span class="n">dynmat</span> <span class="o">=</span> <span class="n">Dynmat</span><span class="p">(</span><span class="n">files_to_parse</span><span class="p">[</span><span class="s2">&quot;DYNMAT&quot;</span><span class="p">])</span>
 
-            <span class="n">param</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;hubbards&quot;</span><span class="p">:{}}</span>
+            <span class="n">param</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;hubbards&quot;</span><span class="p">:</span> <span class="p">{}}</span>
             <span class="k">if</span> <span class="n">poscar</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">incar</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s2">&quot;LDAUU&quot;</span> <span class="ow">in</span> <span class="n">incar</span><span class="p">:</span>
                 <span class="n">param</span><span class="p">[</span><span class="s2">&quot;hubbards&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">poscar</span><span class="o">.</span><span class="n">site_symbols</span><span class="p">,</span>
                                              <span class="n">incar</span><span class="p">[</span><span class="s2">&quot;LDAUU&quot;</span><span class="p">]))</span>
             <span class="n">param</span><span class="p">[</span><span class="s2">&quot;is_hubbard&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">incar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LDAU&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">sum</span><span class="p">(</span><span class="n">param</span><span class="p">[</span><span class="s2">&quot;hubbards&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                    <span class="n">incar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LDAU&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">sum</span><span class="p">(</span><span class="n">param</span><span class="p">[</span><span class="s2">&quot;hubbards&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span>
             <span class="p">)</span> <span class="k">if</span> <span class="n">incar</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">False</span>
             <span class="n">param</span><span class="p">[</span><span class="s2">&quot;run_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="n">incar</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -299,7 +296,7 @@
             <span class="c1"># param[&quot;history&quot;] = _get_transformation_history(path)</span>
             <span class="n">param</span><span class="p">[</span><span class="s2">&quot;potcar_spec&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">potcar</span><span class="o">.</span><span class="n">spec</span> <span class="k">if</span> <span class="n">potcar</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
             <span class="n">energy</span> <span class="o">=</span> <span class="n">oszicar</span><span class="o">.</span><span class="n">final_energy</span> <span class="k">if</span> <span class="n">oszicar</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">Vasprun</span><span class="o">.</span><span class="n">final_energy</span>
-            <span class="n">structure</span> <span class="o">=</span> <span class="n">contcar</span><span class="o">.</span><span class="n">structure</span> <span class="k">if</span> <span class="n">contcar</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>\
+            <span class="n">structure</span> <span class="o">=</span> <span class="n">contcar</span><span class="o">.</span><span class="n">structure</span> <span class="k">if</span> <span class="n">contcar</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> \
                 <span class="k">else</span> <span class="n">poscar</span><span class="o">.</span><span class="n">structure</span>
             <span class="n">initial_vol</span> <span class="o">=</span> <span class="n">poscar</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">volume</span> <span class="k">if</span> <span class="n">poscar</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> \
                 <span class="kc">None</span>
@@ -317,7 +314,7 @@
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">entry</span> <span class="o">=</span> <span class="n">ComputedEntry</span><span class="p">(</span>
-                  <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="n">param</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span>
+                    <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="n">param</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span>
                 <span class="p">)</span>
             <span class="k">return</span> <span class="n">entry</span>
 
@@ -406,7 +403,7 @@
         <span class="k">return</span> <span class="n">entry</span></div>
 
 <div class="viewcode-block" id="GaussianToComputedEntryDrone.get_valid_paths"><a class="viewcode-back" href="../../../../pymatgen.apps.borg.hive.html#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.get_valid_paths">[docs]</a>    <span class="k">def</span> <span class="nf">get_valid_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-        <span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">subdirs</span><span class="p">,</span> <span class="n">files</span><span class="p">)</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="n">parent</span><span class="p">,</span> <span class="n">subdirs</span><span class="p">,</span> <span class="n">files</span> <span class="o">=</span> <span class="n">path</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span>
                 <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">f</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_extensions</span><span class="p">]</span></div>
 
@@ -435,27 +432,12 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">trans_json</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)[</span><span class="s2">&quot;history&quot;</span><span class="p">]</span>
-        <span class="k">except</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
     <span class="k">return</span> <span class="kc">None</span>
 </pre></div>
 
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -468,7 +450,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

@@ -4,8 +4,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.lammps.utils &#8212; pymatgen 2019.7.30 documentation</title>
-    <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
+    <title>pymatgen.io.lammps.utils &#8212; pymatgen 2019.8.23 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -41,7 +41,6 @@
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.io.lammps.utils</h1><div class="highlight"><pre>
@@ -83,6 +82,7 @@
 <span class="sd">    Generate polymer chain via Random walk. At each position there are</span>
 <span class="sd">    a total of 5 possible moves(excluding the previous direction).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_monomer</span><span class="p">,</span> <span class="n">s_head</span><span class="p">,</span> <span class="n">s_tail</span><span class="p">,</span>
                  <span class="n">monomer</span><span class="p">,</span> <span class="n">head</span><span class="p">,</span> <span class="n">tail</span><span class="p">,</span>
                  <span class="n">end_monomer</span><span class="p">,</span> <span class="n">e_head</span><span class="p">,</span> <span class="n">e_tail</span><span class="p">,</span>
@@ -132,8 +132,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_create</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">monomer</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mon_vector</span><span class="p">)</span>
         <span class="c1"># terminate the chain with the end_monomer</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_units</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="n">end_mon_vector</span> <span class="o">=</span> <span class="n">end_monomer</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[</span><span class="n">e_tail</span><span class="p">]</span> <span class="o">-</span> \
-                         <span class="n">end_monomer</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[</span><span class="n">e_head</span><span class="p">]</span>
+        <span class="n">end_mon_vector</span> <span class="o">=</span> <span class="n">end_monomer</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[</span><span class="n">e_tail</span><span class="p">]</span> <span class="o">-</span> <span class="n">end_monomer</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[</span><span class="n">e_head</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_create</span><span class="p">(</span><span class="n">end_monomer</span><span class="p">,</span> <span class="n">end_mon_vector</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span> <span class="o">=</span> <span class="n">Molecule</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="o">.</span><span class="n">sites</span><span class="p">)</span>
 
@@ -146,7 +145,7 @@
 <span class="sd">            mon_vector (numpy.array): molecule vector that starts from the</span>
 <span class="sd">                start atom index to the end atom index</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">!=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_units</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">!=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_units</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear_chain</span><span class="p">:</span>
                 <span class="n">move_direction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mon_vector</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">mon_vector</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
@@ -158,9 +157,9 @@
 <span class="sd">        pick a move at random from the list of moves</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">nmoves</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moves</span><span class="p">)</span>
-        <span class="n">move</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nmoves</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">move</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nmoves</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_move</span> <span class="o">==</span> <span class="p">(</span><span class="n">move</span> <span class="o">+</span> <span class="mi">3</span><span class="p">)</span> <span class="o">%</span> <span class="n">nmoves</span><span class="p">:</span>
-            <span class="n">move</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nmoves</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">move</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nmoves</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">prev_move</span> <span class="o">=</span> <span class="n">move</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moves</span><span class="p">[</span><span class="n">move</span><span class="p">])</span>
 
@@ -191,8 +190,7 @@
 <span class="sd">            move_direction (numpy.array): direction along which the monomer</span>
 <span class="sd">                will be positioned</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">translate_by</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="p">]</span> <span class="o">+</span> \
-                       <span class="bp">self</span><span class="o">.</span><span class="n">link_distance</span> <span class="o">*</span> <span class="n">move_direction</span>
+        <span class="n">translate_by</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">link_distance</span> <span class="o">*</span> <span class="n">move_direction</span>
         <span class="n">monomer</span><span class="o">.</span><span class="n">translate_sites</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">monomer</span><span class="p">)),</span> <span class="n">translate_by</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear_chain</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_align_monomer</span><span class="p">(</span><span class="n">monomer</span><span class="p">,</span> <span class="n">mon_vector</span><span class="p">,</span> <span class="n">move_direction</span><span class="p">)</span>
@@ -200,9 +198,8 @@
         <span class="n">does_cross</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">monomer</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span>
-                                     <span class="n">properties</span><span class="o">=</span><span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">)</span>
-            <span class="k">except</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">properties</span><span class="o">=</span><span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                 <span class="n">does_cross</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">polymer_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="o">.</span><span class="n">remove_sites</span><span class="p">(</span>
@@ -263,8 +260,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">control_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;filetype&quot;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">control_params</span><span class="p">[</span><span class="s2">&quot;filetype&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">filetype</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">control_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;output&quot;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">control_params</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="n">output_file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">control_params</span><span class="p">[</span><span class="s2">&quot;filetype&quot;</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">control_params</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">output_file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">control_params</span><span class="p">[</span><span class="s2">&quot;filetype&quot;</span><span class="p">])</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">boxit</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_set_box</span><span class="p">()</span>
 
@@ -290,10 +286,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">net_volume</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">mol</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mols</span><span class="p">):</span>
-            <span class="n">length</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[:,</span> <span class="n">i</span><span class="p">])</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[:,</span> <span class="n">i</span><span class="p">])</span>
-                           <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)])</span> <span class="o">+</span> <span class="mf">2.0</span>
-            <span class="n">net_volume</span> <span class="o">+=</span> <span class="p">(</span><span class="n">length</span><span class="o">**</span><span class="mf">3.0</span><span class="p">)</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param_list</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="s1">&#39;number&#39;</span><span class="p">])</span>
-        <span class="n">length</span> <span class="o">=</span> <span class="n">net_volume</span><span class="o">**</span><span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">3.0</span><span class="p">)</span>
+            <span class="n">length</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[:,</span> <span class="n">i</span><span class="p">])</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[:,</span> <span class="n">i</span><span class="p">])</span>
+                          <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)])</span> <span class="o">+</span> <span class="mf">2.0</span>
+            <span class="n">net_volume</span> <span class="o">+=</span> <span class="p">(</span><span class="n">length</span> <span class="o">**</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param_list</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="s1">&#39;number&#39;</span><span class="p">])</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="n">net_volume</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">mol</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mols</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">param_list</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="s1">&#39;inside box&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;0.0 0.0 0.0 </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">length</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
@@ -317,7 +313,7 @@
                         <span class="n">idx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">control_params</span><span class="p">[</span><span class="s2">&quot;filetype&quot;</span><span class="p">]))</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)</span>
                 <span class="c1"># pdb</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">control_params</span><span class="p">[</span><span class="s2">&quot;filetype&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;pdb&quot;</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">write_pdb</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">write_pdb</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
                 <span class="c1"># all other filetypes</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">a</span> <span class="o">=</span> <span class="n">BabelMolAdaptor</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
@@ -400,7 +396,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">map_residue_to_mol</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">lookup</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">mol</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mols</span><span class="p">):</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">mol</span><span class="o">.</span><span class="n">formula</span> <span class="ow">in</span> <span class="n">lookup</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">mol</span><span class="o">.</span><span class="n">formula</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">lookup</span><span class="p">:</span>
                 <span class="n">mol</span><span class="o">.</span><span class="n">translate_sites</span><span class="p">(</span><span class="n">indices</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">mol</span><span class="p">)),</span>
                                     <span class="n">vector</span><span class="o">=-</span><span class="n">mol</span><span class="o">.</span><span class="n">center_of_mass</span><span class="p">)</span>
                 <span class="n">lookup</span><span class="p">[</span><span class="n">mol</span><span class="o">.</span><span class="n">formula</span><span class="p">]</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -503,7 +499,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">which</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lammps_bin</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
                 <span class="s2">&quot;LammpsRunner requires the executable </span><span class="si">{}</span><span class="s2"> to be in the path. &quot;</span>
-                <span class="s2">&quot;Please download and install LAMMPS from &quot;</span> \
+                <span class="s2">&quot;Please download and install LAMMPS from &quot;</span>
                 <span class="s2">&quot;http://lammps.sandia.gov. &quot;</span>
                 <span class="s2">&quot;Don&#39;t forget to add the binary to your path&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lammps_bin</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">input_filename</span> <span class="o">=</span> <span class="n">input_filename</span>
@@ -547,21 +543,6 @@
 </pre></div>
 
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -574,7 +555,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

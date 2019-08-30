@@ -4,8 +4,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.interface_reactions &#8212; pymatgen 2019.8.14 documentation</title>
-    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <title>pymatgen.analysis.interface_reactions &#8212; pymatgen 2019.8.23 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -41,7 +41,6 @@
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.analysis.interface_reactions</h1><div class="highlight"><pre>
@@ -251,8 +250,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Reaction energy.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pd</span><span class="o">.</span><span class="n">get_hull_energy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comp1</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">comp2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">x</span><span class="p">))</span> <span class="o">-</span> \
-            <span class="bp">self</span><span class="o">.</span><span class="n">e1</span> <span class="o">*</span> <span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">e2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pd</span><span class="o">.</span><span class="n">get_hull_energy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comp1</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">comp2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">x</span><span class="p">))</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">e1</span> <span class="o">*</span> <span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">e2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">x</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_reaction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -265,7 +263,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Reaction object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">mix_comp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comp1</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">comp2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">mix_comp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comp1</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">comp2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">x</span><span class="p">)</span>
         <span class="n">decomp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pd</span><span class="o">.</span><span class="n">get_decomposition</span><span class="p">(</span><span class="n">mix_comp</span><span class="p">)</span>
 
         <span class="c1"># Uses original composition for reactants.</span>
@@ -287,7 +285,7 @@
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">x_original</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
             <span class="n">reaction</span><span class="o">.</span><span class="n">normalize_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">c1_original</span><span class="p">,</span> <span class="n">x_original</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">reaction</span><span class="o">.</span><span class="n">normalize_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">c2_original</span><span class="p">,</span> <span class="mi">1</span><span class="o">-</span><span class="n">x_original</span><span class="p">)</span>
+            <span class="n">reaction</span><span class="o">.</span><span class="n">normalize_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">c2_original</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">x_original</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">reaction</span>
 
     <span class="k">def</span> <span class="nf">_get_elmt_amt_in_rxt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rxt</span><span class="p">):</span>
@@ -332,7 +330,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Mixing ratio in c1 - c2 tie line, a float between 0 and 1.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="n">factor2</span> <span class="o">/</span> <span class="p">((</span><span class="mi">1</span><span class="o">-</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">factor1</span> <span class="o">+</span> <span class="n">x</span> <span class="o">*</span> <span class="n">factor2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="n">factor2</span> <span class="o">/</span> <span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">factor1</span> <span class="o">+</span> <span class="n">x</span> <span class="o">*</span> <span class="n">factor2</span><span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_reverse_convert</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">factor1</span><span class="p">,</span> <span class="n">factor2</span><span class="p">):</span>
@@ -352,7 +350,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Mixing ratio in comp1 - comp2 tie line, a float between 0 and 1.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="n">factor1</span> <span class="o">/</span> <span class="p">((</span><span class="mi">1</span><span class="o">-</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">factor2</span> <span class="o">+</span> <span class="n">x</span> <span class="o">*</span> <span class="n">factor1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="n">factor1</span> <span class="o">/</span> <span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">factor2</span> <span class="o">+</span> <span class="n">x</span> <span class="o">*</span> <span class="n">factor1</span><span class="p">)</span>
 
 <div class="viewcode-block" id="InterfacialReactivity.get_kinks"><a class="viewcode-back" href="../../../pymatgen.analysis.interface_reactions.html#pymatgen.analysis.interface_reactions.InterfacialReactivity.get_kinks">[docs]</a>    <span class="k">def</span> <span class="nf">get_kinks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -379,7 +377,7 @@
             <span class="n">energy_kink</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_energy</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">x_kink</span><span class="p">]</span>
             <span class="n">react_kink</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_reaction</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">x_kink</span><span class="p">]</span>
             <span class="n">num_atoms</span> <span class="o">=</span> <span class="p">[(</span><span class="n">x</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">comp1</span><span class="o">.</span><span class="n">num_atoms</span> <span class="o">+</span>
-                          <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">comp2</span><span class="o">.</span><span class="n">num_atoms</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">x_kink</span><span class="p">]</span>
+                          <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">comp2</span><span class="o">.</span><span class="n">num_atoms</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">x_kink</span><span class="p">]</span>
             <span class="n">energy_per_rxt_formula</span> <span class="o">=</span> <span class="p">[</span><span class="n">energy_kink</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span>
                                       <span class="bp">self</span><span class="o">.</span><span class="n">_get_elmt_amt_in_rxt</span><span class="p">(</span>
                                           <span class="n">react_kink</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">/</span>
@@ -390,13 +388,11 @@
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">critical_comp</span><span class="p">):</span>
                 <span class="c1"># Gets mixing ratio x at kinks.</span>
                 <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pd</span><span class="o">.</span><span class="n">pd_coords</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-                <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">c</span> <span class="o">-</span> <span class="n">c2_coord</span><span class="p">)</span> <span class="o">/</span> \
-                    <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">c1_coord</span> <span class="o">-</span> <span class="n">c2_coord</span><span class="p">)</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">c</span> <span class="o">-</span> <span class="n">c2_coord</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">c1_coord</span> <span class="o">-</span> <span class="n">c2_coord</span><span class="p">)</span>
                 <span class="c1"># Modifies mixing ratio in case compositions self.comp1 and</span>
                 <span class="c1"># self.comp2 are not normalized.</span>
                 <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="n">n2</span> <span class="o">/</span> <span class="p">(</span><span class="n">n1</span> <span class="o">+</span> <span class="n">x</span> <span class="o">*</span> <span class="p">(</span><span class="n">n2</span> <span class="o">-</span> <span class="n">n1</span><span class="p">))</span>
-                <span class="n">n_atoms</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">comp1</span><span class="o">.</span><span class="n">num_atoms</span> \
-                    <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">comp2</span><span class="o">.</span><span class="n">num_atoms</span>
+                <span class="n">n_atoms</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">comp1</span><span class="o">.</span><span class="n">num_atoms</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">comp2</span><span class="o">.</span><span class="n">num_atoms</span>
                 <span class="c1"># Converts mixing ratio in comp1 - comp2 tie line to that in</span>
                 <span class="c1"># c1 - c2 tie line.</span>
                 <span class="n">x_converted</span> <span class="o">=</span> <span class="n">InterfacialReactivity</span><span class="o">.</span><span class="n">_convert</span><span class="p">(</span>
@@ -408,13 +404,11 @@
                 <span class="c1"># Gets balanced reaction at kinks</span>
                 <span class="n">rxt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_reaction</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
                 <span class="n">react_kink</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rxt</span><span class="p">)</span>
-                <span class="n">rxt_energy</span> <span class="o">=</span> <span class="n">normalized_energy</span> <span class="o">*</span> \
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_get_elmt_amt_in_rxt</span><span class="p">(</span><span class="n">rxt</span><span class="p">)</span> <span class="o">/</span> \
-                    <span class="n">n_atoms</span>
+                <span class="n">rxt_energy</span> <span class="o">=</span> <span class="n">normalized_energy</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_elmt_amt_in_rxt</span><span class="p">(</span><span class="n">rxt</span><span class="p">)</span> <span class="o">/</span> <span class="n">n_atoms</span>
                 <span class="n">energy_per_rxt_formula</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="n">rxt_energy</span> <span class="o">*</span>
                     <span class="n">InterfacialReactivity</span><span class="o">.</span><span class="n">EV_TO_KJ_PER_MOL</span><span class="p">)</span>
-        <span class="n">index_kink</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">critical_comp</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">index_kink</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">critical_comp</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">zip</span><span class="p">(</span><span class="n">index_kink</span><span class="p">,</span> <span class="n">x_kink</span><span class="p">,</span> <span class="n">energy_kink</span><span class="p">,</span> <span class="n">react_kink</span><span class="p">,</span>
                    <span class="n">energy_per_rxt_formula</span><span class="p">)</span></div>
 
@@ -536,14 +530,10 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            [(reactant1, no_mixing_energy1),(reactant2,no_mixing_energy2)].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">grand</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> \
-            <span class="s1">&#39;Please provide grand potential phase diagram &#39;</span> \
-            <span class="s1">&#39;for computing no_mixing_energy!&#39;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">grand</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;Please provide grand potential phase diagram for computing no_mixing_energy!&#39;</span>
 
-        <span class="n">energy1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pd</span><span class="o">.</span><span class="n">get_hull_energy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comp1</span><span class="p">)</span> <span class="o">-</span> \
-            <span class="bp">self</span><span class="o">.</span><span class="n">_get_grand_potential</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">c1</span><span class="p">)</span>
-        <span class="n">energy2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pd</span><span class="o">.</span><span class="n">get_hull_energy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comp2</span><span class="p">)</span> <span class="o">-</span> \
-            <span class="bp">self</span><span class="o">.</span><span class="n">_get_grand_potential</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">c2</span><span class="p">)</span>
+        <span class="n">energy1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pd</span><span class="o">.</span><span class="n">get_hull_energy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comp1</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_grand_potential</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">c1</span><span class="p">)</span>
+        <span class="n">energy2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pd</span><span class="o">.</span><span class="n">get_hull_energy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comp2</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_grand_potential</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">c2</span><span class="p">)</span>
         <span class="n">unit</span> <span class="o">=</span> <span class="s1">&#39;eV/f.u.&#39;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="p">:</span>
             <span class="n">unit</span> <span class="o">=</span> <span class="s1">&#39;eV/atom&#39;</span>
@@ -596,11 +586,9 @@
         <span class="n">Cp_std</span> <span class="o">=</span> <span class="n">Cp_dict</span><span class="p">[</span><span class="n">element</span><span class="p">]</span>
         <span class="n">S_std</span> <span class="o">=</span> <span class="n">S_dict</span><span class="p">[</span><span class="n">element</span><span class="p">]</span>
         <span class="n">PV_correction</span> <span class="o">=</span> <span class="n">ideal_gas_const</span> <span class="o">*</span> <span class="n">temp</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">pres</span> <span class="o">/</span> <span class="n">std_pres</span><span class="p">)</span>
-        <span class="n">TS_correction</span> <span class="o">=</span> <span class="o">-</span> <span class="n">Cp_std</span> <span class="o">*</span> <span class="p">(</span><span class="n">temp</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
-                                    <span class="o">-</span> <span class="n">std_temp</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">std_temp</span><span class="p">))</span> \
-                        <span class="o">+</span> <span class="n">Cp_std</span> <span class="o">*</span> <span class="p">(</span><span class="n">temp</span> <span class="o">-</span> <span class="n">std_temp</span><span class="p">)</span> \
-                                 <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">std_temp</span><span class="p">))</span> \
-                        <span class="o">-</span> <span class="n">S_std</span> <span class="o">*</span> <span class="p">(</span><span class="n">temp</span> <span class="o">-</span> <span class="n">std_temp</span><span class="p">)</span>
+        <span class="n">TS_correction</span> <span class="o">=</span> <span class="o">-</span> <span class="n">Cp_std</span> <span class="o">*</span> <span class="p">(</span><span class="n">temp</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span> <span class="o">-</span> <span class="n">std_temp</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">std_temp</span><span class="p">))</span> \
+            <span class="o">+</span> <span class="n">Cp_std</span> <span class="o">*</span> <span class="p">(</span><span class="n">temp</span> <span class="o">-</span> <span class="n">std_temp</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">std_temp</span><span class="p">))</span> \
+            <span class="o">-</span> <span class="n">S_std</span> <span class="o">*</span> <span class="p">(</span><span class="n">temp</span> <span class="o">-</span> <span class="n">std_temp</span><span class="p">)</span>
 
         <span class="n">dG</span> <span class="o">=</span> <span class="n">PV_correction</span> <span class="o">+</span> <span class="n">TS_correction</span>
         <span class="c1"># Convert to eV/molecule unit.</span>
@@ -612,21 +600,6 @@
 </pre></div>
 
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -639,7 +612,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

@@ -4,8 +4,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder &#8212; pymatgen 2019.8.14 documentation</title>
-    <link rel="stylesheet" href="../../../../../_static/proBlue.css" type="text/css" />
+    <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder &#8212; pymatgen 2019.8.23 documentation</title>
+    <link rel="stylesheet" href="../../../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -41,7 +41,6 @@
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder</h1><div class="highlight"><pre>
@@ -214,18 +213,14 @@
                     <span class="s1">&#39; and to the centroid (calculated without the central site) for coordination&#39;</span>
                     <span class="s1">&#39; numbers &gt;= 5 : </span><span class="si">{c}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">c</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">centre</span><span class="p">))</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">centering_type</span> <span class="o">==</span> <span class="s1">&#39;central_site&#39;</span><span class="p">:</span>
-            <span class="n">outs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="s1">&#39;Points are referenced to the central site : </span><span class="si">{c}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                    <span class="n">c</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">centre</span><span class="p">))</span>
+            <span class="n">outs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Points are referenced to the central site : </span><span class="si">{c}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">c</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">centre</span><span class="p">))</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">centering_type</span> <span class="o">==</span> <span class="s1">&#39;centroid&#39;</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_central_site_in_centroid</span><span class="p">:</span>
-                <span class="n">outs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Points are referenced to the centroid&#39;</span>
-                            <span class="s1">&#39; (calculated with the central site) :</span><span class="se">\n</span><span class="s1">  </span><span class="si">{c}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                    <span class="n">c</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">centre</span><span class="p">))</span>
+                <span class="n">outs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Points are referenced to the centroid &#39;</span>
+                            <span class="s1">&#39;(calculated with the central site) :</span><span class="se">\n</span><span class="s1">  </span><span class="si">{c}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">c</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">centre</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">outs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Points are referenced to the centroid&#39;</span>
-                            <span class="s1">&#39; (calculated without the central site) :</span><span class="se">\n</span><span class="s1">  </span><span class="si">{c}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                    <span class="n">c</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">centre</span><span class="p">))</span>
+                            <span class="s1">&#39; (calculated without the central site) :</span><span class="se">\n</span><span class="s1">  </span><span class="si">{c}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">c</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">centre</span><span class="p">))</span>
         <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outs</span><span class="p">)</span>
 
 <div class="viewcode-block" id="AbstractGeometry.from_cg"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.from_cg">[docs]</a>    <span class="nd">@classmethod</span>
@@ -391,7 +386,7 @@
 <span class="sd">        :param include_central_site_in_centroid: In case centering_type is &#39;centroid&#39;, the central site is included if</span>
 <span class="sd">            this value is set to True.</span>
 <span class="sd">        :param bva_distance_scale_factor: Scaling factor for the bond valence analyzer (this might be different whether</span>
-<span class="sd">            the structure is an experimental one, an LDA or a GGA relaxed one, or any other relaxation scheme (where </span>
+<span class="sd">            the structure is an experimental one, an LDA or a GGA relaxed one, or any other relaxation scheme (where</span>
 <span class="sd">            under- or over-estimation of bond lengths is known).</span>
 <span class="sd">        :param structure_refinement: Refinement of the structure. Can be &quot;none&quot;, &quot;refined&quot; or &quot;symmetrized&quot;.</span>
 <span class="sd">        :param spg_analyzer_options: Options for the SpaceGroupAnalyzer (dictionary specifying &quot;symprec&quot;</span>
@@ -431,25 +426,17 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">symmetrized_structure</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">spg_analyzer</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_structure</span><span class="p">,</span>
-                                                   <span class="n">symprec</span><span class="o">=</span>
-                                                   <span class="bp">self</span><span class="o">.</span><span class="n">spg_analyzer_options</span><span class="p">[</span>
-                                                       <span class="s1">&#39;symprec&#39;</span><span class="p">],</span>
-                                                   <span class="n">angle_tolerance</span><span class="o">=</span>
-                                                   <span class="bp">self</span><span class="o">.</span><span class="n">spg_analyzer_options</span><span class="p">[</span>
-                                                       <span class="s1">&#39;angle_tolerance&#39;</span><span class="p">])</span>
+                                                   <span class="n">symprec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">spg_analyzer_options</span><span class="p">[</span><span class="s1">&#39;symprec&#39;</span><span class="p">],</span>
+                                                   <span class="n">angle_tolerance</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">spg_analyzer_options</span><span class="p">[</span><span class="s1">&#39;angle_tolerance&#39;</span><span class="p">])</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure_refinement</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">STRUCTURE_REFINEMENT_REFINED</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spg_analyzer</span><span class="o">.</span><span class="n">get_refined_structure</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">symmetrized_structure</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure_refinement</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">STRUCTURE_REFINEMENT_SYMMETRIZED</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spg_analyzer</span><span class="o">.</span><span class="n">get_refined_structure</span><span class="p">()</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">spg_analyzer_refined</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span>
-                                                               <span class="n">symprec</span><span class="o">=</span>
-                                                               <span class="bp">self</span><span class="o">.</span><span class="n">spg_analyzer_options</span><span class="p">[</span>
-                                                                   <span class="s1">&#39;symprec&#39;</span><span class="p">],</span>
-                                                               <span class="n">angle_tolerance</span><span class="o">=</span>
-                                                               <span class="bp">self</span><span class="o">.</span><span class="n">spg_analyzer_options</span>
-                                                               <span class="p">[</span>
-                                                                   <span class="s1">&#39;angle_tolerance&#39;</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">spg_analyzer_refined</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span>
+                    <span class="n">symprec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">spg_analyzer_options</span><span class="p">[</span><span class="s1">&#39;symprec&#39;</span><span class="p">],</span>
+                    <span class="n">angle_tolerance</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">spg_analyzer_options</span><span class="p">[</span><span class="s1">&#39;angle_tolerance&#39;</span><span class="p">])</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">symmetrized_structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spg_analyzer_refined</span><span class="o">.</span><span class="n">get_symmetrized_structure</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="LocalGeometryFinder.get_structure"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.get_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -549,18 +536,19 @@
 <span class="sd">        :return: The StructureEnvironments object containing all the information about the coordination</span>
 <span class="sd">            environments in the structure</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">time_init</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">clock</span><span class="p">()</span>
+        <span class="n">time_init</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">process_time</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">info</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">info</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">info</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;local_geometry_finder&#39;</span><span class="p">:</span>
-                         <span class="p">{</span><span class="s1">&#39;parameters&#39;</span><span class="p">:</span>
-                              <span class="p">{</span><span class="s1">&#39;centering_type&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">centering_type</span><span class="p">,</span>
-                               <span class="s1">&#39;include_central_site_in_centroid&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_central_site_in_centroid</span><span class="p">,</span>
-                               <span class="s1">&#39;structure_refinement&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure_refinement</span><span class="p">,</span>
-                               <span class="s1">&#39;spg_analyzer_options&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">spg_analyzer_options</span>
-                               <span class="p">}</span>
-                          <span class="p">}</span>
-                     <span class="p">})</span>
+        <span class="n">info</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+            <span class="s1">&#39;local_geometry_finder&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;parameters&#39;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s1">&#39;centering_type&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">centering_type</span><span class="p">,</span>
+                    <span class="s1">&#39;include_central_site_in_centroid&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_central_site_in_centroid</span><span class="p">,</span>
+                    <span class="s1">&#39;structure_refinement&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure_refinement</span><span class="p">,</span>
+                    <span class="s1">&#39;spg_analyzer_options&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">spg_analyzer_options</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">})</span>
         <span class="k">if</span> <span class="n">only_symbols</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">allcg</span> <span class="o">=</span> <span class="n">AllCoordinationGeometries</span><span class="p">(</span>
                 <span class="n">permutations_safe_override</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">permutations_safe_override</span><span class="p">,</span>
@@ -585,8 +573,7 @@
         <span class="c1"># Include atoms that are in the list of &quot;only_atoms&quot; if it is provided</span>
         <span class="k">if</span> <span class="n">only_atoms</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">sites_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">isite</span> <span class="k">for</span> <span class="n">isite</span> <span class="ow">in</span> <span class="n">sites_indices</span>
-                             <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">at</span> <span class="ow">in</span> <span class="p">[</span><span class="n">sp</span><span class="o">.</span><span class="n">symbol</span> <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span>
-                    <span class="n">isite</span><span class="p">]</span><span class="o">.</span><span class="n">species</span><span class="p">]</span>
+                             <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">at</span> <span class="ow">in</span> <span class="p">[</span><span class="n">sp</span><span class="o">.</span><span class="n">symbol</span> <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span><span class="o">.</span><span class="n">species</span><span class="p">]</span>
                                      <span class="k">for</span> <span class="n">at</span> <span class="ow">in</span> <span class="n">only_atoms</span><span class="p">])]</span>
 
         <span class="c1"># Exclude atoms that are in the list of excluded atoms</span>
@@ -602,7 +589,7 @@
                              <span class="n">isite</span> <span class="ow">in</span> <span class="n">only_indices</span><span class="p">]</span>
 
         <span class="c1"># Get the VoronoiContainer for the sites defined by their indices (sites_indices)</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Getting DetailedVoronoiContainer&#39;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Getting DetailedVoronoiContainer&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">voronoi_normalized_distance_tolerance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">normalized_distance_tolerance</span> <span class="o">=</span> <span class="n">DetailedVoronoiContainer</span><span class="o">.</span><span class="n">default_normalized_distance_tolerance</span>
         <span class="k">else</span><span class="p">:</span>
@@ -619,7 +606,7 @@
                                                          <span class="n">additional_conditions</span><span class="o">=</span><span class="n">additional_conditions</span><span class="p">,</span>
                                                          <span class="n">normalized_distance_tolerance</span><span class="o">=</span><span class="n">normalized_distance_tolerance</span><span class="p">,</span>
                                                          <span class="n">normalized_angle_tolerance</span><span class="o">=</span><span class="n">normalized_angle_tolerance</span><span class="p">)</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;DetailedVoronoiContainer has been set up&#39;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;DetailedVoronoiContainer has been set up&#39;</span><span class="p">)</span>
 
         <span class="c1"># Initialize the StructureEnvironments object (either from initial_structure_environments or from scratch)</span>
         <span class="k">if</span> <span class="n">initial_structure_environments</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -635,7 +622,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">se</span> <span class="o">=</span> <span class="n">StructureEnvironments</span><span class="p">(</span><span class="n">voronoi</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">detailed_voronoi</span><span class="p">,</span> <span class="n">valences</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">valences</span><span class="p">,</span>
                                        <span class="n">sites_map</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sites_map</span><span class="p">,</span> <span class="n">equivalent_sites</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">equivalent_sites</span><span class="p">,</span>
-                                       <span class="n">ce_list</span><span class="o">=</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">),</span> <span class="n">structure</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span>
+                                       <span class="n">ce_list</span><span class="o">=</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">),</span> <span class="n">structure</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span>
                                        <span class="n">info</span><span class="o">=</span><span class="n">info</span><span class="p">)</span>
 
         <span class="c1"># Set up the coordination numbers that have to be computed based on min_cn, max_cn and possibly the settings</span>
@@ -644,7 +631,7 @@
             <span class="n">min_cn</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="k">if</span> <span class="n">max_cn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">max_cn</span> <span class="o">=</span> <span class="mi">13</span>
-        <span class="n">all_cns</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">min_cn</span><span class="p">,</span> <span class="n">max_cn</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">all_cns</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">min_cn</span><span class="p">,</span> <span class="n">max_cn</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">do_recompute</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="n">recompute</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="s1">&#39;cns&#39;</span> <span class="ow">in</span> <span class="n">recompute</span><span class="p">:</span>
@@ -657,24 +644,24 @@
         <span class="n">breakit</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="k">if</span> <span class="n">optimization</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">detailed_voronoi</span><span class="o">.</span><span class="n">local_planes</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">detailed_voronoi</span><span class="o">.</span><span class="n">separations</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">detailed_voronoi</span><span class="o">.</span><span class="n">local_planes</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">detailed_voronoi</span><span class="o">.</span><span class="n">separations</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
 
         <span class="c1"># Loop on all the sites</span>
         <span class="k">for</span> <span class="n">isite</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)):</span>
             <span class="k">if</span> <span class="n">isite</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sites_indices</span><span class="p">:</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39; ... in site #</span><span class="si">{:d}</span><span class="s1">/</span><span class="si">{:d}</span><span class="s1"> (</span><span class="si">{}</span><span class="s1">) : &#39;</span>
-                             <span class="s1">&#39;skipped&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">isite</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">),</span>
-                                              <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span><span class="o">.</span><span class="n">species_string</span><span class="p">))</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39; ... in site #</span><span class="si">{:d}</span><span class="s1">/</span><span class="si">{:d}</span><span class="s1"> (</span><span class="si">{}</span><span class="s1">) : &#39;</span>
+                              <span class="s1">&#39;skipped&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">isite</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">),</span>
+                                               <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span><span class="o">.</span><span class="n">species_string</span><span class="p">))</span>
                 <span class="k">continue</span>
             <span class="k">if</span> <span class="n">breakit</span><span class="p">:</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39; ... in site #</span><span class="si">{:d}</span><span class="s1">/</span><span class="si">{:d}</span><span class="s1"> (</span><span class="si">{}</span><span class="s1">) : &#39;</span>
-                             <span class="s1">&#39;skipped (timelimit)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">isite</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">),</span>
-                                                          <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span><span class="o">.</span><span class="n">species_string</span><span class="p">))</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39; ... in site #</span><span class="si">{:d}</span><span class="s1">/</span><span class="si">{:d}</span><span class="s1"> (</span><span class="si">{}</span><span class="s1">) : &#39;</span>
+                              <span class="s1">&#39;skipped (timelimit)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">isite</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">),</span>
+                                                           <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span><span class="o">.</span><span class="n">species_string</span><span class="p">))</span>
                 <span class="k">continue</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39; ... in site #</span><span class="si">{:d}</span><span class="s1">/</span><span class="si">{:d}</span><span class="s1"> (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">isite</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">),</span>
-                                                               <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span><span class="o">.</span><span class="n">species_string</span><span class="p">))</span>
-            <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">clock</span><span class="p">()</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39; ... in site #</span><span class="si">{:d}</span><span class="s1">/</span><span class="si">{:d}</span><span class="s1"> (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">isite</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">),</span>
+                                                                <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span><span class="o">.</span><span class="n">species_string</span><span class="p">))</span>
+            <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">process_time</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">optimization</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">detailed_voronoi</span><span class="o">.</span><span class="n">local_planes</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">detailed_voronoi</span><span class="o">.</span><span class="n">separations</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -688,10 +675,10 @@
                     <span class="k">continue</span>
                 <span class="k">for</span> <span class="n">inb_set</span><span class="p">,</span> <span class="n">nb_set</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nb_sets</span><span class="p">):</span>
                     <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;    ... getting environments for nb_set (</span><span class="si">{:d}</span><span class="s1">, </span><span class="si">{:d}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cn</span><span class="p">,</span> <span class="n">inb_set</span><span class="p">))</span>
-                    <span class="n">tnbset1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">clock</span><span class="p">()</span>
+                    <span class="n">tnbset1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">process_time</span><span class="p">()</span>
                     <span class="n">ce</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_nb_set_environments</span><span class="p">(</span><span class="n">se</span><span class="o">=</span><span class="n">se</span><span class="p">,</span> <span class="n">isite</span><span class="o">=</span><span class="n">isite</span><span class="p">,</span> <span class="n">cn</span><span class="o">=</span><span class="n">cn</span><span class="p">,</span> <span class="n">inb_set</span><span class="o">=</span><span class="n">inb_set</span><span class="p">,</span> <span class="n">nb_set</span><span class="o">=</span><span class="n">nb_set</span><span class="p">,</span>
                                                          <span class="n">recompute</span><span class="o">=</span><span class="n">do_recompute</span><span class="p">,</span> <span class="n">optimization</span><span class="o">=</span><span class="n">optimization</span><span class="p">)</span>
-                    <span class="n">tnbset2</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">clock</span><span class="p">()</span>
+                    <span class="n">tnbset2</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">process_time</span><span class="p">()</span>
                     <span class="k">if</span> <span class="n">cn</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">nb_sets_info</span><span class="p">:</span>
                         <span class="n">nb_sets_info</span><span class="p">[</span><span class="n">cn</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
                     <span class="n">nb_sets_info</span><span class="p">[</span><span class="n">cn</span><span class="p">][</span><span class="n">inb_set</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="n">tnbset2</span> <span class="o">-</span> <span class="n">tnbset1</span><span class="p">}</span>
@@ -724,7 +711,7 @@
                                         <span class="k">continue</span>
                                     <span class="k">if</span> <span class="n">new_nb_set</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ta</span><span class="p">[</span><span class="s1">&#39;new_nb_set&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">ta</span> <span class="ow">in</span> <span class="n">to_add_from_hints</span><span class="p">]:</span>
                                         <span class="n">has_nb_set</span> <span class="o">=</span> <span class="kc">True</span>
-                                    <span class="k">elif</span> <span class="ow">not</span> <span class="n">cn_new_nb_set</span> <span class="ow">in</span> <span class="n">se</span><span class="o">.</span><span class="n">neighbors_sets</span><span class="p">[</span><span class="n">isite</span><span class="p">]:</span>
+                                    <span class="k">elif</span> <span class="n">cn_new_nb_set</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">se</span><span class="o">.</span><span class="n">neighbors_sets</span><span class="p">[</span><span class="n">isite</span><span class="p">]:</span>
                                         <span class="n">has_nb_set</span> <span class="o">=</span> <span class="kc">False</span>
                                     <span class="k">else</span><span class="p">:</span>
                                         <span class="n">has_nb_set</span> <span class="o">=</span> <span class="n">new_nb_set</span> <span class="ow">in</span> <span class="n">se</span><span class="o">.</span><span class="n">neighbors_sets</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">cn_new_nb_set</span><span class="p">]</span>
@@ -745,18 +732,18 @@
                 <span class="n">inew_nb_set</span> <span class="o">=</span> <span class="n">se</span><span class="o">.</span><span class="n">neighbors_sets</span><span class="p">[</span><span class="n">isite_new_nb_set</span><span class="p">][</span><span class="n">cn_new_nb_set</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">new_nb_set</span><span class="p">)</span>
                 <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;    ... getting environments for nb_set (</span><span class="si">{:d}</span><span class="s1">, </span><span class="si">{:d}</span><span class="s1">) - &#39;</span>
                               <span class="s1">&#39;from hints&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cn_new_nb_set</span><span class="p">,</span> <span class="n">inew_nb_set</span><span class="p">))</span>
-                <span class="n">tnbset1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">clock</span><span class="p">()</span>
+                <span class="n">tnbset1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">process_time</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">update_nb_set_environments</span><span class="p">(</span><span class="n">se</span><span class="o">=</span><span class="n">se</span><span class="p">,</span>
                                                 <span class="n">isite</span><span class="o">=</span><span class="n">isite_new_nb_set</span><span class="p">,</span>
                                                 <span class="n">cn</span><span class="o">=</span><span class="n">cn_new_nb_set</span><span class="p">,</span>
                                                 <span class="n">inb_set</span><span class="o">=</span><span class="n">inew_nb_set</span><span class="p">,</span>
                                                 <span class="n">nb_set</span><span class="o">=</span><span class="n">new_nb_set</span><span class="p">,</span>
                                                 <span class="n">optimization</span><span class="o">=</span><span class="n">optimization</span><span class="p">)</span>
-                <span class="n">tnbset2</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">clock</span><span class="p">()</span>
+                <span class="n">tnbset2</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">process_time</span><span class="p">()</span>
                 <span class="k">if</span> <span class="n">cn</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">nb_sets_info</span><span class="p">:</span>
                     <span class="n">nb_sets_info</span><span class="p">[</span><span class="n">cn</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
                 <span class="n">nb_sets_info</span><span class="p">[</span><span class="n">cn</span><span class="p">][</span><span class="n">inew_nb_set</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="n">tnbset2</span> <span class="o">-</span> <span class="n">tnbset1</span><span class="p">}</span>
-            <span class="n">t2</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">clock</span><span class="p">()</span>
+            <span class="n">t2</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">process_time</span><span class="p">()</span>
             <span class="n">se</span><span class="o">.</span><span class="n">update_site_info</span><span class="p">(</span><span class="n">isite</span><span class="o">=</span><span class="n">isite</span><span class="p">,</span> <span class="n">info_dict</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="n">t2</span> <span class="o">-</span> <span class="n">t1</span><span class="p">,</span> <span class="s1">&#39;nb_sets_info&#39;</span><span class="p">:</span> <span class="n">nb_sets_info</span><span class="p">})</span>
             <span class="k">if</span> <span class="n">timelimit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">time_elapsed</span> <span class="o">=</span> <span class="n">t2</span> <span class="o">-</span> <span class="n">time_init</span>
@@ -764,9 +751,9 @@
                 <span class="k">if</span> <span class="n">time_left</span> <span class="o">&lt;</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">max_time_one_site</span><span class="p">:</span>
                     <span class="n">breakit</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="n">max_time_one_site</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_time_one_site</span><span class="p">,</span> <span class="n">t2</span> <span class="o">-</span> <span class="n">t1</span><span class="p">)</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;    ... computed in </span><span class="si">{:.2f}</span><span class="s1"> seconds&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t2</span> <span class="o">-</span> <span class="n">t1</span><span class="p">))</span>
-        <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">clock</span><span class="p">()</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;    ... compute_structure_environments ended in </span><span class="si">{:.2f}</span><span class="s1"> seconds&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time_end</span><span class="o">-</span><span class="n">time_init</span><span class="p">))</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;    ... computed in </span><span class="si">{:.2f}</span><span class="s1"> seconds&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t2</span> <span class="o">-</span> <span class="n">t1</span><span class="p">))</span>
+        <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">process_time</span><span class="p">()</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;    ... compute_structure_environments ended in </span><span class="si">{:.2f}</span><span class="s1"> seconds&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time_end</span> <span class="o">-</span> <span class="n">time_init</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">se</span></div>
 
 <div class="viewcode-block" id="LocalGeometryFinder.update_nb_set_environments"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.update_nb_set_environments">[docs]</a>    <span class="k">def</span> <span class="nf">update_nb_set_environments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">se</span><span class="p">,</span> <span class="n">isite</span><span class="p">,</span> <span class="n">cn</span><span class="p">,</span> <span class="n">inb_set</span><span class="p">,</span> <span class="n">nb_set</span><span class="p">,</span> <span class="n">recompute</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">optimization</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -838,8 +825,7 @@
             <span class="n">central_site</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[</span><span class="n">isite</span><span class="p">],</span>
             <span class="n">bare_coords</span><span class="o">=</span><span class="n">coords</span><span class="p">,</span>
             <span class="n">centering_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">centering_type</span><span class="p">,</span>
-            <span class="n">include_central_site_in_centroid</span><span class="o">=</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">include_central_site_in_centroid</span><span class="p">,</span>
+            <span class="n">include_central_site_in_centroid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">include_central_site_in_centroid</span><span class="p">,</span>
             <span class="n">optimization</span><span class="o">=</span><span class="n">optimization</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="LocalGeometryFinder.setup_test_perfect_environment"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_test_perfect_environment">[docs]</a>    <span class="k">def</span> <span class="nf">setup_test_perfect_environment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symbol</span><span class="p">,</span> <span class="n">randomness</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -884,7 +870,7 @@
 
         <span class="c1"># Scaling the test environment</span>
         <span class="k">if</span> <span class="n">random_scale</span> <span class="o">==</span> <span class="s1">&#39;RANDOM&#39;</span><span class="p">:</span>
-            <span class="n">scale</span> <span class="o">=</span> <span class="mf">0.1</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_sample</span><span class="p">()</span> <span class="o">+</span> <span class="mf">0.95</span>
+            <span class="n">scale</span> <span class="o">=</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_sample</span><span class="p">()</span> <span class="o">+</span> <span class="mf">0.95</span>
         <span class="k">elif</span> <span class="n">random_scale</span> <span class="o">==</span> <span class="s1">&#39;NONE&#39;</span><span class="p">:</span>
             <span class="n">scale</span> <span class="o">=</span> <span class="mf">1.0</span>
         <span class="k">else</span><span class="p">:</span>
@@ -902,9 +888,9 @@
             <span class="n">ux</span> <span class="o">=</span> <span class="n">uu</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">uy</span> <span class="o">=</span> <span class="n">uu</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
             <span class="n">uz</span> <span class="o">=</span> <span class="n">uu</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-            <span class="n">RR</span> <span class="o">=</span> <span class="p">[[</span><span class="n">ux</span><span class="o">*</span><span class="n">ux</span><span class="o">+</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">ux</span><span class="o">*</span><span class="n">ux</span><span class="p">)</span><span class="o">*</span><span class="n">cc</span><span class="p">,</span> <span class="n">ux</span><span class="o">*</span><span class="n">uy</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">cc</span><span class="p">)</span><span class="o">-</span><span class="n">uz</span><span class="o">*</span><span class="n">ss</span><span class="p">,</span> <span class="n">ux</span><span class="o">*</span><span class="n">uz</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">cc</span><span class="p">)</span><span class="o">+</span><span class="n">uy</span><span class="o">*</span><span class="n">ss</span><span class="p">],</span>
-                  <span class="p">[</span><span class="n">ux</span><span class="o">*</span><span class="n">uy</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">cc</span><span class="p">)</span><span class="o">+</span><span class="n">uz</span><span class="o">*</span><span class="n">ss</span><span class="p">,</span> <span class="n">uy</span><span class="o">*</span><span class="n">uy</span><span class="o">+</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">uy</span><span class="o">*</span><span class="n">uy</span><span class="p">)</span><span class="o">*</span><span class="n">cc</span><span class="p">,</span> <span class="n">uy</span><span class="o">*</span><span class="n">uz</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">cc</span><span class="p">)</span><span class="o">-</span><span class="n">ux</span><span class="o">*</span><span class="n">ss</span><span class="p">],</span>
-                  <span class="p">[</span><span class="n">ux</span><span class="o">*</span><span class="n">uz</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">cc</span><span class="p">)</span><span class="o">-</span><span class="n">uy</span><span class="o">*</span><span class="n">ss</span><span class="p">,</span> <span class="n">uy</span><span class="o">*</span><span class="n">uz</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">cc</span><span class="p">)</span><span class="o">+</span><span class="n">ux</span><span class="o">*</span><span class="n">ss</span><span class="p">,</span> <span class="n">uz</span><span class="o">*</span><span class="n">uz</span><span class="o">+</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">uz</span><span class="o">*</span><span class="n">uz</span><span class="p">)</span><span class="o">*</span><span class="n">cc</span><span class="p">]]</span>
+            <span class="n">RR</span> <span class="o">=</span> <span class="p">[[</span><span class="n">ux</span> <span class="o">*</span> <span class="n">ux</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">ux</span> <span class="o">*</span> <span class="n">ux</span><span class="p">)</span> <span class="o">*</span> <span class="n">cc</span><span class="p">,</span> <span class="n">ux</span> <span class="o">*</span> <span class="n">uy</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">cc</span><span class="p">)</span> <span class="o">-</span> <span class="n">uz</span> <span class="o">*</span> <span class="n">ss</span><span class="p">,</span> <span class="n">ux</span> <span class="o">*</span> <span class="n">uz</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">cc</span><span class="p">)</span> <span class="o">+</span> <span class="n">uy</span> <span class="o">*</span> <span class="n">ss</span><span class="p">],</span>
+                  <span class="p">[</span><span class="n">ux</span> <span class="o">*</span> <span class="n">uy</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">cc</span><span class="p">)</span> <span class="o">+</span> <span class="n">uz</span> <span class="o">*</span> <span class="n">ss</span><span class="p">,</span> <span class="n">uy</span> <span class="o">*</span> <span class="n">uy</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">uy</span> <span class="o">*</span> <span class="n">uy</span><span class="p">)</span> <span class="o">*</span> <span class="n">cc</span><span class="p">,</span> <span class="n">uy</span> <span class="o">*</span> <span class="n">uz</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">cc</span><span class="p">)</span> <span class="o">-</span> <span class="n">ux</span> <span class="o">*</span> <span class="n">ss</span><span class="p">],</span>
+                  <span class="p">[</span><span class="n">ux</span> <span class="o">*</span> <span class="n">uz</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">cc</span><span class="p">)</span> <span class="o">-</span> <span class="n">uy</span> <span class="o">*</span> <span class="n">ss</span><span class="p">,</span> <span class="n">uy</span> <span class="o">*</span> <span class="n">uz</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">cc</span><span class="p">)</span> <span class="o">+</span> <span class="n">ux</span> <span class="o">*</span> <span class="n">ss</span><span class="p">,</span> <span class="n">uz</span> <span class="o">*</span> <span class="n">uz</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">uz</span> <span class="o">*</span> <span class="n">uz</span><span class="p">)</span> <span class="o">*</span> <span class="n">cc</span><span class="p">]]</span>
         <span class="k">elif</span> <span class="n">random_rotation</span> <span class="o">==</span> <span class="s1">&#39;NONE&#39;</span><span class="p">:</span>
             <span class="n">RR</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
                   <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
@@ -924,7 +910,7 @@
 
         <span class="c1"># Translating the test environment</span>
         <span class="k">if</span> <span class="n">random_translation</span> <span class="o">==</span> <span class="s1">&#39;RANDOM&#39;</span><span class="p">:</span>
-            <span class="n">translation</span> <span class="o">=</span> <span class="mf">10.0</span> <span class="o">*</span> <span class="p">(</span><span class="mf">2.0</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_sample</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">-</span><span class="mf">1.0</span><span class="p">)</span>
+            <span class="n">translation</span> <span class="o">=</span> <span class="mf">10.0</span> <span class="o">*</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_sample</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">random_translation</span> <span class="o">==</span> <span class="s1">&#39;NONE&#39;</span><span class="p">:</span>
             <span class="n">translation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1020,10 +1006,10 @@
             <span class="k">return</span> <span class="n">result_dict</span>
         <span class="n">result_dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">geometry</span> <span class="ow">in</span> <span class="n">test_geometries</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">perfect_geometry</span> <span class="o">=</span> <span class="n">AbstractGeometry</span><span class="o">.</span><span class="n">from_cg</span><span class="p">(</span><span class="n">cg</span><span class="o">=</span><span class="n">geometry</span><span class="p">,</span>
-                                                             <span class="n">centering_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">centering_type</span><span class="p">,</span>
-                                                             <span class="n">include_central_site_in_centroid</span><span class="o">=</span>
-                                                             <span class="bp">self</span><span class="o">.</span><span class="n">include_central_site_in_centroid</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">perfect_geometry</span> <span class="o">=</span> <span class="n">AbstractGeometry</span><span class="o">.</span><span class="n">from_cg</span><span class="p">(</span>
+                <span class="n">cg</span><span class="o">=</span><span class="n">geometry</span><span class="p">,</span>
+                <span class="n">centering_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">centering_type</span><span class="p">,</span>
+                <span class="n">include_central_site_in_centroid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">include_central_site_in_centroid</span><span class="p">)</span>
             <span class="n">points_perfect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">perfect_geometry</span><span class="o">.</span><span class="n">points_wcs_ctwcc</span><span class="p">()</span>
             <span class="n">cgsm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coordination_geometry_symmetry_measures</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span>
                                                                 <span class="n">points_perfect</span><span class="o">=</span><span class="n">points_perfect</span><span class="p">,</span>
@@ -1154,10 +1140,10 @@
 
         <span class="n">result_dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">geometry</span> <span class="ow">in</span> <span class="n">test_geometries</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">perfect_geometry</span> <span class="o">=</span> <span class="n">AbstractGeometry</span><span class="o">.</span><span class="n">from_cg</span><span class="p">(</span><span class="n">cg</span><span class="o">=</span><span class="n">geometry</span><span class="p">,</span>
-                                                             <span class="n">centering_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">centering_type</span><span class="p">,</span>
-                                                             <span class="n">include_central_site_in_centroid</span><span class="o">=</span>
-                                                             <span class="bp">self</span><span class="o">.</span><span class="n">include_central_site_in_centroid</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">perfect_geometry</span> <span class="o">=</span> <span class="n">AbstractGeometry</span><span class="o">.</span><span class="n">from_cg</span><span class="p">(</span>
+                <span class="n">cg</span><span class="o">=</span><span class="n">geometry</span><span class="p">,</span>
+                <span class="n">centering_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">centering_type</span><span class="p">,</span>
+                <span class="n">include_central_site_in_centroid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">include_central_site_in_centroid</span><span class="p">)</span>
             <span class="n">points_perfect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">perfect_geometry</span><span class="o">.</span><span class="n">points_wcs_ctwcc</span><span class="p">()</span>
             <span class="n">cgsm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coordination_geometry_symmetry_measures_sepplane_optim</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span>
                                                                                <span class="n">points_perfect</span><span class="o">=</span><span class="n">points_perfect</span><span class="p">,</span>
@@ -1495,7 +1481,8 @@
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                         <span class="s1">&#39;Wrong number of points to initialize separation plane&#39;</span><span class="p">)</span>
                 <span class="c1"># Takes a lot of time and happens rarely ...</span>
-                <span class="c1"># if any([plane.is_same_plane_as(plane2) for comb2, plane2 in nb_set.local_planes.items() if plane2 is not None]):</span>
+                <span class="c1"># if any([plane.is_same_plane_as(plane2) for comb2, plane2 in nb_set.local_planes.items()</span>
+                <span class="c1">#         if plane2 is not None]):</span>
                 <span class="c1">#     continue</span>
                 <span class="n">nb_set</span><span class="o">.</span><span class="n">local_planes</span><span class="p">[</span><span class="n">ipoints_combination</span><span class="p">]</span> <span class="o">=</span> <span class="n">plane</span>
                 <span class="c1"># Get the separations for this plane</span>
@@ -1629,7 +1616,7 @@
                 <span class="n">perm1</span> <span class="o">=</span> <span class="p">[</span><span class="n">separation_perm</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">sep_perm</span><span class="p">]</span>
                 <span class="n">pp</span> <span class="o">=</span> <span class="p">[</span><span class="n">perm1</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">argref_separation</span><span class="p">]</span>
                 <span class="c1"># Skip permutations that have already been performed</span>
-                <span class="k">if</span> <span class="n">tested_permutations</span> <span class="o">!=</span> <span class="kc">False</span> <span class="ow">and</span> <span class="n">coordination_geometry</span><span class="o">.</span><span class="n">equivalent_indices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">tested_permutations</span><span class="p">)</span> <span class="ow">and</span> <span class="n">coordination_geometry</span><span class="o">.</span><span class="n">equivalent_indices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">tuple_ref_perm</span> <span class="o">=</span> <span class="n">coordination_geometry</span><span class="o">.</span><span class="n">ref_permutation</span><span class="p">(</span><span class="n">pp</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">tuple_ref_perm</span> <span class="ow">in</span> <span class="n">tested_permutations</span><span class="p">:</span>
                         <span class="k">continue</span>
@@ -1726,7 +1713,8 @@
             <span class="n">permutations_symmetry_measures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sm_info</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">permutations_symmetry_measures</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">permutations_symmetry_measures</span><span class="p">,</span> <span class="n">permutations</span><span class="p">,</span> <span class="p">[</span><span class="n">sepplane</span><span class="o">.</span><span class="n">algorithm_type</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">permutations</span><span class="p">),</span> <span class="n">stop_search</span>
+            <span class="k">return</span> <span class="n">permutations_symmetry_measures</span><span class="p">,</span> <span class="n">permutations</span><span class="p">,</span> <span class="p">[</span><span class="n">sepplane</span><span class="o">.</span><span class="n">algorithm_type</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span>
+                <span class="n">permutations</span><span class="p">),</span> <span class="n">stop_search</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="n">stop_search</span>
 
@@ -1797,7 +1785,8 @@
             <span class="n">permutations_symmetry_measures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sm_info</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">permutations_symmetry_measures</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">permutations_symmetry_measures</span><span class="p">,</span> <span class="n">permutations</span><span class="p">,</span> <span class="p">[</span><span class="n">sepplane</span><span class="o">.</span><span class="n">algorithm_type</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">permutations</span><span class="p">),</span> <span class="n">stop_search</span>
+            <span class="k">return</span> <span class="n">permutations_symmetry_measures</span><span class="p">,</span> <span class="n">permutations</span><span class="p">,</span> <span class="p">[</span><span class="n">sepplane</span><span class="o">.</span><span class="n">algorithm_type</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span>
+                <span class="n">permutations</span><span class="p">),</span> <span class="n">stop_search</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="n">stop_search</span>
 
@@ -1843,21 +1832,6 @@
 </pre></div>
 
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -1870,7 +1844,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

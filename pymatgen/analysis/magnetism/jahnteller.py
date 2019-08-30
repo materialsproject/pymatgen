@@ -148,8 +148,7 @@ class JahnTellerAnalyzer:
                         ligand_bond_lengths = [ligand.distance(structure[idx])
                                                for ligand in ligands]
                         ligands_species = list(set([str(ligand.specie) for ligand in ligands]))
-                        ligand_bond_length_spread = max(ligand_bond_lengths) - \
-                                                    min(ligand_bond_lengths)
+                        ligand_bond_length_spread = max(ligand_bond_lengths) - min(ligand_bond_lengths)
 
                         def trim(f):
                             # avoid storing to unreasonable precision, hurts readability

@@ -4,8 +4,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.structure_matcher &#8212; pymatgen 2019.8.14 documentation</title>
-    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <title>pymatgen.analysis.structure_matcher &#8212; pymatgen 2019.8.23 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -41,7 +41,6 @@
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.analysis.structure_matcher</h1><div class="highlight"><pre>
@@ -447,11 +446,11 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">el</span> <span class="o">=</span> <span class="n">get_el_sp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_supercell_size</span><span class="p">)</span>
                 <span class="n">fu</span> <span class="o">=</span> <span class="n">s2</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">/</span> <span class="n">s1</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">el</span><span class="p">]</span>
-            <span class="k">except</span><span class="p">:</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid argument for supercell_size.&#39;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">fu</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="o">/</span><span class="mi">3</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">fu</span><span class="p">)),</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">fu</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="o">/</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">fu</span><span class="p">)),</span> <span class="kc">False</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">fu</span><span class="p">)),</span> <span class="kc">True</span>
 
@@ -481,6 +480,7 @@
 
 <span class="sd">        yields: s1, s2, supercell_matrix, average_lattice, supercell_matrix</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">def</span> <span class="nf">av_lat</span><span class="p">(</span><span class="n">l1</span><span class="p">,</span> <span class="n">l2</span><span class="p">):</span>
             <span class="n">params</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">l1</span><span class="o">.</span><span class="n">lengths_and_angles</span><span class="p">)</span> <span class="o">+</span>
                       <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">l2</span><span class="o">.</span><span class="n">lengths_and_angles</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span>
@@ -502,6 +502,7 @@
                     <span class="n">fc</span> <span class="o">=</span> <span class="p">(</span><span class="n">fc</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">lp</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:])</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
                     <span class="n">fc</span> <span class="o">-=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">fc</span><span class="p">)</span>
                     <span class="k">yield</span> <span class="n">fc</span><span class="p">,</span> <span class="n">s2_fc</span><span class="p">,</span> <span class="n">av_lat</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">s2</span><span class="o">.</span><span class="n">lattice</span><span class="p">),</span> <span class="n">sc_m</span>
+
         <span class="k">if</span> <span class="n">s1_supercell</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">sc_generator</span><span class="p">(</span><span class="n">struct1</span><span class="p">,</span> <span class="n">struct2</span><span class="p">):</span>
                 <span class="k">yield</span> <span class="n">x</span>
@@ -572,12 +573,12 @@
         <span class="k">for</span> <span class="n">sp2</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="nb">enumerate</span><span class="p">(</span><span class="n">struct2</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">),</span>
                                         <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
             <span class="n">i</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-            <span class="n">inner</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">sp2</span><span class="p">,</span> <span class="nb">slice</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">i</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)))</span>
+            <span class="n">inner</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">sp2</span><span class="p">,</span> <span class="nb">slice</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">i</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)))</span>
 
         <span class="k">for</span> <span class="n">sp1</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="nb">enumerate</span><span class="p">(</span><span class="n">struct1</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">),</span>
                                         <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
             <span class="n">j</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
-            <span class="n">j</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">j</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">j</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">j</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">j</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">sp2</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">inner</span><span class="p">:</span>
                 <span class="n">mask</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_comparator</span><span class="o">.</span><span class="n">are_equal</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">)</span>
 
@@ -680,7 +681,7 @@
             <span class="n">fu</span><span class="p">,</span> <span class="n">s1_supercell</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_supercell_size</span><span class="p">(</span><span class="n">struct1</span><span class="p">,</span> <span class="n">struct2</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">fu</span><span class="p">,</span> <span class="n">s1_supercell</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kc">True</span>
-        <span class="n">mult</span> <span class="o">=</span> <span class="n">fu</span> <span class="k">if</span> <span class="n">s1_supercell</span> <span class="k">else</span> <span class="mi">1</span><span class="o">/</span><span class="n">fu</span>
+        <span class="n">mult</span> <span class="o">=</span> <span class="n">fu</span> <span class="k">if</span> <span class="n">s1_supercell</span> <span class="k">else</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">fu</span>
 
         <span class="c1"># rescale lattice to same volume</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scale</span><span class="p">:</span>
@@ -697,7 +698,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Matches one struct onto the other</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">ratio</span> <span class="o">=</span> <span class="n">fu</span> <span class="k">if</span> <span class="n">s1_supercell</span> <span class="k">else</span> <span class="mi">1</span><span class="o">/</span><span class="n">fu</span>
+        <span class="n">ratio</span> <span class="o">=</span> <span class="n">fu</span> <span class="k">if</span> <span class="n">s1_supercell</span> <span class="k">else</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">fu</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">struct1</span><span class="p">)</span> <span class="o">*</span> <span class="n">ratio</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">struct2</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strict_match</span><span class="p">(</span>
                 <span class="n">struct1</span><span class="p">,</span> <span class="n">struct2</span><span class="p">,</span> <span class="n">fu</span><span class="p">,</span> <span class="n">s1_supercell</span><span class="o">=</span><span class="n">s1_supercell</span><span class="p">,</span>
@@ -744,7 +745,7 @@
         <span class="k">for</span> <span class="n">s1fc</span><span class="p">,</span> <span class="n">s2fc</span><span class="p">,</span> <span class="n">avg_l</span><span class="p">,</span> <span class="n">sc_m</span> <span class="ow">in</span> \
                 <span class="bp">self</span><span class="o">.</span><span class="n">_get_supercells</span><span class="p">(</span><span class="n">struct1</span><span class="p">,</span> <span class="n">struct2</span><span class="p">,</span> <span class="n">fu</span><span class="p">,</span> <span class="n">s1_supercell</span><span class="p">):</span>
             <span class="c1"># compute fractional tolerance</span>
-            <span class="n">normalization</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s1fc</span><span class="p">)</span> <span class="o">/</span> <span class="n">avg_l</span><span class="o">.</span><span class="n">volume</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span>
+            <span class="n">normalization</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s1fc</span><span class="p">)</span> <span class="o">/</span> <span class="n">avg_l</span><span class="o">.</span><span class="n">volume</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span>
             <span class="n">inv_abc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">avg_l</span><span class="o">.</span><span class="n">reciprocal_lattice</span><span class="o">.</span><span class="n">abc</span><span class="p">)</span>
             <span class="n">frac_tol</span> <span class="o">=</span> <span class="n">inv_abc</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">stol</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">normalization</span><span class="p">)</span>
             <span class="c1"># loop over all translations</span>
@@ -793,10 +794,14 @@
 
         <span class="c1"># Use structure hash to pre-group structures</span>
         <span class="k">if</span> <span class="n">anonymous</span><span class="p">:</span>
-            <span class="n">c_hash</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">anonymized_formula</span>
+            <span class="k">def</span> <span class="nf">c_hash</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">anonymized_formula</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">c_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_comparator</span><span class="o">.</span><span class="n">get_hash</span>
-        <span class="n">s_hash</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">c_hash</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">composition</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">s_hash</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">c_hash</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">composition</span><span class="p">)</span>
+
         <span class="n">sorted_s_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">enumerate</span><span class="p">(</span><span class="n">s_list</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="n">s_hash</span><span class="p">)</span>
         <span class="n">all_groups</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -808,7 +813,7 @@
                 <span class="n">matches</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">anonymous</span><span class="p">:</span>
                     <span class="n">inds</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_anonymous</span><span class="p">(</span><span class="n">refs</span><span class="p">,</span>
-                            <span class="n">unmatched</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">unmatched</span><span class="p">))))</span>
+                                                               <span class="n">unmatched</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">unmatched</span><span class="p">))))</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">inds</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">refs</span><span class="p">,</span> <span class="n">unmatched</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span>
                                   <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">unmatched</span><span class="p">))))</span>
@@ -855,7 +860,7 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sp1</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sp2</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">None</span>
 
-        <span class="n">ratio</span> <span class="o">=</span> <span class="n">fu</span> <span class="k">if</span> <span class="n">s1_supercell</span> <span class="k">else</span> <span class="mi">1</span><span class="o">/</span><span class="n">fu</span>
+        <span class="n">ratio</span> <span class="o">=</span> <span class="n">fu</span> <span class="k">if</span> <span class="n">s1_supercell</span> <span class="k">else</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">fu</span>
         <span class="n">swapped</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">struct1</span><span class="p">)</span> <span class="o">*</span> <span class="n">ratio</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">struct2</span><span class="p">)</span>
 
         <span class="n">s1_comp</span> <span class="o">=</span> <span class="n">struct1</span><span class="o">.</span><span class="n">composition</span>
@@ -1049,7 +1054,7 @@
         <span class="n">struct1</span><span class="p">,</span> <span class="n">struct2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_species</span><span class="p">((</span><span class="n">struct1</span><span class="p">,</span> <span class="n">struct2</span><span class="p">))</span>
 
         <span class="n">s1</span><span class="p">,</span> <span class="n">s2</span><span class="p">,</span> <span class="n">fu</span><span class="p">,</span> <span class="n">s1_supercell</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocess</span><span class="p">(</span><span class="n">struct1</span><span class="p">,</span> <span class="n">struct2</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-        <span class="n">ratio</span> <span class="o">=</span> <span class="n">fu</span> <span class="k">if</span> <span class="n">s1_supercell</span> <span class="k">else</span> <span class="mi">1</span><span class="o">/</span><span class="n">fu</span>
+        <span class="n">ratio</span> <span class="o">=</span> <span class="n">fu</span> <span class="k">if</span> <span class="n">s1_supercell</span> <span class="k">else</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">fu</span>
         <span class="k">if</span> <span class="n">s1_supercell</span> <span class="ow">and</span> <span class="n">fu</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Struct1 must be the supercell, &quot;</span>
                              <span class="s2">&quot;not the other way around&quot;</span><span class="p">)</span>
@@ -1172,6 +1177,7 @@
 <span class="sd">            Default is False (enforces same</span>
 <span class="sd">            lattice constants in both structures)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check_charge</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">check_primitive_cell</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">check_lattice_scale</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_charge</span> <span class="o">=</span> <span class="n">check_charge</span>
@@ -1189,9 +1195,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">possible_defect_types</span> <span class="o">=</span> <span class="p">(</span><span class="n">Defect</span><span class="p">,</span> <span class="n">Vacancy</span><span class="p">,</span> <span class="n">Substitution</span><span class="p">,</span> <span class="n">Interstitial</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d1</span><span class="p">,</span> <span class="n">possible_defect_types</span><span class="p">)</span> <span class="ow">or</span> \
-            <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d2</span><span class="p">,</span> <span class="n">possible_defect_types</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot use PointDefectComparator to&quot;</span> <span class="o">+</span> \
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d1</span><span class="p">,</span> <span class="n">possible_defect_types</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d2</span><span class="p">,</span> <span class="n">possible_defect_types</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot use PointDefectComparator to&quot;</span>
                              <span class="s2">&quot; compare non-defect objects...&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d1</span><span class="p">,</span> <span class="n">d2</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span>
@@ -1201,9 +1206,9 @@
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_charge</span> <span class="ow">and</span> <span class="p">(</span><span class="n">d1</span><span class="o">.</span><span class="n">charge</span> <span class="o">!=</span> <span class="n">d2</span><span class="o">.</span><span class="n">charge</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">False</span>
 
-        <span class="n">sm</span> <span class="o">=</span> <span class="n">StructureMatcher</span><span class="p">(</span> <span class="n">ltol</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
-                               <span class="n">primitive_cell</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">check_primitive_cell</span><span class="p">,</span>
-                               <span class="n">scale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">check_lattice_scale</span><span class="p">)</span>
+        <span class="n">sm</span> <span class="o">=</span> <span class="n">StructureMatcher</span><span class="p">(</span><span class="n">ltol</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+                              <span class="n">primitive_cell</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">check_primitive_cell</span><span class="p">,</span>
+                              <span class="n">scale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">check_lattice_scale</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">sm</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">d1</span><span class="o">.</span><span class="n">bulk_structure</span><span class="p">,</span> <span class="n">d2</span><span class="o">.</span><span class="n">bulk_structure</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">False</span>
@@ -1219,10 +1224,10 @@
                                           <span class="n">d1_mod_bulk_structure</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span>
                                           <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                                           <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">d2_defect_site</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span> <span class="n">d2</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">d2</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span>
-                                           <span class="n">d2_mod_bulk_structure</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span>
-                                           <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                                           <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">d2_defect_site</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span><span class="n">d2</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">d2</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span>
+                                          <span class="n">d2_mod_bulk_structure</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span>
+                                          <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                          <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
             <span class="n">d1</span><span class="o">.</span><span class="n">_structure</span> <span class="o">=</span> <span class="n">d1_mod_bulk_structure</span>
             <span class="n">d2</span><span class="o">.</span><span class="n">_structure</span> <span class="o">=</span> <span class="n">d2_mod_bulk_structure</span>
@@ -1234,21 +1239,6 @@
 </pre></div>
 
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -1261,7 +1251,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

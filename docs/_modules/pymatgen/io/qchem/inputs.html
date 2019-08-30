@@ -4,8 +4,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.qchem.inputs &#8212; pymatgen 2019.8.14 documentation</title>
-    <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
+    <title>pymatgen.io.qchem.inputs &#8212; pymatgen 2019.8.23 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -41,7 +41,6 @@
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.io.qchem.inputs</h1><div class="highlight"><pre>
@@ -117,7 +116,7 @@
         <span class="c1">#   - Has a valid job_type or jobtype</span>
 
         <span class="n">valid_job_types</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s2">&quot;opt&quot;</span><span class="p">,</span> <span class="s2">&quot;optimization&quot;</span><span class="p">,</span> <span class="s2">&quot;sp&quot;</span><span class="p">,</span> <span class="s2">&quot;freq&quot;</span><span class="p">,</span> <span class="s2">&quot;frequency&quot;</span><span class="p">,</span> <span class="s2">&quot;nmr&quot;</span>
+            <span class="s2">&quot;opt&quot;</span><span class="p">,</span> <span class="s2">&quot;optimization&quot;</span><span class="p">,</span> <span class="s2">&quot;sp&quot;</span><span class="p">,</span> <span class="s2">&quot;freq&quot;</span><span class="p">,</span> <span class="s2">&quot;frequency&quot;</span><span class="p">,</span> <span class="s2">&quot;force&quot;</span><span class="p">,</span> <span class="s2">&quot;nmr&quot;</span>
         <span class="p">]</span>
 
         <span class="k">if</span> <span class="s2">&quot;basis&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rem</span><span class="p">:</span>
@@ -185,7 +184,7 @@
         <span class="n">opt</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">pcm</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">solvent</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">smx</span><span class="o">=</span><span class="kc">None</span>
+        <span class="n">smx</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="s2">&quot;opt&quot;</span> <span class="ow">in</span> <span class="n">sections</span><span class="p">:</span>
             <span class="n">opt</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">read_opt</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
         <span class="k">if</span> <span class="s2">&quot;pcm&quot;</span> <span class="ow">in</span> <span class="n">sections</span><span class="p">:</span>
@@ -292,8 +291,12 @@
         <span class="n">smx_list</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">smx_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;$smx&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">smx</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">smx_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;   </span><span class="si">{key}</span><span class="s2"> </span><span class="si">{value}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;tetrahydrofuran&quot;</span><span class="p">:</span>
+                <span class="n">smx_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;   </span><span class="si">{key}</span><span class="s2"> </span><span class="si">{value}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s2">&quot;thf&quot;</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">smx_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;   </span><span class="si">{key}</span><span class="s2"> </span><span class="si">{value}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">))</span>
         <span class="n">smx_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;$end&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">smx_list</span><span class="p">)</span></div>
 
@@ -323,7 +326,7 @@
         <span class="n">patterns</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;read&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^\s*\$molecule\n\s*(read)&quot;</span><span class="p">,</span>
             <span class="s2">&quot;charge&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^\s*\$molecule\n\s*((?:\-)*\d+)\s+\d&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;spin_mult&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^\s*\$molecule\n\s*\d+\s*(\d)&quot;</span>
+            <span class="s2">&quot;spin_mult&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^\s*\$molecule\n\s(?:\-)*\d+\s*(\d)&quot;</span>
         <span class="p">}</span>
         <span class="n">matches</span> <span class="o">=</span> <span class="n">read_pattern</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">patterns</span><span class="p">)</span>
         <span class="k">if</span> <span class="s2">&quot;read&quot;</span> <span class="ow">in</span> <span class="n">matches</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -471,25 +474,12 @@
             <span class="k">return</span> <span class="p">{}</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">smx</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">val</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">smx_table</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>
+            <span class="k">if</span> <span class="n">smx</span><span class="p">[</span><span class="s2">&quot;solvent&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;tetrahydrofuran&quot;</span><span class="p">:</span>
+                <span class="n">smx</span><span class="p">[</span><span class="s2">&quot;solvent&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;thf&quot;</span>
             <span class="k">return</span> <span class="n">smx</span></div></div>
 </pre></div>
 
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -502,7 +492,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

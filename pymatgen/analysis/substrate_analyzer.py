@@ -74,10 +74,10 @@ class ZSLGenerator:
                 self.max_length_tol):
             return False
         elif (np.absolute(rel_strain(vec_set1[1], vec_set2[1])) >
-                  self.max_length_tol):
+              self.max_length_tol):
             return False
         elif (np.absolute(rel_angle(vec_set1, vec_set2)) >
-                  self.max_angle_tol):
+              self.max_angle_tol):
             return False
         else:
             return True
@@ -158,7 +158,7 @@ class ZSLGenerator:
                                                     film_vectors,
                                                     substrate_vectors):
             # Yield the match area, the miller indicies,
-            yield self.match_as_dict(match[0], match[1], film_vectors, substrate_vectors, vec_area(*match[0]), \
+            yield self.match_as_dict(match[0], match[1], film_vectors, substrate_vectors, vec_area(*match[0]),
                                      match[2], match[3])
 
             # Just want lowest match per direction

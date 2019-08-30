@@ -6,11 +6,11 @@ import math
 import copy
 import numpy as np
 
-
 from monty.fractions import gcd
 from sympy import Symbol, nsolve, Integer, Float, Matrix, exp, solve, Eq
 
 from monty.dev import deprecated
+
 """
 Evaluate the defect concentration based on composition, temperature,
 and defect energies using "Dilute Solution Model"
@@ -101,7 +101,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
     e0 = e0 / comm_div
     T = Float(T)
 
-    #c0 = np.diag(multiplicity)
+    # c0 = np.diag(multiplicity)
     c0 = np.diag(np.ones(n))
     mu = [Symbol('mu' + i.__str__()) for i in range(m)]
 
@@ -197,15 +197,14 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
 
     # Initialization for concentrations
     # c(i,p) == presence of ith type atom on pth type site
-    c = Matrix(n, n, [0] * n**2)
+    c = Matrix(n, n, [0] * n ** 2)
     for i in range(n):
         for p in range(n):
             c[i, p] = Integer(c0[i, p])
             site_flip_contribs = []
             for epi in range(n):
                 sum_mu = sum([mu[site_mu_map[j]] * Integer(dC[j, epi, p]) for j in range(n)])
-                flip = Integer(dC[i, epi, p]) * \
-                    exp(-(dE[epi, p] - sum_mu) / (k_B * T))
+                flip = Integer(dC[i, epi, p]) * exp(-(dE[epi, p] - sum_mu) / (k_B * T))
                 if flip not in site_flip_contribs:
                     site_flip_contribs.append(flip)
                     c[i, p] += flip
@@ -275,7 +274,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
 
             try:
                 x = nsolve(vector_func, mu, [m0, m1], module="numpy")
-            except:
+            except Exception:
                 continue
 
             c_val = c.subs(dict(zip(mu, x)))
@@ -342,7 +341,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
         else:
             try:
                 mu_vals = [trial_chem_pot[element] for element in specie_order]
-            except:
+            except Exception:
                 mu_vals = compute_mus()
 
         formation_energies = compute_def_formation_energies()
@@ -375,13 +374,13 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
                 if mu_vals:
                     mu_vals = [float(mu_val) for mu_val in mu_vals]
                 break
-            except:  # Go for antisite as dominant defect
+            except Exception:  # Go for antisite as dominant defect
                 mu_gs = [Symbol('mu_gs' + j.__str__()) for j in range(m)]
 
                 eqs = [mu_gs[0] - mu_gs[1] - (ln_def_conc * k_B * T - antisite_defs[i]['energy'])]
                 eqs.append(spec_mult[0] * mu_gs[0] + spec_mult[1] * mu_gs[1] - e0)
                 x = solve(eqs, mu_gs)
-                #mu_names = sorted([key.name for key in x.keys()])
+                # mu_names = sorted([key.name for key in x.keys()])
                 mu_vals = []
                 for key in sorted(x.keys(), key=lambda inp: inp.name):
                     mu_vals.append(x[key])
@@ -393,7 +392,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
                     if mu_vals:
                         mu_vals = [float(mu_val) for mu_val in mu_vals]
                     break
-                except:  # Go to the default option (search the space)
+                except Exception:  # Go to the default option (search the space)
                     pass
         else:
             mu_vals = compute_mus_by_search()
@@ -401,11 +400,11 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
     else:
         try:
             mu_vals = [trial_chem_pot[element] for element in specie_order]
-        except:
+        except Exception:
             mu_vals = compute_mus_by_search()
 
     # Compile mu's for all composition ratios in the range
-    #+/- 1% from the stoichiometry
+    # +/- 1% from the stoichiometry
     result = {}
     i = 0
     len_y = len(yvals)
@@ -417,7 +416,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
             x = nsolve(vector_func, mu, mu_vals, module="numpy")
             if x:
                 mu_vals = [float(mu_val) for mu_val in x]
-        except:
+        except Exception:
             failed_y.append(y)
             failed_i.append(i)
             continue
@@ -468,7 +467,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
             x = nsolve(vector_func, mu, trial_mu, module="numpy")
             if x:
                 mu_vals = [float(mu_val) for mu_val in x]
-        except:
+        except Exception:
             continue
         result[y] = mu_vals
         x = None
@@ -490,7 +489,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
     #        x = nsolve(vector_func,mu,trial_mu,module="numpy")
     #        if x:
     #            mu_vals = [float(mu_val) for mu_val in x]
-    #    except:
+    #    except Exception:
     #        continue
     #    result[y] = list(mu_vals)
 
@@ -715,7 +714,7 @@ def compute_defect_density(structure, e0, vac_defs, antisite_defs, T=800, trial_
             def_string = flds[0]
             site_string = flds[1].strip('{}')
             name = def_string + "<sub>" + site_string + "</sub>"
-            #series.append({'data':xy, 'name':y_data['name']})
+            # series.append({'data':xy, 'name':y_data['name']})
             series.append({'data': xy, 'name': name})
         hgh_chrt_data['series'] = series
         return hgh_chrt_data
@@ -816,7 +815,7 @@ def solute_site_preference_finder(structure,
     e0 = e0 / comm_div
     T = Float(T)
 
-    #c0 = np.diag(multiplicity)
+    # c0 = np.diag(multiplicity)
     c0 = np.diag(np.ones(n + 1))
     c0[n, n] = 0
     mu = [Symbol('mu' + str(i)) for i in range(m)]
@@ -920,7 +919,7 @@ def solute_site_preference_finder(structure,
                 break
 
     dE = np.array(dE)
-    #np.where(dE == np.array(None), 0, dE)
+    # np.where(dE == np.array(None), 0, dE)
 
     # Initialization for concentrations
     # c(i,p) == presence of ith type atom on pth type site
@@ -947,8 +946,8 @@ def solute_site_preference_finder(structure,
                     site_flip_contribs.append(flip)
                     host_c[i, p] += flip
 
-    #specie_concen = [sum(mult[ind[0]:ind[1]]) for ind in specie_site_index_map]
-    #total_c = [sum(c[ind[0]:ind[1]]) for ind in specie_site_index_map]
+    # specie_concen = [sum(mult[ind[0]:ind[1]]) for ind in specie_site_index_map]
+    # total_c = [sum(c[ind[0]:ind[1]]) for ind in specie_site_index_map]
     total_c = []
     for ind in specie_site_index_map:
         val = 0
@@ -981,10 +980,8 @@ def solute_site_preference_finder(structure,
             if p_r != epi and site_mu_map[p_r] == site_mu_map[epi]:
                 continue
             if dE[epi, p_r] not in used_dEs:
-                omega1 -= k_B * T * multiplicity[p_r] * \
-                    exp(-(dE[epi, p_r] - sum_mu1) / (k_B * T))
-                omega -= k_B * T * multiplicity[p_r] * \
-                    exp(-(dE[epi, p_r] - sum_mu) / (k_B * T))
+                omega1 -= k_B * T * multiplicity[p_r] * exp(-(dE[epi, p_r] - sum_mu1) / (k_B * T))
+                omega -= k_B * T * multiplicity[p_r] * exp(-(dE[epi, p_r] - sum_mu) / (k_B * T))
                 used_dEs.append(dE[epi, p_r])
 
     # Compute composition ranges
@@ -995,10 +992,8 @@ def solute_site_preference_finder(structure,
     host_specie_concen_ratio[-1] = solute_concen
     li = specie_site_index_map[0][0]
     hi = specie_site_index_map[0][1]
-    comp1_min = sum(multiplicity[li:hi]) / sum(multiplicity) * \
-        max_host_specie_concen - 0.01
-    comp1_max = sum(multiplicity[li:hi]) / sum(multiplicity) * \
-        max_host_specie_concen + 0.01
+    comp1_min = sum(multiplicity[li:hi]) / sum(multiplicity) * max_host_specie_concen - 0.01
+    comp1_max = sum(multiplicity[li:hi]) / sum(multiplicity) * max_host_specie_concen + 0.01
     delta = (comp1_max - comp1_min) / 50.0
 
     # def reduce_mu():
@@ -1042,7 +1037,7 @@ def solute_site_preference_finder(structure,
                 if x:
                     mu_vals = [float(mu_val) for mu_val in x]
                 break
-            except:
+            except Exception:
                 continue
         else:
             raise ValueError()
@@ -1074,7 +1069,7 @@ def solute_site_preference_finder(structure,
                 try:
                     mu_vals = nsolve(vector_func, mu, [m0, m1, m2], module="numpy")
                     # Line needs to be modified to include all mus when n > 2
-                except:
+                except Exception:
                     continue
                 break
             if mu_vals:
@@ -1111,7 +1106,7 @@ def solute_site_preference_finder(structure,
                     host_mu_vals = [float(mu_val) for mu_val in host_mu_vals]
                 compute_solute_mu_by_lin_search(host_mu_vals)
                 break
-            except:  # Go for antisite as dominant defect
+            except Exception:  # Go for antisite as dominant defect
                 mu_gs = [Symbol('mu_gs' + j.__str__()) for j in range(m - 1)]
 
                 eqs = [mu_gs[0] - mu_gs[1] - (ln_def_conc * k_B * T - antisite_defs[i]['energy'])]
@@ -1129,7 +1124,7 @@ def solute_site_preference_finder(structure,
                         host_mu_vals = [float(mu_val) for mu_val in host_mu_vals]
                     mu_vals = compute_solute_mu_by_lin_search(host_mu_vals)
                     break
-                except:  # Go to the default option (search the space)
+                except Exception:  # Go to the default option (search the space)
                     pass
         else:
             mu_vals = compute_mus()
@@ -1137,11 +1132,11 @@ def solute_site_preference_finder(structure,
     else:
         try:
             mu_vals = [trial_chem_pot[element] for element in specie_order]
-        except:
+        except Exception:
             mu_vals = compute_mus()
 
     # Compile mu's for all composition ratios in the range
-    #+/- 1% from the stoichiometry
+    # +/- 1% from the stoichiometry
     result = {}
     for y in np.arange(comp1_min, comp1_max + delta, delta):
         y_vect = []
@@ -1156,7 +1151,7 @@ def solute_site_preference_finder(structure,
             x = nsolve(vector_func, mu, mu_vals)
             if x:
                 mu_vals = [float(mu_val) for mu_val in x]
-        except:
+        except Exception:
             continue
         result[y] = mu_vals
 
@@ -1197,24 +1192,24 @@ def solute_site_preference_finder(structure,
 
     # Compute solute site preference
     # Removing the functionality
-    #site_pref_data = {}
+    # site_pref_data = {}
     """Because all the plots have identical x-points storing it in a
     single array"""
     # site_pref_data['x'] = [dat[0][0] for dat in res1]         # x-axis data
     # Element whose composition is varied. For x-label
-    #site_pref_data['x_label'] = els[0]+ "_mole_fraction"
+    # site_pref_data['x_label'] = els[0]+ "_mole_fraction"
     # site_pref_data['y_label'] = "$"+solute_specie+"_{"+els[0]+"}/("+\
     #    solute_specie+"_{"+els[0]+"}+"+solute_specie+"_{"+els[1]+"})$"
 
-    #y_data = []
-    #inds = specie_site_index_map[m-1]
-    #data1 = np.sum([multiplicity[0]*conc[ind][0] for ind in range(*inds)],axis=0)
-    #data2 = np.sum([multiplicity[1]*conc[ind][1] for ind in range(*inds)],axis=0)
-    #frac_data = data1/(data1+data2)
-    #frac_data = frac_data.tolist()
+    # y_data = []
+    # inds = specie_site_index_map[m-1]
+    # data1 = np.sum([multiplicity[0]*conc[ind][0] for ind in range(*inds)],axis=0)
+    # data2 = np.sum([multiplicity[1]*conc[ind][1] for ind in range(*inds)],axis=0)
+    # frac_data = data1/(data1+data2)
+    # frac_data = frac_data.tolist()
     # y_data.append({'data':frac_data})
 
-    #site_pref_data['y'] = y_data
+    # site_pref_data['y'] = y_data
 
     #  Return all defect concentrations
     conc_data = {}
@@ -1340,7 +1335,7 @@ def solute_defect_density(structure,
             def_string = flds[0]
             site_string = flds[1].strip('{}')
             name = def_string + "<sub>" + site_string + "</sub>"
-            #series.append({'data':xy, 'name':y_data['name']})
+            # series.append({'data':xy, 'name':y_data['name']})
             series.append({'data': xy, 'name': name})
         hgh_chrt_data['series'] = series
         return hgh_chrt_data
@@ -1364,7 +1359,7 @@ def solute_defect_density(structure,
                 rows.append('\t'.join(list(map(str, data))))
             return rows
 
-        #solute_site_pref_rows = data_to_rows(solute_site_pref_data, True)
+        # solute_site_pref_rows = data_to_rows(solute_site_pref_data, True)
         pt_def_conc_rows = data_to_rows(def_conc_data, False)
         # return solute_site_pref_rows, pt_def_conc_rows
         return pt_def_conc_rows

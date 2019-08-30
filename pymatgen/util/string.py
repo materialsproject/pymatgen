@@ -13,7 +13,7 @@ __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __status__ = "Production"
-__date__ = "$Sep 23, 2011M$"
+__date__ = "Sep 23, 2011"
 
 
 def str_delimited(results, header=None, delimiter="\t"):
@@ -196,7 +196,7 @@ def stream_has_colours(stream):
         import curses
         curses.setupterm()
         return curses.tigetnum("colors") > 2
-    except:
+    except Exception:
         return False  # guess false in case of error
 
 
@@ -309,7 +309,7 @@ def disordered_formula(disordered_struct, symbols=('x', 'y', 'z'), fmt='plain'):
     for sp, occu in comp:
         sp = str(sp)
         if sp not in disordered_species:
-            disordered_comp.append((sp, formula_double_format(occu/factor)))
+            disordered_comp.append((sp, formula_double_format(occu / factor)))
         else:
             if len(symbols) > 0:
                 symbol = symbols.pop(0)
@@ -353,7 +353,7 @@ class StringColorizer:
                "green": "\x1b[01;32m",
                "red": "\x1b[01;31m",
                # lighting colours.
-               #"lred":    "\x1b[01;05;37;41m"
+               # "lred":    "\x1b[01;05;37;41m"
                }
 
     def __init__(self, stream):
@@ -372,4 +372,5 @@ class StringColorizer:
 
 if __name__ == "__main__":
     import doctest
+
     doctest.testmod()

@@ -1,16 +1,17 @@
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
-import sys
 import os
 import warnings
 import ruamel.yaml as yaml
 from fnmatch import fnmatch
 
 __author__ = "Pymatgen Development Team"
-__email__ ="pymatgen@googlegroups.com"
+__email__ = "pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong"
-__maintainer_email__ ="shyuep@gmail.com"
-__version__ = "2019.8.14"
-
+__maintainer_email__ = "shyuep@gmail.com"
+__version__ = "2019.8.23"
 
 SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
 
@@ -32,13 +33,6 @@ def _load_pmg_settings():
 
 
 SETTINGS = _load_pmg_settings()
-
-
-# Order of imports is important on some systems to avoid
-# failures when loading shared libraries.
-# import spglib
-# from . import optimization, util
-# del(spglib, optimization, util)
 
 # Useful aliases for commonly used objects and modules.
 # Allows from pymatgen import <class> for quick usage.
@@ -71,12 +65,6 @@ def get_structure_from_mp(formula):
                       "Project. The lowest energy structure will be returned." %
                       (len(entries), formula))
     return min(entries, key=lambda e: e.energy_per_atom).structure
-
-
-if sys.version_info < (3, 5):
-    warnings.warn("""
-Pymatgen will drop Py2k support from v2019.1.1. Pls consult the documentation
-at https://www.pymatgen.org for more details.""")
 
 
 def loadfn(fname):

@@ -67,11 +67,11 @@ class QuasiharmonicDebyeApprox:
         self.use_mie_gruneisen = use_mie_gruneisen
         self.anharmonic_contribution = anharmonic_contribution
         if self.use_mie_gruneisen and self.anharmonic_contribution:
-            raise ValueError('The Mie-Gruneisen formulation and anharmonic contribution are circular referenced and cannot be used together.')
+            raise ValueError('The Mie-Gruneisen formulation and anharmonic contribution are circular referenced and '
+                             'cannot be used together.')
         self.mass = sum([e.atomic_mass for e in self.structure.species])
         self.natoms = self.structure.composition.num_atoms
-        self.avg_mass = physical_constants["atomic mass constant"][0] \
-                        * self.mass / self.natoms  # kg
+        self.avg_mass = physical_constants["atomic mass constant"][0] * self.mass / self.natoms  # kg
         self.kb = physical_constants["Boltzmann constant in eV/K"][0]
         self.hbar = physical_constants["Planck constant over 2 pi in eV s"][0]
         self.gpa_to_ev_ang = 1./160.21766208  # 1 GPa in ev/Ang^3
@@ -98,16 +98,14 @@ class QuasiharmonicDebyeApprox:
         """
         temperatures = np.linspace(
             self.temperature_min,  self.temperature_max,
-            int(np.ceil((self.temperature_max - self.temperature_min)
-            / self.temperature_step) + 1))
+            int(np.ceil((self.temperature_max - self.temperature_min) / self.temperature_step) + 1))
 
         for t in temperatures:
             try:
                 G_opt, V_opt = self.optimizer(t)
-            except:
+            except Exception:
                 if len(temperatures) > 1:
-                    print("EOS fitting failed, so skipping this data point, {}".
-                          format(t))
+                    print("EOS fitting failed, so skipping this data point, {}".format(t))
                     continue
                 else:
                     raise
@@ -205,14 +203,12 @@ class QuasiharmonicDebyeApprox:
         term1 = (2./3. * (1. + self.poisson) / (1. - 2. * self.poisson))**1.5
         term2 = (1./3. * (1. + self.poisson) / (1. - self.poisson))**1.5
         f = (3. / (2. * term1 + term2))**(1. / 3.)
-        debye = 2.9772e-11 * (volume / self.natoms) ** (-1. / 6.) * f * \
-               np.sqrt(self.bulk_modulus/self.avg_mass)
+        debye = 2.9772e-11 * (volume / self.natoms) ** (-1. / 6.) * f * np.sqrt(self.bulk_modulus/self.avg_mass)
         if self.anharmonic_contribution:
             gamma = self.gruneisen_parameter(0, self.ev_eos_fit.v0)  # 0K equilibrium Gruneisen parameter
             return debye * (self.ev_eos_fit.v0 / volume) ** (gamma)
         else:
             return debye
-
 
     @staticmethod
     def debye_integral(y):
