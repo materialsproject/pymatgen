@@ -4223,8 +4223,7 @@ class Wavecar:
         nbmaxC[2] /= np.abs(np.sin(phi23))
         nbmaxC += 1
 
-        self._nbmax = np.max([nbmaxA, nbmaxB, nbmaxC], axis=0) \
-            .astype(np.int)
+        self._nbmax = np.max([nbmaxA, nbmaxB, nbmaxC], axis=0).astype(np.int)
 
     def _generate_G_points(self, kpoint):
         """
@@ -4448,9 +4447,8 @@ class Wavederf:
                         # and occupation, which are already available elsewhere,
                         # so we store only the 6 matrix elements after this 6
                         # redundant values
-                        data[ik][ib1][ib2] = [
-                            float(element)
-                            for element in f.readline().split()[6:]]
+                        data[ik][ib1][ib2] = [float(element)
+                                              for element in f.readline().split()[6:]]
 
             self.data = data
             self._nb_kpoints = nb_kpoints
@@ -4513,8 +4511,8 @@ class Waveder:
                     data += fp.read(abs(prefix))
                     suffix = np.fromfile(fp, dtype=np.int32, count=1)[0]
                     if abs(prefix) - abs(suffix):
-                        raise RuntimeError(f"""Read wrong amount of bytes.
-                        Expected: {prefix:d}, read: {len(data):d}, suffix: {suffix:d}.""")
+                        raise RuntimeError("Read wrong amount of bytes.\n"
+                                           "Expected: %d, read: %d, suffix: %d." % (prefix, len(data), suffix))
                     if prefix > 0:
                         break
                 return np.frombuffer(data, dtype=dtype)
