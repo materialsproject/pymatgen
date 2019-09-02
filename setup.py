@@ -98,7 +98,7 @@ setup(
         "provenance": ["pybtex"],
         "ase": ["ase>=3.3"],
         "vis": ["vtk>=6.0.0"],
-        "abinit": ["apscheduler==2.1.0", "netcdf4"],
+        "abinit": ["apscheduler==3.6.1", "netcdf4"],
         ':python_version < "3.7"': [
             "dataclasses>=0.6",
         ]},
