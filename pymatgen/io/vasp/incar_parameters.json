@@ -1,0 +1,687 @@
+{
+ "ADDGRID": "bool",
+ "AEXX": "isreal",
+ "AGGAC": "isreal",
+ "AGGAX": "isreal",
+ "ALDAC": "isreal",
+ "ALGO": [
+  "Normal",
+  "VeryFast",
+  "Fast",
+  "Conjugate",
+  "All",
+  "Damped",
+  "Subrot",
+  "Eigenval",
+  "Exact",
+  "None",
+  "Nothing",
+  "CHI",
+  "G0W0",
+  "GW0",
+  "GW",
+  "scGW0",
+  "scGW",
+  "G0W0R",
+  "GW0R",
+  "GWR",
+  "scGW0R",
+  "scGWR",
+  "ACFDT",
+  "RPA",
+  "ACFDTR",
+  "RPAR",
+  "BSE",
+  "TDHF",
+  "Timeev",
+  "EVGW0",
+  "EVGW",
+  "QPGW0",
+  "QPGW",
+  "QPGW0R",
+  "QPGWR"
+ ],
+ "AMIN": "isreal",
+ "AMIX": "isreal",
+ "AMIX_MAG": "isreal",
+ "ANDERSEN_PROB": "isreal",
+ "ANTIRES": [
+  0,
+  1,
+  2
+ ],
+ "APACO": "isreal",
+ "BMIX": "isreal",
+ "BMIX_MAG": "isreal",
+ "CH_LSPEC": "bool",
+ "CH_NEDOS": "int",
+ "CH_SIGMA": "isreal",
+ "CLL": "int",
+ "CLN": "int",
+ "CLNT": "int",
+ "CLZ": "isreal",
+ "CMBJ": {
+  "list": "isreal"
+ },
+ "CMBJA": "isreal",
+ "CMBJB": "isreal",
+ "CSHIFT": "isreal",
+ "DEPER": "isreal",
+ "DIMER_DIST": "isreal",
+ "DIPOL": {
+  "list": "isreal"
+ },
+ "DQ": "isreal",
+ "EBREAK": "isreal",
+ "EDIFF": "isreal",
+ "EDIFFG": "isreal",
+ "EFIELD": "isreal",
+ "EFIELD_PEAD": {
+  "list": "isreal"
+ },
+ "EINT": {
+  "list": "isreal"
+ },
+ "EMAX": "isreal",
+ "EMIN": "isreal",
+ "ENAUG": "isreal",
+ "ENCUT": "isreal",
+ "ENCUTFOCK": "isreal",
+ "ENCUTGW": "isreal",
+ "ENCUTGWSOFT": "isreal",
+ "ENINI": "isreal",
+ "EPSILON": "isreal",
+ "EVENONLY": "bool",
+ "EVENONLYGW": "bool",
+ "FERDO": {
+  "list": "isreal"
+ },
+ "FERWE": {
+  "list": "isreal"
+ },
+ "FINDIFF": "int",
+ "GGA": [
+  "91",
+  "PE",
+  "AM",
+  "HL",
+  "CA",
+  "MK",
+  "RE",
+  "VW",
+  "B3",
+  "PZ",
+  "WI",
+  "RP",
+  "B5",
+  "BF",
+  "CO",
+  "PS",
+  "OR",
+  "BO",
+  "03",
+  "05",
+  "10",
+  "20",
+  "RA",
+  "PL"
+ ],
+ "GGA_COMPAT": "bool",
+ "HFLMAX": "int",
+ "HFRCUT": "isreal",
+ "HFSCREEN": "isreal",
+ "HILLS_BIN": "int",
+ "HILLS_H": "isreal",
+ "HILLS_W": "isreal",
+ "HITOLER": "isreal",
+ "I_CONSTRAINED_M": [
+  1,
+  2,
+  null
+ ],
+ "IALGO": [
+  -1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  15,
+  16,
+  17,
+  18,
+  28,
+  38,
+  44,
+  45,
+  46,
+  47,
+  48,
+  53,
+  54,
+  55,
+  56,
+  57,
+  58
+ ],
+ "IBAND": {
+  "list": "int"
+ },
+ "IBRION": [
+  -1,
+  0,
+  1,
+  2,
+  3,
+  5,
+  6,
+  7,
+  8,
+  44
+ ],
+ "ICHARG": [
+  0,
+  1,
+  2,
+  4,
+  10,
+  11,
+  12,
+  14
+ ],
+ "ICHIBARE": [
+  1,
+  2,
+  3
+ ],
+ "ICORELEVEL": [
+  0,
+  1,
+  2
+ ],
+ "IDIPOL": [
+  1,
+  2,
+  3,
+  4
+ ],
+ "IEPSILON": [
+  1,
+  2,
+  3,
+  4
+ ],
+ "IGPAR": [
+  1,
+  2,
+  3
+ ],
+ "IMAGES": "int",
+ "IMIX": [
+  0,
+  1,
+  2,
+  4
+ ],
+ "INCREM": {
+  "list": "isreal"
+ },
+ "INIMIX": [
+  0,
+  1,
+  2
+ ],
+ "INIWAV": [
+  0,
+  1
+ ],
+ "IPEAD": [
+  1,
+  2,
+  3,
+  4
+ ],
+ "ISIF": [
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7
+ ],
+ "ISMEAR": "int",
+ "ISPIN": [
+  1,
+  2
+ ],
+ "ISTART": [
+  0,
+  1,
+  2,
+  3
+ ],
+ "ISYM": [
+  -1,
+  0,
+  1,
+  2,
+  3
+ ],
+ "IVDW": [
+  0,
+  1,
+  10,
+  11,
+  12,
+  2,
+  20,
+  21,
+  202,
+  4
+ ],
+ "IWAVPR": [
+  0,
+  1,
+  2,
+  3,
+  10,
+  11,
+  12,
+  13
+ ],
+ "KBLOCK": "int",
+ "KGAMMA": "bool",
+ "KPAR": "int",
+ "KPOINT_BSE": {
+  "list": "int"
+ },
+ "KPUSE": {
+  "list": "int"
+ },
+ "KSPACING": "isreal",
+ "LADDER": "bool",
+ "LAECHG": "bool",
+ "LAMBDA": "isreal",
+ "LANGEVIN_GAMMA": {
+  "list": "isreal"
+ },
+ "LANGEVIN_GAMMA_L": "isreal",
+ "LASPH": "bool",
+ "LASYNC": "bool",
+ "LATTICE_CONSTRAINTS": {
+  "list": "bool"
+ },
+ "LBERRY": "bool",
+ "LBLUEOUT": "bool",
+ "LBONE": "bool",
+ "LCALCEPS": "bool",
+ "LCALCPOL": "bool",
+ "LCHARG": "bool",
+ "LCHIMAG": "bool",
+ "LCORR": "bool",
+ "LDAU": "bool",
+ "LDAUJ": {
+  "list": "isreal"
+ },
+ "LDAUL": {
+  "list": "int"
+ },
+ "LDAUPRINT": [
+  0,
+  1,
+  2
+ ],
+ "LDAUTYPE": [
+  1,
+  2,
+  4
+ ],
+ "LDAUU": {
+  "list": "isreal"
+ },
+ "LDIAG": "bool",
+ "LDIPOL": "bool",
+ "LEFG": "bool",
+ "LELF": "bool",
+ "LEPSILON": "bool",
+ "LFOCKAEDFT": "bool",
+ "LHARTREE": "bool",
+ "LHFCALC": "bool",
+ "LHYPERFINE": "bool",
+ "LKPROJ": "bool",
+ "LLRAUG": "bool",
+ "LMAXFOCK": "int",
+ "LMAXFOCKAE": "int",
+ "LMAXMIX": "int",
+ "LMAXPAW": "int",
+ "LMAXTAU": "int",
+ "LMIXTAU": "bool",
+ "LMONO": "bool",
+ "LNABLA": "bool",
+ "LNMR_SYM_RED": "bool",
+ "LNONCOLLINEAR": "bool",
+ "LOCPROJ": "list",
+ "LOPTICS": "bool",
+ "LORBIT": [
+  0,
+  1,
+  2,
+  5,
+  10,
+  11,
+  12
+ ],
+ "LORBMOM": "bool",
+ "LPARD": "bool",
+ "LPEAD": "bool",
+ "LPLANE": "bool",
+ "LREAL": [
+  false,
+  true,
+  "O",
+  "A",
+  "Auto",
+  "On"
+ ],
+ "LRPA": "bool",
+ "LSCAAWARE": "bool",
+ "LSCALAPACK": "bool",
+ "LSCALU": "bool",
+ "LSCSGRAD": "bool",
+ "LSELFENERGY": "bool",
+ "LSEPB": "bool",
+ "LSEPK": "bool",
+ "LSORBIT": "bool",
+ "LSPECTRAL": "bool",
+ "LSPECTRALGW": "bool",
+ "LSPIRAL": "bool",
+ "LSUBROT": "bool",
+ "LTHOMAS": "bool",
+ "LUSE_VDW": "bool",
+ "LVDW_EWALD": "bool",
+ "LVDWEXPANSION": "bool",
+ "LVHAR": "bool",
+ "LVTOT": "bool",
+ "LWANNIER90": "bool",
+ "LWANNIER90_RUN": "bool",
+ "LWAVE": "bool",
+ "LWRITE_MMN_AMN": "bool",
+ "LWRITE_UNK": "bool",
+ "LWRITE_WANPROJ": "bool",
+ "LZEROZ": "bool",
+ "M_CONSTR": {
+  "list": "isreal"
+ },
+ "MAGMOM": {
+  "list": "isreal"
+ },
+ "MAXMEM": "int",
+ "MAXMIX": "int",
+ "MDALGO": [
+  0,
+  1,
+  2,
+  3,
+  11,
+  21,
+  13
+ ],
+ "METAGGA": [
+  "TPSS",
+  "RTPSS",
+  "M06L",
+  "MBJ",
+  "SCAN",
+  "MS0",
+  "MS1",
+  "MS2"
+ ],
+ "MINROT": "isreal",
+ "MIXPRE": [
+  0,
+  1,
+  2,
+  3
+ ],
+ "ML_FF_AFILT2_MB": "isreal",
+ "ML_FF_CDOUB": "isreal",
+ "ML_FF_CSF": "isreal",
+ "ML_FF_CSIG": "isreal",
+ "ML_FF_CSLOPE": "isreal",
+ "ML_FF_CTIFOR": "isreal",
+ "ML_FF_EATOM": {
+  "list": "isreal"
+ },
+ "ML_FF_IAFILT2_MB": "int",
+ "ML_FF_IBROAD1_MB": "int",
+ "ML_FF_IBROAD2_MB": "int",
+ "ML_FF_ICOUPLE_MB": {
+  "list": "int"
+ },
+ "ML_FF_ICUT1_MB": "int",
+ "ML_FF_ICUT2_MB": "int",
+ "ML_FF_IERR": "int",
+ "ML_FF_IREG_MB": "int",
+ "ML_FF_ISAMPLE": "int",
+ "ML_FF_ISCALE_TOTEN_MB": "int",
+ "ML_FF_ISOAP1_MB": "int",
+ "ML_FF_ISOAP2_MB": "int",
+ "ML_FF_ISTART": "int",
+ "ML_FF_IWEIGHT": "int",
+ "ML_FF_LAFILT2_MB": "bool",
+ "ML_FF_LBASIS_DISCARD": "bool",
+ "ML_FF_LCONF_DISCARD": "bool",
+ "ML_FF_LCOUPLE_MB": "bool",
+ "ML_FF_LCRITERIA": "bool",
+ "ML_FF_LEATOM_MB": "bool",
+ "ML_FF_LHEAT_MB": "bool",
+ "ML_FF_LMAX2_MB": "int",
+ "ML_FF_LMLFF": "bool",
+ "ML_FF_LMLMB": "bool",
+ "ML_FF_LNORM1_MB": "bool",
+ "ML_FF_LNORM2_MB": "bool",
+ "ML_FF_MB_MB": "int",
+ "ML_FF_MCONF": "int",
+ "ML_FF_MCONF_NEW": "int",
+ "ML_FF_MHIS": "int",
+ "ML_FF_MRB1_MB": "int",
+ "ML_FF_MRB2_MB": "int",
+ "ML_FF_MSPL1_MB": "int",
+ "ML_FF_MSPL2_MB": "int",
+ "ML_FF_NATOM_COUPLED_MB": "int",
+ "ML_FF_NDIM_SCALAPACK": "int",
+ "ML_FF_NHYP1_MB": "int",
+ "ML_FF_NHYP2_MB": "int",
+ "ML_FF_NMDINT": "int",
+ "ML_FF_NR1_MB": "int",
+ "ML_FF_NR2_MB": "int",
+ "ML_FF_NWRITE": "int",
+ "ML_FF_RCOUPLE_MB": "isreal",
+ "ML_FF_RCUT1_MB": "isreal",
+ "ML_FF_RCUT2_MB": "isreal",
+ "ML_FF_SIGV0_MB": "isreal",
+ "ML_FF_SIGW0_MB": "isreal",
+ "ML_FF_SION1_MB": "isreal",
+ "ML_FF_SION2_MB": "isreal",
+ "ML_FF_W1_MB": "isreal",
+ "ML_FF_W2_MB": "isreal",
+ "ML_FF_WTIFOR": "isreal",
+ "ML_FF_WTOTEN": "isreal",
+ "ML_FF_WTSIF": "isreal",
+ "NBANDS": "int",
+ "NBANDSGW": "int",
+ "NBANDSO": "int",
+ "NBANDSV": "int",
+ "NBLK": "int",
+ "NBLOCK": "int",
+ "NBMOD": "int",
+ "NBSEEIG": "int",
+ "NCORE": "int",
+ "NCRPA_BANDS": {
+  "list": "int"
+ },
+ "NDAV": "int",
+ "NEDOS": "int",
+ "NELECT": "isreal",
+ "NELM": "int",
+ "NELMDL": "int",
+ "NELMIN": "int",
+ "NFREE": "int",
+ "NGX": "int",
+ "NGXF": "int",
+ "NGY": "int",
+ "NGYF": "int",
+ "NGYROMAG": {
+  "list": "isreal"
+ },
+ "NGZ": "int",
+ "NGZF": "int",
+ "NKRED": "int",
+ "NKREDX": "int",
+ "NKREDY": "int",
+ "NKREDZ": "int",
+ "NLSPLINE": "bool",
+ "NMAXFOCKAE": [
+  1,
+  2
+ ],
+ "NOMEGA": "int",
+ "NOMEGAPAR": "int",
+ "NOMEGAR": "int",
+ "NPACO": "int",
+ "NPAR": "int",
+ "NPPSTR": "int",
+ "NSIM": "int",
+ "NSUBSYS": {
+  "list": "int"
+ },
+ "NSW": "int",
+ "NTARGET_STATES": {
+  "list": "int"
+ },
+ "NTAUPAR": "int",
+ "NUPDOWN": "int",
+ "NWRITE": [
+  0,
+  1,
+  2,
+  3,
+  4
+ ],
+ "ODDONLY": "bool",
+ "ODDONLYGW": "bool",
+ "OFIELD_A": "isreal",
+ "OFIELD_KAPPA": "isreal",
+ "OFIELD_Q6_FAR": "isreal",
+ "OFIELD_Q6_NEAR": "isreal",
+ "OMEGAMAX": "isreal",
+ "OMEGAMIN": "isreal",
+ "OMEGATL": "isreal",
+ "PARAM1": "isreal",
+ "PARAM2": "isreal",
+ "PFLAT": "bool",
+ "PHON_LBOSE": "bool",
+ "PHON_LMC": "bool",
+ "PHON_NSTRUCT": "int",
+ "PHON_NTLIST": "int",
+ "PHON_TLIST": {
+  "list": "int"
+ },
+ "PLEVEL": "int",
+ "PMASS": "isreal",
+ "POMASS": "isreal",
+ "POTIM": "isreal",
+ "PREC": [
+  "Low",
+  "Medium",
+  "High",
+  "Normal",
+  "Single",
+  "Accurate"
+ ],
+ "PRECFOCK": [
+  "Low",
+  "Medium",
+  "Fast",
+  "Normal",
+  "Accurate"
+ ],
+ "PROUTINE": "int",
+ "PSTRESS": "isreal",
+ "PSUBSYS": {
+  "list": "isreal"
+ },
+ "PTHRESHOLD": "isreal",
+ "QMAXFOCKAE": {
+  "list": "isreal"
+ },
+ "QSPIRAL": {
+  "list": "isreal"
+ },
+ "QUAD_EFG": {
+  "list": "isreal"
+ },
+ "RANDOM_SEED": {
+  "list": "int"
+ },
+ "ROPT": {
+  "list": "isreal"
+ },
+ "RWIGS": {
+  "list": "isreal"
+ },
+ "SAXIS": {
+  "list": "isreal"
+ },
+ "SCSRAD": "isreal",
+ "SHAKEMAXITER": "int",
+ "SHAKETOL": "isreal",
+ "SIGMA": "isreal",
+ "SMASS": "isreal",
+ "SMEARINGS": {
+  "list": "int"
+ },
+ "SPRING": "int",
+ "STEP_MAX": "isreal",
+ "STEP_SIZE": "isreal",
+ "SYMPREC": "isreal",
+ "SYSTEM": "str",
+ "TEBEG": "isreal",
+ "TEEND": "isreal",
+ "TIME": "isreal",
+ "TSUBSYS": {
+  "list": "isreal"
+ },
+ "VALUE_MAX": {
+  "list": "isreal"
+ },
+ "VALUE_MIN": {
+  "list": "isreal"
+ },
+ "VCUTOFF": "isreal",
+ "VDW_A1": "isreal",
+ "VDW_A2": "isreal",
+ "VDW_C6": {
+  "list": "isreal"
+ },
+ "VDW_CNRADIUS": "isreal",
+ "VDW_D": "isreal",
+ "VDW_R0": {
+  "list": "isreal"
+ },
+ "VDW_RADIUS": "isreal",
+ "VDW_S6": "isreal",
+ "VDW_S8": "isreal",
+ "VDW_SR": "isreal",
+ "VOSKOWN": [
+  0,
+  1
+ ],
+ "WC": "isreal",
+ "WEIMIN": "isreal",
+ "ZVAL": "isreal"
+}
