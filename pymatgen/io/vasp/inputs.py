@@ -605,6 +605,10 @@ class Poscar(MSONable):
         self.structure.add_site_property("velocities", velocities.tolist())
 
 
+with open("incar_parameters.json") as incar_params:
+    incar_params = json.loads(incar_params.read())
+
+
 class Incar(dict, MSONable):
     """
     INCAR object for reading and writing INCAR files. Essentially consists of
@@ -631,6 +635,7 @@ class Incar(dict, MSONable):
                 params["MAGMOM"] = val
 
             self.update(params)
+            self.check_params()
 
     def __setitem__(self, key, val):
         """
@@ -874,6 +879,51 @@ class Incar(dict, MSONable):
             else:
                 params[k] = v
         return Incar(params)
+
+    def check_params(self):
+        """
+        Raises a warning for nonsensical or non-existant INCAR tags and
+        parameters. If a keyword doesn't exist (e.g. theres a typo in a
+        keyword), your calculation will still run, however VASP will igore the
+        parameter without letting you know, hence why we have this Incar method.
+        """
+        for k in self.keys():
+
+            # First check if this parameter even exists
+            if k not in incar_params.keys():
+                warnings.warn("Cannot find %s in the list of INCAR keywords" % (k))
+
+            if k in incar_params.keys():
+                if type(incar_params[k]).__name__ == 'str':
+                    # check if parameter is a real number if a real number is needed
+                    if incar_params[k] == 'isreal':
+                        if not np.isreal(self[k]):
+                            warnings.warn("%s: %s is not real" % (k, self[k]))
+                    # Now we check if this is an appropriate parameter type
+                    elif type(self[k]).__name__ != incar_params[k]:
+                        warnings.warn("%s: %s is not a %s" % (k, self[k],
+                                                              incar_params[k]))
+
+                # if we have a list of possible parameters, check
+                # if the user given parameter is in this list
+                elif type(incar_params[k]).__name__ == 'list':
+                    if self[k] not in incar_params[k]:
+                        warnings.warn("%s: Cannot find %s in the list of parameters" % (k, self[k]))
+
+                # If an incar parameter only takes lists, check
+                # if the user provided setting is a list
+                elif type(incar_params[k]).__name__ == 'dict':
+                    if type(self[k]).__name__ == 'list':
+                        # check that each element in the list is
+                        # of the appropriate type for this parameter
+                        for l in self[k]:
+                            if incar_params[k]['list'] == 'isreal':
+                                if not np.isreal(l):
+                                    warnings.warn("%s: %s is not real" % (k, l))
+                            elif type(l).__name__ != incar_params[k]['list']:
+                                warnings.warn("%s: %s is not a %s" % (k, l, incar_params[k]['list']))
+                    else:
+                        warnings.warn("%s: %s is not a list" % (k, self[k]))
 
 
 class Kpoints_supported_modes(Enum):
