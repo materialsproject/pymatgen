@@ -764,16 +764,10 @@ class Incar(dict, MSONable):
             key: INCAR parameter key
             val: Actual value of INCAR parameter.
         """
-        list_keys = ("LDAUU", "LDAUL", "LDAUJ", "MAGMOM", "DIPOL",
-                     "LANGEVIN_GAMMA", "QUAD_EFG", "EINT")
-        bool_keys = ("LDAU", "LWAVE", "LSCALU", "LCHARG", "LPLANE", "LUSE_VDW",
-                     "LHFCALC", "ADDGRID", "LSORBIT", "LNONCOLLINEAR")
-        float_keys = ("EDIFF", "SIGMA", "TIME", "ENCUTFOCK", "HFSCREEN",
-                      "POTIM", "EDIFFG", "AGGAC", "PARAM1", "PARAM2")
-        int_keys = ("NSW", "NBANDS", "NELMIN", "ISIF", "IBRION", "ISPIN",
-                    "ICHARG", "NELM", "ISMEAR", "NPAR", "LDAUPRINT", "LMAXMIX",
-                    "ENCUT", "NSIM", "NKRED", "NUPDOWN", "ISPIND", "LDAUTYPE",
-                    "IVDW")
+        list_keys = tuple([k for k in incar_params.keys() if type(incar_params[k]).__name__ == 'dict'])
+        bool_keys = tuple([k for k in incar_params.keys() if incar_params[k] == 'bool'])
+        float_keys = tuple([k for k in incar_params.keys() if incar_params[k] == 'float'])
+        int_keys = tuple([k for k in incar_params.keys() if incar_params[k] == 'int'])
 
         def smart_int_or_float(numstr):
             if numstr.find(".") != -1 or numstr.lower().find("e") != -1:
