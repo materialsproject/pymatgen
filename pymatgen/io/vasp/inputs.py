@@ -9,6 +9,7 @@ import itertools
 import warnings
 import logging
 import math
+import json
 import glob
 import subprocess
 
@@ -881,7 +882,7 @@ class Incar(dict, MSONable):
         keyword), your calculation will still run, however VASP will igore the
         parameter without letting you know, hence why we have this Incar method.
         """
-        for k in incar.keys():
+        for k in self.keys():
 
             # First check if this parameter even exists
             if k not in incar_params.keys():
@@ -890,27 +891,27 @@ class Incar(dict, MSONable):
             if k in incar_params.keys():
                 if type(incar_params[k]).__name__ == 'str':
                     # Now we check if this is an appropriate parameter type
-                    if type(incar[k]).__name__ != incar_params[k]:
-                        warnings.warn("%s: %s is not a %s" % (k, incar[k],
+                    if type(self[k]).__name__ != incar_params[k]:
+                        warnings.warn("%s: %s is not a %s" % (k, self[k],
                                                               incar_params[k]))
 
                 # if we have a list of possible parameters, check
                 # if the user given parameter is in this list
                 elif type(incar_params[k]).__name__ == 'list':
-                    if incar[k] not in incar_params[k]:
-                        warnings.warn("%s: Cannot find %s in the list of parameters" % (k, incar[k]))
+                    if self[k] not in incar_params[k]:
+                        warnings.warn("%s: Cannot find %s in the list of parameters" % (k, self[k]))
 
                 # If an incar parameter only takes lists, check
                 # if the user provided setting is a list
                 elif type(incar_params[k]).__name__ == 'dict':
-                    if type(incar[k]).__name__ == 'list':
+                    if type(self[k]).__name__ == 'list':
                         # check that each element in the list is
                         # of the appropriate type for this parameter
-                        for l in incar[k]:
+                        for l in self[k]:
                             if type(l).__name__ != incar_params[k]['list']:
                                 warnings.warn("%s: %s is not a %s" % (k, l, incar_params[k]['list']))
                     else:
-                        warnings.warn("%s: %s is not a list" % (k, incar[k]))
+                        warnings.warn("%s: %s is not a list" % (k, self[k]))
 
 
 class Kpoints_supported_modes(Enum):

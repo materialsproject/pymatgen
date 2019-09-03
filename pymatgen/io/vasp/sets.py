@@ -416,6 +416,8 @@ class DictSet(VaspInputSet):
                 warnings.warn("Relaxation of likely metal with ISMEAR < 1 "
                               "detected. Please see VASP recommendations on "
                               "ISMEAR for metals.", BadInputSetWarning)
+
+        incar.check_params()
         return incar
 
     @property
