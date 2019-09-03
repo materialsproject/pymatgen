@@ -200,7 +200,7 @@ will attempt to break (to_index, from_index).</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.build_unique_fragments">
-<code class="sig-name descname">build_unique_fragments</code><span class="sig-paren">(</span><em class="sig-param">use_igraph=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#MoleculeGraph.build_unique_fragments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.build_unique_fragments" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">build_unique_fragments</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#MoleculeGraph.build_unique_fragments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.build_unique_fragments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find all possible fragment combinations of the MoleculeGraphs (in other
 words, all connected induced subgraphs)</p>
 <dl class="field-list simple">
@@ -399,7 +399,7 @@ least have a “to_index” and “from_index” key, and can also have a
 
 <dl class="method">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.isomorphic_to">
-<code class="sig-name descname">isomorphic_to</code><span class="sig-paren">(</span><em class="sig-param">other</em>, <em class="sig-param">use_igraph=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#MoleculeGraph.isomorphic_to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.isomorphic_to" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">isomorphic_to</code><span class="sig-paren">(</span><em class="sig-param">other</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#MoleculeGraph.isomorphic_to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.isomorphic_to" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if the graphs of two MoleculeGraphs are isomorphic to one
 another. In order to prevent problems with misdirected edges, both
 graphs are converted into undirected nx.Graph objects.</p>
@@ -1201,21 +1201,6 @@ from :Class: <cite>pymatgen.analysis.local_env</cite>.</p>
 </dd></dl>
 
 </dd></dl>
-
-<dl class="function">
-<dt id="pymatgen.analysis.graphs.compare">
-<code class="sig-name descname">compare</code><span class="sig-paren">(</span><em class="sig-param">g1</em>, <em class="sig-param">g2</em>, <em class="sig-param">i1</em>, <em class="sig-param">i2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#compare"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.compare" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="pymatgen.analysis.graphs.igraph_from_nxgraph">
-<code class="sig-name descname">igraph_from_nxgraph</code><span class="sig-paren">(</span><em class="sig-param">graph</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#igraph_from_nxgraph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.igraph_from_nxgraph" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="pymatgen.analysis.graphs.isomorphic">
-<code class="sig-name descname">isomorphic</code><span class="sig-paren">(</span><em class="sig-param">frag1</em>, <em class="sig-param">frag2</em>, <em class="sig-param">use_igraph=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#isomorphic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.isomorphic" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 </div>
 

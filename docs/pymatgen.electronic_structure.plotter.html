@@ -1215,41 +1215,65 @@ plot_ellipsoid(hessian,[0.0,0.0,0.0], struct.reciprocal_lattice,ax=ax)</p>
 
 <dl class="function">
 <dt id="pymatgen.electronic_structure.plotter.plot_fermi_surface">
-<code class="sig-name descname">plot_fermi_surface</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">structure</em>, <em class="sig-param">cbm</em>, <em class="sig-param">energy_levels=[]</em>, <em class="sig-param">multiple_figure=True</em>, <em class="sig-param">mlab_figure=None</em>, <em class="sig-param">kpoints_dict={}</em>, <em class="sig-param">color=(0</em>, <em class="sig-param">0</em>, <em class="sig-param">1)</em>, <em class="sig-param">transparency_factor=[]</em>, <em class="sig-param">labels_scale_factor=0.05</em>, <em class="sig-param">points_scale_factor=0.02</em>, <em class="sig-param">interative=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/plotter.html#plot_fermi_surface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.plot_fermi_surface" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot the Fermi surface at specific energy value.</p>
+<code class="sig-name descname">plot_fermi_surface</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">structure</em>, <em class="sig-param">cbm</em>, <em class="sig-param">energy_levels=None</em>, <em class="sig-param">multiple_figure=True</em>, <em class="sig-param">mlab_figure=None</em>, <em class="sig-param">kpoints_dict=None</em>, <em class="sig-param">colors=None</em>, <em class="sig-param">transparency_factor=None</em>, <em class="sig-param">labels_scale_factor=0.05</em>, <em class="sig-param">points_scale_factor=0.02</em>, <em class="sig-param">interative=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/plotter.html#plot_fermi_surface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.plot_fermi_surface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the Fermi surface at specific energy value using Boltztrap 1 FERMI
+mode.</p>
+<p>The easiest way to use this plotter is:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Run boltztrap in ‘FERMI’ mode using BoltztrapRunner,</p></li>
+<li><p>Load BoltztrapAnalyzer using your method of choice (e.g., from_files)</p></li>
+<li><dl class="simple">
+<dt>Pass in your BoltztrapAnalyzer’s fermi_surface_data as this</dt><dd><p>function’s data argument.</p>
+</dd>
+</dl>
+</li>
+</ol>
+</div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> – energy values in a 3D grid from a CUBE file
-via read_cube_file function, or from a
-BoltztrapAnalyzer.fermi_surface_data</p></li>
+<li><p><strong>data</strong> – energy values in a 3D grid from a CUBE file via read_cube_file
+function, or from a BoltztrapAnalyzer.fermi_surface_data</p></li>
 <li><p><strong>structure</strong> – structure object of the material</p></li>
-<li><p><strong>energy_levels</strong> – list of energy value of the fermi surface.
-By default 0 eV correspond to the VBM, as in
-the plot of band structure along symmetry line.
-Default: max energy value + 0.01 eV</p></li>
-<li><p><strong>cbm</strong> – Boolean value to specify if the considered band is
-a conduction band or not</p></li>
-<li><p><strong>multiple_figure</strong> – if True a figure for each energy level will be shown.
-If False all the surfaces will be shown in the same figure.
-In this las case, tune the transparency factor.</p></li>
-<li><p><strong>mlab_figure</strong> – provide a previous figure to plot a new surface on it.</p></li>
-<li><p><strong>kpoints_dict</strong> – dictionary of kpoints to show in the plot.
-example: {“K”:[0.5,0.0,0.5]},
-where the coords are fractional.</p></li>
-<li><p><strong>color</strong> – tuple (r,g,b) of integers to define the color of the surface.</p></li>
-<li><p><strong>transparency_factor</strong> – list of values in the range [0,1] to tune
-the opacity of the surfaces.</p></li>
-<li><p><strong>labels_scale_factor</strong> – factor to tune the size of the kpoint labels</p></li>
-<li><p><strong>points_scale_factor</strong> – factor to tune the size of the kpoint points</p></li>
-<li><p><strong>interative</strong> – if True an interactive figure will be shown.
-If False a non interactive figure will be shown, but
-it is possible to plot other surfaces on the same figure.
-To make it interactive, run mlab.show().</p></li>
+<li><p><strong>energy_levels</strong> (<em>[</em><em>float</em><em>]</em>) – Energy values for plotting the fermi surface(s)
+By default 0 eV correspond to the VBM, as in the plot of band
+structure along symmetry line.
+Default: One surface, with max energy value + 0.01 eV</p></li>
+<li><p><strong>cbm</strong> (<em>bool</em>) – Boolean value to specify if the considered band is a
+conduction band or not</p></li>
+<li><p><strong>multiple_figure</strong> (<em>bool</em>) – If True a figure for each energy level will be
+shown.  If False all the surfaces will be shown in the same figure.
+In this last case, tune the transparency factor.</p></li>
+<li><p><strong>mlab_figure</strong> (<em>mayavi.mlab.figure</em>) – A previous figure to plot a new
+surface on.</p></li>
+<li><p><strong>kpoints_dict</strong> (<em>dict</em>) – dictionary of kpoints to label in the plot.
+Example: {“K”:[0.5,0.0,0.5]}, coords are fractional</p></li>
+<li><p><strong>colors</strong> (<em>[</em><em>tuple</em><em>]</em>) – Iterable of 3-tuples (r,g,b) of integers to define
+the colors of each surface (one per energy level).
+Should be the same length as the number of surfaces being plotted.
+Example (3 surfaces): colors=[(1,0,0), (0,1,0), (0,0,1)]
+Example (2 surfaces): colors=[(0, 0.5, 0.5)]</p></li>
+<li><p><strong>[</strong><strong>float</strong><strong>]</strong> (<em>transparency_factor</em>) – Values in the range [0,1] to tune the
+opacity of each surface. Should be one transparency_factor per
+surface.</p></li>
+<li><p><strong>labels_scale_factor</strong> (<em>float</em>) – factor to tune size of the kpoint labels</p></li>
+<li><p><strong>points_scale_factor</strong> (<em>float</em>) – factor to tune size of the kpoint points</p></li>
+<li><p><strong>interative</strong> (<em>bool</em>) – if True an interactive figure will be shown.
+If False a non interactive figure will be shown, but it is possible
+to plot other surfaces on the same figure. To make it interactive,
+run mlab.show().</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>a Mayavi figure and a mlab module to control the plot.</p>
+<dd class="field-even"><p><dl class="simple">
+<dt>The mlab plotter and an interactive</dt><dd><p>figure to control the plot.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>((mayavi.mlab.figure, mayavi.mlab))</p>
 </dd>
 </dl>
 <dl class="simple">

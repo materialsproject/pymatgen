@@ -45,6 +45,95 @@
   <div class="section" id="module-pymatgen.io.lammps.data">
 <span id="pymatgen-io-lammps-data-module"></span><h1>pymatgen.io.lammps.data module<a class="headerlink" href="#module-pymatgen.io.lammps.data" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
+<dt id="pymatgen.io.lammps.data.CombinedData">
+<em class="property">class </em><code class="sig-name descname">CombinedData</code><span class="sig-paren">(</span><em class="sig-param">list_of_molecules</em>, <em class="sig-param">list_of_names</em>, <em class="sig-param">list_of_numbers</em>, <em class="sig-param">coordinates</em>, <em class="sig-param">atom_style='full'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#CombinedData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.CombinedData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.lammps.data.LammpsData" title="pymatgen.io.lammps.data.LammpsData"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.lammps.data.LammpsData</span></code></a></p>
+<p>Object for a collective set of data for a series of LAMMPS data file.
+velocities not yet implementd.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>list_of_molecules</strong> – a list of LammpsData of a single cluster.</p></li>
+<li><p><strong>list_of_names</strong> – a list of name for each cluster.</p></li>
+<li><p><strong>list_of_numbers</strong> – a list of Integer for counts of each molecule
+coordinates (pandas.DataFrame): DataFrame with with four
+columns [“atom”, “x”, “y”, “z”] for coordinates of atoms.</p></li>
+<li><p><strong>atom_style</strong> (<em>str</em>) – Output atom_style. Default to “full”.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.io.lammps.data.CombinedData.from_files">
+<em class="property">classmethod </em><code class="sig-name descname">from_files</code><span class="sig-paren">(</span><em class="sig-param">coordinate_file</em>, <em class="sig-param">list_of_numbers</em>, <em class="sig-param">*filenames</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#CombinedData.from_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.CombinedData.from_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor that parse a series of data file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coordinate_file</strong> (<em>str</em>) – The filename of xyz coordinates.</p></li>
+<li><p><strong>list_of_numbers</strong> (<em>list</em>) – A list of numbers specifying counts for each
+clusters parsed from files.</p></li>
+<li><p><strong>filenames</strong> (<em>str</em>) – A series of filenames in string format.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.lammps.data.CombinedData.from_lammpsdata">
+<em class="property">classmethod </em><code class="sig-name descname">from_lammpsdata</code><span class="sig-paren">(</span><em class="sig-param">mols</em>, <em class="sig-param">names</em>, <em class="sig-param">list_of_numbers</em>, <em class="sig-param">coordinates</em>, <em class="sig-param">atom_style=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#CombinedData.from_lammpsdata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.CombinedData.from_lammpsdata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor that can infer atom_style.
+The input LammpsData objects are used destructively.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mols</strong> – a list of LammpsData of a single cluster.</p></li>
+<li><p><strong>names</strong> – a list of name for each cluster.</p></li>
+<li><p><strong>list_of_numbers</strong> – a list of Integer for counts of each molecule
+coordinates (pandas.DataFrame): DataFrame with with four
+columns [“atom”, “x”, “y”, “z”] for coordinates of atoms.</p></li>
+<li><p><strong>atom_style</strong> (<em>str</em>) – Output atom_style. Default to “full”.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.lammps.data.CombinedData.get_string">
+<code class="sig-name descname">get_string</code><span class="sig-paren">(</span><em class="sig-param">distance=6</em>, <em class="sig-param">velocity=8</em>, <em class="sig-param">charge=4</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#CombinedData.get_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.CombinedData.get_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the string representation of CombinedData, essentially
+the string to be written to a file. Combination info is included.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>distance</strong> (<em>int</em>) – No. of significant figures to output for
+box settings (bounds and tilt) and atomic coordinates.
+Default to 6.</p></li>
+<li><p><strong>velocity</strong> (<em>int</em>) – No. of significant figures to output for
+velocities. Default to 8.</p></li>
+<li><p><strong>charge</strong> (<em>int</em>) – No. of significant figures to output for
+charges. Default to 3.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>String representation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.lammps.data.CombinedData.parse_xyz">
+<em class="property">classmethod </em><code class="sig-name descname">parse_xyz</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#CombinedData.parse_xyz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.CombinedData.parse_xyz" title="Permalink to this definition">¶</a></dt>
+<dd><p>load xyz file generated from packmol (for those who find it hard to install openbabel)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="pymatgen.io.lammps.data.ForceField">
 <em class="property">class </em><code class="sig-name descname">ForceField</code><span class="sig-paren">(</span><em class="sig-param">mass_info</em>, <em class="sig-param">nonbond_coeffs=None</em>, <em class="sig-param">topo_coeffs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#ForceField"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.ForceField" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
@@ -382,9 +471,10 @@ necessarily in the structure. Default to None.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.io.lammps.data.LammpsData.get_string">
-<code class="sig-name descname">get_string</code><span class="sig-paren">(</span><em class="sig-param">distance=6</em>, <em class="sig-param">velocity=8</em>, <em class="sig-param">charge=3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData.get_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.get_string" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_string</code><span class="sig-paren">(</span><em class="sig-param">distance=6</em>, <em class="sig-param">velocity=8</em>, <em class="sig-param">charge=4</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData.get_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.get_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the string representation of LammpsData, essentially
-the string to be written to a file.</p>
+the string to be written to a file. Support hybrid style
+coeffs read and write.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -417,7 +507,7 @@ box.</p>
 
 <dl class="method">
 <dt id="pymatgen.io.lammps.data.LammpsData.write_file">
-<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param">filename</em>, <em class="sig-param">distance=6</em>, <em class="sig-param">velocity=8</em>, <em class="sig-param">charge=3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.write_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param">filename</em>, <em class="sig-param">distance=6</em>, <em class="sig-param">velocity=8</em>, <em class="sig-param">charge=4</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.write_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes LammpsData to file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

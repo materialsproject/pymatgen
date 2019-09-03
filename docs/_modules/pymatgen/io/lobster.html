@@ -1846,6 +1846,43 @@
                                     <span class="k">return</span> <span class="kc">False</span>
 
         <span class="k">return</span> <span class="kc">True</span></div></div>
+
+
+<div class="viewcode-block" id="Grosspop"><a class="viewcode-back" href="../../../pymatgen.io.lobster.html#pymatgen.io.lobster.Grosspop">[docs]</a><span class="k">class</span> <span class="nc">Grosspop</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class to read in GROSSPOP.lobster files.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        filename: filename of the &quot;GROSSPOP.lobster&quot; file</span>
+
+<span class="sd">    .. attribute: list_dict_grosspop</span>
+<span class="sd">       which is a list of dicts including all information about the grosspopulations, one sample dict looks like this:</span>
+<span class="sd">        {&#39;element&#39;: &#39;O&#39;, &#39;Mulliken GP&#39;: {&#39;2s&#39;: &#39;1.80&#39;, &#39;2p_y&#39;: &#39;1.83&#39;, &#39;2p_z&#39;: &#39;1.79&#39;, &#39;2p_x&#39;: &#39;1.75&#39;, &#39;total&#39;: &#39;7.18&#39;},</span>
+<span class="sd">         &#39;Loewdin GP&#39;: {&#39;2s&#39;: &#39;1.60&#39;, &#39;2p_y&#39;: &#39;1.82&#39;, &#39;2p_z&#39;: &#39;1.77&#39;, &#39;2p_x&#39;: &#39;1.73&#39;, &#39;total&#39;: &#39;6.92&#39;}}</span>
+<span class="sd">        The 0. entry of the list refers to the first atom in GROSSPOP.lobster and so on.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;GROSSPOP.lobster&quot;</span><span class="p">):</span>
+
+        <span class="c1"># opens file</span>
+        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">contents</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">list_dict_grosspop</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># transfers content of file to list of dict</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">contents</span><span class="p">[</span><span class="mi">3</span><span class="p">:]:</span>
+            <span class="n">cleanline</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">i</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cleanline</span><span class="p">)</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+                <span class="n">smalldict</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">smalldict</span><span class="p">[</span><span class="s2">&quot;element&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cleanline</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">smalldict</span><span class="p">[</span><span class="s2">&quot;Mulliken GP&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">smalldict</span><span class="p">[</span><span class="s2">&quot;Loewdin GP&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">smalldict</span><span class="p">[</span><span class="s2">&quot;Mulliken GP&quot;</span><span class="p">][</span><span class="n">cleanline</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">cleanline</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+                <span class="n">smalldict</span><span class="p">[</span><span class="s2">&quot;Loewdin GP&quot;</span><span class="p">][</span><span class="n">cleanline</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">cleanline</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">cleanline</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">smalldict</span><span class="p">[</span><span class="s2">&quot;Mulliken GP&quot;</span><span class="p">][</span><span class="n">cleanline</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">cleanline</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">smalldict</span><span class="p">[</span><span class="s2">&quot;Loewdin GP&quot;</span><span class="p">][</span><span class="n">cleanline</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">cleanline</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                <span class="k">if</span> <span class="s1">&#39;total&#39;</span> <span class="ow">in</span> <span class="n">cleanline</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">list_dict_grosspop</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">smalldict</span><span class="p">)</span></div>
 </pre></div>
 
           </div>

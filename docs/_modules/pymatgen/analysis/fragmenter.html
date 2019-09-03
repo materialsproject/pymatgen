@@ -54,7 +54,7 @@
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.graphs</span> <span class="k">import</span> <span class="n">MoleculeGraph</span><span class="p">,</span> <span class="n">MolGraphSplitError</span><span class="p">,</span> <span class="n">isomorphic</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.graphs</span> <span class="k">import</span> <span class="n">MoleculeGraph</span><span class="p">,</span> <span class="n">MolGraphSplitError</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.local_env</span> <span class="k">import</span> <span class="n">OpenBabelNN</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.babel</span> <span class="k">import</span> <span class="n">BabelMolAdaptor</span>
 
@@ -72,8 +72,7 @@
 <div class="viewcode-block" id="Fragmenter"><a class="viewcode-back" href="../../../pymatgen.analysis.fragmenter.html#pymatgen.analysis.fragmenter.Fragmenter">[docs]</a><span class="k">class</span> <span class="nc">Fragmenter</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">open_rings</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_metal_edge_extender</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                 <span class="n">opt_steps</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">use_igraph</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">prev_unique_frag_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">assume_previous_thoroughness</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                 <span class="n">opt_steps</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">prev_unique_frag_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">assume_previous_thoroughness</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Standard constructor for molecule fragmentation</span>
 
@@ -95,8 +94,6 @@
 <span class="sd">                to False. Most important for ionic bonding. Note that additional metal edges may yield</span>
 <span class="sd">                new &quot;rings&quot; (e.g. -C-O-Li-O- in LiEC) that will not play nicely with ring opening.</span>
 <span class="sd">            opt_steps (int): Number of optimization steps when opening rings. Defaults to 10000.</span>
-<span class="sd">            use_igraph (bool): Whether or not to use the igraph library, which is faster than networkx.</span>
-<span class="sd">                Defaults to True.</span>
 <span class="sd">            prev_unique_frag_dict (dict): A dictionary of previously identified unique fragments.</span>
 <span class="sd">                Defaults to None. Typically only used when trying to find the set of unique fragments</span>
 <span class="sd">                that come from multiple molecules.</span>
@@ -114,7 +111,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assume_previous_thoroughness</span> <span class="o">=</span> <span class="n">assume_previous_thoroughness</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">open_rings</span> <span class="o">=</span> <span class="n">open_rings</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">opt_steps</span> <span class="o">=</span> <span class="n">opt_steps</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">use_igraph</span> <span class="o">=</span> <span class="n">use_igraph</span>
 
         <span class="k">if</span> <span class="n">edges</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mol_graph</span> <span class="o">=</span> <span class="n">MoleculeGraph</span><span class="o">.</span><span class="n">with_local_env_strategy</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">OpenBabelNN</span><span class="p">(),</span>
@@ -125,53 +121,24 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">mol_graph</span> <span class="o">=</span> <span class="n">MoleculeGraph</span><span class="o">.</span><span class="n">with_edges</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">edges</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;Li&quot;</span> <span class="ow">in</span> <span class="n">molecule</span><span class="o">.</span><span class="n">composition</span> <span class="ow">or</span> <span class="s2">&quot;Mg&quot;</span> <span class="ow">in</span> <span class="n">molecule</span><span class="o">.</span><span class="n">composition</span><span class="p">)</span> <span class="ow">and</span> <span class="n">use_metal_edge_extender</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="s2">&quot;Extending lithium and magnesium edges to ensure that we capture coordination to nearby common &quot;</span>
-                <span class="s2">&quot;coordinators: O, N, F, and Cl.&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_rings</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WARNING: Metal edge extension while opening rings can yeild unphysical fragments!&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mol_graph</span> <span class="o">=</span> <span class="n">metal_edge_extender</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mol_graph</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">prev_unique_frag_dict</span> <span class="o">=</span> <span class="n">prev_unique_frag_dict</span> <span class="ow">or</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">new_unique_frag_dict</span> <span class="o">=</span> <span class="p">{}</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_unique_frag_dict</span> <span class="o">!=</span> <span class="p">{}</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">assume_previous_thoroughness</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="s2">&quot;WARNING: You are assuming that all subfragments of every molecule and fragment in your &quot;</span>
-                <span class="s2">&quot;prev_unique_frag_dict are also included in prev_unique_frag_dict. If this is not the case, you will &quot;</span>
-                <span class="s2">&quot;miss subfragments!&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">new_unique_frag_dict</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># new fragments from the given molecule not contained in prev_unique_frag_dict</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">all_unique_frag_dict</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># all fragments from just the given molecule</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unique_frag_dict</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># all fragments from both the given molecule and prev_unique_frag_dict</span>
 
         <span class="k">if</span> <span class="n">depth</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># Non-iterative, find all possible fragments:</span>
 
             <span class="c1"># Find all unique fragments besides those involving ring opening</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">all_unique_frag_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol_graph</span><span class="o">.</span><span class="n">build_unique_fragments</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">use_igraph</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">all_unique_frag_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol_graph</span><span class="o">.</span><span class="n">build_unique_fragments</span><span class="p">()</span>
 
             <span class="c1"># Then, if self.open_rings is True, open all rings present in self.unique_fragments</span>
             <span class="c1"># in order to capture all unique fragments that require ring opening.</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_rings</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_open_all_rings</span><span class="p">()</span>
 
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_unique_frag_dict</span> <span class="o">==</span> <span class="p">{}:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">new_unique_frag_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_unique_frag_dict</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">frag_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_unique_frag_dict</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">frag_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_unique_frag_dict</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">new_unique_frag_dict</span><span class="p">[</span><span class="n">frag_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_unique_frag_dict</span><span class="p">[</span><span class="n">frag_key</span><span class="p">])</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="k">for</span> <span class="n">fragment</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_unique_frag_dict</span><span class="p">[</span><span class="n">frag_key</span><span class="p">]:</span>
-                            <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
-                            <span class="k">for</span> <span class="n">prev_frag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_unique_frag_dict</span><span class="p">[</span><span class="n">frag_key</span><span class="p">]:</span>
-                                <span class="k">if</span> <span class="n">isomorphic</span><span class="p">(</span><span class="n">fragment</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">prev_frag</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_igraph</span><span class="p">):</span>
-                                    <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
-                                    <span class="k">break</span>
-                            <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
-                                <span class="k">if</span> <span class="n">frag_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_unique_frag_dict</span><span class="p">:</span>
-                                    <span class="bp">self</span><span class="o">.</span><span class="n">new_unique_frag_dict</span><span class="p">[</span><span class="n">frag_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">fragment</span><span class="p">]</span>
-                                <span class="k">else</span><span class="p">:</span>
-                                    <span class="bp">self</span><span class="o">.</span><span class="n">new_unique_frag_dict</span><span class="p">[</span><span class="n">frag_key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fragment</span><span class="p">)</span>
-
         <span class="k">else</span><span class="p">:</span>  <span class="c1"># Iterative fragment generation:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">level_unique_frag_dict</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fragments_by_level</span> <span class="o">=</span> <span class="p">{}</span>
 
             <span class="c1"># Loop through the number of levels,</span>
@@ -191,24 +158,25 @@
                     <span class="k">else</span><span class="p">:</span>  <span class="c1"># If not on the first level, and there are fragments present in the previous level, then</span>
                         <span class="c1"># perform one level of fragmentation on all fragments present in the previous level:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">fragments_by_level</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">level</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fragment_one_level</span><span class="p">(</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">fragments_by_level</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">level</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)])</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_unique_frag_dict</span> <span class="o">==</span> <span class="p">{}:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">new_unique_frag_dict</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">level_unique_frag_dict</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">frag_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">level_unique_frag_dict</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">frag_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_unique_frag_dict</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">new_unique_frag_dict</span><span class="p">[</span><span class="n">frag_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">level_unique_frag_dict</span><span class="p">[</span><span class="n">frag_key</span><span class="p">])</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="k">for</span> <span class="n">fragment</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">level_unique_frag_dict</span><span class="p">[</span><span class="n">frag_key</span><span class="p">]:</span>
-                            <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
-                            <span class="k">for</span> <span class="n">prev_frag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_unique_frag_dict</span><span class="p">[</span><span class="n">frag_key</span><span class="p">]:</span>
-                                <span class="k">if</span> <span class="n">isomorphic</span><span class="p">(</span><span class="n">fragment</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">prev_frag</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_igraph</span><span class="p">):</span>
-                                    <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
-                            <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
-                                <span class="k">if</span> <span class="n">frag_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_unique_frag_dict</span><span class="p">:</span>
-                                    <span class="bp">self</span><span class="o">.</span><span class="n">new_unique_frag_dict</span><span class="p">[</span><span class="n">frag_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">fragment</span><span class="p">]</span>
-                                <span class="k">else</span><span class="p">:</span>
-                                    <span class="bp">self</span><span class="o">.</span><span class="n">new_unique_frag_dict</span><span class="p">[</span><span class="n">frag_key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fragment</span><span class="p">)</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">fragments_by_level</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">level</span><span class="o">-</span><span class="mi">1</span><span class="p">)])</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_unique_frag_dict</span> <span class="o">==</span> <span class="p">{}:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">new_unique_frag_dict</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_unique_frag_dict</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">frag_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_unique_frag_dict</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">frag_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_unique_frag_dict</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">new_unique_frag_dict</span><span class="p">[</span><span class="n">frag_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_unique_frag_dict</span><span class="p">[</span><span class="n">frag_key</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">fragment</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_unique_frag_dict</span><span class="p">[</span><span class="n">frag_key</span><span class="p">]:</span>
+                        <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
+                        <span class="k">for</span> <span class="n">prev_frag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_unique_frag_dict</span><span class="p">[</span><span class="n">frag_key</span><span class="p">]:</span>
+                            <span class="k">if</span> <span class="n">fragment</span><span class="o">.</span><span class="n">isomorphic_to</span><span class="p">(</span><span class="n">prev_frag</span><span class="p">):</span>
+                                <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">frag_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_unique_frag_dict</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">new_unique_frag_dict</span><span class="p">[</span><span class="n">frag_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">fragment</span><span class="p">]</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">new_unique_frag_dict</span><span class="p">[</span><span class="n">frag_key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fragment</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">new_unique_fragments</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">frag_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_unique_frag_dict</span><span class="p">:</span>
@@ -244,62 +212,39 @@
             <span class="k">for</span> <span class="n">old_frag</span> <span class="ow">in</span> <span class="n">old_frag_dict</span><span class="p">[</span><span class="n">old_frag_key</span><span class="p">]:</span>
                 <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">old_frag</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">:</span>
                     <span class="n">bond</span> <span class="o">=</span> <span class="p">[(</span><span class="n">edge</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">edge</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
+                    <span class="n">fragments</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="k">try</span><span class="p">:</span>
                         <span class="n">fragments</span> <span class="o">=</span> <span class="n">old_frag</span><span class="o">.</span><span class="n">split_molecule_subgraphs</span><span class="p">(</span><span class="n">bond</span><span class="p">,</span> <span class="n">allow_reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                        <span class="k">for</span> <span class="n">fragment</span> <span class="ow">in</span> <span class="n">fragments</span><span class="p">:</span>
-                            <span class="n">new_frag_key</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">fragment</span><span class="o">.</span><span class="n">molecule</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">alphabetical_formula</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; E&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
-                                <span class="nb">len</span><span class="p">(</span><span class="n">fragment</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">()))</span>
-                            <span class="n">proceed</span> <span class="o">=</span> <span class="kc">True</span>
-                            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">assume_previous_thoroughness</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_unique_frag_dict</span> <span class="o">!=</span> <span class="p">{}:</span>
-                                <span class="k">if</span> <span class="n">new_frag_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_unique_frag_dict</span><span class="p">:</span>
-                                    <span class="k">for</span> <span class="n">unique_fragment</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_unique_frag_dict</span><span class="p">[</span><span class="n">new_frag_key</span><span class="p">]:</span>
-                                        <span class="k">if</span> <span class="n">isomorphic</span><span class="p">(</span><span class="n">unique_fragment</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">fragment</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_igraph</span><span class="p">):</span>
-                                            <span class="n">proceed</span> <span class="o">=</span> <span class="kc">False</span>
-                                            <span class="k">break</span>
-                            <span class="k">if</span> <span class="n">proceed</span><span class="p">:</span>
-                                <span class="k">if</span> <span class="n">new_frag_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">level_unique_frag_dict</span><span class="p">:</span>
-                                    <span class="bp">self</span><span class="o">.</span><span class="n">level_unique_frag_dict</span><span class="p">[</span><span class="n">new_frag_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">fragment</span><span class="p">]</span>
-                                    <span class="n">new_frag_dict</span><span class="p">[</span><span class="n">new_frag_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">fragment</span><span class="p">]</span>
-                                <span class="k">else</span><span class="p">:</span>
-                                    <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
-                                    <span class="k">for</span> <span class="n">unique_fragment</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">level_unique_frag_dict</span><span class="p">[</span><span class="n">new_frag_key</span><span class="p">]:</span>
-                                        <span class="k">if</span> <span class="n">isomorphic</span><span class="p">(</span><span class="n">unique_fragment</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">fragment</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_igraph</span><span class="p">):</span>
-                                            <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
-                                            <span class="k">break</span>
-                                    <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
-                                        <span class="bp">self</span><span class="o">.</span><span class="n">level_unique_frag_dict</span><span class="p">[</span><span class="n">new_frag_key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fragment</span><span class="p">)</span>
-                                        <span class="k">if</span> <span class="n">new_frag_key</span> <span class="ow">in</span> <span class="n">new_frag_dict</span><span class="p">:</span>
-                                            <span class="n">new_frag_dict</span><span class="p">[</span><span class="n">new_frag_key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fragment</span><span class="p">)</span>
-                                        <span class="k">else</span><span class="p">:</span>
-                                            <span class="n">new_frag_dict</span><span class="p">[</span><span class="n">new_frag_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">fragment</span><span class="p">]</span>
                     <span class="k">except</span> <span class="n">MolGraphSplitError</span><span class="p">:</span>
+                        <span class="n">ring_bond</span> <span class="o">=</span> <span class="kc">True</span>
                         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_rings</span><span class="p">:</span>
-                            <span class="n">fragment</span> <span class="o">=</span> <span class="n">open_ring</span><span class="p">(</span><span class="n">old_frag</span><span class="p">,</span> <span class="n">bond</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">opt_steps</span><span class="p">)</span>
-                            <span class="n">new_frag_key</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">fragment</span><span class="o">.</span><span class="n">molecule</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">alphabetical_formula</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; E&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
-                                <span class="nb">len</span><span class="p">(</span><span class="n">fragment</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">()))</span>
-                            <span class="n">proceed</span> <span class="o">=</span> <span class="kc">True</span>
-                            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">assume_previous_thoroughness</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_unique_frag_dict</span> <span class="o">!=</span> <span class="p">{}:</span>
-                                <span class="k">if</span> <span class="n">new_frag_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_unique_frag_dict</span><span class="p">:</span>
-                                    <span class="k">for</span> <span class="n">unique_fragment</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_unique_frag_dict</span><span class="p">[</span><span class="n">new_frag_key</span><span class="p">]:</span>
-                                        <span class="k">if</span> <span class="n">isomorphic</span><span class="p">(</span><span class="n">unique_fragment</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">fragment</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_igraph</span><span class="p">):</span>
-                                            <span class="n">proceed</span> <span class="o">=</span> <span class="kc">False</span>
-                                            <span class="k">break</span>
-                            <span class="k">if</span> <span class="n">proceed</span><span class="p">:</span>
-                                <span class="k">if</span> <span class="n">new_frag_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">level_unique_frag_dict</span><span class="p">:</span>
-                                    <span class="bp">self</span><span class="o">.</span><span class="n">level_unique_frag_dict</span><span class="p">[</span><span class="n">new_frag_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">fragment</span><span class="p">]</span>
-                                    <span class="n">new_frag_dict</span><span class="p">[</span><span class="n">new_frag_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">fragment</span><span class="p">]</span>
-                                <span class="k">else</span><span class="p">:</span>
-                                    <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
-                                    <span class="k">for</span> <span class="n">unique_fragment</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">level_unique_frag_dict</span><span class="p">[</span><span class="n">new_frag_key</span><span class="p">]:</span>
-                                        <span class="k">if</span> <span class="n">isomorphic</span><span class="p">(</span><span class="n">unique_fragment</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">fragment</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_igraph</span><span class="p">):</span>
-                                            <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
-                                            <span class="k">break</span>
-                                    <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
-                                        <span class="bp">self</span><span class="o">.</span><span class="n">level_unique_frag_dict</span><span class="p">[</span><span class="n">new_frag_key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fragment</span><span class="p">)</span>
-                                        <span class="k">if</span> <span class="n">new_frag_key</span> <span class="ow">in</span> <span class="n">new_frag_dict</span><span class="p">:</span>
-                                            <span class="n">new_frag_dict</span><span class="p">[</span><span class="n">new_frag_key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fragment</span><span class="p">)</span>
-                                        <span class="k">else</span><span class="p">:</span>
-                                            <span class="n">new_frag_dict</span><span class="p">[</span><span class="n">new_frag_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">fragment</span><span class="p">]</span>
+                            <span class="n">fragments</span> <span class="o">=</span> <span class="p">[</span><span class="n">open_ring</span><span class="p">(</span><span class="n">old_frag</span><span class="p">,</span> <span class="n">bond</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">opt_steps</span><span class="p">)]</span>
+                    <span class="k">for</span> <span class="n">fragment</span> <span class="ow">in</span> <span class="n">fragments</span><span class="p">:</span>
+                        <span class="n">new_frag_key</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">fragment</span><span class="o">.</span><span class="n">molecule</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">alphabetical_formula</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; E&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span>
+                            <span class="nb">len</span><span class="p">(</span><span class="n">fragment</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">()))</span>
+                        <span class="n">proceed</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">assume_previous_thoroughness</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_unique_frag_dict</span> <span class="o">!=</span> <span class="p">{}:</span>
+                            <span class="k">if</span> <span class="n">new_frag_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_unique_frag_dict</span><span class="p">:</span>
+                                <span class="k">for</span> <span class="n">unique_fragment</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_unique_frag_dict</span><span class="p">[</span><span class="n">new_frag_key</span><span class="p">]:</span>
+                                    <span class="k">if</span> <span class="n">unique_fragment</span><span class="o">.</span><span class="n">isomorphic_to</span><span class="p">(</span><span class="n">fragment</span><span class="p">):</span>
+                                        <span class="n">proceed</span> <span class="o">=</span> <span class="kc">False</span>
+                                        <span class="k">break</span>
+                        <span class="k">if</span> <span class="n">proceed</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">new_frag_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_unique_frag_dict</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">all_unique_frag_dict</span><span class="p">[</span><span class="n">new_frag_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">fragment</span><span class="p">]</span>
+                                <span class="n">new_frag_dict</span><span class="p">[</span><span class="n">new_frag_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">fragment</span><span class="p">]</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
+                                <span class="k">for</span> <span class="n">unique_fragment</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_unique_frag_dict</span><span class="p">[</span><span class="n">new_frag_key</span><span class="p">]:</span>
+                                    <span class="k">if</span> <span class="n">unique_fragment</span><span class="o">.</span><span class="n">isomorphic_to</span><span class="p">(</span><span class="n">fragment</span><span class="p">):</span>
+                                        <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
+                                        <span class="k">break</span>
+                                <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">all_unique_frag_dict</span><span class="p">[</span><span class="n">new_frag_key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fragment</span><span class="p">)</span>
+                                    <span class="k">if</span> <span class="n">new_frag_key</span> <span class="ow">in</span> <span class="n">new_frag_dict</span><span class="p">:</span>
+                                        <span class="n">new_frag_dict</span><span class="p">[</span><span class="n">new_frag_key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fragment</span><span class="p">)</span>
+                                    <span class="k">else</span><span class="p">:</span>
+                                        <span class="n">new_frag_dict</span><span class="p">[</span><span class="n">new_frag_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">fragment</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">new_frag_dict</span>
 
     <span class="k">def</span> <span class="nf">_open_all_rings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -330,7 +275,7 @@
                             <span class="k">else</span><span class="p">:</span>
                                 <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
                                 <span class="k">for</span> <span class="n">unique_fragment</span> <span class="ow">in</span> <span class="n">new_frag_key_dict</span><span class="p">[</span><span class="n">frag_key</span><span class="p">]:</span>
-                                    <span class="k">if</span> <span class="n">isomorphic</span><span class="p">(</span><span class="n">unique_fragment</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">new_fragment</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_igraph</span><span class="p">):</span>
+                                    <span class="k">if</span> <span class="n">unique_fragment</span><span class="o">.</span><span class="n">isomorphic_to</span><span class="p">(</span><span class="n">new_fragment</span><span class="p">):</span>
                                         <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
                                         <span class="k">break</span>
                                 <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
@@ -338,7 +283,7 @@
                         <span class="k">else</span><span class="p">:</span>
                             <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
                             <span class="k">for</span> <span class="n">unique_fragment</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_unique_frag_dict</span><span class="p">[</span><span class="n">frag_key</span><span class="p">]:</span>
-                                <span class="k">if</span> <span class="n">isomorphic</span><span class="p">(</span><span class="n">unique_fragment</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">new_fragment</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_igraph</span><span class="p">):</span>
+                                <span class="k">if</span> <span class="n">unique_fragment</span><span class="o">.</span><span class="n">isomorphic_to</span><span class="p">(</span><span class="n">new_fragment</span><span class="p">):</span>
                                     <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
                                     <span class="k">break</span>
                             <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
@@ -365,7 +310,7 @@
                                 <span class="k">else</span><span class="p">:</span>
                                     <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
                                     <span class="k">for</span> <span class="n">unique_fragment</span> <span class="ow">in</span> <span class="n">new_frag_key_dict</span><span class="p">[</span><span class="n">frag_key</span><span class="p">]:</span>
-                                        <span class="k">if</span> <span class="n">isomorphic</span><span class="p">(</span><span class="n">unique_fragment</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">new_fragment</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_igraph</span><span class="p">):</span>
+                                        <span class="k">if</span> <span class="n">unique_fragment</span><span class="o">.</span><span class="n">isomorphic_to</span><span class="p">(</span><span class="n">new_fragment</span><span class="p">):</span>
                                             <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
                                             <span class="k">break</span>
                                     <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
@@ -373,7 +318,7 @@
                             <span class="k">else</span><span class="p">:</span>
                                 <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
                                 <span class="k">for</span> <span class="n">unique_fragment</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_unique_frag_dict</span><span class="p">[</span><span class="n">frag_key</span><span class="p">]:</span>
-                                    <span class="k">if</span> <span class="n">isomorphic</span><span class="p">(</span><span class="n">unique_fragment</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">new_fragment</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_igraph</span><span class="p">):</span>
+                                    <span class="k">if</span> <span class="n">unique_fragment</span><span class="o">.</span><span class="n">isomorphic_to</span><span class="p">(</span><span class="n">new_fragment</span><span class="p">):</span>
                                         <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
                                         <span class="k">break</span>
                                 <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
@@ -436,8 +381,6 @@
     <span class="k">for</span> <span class="n">metal</span> <span class="ow">in</span> <span class="n">metal_sites</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">metal_sites</span><span class="p">[</span><span class="n">metal</span><span class="p">]:</span>
             <span class="n">total_metal_edges</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">metal_sites</span><span class="p">[</span><span class="n">metal</span><span class="p">][</span><span class="n">idx</span><span class="p">])</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Metal edge extension added&quot;</span><span class="p">,</span> <span class="n">num_new_edges</span><span class="p">,</span> <span class="s2">&quot;new edges.&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Total of&quot;</span><span class="p">,</span> <span class="n">total_metal_edges</span><span class="p">,</span> <span class="s2">&quot;metal edges.&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">mol_graph</span></div>
 </pre></div>
 

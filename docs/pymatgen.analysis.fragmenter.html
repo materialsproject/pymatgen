@@ -46,7 +46,7 @@
 <span id="pymatgen-analysis-fragmenter-module"></span><h1>pymatgen.analysis.fragmenter module<a class="headerlink" href="#module-pymatgen.analysis.fragmenter" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.analysis.fragmenter.Fragmenter">
-<em class="property">class </em><code class="sig-name descname">Fragmenter</code><span class="sig-paren">(</span><em class="sig-param">molecule</em>, <em class="sig-param">edges=None</em>, <em class="sig-param">depth=1</em>, <em class="sig-param">open_rings=False</em>, <em class="sig-param">use_metal_edge_extender=False</em>, <em class="sig-param">opt_steps=10000</em>, <em class="sig-param">use_igraph=True</em>, <em class="sig-param">prev_unique_frag_dict=None</em>, <em class="sig-param">assume_previous_thoroughness=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/fragmenter.html#Fragmenter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.fragmenter.Fragmenter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Fragmenter</code><span class="sig-paren">(</span><em class="sig-param">molecule</em>, <em class="sig-param">edges=None</em>, <em class="sig-param">depth=1</em>, <em class="sig-param">open_rings=False</em>, <em class="sig-param">use_metal_edge_extender=False</em>, <em class="sig-param">opt_steps=10000</em>, <em class="sig-param">prev_unique_frag_dict=None</em>, <em class="sig-param">assume_previous_thoroughness=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/fragmenter.html#Fragmenter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.fragmenter.Fragmenter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Standard constructor for molecule fragmentation</p>
 <dl class="field-list simple">
@@ -69,8 +69,6 @@ O, N, F, or Cl to any Li or Mg atoms present that OpenBabel may have missed. Def
 to False. Most important for ionic bonding. Note that additional metal edges may yield
 new “rings” (e.g. -C-O-Li-O- in LiEC) that will not play nicely with ring opening.</p></li>
 <li><p><strong>opt_steps</strong> (<em>int</em>) – Number of optimization steps when opening rings. Defaults to 10000.</p></li>
-<li><p><strong>use_igraph</strong> (<em>bool</em>) – Whether or not to use the igraph library, which is faster than networkx.
-Defaults to True.</p></li>
 <li><p><strong>prev_unique_frag_dict</strong> (<em>dict</em>) – A dictionary of previously identified unique fragments.
 Defaults to None. Typically only used when trying to find the set of unique fragments
 that come from multiple molecules.</p></li>
