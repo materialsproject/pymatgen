@@ -606,7 +606,8 @@ class Poscar(MSONable):
         self.structure.add_site_property("velocities", velocities.tolist())
 
 
-with open("incar_parameters.json") as incar_params:
+cwd = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(cwd, "incar_parameters.json")) as incar_params:
     incar_params = json.loads(incar_params.read())
 
 
@@ -913,21 +914,10 @@ class Incar(dict, MSONable):
 
                 # If an incar parameter only takes lists, check
                 # if the user provided setting is a list
-                elif type(incar_params[k]).__name__ == 'dict':
-                    if type(self[k]).__name__ == 'list':
-                        # check that each element in the list is
-                        # of the appropriate type for this parameter
-                        for l in self[k]:
-                            if incar_params[k]['list'] == 'float':
-                                if not np.isreal(l):
-                                    warnings.warn("%s: %s is not real" % (k, l),
-                                                  BadIncarWarning, stacklevel=2)
-                            elif type(l).__name__ != incar_params[k]['list']:
-                                warnings.warn("%s: %s is not a %s" % (k, l, incar_params[k]['list']),
-                                              BadIncarWarning, stacklevel=2)
-                    else:
-                        warnings.warn("%s: %s is not a list" % (k, self[k]),
-                                      BadIncarWarning, stacklevel=2)
+                elif type(incar_params[k]).__name__ == 'dict' \
+                        and type(self[k]).__name__ != 'list':
+                    warnings.warn("%s: %s is not a list" % (k, self[k]),
+                                  BadIncarWarning, stacklevel=2)
 
 
 class Kpoints_supported_modes(Enum):
