@@ -1,9 +1,9 @@
 {
  "ADDGRID": "bool",
- "AEXX": "isreal",
- "AGGAC": "isreal",
- "AGGAX": "isreal",
- "ALDAC": "isreal",
+ "AEXX": "float",
+ "AGGAC": "float",
+ "AGGAX": "float",
+ "ALDAC": "float",
  "ALGO": [
   "Normal",
   "VeryFast",
@@ -41,63 +41,63 @@
   "QPGW0R",
   "QPGWR"
  ],
- "AMIN": "isreal",
- "AMIX": "isreal",
- "AMIX_MAG": "isreal",
- "ANDERSEN_PROB": "isreal",
+ "AMIN": "float",
+ "AMIX": "float",
+ "AMIX_MAG": "float",
+ "ANDERSEN_PROB": "float",
  "ANTIRES": [
   0,
   1,
   2
  ],
- "APACO": "isreal",
- "BMIX": "isreal",
- "BMIX_MAG": "isreal",
+ "APACO": "float",
+ "BMIX": "float",
+ "BMIX_MAG": "float",
  "CH_LSPEC": "bool",
  "CH_NEDOS": "int",
- "CH_SIGMA": "isreal",
+ "CH_SIGMA": "float",
  "CLL": "int",
  "CLN": "int",
  "CLNT": "int",
- "CLZ": "isreal",
+ "CLZ": "float",
  "CMBJ": {
-  "list": "isreal"
+  "list": "float"
  },
- "CMBJA": "isreal",
- "CMBJB": "isreal",
- "CSHIFT": "isreal",
- "DEPER": "isreal",
- "DIMER_DIST": "isreal",
+ "CMBJA": "float",
+ "CMBJB": "float",
+ "CSHIFT": "float",
+ "DEPER": "float",
+ "DIMER_DIST": "float",
  "DIPOL": {
-  "list": "isreal"
+  "list": "float"
  },
- "DQ": "isreal",
- "EBREAK": "isreal",
- "EDIFF": "isreal",
- "EDIFFG": "isreal",
- "EFIELD": "isreal",
+ "DQ": "float",
+ "EBREAK": "float",
+ "EDIFF": "float",
+ "EDIFFG": "float",
+ "EFIELD": "float",
  "EFIELD_PEAD": {
-  "list": "isreal"
+  "list": "float"
  },
  "EINT": {
-  "list": "isreal"
+  "list": "float"
  },
- "EMAX": "isreal",
- "EMIN": "isreal",
- "ENAUG": "isreal",
- "ENCUT": "isreal",
- "ENCUTFOCK": "isreal",
- "ENCUTGW": "isreal",
- "ENCUTGWSOFT": "isreal",
- "ENINI": "isreal",
- "EPSILON": "isreal",
+ "EMAX": "float",
+ "EMIN": "float",
+ "ENAUG": "float",
+ "ENCUT": "int",
+ "ENCUTFOCK": "float",
+ "ENCUTGW": "float",
+ "ENCUTGWSOFT": "float",
+ "ENINI": "float",
+ "EPSILON": "float",
  "EVENONLY": "bool",
  "EVENONLYGW": "bool",
  "FERDO": {
-  "list": "isreal"
+  "list": "float"
  },
  "FERWE": {
-  "list": "isreal"
+  "list": "float"
  },
  "FINDIFF": "int",
  "GGA": [
@@ -128,12 +128,12 @@
  ],
  "GGA_COMPAT": "bool",
  "HFLMAX": "int",
- "HFRCUT": "isreal",
- "HFSCREEN": "isreal",
+ "HFRCUT": "float",
+ "HFSCREEN": "float",
  "HILLS_BIN": "int",
- "HILLS_H": "isreal",
- "HILLS_W": "isreal",
- "HITOLER": "isreal",
+ "HILLS_H": "float",
+ "HILLS_W": "float",
+ "HITOLER": "float",
  "I_CONSTRAINED_M": [
   1,
   2,
@@ -226,7 +226,7 @@
   4
  ],
  "INCREM": {
-  "list": "isreal"
+  "list": "float"
  },
  "INIMIX": [
   0,
@@ -302,14 +302,14 @@
  "KPUSE": {
   "list": "int"
  },
- "KSPACING": "isreal",
+ "KSPACING": "float",
  "LADDER": "bool",
  "LAECHG": "bool",
- "LAMBDA": "isreal",
+ "LAMBDA": "float",
  "LANGEVIN_GAMMA": {
-  "list": "isreal"
+  "list": "float"
  },
- "LANGEVIN_GAMMA_L": "isreal",
+ "LANGEVIN_GAMMA_L": "float",
  "LASPH": "bool",
  "LASYNC": "bool",
  "LATTICE_CONSTRAINTS": {
@@ -325,7 +325,7 @@
  "LCORR": "bool",
  "LDAU": "bool",
  "LDAUJ": {
-  "list": "isreal"
+  "list": "float"
  },
  "LDAUL": {
   "list": "int"
@@ -341,7 +341,7 @@
   4
  ],
  "LDAUU": {
-  "list": "isreal"
+  "list": "float"
  },
  "LDIAG": "bool",
  "LDIPOL": "bool",
@@ -414,10 +414,10 @@
  "LWRITE_WANPROJ": "bool",
  "LZEROZ": "bool",
  "M_CONSTR": {
-  "list": "isreal"
+  "list": "float"
  },
  "MAGMOM": {
-  "list": "isreal"
+  "list": "float"
  },
  "MAXMEM": "int",
  "MAXMIX": "int",
@@ -440,21 +440,21 @@
   "MS1",
   "MS2"
  ],
- "MINROT": "isreal",
+ "MINROT": "float",
  "MIXPRE": [
   0,
   1,
   2,
   3
  ],
- "ML_FF_AFILT2_MB": "isreal",
- "ML_FF_CDOUB": "isreal",
- "ML_FF_CSF": "isreal",
- "ML_FF_CSIG": "isreal",
- "ML_FF_CSLOPE": "isreal",
- "ML_FF_CTIFOR": "isreal",
+ "ML_FF_AFILT2_MB": "float",
+ "ML_FF_CDOUB": "float",
+ "ML_FF_CSF": "float",
+ "ML_FF_CSIG": "float",
+ "ML_FF_CSLOPE": "float",
+ "ML_FF_CTIFOR": "float",
  "ML_FF_EATOM": {
-  "list": "isreal"
+  "list": "float"
  },
  "ML_FF_IAFILT2_MB": "int",
  "ML_FF_IBROAD1_MB": "int",
@@ -500,18 +500,18 @@
  "ML_FF_NR1_MB": "int",
  "ML_FF_NR2_MB": "int",
  "ML_FF_NWRITE": "int",
- "ML_FF_RCOUPLE_MB": "isreal",
- "ML_FF_RCUT1_MB": "isreal",
- "ML_FF_RCUT2_MB": "isreal",
- "ML_FF_SIGV0_MB": "isreal",
- "ML_FF_SIGW0_MB": "isreal",
- "ML_FF_SION1_MB": "isreal",
- "ML_FF_SION2_MB": "isreal",
- "ML_FF_W1_MB": "isreal",
- "ML_FF_W2_MB": "isreal",
- "ML_FF_WTIFOR": "isreal",
- "ML_FF_WTOTEN": "isreal",
- "ML_FF_WTSIF": "isreal",
+ "ML_FF_RCOUPLE_MB": "float",
+ "ML_FF_RCUT1_MB": "float",
+ "ML_FF_RCUT2_MB": "float",
+ "ML_FF_SIGV0_MB": "float",
+ "ML_FF_SIGW0_MB": "float",
+ "ML_FF_SION1_MB": "float",
+ "ML_FF_SION2_MB": "float",
+ "ML_FF_W1_MB": "float",
+ "ML_FF_W2_MB": "float",
+ "ML_FF_WTIFOR": "float",
+ "ML_FF_WTOTEN": "float",
+ "ML_FF_WTSIF": "float",
  "NBANDS": "int",
  "NBANDSGW": "int",
  "NBANDSO": "int",
@@ -526,7 +526,7 @@
  },
  "NDAV": "int",
  "NEDOS": "int",
- "NELECT": "isreal",
+ "NELECT": "float",
  "NELM": "int",
  "NELMDL": "int",
  "NELMIN": "int",
@@ -536,7 +536,7 @@
  "NGY": "int",
  "NGYF": "int",
  "NGYROMAG": {
-  "list": "isreal"
+  "list": "float"
  },
  "NGZ": "int",
  "NGZF": "int",
@@ -574,15 +574,15 @@
  ],
  "ODDONLY": "bool",
  "ODDONLYGW": "bool",
- "OFIELD_A": "isreal",
- "OFIELD_KAPPA": "isreal",
- "OFIELD_Q6_FAR": "isreal",
- "OFIELD_Q6_NEAR": "isreal",
- "OMEGAMAX": "isreal",
- "OMEGAMIN": "isreal",
- "OMEGATL": "isreal",
- "PARAM1": "isreal",
- "PARAM2": "isreal",
+ "OFIELD_A": "float",
+ "OFIELD_KAPPA": "float",
+ "OFIELD_Q6_FAR": "float",
+ "OFIELD_Q6_NEAR": "float",
+ "OMEGAMAX": "float",
+ "OMEGAMIN": "float",
+ "OMEGATL": "float",
+ "PARAM1": "float",
+ "PARAM2": "float",
  "PFLAT": "bool",
  "PHON_LBOSE": "bool",
  "PHON_LMC": "bool",
@@ -592,9 +592,9 @@
   "list": "int"
  },
  "PLEVEL": "int",
- "PMASS": "isreal",
- "POMASS": "isreal",
- "POTIM": "isreal",
+ "PMASS": "float",
+ "POMASS": "float",
+ "POTIM": "float",
  "PREC": [
   "Low",
   "Medium",
@@ -611,77 +611,81 @@
   "Accurate"
  ],
  "PROUTINE": "int",
- "PSTRESS": "isreal",
+ "PSTRESS": "float",
  "PSUBSYS": {
-  "list": "isreal"
+  "list": "float"
  },
- "PTHRESHOLD": "isreal",
+ "PTHRESHOLD": "float",
  "QMAXFOCKAE": {
-  "list": "isreal"
+  "list": "float"
  },
  "QSPIRAL": {
-  "list": "isreal"
+  "list": "float"
  },
  "QUAD_EFG": {
-  "list": "isreal"
+  "list": "float"
  },
  "RANDOM_SEED": {
   "list": "int"
  },
  "ROPT": {
-  "list": "isreal"
+  "list": "float"
  },
  "RWIGS": {
-  "list": "isreal"
+  "list": "float"
  },
  "SAXIS": {
-  "list": "isreal"
+  "list": "float"
  },
- "SCSRAD": "isreal",
+ "SCSRAD": "float",
  "SHAKEMAXITER": "int",
- "SHAKETOL": "isreal",
- "SIGMA": "isreal",
- "SMASS": "isreal",
+ "SHAKETOL": "float",
+ "SIGMA": "float",
+ "SMASS": "float",
  "SMEARINGS": {
   "list": "int"
  },
  "SPRING": "int",
- "STEP_MAX": "isreal",
- "STEP_SIZE": "isreal",
- "SYMPREC": "isreal",
+ "STEP_MAX": "float",
+ "STEP_SIZE": "float",
+ "SYMPREC": "float",
  "SYSTEM": "str",
- "TEBEG": "isreal",
- "TEEND": "isreal",
- "TIME": "isreal",
+ "TEBEG": "float",
+ "TEEND": "float",
+ "TIME": "float",
  "TSUBSYS": {
-  "list": "isreal"
+  "list": "float"
  },
  "VALUE_MAX": {
-  "list": "isreal"
+  "list": "float"
  },
  "VALUE_MIN": {
-  "list": "isreal"
+  "list": "float"
  },
- "VCUTOFF": "isreal",
- "VDW_A1": "isreal",
- "VDW_A2": "isreal",
+ "VCUTOFF": "float",
+ "VDW_A1": "float",
+ "VDW_A2": "float",
  "VDW_C6": {
-  "list": "isreal"
+  "list": "float"
  },
- "VDW_CNRADIUS": "isreal",
- "VDW_D": "isreal",
+ "VDW_CNRADIUS": "float",
+ "VDW_D": "float",
  "VDW_R0": {
-  "list": "isreal"
+  "list": "float"
  },
- "VDW_RADIUS": "isreal",
- "VDW_S6": "isreal",
- "VDW_S8": "isreal",
- "VDW_SR": "isreal",
+ "VDW_RADIUS": "float",
+ "VDW_S6": "float",
+ "VDW_S8": "float",
+ "VDW_SR": "float",
  "VOSKOWN": [
   0,
   1
  ],
- "WC": "isreal",
- "WEIMIN": "isreal",
- "ZVAL": "isreal"
+ "WC": "float",
+ "WEIMIN": "float",
+ "ZVAL": "float",
+ "ISPIND": [
+  1,
+  2
+ ]
 }
