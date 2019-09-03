@@ -56,6 +56,7 @@ from pymatgen.core.periodic_table import Specie, Element
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints, VaspInput
 from pymatgen.io.vasp.outputs import Vasprun, Outcar
+from pymatgen.io.lobster import Lobsterin
 from monty.json import MSONable
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
@@ -2008,6 +2009,66 @@ class MVLScanRelaxSet(MPRelaxSet):
                                            "LDAU": False,
                                            "METAGGA": "SCAN",
                                            "NELM": 200})
+
+
+class LobsterSet(MPRelaxSet):
+    CONFIG = _load_yaml_config("MPRelaxSet")
+    """
+    Input set to prepare VASP runs that can be digested by Lobster (See cohp.de)
+
+    Args:
+        structure (Structure): input structure.
+        isym (int): ISYM entry for INCAR, only isym=-1 and isym=0 are allowed
+        ismear (int): ISMEAR entry for INCAR, only ismear=-5 and ismear=0 are allowed
+        reciprocal_density (int): density of k-mesh by reciprocal volume
+        potcar_functional (string): only PBE_54, PBE_52 and PBE are recommended at the moment
+        **kwargs: Other kwargs supported by :class:`DictSet`.
+
+    """
+
+    def __init__(self, structure: Structure, isym=-1, ismear=-5, reciprocal_density=None, potcar_functional="PBE_54",
+                 **kwargs):
+        warnings.warn("Make sure that all parameters are okay! This is a brand new implementation.")
+
+        if not (isym == -1 or isym == 0):
+            raise ValueError("Lobster cannot digest WAVEFUNCTIONS with symmetry")
+        if not (ismear == -5 or ismear == 0):
+            raise ValueError("Lobster usually works with ismear=-5 or ismear=0")
+
+        # newest potcars are preferred
+        super().__init__(structure, potcar_functional=potcar_functional, **kwargs)
+
+        # reciprocal density
+        if self.user_kpoints_settings is not None:
+            if (not reciprocal_density or "reciprocal_density" not in self.user_kpoints_settings):
+                # test, if this is okay
+                self.reciprocal_density = 310
+            else:
+                self.reciprocal_density = reciprocal_density or \
+                                          self.user_kpoints_settings['reciprocal_density']
+        else:
+            if (not reciprocal_density):
+                # test, if this is okay
+                self.reciprocal_density = 310
+            else:
+                self.reciprocal_density = reciprocal_density
+
+        # might need to be adapted in the future
+        ediff_per_atom = 5e-05
+
+        self.isym = isym
+        self.ismear = ismear
+        # predefined basis! Check if the basis is okay! (charge spilling and bandoverlaps!)
+        basis = Lobsterin._get_basis(structure=structure,
+                                     potcar_symbols=self.potcar_symbols)
+        lobsterin = Lobsterin(settingsdict={"basisfunctions": basis})
+        nbands = lobsterin._get_nbands(structure=structure)
+
+        update_dict = {"EDIFF_PER_ATOM": ediff_per_atom, "NSW": 0, "LWAVE": True, "ISYM": isym, "NBANDS": nbands,
+                       "IBRION": -1, "ISMEAR": ismear, "LORBIT": 11, "ICHARG": 0, "ALGO": "Normal"}
+
+        self._config_dict["INCAR"].update(update_dict)
+        self._config_dict["KPOINTS"].update({"reciprocal_density": self.reciprocal_density})
 
 
 def get_vasprun_outcar(path, parse_dos=True, parse_eigen=True):
