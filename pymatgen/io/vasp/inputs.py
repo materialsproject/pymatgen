@@ -610,6 +610,10 @@ with open("incar_parameters.json") as incar_params:
     incar_params = json.loads(incar_params.read())
 
 
+class BadIncarWarning(UserWarning):
+    pass
+
+
 class Incar(dict, MSONable):
     """
     INCAR object for reading and writing INCAR files. Essentially consists of
@@ -886,20 +890,26 @@ class Incar(dict, MSONable):
 
             # First check if this parameter even exists
             if k not in incar_params.keys():
-                warnings.warn("Cannot find %s in the list of INCAR keywords" % (k))
+                warnings.warn("Cannot find %s in the list of INCAR keywords" % (k),
+                              BadIncarWarning, stacklevel=2)
 
             if k in incar_params.keys():
                 if type(incar_params[k]).__name__ == 'str':
                     # Now we check if this is an appropriate parameter type
-                    if type(self[k]).__name__ != incar_params[k]:
-                        warnings.warn("%s: %s is not a %s" % (k, self[k],
-                                                              incar_params[k]))
+                    if incar_params[k] == 'float':
+                        if not np.isreal(self[k]):
+                            warnings.warn("%s: %s is not real" % (k, self[k]),
+                                          BadIncarWarning, stacklevel=2)
+                    elif type(self[k]).__name__ != incar_params[k]:
+                        warnings.warn("%s: %s is not a %s" % (k, self[k], incar_params[k]),
+                                      BadIncarWarning, stacklevel=2)
 
                 # if we have a list of possible parameters, check
                 # if the user given parameter is in this list
                 elif type(incar_params[k]).__name__ == 'list':
                     if self[k] not in incar_params[k]:
-                        warnings.warn("%s: Cannot find %s in the list of parameters" % (k, self[k]))
+                        warnings.warn("%s: Cannot find %s in the list of parameters" % (k, self[k]),
+                                      BadIncarWarning, stacklevel=2)
 
                 # If an incar parameter only takes lists, check
                 # if the user provided setting is a list
@@ -908,10 +918,16 @@ class Incar(dict, MSONable):
                         # check that each element in the list is
                         # of the appropriate type for this parameter
                         for l in self[k]:
-                            if type(l).__name__ != incar_params[k]['list']:
-                                warnings.warn("%s: %s is not a %s" % (k, l, incar_params[k]['list']))
+                            if incar_params[k]['list'] == 'float':
+                                if not np.isreal(l):
+                                    warnings.warn("%s: %s is not real" % (k, l),
+                                                  BadIncarWarning, stacklevel=2)
+                            elif type(l).__name__ != incar_params[k]['list']:
+                                warnings.warn("%s: %s is not a %s" % (k, l, incar_params[k]['list']),
+                                              BadIncarWarning, stacklevel=2)
                     else:
-                        warnings.warn("%s: %s is not a list" % (k, self[k]))
+                        warnings.warn("%s: %s is not a list" % (k, self[k]),
+                                      BadIncarWarning, stacklevel=2)
 
 
 class Kpoints_supported_modes(Enum):

@@ -2109,8 +2109,6 @@ def standardize_structure(structure, sym_prec=0.1,
     return new_structure
 
 
-class BadInputSetWarning(UserWarning):
-    pass
 
 
 def batch_write_input(structures, vasp_input_set=MPRelaxSet, output_dir=".",
