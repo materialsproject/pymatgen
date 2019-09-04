@@ -1,6 +1,29 @@
 Change log
 ==========
 
+v2019.8.23
+----------
+* pycodestyle now enforced, except on tests. Developers should install
+  pycodestyle and the pre-commit hook (copy pre-commit to .git/hooks) 
+  provided in the repo to check before commits. CI now checks for code style
+  and PRs must pass pycodestyle.
+* chemsys str input now allowed in get_entries_in_chemsys (@rkingsbury)
+* ComputedEntry and subclasses now support a normalize().
+* Speed improvements in fragmeter using igraph. (@samblau)
+
+v2019.8.14
+----------
+* Update DOSCAR from lobster (@JaGEO)
+* PerturbStructureTransformation (@rees-c)
+* Misc bug fixes.
+
+v2019.7.30
+----------
+* Bug fixes (@shyuep, @mfherbst)
+* More type hint annotations (@shyuep)
+* Improvements to BabelMolAdaptor (@smheidrich)
+* Convenience Transformations for AdsorbateSiteFinder (@mkhorton)
+
 v2019.7.21
 ----------
 * Add CubicSupercellTransformation and PerturbedSupercellsTransformation (@rees-c, @utf)
@@ -9,6 +32,7 @@ v2019.7.21
 * Improved Lobster interface (@JaGeo)
 * Bug fixes (@sthartman, @dwinston, @utf)
 * New functionality for calculation of Heisenberg exchange parameters (@ncfrey)
+* Improvements to Miller indices handling and Lattice (@richardtran415)
 
 
 v2019.7.2

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.vasp.inputs module &#8212; pymatgen 2019.7.21 documentation</title>
+    <title>pymatgen.io.vasp.inputs module &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -638,8 +638,8 @@ to -1 (MB hasn”t been performed).</p>
 <em class="property">static </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param">filename</em>, <em class="sig-param">check_for_POTCAR=True</em>, <em class="sig-param">read_velocities=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Poscar.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Poscar.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads a Poscar from a file.</p>
 <p>The code will try its best to determine the elements in the POSCAR in
-the following order:
-1. If check_for_POTCAR is True, the code will try to check if a POTCAR
+the following order:</p>
+<p>1. If check_for_POTCAR is True, the code will try to check if a POTCAR
 is in the same directory as the POSCAR and use elements from that by
 default. (This is the VASP default sequence of priority).
 2. If the input file is Vasp5-like and contains element symbols in the
@@ -673,13 +673,13 @@ are present in the POSCAR. Default is True.</p></li>
 <em class="property">static </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">default_names=None</em>, <em class="sig-param">read_velocities=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Poscar.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Poscar.from_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads a Poscar from a string.</p>
 <p>The code will try its best to determine the elements in the POSCAR in
-the following order:
-1. If default_names are supplied and valid, it will use those. Usually,
+the following order:</p>
+<p>1. If default_names are supplied and valid, it will use those. Usually,
 default names comes from an external source, such as a POTCAR in the
-same directory.
-2. If there are no valid default names but the input file is Vasp5-like
-and contains element symbols in the 6th line, the code will use that.
-3. Failing (2), the code will check if a symbol is provided at the end
+same directory.</p>
+<p>2. If there are no valid default names but the input file is Vasp5-like
+and contains element symbols in the 6th line, the code will use that.</p>
+<p>3. Failing (2), the code will check if a symbol is provided at the end
 of each coordinate.</p>
 <p>If all else fails, the code will just assign the first n elements in
 increasing atomic number, where n is the number of species, to the
@@ -1124,7 +1124,7 @@ present. Defaults to True.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
       </ul>
     </div>
 

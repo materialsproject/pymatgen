@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder module &#8212; pymatgen 2019.7.21 documentation</title>
+    <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder module &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -122,9 +122,15 @@ DOI: 10.1021/acs.chemmater.7b02766</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Main class used to find the local environments in a structure</p>
 <p>Constructor for the LocalGeometryFinder, initializes the list of coordination geometries
-:param permutations_safe_override: If set to True, all permutations are tested (very time-consuming for large
-coordination numbers!)
-:param plane_ordering_override: If set to False, the ordering of the points in the plane is disabled</p>
+:param permutations_safe_override: If set to True, all permutations are tested (very time-consuming for large</p>
+<blockquote>
+<div><p>coordination numbers!)</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>plane_ordering_override</strong> – If set to False, the ordering of the points in the plane is disabled</p>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.BVA_DISTANCE_SCALE_FACTORS">
 <code class="sig-name descname">BVA_DISTANCE_SCALE_FACTORS</code><em class="property"> = {'GGA_relaxed': 1.015, 'LDA_relaxed': 0.995, 'experimental': 1.0}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.BVA_DISTANCE_SCALE_FACTORS" title="Permalink to this definition">¶</a></dt>
@@ -209,10 +215,10 @@ is not None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The StructureEnvironments object containing all the information about the coordination</p>
+<dd class="field-even"><p>The StructureEnvironments object containing all the information about the coordination
+environments in the structure</p>
 </dd>
 </dl>
-<p>environments in the structure</p>
 </dd></dl>
 
 <dl class="method">
@@ -392,9 +398,8 @@ atom for coordination numbers 1, 2, 3 and 4 and the centroid for coordination nu
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>bva_distance_scale_factor</strong> – Scaling factor for the bond valence analyzer (this might be different whether
-the structure is an experimental one, an LDA or a GGA relaxed one, or any
-other relaxation scheme (where under- or over-estimation of bond lengths
-is known).</p></li>
+the structure is an experimental one, an LDA or a GGA relaxed one, or any other relaxation scheme (where
+under- or over-estimation of bond lengths is known).</p></li>
 <li><p><strong>structure_refinement</strong> – Refinement of the structure. Can be “none”, “refined” or “symmetrized”.</p></li>
 <li><p><strong>spg_analyzer_options</strong> – Options for the SpaceGroupAnalyzer (dictionary specifying “symprec”
 and “angle_tolerance”. See pymatgen’s SpaceGroupAnalyzer for more information.</p></li>
@@ -422,8 +427,7 @@ and “angle_tolerance”. See pymatgen’s SpaceGroupAnalyzer for more informat
 <code class="sig-name descname">setup_structure</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometry_finder.html#LocalGeometryFinder.setup_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets up the structure for which the coordination geometries have to be identified. The structure is analyzed
 with the space group analyzer and a refined structure is used
-:param structure: A pymatgen Structure
-:param</p>
+:param structure: A pymatgen Structure</p>
 </dd></dl>
 
 <dl class="method">
@@ -537,7 +541,7 @@ with the space group analyzer and a refined structure is used
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
       </ul>
     </div>
 

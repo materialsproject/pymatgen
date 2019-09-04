@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.defects.core &#8212; pymatgen 2019.7.21 documentation</title>
+    <title>pymatgen.analysis.defects.core &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -199,11 +199,11 @@
         <span class="n">defect_structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">defect_structure</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">(</span><span class="n">supercell</span><span class="p">)</span>
 
-        <span class="c1">#create a trivial defect structure to find where supercell transformation moves the lattice</span>
-        <span class="n">struct_for_defect_site</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span>
-                                             <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">],</span>
-                                             <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">],</span>
-                                             <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># create a trivial defect structure to find where supercell transformation moves the lattice</span>
+        <span class="n">struct_for_defect_site</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span>
+                                           <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">],</span>
+                                           <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">],</span>
+                                           <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">struct_for_defect_site</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">(</span><span class="n">supercell</span><span class="p">)</span>
         <span class="n">defect_site</span> <span class="o">=</span> <span class="n">struct_for_defect_site</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
@@ -224,7 +224,7 @@
         <span class="n">poss_deflist</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
             <span class="n">periodic_struc</span><span class="o">.</span><span class="n">get_sites_in_sphere</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">poss_deflist</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Site </span><span class="si">{}</span><span class="s2"> is not in bulk structure! Cannot create Vacancy object.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Site </span><span class="si">{}</span><span class="s2"> is not in bulk structure! Cannot create Vacancy object.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">defindex</span> <span class="o">=</span> <span class="n">poss_deflist</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
             <span class="n">defect_site</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="p">[</span><span class="n">defindex</span><span class="p">]</span>
@@ -265,18 +265,18 @@
 <span class="sd">        Args:</span>
 <span class="sd">            supercell (int, [3x1], or [[]] (3x3)): supercell integer, vector, or scaling matrix</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">defect_structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span>
-                                      <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="p">],</span>
-                                      <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="p">],</span>
-                                      <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">coords_are_cartesian</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-                                      <span class="n">site_properties</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="c1">#remove all site_properties</span>
+        <span class="n">defect_structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span>
+                                     <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="p">],</span>
+                                     <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="p">],</span>
+                                     <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                     <span class="n">site_properties</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>  <span class="c1"># remove all site_properties</span>
         <span class="n">defect_structure</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">(</span><span class="n">supercell</span><span class="p">)</span>
 
-        <span class="c1">#create a trivial defect structure to find where supercell transformation moves the defect</span>
-        <span class="n">struct_for_defect_site</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span>
-                                            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">],</span>
-                                            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">],</span>
-                                            <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">coords_are_cartesian</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># create a trivial defect structure to find where supercell transformation moves the defect</span>
+        <span class="n">struct_for_defect_site</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span>
+                                           <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">],</span>
+                                           <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">],</span>
+                                           <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">struct_for_defect_site</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">(</span><span class="n">supercell</span><span class="p">)</span>
         <span class="n">defect_site</span> <span class="o">=</span> <span class="n">struct_for_defect_site</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
@@ -286,7 +286,7 @@
 
         <span class="n">subsite</span> <span class="o">=</span> <span class="n">defect_structure</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">defindex</span><span class="p">)</span>
         <span class="n">defect_structure</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="n">subsite</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                                <span class="n">properties</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>
+                                <span class="n">properties</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
         <span class="n">defect_structure</span><span class="o">.</span><span class="n">set_charge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">defect_structure</span></div>
 
@@ -300,7 +300,7 @@
         <span class="n">poss_deflist</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
             <span class="n">periodic_struc</span><span class="o">.</span><span class="n">get_sites_in_sphere</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">poss_deflist</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Site </span><span class="si">{}</span><span class="s2"> is not in bulk structure! Cannot create Substitution object.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Site </span><span class="si">{}</span><span class="s2"> is not in bulk structure! Cannot create Substitution object.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">defindex</span> <span class="o">=</span> <span class="n">poss_deflist</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
             <span class="n">defect_site</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="p">[</span><span class="n">defindex</span><span class="p">]</span>
@@ -369,23 +369,23 @@
 <span class="sd">        Args:</span>
 <span class="sd">            supercell (int, [3x1], or [[]] (3x3)): supercell integer, vector, or scaling matrix</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">defect_structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span>
-                                      <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="p">],</span>
-                                      <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="p">],</span>
-                                      <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">coords_are_cartesian</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-                                      <span class="n">site_properties</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="c1">#remove all site_properties</span>
+        <span class="n">defect_structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span>
+                                     <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="p">],</span>
+                                     <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="p">],</span>
+                                     <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                     <span class="n">site_properties</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>  <span class="c1"># remove all site_properties</span>
         <span class="n">defect_structure</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">(</span><span class="n">supercell</span><span class="p">)</span>
 
-        <span class="c1">#create a trivial defect structure to find where supercell transformation moves the defect site</span>
-        <span class="n">struct_for_defect_site</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span>
-                                             <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">],</span>
-                                             <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">],</span>
-                                             <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">coords_are_cartesian</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># create a trivial defect structure to find where supercell transformation moves the defect site</span>
+        <span class="n">struct_for_defect_site</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span>
+                                           <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">],</span>
+                                           <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">],</span>
+                                           <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">struct_for_defect_site</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">(</span><span class="n">supercell</span><span class="p">)</span>
         <span class="n">defect_site</span> <span class="o">=</span> <span class="n">struct_for_defect_site</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="n">defect_structure</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="n">defect_site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                                <span class="n">properties</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>
+                                <span class="n">properties</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
         <span class="n">defect_structure</span><span class="o">.</span><span class="n">set_charge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">defect_structure</span></div>
 
@@ -421,7 +421,7 @@
             <span class="k">return</span> <span class="s2">&quot;Int_</span><span class="si">{}</span><span class="s2">_mult</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiplicity</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="create_saturated_interstitial_structure"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.create_saturated_interstitial_structure">[docs]</a><span class="k">def</span> <span class="nf">create_saturated_interstitial_structure</span><span class="p">(</span> <span class="n">interstitial_def</span><span class="p">,</span> <span class="n">dist_tol</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+<div class="viewcode-block" id="create_saturated_interstitial_structure"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.create_saturated_interstitial_structure">[docs]</a><span class="k">def</span> <span class="nf">create_saturated_interstitial_structure</span><span class="p">(</span><span class="n">interstitial_def</span><span class="p">,</span> <span class="n">dist_tol</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    this takes a Interstitial defect object and generates the</span>
 <span class="sd">    sublattice for it based on the structure&#39;s space group.</span>
@@ -441,8 +441,8 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        Structure object decorated with interstitial site equivalents</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">sga</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span> <span class="n">interstitial_def</span><span class="o">.</span><span class="n">bulk_structure</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
-    <span class="n">sg_ops</span> <span class="o">=</span> <span class="n">sga</span><span class="o">.</span><span class="n">get_symmetry_operations</span><span class="p">(</span> <span class="n">cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">sga</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">interstitial_def</span><span class="o">.</span><span class="n">bulk_structure</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+    <span class="n">sg_ops</span> <span class="o">=</span> <span class="n">sga</span><span class="o">.</span><span class="n">get_symmetry_operations</span><span class="p">(</span><span class="n">cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="c1"># copy bulk structure to make saturated interstitial structure out of</span>
     <span class="c1"># artificially lower distance_tolerance to allow for distinct interstitials</span>
@@ -452,23 +452,23 @@
     <span class="n">saturated_defect_struct</span><span class="o">.</span><span class="n">DISTANCE_TOLERANCE</span> <span class="o">=</span> <span class="n">dist_tol</span>
 
     <span class="k">for</span> <span class="n">sgo</span> <span class="ow">in</span> <span class="n">sg_ops</span><span class="p">:</span>
-        <span class="n">new_interstit_coords</span> <span class="o">=</span> <span class="n">sgo</span><span class="o">.</span><span class="n">operate</span><span class="p">(</span> <span class="n">interstitial_def</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">[:])</span>
+        <span class="n">new_interstit_coords</span> <span class="o">=</span> <span class="n">sgo</span><span class="o">.</span><span class="n">operate</span><span class="p">(</span><span class="n">interstitial_def</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">[:])</span>
         <span class="n">poss_new_site</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span>
-                <span class="n">interstitial_def</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span>
-                <span class="n">new_interstit_coords</span><span class="p">,</span>
-                <span class="n">saturated_defect_struct</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span>
-                <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">interstitial_def</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span>
+            <span class="n">new_interstit_coords</span><span class="p">,</span>
+            <span class="n">saturated_defect_struct</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span>
+            <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="c1">#will raise value error if site already exists in structure</span>
+            <span class="c1"># will raise value error if site already exists in structure</span>
             <span class="n">saturated_defect_struct</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                        <span class="n">poss_new_site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">poss_new_site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span>
-                        <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">validate_proximity</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">poss_new_site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">poss_new_site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span>
+                <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">validate_proximity</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
             <span class="k">pass</span>
 
     <span class="c1"># do final space group analysis to make sure symmetry not lowered by saturating defect structure</span>
-    <span class="n">saturated_sga</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span> <span class="n">saturated_defect_struct</span><span class="p">)</span>
+    <span class="n">saturated_sga</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">saturated_defect_struct</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">saturated_sga</span><span class="o">.</span><span class="n">get_space_group_number</span><span class="p">()</span> <span class="o">!=</span> <span class="n">sga</span><span class="o">.</span><span class="n">get_space_group_number</span><span class="p">():</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Warning! Interstitial sublattice generation &quot;</span>
                          <span class="s2">&quot;has changed space group symmetry. Recommend &quot;</span>
@@ -534,7 +534,7 @@
 <span class="sd">         Returns:</span>
 <span class="sd">            DefectEntry object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">defect</span> <span class="o">=</span> <span class="n">MontyDecoder</span><span class="p">()</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;defect&quot;</span><span class="p">])</span>
+        <span class="n">defect</span> <span class="o">=</span> <span class="n">MontyDecoder</span><span class="p">()</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;defect&quot;</span><span class="p">])</span>
         <span class="n">uncorrected_energy</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;uncorrected_energy&quot;</span><span class="p">]</span>
         <span class="n">corrections</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;corrections&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">parameters</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;parameters&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -645,6 +645,7 @@
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span></div>
 
+
 <div class="viewcode-block" id="DefectCorrection"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.DefectCorrection">[docs]</a><span class="k">class</span> <span class="nc">DefectCorrection</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A Correction class modeled off the computed entry correction format</span>
@@ -712,7 +713,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

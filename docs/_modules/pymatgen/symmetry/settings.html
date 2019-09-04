@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.symmetry.settings &#8212; pymatgen 2019.7.21 documentation</title>
+    <title>pymatgen.symmetry.settings &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -59,7 +59,7 @@
 
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
-<span class="k">except</span><span class="p">:</span>
+<span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
     <span class="k">pass</span>  <span class="c1"># harmless, just used for type hinting in IDE</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Matthew Horton&quot;</span>
@@ -76,12 +76,12 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Transform between settings using matrix P and origin shift vector p,</span>
 <span class="sd">        using same notation as reference.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Should initialize using `from_transformation_string` in Jones</span>
 <span class="sd">        faithful notation, given by a string specifying both a</span>
 <span class="sd">        transformation matrix and an origin shift, with parts delimited</span>
 <span class="sd">        by a semi-colon. Best shown by example:</span>
-<span class="sd">        </span>
+
 <span class="sd">        * `a,b,c;0,0,0` is the identity (no change)</span>
 <span class="sd">        * `-b+c,a+c,-a+b+c;0,0,0` is R3:r to R3:h (rhombohedral to</span>
 <span class="sd">          hexagonal setting)</span>
@@ -89,10 +89,10 @@
 <span class="sd">          choice)</span>
 <span class="sd">        * `b,c,a;-1/2,-1/2,-1/2` is Bbab:1 to Ccca:2 (change settin</span>
 <span class="sd">          and origin)</span>
-<span class="sd">        </span>
+
 <span class="sd">        Can transform points (coords), lattices and symmetry operations.</span>
 
-<span class="sd">        Used for transforming magnetic space groups since these are </span>
+<span class="sd">        Used for transforming magnetic space groups since these are</span>
 <span class="sd">        commonly used in multiple settings, due to needing to transform</span>
 <span class="sd">        between magnetic and non-magnetic settings.</span>
 
@@ -145,14 +145,14 @@
             <span class="n">P</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>  <span class="c1"># by convention</span>
             <span class="n">p</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">Fraction</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">origin_shift</span><span class="p">]</span>
             <span class="k">return</span> <span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
-        <span class="k">except</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Failed to parse transformation string.&quot;</span><span class="p">)</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">P</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># type: () -&gt; List[List(float)]</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        </span>
+
 <span class="sd">        :return: transformation matri</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_P</span>
@@ -161,7 +161,7 @@
     <span class="k">def</span> <span class="nf">p</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># type: () -&gt; List[float]</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        </span>
+
 <span class="sd">        :return: translation vector</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_p</span>
@@ -170,7 +170,7 @@
     <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># type: () -&gt; JonesFaithfulTransformation</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        </span>
+
 <span class="sd">        :return: JonesFaithfulTransformation</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">Q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P</span><span class="p">)</span>
@@ -190,14 +190,14 @@
         <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">P</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
         <span class="n">P_string</span> <span class="o">=</span> <span class="n">transformation_to_string</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">components</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">))</span>
         <span class="n">p_string</span> <span class="o">=</span> <span class="n">transformation_to_string</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)),</span> <span class="n">p</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">P_string</span><span class="o">+</span><span class="s2">&quot;;&quot;</span><span class="o">+</span><span class="n">p_string</span>
+        <span class="k">return</span> <span class="n">P_string</span> <span class="o">+</span> <span class="s2">&quot;;&quot;</span> <span class="o">+</span> <span class="n">p_string</span>
 
 <div class="viewcode-block" id="JonesFaithfulTransformation.transform_symmop"><a class="viewcode-back" href="../../../pymatgen.symmetry.settings.html#pymatgen.symmetry.settings.JonesFaithfulTransformation.transform_symmop">[docs]</a>    <span class="k">def</span> <span class="nf">transform_symmop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symmop</span><span class="p">):</span>
         <span class="c1"># type: (Union[SymmOp, MagSymmOp]) -&gt; Union[SymmOp, MagSymmOp]</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Takes a symmetry operation and transforms it.</span>
 <span class="sd">        :param symmop: SymmOp or MagSymmOp</span>
-<span class="sd">        :return: </span>
+<span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">W</span> <span class="o">=</span> <span class="n">symmop</span><span class="o">.</span><span class="n">rotation_matrix</span>
         <span class="n">w</span> <span class="o">=</span> <span class="n">symmop</span><span class="o">.</span><span class="n">translation_vector</span>
@@ -218,7 +218,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Takes a list of co-ordinates and transforms them.</span>
 <span class="sd">        :param coords: List of coords</span>
-<span class="sd">        :return: </span>
+<span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">new_coords</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">coords</span><span class="p">:</span>
@@ -233,7 +233,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Takes a Lattice object and transforms it.</span>
 <span class="sd">        :param lattice: Lattice</span>
-<span class="sd">        :return: </span>
+<span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Lattice</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">P</span><span class="p">))</span></div>
 
@@ -276,7 +276,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

@@ -423,7 +423,8 @@ class CompleteCohp(Cohp):
 
         Args:
             label_list: list of labels for the COHP that should be included in the summed cohp
-            orbital_list: list of orbitals for the COHPs that should be included in the summed cohp (same order as label_list)
+            orbital_list: list of orbitals for the COHPs that should be included in the summed cohp (same order as
+                label_list)
             divisor: float/int, the summed cohp will be divided by this divisor
         Returns:
             Returns a COHP object including a summed COHP
@@ -565,13 +566,10 @@ class CompleteCohp(Cohp):
                     except KeyError:
                         pass
 
-                orb_res_icohp = None in [orb_cohp[label][orb]["ICOHP"]
-                                         for orb in orb_cohp[label]]
-                if (label not in d["ICOHP"] or
-                    d["ICOHP"][label] is None) and orb_res_icohp:
-                    icohp = {Spin.up: np.sum(np.array(
-                        [orb_cohp[label][orb]["ICOHP"][Spin.up]
-                         for orb in orb_cohp[label]]), axis=0)}
+                orb_res_icohp = None in [orb_cohp[label][orb]["ICOHP"] for orb in orb_cohp[label]]
+                if (label not in d["ICOHP"] or d["ICOHP"][label] is None) and orb_res_icohp:
+                    icohp = {Spin.up: np.sum(np.array([orb_cohp[label][orb]["ICOHP"][Spin.up]
+                             for orb in orb_cohp[label]]), axis=0)}
                     try:
                         icohp[Spin.down] = np.sum(np.array(
                             [orb_cohp[label][orb]["ICOHP"][Spin.down]
@@ -638,7 +636,8 @@ class CompleteCohp(Cohp):
                 filename = "COOPCAR.lobster" if are_coops \
                     else "COHPCAR.lobster"
             warnings.warn(
-                "The bond labels are currently consistent with ICOHPLIST.lobster/ICOOPLIST.lobster, not with COHPCAR.lobster/COOPCAR.lobster. Please be aware!")
+                "The bond labels are currently consistent with ICOHPLIST.lobster/ICOOPLIST.lobster, not with "
+                "COHPCAR.lobster/COOPCAR.lobster. Please be aware!")
             cohp_file = Cohpcar(filename=filename, are_coops=are_coops)
             orb_res_cohp = cohp_file.orb_res_cohp
         else:
@@ -668,9 +667,8 @@ class CompleteCohp(Cohp):
                 if cohp_file.cohp_data[label]["COHP"] is None:
                     # print(label)
                     cohp_data[label]["COHP"] = {
-                        sp: np.sum([orb_res_cohp[label][orbs]["COHP"][sp] for orbs in orb_res_cohp[label]], axis=0) for
-                        sp
-                        in spins}
+                        sp: np.sum([orb_res_cohp[label][orbs]["COHP"][sp] for orbs in orb_res_cohp[label]], axis=0)
+                        for sp in spins}
                 if cohp_file.cohp_data[label]["ICOHP"] is None:
                     cohp_data[label]["ICOHP"] = \
                         {sp: np.sum([orb_res_cohp[label][orbs]["ICOHP"][sp]
@@ -687,10 +685,8 @@ class CompleteCohp(Cohp):
                                      for label in cohp_data])
                     avg = np.average(rows, axis=0)
                     # LMTO COHPs have 5 significant figures
-                    avg_data[i].update({spin:
-                                            np.array([round_to_sigfigs(a, 5)
-                                                      for a in avg],
-                                                     dtype=float)})
+                    avg_data[i].update({spin: np.array([round_to_sigfigs(a, 5)
+                                        for a in avg], dtype=float)})
             avg_cohp = Cohp(efermi, energies,
                             avg_data["COHP"],
                             icohp=avg_data["ICOHP"])
@@ -843,8 +839,10 @@ class IcohpValue(MSONable):
 class IcohpCollection(MSONable):
     """
     Class to store IcohpValues
+
     Args:
-        is_spin_polarized:Boolean to indicate if the Lobster calculation was done spin polarized or not Boolean to indicate if the Lobster calculation was done spin polarized or not
+        is_spin_polarized: Boolean to indicate if the Lobster calculation was done spin polarized or not Boolean to
+            indicate if the Lobster calculation was done spin polarized or not
         are_coops: Boolean to indicate whether ICOHPs or ICOOPs are stored
         list_labels: list of labels for ICOHP/ICOOP values
         list_atom1: list of str of atomnames e.g. "O1"
@@ -887,7 +885,9 @@ class IcohpCollection(MSONable):
 
     def get_icohp_by_label(self, label, summed_spin_channels=True, spin=Spin.up):
         """
-        get an icohp value for a certain bond as indicated by the label (bond labels starting by "1" as in ICOHPLIST/ICOOPLIST)
+        get an icohp value for a certain bond as indicated by the label (bond labels starting by "1" as in
+        ICOHPLIST/ICOOPLIST)
+
         Args:
             label: label in str format (usually the bond number in Icohplist.lobster/Icooplist.lobster
             summed_spin_channels: Boolean to indicate whether the ICOHPs/ICOOPs of both spin channels should be summed
@@ -908,7 +908,9 @@ class IcohpCollection(MSONable):
 
     def get_summed_icohp_by_label_list(self, label_list, divisor=1.0, summed_spin_channels=True, spin=Spin.up):
         """
-        get the sum of several ICOHP values that are indicated by a list of labels (labels of the bonds are the same as in ICOHPLIST/ICOOPLIST)
+        get the sum of several ICOHP values that are indicated by a list of labels (labels of the bonds are the same as
+        in ICOHPLIST/ICOOPLIST)
+
         Args:
             label_list: list of labels of the ICOHPs/ICOOPs that should be summed
             divisor: is used to divide the sum
@@ -954,8 +956,10 @@ class IcohpCollection(MSONable):
         get a dict of IcohpValue for a certain site (indicated by integer)
         Args:
             site: integer describing the site of interest, order as in Icohplist.lobster/Icooplist.lobster, starts at 0
-            minsummedicohp: float, minimal icohp/icoop of the bonds that are considered. It is the summed ICOHP value from both spin channels for spin polarized cases
-            maxsummedicohp: float, maximal icohp/icoop of the bonds that are considered. It is the summed ICOHP value from both spin channels for spin polarized cases
+            minsummedicohp: float, minimal icohp/icoop of the bonds that are considered. It is the summed ICOHP value
+                from both spin channels for spin polarized cases
+            maxsummedicohp: float, maximal icohp/icoop of the bonds that are considered. It is the summed ICOHP value
+                from both spin channels for spin polarized cases
             minbondlength: float, defines the minimum of the bond lengths of the bonds
             maxbondlength: float, defines the maximum of the bond lengths of the bonds
             only_bonds_to: list of strings describing the bonding partners that are allowed, e.g. ['O']

@@ -128,7 +128,7 @@ class MPRester:
         self.session = requests.Session()
         self.session.headers = {"x-api-key": self.api_key}
         if include_user_agent:
-            pymatgen_info = "pymatgen/"+pmg_version
+            pymatgen_info = "pymatgen/" + pmg_version
             python_info = "Python/{}.{}.{}".format(
                 sys.version_info.major, sys.version_info.minor, sys.version_info.micro)
             platform_info = "{}/{}".format(platform.system(), platform.release())
@@ -258,14 +258,14 @@ class MPRester:
         """
         return self._make_request("/materials/%s/doc" % materials_id,
                                   mp_decode=False)
-    
+
     def get_xas_data(self, material_id, absorbing_element):
         """
-        Get X-ray absorption spectroscopy data for absorbing element in the 
-        structure corresponding to a material_id. Only X-ray Absorption Near Edge 
+        Get X-ray absorption spectroscopy data for absorbing element in the
+        structure corresponding to a material_id. Only X-ray Absorption Near Edge
         Structure (XANES) for K-edge is supported.
-        
-        REST Endpoint: 
+
+        REST Endpoint:
         https://www.materialsproject.org/materials/<mp-id>/xas/<absorbing_element>.
 
         Args:
@@ -277,7 +277,7 @@ class MPRester:
                                      prop="elements")[0]["elements"]
         if absorbing_element not in element_list:
             raise ValueError(
-                "{} element not contained in corresponding structure with "\
+                "{} element not contained in corresponding structure with "
                 "mp_id: {}".format(absorbing_element, material_id))
         data = self._make_request(
             "/materials/{}/xas/{}".format(material_id, absorbing_element),
@@ -417,7 +417,7 @@ class MPRester:
         else:
             criteria = chemsys_formula_id_criteria
         data = self.query(criteria, props)
-        
+
         entries = []
         for d in data:
             d["potcar_symbols"] = [
@@ -495,17 +495,14 @@ class MPRester:
                 raise ValueError("Reference solid not contained in entry list")
             stable_ref = sorted(refs, key=lambda x: x.data['e_above_hull'])[0]
             rf = stable_ref.composition.get_reduced_composition_and_factor()[1]
-            solid_diff = ion_ref_pd.get_form_energy(stable_ref) \
-                         - i_d['Reference solid energy'] * rf
+            solid_diff = ion_ref_pd.get_form_energy(stable_ref) - i_d['Reference solid energy'] * rf
             elt = i_d['Major_Elements'][0]
-            correction_factor = ion_entry.ion.composition[elt] \
-                                / stable_ref.composition[elt]
+            correction_factor = ion_entry.ion.composition[elt] / stable_ref.composition[elt]
             ion_entry.energy += solid_diff * correction_factor
             pbx_entries.append(PourbaixEntry(ion_entry, 'ion-{}'.format(n)))
 
         # Construct the solid pourbaix entries from filtered ion_ref entries
-        extra_elts = set(ion_ref_elts) - {Element(s) for s in chemsys} \
-                     - {Element('H'), Element('O')}
+        extra_elts = set(ion_ref_elts) - {Element(s) for s in chemsys} - {Element('H'), Element('O')}
         for entry in ion_ref_entries:
             entry_elts = set(entry.composition.elements)
             # Ensure no OH chemsys or extraneous elements from ion references
@@ -663,8 +660,9 @@ class MPRester:
         creating phase diagrams of entire chemical systems.
 
         Args:
-            elements ([str]): List of element symbols, e.g., ["Li", "Fe",
-                "O"].
+            elements (str or [str]): Chemical system string comprising element
+                symbols separated by dashes, e.g., "Li-Fe-O" or List of element
+                symbols, e.g., ["Li", "Fe", "O"].
             compatible_only (bool): Whether to return only "compatible"
                 entries. Compatible entries are entries that have been
                 processed using the MaterialsProjectCompatibility class,
@@ -687,6 +685,9 @@ class MPRester:
 
         """
         entries = []
+        if isinstance(elements, str):
+            elements = elements.split('-')
+
         for i in range(len(elements)):
             for els in itertools.combinations(elements, i + 1):
                 entries.extend(
@@ -1100,18 +1101,17 @@ class MPRester:
             Cohesive energy (eV).
         """
         entry = self.get_entry_by_material_id(material_id)
-        ebulk = entry.energy / \
-                entry.composition.get_integer_formula_and_factor()[1]
+        ebulk = entry.energy / entry.composition.get_integer_formula_and_factor()[1]
         comp_dict = entry.composition.reduced_composition.as_dict()
 
         isolated_atom_e_sum, n = 0, 0
         for el in comp_dict.keys():
             e = self._make_request("/element/%s/tasks/isolated_atom" % (el),
-                                  mp_decode=False)[0]
+                                   mp_decode=False)[0]
             isolated_atom_e_sum += e['output']["final_energy_per_atom"] * comp_dict[el]
             n += comp_dict[el]
         ecoh_per_formula = isolated_atom_e_sum - ebulk
-        return ecoh_per_formula/n if per_atom else ecoh_per_formula
+        return ecoh_per_formula / n if per_atom else ecoh_per_formula
 
     def get_reaction(self, reactants, products):
         """
@@ -1258,23 +1258,23 @@ class MPRester:
                    "chemsys": chemsys,
                    "sigma": sigma,
                    "gb_plane": gb_plane,
-                   "rotation_axis":rotation_axis}
+                   "rotation_axis": rotation_axis}
 
         if include_work_of_separation and material_id:
             list_of_gbs = self._make_request("/grain_boundaries",
-                               payload=payload)
+                                             payload=payload)
             for i, gb_dict in enumerate(list_of_gbs):
                 gb_energy = gb_dict['gb_energy']
                 gb_plane_int = gb_dict['gb_plane']
                 surface_energy = self.get_surface_data(material_id=material_id,
                                                        miller_index=gb_plane_int)['surface_energy']
-                wsep = 2 * surface_energy - gb_energy # calculate the work of separation
+                wsep = 2 * surface_energy - gb_energy  # calculate the work of separation
                 gb_dict['work_of_separation'] = wsep
             return list_of_gbs
 
         else:
             return self._make_request("/grain_boundaries",
-                                  payload=payload)
+                                      payload=payload)
 
     def get_interface_reactions(self, reactant1, reactant2,
                                 open_el=None, relative_mu=None,

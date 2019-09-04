@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.magnetism.jahnteller module &#8212; pymatgen 2019.7.21 documentation</title>
+    <title>pymatgen.analysis.magnetism.jahnteller module &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -69,18 +69,20 @@ false negatives (false positives are preferred).</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>structure</strong> – input structure</p></li>
-<li><p><strong>(</strong><strong>bool</strong><strong>)</strong> (<em>calculate_valences</em>) – whether to attempt to calculate valences or not, structure</p></li>
+<li><p><strong>(</strong><strong>bool</strong><strong>)</strong> (<em>guesstimate_spin</em>) – whether to attempt to calculate valences or not, structure
+should have oxidation states to perform analysis</p></li>
+<li><p><strong>(</strong><strong>bool</strong><strong>)</strong> – whether to guesstimate spin state from magnetic moments
+or not, use with caution</p></li>
+<li><p><strong>(</strong><strong>float</strong><strong>)</strong> (<em>op_threshold</em>) – threshold for order parameter above which to consider site
+to match an octahedral or tetrahedral motif, since Jahn-Teller structures can often be
+quite distorted, this threshold is smaller than one might expect</p></li>
 </ul>
 </dd>
-</dl>
-<p>should have oxidation states to perform analysis
-:param guesstimate_spin (bool): whether to guesstimate spin state from magnetic moments
-or not, use with caution
-:param op_threshold (float): threshold for order parameter above which to consider site
-to match an octahedral or tetrahedral motif, since Jahn-Teller structures can often be
-quite distorted, this threshold is smaller than one might expect
-:return (dict): analysis of structure, with key ‘strength’ which may be ‘none’, ‘strong’,
+<dt class="field-even">Return (dict)</dt>
+<dd class="field-even"><p>analysis of structure, with key ‘strength’ which may be ‘none’, ‘strong’,
 ‘weak’, or ‘unknown’</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -109,8 +111,10 @@ unevenly occupied but weak if t_2g orbitals unevenly
 occupied
 * in tetrahedral environments always weaker
 :param motif (str): “oct” or “tet”
-:param spin_config (dict): dict of ‘e’ (e_g) and ‘t’ (t2_g)
-with number of electrons in each state</p>
+:param spin_config (dict): dict of ‘e’ (e_g) and ‘t’ (t2_g)</p>
+<blockquote>
+<div><p>with number of electrons in each state</p>
+</div></blockquote>
 </dd></dl>
 
 <dl class="method">
@@ -182,7 +186,7 @@ given species. Only supports transition metals.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
       </ul>
     </div>
 

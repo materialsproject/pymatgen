@@ -414,7 +414,7 @@ class LibxcFunc(Enum):
 
     def __str__(self):
         return "name=%s, kind=%s, family=%s" % (
-        self.name, self.kind, self.family)
+            self.name, self.kind, self.family)
 
     @staticmethod
     def all_families():

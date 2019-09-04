@@ -13,7 +13,7 @@ from monty.json import MSONable
 from pymatgen.core.structure import Molecule
 
 """
-This module implements input and output processing for Fiesta (http://perso.neel.cnrs.fr/xavier.blase/fiesta/index.html).
+This module implements input and output for Fiesta (http://perso.neel.cnrs.fr/xavier.blase/fiesta/index.html).
 
 and
 
@@ -32,7 +32,7 @@ __date__ = "24/5/15"
 class Nwchem2Fiesta(MSONable):
     """
     To run NWCHEM2FIESTA inside python:
-    
+
     If nwchem.nw is the input, nwchem.out the output, and structure.movecs the
     "movecs" file, the syntax to run NWCHEM2FIESTA is: NWCHEM2FIESTA
     nwchem.nw  nwchem.nwout  structure.movecs > log_n2f
@@ -166,7 +166,8 @@ class Basis_set_reader:
         filename: Filename to read.
 
         Basis set are stored in data as a dict:
-         :key l_zeta_ng for each nl orbitals which contain list of tuple (alpha, coef) for each of the ng gaussians in l_zeta orbital
+        :key l_zeta_ng for each nl orbitals which contain list of tuple (alpha, coef) for each of the ng gaussians
+        in l_zeta orbital
     """
 
     def __init__(self, filename):
@@ -302,8 +303,8 @@ class FiestaInput(MSONable):
         """
         copy in the desired folder the needed auxiliary basis set "X2.ion" where X is a specie.
         :param auxiliary_folder: folder where the auxiliary basis sets are stored
-        :param auxiliary_basis_set_type: type of basis set (string to be found in the extension of the file name; must be in lower case)
-               ex: C2.ion_aug_cc_pvtz_RI_Weigend find "aug_cc_pvtz"
+        :param auxiliary_basis_set_type: type of basis set (string to be found in the extension of the file name; must
+            be in lower case). ex: C2.ion_aug_cc_pvtz_RI_Weigend find "aug_cc_pvtz"
         """
 
         list_files = os.listdir(auxiliary_folder)
@@ -311,8 +312,7 @@ class FiestaInput(MSONable):
         for specie in self._mol.symbol_set:
             for file in list_files:
                 if file.upper().find(
-                                specie.upper() + "2") != -1 and file.lower().find(
-                        auxiliary_basis_set_type) != -1:
+                        specie.upper() + "2") != -1 and file.lower().find(auxiliary_basis_set_type) != -1:
                     shutil.copyfile(auxiliary_folder + "/" + file,
                                     folder + "/" + specie + "2.ion")
 
@@ -368,7 +368,7 @@ class FiestaInput(MSONable):
         :param TDDFT_dump: boolen
         :return: set the do_tddft variable to one in cell.in
         """
-        if TDDFT_dump == True:
+        if TDDFT_dump:
             self.BSE_TDDFT_options.update(do_bse=0, do_tddft=1)
         else:
             self.BSE_TDDFT_options.update(do_bse=0, do_tddft=0)
@@ -430,8 +430,7 @@ class FiestaInput(MSONable):
 
         for site in self._mol:
             o.append(" {} {} {} {}".format(site.x, site.y,
-                                           site.z, int(
-                    symbols.index(site.specie.symbol)) + 1))
+                                           site.z, int(symbols.index(site.specie.symbol)) + 1))
 
         o.append("=========================================")
 
@@ -453,8 +452,7 @@ class FiestaInput(MSONable):
         geometry = []
         for site in self._mol:
             geometry.append(" {} {} {} {}".format(site.x, site.y,
-                                                  site.z, int(
-                    symbols.index(site.specie.symbol)) + 1))
+                                                  site.z, int(symbols.index(site.specie.symbol)) + 1))
 
         t = Template("""# number of atoms and species
    $nat    $nsp

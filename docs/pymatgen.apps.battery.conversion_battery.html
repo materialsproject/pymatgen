@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.apps.battery.conversion_battery module &#8212; pymatgen 2019.7.21 documentation</title>
+    <title>pymatgen.apps.battery.conversion_battery module &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -77,7 +77,7 @@ battery, e.g. Li.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.apps.battery.conversion_battery.ConversionElectrode.from_composition_and_entries">
-<em class="property">static </em><code class="sig-name descname">from_composition_and_entries</code><span class="sig-paren">(</span><em class="sig-param">comp</em>, <em class="sig-param">entries_in_chemsys</em>, <em class="sig-param">working_ion_symbol='Li'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/conversion_battery.html#ConversionElectrode.from_composition_and_entries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionElectrode.from_composition_and_entries" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_composition_and_entries</code><span class="sig-paren">(</span><em class="sig-param">comp</em>, <em class="sig-param">entries_in_chemsys</em>, <em class="sig-param">working_ion_symbol='Li'</em>, <em class="sig-param">allow_unstable=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/conversion_battery.html#ConversionElectrode.from_composition_and_entries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionElectrode.from_composition_and_entries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience constructor to make a ConversionElectrode from a
 composition and all entries in a chemical system.</p>
 <dl class="field-list simple">
@@ -95,7 +95,7 @@ chemical system. E.g., all Li-Fe-F containing entries.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.apps.battery.conversion_battery.ConversionElectrode.from_composition_and_pd">
-<em class="property">static </em><code class="sig-name descname">from_composition_and_pd</code><span class="sig-paren">(</span><em class="sig-param">comp</em>, <em class="sig-param">pd</em>, <em class="sig-param">working_ion_symbol='Li'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/conversion_battery.html#ConversionElectrode.from_composition_and_pd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionElectrode.from_composition_and_pd" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_composition_and_pd</code><span class="sig-paren">(</span><em class="sig-param">comp</em>, <em class="sig-param">pd</em>, <em class="sig-param">working_ion_symbol='Li'</em>, <em class="sig-param">allow_unstable=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/conversion_battery.html#ConversionElectrode.from_composition_and_pd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.conversion_battery.ConversionElectrode.from_composition_and_pd" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience constructor to make a ConversionElectrode from a
 composition and a phase diagram.</p>
 <dl class="field-list simple">
@@ -105,6 +105,7 @@ composition and a phase diagram.</p>
 Composition(“FeF3”)</p></li>
 <li><p><strong>pd</strong> – A PhaseDiagram of the relevant system (e.g., Li-Fe-F)</p></li>
 <li><p><strong>working_ion_symbol</strong> – Element symbol of working ion. Defaults to Li.</p></li>
+<li><p><strong>allow_unstable</strong> – Allow compositions that are unstable</p></li>
 </ul>
 </dd>
 </dl>
@@ -336,7 +337,7 @@ ensure correct capacities.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
       </ul>
     </div>
 

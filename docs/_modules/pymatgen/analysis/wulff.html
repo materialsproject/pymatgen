@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.wulff &#8212; pymatgen 2019.7.21 documentation</title>
+    <title>pymatgen.analysis.wulff &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -72,7 +72,6 @@
 <span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="k">import</span> <span class="n">ConvexHull</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
-
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Zihan Xu, Richard Tran, Shyue Ping Ong&#39;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s1">&#39;Copyright 2013, The Materials Virtual Lab&#39;</span>
@@ -383,8 +382,7 @@
         <span class="n">color_proxy</span> <span class="o">=</span> <span class="p">[</span><span class="n">plt</span><span class="o">.</span><span class="n">Rectangle</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">fc</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
                        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">color_list</span><span class="p">]</span>
 
-        <span class="k">return</span> <span class="n">color_list</span><span class="p">,</span> <span class="n">color_proxy</span><span class="p">,</span> <span class="n">color_proxy_on_wulff</span><span class="p">,</span> <span class="n">miller_on_wulff</span><span class="p">,</span> \
-            <span class="n">e_surf_on_wulff_list</span>
+        <span class="k">return</span> <span class="n">color_list</span><span class="p">,</span> <span class="n">color_proxy</span><span class="p">,</span> <span class="n">color_proxy_on_wulff</span><span class="p">,</span> <span class="n">miller_on_wulff</span><span class="p">,</span> <span class="n">e_surf_on_wulff_list</span>
 
 <div class="viewcode-block" id="WulffShape.show"><a class="viewcode-back" href="../../../pymatgen.analysis.wulff.html#pymatgen.analysis.wulff.WulffShape.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -453,9 +451,8 @@
         <span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mpl</span>
         <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
         <span class="kn">import</span> <span class="nn">mpl_toolkits.mplot3d</span> <span class="k">as</span> <span class="nn">mpl3</span>
-        <span class="n">color_list</span><span class="p">,</span> <span class="n">color_proxy</span><span class="p">,</span> <span class="n">color_proxy_on_wulff</span><span class="p">,</span> \
-            <span class="n">miller_on_wulff</span><span class="p">,</span> <span class="n">e_surf_on_wulff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_colors</span><span class="p">(</span>
-                <span class="n">color_set</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">off_color</span><span class="p">,</span> <span class="n">custom_colors</span><span class="o">=</span><span class="n">custom_colors</span><span class="p">)</span>
+        <span class="n">color_list</span><span class="p">,</span> <span class="n">color_proxy</span><span class="p">,</span> <span class="n">color_proxy_on_wulff</span><span class="p">,</span> <span class="n">miller_on_wulff</span><span class="p">,</span> <span class="n">e_surf_on_wulff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_colors</span><span class="p">(</span>
+            <span class="n">color_set</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">off_color</span><span class="p">,</span> <span class="n">custom_colors</span><span class="o">=</span><span class="n">custom_colors</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">direction</span><span class="p">:</span>
             <span class="c1"># If direction is not specified, use the miller indices of</span>
@@ -524,7 +521,7 @@
                 <span class="n">extend</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">ticks</span><span class="o">=</span><span class="n">bounds</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">spacing</span><span class="o">=</span><span class="s1">&#39;proportional&#39;</span><span class="p">,</span>
                 <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;vertical&#39;</span><span class="p">)</span>
             <span class="n">units</span> <span class="o">=</span> <span class="s2">&quot;$J/m^2$&quot;</span> <span class="k">if</span> <span class="n">units_in_JPERM2</span> <span class="k">else</span> <span class="s2">&quot;$eV/\AA^2$&quot;</span>
-            <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s1">&#39;Surface Energies (</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span><span class="p">(</span><span class="n">units</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+            <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s1">&#39;Surface Energies (</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">units</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">grid_off</span><span class="p">:</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
@@ -607,7 +604,7 @@
         <span class="n">miller_energy_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">miller_energy_dict</span>
 
         <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="n">miller_energy_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="n">square_diff_energy</span> <span class="o">+=</span> <span class="p">(</span><span class="n">miller_energy_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">]</span> <span class="o">-</span> <span class="n">weighted_energy</span><span class="p">)</span>\
+            <span class="n">square_diff_energy</span> <span class="o">+=</span> <span class="p">(</span><span class="n">miller_energy_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">]</span> <span class="o">-</span> <span class="n">weighted_energy</span><span class="p">)</span> \
                                   <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">area_frac_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">square_diff_energy</span><span class="p">)</span> <span class="o">/</span> <span class="n">weighted_energy</span>
 
@@ -624,7 +621,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">surface_area</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">volume</span> <span class="o">**</span> <span class="p">(</span><span class="mi">2</span> <span class="o">/</span> <span class="mi">3</span><span class="p">))</span>
 
-
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">effective_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -634,7 +630,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            (float) radius.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">((</span><span class="mi">3</span><span class="o">/</span><span class="mi">4</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">volume</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">((</span><span class="mi">3</span> <span class="o">/</span> <span class="mi">4</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">volume</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">total_surface_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -673,7 +669,7 @@
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pt</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">:</span>
                     <span class="k">break</span>
-                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">tuple</span><span class="p">([</span><span class="nb">tuple</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="mi">2</span><span class="p">]),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="mi">2</span><span class="o">+</span><span class="mi">1</span><span class="p">])]))))</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">tuple</span><span class="p">([</span><span class="nb">tuple</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="mi">2</span><span class="p">]),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])]))))</span>
 
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">all_edges</span><span class="p">:</span>
@@ -682,7 +678,6 @@
             <span class="n">all_edges</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_edges</span><span class="p">)</span></div>
-
 </pre></div>
 
           </div>
@@ -713,7 +708,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

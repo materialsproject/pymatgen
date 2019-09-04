@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.babel &#8212; pymatgen 2019.7.21 documentation</title>
+    <title>pymatgen.io.babel &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -59,7 +59,7 @@
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">openbabel</span> <span class="k">as</span> <span class="nn">ob</span>
     <span class="kn">import</span> <span class="nn">pybel</span> <span class="k">as</span> <span class="nn">pb</span>
-<span class="k">except</span><span class="p">:</span>
+<span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
     <span class="n">pb</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">ob</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -192,10 +192,11 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            idx1: The atom index of one of the atoms participating the in bond</span>
-<span class="sd">            idx2: The atom index of the other atom participating in the bond </span>
+<span class="sd">            idx2: The atom index of the other atom participating in the bond</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">obbond</span> <span class="ow">in</span> <span class="n">ob</span><span class="o">.</span><span class="n">OBMolBondIter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_obmol</span><span class="p">):</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">obbond</span><span class="o">.</span><span class="n">GetBeginAtomIdx</span><span class="p">()</span> <span class="o">==</span> <span class="n">idx1</span> <span class="ow">and</span> <span class="n">obbond</span><span class="o">.</span><span class="n">GetEndAtomIdx</span><span class="p">()</span> <span class="o">==</span> <span class="n">idx2</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">obbond</span><span class="o">.</span><span class="n">GetBeginAtomIdx</span><span class="p">()</span> <span class="o">==</span> <span class="n">idx2</span> <span class="ow">and</span> <span class="n">obbond</span><span class="o">.</span><span class="n">GetEndAtomIdx</span><span class="p">()</span> <span class="o">==</span> <span class="n">idx1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">obbond</span><span class="o">.</span><span class="n">GetBeginAtomIdx</span><span class="p">()</span> <span class="o">==</span> <span class="n">idx1</span> <span class="ow">and</span> <span class="n">obbond</span><span class="o">.</span><span class="n">GetEndAtomIdx</span><span class="p">()</span> <span class="o">==</span> <span class="n">idx2</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+                    <span class="n">obbond</span><span class="o">.</span><span class="n">GetBeginAtomIdx</span><span class="p">()</span> <span class="o">==</span> <span class="n">idx2</span> <span class="ow">and</span> <span class="n">obbond</span><span class="o">.</span><span class="n">GetEndAtomIdx</span><span class="p">()</span> <span class="o">==</span> <span class="n">idx1</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_obmol</span><span class="o">.</span><span class="n">DeleteBond</span><span class="p">(</span><span class="n">obbond</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="BabelMolAdaptor.rotor_conformer"><a class="viewcode-back" href="../../../pymatgen.io.babel.html#pymatgen.io.babel.BabelMolAdaptor.rotor_conformer">[docs]</a>    <span class="k">def</span> <span class="nf">rotor_conformer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">rotor_args</span><span class="p">,</span> <span class="n">algo</span><span class="o">=</span><span class="s2">&quot;WeightedRotorSearch&quot;</span><span class="p">,</span>
@@ -249,6 +250,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A combined method to first generate 3D structures from 0D or 2D</span>
 <span class="sd">        structures and then find the minimum energy conformer:</span>
+
 <span class="sd">        1. Use OBBuilder to create a 3D structure using rules and ring templates</span>
 <span class="sd">        2. Do 250 steps of a steepest descent geometry optimization with the</span>
 <span class="sd">           MMFF94 forcefield</span>
@@ -347,19 +349,25 @@
         <span class="k">return</span> <span class="n">mol</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">file_format</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="BabelMolAdaptor.from_file"><a class="viewcode-back" href="../../../pymatgen.io.babel.html#pymatgen.io.babel.BabelMolAdaptor.from_file">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">file_format</span><span class="o">=</span><span class="s2">&quot;xyz&quot;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">file_format</span><span class="o">=</span><span class="s2">&quot;xyz&quot;</span><span class="p">,</span> <span class="n">return_all_molecules</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Uses OpenBabel to read a molecule from a file in all supported formats.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            filename: Filename of input file</span>
 <span class="sd">            file_format: String specifying any OpenBabel supported formats.</span>
+<span class="sd">            return_all_molecules: If ``True``, will return a list of</span>
+<span class="sd">                ``BabelMolAdaptor`` instances, one for each molecule found in</span>
+<span class="sd">                the file. If ``False``, will return only the first molecule.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            BabelMolAdaptor object</span>
+<span class="sd">            BabelMolAdaptor object or list thereof</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">mols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">pb</span><span class="o">.</span><span class="n">readfile</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">file_format</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">)))</span>
-        <span class="k">return</span> <span class="n">BabelMolAdaptor</span><span class="p">(</span><span class="n">mols</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">OBMol</span><span class="p">)</span></div>
+        <span class="n">mols</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">readfile</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">file_format</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">return_all_molecules</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">BabelMolAdaptor</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">OBMol</span><span class="p">)</span> <span class="k">for</span> <span class="n">mol</span> <span class="ow">in</span> <span class="n">mols</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">BabelMolAdaptor</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">mols</span><span class="p">)</span><span class="o">.</span><span class="n">OBMol</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="BabelMolAdaptor.from_molecule_graph"><a class="viewcode-back" href="../../../pymatgen.io.babel.html#pymatgen.io.babel.BabelMolAdaptor.from_molecule_graph">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_molecule_graph</span><span class="p">(</span><span class="n">mol</span><span class="p">):</span>
@@ -420,7 +428,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

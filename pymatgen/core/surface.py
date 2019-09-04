@@ -49,7 +49,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "ongsp@ucsd.edu"
 __date__ = "6/10/14"
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -418,10 +417,12 @@ class Slab(Structure):
         outs = [
             "Slab Summary (%s)" % comp.formula,
             "Reduced Formula: %s" % comp.reduced_formula,
-            "Miller index: %s" % (self.miller_index, ),
+            "Miller index: %s" % (self.miller_index,),
             "Shift: %.4f, Scale Factor: %s" % (self.shift,
                                                self.scale_factor.__str__())]
-        to_s = lambda x: "%0.6f" % x
+
+        def to_s(x):
+            return "%0.6f" % x
         outs.append("abc   : " + " ".join([to_s(i).rjust(10)
                                            for i in self.lattice.abc]))
         outs.append("angles: " + " ".join([to_s(i).rjust(10)
@@ -507,7 +508,7 @@ class Slab(Structure):
             # species, eg. bond distance of each neighbor or neighbor species. The
             # decimal place to get some cn to be equal.
             cn = v.get_cn(ucell, i, use_weights=True)
-            cn = float('%.5f' %(round(cn, 5)))
+            cn = float('%.5f' % (round(cn, 5)))
             if cn not in cn_dict[el]:
                 cn_dict[el].append(cn)
 
@@ -521,7 +522,7 @@ class Slab(Structure):
             try:
                 # A site is a surface site, if its environment does
                 # not fit the environment of other sites
-                cn = float('%.5f' %(round(v.get_cn(self, i, use_weights=True), 5)))
+                cn = float('%.5f' % (round(v.get_cn(self, i, use_weights=True), 5)))
                 if cn < min(cn_dict[site.species_string]):
                     properties.append(True)
                     key = "top" if top else "bottom"
@@ -651,7 +652,7 @@ class Slab(Structure):
         slabcopy = SpacegroupAnalyzer(self.copy()).get_symmetrized_structure()
         points = [slabcopy[i].frac_coords for i in indices]
         removal_list = []
-        
+
         for pt in points:
             # Get the index of the original site on top
             cart_point = slabcopy.lattice.get_cartesian_coords(pt)
@@ -664,7 +665,7 @@ class Slab(Structure):
                     eq_indices = slabcopy.equivalent_indices[i]
                     break
             i1 = eq_indices[eq_sites.index(slabcopy[site1])]
-            
+
             for i2 in eq_indices:
                 if i2 == i1:
                     continue
@@ -676,16 +677,15 @@ class Slab(Structure):
                 if s.is_symmetric():
                     removal_list.extend([i1, i2])
                     break
-                    
+
         # If expected, 2 atoms are removed per index
-        if len(removal_list) == 2*len(indices):
+        if len(removal_list) == 2 * len(indices):
             self.remove_sites(removal_list)
         else:
             warnings.warn("Equivalent sites could not be found for removal for all indices. Surface unchanged.")
 
-            
-class SlabGenerator:
 
+class SlabGenerator:
     """
     This class generates different slabs using shift values determined by where
     a unique termination can be found along with other criterias such as where a
@@ -903,7 +903,7 @@ class SlabGenerator:
         """
 
         h = self._proj_height
-        p = round(h/self.parent.lattice.d_hkl(self.miller_index), 8)
+        p = round(h / self.parent.lattice.d_hkl(self.miller_index), 8)
         if self.in_unit_planes:
             nlayers_slab = int(math.ceil(self.min_slab_size / p))
             nlayers_vac = int(math.ceil(self.min_vac_size / p))
@@ -952,7 +952,7 @@ class SlabGenerator:
         # Reorient the lattice to get the correct reduced cell
         ouc = self.oriented_unit_cell.copy()
         if self.primitive:
-            #find a reduced ouc
+            # find a reduced ouc
             slab_l = slab.lattice
             ouc = ouc.get_primitive_structure(constrain_latt={"a": slab_l.a, "b": slab_l.b,
                                                               "alpha": slab_l.alpha,
@@ -1021,11 +1021,11 @@ class SlabGenerator:
         for (sp1, sp2), bond_dist in bonds.items():
             for site in self.oriented_unit_cell:
                 if sp1 in site.species:
-                    for nn, d in self.oriented_unit_cell.get_neighbors(
-                            site, bond_dist):
-                        if sp2 in nn.species:
+                    for nn in self.oriented_unit_cell.get_neighbors(site, bond_dist):
+                        nnsite = nn.site
+                        if sp2 in nnsite.species:
                             c_range = tuple(sorted([site.frac_coords[2],
-                                                    nn.frac_coords[2]]))
+                                                    nnsite.frac_coords[2]]))
                             if c_range[1] > 1:
                                 # Takes care of PBC when c coordinate of site
                                 # goes beyond the upper boundary of the cell
@@ -1145,7 +1145,7 @@ class SlabGenerator:
 
                         for nn in self.oriented_unit_cell.get_neighbors(
                                 site, blength):
-                            if nn[0].species_string == pair[i-1]:
+                            if nn[0].species_string == pair[i - 1]:
                                 poly_coord += 1
                     cnlist.append(poly_coord)
                 cn_dict[el] = cnlist
@@ -1161,7 +1161,7 @@ class SlabGenerator:
                 if site.species_string == element1:
                     poly_coord = 0
                     for neighbor in slab.get_neighbors(site, blength):
-                        poly_coord += 1 if neighbor[0].species_string == element2 else 0
+                        poly_coord += 1 if neighbor.site.species_string == element2 else 0
 
                     # suppose we find an undercoordinated reference atom
                     if poly_coord not in cn_dict[element1]:
@@ -1201,7 +1201,7 @@ class SlabGenerator:
         # Determine what fraction the slab is of the total cell size
         # in the c direction. Round to nearest rational number.
         h = self._proj_height
-        p = h/self.parent.lattice.d_hkl(self.miller_index)
+        p = h / self.parent.lattice.d_hkl(self.miller_index)
         if self.in_unit_planes:
             nlayers_slab = int(math.ceil(self.min_slab_size / p))
             nlayers_vac = int(math.ceil(self.min_vac_size / p))
@@ -1212,10 +1212,10 @@ class SlabGenerator:
         slab_ratio = nlayers_slab / nlayers
 
         # Sort the index of sites based on which side they are on
-        top_site_index = [ i for i in index_of_sites if
-                           slab[i].frac_coords[2] > slab.center_of_mass[2]]
-        bottom_site_index = [ i for i in index_of_sites if
-                              slab[i].frac_coords[2] < slab.center_of_mass[2]]
+        top_site_index = [i for i in index_of_sites if
+                          slab[i].frac_coords[2] > slab.center_of_mass[2]]
+        bottom_site_index = [i for i in index_of_sites if
+                             slab[i].frac_coords[2] < slab.center_of_mass[2]]
 
         # Translate sites to the opposite surfaces
         slab.translate_sites(top_site_index, [0, 0, slab_ratio])
@@ -1291,7 +1291,6 @@ with open(os.path.join(module_dir,
 
 
 class ReconstructionGenerator:
-
     """
     This class takes in a pre-defined dictionary specifying the parameters
     need to build a reconstructed slab such as the SlabGenerator parameters,
@@ -1424,10 +1423,10 @@ class ReconstructionGenerator:
 
         if reconstruction_name not in reconstructions_archive.keys():
             raise KeyError("The reconstruction_name entered (%s) does not exist in the "
-            "archive. Please select from one of the following reconstructions: %s "
-            "or add the appropriate dictionary to the archive file "
-            "reconstructions_archive.json." %(reconstruction_name,
-                                              list(reconstructions_archive.keys())))
+                           "archive. Please select from one of the following reconstructions: %s "
+                           "or add the appropriate dictionary to the archive file "
+                           "reconstructions_archive.json." % (reconstruction_name,
+                                                              list(reconstructions_archive.keys())))
 
         # Get the instructions to build the reconstruction
         # from the reconstruction_archive
@@ -1487,7 +1486,7 @@ class ReconstructionGenerator:
                 pts_to_rm = copy.deepcopy(self.reconstruction_json["points_to_remove"])
                 for p in pts_to_rm:
                     p[2] = slab.lattice.get_fractional_coords([top_site[0], top_site[1],
-                                                               top_site[2]+p[2]*d])[2]
+                                                               top_site[2] + p[2] * d])[2]
                     cart_point = slab.lattice.get_cartesian_coords(p)
                     dist = [site.distance_from_point(cart_point) for site in slab]
                     site1 = dist.index(min(dist))
@@ -1498,7 +1497,7 @@ class ReconstructionGenerator:
                 pts_to_add = copy.deepcopy(self.reconstruction_json["points_to_add"])
                 for p in pts_to_add:
                     p[2] = slab.lattice.get_fractional_coords([top_site[0], top_site[1],
-                                                               top_site[2]+p[2]*d])[2]
+                                                               top_site[2] + p[2] * d])[2]
                     slab.symmetrically_add_atom(slab[0].specie, p)
 
             slab.reconstruction = self.name
@@ -1517,7 +1516,6 @@ class ReconstructionGenerator:
         """
         Generates the unreconstructed or pristine super slab.
         """
-
         slabs = []
         for slab in SlabGenerator(**self.slabgen_params).get_slabs():
             slab.make_supercell(self.trans_matrix)
@@ -1532,17 +1530,16 @@ def get_d(slab):
     """
     sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
     for i, site in enumerate(sorted_sites):
-        if "%.6f" % (site.frac_coords[2]) == \
-                        "%.6f" % (sorted_sites[i + 1].frac_coords[2]):
+        if "%.6f" % (site.frac_coords[2]) == "%.6f" % (sorted_sites[i + 1].frac_coords[2]):
             continue
         else:
-            d = abs(site.frac_coords[2] - \
-                    sorted_sites[i + 1].frac_coords[2])
+            d = abs(site.frac_coords[2] - sorted_sites[i + 1].frac_coords[2])
             break
     return slab.lattice.get_cartesian_coords([0, 0, d])[2]
 
+
 def is_already_analyzed(
-        miller_index: tuple, miller_list: list, symm_ops: list)-> bool:
+        miller_index: tuple, miller_list: list, symm_ops: list) -> bool:
     """
     Helper function to check if a given Miller index is
     part of the family of indices of any index in a list
@@ -1559,6 +1556,7 @@ def is_already_analyzed(
         if in_coord_list(miller_list, op.operate(miller_index)):
             return True
     return False
+
 
 def get_symmetrically_equivalent_miller_indices(structure, miller_index, return_hkil=True):
     """
@@ -1603,7 +1601,7 @@ def get_symmetrically_equivalent_miller_indices(structure, miller_index, return_
                     equivalent_millers.append(miller)
 
     if return_hkil and sg.get_crystal_system() in ["trigonal", "hexagonal"]:
-        return [(hkl[0], hkl[1], -1*hkl[0]-hkl[1],
+        return [(hkl[0], hkl[1], -1 * hkl[0] - hkl[1],
                  hkl[2]) for hkl in equivalent_millers]
     return equivalent_millers
 
@@ -1658,7 +1656,7 @@ def get_symmetrically_distinct_miller_indices(structure, max_index, return_hkil=
                 unique_millers_conv.append(miller)
 
     if return_hkil and sg.get_crystal_system() in ["trigonal", "hexagonal"]:
-        return [(hkl[0], hkl[1], -1*hkl[0]-hkl[1],
+        return [(hkl[0], hkl[1], -1 * hkl[0] - hkl[1],
                  hkl[2]) for hkl in unique_millers_conv]
     return unique_millers_conv
 
@@ -1673,7 +1671,10 @@ def hkl_transformation(transf, miller_index):
         miller_index ([h, k, l]): Miller index to transform to setting B
     """
     # Get a matrix of whole numbers (ints)
-    lcm = lambda a, b: a * b // math.gcd(a, b)
+
+    def lcm(a, b):
+        return a * b // math.gcd(a, b)
+
     reduced_transf = reduce(lcm, [int(1 / i) for i in itertools.chain(*transf) if i != 0]) * transf
     reduced_transf = reduced_transf.astype(int)
 
@@ -1820,7 +1821,7 @@ def get_slab_regions(slab, blength=3.5):
             fcoords, indices = [], []
             for nn in neighbors:
                 if 1 > nn[0].frac_coords[2] > 0 and \
-                                nn[0].frac_coords[2] < site.frac_coords[2]:
+                        nn[0].frac_coords[2] < site.frac_coords[2]:
                     # sites are noncontiguous within cell
                     fcoords.append(nn[0].frac_coords[2])
                     indices.append(nn[-2])
@@ -1830,9 +1831,8 @@ def get_slab_regions(slab, blength=3.5):
         # Now locate the highest site within the lower region of the slab
         upper_fcoords = []
         for site in slab:
-            if all([nn[-1] not in all_indices for nn in
-                    slab.get_neighbors(site, blength,
-                                       include_index=True)]):
+            if all([nn.index not in all_indices for nn in
+                    slab.get_neighbors(site, blength)]):
                 upper_fcoords.append(site.frac_coords[2])
         coords = copy.copy(last_fcoords) if not fcoords else copy.copy(fcoords)
         min_top = slab[last_indices[coords.index(min(coords))]].frac_coords[2]
@@ -1887,17 +1887,21 @@ def center_slab(slab):
         find the surface sites and apply operations like doping.
 
     There are three cases where the slab in not centered:
+
     1. The slab region is completely between two vacuums in the
-        box but not necessarily centered. We simply shift the
-        slab by the difference in its center of mass and 0.5
-        along the c direction.
+    box but not necessarily centered. We simply shift the
+    slab by the difference in its center of mass and 0.5
+    along the c direction.
+
     2. The slab completely spills outside the box from the bottom
-        and into the top. This makes it incredibly difficult to
-        locate surface sites. We iterate through all sites that
-        spill over (z>c) and shift all sites such that this specific
-        site is now on the other side. Repeat for all sites with z>c.
+    and into the top. This makes it incredibly difficult to
+    locate surface sites. We iterate through all sites that
+    spill over (z>c) and shift all sites such that this specific
+    site is now on the other side. Repeat for all sites with z>c.
+
     3. This is a simpler case of scenario 2. Either the top or bottom
-        slab sites are at c=0 or c=1. Treat as scenario 2.
+    slab sites are at c=0 or c=1. Treat as scenario 2.
+
     Args:
         slab (Slab): Slab structure to center
     Returns:
@@ -1930,7 +1934,6 @@ def center_slab(slab):
 
 
 def reduce_vector(vector):
-
     # small function to reduce vectors
 
     d = abs(reduce(gcd, vector))

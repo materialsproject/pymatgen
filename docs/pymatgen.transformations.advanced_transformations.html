@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.transformations.advanced_transformations module &#8212; pymatgen 2019.7.21 documentation</title>
+    <title>pymatgen.transformations.advanced_transformations module &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +44,69 @@
             
   <div class="section" id="module-pymatgen.transformations.advanced_transformations">
 <span id="pymatgen-transformations-advanced-transformations-module"></span><h1>pymatgen.transformations.advanced_transformations module<a class="headerlink" href="#module-pymatgen.transformations.advanced_transformations" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pymatgen.transformations.advanced_transformations.AddAdsorbateTransformation">
+<em class="property">class </em><code class="sig-name descname">AddAdsorbateTransformation</code><span class="sig-paren">(</span><em class="sig-param">adsorbate</em>, <em class="sig-param">selective_dynamics=False</em>, <em class="sig-param">height=0.9</em>, <em class="sig-param">mi_vec=None</em>, <em class="sig-param">repeat=None</em>, <em class="sig-param">min_lw=5.0</em>, <em class="sig-param">translate=True</em>, <em class="sig-param">reorient=True</em>, <em class="sig-param">find_args=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#AddAdsorbateTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.AddAdsorbateTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
+<p>Use AdsorbateSiteFinder to add an absorbate to a slab.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adsorbate</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) – molecule to add as adsorbate</p></li>
+<li><p><strong>selective_dynamics</strong> (<em>bool</em>) – flag for whether to assign
+non-surface sites as fixed for selective dynamics</p></li>
+<li><p><strong>height</strong> (<em>float</em>) – height criteria for selection of surface sites</p></li>
+<li><p><strong>mi_vec</strong> – vector corresponding to the vector
+concurrent with the miller index, this enables use with
+slabs that have been reoriented, but the miller vector
+must be supplied manually</p></li>
+<li><p><strong>repeat</strong> (<em>3-tuple</em><em> or </em><em>list</em>) – repeat argument for supercell generation</p></li>
+<li><p><strong>min_lw</strong> (<em>float</em>) – minimum length and width of the slab, only used
+if repeat is None</p></li>
+<li><p><strong>translate</strong> (<em>bool</em>) – flag on whether to translate the molecule so
+that its CoM is at the origin prior to adding it to the surface</p></li>
+<li><p><strong>reorient</strong> (<em>bool</em>) – flag on whether or not to reorient adsorbate
+along the miller index</p></li>
+<li><p><strong>find_args</strong> (<em>dict</em>) – dictionary of arguments to be passed to the
+call to self.find_adsorption_sites, e.g. {“distance”:2.0}</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.transformations.advanced_transformations.AddAdsorbateTransformation.apply_transformation">
+<code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">return_ranked_list=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#AddAdsorbateTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.AddAdsorbateTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – Must be a Slab structure</p></li>
+<li><p><strong>return_ranked_list</strong> – Whether or not multiple structures are
+returned. If return_ranked_list is a number, up to that number of
+structures is returned.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: Slab with adsorbate</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.transformations.advanced_transformations.AddAdsorbateTransformation.inverse">
+<em class="property">property </em><code class="sig-name descname">inverse</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.AddAdsorbateTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the inverse transformation if available.
+Otherwise, should return None.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.transformations.advanced_transformations.AddAdsorbateTransformation.is_one_to_many">
+<em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.AddAdsorbateTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines if a Transformation is a one-to-many transformation. If a
+Transformation is a one-to-many transformation, the
+apply_transformation method should have a keyword arg
+“return_ranked_list” which allows for the transformed structures to be
+returned as a ranked list.</p>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="class">
 <dt id="pymatgen.transformations.advanced_transformations.ChargeBalanceTransformation">
 <em class="property">class </em><code class="sig-name descname">ChargeBalanceTransformation</code><span class="sig-paren">(</span><em class="sig-param">charge_balance_sp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#ChargeBalanceTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.ChargeBalanceTransformation" title="Permalink to this definition">¶</a></dt>
@@ -107,7 +170,7 @@ returned as a ranked list.</p>
 
 <dl class="class">
 <dt id="pymatgen.transformations.advanced_transformations.CubicSupercellTransformation">
-<em class="property">class </em><code class="sig-name descname">CubicSupercellTransformation</code><span class="sig-paren">(</span><em class="sig-param">min_atoms=-inf</em>, <em class="sig-param">max_atoms=inf</em>, <em class="sig-param">num_nn_dists=5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#CubicSupercellTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.CubicSupercellTransformation" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">CubicSupercellTransformation</code><span class="sig-paren">(</span><em class="sig-param">min_atoms=None</em>, <em class="sig-param">max_atoms=None</em>, <em class="sig-param">num_nn_dists=5</em>, <em class="sig-param">force_diagonal_transformation=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#CubicSupercellTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.CubicSupercellTransformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>A transformation that aims to generate a nearly cubic supercell structure from a structure.</p>
 <p>The algorithm solves for a transformation matrix that makes the supercell cubic. The matrix
@@ -132,6 +195,9 @@ on CSLD.</p>
 <li><p><strong>num_nn_dists</strong> (<em>int</em>) – number of multiples of atomic nearest neighbor
 distances to force all directions of the supercell to be at
 least as large</p></li>
+<li><p><strong>force_diagonal_transformation</strong> (<em>bool</em>) – If true, return a
+transformation with a diagonal transformation matrix. Else,
+do not impose this constraint (leading to a better result).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -510,16 +576,18 @@ might order on certain motifs, with the global order parameter
 dependent on how many sites satisfy that motif.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>(</strong><strong>float</strong><strong>)</strong> (<em>order_parameter</em>) – any number from 0.0 to 1.0,</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>float</strong><strong>)</strong> (<em>order_parameter</em>) – any number from 0.0 to 1.0,
+typically 0.5 (antiferromagnetic) or 1.0 (ferromagnetic)</p></li>
+<li><p><strong>(</strong><strong>list</strong><strong>)</strong> (<em>site_constraints</em>) – str or list of strings
+of Specie symbols that the constraint should apply to</p></li>
+<li><p><strong>(</strong><strong>str</strong><strong>)</strong> (<em>site_constraint_name</em>) – name of the site property
+that the constraint should apply to, e.g. “coordination_no”</p></li>
+<li><p><strong>(</strong><strong>list</strong><strong>)</strong> – list of values of the site
+property that the constraints should apply to</p></li>
+</ul>
 </dd>
 </dl>
-<p>typically 0.5 (antiferromagnetic) or 1.0 (ferromagnetic)
-:param species_constraint (list): str or list of strings
-of Specie symbols that the constraint should apply to
-:param site_constraint_name (str): name of the site property
-that the constraint should apply to, e.g. “coordination_no”
-:param site_constraints (list): list of values of the site
-property that the constraints should apply to</p>
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint.satisfies_constraint">
 <code class="sig-name descname">satisfies_constraint</code><span class="sig-paren">(</span><em class="sig-param">site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#MagOrderParameterConstraint.satisfies_constraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint.satisfies_constraint" title="Permalink to this definition">¶</a></dt>
@@ -537,24 +605,26 @@ magnetic orderings. For disordered structures, make an ordered
 approximation first.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>mag_species_spin</strong> – A mapping of elements/species to their</p>
-</dd>
-</dl>
-<p>spin magnitudes, e.g. {“Fe3+”: 5, “Mn3+”: 4}
-:param order_parameter (float or list): if float, a specifies a
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mag_species_spin</strong> – A mapping of elements/species to their
+spin magnitudes, e.g. {“Fe3+”: 5, “Mn3+”: 4}</p></li>
+<li><p><strong>(</strong><strong>float</strong><strong> or </strong><strong>list</strong><strong>)</strong> (<em>order_parameter</em>) – if float, a specifies a
 global order parameter and can take values from 0.0 to 1.0
 (e.g. 0.5 for antiferromagnetic or 1.0 for ferromagnetic), if
 list has to be a list of
 :class: <cite>pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint</cite>
 to specify more complicated orderings, see documentation for
-MagOrderParameterConstraint more details on usage
-:param energy_model: Energy model to rank the returned structures,
+MagOrderParameterConstraint more details on usage</p></li>
+<li><p><strong>energy_model</strong> – Energy model to rank the returned structures,
 see :mod: <cite>pymatgen.analysis.energy_models</cite> for more information (note
 that this is not necessarily a physical energy). By default, returned
 structures use SymmetryModel() which ranks structures from most
-symmetric to least.
-:param kwargs: Additional kwargs that are passed to
-<a class="reference internal" href="#pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation" title="pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">EnumerateStructureTransformation</span></code></a> such as min_cell_size etc.</p>
+symmetric to least.</p></li>
+<li><p><strong>kwargs</strong> – Additional kwargs that are passed to</p></li>
+</ul>
+</dd>
+</dl>
+<p><a class="reference internal" href="#pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation" title="pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">EnumerateStructureTransformation</span></code></a> such as min_cell_size etc.</p>
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.MagOrderingTransformation.apply_transformation">
 <code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">return_ranked_list=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#MagOrderingTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.MagOrderingTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
@@ -642,103 +712,6 @@ the structure using that specie.</p></li>
 </dd></dl>
 
 <dl class="class">
-<dt id="pymatgen.transformations.advanced_transformations.PerturbSitesTransformation">
-<em class="property">class </em><code class="sig-name descname">PerturbSitesTransformation</code><span class="sig-paren">(</span><em class="sig-param">max_displacement=0.3</em>, <em class="sig-param">min_displacement=0.01</em>, <em class="sig-param">num_displacements=10</em>, <em class="sig-param">structures_per_displacement_distance=1</em>, <em class="sig-param">min_random_distance=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#PerturbSitesTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.PerturbSitesTransformation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
-<p>Generates supercells where the atoms have been displaced around their
-ideal sites.</p>
-<p>The algorithm is as follows:
-- Generate a list of distances between ‘min_displacement’ and</p>
-<blockquote>
-<div><p>‘max_displacement’.</p>
-</div></blockquote>
-<ul class="simple">
-<li><p>If ‘min_random_distance’ is None, a structure is generated for each of
-the displacement distances where all atoms are displaced in random
-directions from their original locations by the displacement distance.</p></li>
-<li><p>If ‘structures_per_displacement_distance’ is greater than 1, multiple
-structures per displacement distance will be generated.</p></li>
-<li><p>If ‘min_random_distance’ is a number (float less than ‘min_displacement’),
-for each displacement distance, the atoms will be perturbed in a random
-direction and by a random amount sample uniformly between
-‘min_random_distance’ and the displacement distance.</p></li>
-</ul>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>max_displacement</strong> (<em>float</em>) – maximum displacement distance for
-perturbing the structure (Angstroms)</p></li>
-<li><p><strong>min_displacement</strong> (<em>float</em>) – minimum displacement distance for
-perturbing the structure (Angstroms)</p></li>
-<li><p><strong>num_displacements</strong> (<em>int</em>) – number of unique displacement distances to
-try, uniformly distributed between ‘min_displacement’ and
-‘max_displacement’.</p></li>
-<li><p><strong>structures_per_displacement_distance</strong> (<em>int</em>) – number of perturbed
-structures to generate for each unique displacement distance.</p></li>
-<li><p><strong>min_random_distance</strong> (<em>Optional float</em>) – If None (default), then for a
-given perturbed structure, all atoms will move the same distance
-from their original locations. If float, then for a given
-perturbed structure, the distances that atoms move will be
-uniformly distributed from a minimum distance of
-‘min_random_distance’ to one of the displacement distances
-uniformly sampled between ‘min_displacement’ and
-‘max_displacement’.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>List of randomly displaced structures (List of Structures)</p>
-</dd>
-</dl>
-<dl class="method">
-<dt id="pymatgen.transformations.advanced_transformations.PerturbSitesTransformation.apply_transformation">
-<code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#PerturbSitesTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.PerturbSitesTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Applies the transformation to a structure. Depending on whether a
-transformation is one-to-many, there may be an option to return a
-ranked list of structures.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>structure</strong> – input structure</p></li>
-<li><p><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
-returned. If return_ranked_list is a number, that number of
-structures is returned.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>depending on returned_ranked list, either a transformed structure
-or
-a list of dictionaries, where each dictionary is of the form
-{‘structure’ = …. , ‘other_arguments’}
-the key ‘transformation’ is reserved for the transformation that
-was actually applied to the structure.
-This transformation is parsed by the alchemy classes for generating
-a more specific transformation history. Any other information will
-be stored in the transformation_parameters dictionary in the
-transmuted structure class.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.transformations.advanced_transformations.PerturbSitesTransformation.inverse">
-<em class="property">property </em><code class="sig-name descname">inverse</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.PerturbSitesTransformation.inverse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the inverse transformation if available.
-Otherwise, should return None.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.transformations.advanced_transformations.PerturbSitesTransformation.is_one_to_many">
-<em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.PerturbSitesTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determines if a Transformation is a one-to-many transformation. If a
-Transformation is a one-to-many transformation, the
-apply_transformation method should have a keyword arg
-“return_ranked_list” which allows for the transformed structures to be
-returned as a ranked list.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
 <dt id="pymatgen.transformations.advanced_transformations.SlabTransformation">
 <em class="property">class </em><code class="sig-name descname">SlabTransformation</code><span class="sig-paren">(</span><em class="sig-param">miller_index</em>, <em class="sig-param">min_slab_size</em>, <em class="sig-param">min_vacuum_size</em>, <em class="sig-param">lll_reduce=False</em>, <em class="sig-param">center_slab=False</em>, <em class="sig-param">in_unit_planes=False</em>, <em class="sig-param">primitive=True</em>, <em class="sig-param">max_normal_search=None</em>, <em class="sig-param">shift=0</em>, <em class="sig-param">tol=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#SlabTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SlabTransformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
@@ -800,6 +773,69 @@ Otherwise, should return None.</p>
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.SlabTransformation.is_one_to_many">
 <em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SlabTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines if a Transformation is a one-to-many transformation. If a
+Transformation is a one-to-many transformation, the
+apply_transformation method should have a keyword arg
+“return_ranked_list” which allows for the transformed structures to be
+returned as a ranked list.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.transformations.advanced_transformations.SubstituteSurfaceSiteTransformation">
+<em class="property">class </em><code class="sig-name descname">SubstituteSurfaceSiteTransformation</code><span class="sig-paren">(</span><em class="sig-param">atom</em>, <em class="sig-param">selective_dynamics=False</em>, <em class="sig-param">height=0.9</em>, <em class="sig-param">mi_vec=None</em>, <em class="sig-param">target_species=None</em>, <em class="sig-param">sub_both_sides=False</em>, <em class="sig-param">range_tol=0.01</em>, <em class="sig-param">dist_from_surf=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#SubstituteSurfaceSiteTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SubstituteSurfaceSiteTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
+<p>Use AdsorptionSiteFinder to perform substitution-type doping on the surface and
+returns all possible configurations where one dopant is substituted
+per surface. Can substitute one surface or both.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>atom</strong> (<em>str</em>) – atom corresponding to substitutional dopant</p></li>
+<li><p><strong>selective_dynamics</strong> (<em>bool</em>) – flag for whether to assign
+non-surface sites as fixed for selective dynamics</p></li>
+<li><p><strong>height</strong> (<em>float</em>) – height criteria for selection of surface sites</p></li>
+<li><p><strong>mi_vec</strong> – vector corresponding to the vector
+concurrent with the miller index, this enables use with
+slabs that have been reoriented, but the miller vector
+must be supplied manually</p></li>
+<li><p><strong>target_species</strong> – List of specific species to substitute</p></li>
+<li><p><strong>sub_both_sides</strong> (<em>bool</em>) – If true, substitute an equivalent
+site on the other surface</p></li>
+<li><p><strong>range_tol</strong> (<em>float</em>) – Find viable substitution sites at a specific
+distance from the surface +- this tolerance</p></li>
+<li><p><strong>dist_from_surf</strong> (<em>float</em>) – Distance from the surface to find viable
+substitution sites, defaults to 0 to substitute at the surface</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.transformations.advanced_transformations.SubstituteSurfaceSiteTransformation.apply_transformation">
+<code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">return_ranked_list=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#SubstituteSurfaceSiteTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SubstituteSurfaceSiteTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – Must be a Slab structure</p></li>
+<li><p><strong>return_ranked_list</strong> – Whether or not multiple structures are
+returned. If return_ranked_list is a number, up to that number of
+structures is returned.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: Slab with sites substituted</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.transformations.advanced_transformations.SubstituteSurfaceSiteTransformation.inverse">
+<em class="property">property </em><code class="sig-name descname">inverse</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SubstituteSurfaceSiteTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the inverse transformation if available.
+Otherwise, should return None.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.transformations.advanced_transformations.SubstituteSurfaceSiteTransformation.is_one_to_many">
+<em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SubstituteSurfaceSiteTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determines if a Transformation is a one-to-many transformation. If a
 Transformation is a one-to-many transformation, the
 apply_transformation method should have a keyword arg
@@ -979,7 +1015,7 @@ returned as a ranked list.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
       </ul>
     </div>
 

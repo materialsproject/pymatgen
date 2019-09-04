@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.magnetism.heisenberg &#8212; pymatgen 2019.7.21 documentation</title>
+    <title>pymatgen.analysis.magnetism.heisenberg &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -92,14 +92,14 @@
 <span class="sd">        orderings and find the magnetic ground state. Then enumerate magnetic</span>
 <span class="sd">        states with the ground state as the input structure, find the subset</span>
 <span class="sd">        of supercells that map to the ground state, and do static calculations</span>
-<span class="sd">        for these orderings.  </span>
+<span class="sd">        for these orderings.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            ordered_structures (list): Structure objects with magmoms.</span>
 <span class="sd">            energies (list): Energies of each relaxed magnetic structure.</span>
 <span class="sd">            cutoff (float): Cutoff in Angstrom for nearest neighbor search.</span>
 <span class="sd">                Defaults to 0 (only NN, no NNN, etc.)</span>
-<span class="sd">            tol (float): Tolerance (in Angstrom) on nearest neighbor distances </span>
+<span class="sd">            tol (float): Tolerance (in Angstrom) on nearest neighbor distances</span>
 <span class="sd">                being equal.</span>
 
 <span class="sd">        Parameters:</span>
@@ -115,7 +115,7 @@
 <span class="sd">            dists (dict): NN, NNN, and NNNN interaction distances</span>
 <span class="sd">            ex_mat (DataFrame): Invertible Heisenberg Hamiltonian for each</span>
 <span class="sd">                graph.</span>
-<span class="sd">            ex_params (dict): Exchange parameter values (meV/atom) </span>
+<span class="sd">            ex_params (dict): Exchange parameter values (meV/atom)</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -193,7 +193,7 @@
 <span class="sd">            structure (Structure): ground state Structure object.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            unique_site_ids (dict): maps tuples of equivalent site indices to a </span>
+<span class="sd">            unique_site_ids (dict): maps tuples of equivalent site indices to a</span>
 <span class="sd">                unique int identifier</span>
 <span class="sd">            wyckoff_ids (dict): maps tuples of equivalent site indices to their</span>
 <span class="sd">                wyckoff symbols</span>
@@ -400,7 +400,7 @@
 
                 <span class="c1"># Ignore the row if it is a duplicate to avoid singular matrix</span>
                 <span class="k">if</span> <span class="n">ex_mat</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ex_row</span><span class="p">)[</span><span class="n">j_columns</span><span class="p">]</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span>
-                    <span class="n">ex_mat</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ex_row</span><span class="p">)[</span><span class="n">j_columns</span><span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="s2">&quot;first&quot;</span><span class="p">)</span>
+                        <span class="n">ex_mat</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ex_row</span><span class="p">)[</span><span class="n">j_columns</span><span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="s2">&quot;first&quot;</span><span class="p">)</span>
                 <span class="p">):</span>
                     <span class="n">e_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ordered_structures</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">sgraph</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
                     <span class="n">ex_row</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">sgraph_index</span><span class="p">,</span> <span class="s2">&quot;E&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">[</span><span class="n">e_index</span><span class="p">]</span>
@@ -446,7 +446,6 @@
 
         <span class="c1"># Only 1 NN interaction</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">j_names</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
-
             <span class="c1"># Estimate exchange by J ~ E_AFM - E_FM</span>
             <span class="n">j_avg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimate_exchange</span><span class="p">()</span>
             <span class="n">ex_params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;&lt;J&gt;&quot;</span><span class="p">:</span> <span class="n">j_avg</span><span class="p">}</span>
@@ -548,7 +547,7 @@
 <span class="sd">            afm_struct (Structure): afm structure with &#39;magmom&#39; site property</span>
 <span class="sd">            fm_e (float): fm energy</span>
 <span class="sd">            afm_e (float): afm energy</span>
-<span class="sd">        </span>
+
 <span class="sd">        Returns:</span>
 <span class="sd">            j_avg (float): Average exchange parameter (meV/atom)</span>
 
@@ -570,10 +569,10 @@
 
         <span class="c1"># If m_avg for FM config is &lt; 1 we won&#39;t get sensibile results.</span>
         <span class="k">if</span> <span class="n">m_avg</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">iamthedanger</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot; </span>
+            <span class="n">iamthedanger</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">                Local magnetic moments are small (&lt; 1 muB / atom). The</span>
 <span class="s2">                exchange parameters may be wrong, but &lt;J&gt; and the mean</span>
-<span class="s2">                field critical temperature estimate may be OK. </span>
+<span class="s2">                field critical temperature estimate may be OK.</span>
 <span class="s2">                &quot;&quot;&quot;</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">iamthedanger</span><span class="p">)</span>
 
@@ -622,7 +621,7 @@
             <span class="n">mft_t</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">eigenvals</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">mft_t</span> <span class="o">&gt;</span> <span class="mi">1500</span><span class="p">:</span>  <span class="c1"># Not sensible!</span>
-            <span class="n">stayoutofmyterritory</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot; </span>
+            <span class="n">stayoutofmyterritory</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">                This mean field estimate is too high! Probably</span>
 <span class="s2">                the true low energy orderings were not given as inputs.</span>
 <span class="s2">                &quot;&quot;&quot;</span>
@@ -634,7 +633,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a StructureGraph with edges and weights that correspond to exchange</span>
 <span class="sd">        interactions and J_ij values, respectively.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            filename (str): if not None, save interaction graph to filename.</span>
 <span class="sd">        Returns:</span>
@@ -692,8 +691,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            i (int): index of ith site</span>
 <span class="sd">            j (int): index of jth site</span>
-<span class="sd">            dist (float): distance (Angstrom) between sites </span>
-<span class="sd">                (10E-2 precision) </span>
+<span class="sd">            dist (float): distance (Angstrom) between sites</span>
+<span class="sd">                (10E-2 precision)</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            j_exc (float): Exchange parameter in meV</span>
@@ -737,7 +736,8 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structures</span><span class="p">,</span> <span class="n">energies</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Clean and screen magnetic orderings.</span>
 
-<span class="sd">        This class pre-processes magnetic orderings and energies for HeisenbergMapper. It prioritizes low-energy orderings with large and localized magnetic moments.</span>
+<span class="sd">        This class pre-processes magnetic orderings and energies for HeisenbergMapper. It prioritizes low-energy</span>
+<span class="sd">        orderings with large and localized magnetic moments.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            structures (list): Structure objects with magnetic moments.</span>
@@ -769,7 +769,7 @@
 <span class="sd">        Takes magnetic structures and performs the following operations</span>
 <span class="sd">        - Erases nonmagnetic ions and gives all ions [&#39;magmom&#39;] site prop</span>
 <span class="sd">        - Checks for duplicate/degenerate orderings</span>
-<span class="sd">        - Sorts by energy </span>
+<span class="sd">        - Sorts by energy</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            structures (list): Structure objects with magmoms.</span>
@@ -903,7 +903,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

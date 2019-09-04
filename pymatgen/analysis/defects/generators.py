@@ -14,7 +14,6 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.defects.utils import StructureMotifInterstitial, TopographyAnalyzer
 from pymatgen.analysis.structure_matcher import PointDefectComparator
 
-
 __author__ = "Danny Broberg, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "1.0"
@@ -165,13 +164,13 @@ class InterstitialGenerator(DefectGenerator):
         pdc = PointDefectComparator()
 
         for poss_site in interstitial_finder.enumerate_defectsites():
-            now_defect = Interstitial( self.structure, poss_site)
+            now_defect = Interstitial(self.structure, poss_site)
             append_defect = True
             for unique_defect in self.unique_defect_seq:
-                if pdc.are_equal( now_defect, unique_defect):
+                if pdc.are_equal(now_defect, unique_defect):
                     append_defect = False
             if append_defect:
-                self.unique_defect_seq.append( now_defect)
+                self.unique_defect_seq.append(now_defect)
 
         self.count_def = 0  # for counting the index of the generated defect
 
@@ -225,13 +224,13 @@ class VoronoiInterstitialGenerator(DefectGenerator):
         for poss_site_list in equiv_sites_list:
             poss_site = poss_site_list[0]
             if poss_site not in self.structure:
-                now_defect = Interstitial( self.structure, poss_site)
+                now_defect = Interstitial(self.structure, poss_site)
                 append_defect = True
                 for unique_defect in self.unique_defect_seq:
-                    if pdc.are_equal( now_defect, unique_defect):
+                    if pdc.are_equal(now_defect, unique_defect):
                         append_defect = False
                 if append_defect:
-                    self.unique_defect_seq.append( now_defect)
+                    self.unique_defect_seq.append(now_defect)
 
         self.count_def = 0  # for counting the index of the generated defect
 
@@ -245,7 +244,7 @@ class VoronoiInterstitialGenerator(DefectGenerator):
             inter_site = inter_defect.site
             self.count_def += 1
             site_name = 'Voronoi' + str(self.count_def)
-            return Interstitial( self.structure, inter_site, site_name=site_name)
+            return Interstitial(self.structure, inter_site, site_name=site_name)
         else:
             raise StopIteration
 
@@ -281,7 +280,7 @@ class SimpleChargeGenerator(DefectGenerator):
         if isinstance(defect, Vacancy):
             self.charges = [-1 * def_site_valence]
         elif isinstance(defect, Substitution):
-            #(minimize difference with host site specie)
+            # (minimize difference with host site specie)
             probable_chgs = [ox - def_site_valence for ox in self.defect.site.specie.oxidation_states]
             self.charges = [min(probable_chgs, key=abs)]
         elif isinstance(defect, Interstitial):

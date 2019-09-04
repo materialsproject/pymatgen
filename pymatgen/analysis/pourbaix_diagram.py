@@ -29,11 +29,7 @@ from pymatgen.core.ion import Ion
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
 from pymatgen.analysis.phase_diagram import PhaseDiagram, PDEntry
-
-try:
-    from tqdm import tqdm
-except ImportError:
-    def tqdm(x): return x
+from tqdm import tqdm
 
 __author__ = "Sai Jayaraman"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -242,10 +238,8 @@ class PourbaixEntry(MSONable):
         return self.composition.num_atoms
 
     def __repr__(self):
-        return "Pourbaix Entry : {} with energy = {:.4f}, npH = {}, " \
-               "nPhi = {}, nH2O = {}, entry_id = {} ".format(
-            self.entry.composition, self.energy, self.npH,
-            self.nPhi, self.nH2O, self.entry_id)
+        return "Pourbaix Entry : {} with energy = {:.4f}, npH = {}, nPhi = {}, nH2O = {}, entry_id = {} ".format(
+            self.entry.composition, self.energy, self.npH, self.nPhi, self.nH2O, self.entry_id)
 
     def __str__(self):
         return self.__repr__()
@@ -302,10 +296,8 @@ class MultiEntry(PourbaixEntry):
         return " + ".join([e.name for e in self.entry_list])
 
     def __repr__(self):
-        return "Multiple Pourbaix Entry : with energy = {:.4f}, npH = {}, " \
-               "nPhi = {}, nH2O = {}, entry_id = {}, species: {}".format(
-            self.energy, self.npH, self.nPhi, self.nH2O,
-            self.entry_id, self.name)
+        return "Multiple Pourbaix Entry: energy = {:.4f}, npH = {}, nPhi = {}, nH2O = {}, entry_id = {}, species: {}"\
+            .format(self.energy, self.npH, self.nPhi, self.nH2O, self.entry_id, self.name)
 
     def __str__(self):
         return self.__repr__()
@@ -800,9 +792,8 @@ class PourbaixDiagram(MSONable):
 
             # Sort points by cross product of centered points,
             # isn't strictly necessary but useful for plotting tools
-            point_comparator = lambda x, y: x[0] * y[1] - x[1] * y[0]
             points_centered = sorted(points_centered,
-                                     key=cmp_to_key(point_comparator))
+                                     key=cmp_to_key(lambda x, y: x[0] * y[1] - x[1] * y[0]))
             points = points_centered + center
 
             # Create simplices corresponding to pourbaix boundary
@@ -1029,8 +1020,7 @@ class PourbaixPlotter:
             V_range = [-3, 3]
         # plot the Pourbaix diagram
         plt = self.get_pourbaix_plot(**kwargs)
-        pH, V = np.mgrid[pH_range[0]:pH_range[1]:pH_resolution * 1j,
-                V_range[0]:V_range[1]:V_resolution * 1j]
+        pH, V = np.mgrid[pH_range[0]:pH_range[1]:pH_resolution * 1j, V_range[0]:V_range[1]:V_resolution * 1j]
 
         stability = self._pbx.get_decomposition_energy(entry, pH, V)
 

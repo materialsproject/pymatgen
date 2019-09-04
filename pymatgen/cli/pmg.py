@@ -276,7 +276,6 @@ def main():
                        help="Dirname to find and generate from POTCAR.spec.")
     parser_potcar.set_defaults(func=generate_potcar)
 
-
     try:
         import argcomplete
         argcomplete.autocomplete(parser)

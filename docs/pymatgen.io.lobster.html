@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.lobster module &#8212; pymatgen 2019.7.21 documentation</title>
+    <title>pymatgen.io.lobster module &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -53,8 +53,9 @@
 <dl class="method">
 <dt id="pymatgen.io.lobster.Bandoverlaps.has_good_quality_check_occupied_bands">
 <code class="sig-name descname">has_good_quality_check_occupied_bands</code><span class="sig-paren">(</span><em class="sig-param">number_occ_bands_spin_up</em>, <em class="sig-param">number_occ_bands_spin_down=None</em>, <em class="sig-param">spin_polarized=False</em>, <em class="sig-param">limit_deviation=0.1</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/pymatgen/io/lobster.html#Bandoverlaps.has_good_quality_check_occupied_bands"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Bandoverlaps.has_good_quality_check_occupied_bands" title="Permalink to this definition">¶</a></dt>
-<dd><p>will check if the deviation from the ideal bandoverlap of all occupied bands is smaller or equal to limit_deviation
-Args:
+<dd><p>will check if the deviation from the ideal bandoverlap of all occupied bands is smaller or equal to
+limit_deviation</p>
+<p>Args:
 number_occ_bands_spin_up (int): number of occupied bands of spin up
 number_occ_bands_spin_down (int): number of occupied bands of spin down
 spin_polarized (bool):  If True, then it was a spin polarized calculation
@@ -115,7 +116,7 @@ file name will be chosen, depending on the value of are_coops.</p></li>
 
 <dl class="class">
 <dt id="pymatgen.io.lobster.Doscar">
-<em class="property">class </em><code class="sig-name descname">Doscar</code><span class="sig-paren">(</span><em class="sig-param">doscar='DOSCAR.lobster'</em>, <em class="sig-param">vasprun='vasprun.xml'</em>, <em class="sig-param">dftprogram='Vasp'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lobster.html#Doscar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Doscar" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Doscar</code><span class="sig-paren">(</span><em class="sig-param">doscar='DOSCAR.lobster'</em>, <em class="sig-param">structure_file='POSCAR'</em>, <em class="sig-param">dftprogram='Vasp'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lobster.html#Doscar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Doscar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to deal with Lobster’s projected DOS and local projected DOS.
 The beforehand quantum-chemical calculation was performed with VASP</p>
@@ -123,7 +124,7 @@ The beforehand quantum-chemical calculation was performed with VASP</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>doscar</strong> – DOSCAR filename, typically “DOSCAR.lobster”</p></li>
-<li><p><strong>vasprun</strong> – vasprun filename, typically “vasprun.xml”</p></li>
+<li><p><strong>structure_file</strong> – for vasp, this is typically “POSCAR”</p></li>
 <li><p><strong>dftprogram</strong> – so far only “vasp” is implemented</p></li>
 </ul>
 </dd>
@@ -159,9 +160,13 @@ The beforehand quantum-chemical calculation was performed with VASP</p>
 <dt id="pymatgen.io.lobster.Doscar.tdensities">
 <code class="sig-name descname">tdensities</code><a class="headerlink" href="#pymatgen.io.lobster.Doscar.tdensities" title="Permalink to this definition">¶</a></dt>
 <dt>
-<code class="sig-name descname">tdensities[Spin.up]: numpy array of the total density of states for the Spin.up contribution at each of the energies</code></dt>
+<code class="sig-name descname">tdensities[Spin.up]: numpy array of the total density of states for the Spin.up contribution at each of the</code></dt>
 <dt>
-<code class="sig-name descname">tdensities[Spin.down]: numpy array of the total density of states for the Spin.down contribution at each of the energies</code></dt>
+<code class="sig-name descname">energies</code></dt>
+<dt>
+<code class="sig-name descname">tdensities[Spin.down]: numpy array of the total density of states for the Spin.down contribution at each of the</code></dt>
+<dt>
+<code class="sig-name descname">energies</code></dt>
 <dd><p>if is_spin_polarized=False:
 tdensities[Spin.up]: numpy array of the total density of states</p>
 </dd></dl>
@@ -210,47 +215,15 @@ tdensities[Spin.up]: numpy array of the total density of states</p>
 <em class="property">class </em><code class="sig-name descname">Fatband</code><span class="sig-paren">(</span><em class="sig-param">filenames='.'</em>, <em class="sig-param">vasprun='vasprun.xml'</em>, <em class="sig-param">Kpointsfile='KPOINTS'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lobster.html#Fatband"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Fatband" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>reads in FATBAND_x_y.lobster files
-:param filenames: can be a list of file names or a path to a folder folder from which all “FATBAND_*” files will be read
-:type filenames: list or string
-:param vasprun: corresponding vasprun file
-:param Kpointsfile: KPOINTS file for bandstructure calculation, typically “KPOINTS”
-:param .. attribute: efermi
-:param efermi that was read in from vasprun.xml:
-:param .. attribute: eigenvals
-:param {Spin.up: [][],Spin.down:[][]}, the first index of the array</p>
+:param filenames: can be a list of file names or a path to a folder folder from which all “FATBAND_*”</p>
 <blockquote>
-<div><p>[][] refers to the band and the second to the index of the
-kpoint. The kpoints are ordered according to the order of the
-kpoints array. If the band structure is not spin polarized, we
-only store one data set under Spin.up.</p>
+<div><p>files will be read</p>
 </div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>attribute</strong> (<em>.</em>) – is_spinpolarized</p></li>
-<li><p><strong>that tells you whether this was a spin-polarized calculation</strong> (<em>Boolean</em>) – </p></li>
-<li><p><strong>attribute</strong> – <p>kpoints_array
-list of kpoint as numpy arrays, in frac_coords of the</p>
-<blockquote>
-<div><p>given lattice by default</p>
-</div></blockquote>
-</p></li>
-<li><p><strong>attribute</strong> – <p>label_dict</p>
-<dl>
-<dt>(dict) of {} this link a kpoint (in frac coords or</dt><dd><blockquote>
-<div><p>cartesian coordinates depending on the coords).</p>
-</div></blockquote>
-<p>lattice object of reciprocal lattice as read in from vasprun.xml</p>
-<p>number of bands used in the calculation</p>
-<p>dict of orbital projections as {spin: array of dict}.
-The indices of the array are [band_index, kpoint_index].
-The dict is then built the following way:
-{“string of element”: “string of orbital as read in from FATBAND file”}
-If the band structure is not spin polarized, we only store one data set under Spin.up.</p>
-<p>structure read in from vasprun.xml</p>
-</dd>
-</dl>
-</p></li>
+<li><p><strong>vasprun</strong> – corresponding vasprun file</p></li>
+<li><p><strong>Kpointsfile</strong> – KPOINTS file for bandstructure calculation, typically “KPOINTS”</p></li>
 </ul>
 </dd>
 </dl>
@@ -260,6 +233,14 @@ If the band structure is not spin polarized, we only store one data set under Sp
 <dd><p>returns a LobsterBandStructureSymmLine object which can be plotted with a normal BSPlotter</p>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.lobster.Grosspop">
+<em class="property">class </em><code class="sig-name descname">Grosspop</code><span class="sig-paren">(</span><em class="sig-param">filename='GROSSPOP.lobster'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lobster.html#Grosspop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Grosspop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to read in GROSSPOP.lobster files.
+:param filename: filename of the “GROSSPOP.lobster” file</p>
 </dd></dl>
 
 <dl class="class">
@@ -384,8 +365,10 @@ Similar to the diff in INCAR.
 <li><p><strong>POSCAR_input</strong> (<em>str</em>) – path to POSCAR</p></li>
 <li><p><strong>INCAR_input</strong> (<em>str</em>) – path to INCAR</p></li>
 <li><p><strong>POTCAR_input</strong> (<em>str</em>) – path to POTCAR</p></li>
-<li><p><strong>dict_for_basis</strong> (<em>dict</em>) – can be provided: it should look the following: dict_for_basis={“Fe”:‘3p 3d 4s 4f’, “C”: ‘2s 2p’} and will overwrite all settings from POTCAR_input</p></li>
-<li><p><strong>option</strong> (<em>str</em>) – ‘standard’ will start a normal lobster run where COHPs, COOPs, DOS, CHARGE etc. will be calculated
+<li><p><strong>dict_for_basis</strong> (<em>dict</em>) – can be provided: it should look the following:
+dict_for_basis={“Fe”:’3p 3d 4s 4f’, “C”: ‘2s 2p’} and will overwrite all settings from POTCAR_input</p></li>
+<li><p><strong>option</strong> (<em>str</em>) – ‘standard’ will start a normal lobster run where COHPs, COOPs, DOS, CHARGE etc. will be
+calculated
 ‘standard_from_projection’ will start a normal lobster run from a projection
 ‘standard_with_fatband’ will do a fatband calculation, run over all orbitals
 ‘onlyprojection’ will only do a projection
@@ -426,16 +409,20 @@ You have to check for the rest.
 :type KPOINTS_output: str
 :param reciprocal_density: Grid density
 :type reciprocal_density: int
-:param from_grid: If True KPOINTS will be generated with the help of a grid given in input_grid. Otherwise, they will be generated from the reciprocal_density
-:type from_grid: bool
-:param input_grid: grid to generate the KPOINTS file
-:type input_grid: list
-:param line_mode: If True, band structure will be generated
-:type line_mode: bool
-:param kpoints_line_density: density of the lines in the band structure
-:type kpoints_line_density: int
-:param symprec: precision to determine symmetry
-:type symprec: float</p>
+:param from_grid: If True KPOINTS will be generated with the help of a grid given in input_grid. Otherwise,</p>
+<blockquote>
+<div><p>they will be generated from the reciprocal_density</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_grid</strong> (<em>list</em>) – grid to generate the KPOINTS file</p></li>
+<li><p><strong>line_mode</strong> (<em>bool</em>) – If True, band structure will be generated</p></li>
+<li><p><strong>kpoints_line_density</strong> (<em>int</em>) – density of the lines in the band structure</p></li>
+<li><p><strong>symprec</strong> (<em>float</em>) – precision to determine symmetry</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -568,7 +555,7 @@ string with all warnings</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
       </ul>
     </div>
 

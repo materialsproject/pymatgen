@@ -232,7 +232,7 @@ class ParalHintsParser:
             try:
                 d = yaml.safe_load(doc.text_notag)
                 return ParalHints(info=d["info"], confs=d["configurations"])
-            except:
+            except Exception:
                 import traceback
                 sexc = traceback.format_exc()
                 err_msg = "Wrong YAML doc:\n%s\n\nException:\n%s" % (doc.text, sexc)
@@ -1672,7 +1672,7 @@ class Task(Node, metaclass=abc.ABCMeta):
         self._returncode = self.process.wait()
         try:
             self.process.stderr.close()
-        except:
+        except Exception:
             pass
         self.set_status(self.S_DONE, "status set to Done")
 
@@ -2014,7 +2014,7 @@ class Task(Node, metaclass=abc.ABCMeta):
                 self.history.info('Found unknown message in the queue qerr file: %s' % str(qerr_info))
                 #try:
                 #    rt = self.datetimes.get_runtime().seconds
-                #except:
+                #except Exception:
                 #    rt = -1.0
                 #tl = self.manager.qadapter.timelimit
                 #if rt > tl:
@@ -3067,7 +3067,7 @@ class AbinitTask(Task):
                             self.manager.exclude_nodes(error.nodes)
                             self.reset_from_scratch()
                             self.set_status(self.S_READY, msg='excluding nodes')
-                        except:
+                        except Exception:
                             raise FixQueueCriticalError
                     else:
                         self.set_status(self.S_ERROR, msg='Node error but no node identified.')
@@ -4309,7 +4309,7 @@ class OpticTask(Task):
                             self.manager.exclude_nodes(error.nodes)
                             self.reset_from_scratch()
                             self.set_status(self.S_READY, msg='excluding nodes')
-                        except:
+                        except Exception:
                             raise FixQueueCriticalError
                     else:
                         self.set_status(self.S_ERROR, msg='Node error but no node identified.')

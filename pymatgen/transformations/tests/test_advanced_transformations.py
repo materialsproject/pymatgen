@@ -8,7 +8,7 @@ import json
 import warnings
 import numpy as np
 
-from pymatgen import Lattice, Structure, Specie
+from pymatgen import Lattice, Structure, Specie, Molecule
 from pymatgen.transformations.standard_transformations import \
     OxidationStateDecorationTransformation, SubstitutionTransformation, \
     OrderDisorderedStructureTransformation, AutoOxiStateDecorationTransformation
@@ -19,7 +19,8 @@ from pymatgen.transformations.advanced_transformations import \
     DopingTransformation, _find_codopant, SlabTransformation, \
     MagOrderParameterConstraint, DisorderOrderedTransformation, \
     GrainBoundaryTransformation, CubicSupercellTransformation, \
-    PerturbSitesTransformation
+    AddAdsorbateTransformation, SubstituteSurfaceSiteTransformation
+
 from monty.os.path import which
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.cif import CifParser
@@ -615,14 +616,17 @@ class DisorderedOrderedTransformationTest(PymatgenTest):
         self.assertDictEqual(output[-1].species.as_dict(),
                              {'Ni': 0.5, 'Ba': 0.5})
 
+
 class CubicSupercellTransformationTest(PymatgenTest):
 
     def test_apply_transformation(self):
 
         structure = self.get_structure('TlBiSe2')
-        min_atoms = 150
+        min_atoms = 100
         max_atoms = 1000
         num_nn_dists = 5
+
+        # Test the transformation without constraining trans_mat to be diagonal
         supercell_generator = CubicSupercellTransformation(min_atoms=min_atoms,
                                                            max_atoms=max_atoms,
                                                            num_nn_dists=num_nn_dists)
@@ -640,37 +644,51 @@ class CubicSupercellTransformationTest(PymatgenTest):
         self.assertArrayAlmostEqual(superstructure.lattice.matrix[2],
                                     [3.69130000e-02, 4.09320200e-02, 5.90830153e+01])
         self.assertEqual(superstructure.num_sites, 448)
+        self.assertArrayEqual(supercell_generator.trans_mat,
+                              np.array([[4, 0, 0],
+                                        [1, 4, -4],
+                                        [0, 0, 1]]))
+
+        # Test the diagonal transformation
+        structure2 = self.get_structure('Si')
+        sga = SpacegroupAnalyzer(structure2)
+        structure2 = sga.get_primitive_standard_structure()
+        structure2.to("poscar", filename="POSCAR-orig_si")
+        diagonal_supercell_generator = CubicSupercellTransformation(min_atoms=min_atoms,
+                                                                    max_atoms=max_atoms,
+                                                                    num_nn_dists=num_nn_dists,
+                                                                    force_diagonal_transformation=True)
+        superstructure2 = diagonal_supercell_generator.apply_transformation(structure2)
+        superstructure2.to("poscar", filename="POSCAR-diag_si")
+        self.assertArrayEqual(diagonal_supercell_generator.trans_mat,
+                              np.array([[4, 0, 0],
+                                        [0, 4, 0],
+                                        [0, 0, 4]]))
 
 
-class PerturbSitesTransformationTest(PymatgenTest):
+class AddAdsorbateTransformationTest(PymatgenTest):
 
     def test_apply_transformation(self):
 
-        max_displacement = 0.05
-        min_displacement = 0.01
-        num_displacements = 2
-        structures_per_displacement_val = 2
+        co = Molecule(["C", "O"], [[0, 0, 0], [0, 0, 1.23]])
+        trans = AddAdsorbateTransformation(co)
+        pt = Structure(Lattice.cubic(5), ["Pt"], [[0, 0, 0]])  # fictitious
+        slab = SlabTransformation([0, 0, 1], 20, 10).apply_transformation(pt)
+        out = trans.apply_transformation(slab)
 
-        structure = self.get_structure('TlBiSe2')
+        self.assertEqual(out.composition.reduced_formula, "Pt4CO")
 
-        perturb_transformer = PerturbSitesTransformation(max_displacement=max_displacement,
-                                                         min_displacement=min_displacement,
-                                                         num_displacements=num_displacements,
-                                                         structures_per_displacement_distance=structures_per_displacement_val)
-        random_structures = perturb_transformer.apply_transformation(structure)
-        num_random_structures = len(random_structures)
-        self.assertEqual(num_random_structures, num_displacements*structures_per_displacement_val)
 
-        nsites = structure.num_sites
-        random_sites_idxs = np.random.randint(0, nsites, size=round(nsites / 2))
-        original_sites = structure._sites
-        new_sites1 = random_structures[0]._sites
-        new_sites2 = random_structures[-1]._sites
-        for random_site_idx in random_sites_idxs:
-            self.assertAlmostEqual(original_sites[random_site_idx].distance(new_sites1[random_site_idx]),
-                             min_displacement)
-            self.assertAlmostEqual(original_sites[random_site_idx].distance(new_sites2[random_site_idx]),
-                             max_displacement)
+class SubstituteSurfaceSiteTransformationTest(PymatgenTest):
+
+    def test_apply_transformation(self):
+
+        trans = SubstituteSurfaceSiteTransformation("Au")
+        pt = Structure(Lattice.cubic(5), ["Pt"], [[0, 0, 0]])  # fictitious
+        slab = SlabTransformation([0, 0, 1], 20, 10).apply_transformation(pt)
+        out = trans.apply_transformation(slab)
+
+        self.assertEqual(out.composition.reduced_formula, "Pt3Au")
 
 
 if __name__ == "__main__":

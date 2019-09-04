@@ -34,6 +34,7 @@ from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
+from pymatgen.analysis.adsorption import AdsorbateSiteFinder
 
 """
 This module implements more advanced transformations.
@@ -492,13 +493,13 @@ class MagOrderParameterConstraint(MSONable):
         dependent on how many sites satisfy that motif.
 
         :param order_parameter (float): any number from 0.0 to 1.0,
-        typically 0.5 (antiferromagnetic) or 1.0 (ferromagnetic)
+            typically 0.5 (antiferromagnetic) or 1.0 (ferromagnetic)
         :param species_constraint (list): str or list of strings
-        of Specie symbols that the constraint should apply to
+            of Specie symbols that the constraint should apply to
         :param site_constraint_name (str): name of the site property
-        that the constraint should apply to, e.g. "coordination_no"
+            that the constraint should apply to, e.g. "coordination_no"
         :param site_constraints (list): list of values of the site
-        property that the constraints should apply to
+            property that the constraints should apply to
         """
 
         # validation
@@ -557,19 +558,19 @@ class MagOrderingTransformation(AbstractTransformation):
         approximation first.
 
         :param mag_species_spin: A mapping of elements/species to their
-        spin magnitudes, e.g. {"Fe3+": 5, "Mn3+": 4}
+            spin magnitudes, e.g. {"Fe3+": 5, "Mn3+": 4}
         :param order_parameter (float or list): if float, a specifies a
-        global order parameter and can take values from 0.0 to 1.0
-        (e.g. 0.5 for antiferromagnetic or 1.0 for ferromagnetic), if
-        list has to be a list of
-        :class: `pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint`
-        to specify more complicated orderings, see documentation for
-        MagOrderParameterConstraint more details on usage
+            global order parameter and can take values from 0.0 to 1.0
+            (e.g. 0.5 for antiferromagnetic or 1.0 for ferromagnetic), if
+            list has to be a list of
+            :class: `pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint`
+            to specify more complicated orderings, see documentation for
+            MagOrderParameterConstraint more details on usage
         :param energy_model: Energy model to rank the returned structures,
-        see :mod: `pymatgen.analysis.energy_models` for more information (note
-        that this is not necessarily a physical energy). By default, returned
-        structures use SymmetryModel() which ranks structures from most
-        symmetric to least.
+            see :mod: `pymatgen.analysis.energy_models` for more information (note
+            that this is not necessarily a physical energy). By default, returned
+            structures use SymmetryModel() which ranks structures from most
+            symmetric to least.
         :param kwargs: Additional kwargs that are passed to
         :class:`EnumerateStructureTransformation` such as min_cell_size etc.
         """
@@ -578,8 +579,7 @@ class MagOrderingTransformation(AbstractTransformation):
         if isinstance(order_parameter, float):
             # convert to constraint format
             order_parameter = [MagOrderParameterConstraint(order_parameter=order_parameter,
-                                                           species_constraints=
-                                                           list(mag_species_spin.keys()))]
+                                                           species_constraints=list(mag_species_spin.keys()))]
         elif isinstance(order_parameter, list):
             ops = [isinstance(item, MagOrderParameterConstraint) for item in order_parameter]
             if not any(ops):
@@ -639,15 +639,15 @@ class MagOrderingTransformation(AbstractTransformation):
         :param structure: ordered Structure
         :param order_parameters: list of MagOrderParameterConstraints
         :return: A structure decorated with disordered
-        DummySpecies on which to perform the enumeration.
-        Note that the DummySpecies are super-imposed on
-        to the original sites, to make it easier to
-        retrieve the original site after enumeration is
-        performed (this approach is preferred over a simple
-        mapping since multiple species may have the same
-        DummySpecie, depending on the constraints specified).
-        This approach can also preserve site properties even after
-        enumeration.
+            DummySpecies on which to perform the enumeration.
+            Note that the DummySpecies are super-imposed on
+            to the original sites, to make it easier to
+            retrieve the original site after enumeration is
+            performed (this approach is preferred over a simple
+            mapping since multiple species may have the same
+            DummySpecie, depending on the constraints specified).
+            This approach can also preserve site properties even after
+            enumeration.
         """
 
         dummy_struct = structure.copy()
@@ -667,9 +667,9 @@ class MagOrderingTransformation(AbstractTransformation):
         # one dummy species for each order parameter constraint
         dummy_species_symbols = [next(dummy_species_gen) for i in range(len(order_parameters))]
         dummy_species = [{
-                             DummySpecie(symbol, properties={'spin': Spin.up}): constraint.order_parameter,
-                             DummySpecie(symbol, properties={'spin': Spin.down}): 1 - constraint.order_parameter
-                         } for symbol, constraint in zip(dummy_species_symbols, order_parameters)]
+            DummySpecie(symbol, properties={'spin': Spin.up}): constraint.order_parameter,
+            DummySpecie(symbol, properties={'spin': Spin.down}): 1 - constraint.order_parameter
+        } for symbol, constraint in zip(dummy_species_symbols, order_parameters)]
 
         sites_to_add = []
 
@@ -823,7 +823,10 @@ class MagOrderingTransformation(AbstractTransformation):
 
         # remove duplicate structures and group according to energy model
         m = StructureMatcher(comparator=SpinComparator())
-        key = lambda x: SpacegroupAnalyzer(x, 0.1).get_space_group_number()
+
+        def key(x):
+            return SpacegroupAnalyzer(x, 0.1).get_space_group_number()
+
         out = []
         for _, g in groupby(sorted([d["structure"] for d in alls],
                                    key=key), key):
@@ -878,7 +881,7 @@ def _find_codopant(target, oxidation_state, allowed_elements=None):
                 r = sp.ionic_radius
                 if r is not None:
                     candidates.append((r, sp))
-        except:
+        except Exception:
             pass
     return min(candidates, key=lambda l: abs(l[0] / ref_radius - 1))[1]
 
@@ -951,17 +954,15 @@ class DopingTransformation(AbstractTransformation):
         radius = self.dopant.ionic_radius
 
         compatible_species = [
-            sp for sp in comp if sp.oxi_state == ox and
-            abs(sp.ionic_radius / radius - 1) < self.ionic_radius_tol]
+            sp for sp in comp if sp.oxi_state == ox and abs(sp.ionic_radius / radius - 1) < self.ionic_radius_tol]
 
         if (not compatible_species) and self.alio_tol:
             # We only consider aliovalent doping if there are no compatible
             # isovalent species.
-            compatible_species = [
-                sp for sp in comp
-                if abs(sp.oxi_state - ox) <= self.alio_tol and
-                abs(sp.ionic_radius / radius - 1) < self.ionic_radius_tol and
-                sp.oxi_state * ox >= 0]
+            compatible_species = [sp for sp in comp
+                                  if abs(sp.oxi_state - ox) <= self.alio_tol and
+                                  abs(sp.ionic_radius / radius - 1) < self.ionic_radius_tol and
+                                  sp.oxi_state * ox >= 0]
 
         if self.allowed_doping_species is not None:
             # Only keep allowed doping species.
@@ -1261,6 +1262,7 @@ class DisorderOrderedTransformation(AbstractTransformation):
 
         return disorder_mapping
 
+
 class GrainBoundaryTransformation(AbstractTransformation):
     """
     A transformation that creates a gb from a bulk structure.
@@ -1353,7 +1355,7 @@ class GrainBoundaryTransformation(AbstractTransformation):
             self.rm_ratio,
             self.quick_gen)
         return gb_struct
-      
+
     @property
     def inverse(self):
         return None
@@ -1361,6 +1363,7 @@ class GrainBoundaryTransformation(AbstractTransformation):
     @property
     def is_one_to_many(self):
         return False
+
 
 class CubicSupercellTransformation(AbstractTransformation):
     """
@@ -1375,7 +1378,8 @@ class CubicSupercellTransformation(AbstractTransformation):
     number of atoms in the supercell falls in the range ['min_atoms', 'max_atoms'].
     """
 
-    def __init__(self, min_atoms=-np.Inf, max_atoms=np.Inf, num_nn_dists=5):
+    def __init__(self, min_atoms=None, max_atoms=None, num_nn_dists=5,
+                 force_diagonal_transformation=False):
         """
         Returns a supercell structure given a Pymatgen structure suitable for
         Compressed Sensing Lattice Dynamics (CSLD). See papers below for details
@@ -1392,16 +1396,25 @@ class CubicSupercellTransformation(AbstractTransformation):
             num_nn_dists (int): number of multiples of atomic nearest neighbor
                 distances to force all directions of the supercell to be at
                 least as large
+            force_diagonal_transformation (bool): If true, return a
+                transformation with a diagonal transformation matrix. Else,
+                do not impose this constraint (leading to a better result).
         Returns:
             Supercell structure (Structure)
         """
+        if min_atoms is None:
+            min_atoms = -np.Inf
+        if max_atoms is None:
+            max_atoms = np.Inf
+
         self.min_atoms = min_atoms
         self.max_atoms = max_atoms
-        self.num_nn_cutoff = num_nn_dists
+        self.num_nn_dists = num_nn_dists
+        self.force_diagonal_transformation = force_diagonal_transformation
 
         # Variables to be solved for by 'apply_transformation()'
-        self.smallest_dim = None # smallest direction of the resulting supercell
-        self.trans_mat = None # transformation matrix
+        self.smallest_dim = None  # norm of smallest direction of the resulting supercell
+        self.trans_mat = None  # transformation matrix
         self.nn_dist = None
 
     def _round_away_from_zero(self, x):
@@ -1451,7 +1464,7 @@ class CubicSupercellTransformation(AbstractTransformation):
             # indices of zero rows
             zero_row_idxs = np.where(~arr_rounded.any(axis=1))[0]
 
-            for zero_row_idx in zero_row_idxs: # loop over zero rows
+            for zero_row_idx in zero_row_idxs:  # loop over zero rows
                 zero_row = arr[zero_row_idx, :]
 
                 # Find the element of the zero row with the largest absolute
@@ -1462,7 +1475,8 @@ class CubicSupercellTransformation(AbstractTransformation):
                 col_idx_to_fix = col_idx_to_fix[np.random.randint(len(col_idx_to_fix))]
 
                 # Round the chosen element away from zero
-                arr_rounded[zero_row_idx, col_idx_to_fix] = self._round_away_from_zero(arr[zero_row_idx, col_idx_to_fix])
+                arr_rounded[zero_row_idx, col_idx_to_fix] = self._round_away_from_zero(
+                    arr[zero_row_idx, col_idx_to_fix])
 
         # Repeat process for zero columns
         if (~arr_rounded.any(axis=0)).any():  # Check for zero columns in T_rounded
@@ -1472,7 +1486,7 @@ class CubicSupercellTransformation(AbstractTransformation):
                 row_idx_to_fix = np.where(np.absolute(zero_col) == np.amax(np.absolute(zero_col)))[0]
                 for i in row_idx_to_fix:
                     arr_rounded[i, zero_col_idx] = self._round_away_from_zero(arr[i, zero_col_idx])
-        return arr_rounded
+        return arr_rounded.astype(int)
 
     def apply_transformation(self, structure):
         """
@@ -1503,44 +1517,48 @@ class CubicSupercellTransformation(AbstractTransformation):
             sc_not_found = True
 
             # minimum distance any direction of the supercell must be as large as
-            hard_sc_size_threshold = self.nn_dist * self.num_nn_cutoff
+            hard_sc_size_threshold = self.nn_dist * self.num_nn_dists
 
-            # target_threshold is used as the desired cubic side lengths of the supercell
-            target_sc_size = hard_sc_size_threshold
-
+            if self.force_diagonal_transformation:
+                # trans_mat_diagonal holds the diagonal of the trans_mat
+                trans_mat_diagonal = np.array([0, 0, 0])
+                trans_mat_diagonal_update = np.array([1, 1, 1])
+            else:
+                # target_threshold is used as the desired cubic side lengths of the supercell
+                target_sc_size = hard_sc_size_threshold
             while sc_not_found:
-                target_sc_lat_vecs = np.eye(3, 3) * target_sc_size
+                if self.force_diagonal_transformation:
+                    # Update trans_mat (with diagonal constraint)
+                    trans_mat_diagonal += trans_mat_diagonal_update
+                    self.trans_mat = np.diag(trans_mat_diagonal)
+                else:
+                    # Update trans_mat (without diagonal constraint)
+                    target_sc_lat_vecs = np.eye(3, 3) * target_sc_size
+                    self.trans_mat = np.linalg.inv(lat_vecs) @ target_sc_lat_vecs
 
-                self.trans_mat = np.linalg.inv(lat_vecs) @ target_sc_lat_vecs
-
-                # round the entries of T and force T to be nonsingular
-                self.trans_mat = self._round_and_make_arr_singular(self.trans_mat)
+                    # round the entries of T and force T to be nonsingular
+                    self.trans_mat = self._round_and_make_arr_singular(self.trans_mat)
 
                 proposed_sc_lat_vecs = self.trans_mat @ lat_vecs
 
-                # Check how many nearest neighbors the proposed supercell allows
-                scBasesNorms = [np.linalg.norm(proposed_sc_lat_vecs[0]),
-                                np.linalg.norm(proposed_sc_lat_vecs[1]),
-                                np.linalg.norm(proposed_sc_lat_vecs[2])]
-                maxNorm = max(scBasesNorms)
-                maxIndex = scBasesNorms.index(maxNorm)
-                idx = list(range(3))
-                idx.remove(maxIndex)
-                a = proposed_sc_lat_vecs[maxIndex]
-                b = proposed_sc_lat_vecs[idx[0]]
-                c = proposed_sc_lat_vecs[idx[1]]
-                projb_a = _proj(b, a)
-                projc_a = _proj(c, a)
+                # Find the shortest dimension length and direction
+                a = proposed_sc_lat_vecs[0]
+                b = proposed_sc_lat_vecs[1]
+                c = proposed_sc_lat_vecs[2]
 
-                if np.linalg.norm(projb_a) > np.linalg.norm(projc_a):
-                    length = np.linalg.norm(a - projb_a)
-                else:
-                    length = np.linalg.norm(a - projc_a)
-                width = math.sqrt(np.linalg.norm(b) ** 2 - np.linalg.norm(projb_a) ** 2)
-                ab_normal = np.cross(a, b)  # get normal direction from AB plane
-                height = np.linalg.norm(_proj(c, ab_normal))  # project c onto AB plane normal
+                length1_vec = c - _proj(c, a)  # a-c plane
+                length2_vec = a - _proj(a, c)
+                length3_vec = b - _proj(b, a)  # b-a plane
+                length4_vec = a - _proj(a, b)
+                length5_vec = b - _proj(b, c)  # b-c plane
+                length6_vec = c - _proj(c, b)
+                length_vecs = np.array([length1_vec, length2_vec, length3_vec,
+                                        length4_vec, length5_vec, length6_vec])
 
-                self.smallest_dim = min([length, width, height])
+                lengths = np.linalg.norm(length_vecs, axis=1)
+                self.smallest_dim = np.amin(lengths)  # shortest length
+                smallest_dim_idx = np.argmin(lengths)
+                smallest_dim_vec = length_vecs[smallest_dim_idx]  # shortest direction
 
                 # Get number of atoms
                 superstructure = SupercellTransformation(self.trans_mat).apply_transformation(structure)
@@ -1552,7 +1570,28 @@ class CubicSupercellTransformation(AbstractTransformation):
                     return superstructure
                 else:
                     # Increase threshold until proposed supercell meets requirements
-                    target_sc_size += 0.1
+                    if self.force_diagonal_transformation:
+                        # Find which supercell lattice vector contributes most to
+                        # the shortest dimension
+                        sc_latvec1_proj_mag = np.linalg.norm(
+                            _proj(proposed_sc_lat_vecs[0],
+                                  smallest_dim_vec))
+                        sc_latvec2_proj_mag = np.linalg.norm(
+                            _proj(proposed_sc_lat_vecs[1],
+                                  smallest_dim_vec))
+                        sc_latvec3_proj_mag = np.linalg.norm(
+                            _proj(proposed_sc_lat_vecs[2],
+                                  smallest_dim_vec))
+                        sc_latvec_proj_mags = [sc_latvec1_proj_mag,
+                                               sc_latvec2_proj_mag,
+                                               sc_latvec3_proj_mag]
+                        sc_proj_max_idx = sc_latvec_proj_mags.index(max(sc_latvec_proj_mags))
+
+                        # Increase the corresponding supercell lattice vector size
+                        trans_mat_diagonal_update = np.array([0, 0, 0])
+                        np.put(trans_mat_diagonal_update, sc_proj_max_idx, 1)
+                    else:
+                        target_sc_size += 0.1
                     if num_at > self.max_atoms:
                         raise AttributeError('While trying to solve for the '
                                              'supercell, the max number of atoms'
@@ -1568,139 +1607,146 @@ class CubicSupercellTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return False
 
-class PerturbSitesTransformation(AbstractTransformation):
-    """
-    Generates supercells where the atoms have been displaced around their
-    ideal sites.
 
-    The algorithm is as follows:
-    - Generate a list of distances between 'min_displacement' and
-      'max_displacement'.
-    - If 'min_random_distance' is None, a structure is generated for each of
-      the displacement distances where all atoms are displaced in random
-      directions from their original locations by the displacement distance.
-    - If 'structures_per_displacement_distance' is greater than 1, multiple
-      structures per displacement distance will be generated.
-    - If 'min_random_distance' is a number (float less than 'min_displacement'),
-      for each displacement distance, the atoms will be perturbed in a random
-      direction and by a random amount sample uniformly between
-      'min_random_distance' and the displacement distance.
-    """
+class AddAdsorbateTransformation(AbstractTransformation):
 
-    def __init__(self,
-                 max_displacement=0.30,
-                 min_displacement=0.01,
-                 num_displacements=10,
-                 structures_per_displacement_distance=1,
-                 min_random_distance=None):
+    def __init__(self, adsorbate, selective_dynamics=False, height=0.9,
+                 mi_vec=None, repeat=None, min_lw=5.0, translate=True,
+                 reorient=True, find_args=None):
         """
-        Args:
-            max_displacement (float): maximum displacement distance for
-                perturbing the structure (Angstroms)
-            min_displacement (float): minimum displacement distance for
-                perturbing the structure (Angstroms)
-            num_displacements (int): number of unique displacement distances to
-                try, uniformly distributed between 'min_displacement' and
-                'max_displacement'.
-            structures_per_displacement_distance (int): number of perturbed
-                structures to generate for each unique displacement distance.
-            min_random_distance (Optional float): If None (default), then for a
-                given perturbed structure, all atoms will move the same distance
-                from their original locations. If float, then for a given
-                perturbed structure, the distances that atoms move will be
-                uniformly distributed from a minimum distance of
-                'min_random_distance' to one of the displacement distances
-                uniformly sampled between 'min_displacement' and
-                'max_displacement'.
-        Returns:
-            List of randomly displaced structures (List of Structures)
-        """
-
-        self.max_disp = max_displacement
-        self.min_disp = min_displacement
-        self.num_disps = num_displacements
-        self.structures_per_disp = structures_per_displacement_distance
-
-        if min_random_distance is not None:
-            self.min_random_distance = float(min_random_distance)
-        else:
-            self.min_random_distance = None
-
-        self.disps = np.linspace(min_displacement, max_displacement,
-                                 num=num_displacements)
-
-    def _random_displacements(self, natom, rmax, rmin):
-        """
-        ***Adapted from csld.util.mathtool
-        This function is not meant to be called directly.
-        Generates matrix of size (natom, 3) where each row vector has
-            Gaussian-sampled coordinates.
-        If 'rmin'=None, then all row vectors will have magnitude 'rmax'.
-        Else, magnitudes are uniformly distributed between 'rmin' and 'rmax'.
+        Use AdsorbateSiteFinder to add an absorbate to a slab.
 
         Args:
-            natom (int): number of atoms to be displaced (i.e. number of displacement
-                vectors to generate)
-            rmax (float): max displacement distance that each atom can move
-            rmin (float): min displacement distance that each atom can move
+            adsorbate (Molecule): molecule to add as adsorbate
+            selective_dynamics (bool): flag for whether to assign
+                non-surface sites as fixed for selective dynamics
+            height (float): height criteria for selection of surface sites
+            mi_vec : vector corresponding to the vector
+                concurrent with the miller index, this enables use with
+                slabs that have been reoriented, but the miller vector
+                must be supplied manually
+            repeat (3-tuple or list): repeat argument for supercell generation
+            min_lw (float): minimum length and width of the slab, only used
+                if repeat is None
+            translate (bool): flag on whether to translate the molecule so
+                that its CoM is at the origin prior to adding it to the surface
+            reorient (bool): flag on whether or not to reorient adsorbate
+                along the miller index
+            find_args (dict): dictionary of arguments to be passed to the
+                call to self.find_adsorption_sites, e.g. {"distance":2.0}
+        """
+        self.adsorbate = adsorbate
+        self.selective_dynamics = selective_dynamics
+        self.height = height
+        self.mi_vec = mi_vec
+        self.repeat = repeat
+        self.min_lw = min_lw
+        self.translate = translate
+        self.reorient = reorient
+        self.find_args = find_args
 
-        Returns:
-            Matrix of size (natom, 3) where each row is a displacement
-                vector for a single atom (np.ndarray)
+    def apply_transformation(self, structure, return_ranked_list=False):
         """
 
-        # Gaussian sampled displacements. Size: (natom, 3)
-        dx = np.random.normal(size=(natom, 3))
+        Args:
+            structure: Must be a Slab structure
+            return_ranked_list:  Whether or not multiple structures are
+                returned. If return_ranked_list is a number, up to that number of
+                structures is returned.
 
-        # Norms of each row
-        dx_norms = np.linalg.norm(dx, axis=1)
+        Returns: Slab with adsorbate
 
-        # Displacement distances
-        disp_dists = np.full(natom, rmax) if rmin is None else np.random.uniform(rmin, rmax, natom)
+        """
 
-        if 0 not in dx_norms:
-            # Renormalize Gaussian vectors with 'disp_dists'
-            return dx * (disp_dists / dx_norms)[:, None]
+        sitefinder = AdsorbateSiteFinder(structure,
+                                         selective_dynamics=self.selective_dynamics,
+                                         height=self.height,
+                                         mi_vec=self.mi_vec)
+
+        structures = sitefinder.generate_adsorption_structures(
+            self.adsorbate, repeat=self.repeat, min_lw=self.min_lw,
+            translate=self.translate, reorient=self.reorient, find_args=self.find_args
+        )
+
+        if not return_ranked_list:
+            return structures[0]
         else:
-            # Protect against dividing by 0
-            self._random_displacements(natom, rmax, rmin)
+            return [{"structure": structure} for structure in structures[:return_ranked_list]]
 
-    def _perturb_structure(self, structure, max_disp, floor_disp):
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return True
+
+
+class SubstituteSurfaceSiteTransformation(AbstractTransformation):
+
+    def __init__(self, atom, selective_dynamics=False, height=0.9,
+                 mi_vec=None, target_species=None, sub_both_sides=False,
+                 range_tol=1e-2, dist_from_surf=0):
         """
-        *** Adapted from CSLD's 'polaron_main' file
-        All atoms move in a random direction (with each coordinate sampled
-        from the Normal distribution - see '_random_displacements()').
-        If 'floor_disp' is None, all atoms will move a distance of 'max_disp'.
-        Else, atoms will move with distances uniformly distributed in the range,
-        ['floor_disp', 'max_disp'].
+        Use AdsorptionSiteFinder to perform substitution-type doping on the surface and
+        returns all possible configurations where one dopant is substituted
+        per surface. Can substitute one surface or both.
+
+
+        Args:
+            atom (str): atom corresponding to substitutional dopant
+            selective_dynamics (bool): flag for whether to assign
+                non-surface sites as fixed for selective dynamics
+            height (float): height criteria for selection of surface sites
+            mi_vec : vector corresponding to the vector
+                concurrent with the miller index, this enables use with
+                slabs that have been reoriented, but the miller vector
+                must be supplied manually
+            target_species:  List of specific species to substitute
+            sub_both_sides (bool): If true, substitute an equivalent
+                site on the other surface
+            range_tol (float): Find viable substitution sites at a specific
+                distance from the surface +- this tolerance
+            dist_from_surf (float): Distance from the surface to find viable
+                substitution sites, defaults to 0 to substitute at the surface
+        """
+        self.atom = atom
+        self.selective_dynamics = selective_dynamics
+        self.height = height
+        self.mi_vec = mi_vec
+        self.target_species = target_species
+        self.sub_both_sides = sub_both_sides
+        self.range_tol = range_tol
+        self.dist_from_surf = dist_from_surf
+
+    def apply_transformation(self, structure, return_ranked_list=False):
         """
 
-        na = structure.num_sites
-        max_disp = float(max_disp)
-        if isinstance(max_disp, float):
-            # generate random displacements
-            dr = self._random_displacements(na, max_disp, floor_disp)
+        Args:
+            structure: Must be a Slab structure
+            return_ranked_list:  Whether or not multiple structures are
+                returned. If return_ranked_list is a number, up to that number of
+                structures is returned.
 
-            # Perturb structure with the random displacements
-            for i in range(len(structure._sites)):
-                structure.translate_sites([i], dr[i], frac_coords=False,
-                                          to_unit_cell=True)
-            return structure
+        Returns: Slab with sites substituted
+
+        """
+
+        sitefinder = AdsorbateSiteFinder(structure,
+                                         selective_dynamics=self.selective_dynamics,
+                                         height=self.height,
+                                         mi_vec=self.mi_vec)
+
+        structures = sitefinder.generate_substitution_structures(self.atom,
+                                                                 target_species=self.target_species,
+                                                                 sub_both_sides=self.sub_both_sides,
+                                                                 range_tol=self.range_tol,
+                                                                 dist_from_surf=self.dist_from_surf)
+
+        if not return_ranked_list:
+            return structures[0]
         else:
-            raise AttributeError('Displacement entered is not a float.')
-
-    def apply_transformation(self, structure):
-        # Return a list of perturbed structures
-
-        perturbed_structures = []
-        for disp_val in self.disps:
-            for cell in range(self.structures_per_disp):
-                perturbed_structure = structure.copy()
-                perturbed_structure = self._perturb_structure(perturbed_structure,
-                                                              disp_val,
-                                                              self.min_random_distance)
-                perturbed_structures += [perturbed_structure]
-        return perturbed_structures
+            return [{"structure": structure} for structure in structures[:return_ranked_list]]
 
     @property
     def inverse(self):

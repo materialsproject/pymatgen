@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.fiesta module &#8212; pymatgen 2019.7.21 documentation</title>
+    <title>pymatgen.io.fiesta module &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -63,7 +63,9 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A basis set reader.
 :param filename: Filename to read.
-:param Basis set are stored in data as a dict: :key l_zeta_ng for each nl orbitals which contain list of tuple (alpha, coef) for each of the ng gaussians in l_zeta orbital</p>
+:param Basis set are stored in data as a dict:
+:param : key l_zeta_ng for each nl orbitals which contain list of tuple (alpha, coef) for each of the ng gaussians
+:param in l_zeta orbital:</p>
 <dl class="method">
 <dt id="pymatgen.io.fiesta.Basis_set_reader.infos_on_basis_set">
 <code class="sig-name descname">infos_on_basis_set</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/fiesta.html#Basis_set_reader.infos_on_basis_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.fiesta.Basis_set_reader.infos_on_basis_set" title="Permalink to this definition">¶</a></dt>
@@ -209,9 +211,9 @@ files generated from this class itself.</p>
 <code class="sig-name descname">set_auxiliary_basis_set</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">auxiliary_folder</em>, <em class="sig-param">auxiliary_basis_set_type='aug_cc_pvtz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/fiesta.html#FiestaInput.set_auxiliary_basis_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.fiesta.FiestaInput.set_auxiliary_basis_set" title="Permalink to this definition">¶</a></dt>
 <dd><p>copy in the desired folder the needed auxiliary basis set “X2.ion” where X is a specie.
 :param auxiliary_folder: folder where the auxiliary basis sets are stored
-:param auxiliary_basis_set_type: type of basis set (string to be found in the extension of the file name; must be in lower case)</p>
+:param auxiliary_basis_set_type: type of basis set (string to be found in the extension of the file name; must</p>
 <blockquote>
-<div><p>ex: C2.ion_aug_cc_pvtz_RI_Weigend find “aug_cc_pvtz”</p>
+<div><p>be in lower case). ex: C2.ion_aug_cc_pvtz_RI_Weigend find “aug_cc_pvtz”</p>
 </div></blockquote>
 </dd></dl>
 
@@ -237,7 +239,7 @@ files generated from this class itself.</p>
 
 <dl class="class">
 <dt id="pymatgen.io.fiesta.Fiesta_run">
-<em class="property">class </em><code class="sig-name descname">Fiesta_run</code><span class="sig-paren">(</span><em class="sig-param">folder='/Users/matt/git/pymatgen-release/pymatgen/docs_rst', grid=[2, 2, 2], log_file='log'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/fiesta.html#Fiesta_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.fiesta.Fiesta_run" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Fiesta_run</code><span class="sig-paren">(</span><em class="sig-param">folder='/Users/shyue/repos/pymatgen/docs_rst', grid=[2, 2, 2], log_file='log'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/fiesta.html#Fiesta_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.fiesta.Fiesta_run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <dl class="simple">
 <dt>To run FIESTA inside python:</dt><dd><p>if grid is [x,x] then bse runs
@@ -346,7 +348,7 @@ logfile: logfile of NWCHEM2FIESTA</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
       </ul>
     </div>
 

@@ -57,7 +57,7 @@ class TrajectoryTest(PymatgenTest):
         incompatible_test_success=False
         try:
             traj.extend(incompatible_traj)
-        except:
+        except Exception:
             incompatible_test_success=True
 
         self.assertTrue(compatible_success and incompatible_test_success)
