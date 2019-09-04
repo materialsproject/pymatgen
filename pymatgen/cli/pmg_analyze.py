@@ -29,7 +29,7 @@ __date__ = "Aug 13 2016"
 SAVE_FILE = "vasp_data.gz"
 
 
-def get_energies(rootdir, reanalyze, verbose, detailed, sort, fmt):
+def get_energies(rootdir, reanalyze, verbose, quick, sort, fmt):
     """
     Doc string.
     """
@@ -37,7 +37,7 @@ def get_energies(rootdir, reanalyze, verbose, detailed, sort, fmt):
         logformat = "%(relativeCreated)d msecs : %(message)s"
         logging.basicConfig(level=logging.INFO, format=logformat)
 
-    if not detailed:
+    if quick:
         drone = SimpleVaspToComputedEntryDrone(inc_structure=True)
     else:
         drone = VaspToComputedEntryDrone(inc_structure=True,
@@ -68,8 +68,8 @@ def get_energies(rootdir, reanalyze, verbose, detailed, sort, fmt):
 
     all_data = []
     for e in entries:
-        if not detailed:
-            delta_vol = "{:.2f}".format(e.data["delta_volume"] * 100)
+        if quick:
+            delta_vol = "NA"
         else:
             delta_vol = e.structure.volume / \
                         e.data["initial_structure"].volume - 1
@@ -128,7 +128,7 @@ def analyze(args):
     if args.get_energies or default_energies:
         for d in args.directories:
             get_energies(d, args.reanalyze, args.verbose,
-                         args.detailed, args.sort, args.format)
+                         args.quick, args.sort, args.format)
     if args.ion_list:
         if args.ion_list[0] == "All":
             ion_list = None
