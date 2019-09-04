@@ -72,7 +72,7 @@ def run_mcsqs(structure, clusters, supercell=None, total_atoms=None, search_time
         )
         try:
             p.communicate(timeout=search_time * 60)
-        except:
+        except subprocess.TimeoutExpired:
             p.kill()
             p.communicate()
             if os.path.exists("bestsqs.out"):
@@ -90,7 +90,7 @@ def run_mcsqs(structure, clusters, supercell=None, total_atoms=None, search_time
         text_file.write(struc.to_string())
         text_file.close()
 
-        ## Generate Clusters
+        # Generate Clusters
         command = ["mcsqs"]
         for num in clusters:
             command.append("-" + str(num) + "=" + str(clusters[num]))
@@ -114,7 +114,7 @@ def run_mcsqs(structure, clusters, supercell=None, total_atoms=None, search_time
         )
         try:
             p.communicate(timeout=search_time * 60)
-        except:
+        except subprocess.TimeoutExpired:
             p.kill()
             p.communicate()
             if os.path.exists("bestsqs.out"):
