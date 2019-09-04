@@ -1,5 +1,5 @@
 import subprocess
-import os 
+import os
 import numpy as np
 import time
 from threading import Timer
@@ -11,18 +11,18 @@ def run_mcsqs(structure, clusters, supercell = None, total_atoms = None, search_
     Helper function for calling mcsqs with different arguments
 
     Args:
-        clusters (dict): dictionary of cluster interactions with entries in the form 
+        clusters (dict): dictionary of cluster interactions with entries in the form
         # atoms: cutoff in angstroms
         supercell (list): dimensions of the supercell in units of the original unit cell
         total_atoms(int): total number of atoms in the final SQS. Choose either
         this OR supercell
         search_time (int): The time spent looking for the ideal SQS in minutes
-        
-    Returns: 
+
+    Returns:
         Pymatgen structure which is an SQS of the input structure
     """
     num_atoms = len(structure)
-    if total_atoms == None:
+    if total_atoms is None:
         total_atoms = num_atoms
 
     if supercell is not None and total_atoms != num_atoms:
@@ -47,7 +47,7 @@ def run_mcsqs(structure, clusters, supercell = None, total_atoms = None, search_
         text_file.write(struc.to_string())
         text_file.close()
 
-        
+
         ## Generate Clusters
         command = ['mcsqs']
         for num in clusters:
@@ -73,7 +73,7 @@ def run_mcsqs(structure, clusters, supercell = None, total_atoms = None, search_
                 text_file.close()
 
                 return atat.Mcsqs.structure_from_string(bestsqs)
-            else: 
+            else:
                 raise TimeoutError('Cluster expansion took too long.')
 
     else:
@@ -82,7 +82,7 @@ def run_mcsqs(structure, clusters, supercell = None, total_atoms = None, search_
         text_file.write(struc.to_string())
         text_file.close()
 
-        
+
         ## Generate Clusters
         command = ['mcsqs']
         for num in clusters:
@@ -108,5 +108,5 @@ def run_mcsqs(structure, clusters, supercell = None, total_atoms = None, search_
                 text_file.close()
 
                 return atat.Mcsqs.structure_from_string(bestsqs)
-            else: 
+            else:
                 raise TimeoutError('Cluster expansion took too long.')
