@@ -641,7 +641,6 @@ class Incar(dict, MSONable):
                 params["MAGMOM"] = val
 
             self.update(params)
-            self.check_params()
 
     def __setitem__(self, key, val):
         """
@@ -891,14 +890,14 @@ class Incar(dict, MSONable):
 
             # First check if this parameter even exists
             if k not in incar_params.keys():
-                warnings.warn("Cannot find %s in the list of INCAR keywords" % (k),
+                warnings.warn("Cannot find %s in the list of INCAR flags" % (k),
                               BadIncarWarning, stacklevel=2)
 
             if k in incar_params.keys():
                 if type(incar_params[k]).__name__ == 'str':
                     # Now we check if this is an appropriate parameter type
                     if incar_params[k] == 'float':
-                        if not np.isreal(self[k]):
+                        if not type(self[k]) not in ['float', 'int']:
                             warnings.warn("%s: %s is not real" % (k, self[k]),
                                           BadIncarWarning, stacklevel=2)
                     elif type(self[k]).__name__ != incar_params[k]:

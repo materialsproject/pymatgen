@@ -418,7 +418,6 @@ class DictSet(VaspInputSet):
                               "detected. Please see VASP recommendations on "
                               "ISMEAR for metals.", BadInputSetWarning)
 
-        incar.check_params()
         return incar
 
     @property
