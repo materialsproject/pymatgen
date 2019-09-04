@@ -245,11 +245,11 @@ class LMTOCtrl:
             pass
 
         for token in ["HEADER", "VERS"]:
-                try:
-                    value = re.split(token + r"\s*", struc_lines[token])[1]
-                    structure_tokens[token] = value.strip()
-                except IndexError:
-                    pass
+            try:
+                value = re.split(token + r"\s*", struc_lines[token])[1]
+                structure_tokens[token] = value.strip()
+            except IndexError:
+                pass
         return LMTOCtrl.from_dict(structure_tokens)
 
     @classmethod

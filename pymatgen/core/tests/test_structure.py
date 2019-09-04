@@ -405,15 +405,11 @@ class IStructureTest(PymatgenTest):
         s.make_supercell([2, 2, 2])
         self.assertEqual(sum(map(len, s.get_all_neighbors(3))), 976)
 
-        all_nn = s.get_all_neighbors(r, include_site=False)
-        for nn in all_nn:
-            self.assertEqual(1, len(nn[0]))
-            self.assertLessEqual(nn[0][0], r)
-
         all_nn = s.get_all_neighbors(0.05)
         self.assertEqual([len(nn) for nn in all_nn], [0] * len(s))
 
     def test_get_all_neighbors_crosscheck_old(self):
+        warnings.simplefilter("ignore")
         for i in range(100):
             alpha, beta = np.random.rand(2) * 90
             a, b, c = 3 + np.random.rand(3) * 5
@@ -448,6 +444,8 @@ class IStructureTest(PymatgenTest):
         self.assertEqual(set([i[0] for i in struct.get_neighbors(struct[0], 0.05)]),
                          set([i[0] for i in struct.get_neighbors_old(struct[0], 0.05)]))
 
+        warnings.simplefilter("default")
+
     def test_get_all_neighbors_outside_cell(self):
         s = Structure(Lattice.cubic(2), ['Li', 'Li', 'Li', 'Si'],
                       [[3.1] * 3, [0.11] * 3, [-1.91] * 3, [0.5] * 3])
@@ -477,48 +475,12 @@ class IStructureTest(PymatgenTest):
         all_nn = s.get_all_neighbors(1e-5, True)
         self.assertEqual([len(i) for i in all_nn], [0, 0, 0])
 
-    def test_get_all_neighbors_old(self):
-        s = self.struct
-
-        r = random.uniform(3, 6)
-        all_nn = s.get_all_neighbors_old(r, True, True)
-        for i in range(len(s)):
-            self.assertEqual(4, len(all_nn[i][0]))
-            self.assertEqual(len(all_nn[i]), len(s.get_neighbors_old(s[i], r)))
-
-        for site, nns in zip(s, all_nn):
-            for nn in nns:
-                self.assertTrue(nn[0].is_periodic_image(s[nn[2]]))
-                d = sum((site.coords - nn[0].coords) ** 2) ** 0.5
-                self.assertAlmostEqual(d, nn[1])
-
-        s = Structure(Lattice.cubic(1), ['Li'], [[0, 0, 0]])
-        s.make_supercell([2, 2, 2])
-        self.assertEqual(sum(map(len, s.get_all_neighbors_old(3))), 976)
-
-        all_nn = s.get_all_neighbors_old(r, include_site=False)
-        for nn in all_nn:
-            self.assertEqual(1, len(nn[0]))
-            self.assertLessEqual(nn[0][0], r)
-
-    def test_get_all_neighbors_old_outside_cell(self):
-        s = Structure(Lattice.cubic(2), ['Li', 'Li', 'Li', 'Si'],
-                      [[3.1] * 3, [0.11] * 3, [-1.91] * 3, [0.5] * 3])
-        all_nn = s.get_all_neighbors_old(0.2, True)
-        for site, nns in zip(s, all_nn):
-            for nn in nns:
-                self.assertTrue(nn[0].is_periodic_image(s[nn[2]]))
-                d = sum((site.coords - nn[0].coords) ** 2) ** 0.5
-                self.assertAlmostEqual(d, nn[1])
-        self.assertEqual(list(map(len, all_nn)), [2, 2, 2, 0])
-
     def test_get_all_neighbors_equal(self):
         s = Structure(Lattice.cubic(2), ['Li', 'Li', 'Li', 'Si'],
                       [[3.1] * 3, [0.11] * 3, [-1.91] * 3, [0.5] * 3])
         nn_traditional = s.get_all_neighbors_old(4, include_index=True, include_image=True,
                                                  include_site=True)
-        nn_cell_lists = s.get_all_neighbors(4, include_index=True, include_image=True,
-                                            include_site=True)
+        nn_cell_lists = s.get_all_neighbors(4, include_index=True, include_image=True)
         nn_traditional = [sorted(i, key=lambda x: (x[1], x[2], x[3][0], x[3][1], x[3][2])) for i in nn_traditional]
         nn_cell_lists = [sorted(i, key=lambda x: (x[1], x[2], x[3][0], x[3][1], x[3][2])) for i in nn_cell_lists]
 
@@ -702,6 +664,14 @@ class StructureTest(PymatgenTest):
         for i, x in enumerate(pre_perturbation_sites):
             self.assertAlmostEqual(x.distance(post_perturbation_sites[i]), d,
                                    3, "Bad perturbation distance")
+
+        structure2 = pre_perturbation_sites.copy()
+        structure2.perturb(distance=d, min_distance=0)
+        post_perturbation_sites2 = structure2.sites
+
+        for i, x in enumerate(pre_perturbation_sites):
+            self.assertLessEqual(x.distance(post_perturbation_sites2[i]), d)
+            self.assertGreaterEqual(x.distance(post_perturbation_sites2[i]), 0)
 
     def test_add_oxidation_states(self):
         oxidation_states = {"Si": -4}

@@ -49,6 +49,7 @@ class MPResterTest(PymatgenTest):
 
     def tearDown(self):
         warnings.simplefilter("default")
+        self.rester.session.close()
 
     def test_get_all_materials_ids_doc(self):
         mids = self.rester.get_materials_ids("Al2O3")
@@ -147,11 +148,17 @@ class MPResterTest(PymatgenTest):
 
     def test_get_entries_in_chemsys(self):
         syms = ["Li", "Fe", "O"]
+        syms2 = "Li-Fe-O"
         entries = self.rester.get_entries_in_chemsys(syms)
+        entries2 = self.rester.get_entries_in_chemsys(syms2)
         elements = set([Element(sym) for sym in syms])
         for e in entries:
             self.assertIsInstance(e, ComputedEntry)
             self.assertTrue(set(e.composition.elements).issubset(elements))
+
+        e1 = set([i.entry_id for i in entries])
+        e2 = set([i.entry_id for i in entries2])
+        self.assertTrue(e1 == e2)
 
     def test_get_structure_by_material_id(self):
         s1 = self.rester.get_structure_by_material_id("mp-1")
@@ -383,6 +390,11 @@ class MPResterTest(PymatgenTest):
         self.assertAlmostEqual(mo_s3_112[0]['gb_energy'], 0.47965, places=2)
         self.assertAlmostEqual(mo_s3_112[0]['work_of_separation'], 6.318144, places=2)
         self.assertIn("Mo24", gb_f.formula)
+        hcp_s7 = self.rester.get_gb_data(material_id='mp-87', gb_plane=[0, 0, 0, 1],
+                                         include_work_of_separation=True)
+        self.assertAlmostEqual(hcp_s7[0]['gb_energy'], 1.12, places=2)
+        self.assertAlmostEqual(hcp_s7[0]['work_of_separation'], 2.46, places=2)
+
 
     def test_get_interface_reactions(self):
         kinks = self.rester.get_interface_reactions("LiCoO2", "Li3PS4")

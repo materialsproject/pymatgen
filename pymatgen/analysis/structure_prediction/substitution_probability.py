@@ -118,8 +118,7 @@ class SubstitutionProbability:
         Returns:
             The pair correlation of 2 species
         """
-        return math.exp(self.get_lambda(s1, s2)) * \
-               self.Z / (self.get_px(s1) * self.get_px(s2))
+        return math.exp(self.get_lambda(s1, s2)) * self.Z / (self.get_px(s1) * self.get_px(s2))
 
     def cond_prob_list(self, l1, l2):
         """

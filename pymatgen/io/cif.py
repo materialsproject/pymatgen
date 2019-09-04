@@ -29,7 +29,6 @@ from pymatgen.electronic_structure.core import Magmom
 from pymatgen.core.operations import MagSymmOp
 from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 
-
 """
 Wrapper classes for Cif input and output from Structures.
 """
@@ -234,8 +233,8 @@ class CifBlock:
                 for k, v in zip(columns * n, items):
                     data[k].append(v.strip())
             elif "".join(s).strip() != "":
-                warnings.warn("Possible error in cif format"
-                              " error at {}".format("".join(s).strip()))
+                warnings.warn("Possible issue in cif file"
+                              " at line: {}".format("".join(s).strip()))
         return cls(data, loops, header)
 
 
@@ -308,7 +307,7 @@ class CifParser:
         # store if CIF contains features from non-core CIF dictionaries
         # e.g. magCIF
         self.feature_flags = {}
-        self.errors = []
+        self.warnings = []
 
         def is_magcif():
             """
@@ -391,9 +390,9 @@ class CifParser:
             attached_hydrogens = [str2float(x) for x in data.data['_atom_site_attached_hydrogens']
                                   if str2float(x) != 0]
             if len(attached_hydrogens) > 0:
-                self.errors.append("Structure has implicit hydrogens defined, "
-                                   "parsed structure unlikely to be suitable for use "
-                                   "in calculations unless hydrogens added.")
+                self.warnings.append("Structure has implicit hydrogens defined, "
+                                     "parsed structure unlikely to be suitable for use "
+                                     "in calculations unless hydrogens added.")
 
         # Check to see if "_atom_site_type_symbol" exists, as some test CIFs do
         # not contain this key.
@@ -477,8 +476,7 @@ class CifParser:
                         del data.data[original_key][id]
 
             if len(idxs_to_remove) > 0:
-
-                self.errors.append("Pauling file corrections applied.")
+                self.warnings.append("Pauling file corrections applied.")
 
                 data.data["_atom_site_label"] += new_atom_site_label
                 data.data["_atom_site_type_symbol"] += new_atom_site_type_symbol
@@ -536,29 +534,29 @@ class CifParser:
                     changes_to_make[final_key] = interim_key
 
             if len(changes_to_make) > 0:
-                self.errors.append("Keys changed to match new magCIF specification.")
+                self.warnings.append("Keys changed to match new magCIF specification.")
 
             for final_key, interim_key in changes_to_make.items():
                 data.data[final_key] = data.data[interim_key]
 
         # check for finite precision frac co-ordinates (e.g. 0.6667 instead of 0.6666666...7)
         # this can sometimes cause serious issues when applying symmetry operations
-        important_fracs = (1/3., 2/3.)
+        important_fracs = (1 / 3., 2 / 3.)
         fracs_to_change = {}
         for label in ('_atom_site_fract_x', '_atom_site_fract_y', '_atom_site_fract_z'):
             if label in data.data.keys():
                 for idx, frac in enumerate(data.data[label]):
                     try:
                         frac = str2float(frac)
-                    except:
+                    except Exception:
                         # co-ordinate might not be defined e.g. '?'
                         continue
                     for comparison_frac in important_fracs:
-                        if abs(1 - frac/comparison_frac) < 1e-4:
+                        if abs(1 - frac / comparison_frac) < 1e-4:
                             fracs_to_change[(label, idx)] = str(comparison_frac)
         if fracs_to_change:
-            self.errors.append("Some fractional co-ordinates rounded to ideal values to "
-                               "avoid finite precision errors.")
+            self.warnings.append("Some fractional co-ordinates rounded to ideal values to "
+                                 "avoid issues with finite precision.")
             for (label, idx), val in fracs_to_change.items():
                 data.data[label][idx] = val
 
@@ -641,7 +639,7 @@ class CifParser:
                         return self.get_lattice(data, lengths, angles,
                                                 lattice_type=lattice_type)
                     except AttributeError as exc:
-                        self.errors.append(str(exc))
+                        self.warnings.append(str(exc))
                         warnings.warn(exc)
 
                 else:
@@ -663,7 +661,7 @@ class CifParser:
                 if isinstance(xyz, str):
                     msg = "A 1-line symmetry op P1 CIF is detected!"
                     warnings.warn(msg)
-                    self.errors.append(msg)
+                    self.warnings.append(msg)
                     xyz = [xyz]
                 try:
                     symops = [SymmOp.from_xyz_string(s)
@@ -694,9 +692,9 @@ class CifParser:
                         if spg:
                             symops = SpaceGroup(spg).symmetry_ops
                             msg = "No _symmetry_equiv_pos_as_xyz type key found. " \
-                                    "Spacegroup from %s used." % symmetry_label
+                                  "Spacegroup from %s used." % symmetry_label
                             warnings.warn(msg)
-                            self.errors.append(msg)
+                            self.warnings.append(msg)
                             break
                     except ValueError:
                         # Ignore any errors
@@ -710,9 +708,9 @@ class CifParser:
                                 symops = [SymmOp.from_xyz_string(s)
                                           for s in xyz]
                                 msg = "No _symmetry_equiv_pos_as_xyz type key found. " \
-                                        "Spacegroup from %s used." % symmetry_label
+                                      "Spacegroup from %s used." % symmetry_label
                                 warnings.warn(msg)
-                                self.errors.append(msg)
+                                self.warnings.append(msg)
                                 break
                     except Exception as ex:
                         continue
@@ -737,7 +735,7 @@ class CifParser:
             msg = "No _symmetry_equiv_pos_as_xyz type key found. " \
                   "Defaulting to P1."
             warnings.warn(msg)
-            self.errors.append(msg)
+            self.warnings.append(msg)
             symops = [SymmOp.from_xyz_string(s) for s in ['x', 'y', 'z']]
 
         return symops
@@ -790,7 +788,7 @@ class CifParser:
                 # get BNS number for MagneticSpaceGroup()
                 # by converting string to list of ints
                 id = list(map(int, (
-                data.data.get("_space_group_magn.number_BNS").split("."))))
+                    data.data.get("_space_group_magn.number_BNS").split("."))))
 
             msg = MagneticSpaceGroup(id)
 
@@ -808,7 +806,7 @@ class CifParser:
         if not magsymmops:
             msg = "No magnetic symmetry detected, using primitive symmetry."
             warnings.warn(msg)
-            self.errors.append(msg)
+            self.warnings.append(msg)
             magsymmops = [MagSymmOp.from_xyzt_string("x, y, z, 1")]
 
         return magsymmops
@@ -887,7 +885,7 @@ class CifParser:
         if parsed_sym is not None and (m_sp or not re.match(r"{}\d*".format(parsed_sym), sym)):
             msg = "{} parsed as {}".format(sym, parsed_sym)
             warnings.warn(msg)
-            self.errors.append(msg)
+            self.warnings.append(msg)
 
         return parsed_sym
 
@@ -953,7 +951,7 @@ class CifParser:
                     o_s = oxi_states.get(oxi_symbol, o_s)
                 try:
                     el = Specie(symbol, o_s)
-                except:
+                except Exception:
                     el = DummySpecie(symbol, o_s)
             else:
                 el = get_el_sp(symbol)
@@ -975,9 +973,9 @@ class CifParser:
                 comp_d = {el: occu}
                 if num_h > 0:
                     comp_d["H"] = num_h
-                    self.errors.append("Structure has implicit hydrogens defined, "
-                                       "parsed structure unlikely to be suitable for use "
-                                       "in calculations unless hydrogens added.")
+                    self.warnings.append("Structure has implicit hydrogens defined, "
+                                         "parsed structure unlikely to be suitable for use "
+                                         "in calculations unless hydrogens added.")
                 comp = Composition(comp_d)
                 if not match:
                     coord_to_species[coord] = comp
@@ -991,9 +989,9 @@ class CifParser:
                     if not set(c.elements) == {Element("O"), Element("H")}]
         if any([o > 1 for o in sum_occu]):
             msg = "Some occupancies (%s) sum to > 1! If they are within " \
-                    "the tolerance, they will be rescaled." % str(sum_occu)
+                  "the tolerance, they will be rescaled." % str(sum_occu)
             warnings.warn(msg)
-            self.errors.append(msg)
+            self.warnings.append(msg)
 
         allspecies = []
         allcoords = []
@@ -1095,10 +1093,10 @@ class CifParser:
                 # Warn the user (Errors should never pass silently)
                 # A user reported a problem with cif files produced by Avogadro
                 # in which the atomic coordinates are in Cartesian coords.
-                self.errors.append(str(exc))
+                self.warnings.append(str(exc))
                 warnings.warn(str(exc))
-        if self.errors:
-            warnings.warn("Issues encountered while parsing CIF: %s" % "\n".join(self.errors))
+        if self.warnings:
+            warnings.warn("Issues encountered while parsing CIF: %s" % "\n".join(self.warnings))
         if len(structures) == 0:
             raise ValueError("Invalid cif file with no structures!")
         return structures
@@ -1163,7 +1161,6 @@ class CifParser:
                 bibtex_entry.pop('page_first', None)  # and remove page_first, page_list if present
                 bibtex_entry.pop('page_last', None)
 
-
             # cite keys are given as cif-reference-idx in order they are found
             entries['cif-reference-{}'.format(idx)] = Entry('article', list(bibtex_entry.items()))
 
@@ -1179,7 +1176,7 @@ class CifParser:
 
     @property
     def has_errors(self):
-        return len(self.errors) > 0
+        return len(self.warnings) > 0
 
 
 class CifWriter:

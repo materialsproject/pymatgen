@@ -8,7 +8,6 @@ This module implements functions to perform various useful operations on
 entries, such as grouping entries by structure.
 """
 
-
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
@@ -153,7 +152,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
     subsets, dumping into files, etc.
     """
 
-    def __init__(self, entries: List[Union[PDEntry,ComputedEntry,ComputedStructureEntry]]):
+    def __init__(self, entries: List[Union[PDEntry, ComputedEntry, ComputedStructureEntry]]):
         """
         Args:
             entries: All the entries.
@@ -191,10 +190,9 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         Removes all non-ground state entries, i.e., only keep the lowest energy
         per atom entry at each composition.
         """
-        group_func = lambda e: e.composition.reduced_formula
-        entries = sorted(self.entries, key=group_func)
+        entries = sorted(self.entries, key=lambda e: e.composition.reduced_formula)
         ground_states = set()
-        for _, g in itertools.groupby(entries, key=group_func):
+        for _, g in itertools.groupby(entries, key=lambda e: e.composition.reduced_formula):
             ground_states.add(min(g, key=lambda e: e.energy_per_atom))
         self.entries = ground_states
 
@@ -286,4 +284,3 @@ class EntrySet(collections.abc.MutableSet, MSONable):
                             comp[Element(elements[ind - 1])] = float(row[ind])
                     entries.append(PDEntry(Composition(comp), energy, name))
         return cls(entries)
-

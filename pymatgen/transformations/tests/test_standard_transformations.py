@@ -444,6 +444,16 @@ class PerturbStructureTransformationTest(unittest.TestCase):
         self.assertEqual(type(PerturbStructureTransformation.from_dict(d)),
                          PerturbStructureTransformation)
 
+        t2 = PerturbStructureTransformation(0.05, 0)
+        transformed_s2 = t2.apply_transformation(struct)
+        for i, site in enumerate(transformed_s2):
+            self.assertLessEqual(site.distance(struct[i]), 0.05)
+            self.assertGreaterEqual(site.distance(struct[i]), 0)
+
+        d = t2.as_dict()
+        self.assertEqual(type(PerturbStructureTransformation.from_dict(d)),
+                         PerturbStructureTransformation)
+
 
 class DeformStructureTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):

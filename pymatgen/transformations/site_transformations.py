@@ -525,7 +525,7 @@ class AddSitePropertyTransformation(AbstractTransformation):
     def apply_transformation(self, structure):
         """
         apply the transformation
-        
+
         Args:
             structure (Structure): structure to add site properties to
         """

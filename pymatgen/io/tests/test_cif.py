@@ -302,12 +302,12 @@ loop_
                 self.assertEqual(sum(s.site_properties['implicit_hydrogens']), 20)
             self.assertIn("Structure has implicit hydrogens defined, "
                           "parsed structure unlikely to be suitable for use "
-                          "in calculations unless hydrogens added.", parser.errors)
+                          "in calculations unless hydrogens added.", parser.warnings)
             parser = CifParser(self.TEST_FILES_DIR / 'cif_implicit_hydrogens_cod_1011130.cif')
             s = parser.get_structures()[0]
             self.assertIn("Structure has implicit hydrogens defined, "
                           "parsed structure unlikely to be suitable for use "
-                          "in calculations unless hydrogens added.", parser.errors)
+                          "in calculations unless hydrogens added.", parser.warnings)
 
 
     def test_CifParserSpringerPauling(self):
@@ -495,11 +495,11 @@ loop_
  _atom_site_fract_y
  _atom_site_fract_z
  _atom_site_occupancy
-  Fe  Fe0  4  0.218728  0.250000  0.525133  1
-  P  P1  4  0.094613  0.750000  0.581757  1
-  O  O2  8  0.165710  0.546072  0.714616  1
-  O  O3  4  0.043372  0.250000  0.292862  1
-  O  O4  4  0.096642  0.750000  0.258680  1"""
+  Fe  Fe0  4  0.218728  0.750000  0.474867  1
+  P  P1  4  0.094613  0.250000  0.418243  1
+  O  O2  8  0.165710  0.046072  0.285384  1
+  O  O3  4  0.043372  0.750000  0.707138  1
+  O  O4  4  0.096642  0.250000  0.741320  1"""
         for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
             self.assertEqual(l1.strip(), l2.strip())
 
@@ -873,8 +873,8 @@ loop_
             p = CifParser(f)
             s = p.get_structures()[0]
             self.assertEqual(str(s.composition), "N5+24")
-            self.assertIn("Some fractional co-ordinates rounded to ideal values to "
-                          "avoid finite precision errors.", p.errors)
+            self.assertIn("Some fractional co-ordinates rounded to ideal "
+                          "values to avoid issues with finite precision.", p.warnings)
 
     def test_empty_deque(self):
         s = """data_1526655

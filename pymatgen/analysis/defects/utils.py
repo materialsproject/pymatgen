@@ -37,8 +37,6 @@ try:
 except ImportError:
     peak_local_max_found = False
 
-
-
 __author__ = "Danny Broberg, Shyam Dwaraknath, Bharat Medasani, Nils Zimmermann, Geoffroy Hautier"
 __copyright__ = "Copyright 2014, The Materials Project"
 __version__ = "1.0"
@@ -102,7 +100,7 @@ class QModel(MSONable):
             Charge density at the reciprocal vector magnitude
         """
         return (self.expnorm / np.sqrt(1 + self.gamma2 * g2) + (
-            1 - self.expnorm) * np.exp(-0.25 * self.beta2 * g2))
+                1 - self.expnorm) * np.exp(-0.25 * self.beta2 * g2))
 
     @property
     def rho_rec_limit0(self):
@@ -112,7 +110,7 @@ class QModel(MSONable):
         rho_rec(g->0) -> 1 + rho_rec_limit0 * g^2
         """
         return -2 * self.gamma2 * self.expnorm - 0.25 * self.beta2 * (
-            1 - self.expnorm)
+                1 - self.expnorm)
 
 
 def eV_to_k(energy):
@@ -426,7 +424,7 @@ class StructureMotifInterstitial:
             discard_motif = []
             for indi, i in enumerate(include):
                 if trialsites[i]["mtype"] != motif or \
-                                i in discard_motif:
+                        i in discard_motif:
                     continue
                 multiplicity[i] = 1
                 symposlist = [
@@ -437,7 +435,7 @@ class StructureMotifInterstitial:
                 for indj in range(indi + 1, len(include)):
                     j = include[indj]
                     if trialsites[j]["mtype"] != motif or \
-                                    j in discard_motif:
+                            j in discard_motif:
                         continue
                     for sympos in symposlist:
                         dist, image = struct.lattice.get_distance_and_image(
@@ -628,8 +626,8 @@ class TopographyAnalyzer:
         constrained_sites = []
         for i, site in enumerate(s):
             if site.frac_coords[2] >= constrained_c_frac - thickness and \
-                            site.frac_coords[
-                                2] <= constrained_c_frac + thickness:
+                    site.frac_coords[
+                        2] <= constrained_c_frac + thickness:
                 constrained_sites.append(site)
         structure = Structure.from_sites(sites=constrained_sites)
         lattice = structure.lattice
@@ -878,8 +876,7 @@ class VoronoiPolyhedron:
         self.lattice = lattice
         self.frac_coords = frac_coords
         self.polyhedron_indices = polyhedron_indices
-        self.polyhedron_coords = np.array(all_coords)[list(polyhedron_indices),
-                                 :]
+        self.polyhedron_coords = np.array(all_coords)[list(polyhedron_indices), :]
         self.name = name
 
     def is_image(self, poly, tol):
@@ -1129,7 +1126,7 @@ class ChargeDensityAnalyzer:
 
         merged_fcoords = [f - np.floor(f) for f in merged_fcoords]
         merged_fcoords = [f * (np.abs(f - 1) > 1E-15) for f in merged_fcoords]
-        # the second line for fringe cases like 
+        # the second line for fringe cases like
         # np.array([ 5.0000000e-01 -4.4408921e-17  5.0000000e-01])
         # where the shift to [0,1) does not work due to float precision
         self._update_extrema(merged_fcoords, extrema_type=self.extrema_type)
@@ -1233,7 +1230,7 @@ class ChargeDensityAnalyzer:
         int_den = []
         for isite in self.extrema_coords:
             mask = self._dist_mat(isite) < r
-            vol_sphere = self.chgcar.structure.volume * (mask.sum()/self.chgcar.ngridpts)
+            vol_sphere = self.chgcar.structure.volume * (mask.sum() / self.chgcar.ngridpts)
             chg_in_sphere = np.sum(self.chgcar.data['total'] * mask) / mask.size / vol_sphere
             int_den.append(chg_in_sphere)
         self._extrema_df['avg_charge_den'] = int_den
@@ -1289,7 +1286,7 @@ def converge(f, step, tol, max_h):
     return g
 
 
-def tune_for_gamma( lattice, epsilon):
+def tune_for_gamma(lattice, epsilon):
     """
     This tunes the gamma parameter for Kumagai anisotropic
     Ewald calculation. Method is to find a gamma parameter which generates a similar
@@ -1297,9 +1294,9 @@ def tune_for_gamma( lattice, epsilon):
     given the suggested cut off radii by Kumagai and Oba
     """
     logger.debug("Converging for ewald parameter...")
-    prec = 25 #a reasonable precision to tune gamma for
+    prec = 25  # a reasonable precision to tune gamma for
 
-    gamma = (2 * np.average(lattice.abc)) ** (-1/2.)
+    gamma = (2 * np.average(lattice.abc)) ** (-1 / 2.)
     recip_set, _, real_set, _ = generate_R_and_G_vecs(gamma, prec, lattice, epsilon)
     recip_set = recip_set[0]
     real_set = real_set[0]
@@ -1308,8 +1305,8 @@ def tune_for_gamma( lattice, epsilon):
                  "vecs.".format(gamma, len(real_set), len(recip_set)))
 
     while float(len(real_set)) / len(recip_set) > 1.05 or \
-          float(len(recip_set)) / len(real_set) > 1.05:
-        gamma *= (float(len(real_set)) / float(len(recip_set)))  ** 0.17
+            float(len(recip_set)) / len(real_set) > 1.05:
+        gamma *= (float(len(real_set)) / float(len(recip_set))) ** 0.17
         logger.debug("\tNot converged...Try modifying gamma to {}.".format(gamma))
         recip_set, _, real_set, _ = generate_R_and_G_vecs(gamma, prec, lattice, epsilon)
         recip_set = recip_set[0]
@@ -1337,11 +1334,11 @@ def generate_R_and_G_vecs(gamma, prec_set, lattice, epsilon):
 
     [a1, a2, a3] = lattice.matrix  # Angstrom
     volume = lattice.volume
-    [b1, b2, b3] = lattice.reciprocal_lattice.matrix # 1/ Angstrom
+    [b1, b2, b3] = lattice.reciprocal_lattice.matrix  # 1/ Angstrom
     invepsilon = np.linalg.inv(epsilon)
     rd_epsilon = np.sqrt(np.linalg.det(epsilon))
 
-    #generate reciprocal vector set (for each prec_set)
+    # generate reciprocal vector set (for each prec_set)
     recip_set = [[] for prec in prec_set]
     recip_summation_values = [0. for prec in prec_set]
     recip_cut_set = [(2 * gamma * prec) for prec in prec_set]
@@ -1358,19 +1355,19 @@ def generate_R_and_G_vecs(gamma, prec_set, lattice, epsilon):
                 normgvec = np.linalg.norm(gvec)
                 for recip_cut_ind, recip_cut in enumerate(recip_cut_set):
                     if normgvec <= recip_cut:
-                        recip_set[recip_cut_ind].append( gvec)
+                        recip_set[recip_cut_ind].append(gvec)
 
                         Gdotdiel = np.dot(gvec, np.dot(epsilon, gvec))
-                        summand = math.exp(-Gdotdiel / (4 * (gamma**2))) / Gdotdiel
+                        summand = math.exp(-Gdotdiel / (4 * (gamma ** 2))) / Gdotdiel
                         recip_summation_values[recip_cut_ind] += summand
 
     recip_summation_values = np.array(recip_summation_values)
     recip_summation_values /= volume
 
-    #generate real vector set (for each prec_set)
+    # generate real vector set (for each prec_set)
     real_set = [[] for prec in prec_set]
     real_summation_values = [0. for prec in prec_set]
-    real_cut_set = [( prec / gamma) for prec in prec_set]
+    real_cut_set = [(prec / gamma) for prec in prec_set]
 
     i_max = int(math.ceil(max(real_cut_set) / np.linalg.norm(a1)))
     j_max = int(math.ceil(max(real_cut_set) / np.linalg.norm(a2)))
@@ -1382,14 +1379,13 @@ def generate_R_and_G_vecs(gamma, prec_set, lattice, epsilon):
                 normrvec = np.linalg.norm(rvec)
                 for real_cut_ind, real_cut in enumerate(real_cut_set):
                     if normrvec <= real_cut:
-                        real_set[real_cut_ind].append( rvec)
+                        real_set[real_cut_ind].append(rvec)
                         if normrvec > 1e-8:
-                            sqrt_loc_res = np.sqrt( np.dot(rvec, np.dot(invepsilon, rvec)))
+                            sqrt_loc_res = np.sqrt(np.dot(rvec, np.dot(invepsilon, rvec)))
                             nmr = math.erfc(gamma * sqrt_loc_res)
                             real_summation_values[real_cut_ind] += nmr / sqrt_loc_res
 
-    real_summation_values = np.array( real_summation_values)
+    real_summation_values = np.array(real_summation_values)
     real_summation_values /= (4 * np.pi * rd_epsilon)
 
     return recip_set, recip_summation_values, real_set, real_summation_values
-

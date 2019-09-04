@@ -9,6 +9,7 @@ import itertools
 import warnings
 import logging
 import math
+import json
 import glob
 import subprocess
 
@@ -43,15 +44,13 @@ Classes for reading/manipulating/writing VASP input files. All major VASP input
 files.
 """
 
-__author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, " + \
-             "Vincent L Chevrier, Stephen Dacek"
+__author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, Vincent L Chevrier, Stephen Dacek"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Jul 16, 2012"
-
 
 logger = logging.getLogger(__name__)
 
@@ -103,13 +102,13 @@ class Poscar(MSONable):
     .. attribute:: predictor_corrector
 
         Predictor corrector coordinates and derivatives for each site; i.e.
-        a list of three 1x3 arrays for each site (typically read in from a MD 
+        a list of three 1x3 arrays for each site (typically read in from a MD
         CONTCAR).
 
     .. attribute:: predictor_corrector_preamble
 
         Predictor corrector preamble contains the predictor-corrector key,
-        POTIM, and thermostat parameters that precede the site-specic predictor 
+        POTIM, and thermostat parameters that precede the site-specic predictor
         corrector data in MD CONTCAR
 
     .. attribute:: temperature
@@ -202,6 +201,7 @@ class Poscar(MSONable):
 
         The code will try its best to determine the elements in the POSCAR in
         the following order:
+
         1. If check_for_POTCAR is True, the code will try to check if a POTCAR
         is in the same directory as the POSCAR and use elements from that by
         default. (This is the VASP default sequence of priority).
@@ -236,7 +236,7 @@ class Poscar(MSONable):
                     potcar = Potcar.from_file(sorted(potcars)[0])
                     names = [sym.split("_")[0] for sym in potcar.symbols]
                     [get_el_sp(n) for n in names]  # ensure valid names
-                except:
+                except Exception:
                     names = None
         with zopen(filename, "rt") as f:
             return Poscar.from_string(f.read(), names,
@@ -249,11 +249,14 @@ class Poscar(MSONable):
 
         The code will try its best to determine the elements in the POSCAR in
         the following order:
+
         1. If default_names are supplied and valid, it will use those. Usually,
         default names comes from an external source, such as a POTCAR in the
         same directory.
+
         2. If there are no valid default names but the input file is Vasp5-like
         and contains element symbols in the 6th line, the code will use that.
+
         3. Failing (2), the code will check if a symbol is provided at the end
         of each coordinate.
 
@@ -305,12 +308,10 @@ class Poscar(MSONable):
             symbols = lines[5].split()
 
             """
-            Atoms and number of atoms in POSCAR written with vasp appear on 
-            multiple lines when atoms of the same type are not grouped together 
+            Atoms and number of atoms in POSCAR written with vasp appear on
+            multiple lines when atoms of the same type are not grouped together
             and more than 20 groups are then defined ...
-            
             Example :
-            
             Cr16 Fe35 Ni2
                1.00000000000000
                  8.5415010000000002   -0.0077670000000000   -0.0007960000000000
@@ -318,29 +319,29 @@ class Poscar(MSONable):
                 -0.0007970000000000    0.0105720000000000    8.5356889999999996
                Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Cr   Fe   Ni   Fe   Cr   Fe   Cr
                Fe   Ni   Fe   Cr   Fe
-                 1     1     2     4     2     1     1     1     2     1     1     1     4     1     1     1     5     3     6     1
-                 2     1     3     2     5
+                 1   1   2   4   2   1   1   1     2     1     1     1     4     1     1     1     5     3     6     1
+                 2   1   3   2   5
             Direct
               ...
             """
             nlines_symbols = 1
             for nlines_symbols in range(1, 11):
                 try:
-                    int(lines[5+nlines_symbols].split()[0])
+                    int(lines[5 + nlines_symbols].split()[0])
                     break
                 except ValueError:
                     pass
-            for iline_symbols in range(6, 5+nlines_symbols):
+            for iline_symbols in range(6, 5 + nlines_symbols):
                 symbols.extend(lines[iline_symbols].split())
             natoms = []
-            iline_natoms_start = 5+nlines_symbols
+            iline_natoms_start = 5 + nlines_symbols
             for iline_natoms in range(iline_natoms_start,
-                                      iline_natoms_start+nlines_symbols):
+                                      iline_natoms_start + nlines_symbols):
                 natoms.extend([int(i) for i in lines[iline_natoms].split()])
             atomic_symbols = list()
             for i in range(len(natoms)):
                 atomic_symbols.extend([symbols[i]] * natoms[i])
-            ipos = 5+2*nlines_symbols
+            ipos = 5 + 2 * nlines_symbols
 
         postype = lines[ipos].split()[0]
 
@@ -428,9 +429,9 @@ class Poscar(MSONable):
                 lines = lines[3:]
                 for st in range(nsites):
                     d1 = [float(tok) for tok in lines[st].split()]
-                    d2 = [float(tok) for tok in lines[st+nsites].split()]
-                    d3 = [float(tok) for tok in lines[st+2*nsites].split()]
-                    predictor_corrector.append([d1,d2,d3])
+                    d2 = [float(tok) for tok in lines[st + nsites].split()]
+                    d3 = [float(tok) for tok in lines[st + 2 * nsites].split()]
+                    predictor_corrector.append([d1, d2, d3])
         else:
             velocities = None
             predictor_corrector = None
@@ -496,7 +497,7 @@ class Poscar(MSONable):
                 lines.append("")
                 for v in self.velocities:
                     lines.append(" ".join([format_str.format(i) for i in v]))
-            except:
+            except Exception:
                 warnings.warn("Velocities are missing or corrupted.")
 
         if self.predictor_corrector:
@@ -505,11 +506,11 @@ class Poscar(MSONable):
                 lines.append(self.predictor_corrector_preamble)
                 pred = np.array(self.predictor_corrector)
                 for col in range(3):
-                    for z in pred[:,col]:
+                    for z in pred[:, col]:
                         lines.append(" ".join([format_str.format(i) for i in z]))
             else:
                 warnings.warn(
-                    "Preamble information missing or corrupt. " 
+                    "Preamble information missing or corrupt. "
                     "Writing Poscar with no predictor corrector data.")
 
         return "\n".join(lines) + "\n"
@@ -605,6 +606,15 @@ class Poscar(MSONable):
         self.structure.add_site_property("velocities", velocities.tolist())
 
 
+cwd = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(cwd, "incar_parameters.json")) as incar_params:
+    incar_params = json.loads(incar_params.read())
+
+
+class BadIncarWarning(UserWarning):
+    pass
+
+
 class Incar(dict, MSONable):
     """
     INCAR object for reading and writing INCAR files. Essentially consists of
@@ -626,8 +636,8 @@ class Incar(dict, MSONable):
             if (params.get("MAGMOM") and isinstance(params["MAGMOM"][0], (int, float))) \
                     and (params.get("LSORBIT") or params.get("LNONCOLLINEAR")):
                 val = []
-                for i in range(len(params["MAGMOM"])//3):
-                    val.append(params["MAGMOM"][i*3:(i+1)*3])
+                for i in range(len(params["MAGMOM"]) // 3):
+                    val.append(params["MAGMOM"][i * 3:(i + 1) * 3])
                 params["MAGMOM"] = val
 
             self.update(params)
@@ -759,16 +769,10 @@ class Incar(dict, MSONable):
             key: INCAR parameter key
             val: Actual value of INCAR parameter.
         """
-        list_keys = ("LDAUU", "LDAUL", "LDAUJ", "MAGMOM", "DIPOL",
-                     "LANGEVIN_GAMMA", "QUAD_EFG", "EINT")
-        bool_keys = ("LDAU", "LWAVE", "LSCALU", "LCHARG", "LPLANE", "LUSE_VDW",
-                     "LHFCALC", "ADDGRID", "LSORBIT", "LNONCOLLINEAR")
-        float_keys = ("EDIFF", "SIGMA", "TIME", "ENCUTFOCK", "HFSCREEN",
-                      "POTIM", "EDIFFG", "AGGAC", "PARAM1", "PARAM2")
-        int_keys = ("NSW", "NBANDS", "NELMIN", "ISIF", "IBRION", "ISPIN",
-                    "ICHARG", "NELM", "ISMEAR", "NPAR", "LDAUPRINT", "LMAXMIX",
-                    "ENCUT", "NSIM", "NKRED", "NUPDOWN", "ISPIND", "LDAUTYPE",
-                    "IVDW")
+        list_keys = tuple([k for k in incar_params.keys() if type(incar_params[k]).__name__ == 'dict'])
+        bool_keys = tuple([k for k in incar_params.keys() if incar_params[k] == 'bool'])
+        float_keys = tuple([k for k in incar_params.keys() if incar_params[k] == 'float'])
+        int_keys = tuple([k for k in incar_params.keys() if incar_params[k] == 'int'])
 
         def smart_int_or_float(numstr):
             if numstr.find(".") != -1 or numstr.lower().find("e") != -1:
@@ -874,6 +878,45 @@ class Incar(dict, MSONable):
             else:
                 params[k] = v
         return Incar(params)
+
+    def check_params(self):
+        """
+        Raises a warning for nonsensical or non-existant INCAR tags and
+        parameters. If a keyword doesn't exist (e.g. theres a typo in a
+        keyword), your calculation will still run, however VASP will igore the
+        parameter without letting you know, hence why we have this Incar method.
+        """
+        for k in self.keys():
+
+            # First check if this parameter even exists
+            if k not in incar_params.keys():
+                warnings.warn("Cannot find %s in the list of INCAR flags" % (k),
+                              BadIncarWarning, stacklevel=2)
+
+            if k in incar_params.keys():
+                if type(incar_params[k]).__name__ == 'str':
+                    # Now we check if this is an appropriate parameter type
+                    if incar_params[k] == 'float':
+                        if not type(self[k]) not in ['float', 'int']:
+                            warnings.warn("%s: %s is not real" % (k, self[k]),
+                                          BadIncarWarning, stacklevel=2)
+                    elif type(self[k]).__name__ != incar_params[k]:
+                        warnings.warn("%s: %s is not a %s" % (k, self[k], incar_params[k]),
+                                      BadIncarWarning, stacklevel=2)
+
+                # if we have a list of possible parameters, check
+                # if the user given parameter is in this list
+                elif type(incar_params[k]).__name__ == 'list':
+                    if self[k] not in incar_params[k]:
+                        warnings.warn("%s: Cannot find %s in the list of parameters" % (k, self[k]),
+                                      BadIncarWarning, stacklevel=2)
+
+                # If an incar parameter only takes lists, check
+                # if the user provided setting is a list
+                elif type(incar_params[k]).__name__ == 'dict' \
+                        and type(self[k]).__name__ != 'list':
+                    warnings.warn("%s: %s is not a list" % (k, self[k]),
+                                  BadIncarWarning, stacklevel=2)
 
 
 class Kpoints_supported_modes(Enum):
@@ -1698,7 +1741,7 @@ class PotcarSingle:
 
         try:
             return self.keywords[a.upper()]
-        except:
+        except Exception:
             raise AttributeError(a)
 
 
@@ -1937,4 +1980,3 @@ class VaspInput(dict, MSONable):
             with open(output_file, 'w') as f_std, \
                     open(err_file, "w", buffering=1) as f_err:
                 subprocess.check_call(vasp_cmd, stdout=f_std, stderr=f_err)
-

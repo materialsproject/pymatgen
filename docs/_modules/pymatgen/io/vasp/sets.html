@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.vasp.sets &#8212; pymatgen 2019.7.2 documentation</title>
+    <title>pymatgen.io.vasp.sets &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -73,6 +73,7 @@
 <span class="sd">   MPStaticSet or MPNonSCFSets are constructed.</span>
 
 <span class="sd">The above are recommendations. The following are UNBREAKABLE rules:</span>
+
 <span class="sd">1. All input sets must take in a structure or list of structures as the first</span>
 <span class="sd">   argument.</span>
 <span class="sd">2. user_incar_settings, user_kpoints_settings and user_&lt;whatever&gt;_settings are</span>
@@ -271,8 +272,8 @@
 
 <span class="sd">            If a None value is given, that key is unset. For example,</span>
 <span class="sd">            {&quot;ENCUT&quot;: None} will remove ENCUT from the incar settings.</span>
-<span class="sd">        user_kpoints_settings (dict or Kpoints): Allow user to override kpoints </span>
-<span class="sd">            setting by supplying a dict E.g., {&quot;reciprocal_density&quot;: 1000}. </span>
+<span class="sd">        user_kpoints_settings (dict or Kpoints): Allow user to override kpoints</span>
+<span class="sd">            setting by supplying a dict E.g., {&quot;reciprocal_density&quot;: 1000}.</span>
 <span class="sd">            User can also supply Kpoints object. Default is None.</span>
 <span class="sd">        user_potcar_settings (dict: Allow user to override POTCARs. E.g.,</span>
 <span class="sd">            {&quot;Gd&quot;: &quot;Gd_3&quot;}. This is generally not recommended. Default is None.</span>
@@ -757,7 +758,7 @@
         <span class="k">return</span> <span class="bp">self</span></div>
 
 <div class="viewcode-block" id="MPStaticSet.from_prev_calc"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MPStaticSet.from_prev_calc">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_prev_calc</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">prev_calc_dir</span><span class="p">,</span>  <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_prev_calc</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">prev_calc_dir</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate a set of Vasp input files for static calculations from a</span>
 <span class="sd">        directory of previous Vasp run.</span>
@@ -827,7 +828,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">reciprocal_density</span> <span class="o">=</span> <span class="mi">50</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">reciprocal_density</span> <span class="o">=</span> <span class="n">reciprocal_density</span> <span class="ow">or</span> \
-                <span class="bp">self</span><span class="o">.</span><span class="n">user_kpoints_settings</span><span class="p">[</span><span class="s1">&#39;reciprocal_density&#39;</span><span class="p">]</span>
+                                      <span class="bp">self</span><span class="o">.</span><span class="n">user_kpoints_settings</span><span class="p">[</span><span class="s1">&#39;reciprocal_density&#39;</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">kpoints_line_density</span> <span class="o">=</span> <span class="n">kpoints_line_density</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">copy_chgcar</span> <span class="o">=</span> <span class="n">copy_chgcar</span>
@@ -997,7 +998,7 @@
             <span class="n">incar</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_incar</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
 
         <span class="c1"># Overwrite necessary INCAR parameters from previous runs</span>
-        <span class="n">incar</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;IBRION&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>  <span class="s2">&quot;LCHARG&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;LORBIT&quot;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span>
+        <span class="n">incar</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;IBRION&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;LCHARG&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;LORBIT&quot;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span>
                       <span class="s2">&quot;LWAVE&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;NSW&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;ISYM&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;ICHARG&quot;</span><span class="p">:</span> <span class="mi">11</span><span class="p">})</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;uniform&#39;</span><span class="p">:</span>
@@ -1734,7 +1735,6 @@
     <span class="n">CONFIG</span> <span class="o">=</span> <span class="n">_load_yaml_config</span><span class="p">(</span><span class="s2">&quot;MVLRelax52Set&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">potcar_functional</span><span class="o">=</span><span class="s2">&quot;PBE_52&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-
         <span class="k">if</span> <span class="n">potcar_functional</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;PBE_52&quot;</span><span class="p">,</span> <span class="s2">&quot;PBE_54&quot;</span><span class="p">]:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Please select from PBE_52 and PBE_54!&quot;</span><span class="p">)</span>
 
@@ -1868,7 +1868,6 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">start_temp</span><span class="p">,</span> <span class="n">end_temp</span><span class="p">,</span> <span class="n">nsteps</span><span class="p">,</span> <span class="n">time_step</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
                  <span class="n">spin_polarized</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-
         <span class="c1"># MD default settings</span>
         <span class="n">defaults</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;TEBEG&#39;</span><span class="p">:</span> <span class="n">start_temp</span><span class="p">,</span> <span class="s1">&#39;TEEND&#39;</span><span class="p">:</span> <span class="n">end_temp</span><span class="p">,</span> <span class="s1">&#39;NSW&#39;</span><span class="p">:</span> <span class="n">nsteps</span><span class="p">,</span>
                     <span class="s1">&#39;EDIFF_PER_ATOM&#39;</span><span class="p">:</span> <span class="mf">0.000001</span><span class="p">,</span> <span class="s1">&#39;LSCALU&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
@@ -2211,10 +2210,10 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -2233,7 +2232,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -2241,7 +2240,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

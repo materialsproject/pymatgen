@@ -197,4 +197,3 @@ def write_lammps_inputs(output_dir, script_template, settings=None,
         else:
             warnings.warn("No data file supplied. Skip writing %s."
                           % data_filename)
-

@@ -19,14 +19,12 @@ Tran, R.; Xu, Z.; Radhakrishnan, B.; Winston, D.; Persson, K. A.; Ong, S. P.
 """
 
 from pymatgen.core.structure import Structure
-from pymatgen.core.surface import get_recp_symmetry_operation
 from pymatgen.util.coord import get_angle
 import numpy as np
 import scipy as sp
 from scipy.spatial import ConvexHull
 import logging
 import warnings
-
 
 __author__ = 'Zihan Xu, Richard Tran, Shyue Ping Ong'
 __copyright__ = 'Copyright 2013, The Materials Virtual Lab'
@@ -232,7 +230,7 @@ class WulffShape:
         color_ind = self.color_ind
         planes = []
         recp = self.structure.lattice.reciprocal_lattice_crystallographic
-        recp_symmops = get_recp_symmetry_operation(self.structure, self.symprec)
+        recp_symmops = self.lattice.get_recp_symmetry_operation(self.symprec)
 
         for i, (hkl, energy) in enumerate(zip(self.hkl_list,
                                               self.e_surf_list)):
@@ -337,8 +335,7 @@ class WulffShape:
         color_proxy = [plt.Rectangle((2, 2), 1, 1, fc=x, alpha=alpha)
                        for x in color_list]
 
-        return color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff, \
-            e_surf_on_wulff_list
+        return color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff, e_surf_on_wulff_list
 
     def show(self, *args, **kwargs):
         """
@@ -407,9 +404,8 @@ class WulffShape:
         import matplotlib as mpl
         import matplotlib.pyplot as plt
         import mpl_toolkits.mplot3d as mpl3
-        color_list, color_proxy, color_proxy_on_wulff, \
-            miller_on_wulff, e_surf_on_wulff = self._get_colors(
-                color_set, alpha, off_color, custom_colors=custom_colors)
+        color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff, e_surf_on_wulff = self._get_colors(
+            color_set, alpha, off_color, custom_colors=custom_colors)
 
         if not direction:
             # If direction is not specified, use the miller indices of
@@ -478,7 +474,7 @@ class WulffShape:
                 extend='both', ticks=bounds[:-1], spacing='proportional',
                 orientation='vertical')
             units = "$J/m^2$" if units_in_JPERM2 else "$eV/\AA^2$"
-            cbar.set_label('Surface Energies (%s)' %(units), fontsize=100)
+            cbar.set_label('Surface Energies (%s)' % (units), fontsize=100)
 
         if grid_off:
             ax.grid('off')
@@ -561,7 +557,7 @@ class WulffShape:
         miller_energy_dict = self.miller_energy_dict
 
         for hkl in miller_energy_dict.keys():
-            square_diff_energy += (miller_energy_dict[hkl] - weighted_energy)\
+            square_diff_energy += (miller_energy_dict[hkl] - weighted_energy) \
                                   ** 2 * area_frac_dict[hkl]
         return np.sqrt(square_diff_energy) / weighted_energy
 
@@ -578,7 +574,6 @@ class WulffShape:
         """
         return self.surface_area / (self.volume ** (2 / 3))
 
-
     @property
     def effective_radius(self):
         """
@@ -588,7 +583,7 @@ class WulffShape:
         Returns:
             (float) radius.
         """
-        return ((3/4)*(self.volume/np.pi)) ** (1 / 3)
+        return ((3 / 4) * (self.volume / np.pi)) ** (1 / 3)
 
     @property
     def total_surface_energy(self):
@@ -627,7 +622,7 @@ class WulffShape:
             for i, p in enumerate(pt):
                 if i == len(pt) / 2:
                     break
-                lines.append(tuple(sorted(tuple([tuple(pt[i*2]), tuple(pt[i*2+1])]))))
+                lines.append(tuple(sorted(tuple([tuple(pt[i * 2]), tuple(pt[i * 2 + 1])]))))
 
             for i, p in enumerate(lines):
                 if p not in all_edges:
@@ -636,4 +631,3 @@ class WulffShape:
             all_edges.extend(edges)
 
         return len(all_edges)
-

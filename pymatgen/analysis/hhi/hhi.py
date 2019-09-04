@@ -77,8 +77,8 @@ class HHIModel:
                 hhi_r += dr * percent
             return hhi_p, hhi_r
 
-        except:
-            return (None, None)
+        except Exception:
+            return None, None
 
     def get_hhi_production(self, comp_or_form):
         """

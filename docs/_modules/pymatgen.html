@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen &#8212; pymatgen 2019.7.2 documentation</title>
+    <title>pymatgen &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">pymatgen 2019.7.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &#187;</li> 
       </ul>
     </div>  
@@ -44,19 +44,20 @@
           <div class="body" role="main">
             
   <h1>Source code for pymatgen</h1><div class="highlight"><pre>
-<span></span>
-<span class="kn">import</span> <span class="nn">sys</span>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">ruamel.yaml</span> <span class="k">as</span> <span class="nn">yaml</span>
 <span class="kn">from</span> <span class="nn">fnmatch</span> <span class="k">import</span> <span class="n">fnmatch</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Pymatgen Development Team&quot;</span>
-<span class="n">__email__</span> <span class="o">=</span><span class="s2">&quot;pymatgen@googlegroups.com&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;pymatgen@googlegroups.com&quot;</span>
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
-<span class="n">__maintainer_email__</span> <span class="o">=</span><span class="s2">&quot;shyuep@gmail.com&quot;</span>
-<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;2019.7.2&quot;</span>
-
+<span class="n">__maintainer_email__</span> <span class="o">=</span> <span class="s2">&quot;shyuep@gmail.com&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;2019.8.23&quot;</span>
 
 <span class="n">SETTINGS_FILE</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~&quot;</span><span class="p">),</span> <span class="s2">&quot;.pmgrc.yaml&quot;</span><span class="p">)</span>
 
@@ -78,13 +79,6 @@
 
 
 <span class="n">SETTINGS</span> <span class="o">=</span> <span class="n">_load_pmg_settings</span><span class="p">()</span>
-
-
-<span class="c1"># Order of imports is important on some systems to avoid</span>
-<span class="c1"># failures when loading shared libraries.</span>
-<span class="c1"># import spglib</span>
-<span class="c1"># from . import optimization, util</span>
-<span class="c1"># del(spglib, optimization, util)</span>
 
 <span class="c1"># Useful aliases for commonly used objects and modules.</span>
 <span class="c1"># Allows from pymatgen import &lt;class&gt; for quick usage.</span>
@@ -119,12 +113,6 @@
     <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">entries</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">energy_per_atom</span><span class="p">)</span><span class="o">.</span><span class="n">structure</span></div>
 
 
-<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">):</span>
-    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">Pymatgen will drop Py2k support from v2019.1.1. Pls consult the documentation</span>
-<span class="s2">at https://www.pymatgen.org for more details.&quot;&quot;&quot;</span><span class="p">)</span>
-
-
 <div class="viewcode-block" id="loadfn"><a class="viewcode-back" href="../pymatgen.html#pymatgen.loadfn">[docs]</a><span class="k">def</span> <span class="nf">loadfn</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convenience method to perform quick loading of data from a filename. The</span>
@@ -156,10 +144,10 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -178,14 +166,14 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">pymatgen 2019.7.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

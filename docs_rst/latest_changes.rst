@@ -1,12 +1,12 @@
 Change log
 ==========
 
-v2019.7.2
----------
-* Improvements to grain boundary transformations and Rester (@Tinaatucsd)
-* Improvements to AdsorbateSiteFinder (@oxana-a)
-* Improvements to Waveder support (@JRSuckert)
-* Improvements to run type detection (@darnoceloc)
-* Add XAS data to Rester (@yimingchen95)
-* Fix to ATAT input/output (@dongsenfo)
-* Initial support for Prismatic input (@mkhorton)
+v2019.8.23
+----------
+* pycodestyle now enforced, except on tests. Developers should install
+  pycodestyle and the pre-commit hook (copy pre-commit to .git/hooks) 
+  provided in the repo to check before commits. CI now checks for code style
+  and PRs must pass pycodestyle.
+* chemsys str input now allowed in get_entries_in_chemsys (@rkingsbury)
+* ComputedEntry and subclasses now support a normalize().
+* Speed improvements in fragmeter using igraph. (@samblau)

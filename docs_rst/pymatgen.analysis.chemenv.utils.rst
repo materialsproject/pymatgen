@@ -24,6 +24,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.analysis.chemenv.utils
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

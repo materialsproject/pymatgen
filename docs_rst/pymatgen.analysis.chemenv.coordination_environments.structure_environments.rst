@@ -2,6 +2,6 @@ pymatgen.analysis.chemenv.coordination\_environments.structure\_environments mod
 ===================================================================================
 
 .. automodule:: pymatgen.analysis.chemenv.coordination_environments.structure_environments
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -116,13 +116,13 @@ class Critic2Caller:
 
         :param structure: Structure to analyze
         :param chgcar: Charge density to use for analysis. If None, will
-        use promolecular density.
+            use promolecular density.
         :param chgcar_ref: Reference charge density. If None, will use
-        chgcar as reference.
+            chgcar as reference.
         :param user_input_settings (dict):
         :param write_cml (bool): Useful for debug, if True will write all
-        critical points to a file 'table.cml' in the working directory
-        useful for visualization
+            critical points to a file 'table.cml' in the working directory
+            useful for visualization
         """
 
         settings = {'CPEPS': 0.1, 'SEED': ["WS", "PAIR DIST 10"]}
@@ -198,15 +198,19 @@ class Critic2Caller:
         Convenience method to run critic2 analysis on a folder containing
         typical VASP output files.
         This method will:
+
         1. Look for files CHGCAR, AECAR0, AECAR2, POTCAR or their gzipped
         counterparts.
+
         2. If AECCAR* files are present, constructs a temporary reference
-        file as AECCAR0 + AECCAR2
+        file as AECCAR0 + AECCAR2.
+
         3. Runs critic2 analysis twice: once for charge, and a second time
         for the charge difference (magnetization density).
+
         :param path: path to folder to search in
         :param suffix: specific suffix to look for (e.g. '.relax1' for
-        'CHGCAR.relax1.gz')
+            'CHGCAR.relax1.gz')
         :return:
         """
 
@@ -331,7 +335,7 @@ class Critic2Output(MSONable):
 
         :param structure: associated Structure
         :param critic2_stdout: stdout from running critic2 in automatic
-        mode
+            mode
         """
 
         self.structure = structure
@@ -349,8 +353,8 @@ class Critic2Output(MSONable):
         in the crystal. Lazily constructed.
 
         :param edge_weight: a value to store on the Graph edges,
-        by default this is "bond_length" but other supported
-        values are any of the attributes of CriticalPoint
+            by default this is "bond_length" but other supported
+            values are any of the attributes of CriticalPoint
         :return:
         """
 
@@ -522,7 +526,7 @@ class Critic2Output(MSONable):
                     from_idx = _remap(int(l[6]) - 1)
                     to_idx = _remap(int(l[10]) - 1)
                     self._add_edge(idx, from_idx=from_idx, from_lvec=(int(l[7]), int(l[8]), int(l[9])),
-                                  to_idx=to_idx, to_lvec=(int(l[11]), int(l[12]), int(l[13])))
+                                   to_idx=to_idx, to_lvec=(int(l[11]), int(l[12]), int(l[13])))
 
         self._map = node_mapping
 
@@ -532,7 +536,7 @@ class Critic2Output(MSONable):
 
         :param idx: unique index
         :param unique_idx: index of unique CriticalPoint,
-        used to look up more information of point (field etc.)
+            used to look up more information of point (field etc.)
         :param frac_coord: fractional co-ordinates of point
         :return:
         """
@@ -555,10 +559,10 @@ class Critic2Output(MSONable):
         :param idx: index of node
         :param from_idx: from index of node
         :param from_lvec: vector of lattice image the from node is in
-        as tuple of ints
+            as tuple of ints
         :param to_idx: to index of node
         :param to_lvec:  vector of lattice image the to node is in as
-        tuple of ints
+            tuple of ints
         :return:
         """
         self.edges[idx] = {'from_idx': from_idx, 'from_lvec': from_lvec,

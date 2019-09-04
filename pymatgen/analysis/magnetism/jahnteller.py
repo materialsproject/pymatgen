@@ -77,14 +77,14 @@ class JahnTellerAnalyzer:
 
         :param structure: input structure
         :param calculate_valences (bool): whether to attempt to calculate valences or not, structure
-        should have oxidation states to perform analysis
+            should have oxidation states to perform analysis
         :param guesstimate_spin (bool): whether to guesstimate spin state from magnetic moments
-        or not, use with caution
+            or not, use with caution
         :param op_threshold (float): threshold for order parameter above which to consider site
-        to match an octahedral or tetrahedral motif, since Jahn-Teller structures can often be
-        quite distorted, this threshold is smaller than one might expect
+            to match an octahedral or tetrahedral motif, since Jahn-Teller structures can often be
+            quite distorted, this threshold is smaller than one might expect
         :return (dict): analysis of structure, with key 'strength' which may be 'none', 'strong',
-        'weak', or 'unknown'
+            'weak', or 'unknown'
         """
 
         structure = structure.get_primitive_structure()
@@ -148,8 +148,7 @@ class JahnTellerAnalyzer:
                         ligand_bond_lengths = [ligand.distance(structure[idx])
                                                for ligand in ligands]
                         ligands_species = list(set([str(ligand.specie) for ligand in ligands]))
-                        ligand_bond_length_spread = max(ligand_bond_lengths) - \
-                                                    min(ligand_bond_lengths)
+                        ligand_bond_length_spread = max(ligand_bond_lengths) - min(ligand_bond_lengths)
 
                         def trim(f):
                             # avoid storing to unreasonable precision, hurts readability
@@ -289,7 +288,7 @@ class JahnTellerAnalyzer:
         * in tetrahedral environments always weaker
         :param motif (str): "oct" or "tet"
         :param spin_config (dict): dict of 'e' (e_g) and 't' (t2_g)
-        with number of electrons in each state
+            with number of electrons in each state
         """
         magnitude = "none"
         if motif == "oct":

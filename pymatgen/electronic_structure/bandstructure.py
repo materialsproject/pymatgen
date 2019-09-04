@@ -718,8 +718,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
         for b in branches_tmp:
             self.branches.append(
                 {"start_index": b[0], "end_index": b[-1],
-                 "name": str(self.kpoints[b[0]].label) + "-" +
-                         str(self.kpoints[b[-1]].label)})
+                 "name": str(self.kpoints[b[0]].label) + "-" + str(self.kpoints[b[-1]].label)})
 
         self.is_spin_polarized = False
         if len(self.bands) == 2:
@@ -911,7 +910,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
                                for k in d['bands']},
                 Lattice(d['lattice_rec']['matrix']), d['efermi'],
                 labels_dict, structure=structure, projections=projections)
-        except:
+        except Exception:
             warnings.warn("Trying from_dict failed. Now we are trying the old "
                           "format. Please convert your BS dicts to the new "
                           "format. The old format will be retired in pymatgen "
@@ -1098,7 +1097,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
                                for k in d['bands']},
                 Lattice(d['lattice_rec']['matrix']), d['efermi'],
                 labels_dict, structure=structure, projections=projections)
-        except:
+        except Exception:
             warnings.warn("Trying from_dict failed. Now we are trying the old "
                           "format. Please convert your BS dicts to the new "
                           "format. The old format will be retired in pymatgen "
