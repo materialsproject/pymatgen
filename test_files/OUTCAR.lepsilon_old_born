@@ -97459,8 +97459,8 @@ The magnetic configuration has the point symmetry C_3v.
   y     0.24900     0.52799     0.24900     0.35998     0.35997    -0.15964
   z     0.24900     0.24900     0.52799    -0.15964     0.35998     0.35997
 
- BORN EFFECTIVE CHARGES (including local field effects) (in e, cummulative output)
- ---------------------------------------------------------------------------------
+ BORN EFFECTIVE CHARGES (in e, cummulative output)
+ -------------------------------------------------
  ion    1
     1     2.54988    -0.38491    -0.38491
     2    -0.38500     2.54981    -0.38500
