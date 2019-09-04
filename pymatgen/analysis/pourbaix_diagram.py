@@ -1020,120 +1020,6 @@ class PourbaixPlotter:
         plt.title(title, fontsize=20, fontweight='bold')
         return plt
 
-    def get_composition_hull_plot(self, plt=None, add_labels=False):
-        """
-
-        Args:
-            plt (pyplot): pyplot instance for plotting
-            add_labels (bool): labels to be added
-
-        Returns:
-            (pyplot) plot object for plotting
-        """
-
-        plt = plt or pretty_plot(16)
-
-        entries, facets = self._pbx._get_hull_in_nph_nphi_space(
-            self._pbx._unprocessed_entries)
-        points = self._pbx._convert_entries_to_points(entries)
-
-        # 2D Plot
-        if len(points[0]) == 3:
-            for entry, point in zip(entries, points):
-                plt.plot(*point, 'bo')
-                if add_labels:
-                    plt.annotate(entry.name, *point)
-            for facet in facets:
-                for pair in itertools.combinations(facet, 2):
-                    plt.plot(points[[tuple(pair)]], 'k-')
-
-        # 3D (tetrahedral-ish) plot
-        elif len(points[0]) == 4:
-            pass
-
-        return plt
-
-
-
-    def get_plotly_plot(self, limits=None, show=False, filename=None,
-                        plot_3d=False, **kwargs):
-        try:
-            import plotly as py
-            from plotly import graph_objs as go
-        except ImportError:
-            raise ImportError("plotly must be installed to render "
-                              "plotly pourbaix plots")
-        objs, centers, centertexts = [], [], []
-        single_color = [[0.0, 'rgb(200,200,200)'], [1.0, 'rgb(200,200,200)']]
-        for entry, vertices in self._pbx._stable_domain_vertices.items():
-            xycenter = np.average(vertices, axis=0)
-            zcenter = entry.normalized_energy_at_conditions(*xycenter)
-            centers.append(np.concatenate([xycenter, [zcenter]]))
-            centertexts.append(generate_entry_label(entry))
-            x, y = np.transpose(np.vstack([vertices, vertices[0]]))
-            z = [entry.normalized_energy_at_conditions(pH, V)
-                 for pH, V in zip(x, y)]
-            # objs.append(go.Surface(x=x, y=y, z=z,
-            #                        colorscale=single_color, showscale=False))
-            if plot_3d:
-                objs.append(go.Scatter3d(x=x, y=y, z=z,
-                                         mode='lines'))
-            else:
-                objs.append(
-                    go.Scatter(
-                        x=x, y=y, mode='lines',
-                        line={'color': 'black'},
-                        showlegend=False,
-                        hoverinfo='none'
-                        # text={"pointer-events": None}
-                    )
-                )
-
-        xcenters, ycenters, zcenters = np.transpose(centers)
-        if plot_3d:
-            objs.append(go.Scatter3d(x=xcenters, y=ycenters, z=zcenters,
-                                     text=centertexts, mode='markers'))
-        else:
-            objs.append(go.Scatter(x=xcenters, y=ycenters, text=centertexts,
-                                   mode='markers', showlegend=False,
-                                   hoverinfo='text'))
-        all_objs = [objs[-1]] + objs[:-1]
-
-        scene={"xaxis": {'title': 'pH'},
-               "yaxis": {'title': 'E (V)'}}
-        if plot_3d:
-            # scene.update({"zaxis": {'title': "G (eV)"}})
-            layout_kwargs = {"scene": {"xaxis": {'title': 'pH'},
-                                       "yaxis": {'title':'E (V)'},
-                                       "zaxis": {'title': "G (eV)"}}}
-        else:
-            layout_kwargs = {"xaxis": {'title': 'pH'},
-                             "yaxis": {'title': 'E (V)'}}
-        layout = go.Layout(
-            title='Pourbaix plot $\\alpha$',
-            **layout_kwargs
-            # scene=scene
-            # scene={"xaxis": {'title': 'pH'},
-            #        "yaxis": {'title':'E (V)'},
-            #        "zaxis": {'title': "G (eV)"}}
-            # autosize=False,
-            # width=500,
-            # height=500,
-            # margin=dict(
-            #     l=65,
-            #     r=50,
-            #     b=65,
-            #     t=90
-            # )
-        )
-        fig = go.Figure(data=all_objs, layout=layout)
-        if show:
-            filename = filename or 'out.html'
-            py.offline.plot(fig, filename=filename, include_mathjax='cdn',
-                            **kwargs)
-            # import nose; nose.tools.set_trace()
-        return fig
-
     def plot_entry_stability(self, entry, pH_range=None, pH_resolution=100,
                              V_range=None, V_resolution=100, e_hull_max=1,
                              cmap='RdYlBu_r', **kwargs):
@@ -1171,7 +1057,7 @@ class PourbaixPlotter:
         Returns:
             list of vertices
         """
-        return self._pbx._pourbaix_domain_vertices[entry]
+        return self._pbx._stable_domain_vertices[entry]
 
 
 def generate_entry_label(entry):
