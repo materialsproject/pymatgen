@@ -835,10 +835,10 @@ class PourbaixDiagram(MSONable):
         """
 
         # Check composition consistency between entry and Pourbaix diagram:
-        pbx_comp = Composition(self._elt_comp).reduced_composition
+        pbx_comp = Composition(self._elt_comp).fractional_composition
         entry_pbx_comp = Composition(
             {elt: coeff for elt, coeff in entry.composition.items()
-             if not elt in ELEMENTS_HO}).reduced_composition
+             if not elt in ELEMENTS_HO}).fractional_composition
         if entry_pbx_comp != pbx_comp:
             raise ValueError("Composition of stability entry does not match "
                              "Pourbaix Diagram")
