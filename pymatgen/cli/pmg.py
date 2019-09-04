@@ -131,9 +131,8 @@ def main():
         "-v", "--verbose", dest="verbose", action="store_true",
         help="Verbose mode. Provides detailed output on progress.")
     parser_analyze.add_argument(
-        "-d", "--detailed", dest="detailed", action="store_true",
-        help="Detailed, but slower mode. Parses vasprun.xml instead of "
-             "separate vasp outputs.")
+        "-q", "--quick", dest="quick", action="store_true",
+        help="Faster mode, but less detailed information. Parses individual vasp files.")
     parser_analyze.add_argument(
         "-s", "--sort", dest="sort", choices=["energy_per_atom", "filename"],
         default="energy_per_atom",
