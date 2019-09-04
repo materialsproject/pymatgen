@@ -203,32 +203,6 @@ class PourbaixDiagramTest(unittest.TestCase):
         pbx = PourbaixDiagram(test_entries, filter_solids=True, nproc=nproc)
         self.assertEqual(len(pbx.stable_entries), 49)
 
-    # @unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY"),
-    #                  "PMG_MAPI_KEY environment variable not set.")
-    @unittest.skip
-    def test_mpr_pipeline(self):
-        from pymatgen import MPRester
-        mpr = MPRester()
-        data = mpr.get_pourbaix_entries(["Zn"])
-        pbx = PourbaixDiagram(data, filter_solids=True, conc_dict={"Zn": 1e-8})
-        pbx.find_stable_entry(10, 0)
-
-        data = mpr.get_pourbaix_entries(["Ag", "Te"])
-        pbx = PourbaixDiagram(data, filter_solids=True,
-                              conc_dict={"Ag": 1e-8, "Te": 1e-8})
-        self.assertEqual(len(pbx.stable_entries), 30)
-        test_entry = pbx.find_stable_entry(8, 2)
-        self.assertAlmostEqual(test_entry.energy, 2.3894017960000009, 3)
-
-        # Test custom ions
-        entries = mpr.get_pourbaix_entries(["Sn", "C", "Na"])
-        ion = IonEntry(Ion.from_formula("NaO28H80Sn12C24+"), -161.676)
-        custom_ion_entry = PourbaixEntry(ion, entry_id='my_ion')
-        pbx = PourbaixDiagram(entries + [custom_ion_entry], filter_solids=True,
-                              comp_dict={"Na": 1, "Sn": 12, "C": 24})
-        self.assertAlmostEqual(pbx.get_decomposition_energy(custom_ion_entry, 5, 2),
-                               2.1209002582, 1)
-
     def test_solid_filter(self):
         entries = self.test_data['Zn']
         pbx = PourbaixDiagram(entries, filter_solids=False)
@@ -263,15 +237,46 @@ class PourbaixDiagramTest(unittest.TestCase):
         self.assertEqual(len(pd_binary.stable_entries),
                          len(new_binary.stable_entries))
 
+    # The two tests below rely on the MP Rest interface.
+    # Currently the bottleneck in their speed is associated with the querying speed of
     @unittest.skip
     def test_heavy(self):
         from pymatgen import MPRester
         mpr = MPRester()
-        # entries = mpr.get_pourbaix_entries(["Li", "Mg", "Sn", "Pd"])
-        # entries = mpr.get_pourbaix_entries(["Ba", "Ca", "V", "Cu", "F"])
-        entries = mpr.get_pourbaix_entries(["Ba", "Ca", "V", "Cu", "F", "Fe"])
-        # entries = mpr.get_pourbaix_entries(["Na", "Ca", "Nd", "Y", "Ho", "F"])
+        entries = mpr.get_pourbaix_entries(["Li", "Mg", "Sn", "Pd"])
         pbx = PourbaixDiagram(entries, nproc=4, filter_solids=False)
+        entries = mpr.get_pourbaix_entries(["Ba", "Ca", "V", "Cu", "F"])
+        pbx = PourbaixDiagram(entries, nproc=4, filter_solids=False)
+        entries = mpr.get_pourbaix_entries(["Ba", "Ca", "V", "Cu", "F", "Fe"])
+        pbx = PourbaixDiagram(entries, nproc=4, filter_solids=False)
+        entries = mpr.get_pourbaix_entries(["Na", "Ca", "Nd", "Y", "Ho", "F"])
+        pbx = PourbaixDiagram(entries, nproc=4, filter_solids=False)
+
+    @unittest.skip
+    @unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY"),
+                     "PMG_MAPI_KEY environment variable not set.")
+    def test_mpr_pipeline(self):
+        from pymatgen import MPRester
+        mpr = MPRester()
+        data = mpr.get_pourbaix_entries(["Zn"])
+        pbx = PourbaixDiagram(data, filter_solids=True, conc_dict={"Zn": 1e-8})
+        pbx.find_stable_entry(10, 0)
+
+        data = mpr.get_pourbaix_entries(["Ag", "Te"])
+        pbx = PourbaixDiagram(data, filter_solids=True,
+                              conc_dict={"Ag": 1e-8, "Te": 1e-8})
+        self.assertEqual(len(pbx.stable_entries), 30)
+        test_entry = pbx.find_stable_entry(8, 2)
+        self.assertAlmostEqual(test_entry.energy, 2.3894017960000009, 3)
+
+        # Test custom ions
+        entries = mpr.get_pourbaix_entries(["Sn", "C", "Na"])
+        ion = IonEntry(Ion.from_formula("NaO28H80Sn12C24+"), -161.676)
+        custom_ion_entry = PourbaixEntry(ion, entry_id='my_ion')
+        pbx = PourbaixDiagram(entries + [custom_ion_entry], filter_solids=True,
+                              comp_dict={"Na": 1, "Sn": 12, "C": 24})
+        self.assertAlmostEqual(pbx.get_decomposition_energy(custom_ion_entry, 5, 2),
+                               2.1209002582, 1)
 
 
 class PourbaixPlotterTest(unittest.TestCase):
