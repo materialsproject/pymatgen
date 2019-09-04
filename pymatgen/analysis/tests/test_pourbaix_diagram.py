@@ -177,7 +177,7 @@ class PourbaixDiagramTest(unittest.TestCase):
 
         # Test an unstable hydride to ensure HER correction works
         self.assertAlmostEqual(self.pbx.get_decomposition_energy(entry, -3, -2),
-                               11.093744395)
+                               3.6979147983333)
         # Test a list of pHs
         self.pbx.get_decomposition_energy(entry, np.linspace(0, 2, 5), 2)
 
@@ -222,7 +222,7 @@ class PourbaixDiagramTest(unittest.TestCase):
         pbx = PourbaixDiagram(entries + [custom_ion_entry], filter_solids=True,
                               comp_dict={"Na": 1, "Sn": 12, "C": 24})
         self.assertAlmostEqual(pbx.get_decomposition_energy(custom_ion_entry, 5, 2),
-                               8.31202738629504, 1)
+                               2.1209002582, 1)
 
     def test_nofilter(self):
         entries = self.test_data['Ag-Te']
@@ -257,6 +257,7 @@ class PourbaixDiagramTest(unittest.TestCase):
         self.assertEqual(len(pd_binary.stable_entries),
                          len(new_binary.stable_entries))
 
+    @unittest.skip
     def test_heavy(self):
         from pymatgen import MPRester
         mpr = MPRester()
@@ -299,9 +300,6 @@ class PourbaixPlotterTest(unittest.TestCase):
     def test_plot_composition_hull(self):
         plt = self.plotter.get_composition_hull_plot(add_labels=True)
         plt.savefig('out.png')
-
-    def test_plotly_plot(self):
-        self.plotter.get_plotly_plot(show=True)
 
 
 if __name__ == '__main__':

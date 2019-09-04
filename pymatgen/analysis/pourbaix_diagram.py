@@ -826,8 +826,8 @@ class PourbaixDiagram(MSONable):
         Args:
             entry (PourbaixEntry): PourbaixEntry corresponding to
                 compound to find the decomposition for
-            pH (float): pH at which to find the decomposition
-            V (float): voltage at which to find the decomposition
+            pH (float, [float]): pH at which to find the decomposition
+            V (float, [float]): voltage at which to find the decomposition
 
         Returns:
             Decomposition energy for the entry, i. e. the energy above
