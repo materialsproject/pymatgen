@@ -1,6 +1,18 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
+"""
+This module is intended to be used to compute Pourbaix diagrams
+of arbitrary compositions and formation energies.  If you use
+this module in your work, please consider citing the following:
+
+General formalism for solid-aqueous equilibria from DFT:
+    Persson et al., DOI: 10.1103/PhysRevB.85.235438
+Decomposition maps, or Pourbaix hull diagrams
+    Singh et al., DOI: 10.1021/acs.chemmater.7b03980
+Fast computation of many-element Pourbaix diagrams:
+    Patel et al., https://arxiv.org/abs/1909.00035 (submitted)
+"""
 
 
 import logging
@@ -35,8 +47,8 @@ __author__ = "Sai Jayaraman"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.4"
 __maintainer__ = "Joseph Montoya"
-__credits__ = "Arunima Singh, Joseph Montoya"
-__email__ = "montoyjh@lbl.gov"
+__credits__ = "Arunima Singh, Joseph Montoya, Anjli Patel"
+__email__ = "joseph.montoya@tri.global"
 __status__ = "Production"
 __date__ = "Nov 1, 2012"
 
@@ -1020,6 +1032,7 @@ class PourbaixPlotter:
             pH_range = [-2, 16]
         if V_range is None:
             V_range = [-3, 3]
+
         # plot the Pourbaix diagram
         plt = self.get_pourbaix_plot(**kwargs)
         pH, V = np.mgrid[pH_range[0]:pH_range[1]:pH_resolution * 1j, V_range[0]:V_range[1]:V_resolution * 1j]
