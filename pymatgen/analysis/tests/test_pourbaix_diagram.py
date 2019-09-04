@@ -229,15 +229,16 @@ class PourbaixDiagramTest(unittest.TestCase):
         self.assertAlmostEqual(pbx.get_decomposition_energy(custom_ion_entry, 5, 2),
                                2.1209002582, 1)
 
-    def test_nofilter(self):
-        entries = self.test_data['Ag-Te']
-        pbx = PourbaixDiagram(entries)
-        pbx.get_decomposition_energy(entries[0], 0, 0)
-
     def test_solid_filter(self):
-        entries = self.test_data['Ag-Te-N']
+        entries = self.test_data['Zn']
+        pbx = PourbaixDiagram(entries, filter_solids=False)
+        oxidized_phase = pbx.find_stable_entry(10, 2)
+        self.assertEqual(oxidized_phase.name, "ZnO2(s)")
+
+        entries = self.test_data['Zn']
         pbx = PourbaixDiagram(entries, filter_solids=True)
-        pbx.get_decomposition_energy(entries[0], 0, 0)
+        oxidized_phase = pbx.find_stable_entry(10, 2)
+        self.assertEqual(oxidized_phase.name, "ZnO(s)")
 
     def test_serialization(self):
         d = self.pbx.as_dict()
