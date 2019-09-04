@@ -820,7 +820,8 @@ class PourbaixDiagram(MSONable):
 
     def get_decomposition_energy(self, entry, pH, V):
         """
-        Finds decomposition to most stable entries in eV/atom
+        Finds decomposition to most stable entries in eV/atom,
+        supports vectorized inputs for pH and V
 
         Args:
             entry (PourbaixEntry): PourbaixEntry corresponding to
@@ -829,10 +830,11 @@ class PourbaixDiagram(MSONable):
             V (float): voltage at which to find the decomposition
 
         Returns:
-            reaction corresponding to the decomposition
+            Decomposition energy for the entry, i. e. the energy above
+                the "pourbaix hull" in eV/atom at the given conditions
         """
 
-        # Check composition consistency between forced entry and Pourbaix diagram:
+        # Check composition consistency between entry and Pourbaix diagram:
         pbx_comp = Composition(self._elt_comp).reduced_composition
         entry_pbx_comp = Composition(
             {elt: coeff for elt, coeff in entry.composition.items()
