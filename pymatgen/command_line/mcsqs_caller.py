@@ -6,7 +6,8 @@ from threading import Timer
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io import atat
 
-def run_mcsqs(structure, clusters, supercell = None, total_atoms = None, search_time = 0.01):
+
+def run_mcsqs(structure, clusters, supercell=None, total_atoms=None, search_time=0.01):
     """
     Helper function for calling mcsqs with different arguments
 
@@ -29,14 +30,14 @@ def run_mcsqs(structure, clusters, supercell = None, total_atoms = None, search_
         print("pick supercell OR number of atoms")
         return
 
-    ## Set supercell
+    # Set supercell
     cell = np.eye(3)
     text_file = open("sqscell.out", "w")
-    text_file.write('1\n')
+    text_file.write("1\n")
     for i in range(len(cell)):
-        text_file.write('\n')
+        text_file.write("\n")
         for j in range(len(cell[i])):
-            text_file.write(str(cell[i][j]) +' ')
+            text_file.write(str(cell[i][j]) + " ")
     text_file.close()
     struccopy = structure.copy()
 
@@ -47,34 +48,41 @@ def run_mcsqs(structure, clusters, supercell = None, total_atoms = None, search_
         text_file.write(struc.to_string())
         text_file.close()
 
-
-        ## Generate Clusters
-        command = ['mcsqs']
+        # Generate Clusters
+        command = ["mcsqs"]
         for num in clusters:
-            command.append('-'+ str(num) + '=' + str(clusters[num]))
+            command.append("-" + str(num) + "=" + str(clusters[num]))
 
-        p = subprocess.Popen(command, stdout=subprocess.PIPE,
-                             stdin=subprocess.PIPE,
-                             stderr=subprocess.PIPE, close_fds=True)
+        p = subprocess.Popen(
+            command,
+            stdout=subprocess.PIPE,
+            stdin=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            close_fds=True,
+        )
         p.communicate()
 
-        command = ['mcsqs',  '-rc', "-n {}".format(len(structure))]
-        p = subprocess.Popen(command, stdout=subprocess.PIPE,
-                             stdin=subprocess.PIPE,
-                             stderr=subprocess.PIPE, close_fds=True)
+        command = ["mcsqs", "-rc", "-n {}".format(len(structure))]
+        p = subprocess.Popen(
+            command,
+            stdout=subprocess.PIPE,
+            stdin=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            close_fds=True,
+        )
         try:
-            p.communicate(timeout = search_time*60)
+            p.communicate(timeout=search_time * 60)
         except:
             p.kill()
             p.communicate()
-            if os.path.exists('bestsqs.out'):
+            if os.path.exists("bestsqs.out"):
                 text_file = open("bestsqs.out", "r")
                 bestsqs = text_file.read()
                 text_file.close()
 
                 return atat.Mcsqs.structure_from_string(bestsqs)
             else:
-                raise TimeoutError('Cluster expansion took too long.')
+                raise TimeoutError("Cluster expansion took too long.")
 
     else:
         struc = atat.Mcsqs(struccopy)
@@ -82,31 +90,38 @@ def run_mcsqs(structure, clusters, supercell = None, total_atoms = None, search_
         text_file.write(struc.to_string())
         text_file.close()
 
-
         ## Generate Clusters
-        command = ['mcsqs']
+        command = ["mcsqs"]
         for num in clusters:
-            command.append('-'+ str(num) + '=' + str(clusters[num]))
+            command.append("-" + str(num) + "=" + str(clusters[num]))
 
-        p = subprocess.Popen(command, stdout=subprocess.PIPE,
-                             stdin=subprocess.PIPE,
-                             stderr=subprocess.PIPE, close_fds=True)
+        p = subprocess.Popen(
+            command,
+            stdout=subprocess.PIPE,
+            stdin=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            close_fds=True,
+        )
         p.communicate()
 
-        command = ['mcsqs', "-n {}".format(total_atoms)]
-        p = subprocess.Popen(command, stdout=subprocess.PIPE,
-                             stdin=subprocess.PIPE,
-                             stderr=subprocess.PIPE, close_fds=True)
+        command = ["mcsqs", "-n {}".format(total_atoms)]
+        p = subprocess.Popen(
+            command,
+            stdout=subprocess.PIPE,
+            stdin=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            close_fds=True,
+        )
         try:
-            p.communicate(timeout = search_time*60)
+            p.communicate(timeout=search_time * 60)
         except:
             p.kill()
             p.communicate()
-            if os.path.exists('bestsqs.out'):
+            if os.path.exists("bestsqs.out"):
                 text_file = open("bestsqs.out", "r")
                 bestsqs = text_file.read()
                 text_file.close()
 
                 return atat.Mcsqs.structure_from_string(bestsqs)
             else:
-                raise TimeoutError('Cluster expansion took too long.')
+                raise TimeoutError("Cluster expansion took too long.")
