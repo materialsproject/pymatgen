@@ -14,7 +14,6 @@ Fast computation of many-element Pourbaix diagrams:
     Patel et al., https://arxiv.org/abs/1909.00035 (submitted)
 """
 
-
 import logging
 import numpy as np
 import itertools
@@ -308,7 +307,7 @@ class MultiEntry(PourbaixEntry):
         return " + ".join([e.name for e in self.entry_list])
 
     def __repr__(self):
-        return "Multiple Pourbaix Entry: energy = {:.4f}, npH = {}, nPhi = {}, nH2O = {}, entry_id = {}, species: {}"\
+        return "Multiple Pourbaix Entry: energy = {:.4f}, npH = {}, nPhi = {}, nH2O = {}, entry_id = {}, species: {}" \
             .format(self.energy, self.npH, self.nPhi, self.nH2O, self.entry_id, self.name)
 
     def __str__(self):
@@ -451,7 +450,7 @@ class PourbaixDiagram(MSONable):
             self._filtered_entries = single_entries
             self._conc_dict = None
             self._elt_comp = {k: v for k, v in entries[0].composition.items()
-                              if not k in ELEMENTS_HO}
+                              if k not in ELEMENTS_HO}
             self._multielement = True
 
         # Process single entry inputs
@@ -553,7 +552,7 @@ class PourbaixDiagram(MSONable):
         logger.debug("Pre-filtering solids by min energy at each composition")
         sorted_entries = sorted(
             solid_entries, key=lambda x: (x.composition.reduced_composition,
-                                    x.entry.energy_per_atom))
+                                          x.entry.energy_per_atom))
         grouped_by_composition = itertools.groupby(
             sorted_entries, key=lambda x: x.composition.reduced_composition)
         min_entries = [list(grouped_entries)[0]
@@ -850,7 +849,7 @@ class PourbaixDiagram(MSONable):
         pbx_comp = Composition(self._elt_comp).fractional_composition
         entry_pbx_comp = Composition(
             {elt: coeff for elt, coeff in entry.composition.items()
-             if not elt in ELEMENTS_HO}).fractional_composition
+             if elt not in ELEMENTS_HO}).fractional_composition
         if entry_pbx_comp != pbx_comp:
             raise ValueError("Composition of stability entry does not match "
                              "Pourbaix Diagram")
@@ -898,7 +897,6 @@ class PourbaixDiagram(MSONable):
         all_gs = np.array([e.normalized_energy_at_conditions(
             pH, V) for e in self.stable_entries])
         return self.stable_entries[np.argmin(all_gs)]
-
 
     @property
     def stable_entries(self):
