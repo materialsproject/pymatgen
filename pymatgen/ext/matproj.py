@@ -502,7 +502,8 @@ class MPRester:
             pbx_entries.append(PourbaixEntry(ion_entry, 'ion-{}'.format(n)))
 
         # Construct the solid pourbaix entries from filtered ion_ref entries
-        extra_elts = set(ion_ref_elts) - {Element(s) for s in chemsys} - {Element('H'), Element('O')}
+        extra_elts = set(ion_ref_elts) - {Element(s) for s in chemsys} \
+            - {Element('H'), Element('O')}
         for entry in ion_ref_entries:
             entry_elts = set(entry.composition.elements)
             # Ensure no OH chemsys or extraneous elements from ion references
@@ -684,18 +685,19 @@ class MPRester:
             List of ComputedEntries.
 
         """
-        entries = []
         if isinstance(elements, str):
             elements = elements.split('-')
 
+        all_chemsyses = []
         for i in range(len(elements)):
             for els in itertools.combinations(elements, i + 1):
-                entries.extend(
-                    self.get_entries(
-                        "-".join(els), compatible_only=compatible_only,
-                        inc_structure=inc_structure,
-                        property_data=property_data,
-                        conventional_unit_cell=conventional_unit_cell))
+                all_chemsyses.append('-'.join(sorted(els)))
+
+        entries = self.get_entries({"chemsys": {"$in": all_chemsyses}},
+                                   compatible_only=compatible_only,
+                                   inc_structure=inc_structure,
+                                   property_data=property_data,
+                                   conventional_unit_cell=conventional_unit_cell)
         return entries
 
     def get_exp_thermo_data(self, formula):

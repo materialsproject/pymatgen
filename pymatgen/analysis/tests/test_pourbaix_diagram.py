@@ -238,7 +238,6 @@ class PourbaixDiagramTest(unittest.TestCase):
                          len(new_binary.stable_entries))
 
     # The two tests below rely on the MP Rest interface.
-    # Currently the bottleneck in their speed is associated with the querying speed of
     @unittest.skip
     def test_heavy(self):
         from pymatgen import MPRester
@@ -252,7 +251,6 @@ class PourbaixDiagramTest(unittest.TestCase):
         entries = mpr.get_pourbaix_entries(["Na", "Ca", "Nd", "Y", "Ho", "F"])
         pbx = PourbaixDiagram(entries, nproc=4, filter_solids=False)
 
-    @unittest.skip
     @unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY"),
                      "PMG_MAPI_KEY environment variable not set.")
     def test_mpr_pipeline(self):
