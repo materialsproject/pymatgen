@@ -13,10 +13,10 @@ from pymatgen.apps.battery.battery_abc import AbstractElectrode, \
     AbstractVoltagePair
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from monty.json import MontyDecoder
+
 """
 This module contains the classes to build a ConversionElectrode.
 """
-
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -222,17 +222,14 @@ class ConversionElectrode(AbstractElectrode):
         return self.__repr__()
 
     def __repr__(self):
-        output = ["Conversion electrode with formula {} and nsteps {}"
-                  .format(self._composition.reduced_formula, self.num_steps),
-                  "Avg voltage {} V, min voltage {} V, max voltage {} V"
-                  .format(self.get_average_voltage(), self.min_voltage,
-                          self.max_voltage),
-                  "Capacity (grav.) {} mAh/g, capacity (vol.) {} Ah/l"
-                  .format(self.get_capacity_grav(),
-                          self.get_capacity_vol()),
-                  "Specific energy {} Wh/kg, energy density {} Wh/l"
-                  .format(self.get_specific_energy(),
-                          self.get_energy_density())]
+        output = ["Conversion electrode with formula {} and nsteps {}".format(
+                      self._composition.reduced_formula, self.num_steps),
+                  "Avg voltage {} V, min voltage {} V, max voltage {} V".format(
+                      self.get_average_voltage(), self.min_voltage, self.max_voltage),
+                  "Capacity (grav.) {} mAh/g, capacity (vol.) {} Ah/l".format(
+                      self.get_capacity_grav(), self.get_capacity_vol()),
+                  "Specific energy {} Wh/kg, energy density {} Wh/l".format(
+                      self.get_specific_energy(), self.get_energy_density())]
         return "\n".join(output)
 
     @classmethod
@@ -299,11 +296,11 @@ class ConversionElectrode(AbstractElectrode):
         d["fracA_discharge"] = max(frac)
         d["nsteps"] = self.num_steps
         if print_subelectrodes:
-            f_dict = lambda c: c.get_summary_dict(print_subelectrodes=False)
-            d["adj_pairs"] = list(map(f_dict,
-                                 self.get_sub_electrodes(adjacent_only=True)))
-            d["all_pairs"] = list(map(f_dict,
-                                 self.get_sub_electrodes(adjacent_only=False)))
+
+            def f_dict(c):
+                return c.get_summary_dict(print_subelectrodes=False)
+            d["adj_pairs"] = list(map(f_dict, self.get_sub_electrodes(adjacent_only=True)))
+            d["all_pairs"] = list(map(f_dict, self.get_sub_electrodes(adjacent_only=False)))
         return d
 
 
@@ -361,17 +358,16 @@ class ConversionVoltagePair(AbstractVoltagePair):
         working_ion_entry = step1["element_reference"]
         working_ion = working_ion_entry.composition.elements[0].symbol
         working_ion_valence = max(Element(working_ion).oxidation_states)
-        voltage = (-step1["chempot"] + working_ion_entry.energy_per_atom)/working_ion_valence
-        mAh = (step2["evolution"] - step1["evolution"]) \
-            * Charge(1, "e").to("C") * Time(1, "s").to("h") * N_A * 1000*working_ion_valence
+        voltage = (-step1["chempot"] + working_ion_entry.energy_per_atom) / working_ion_valence
+        mAh = (step2["evolution"] - step1["evolution"]) * Charge(1, "e").to("C") * Time(1, "s").to("h") * \
+            N_A * 1000 * working_ion_valence
         licomp = Composition(working_ion)
         prev_rxn = step1["reaction"]
         reactants = {comp: abs(prev_rxn.get_coeff(comp))
                      for comp in prev_rxn.products if comp != licomp}
 
         curr_rxn = step2["reaction"]
-        products = {comp: abs(curr_rxn.get_coeff(comp))
-                    for comp in curr_rxn.products if comp != licomp}
+        products = {comp: abs(curr_rxn.get_coeff(comp)) for comp in curr_rxn.products if comp != licomp}
 
         reactants[licomp] = (step2["evolution"] - step1["evolution"])
 
@@ -475,16 +471,16 @@ class ConversionVoltagePair(AbstractVoltagePair):
         return self._working_ion_entry
 
     def __repr__(self):
-        output = ["Conversion voltage pair with working ion {}"
-                  .format(self._working_ion_entry.composition.reduced_formula),
+        output = ["Conversion voltage pair with working ion {}".format(
+                      self._working_ion_entry.composition.reduced_formula),
                   "Reaction : {}".format(self._rxn),
                   "V = {}, mAh = {}".format(self.voltage, self.mAh),
-                  "frac_charge = {}, frac_discharge = {}"
-                  .format(self.frac_charge, self.frac_discharge),
-                  "mass_charge = {}, mass_discharge = {}"
-                  .format(self.mass_charge, self.mass_discharge),
-                  "vol_charge = {}, vol_discharge = {}"
-                  .format(self.vol_charge, self.vol_discharge)]
+                  "frac_charge = {}, frac_discharge = {}".format(
+                      self.frac_charge, self.frac_discharge),
+                  "mass_charge = {}, mass_discharge = {}".format(
+                      self.mass_charge, self.mass_discharge),
+                  "vol_charge = {}, vol_discharge = {}".format(
+                      self.vol_charge, self.vol_discharge)]
         return "\n".join(output)
 
     def __str__(self):
@@ -498,11 +494,11 @@ class ConversionVoltagePair(AbstractVoltagePair):
         entries_charge = dec.process_decoded(d["entries_charge"])
         entries_discharge = dec.process_decoded(d["entries_discharge"])
         return ConversionVoltagePair(balanced_rxn, d["voltage"], d["mAh"],
-                                   d["vol_charge"], d["vol_discharge"],
-                                   d["mass_charge"], d["mass_discharge"],
-                                   d["frac_charge"], d["frac_discharge"],
-                                   entries_charge, entries_discharge,
-                                   working_ion_entry)
+                                     d["vol_charge"], d["vol_discharge"],
+                                     d["mass_charge"], d["mass_discharge"],
+                                     d["frac_charge"], d["frac_discharge"],
+                                     entries_charge, entries_discharge,
+                                     working_ion_entry)
 
     def as_dict(self):
         return {"@module": self.__class__.__module__,

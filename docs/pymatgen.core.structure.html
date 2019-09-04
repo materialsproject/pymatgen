@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.structure module &#8212; pymatgen 2019.7.30 documentation</title>
+    <title>pymatgen.core.structure module &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -598,6 +598,7 @@ precision issues in determining if orbits are the same.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>sites</strong> – Sequence of PeriodicSites. Sites must have the same
 lattice.</p></li>
+<li><p><strong>charge</strong> – Charge of structure.</p></li>
 <li><p><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check if there are sites
 that are less than 0.01 Ang apart. Defaults to False.</p></li>
 <li><p><strong>to_unit_cell</strong> (<em>bool</em>) – Whether to translate sites into the unit
@@ -1821,13 +1822,19 @@ Only first letter is considered.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.core.structure.Structure.perturb">
-<code class="sig-name descname">perturb</code><span class="sig-paren">(</span><em class="sig-param">distance</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#Structure.perturb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.perturb" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">perturb</code><span class="sig-paren">(</span><em class="sig-param">distance</em>, <em class="sig-param">min_distance=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#Structure.perturb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.perturb" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs a random perturbation of the sites in a structure to break
 symmetries.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>distance</strong> (<em>float</em>) – Distance in angstroms by which to perturb each
-site.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>distance</strong> (<em>float</em>) – Distance in angstroms by which to perturb each
+site.</p></li>
+<li><p><strong>min_distance</strong> (<em>None</em><em>, </em><em>int</em><em>, or </em><em>float</em>) – if None, all displacements will
+be equal amplitude. If int or float, perturb each site a
+distance drawn from the uniform distribution between
+‘min_distance’ and ‘distance’.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -2048,7 +2055,7 @@ Raised when the structure has problems, e.g., atoms that are too close.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
       </ul>
     </div>
 

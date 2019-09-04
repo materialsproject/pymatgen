@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.surface &#8212; pymatgen 2019.7.30 documentation</title>
+    <title>pymatgen.core.surface &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -95,7 +95,6 @@
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;ongsp@ucsd.edu&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;6/10/14&quot;</span>
-
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -465,10 +464,12 @@
         <span class="n">outs</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s2">&quot;Slab Summary (</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="n">comp</span><span class="o">.</span><span class="n">formula</span><span class="p">,</span>
             <span class="s2">&quot;Reduced Formula: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">comp</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">,</span>
-            <span class="s2">&quot;Miller index: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">miller_index</span><span class="p">,</span> <span class="p">),</span>
+            <span class="s2">&quot;Miller index: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">miller_index</span><span class="p">,),</span>
             <span class="s2">&quot;Shift: </span><span class="si">%.4f</span><span class="s2">, Scale Factor: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shift</span><span class="p">,</span>
                                                <span class="bp">self</span><span class="o">.</span><span class="n">scale_factor</span><span class="o">.</span><span class="fm">__str__</span><span class="p">())]</span>
-        <span class="n">to_s</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">%0.6f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">x</span>
+
+        <span class="k">def</span> <span class="nf">to_s</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%0.6f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">x</span>
         <span class="n">outs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;abc   : &quot;</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">to_s</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">rjust</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
                                            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">abc</span><span class="p">]))</span>
         <span class="n">outs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;angles: &quot;</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">to_s</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">rjust</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
@@ -554,7 +555,7 @@
             <span class="c1"># species, eg. bond distance of each neighbor or neighbor species. The</span>
             <span class="c1"># decimal place to get some cn to be equal.</span>
             <span class="n">cn</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">get_cn</span><span class="p">(</span><span class="n">ucell</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">use_weights</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">cn</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%.5f</span><span class="s1">&#39;</span> <span class="o">%</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">cn</span><span class="p">,</span> <span class="mi">5</span><span class="p">)))</span>
+            <span class="n">cn</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%.5f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">cn</span><span class="p">,</span> <span class="mi">5</span><span class="p">)))</span>
             <span class="k">if</span> <span class="n">cn</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cn_dict</span><span class="p">[</span><span class="n">el</span><span class="p">]:</span>
                 <span class="n">cn_dict</span><span class="p">[</span><span class="n">el</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cn</span><span class="p">)</span>
 
@@ -568,7 +569,7 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="c1"># A site is a surface site, if its environment does</span>
                 <span class="c1"># not fit the environment of other sites</span>
-                <span class="n">cn</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%.5f</span><span class="s1">&#39;</span> <span class="o">%</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">get_cn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">use_weights</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="mi">5</span><span class="p">)))</span>
+                <span class="n">cn</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%.5f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">get_cn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">use_weights</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="mi">5</span><span class="p">)))</span>
                 <span class="k">if</span> <span class="n">cn</span> <span class="o">&lt;</span> <span class="nb">min</span><span class="p">(</span><span class="n">cn_dict</span><span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">species_string</span><span class="p">]):</span>
                     <span class="n">properties</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
                     <span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;top&quot;</span> <span class="k">if</span> <span class="n">top</span> <span class="k">else</span> <span class="s2">&quot;bottom&quot;</span>
@@ -698,7 +699,7 @@
         <span class="n">slabcopy</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span><span class="o">.</span><span class="n">get_symmetrized_structure</span><span class="p">()</span>
         <span class="n">points</span> <span class="o">=</span> <span class="p">[</span><span class="n">slabcopy</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">]</span>
         <span class="n">removal_list</span> <span class="o">=</span> <span class="p">[]</span>
-        
+
         <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">points</span><span class="p">:</span>
             <span class="c1"># Get the index of the original site on top</span>
             <span class="n">cart_point</span> <span class="o">=</span> <span class="n">slabcopy</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span>
@@ -711,7 +712,7 @@
                     <span class="n">eq_indices</span> <span class="o">=</span> <span class="n">slabcopy</span><span class="o">.</span><span class="n">equivalent_indices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
                     <span class="k">break</span>
             <span class="n">i1</span> <span class="o">=</span> <span class="n">eq_indices</span><span class="p">[</span><span class="n">eq_sites</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">slabcopy</span><span class="p">[</span><span class="n">site1</span><span class="p">])]</span>
-            
+
             <span class="k">for</span> <span class="n">i2</span> <span class="ow">in</span> <span class="n">eq_indices</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">i2</span> <span class="o">==</span> <span class="n">i1</span><span class="p">:</span>
                     <span class="k">continue</span>
@@ -723,16 +724,15 @@
                 <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">is_symmetric</span><span class="p">():</span>
                     <span class="n">removal_list</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">i1</span><span class="p">,</span> <span class="n">i2</span><span class="p">])</span>
                     <span class="k">break</span>
-                    
+
         <span class="c1"># If expected, 2 atoms are removed per index</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">removal_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">removal_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">remove_sites</span><span class="p">(</span><span class="n">removal_list</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Equivalent sites could not be found for removal for all indices. Surface unchanged.&quot;</span><span class="p">)</span></div></div>
 
-            
-<div class="viewcode-block" id="SlabGenerator"><a class="viewcode-back" href="../../../pymatgen.core.surface.html#pymatgen.core.surface.SlabGenerator">[docs]</a><span class="k">class</span> <span class="nc">SlabGenerator</span><span class="p">:</span>
 
+<div class="viewcode-block" id="SlabGenerator"><a class="viewcode-back" href="../../../pymatgen.core.surface.html#pymatgen.core.surface.SlabGenerator">[docs]</a><span class="k">class</span> <span class="nc">SlabGenerator</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class generates different slabs using shift values determined by where</span>
 <span class="sd">    a unique termination can be found along with other criterias such as where a</span>
@@ -950,7 +950,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proj_height</span>
-        <span class="n">p</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">h</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">d_hkl</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">miller_index</span><span class="p">),</span> <span class="mi">8</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">h</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">d_hkl</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">miller_index</span><span class="p">),</span> <span class="mi">8</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_unit_planes</span><span class="p">:</span>
             <span class="n">nlayers_slab</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min_slab_size</span> <span class="o">/</span> <span class="n">p</span><span class="p">))</span>
             <span class="n">nlayers_vac</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min_vac_size</span> <span class="o">/</span> <span class="n">p</span><span class="p">))</span>
@@ -999,7 +999,7 @@
         <span class="c1"># Reorient the lattice to get the correct reduced cell</span>
         <span class="n">ouc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oriented_unit_cell</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">primitive</span><span class="p">:</span>
-            <span class="c1">#find a reduced ouc</span>
+            <span class="c1"># find a reduced ouc</span>
             <span class="n">slab_l</span> <span class="o">=</span> <span class="n">slab</span><span class="o">.</span><span class="n">lattice</span>
             <span class="n">ouc</span> <span class="o">=</span> <span class="n">ouc</span><span class="o">.</span><span class="n">get_primitive_structure</span><span class="p">(</span><span class="n">constrain_latt</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="n">slab_l</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="n">slab_l</span><span class="o">.</span><span class="n">b</span><span class="p">,</span>
                                                               <span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="n">slab_l</span><span class="o">.</span><span class="n">alpha</span><span class="p">,</span>
@@ -1192,7 +1192,7 @@
 
                         <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">oriented_unit_cell</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span>
                                 <span class="n">site</span><span class="p">,</span> <span class="n">blength</span><span class="p">):</span>
-                            <span class="k">if</span> <span class="n">nn</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">species_string</span> <span class="o">==</span> <span class="n">pair</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                            <span class="k">if</span> <span class="n">nn</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">species_string</span> <span class="o">==</span> <span class="n">pair</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]:</span>
                                 <span class="n">poly_coord</span> <span class="o">+=</span> <span class="mi">1</span>
                     <span class="n">cnlist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">poly_coord</span><span class="p">)</span>
                 <span class="n">cn_dict</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">=</span> <span class="n">cnlist</span>
@@ -1248,7 +1248,7 @@
         <span class="c1"># Determine what fraction the slab is of the total cell size</span>
         <span class="c1"># in the c direction. Round to nearest rational number.</span>
         <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proj_height</span>
-        <span class="n">p</span> <span class="o">=</span> <span class="n">h</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">d_hkl</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">miller_index</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">h</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">d_hkl</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">miller_index</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_unit_planes</span><span class="p">:</span>
             <span class="n">nlayers_slab</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min_slab_size</span> <span class="o">/</span> <span class="n">p</span><span class="p">))</span>
             <span class="n">nlayers_vac</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min_vac_size</span> <span class="o">/</span> <span class="n">p</span><span class="p">))</span>
@@ -1259,10 +1259,10 @@
         <span class="n">slab_ratio</span> <span class="o">=</span> <span class="n">nlayers_slab</span> <span class="o">/</span> <span class="n">nlayers</span>
 
         <span class="c1"># Sort the index of sites based on which side they are on</span>
-        <span class="n">top_site_index</span> <span class="o">=</span> <span class="p">[</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">index_of_sites</span> <span class="k">if</span>
-                           <span class="n">slab</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">slab</span><span class="o">.</span><span class="n">center_of_mass</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
-        <span class="n">bottom_site_index</span> <span class="o">=</span> <span class="p">[</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">index_of_sites</span> <span class="k">if</span>
-                              <span class="n">slab</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">slab</span><span class="o">.</span><span class="n">center_of_mass</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+        <span class="n">top_site_index</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">index_of_sites</span> <span class="k">if</span>
+                          <span class="n">slab</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">slab</span><span class="o">.</span><span class="n">center_of_mass</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+        <span class="n">bottom_site_index</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">index_of_sites</span> <span class="k">if</span>
+                             <span class="n">slab</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">slab</span><span class="o">.</span><span class="n">center_of_mass</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
 
         <span class="c1"># Translate sites to the opposite surfaces</span>
         <span class="n">slab</span><span class="o">.</span><span class="n">translate_sites</span><span class="p">(</span><span class="n">top_site_index</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">slab_ratio</span><span class="p">])</span>
@@ -1338,7 +1338,6 @@
 
 
 <div class="viewcode-block" id="ReconstructionGenerator"><a class="viewcode-back" href="../../../pymatgen.core.surface.html#pymatgen.core.surface.ReconstructionGenerator">[docs]</a><span class="k">class</span> <span class="nc">ReconstructionGenerator</span><span class="p">:</span>
-
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class takes in a pre-defined dictionary specifying the parameters</span>
 <span class="sd">    need to build a reconstructed slab such as the SlabGenerator parameters,</span>
@@ -1471,10 +1470,10 @@
 
         <span class="k">if</span> <span class="n">reconstruction_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">reconstructions_archive</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;The reconstruction_name entered (</span><span class="si">%s</span><span class="s2">) does not exist in the &quot;</span>
-            <span class="s2">&quot;archive. Please select from one of the following reconstructions: </span><span class="si">%s</span><span class="s2"> &quot;</span>
-            <span class="s2">&quot;or add the appropriate dictionary to the archive file &quot;</span>
-            <span class="s2">&quot;reconstructions_archive.json.&quot;</span> <span class="o">%</span><span class="p">(</span><span class="n">reconstruction_name</span><span class="p">,</span>
-                                              <span class="nb">list</span><span class="p">(</span><span class="n">reconstructions_archive</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
+                           <span class="s2">&quot;archive. Please select from one of the following reconstructions: </span><span class="si">%s</span><span class="s2"> &quot;</span>
+                           <span class="s2">&quot;or add the appropriate dictionary to the archive file &quot;</span>
+                           <span class="s2">&quot;reconstructions_archive.json.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">reconstruction_name</span><span class="p">,</span>
+                                                              <span class="nb">list</span><span class="p">(</span><span class="n">reconstructions_archive</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
 
         <span class="c1"># Get the instructions to build the reconstruction</span>
         <span class="c1"># from the reconstruction_archive</span>
@@ -1534,7 +1533,7 @@
                 <span class="n">pts_to_rm</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reconstruction_json</span><span class="p">[</span><span class="s2">&quot;points_to_remove&quot;</span><span class="p">])</span>
                 <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pts_to_rm</span><span class="p">:</span>
                     <span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">slab</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_fractional_coords</span><span class="p">([</span><span class="n">top_site</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">top_site</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
-                                                               <span class="n">top_site</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">d</span><span class="p">])[</span><span class="mi">2</span><span class="p">]</span>
+                                                               <span class="n">top_site</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">d</span><span class="p">])[</span><span class="mi">2</span><span class="p">]</span>
                     <span class="n">cart_point</span> <span class="o">=</span> <span class="n">slab</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
                     <span class="n">dist</span> <span class="o">=</span> <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">distance_from_point</span><span class="p">(</span><span class="n">cart_point</span><span class="p">)</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">slab</span><span class="p">]</span>
                     <span class="n">site1</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">dist</span><span class="p">))</span>
@@ -1545,7 +1544,7 @@
                 <span class="n">pts_to_add</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reconstruction_json</span><span class="p">[</span><span class="s2">&quot;points_to_add&quot;</span><span class="p">])</span>
                 <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pts_to_add</span><span class="p">:</span>
                     <span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">slab</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_fractional_coords</span><span class="p">([</span><span class="n">top_site</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">top_site</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
-                                                               <span class="n">top_site</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">d</span><span class="p">])[</span><span class="mi">2</span><span class="p">]</span>
+                                                               <span class="n">top_site</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">d</span><span class="p">])[</span><span class="mi">2</span><span class="p">]</span>
                     <span class="n">slab</span><span class="o">.</span><span class="n">symmetrically_add_atom</span><span class="p">(</span><span class="n">slab</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
 
             <span class="n">slab</span><span class="o">.</span><span class="n">reconstruction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
@@ -1564,7 +1563,6 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generates the unreconstructed or pristine super slab.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="n">slabs</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">slab</span> <span class="ow">in</span> <span class="n">SlabGenerator</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">slabgen_params</span><span class="p">)</span><span class="o">.</span><span class="n">get_slabs</span><span class="p">():</span>
             <span class="n">slab</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trans_matrix</span><span class="p">)</span>
@@ -1579,17 +1577,16 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">sorted_sites</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">slab</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">site</span><span class="p">:</span> <span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sorted_sites</span><span class="p">):</span>
-        <span class="k">if</span> <span class="s2">&quot;</span><span class="si">%.6f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">==</span> \
-                        <span class="s2">&quot;</span><span class="si">%.6f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sorted_sites</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="s2">&quot;</span><span class="si">%.6f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">%.6f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sorted_sites</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
             <span class="k">continue</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">d</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> \
-                    <span class="n">sorted_sites</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">sorted_sites</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
             <span class="k">break</span>
     <span class="k">return</span> <span class="n">slab</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">d</span><span class="p">])[</span><span class="mi">2</span><span class="p">]</span></div>
 
+
 <div class="viewcode-block" id="is_already_analyzed"><a class="viewcode-back" href="../../../pymatgen.core.surface.html#pymatgen.core.surface.is_already_analyzed">[docs]</a><span class="k">def</span> <span class="nf">is_already_analyzed</span><span class="p">(</span>
-        <span class="n">miller_index</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">miller_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">symm_ops</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span><span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">miller_index</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">miller_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">symm_ops</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Helper function to check if a given Miller index is</span>
 <span class="sd">    part of the family of indices of any index in a list</span>
@@ -1606,6 +1603,7 @@
         <span class="k">if</span> <span class="n">in_coord_list</span><span class="p">(</span><span class="n">miller_list</span><span class="p">,</span> <span class="n">op</span><span class="o">.</span><span class="n">operate</span><span class="p">(</span><span class="n">miller_index</span><span class="p">)):</span>
             <span class="k">return</span> <span class="kc">True</span>
     <span class="k">return</span> <span class="kc">False</span></div>
+
 
 <div class="viewcode-block" id="get_symmetrically_equivalent_miller_indices"><a class="viewcode-back" href="../../../pymatgen.core.surface.html#pymatgen.core.surface.get_symmetrically_equivalent_miller_indices">[docs]</a><span class="k">def</span> <span class="nf">get_symmetrically_equivalent_miller_indices</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">miller_index</span><span class="p">,</span> <span class="n">return_hkil</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -1650,7 +1648,7 @@
                     <span class="n">equivalent_millers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">miller</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">return_hkil</span> <span class="ow">and</span> <span class="n">sg</span><span class="o">.</span><span class="n">get_crystal_system</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;trigonal&quot;</span><span class="p">,</span> <span class="s2">&quot;hexagonal&quot;</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">[(</span><span class="n">hkl</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">hkl</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="n">hkl</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">hkl</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="n">hkl</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">hkl</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">hkl</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">hkl</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
                  <span class="n">hkl</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="n">equivalent_millers</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">equivalent_millers</span></div>
 
@@ -1705,7 +1703,7 @@
                 <span class="n">unique_millers_conv</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">miller</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">return_hkil</span> <span class="ow">and</span> <span class="n">sg</span><span class="o">.</span><span class="n">get_crystal_system</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;trigonal&quot;</span><span class="p">,</span> <span class="s2">&quot;hexagonal&quot;</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">[(</span><span class="n">hkl</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">hkl</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="n">hkl</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">hkl</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="n">hkl</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">hkl</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">hkl</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">hkl</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
                  <span class="n">hkl</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="n">unique_millers_conv</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">unique_millers_conv</span></div>
 
@@ -1720,7 +1718,10 @@
 <span class="sd">        miller_index ([h, k, l]): Miller index to transform to setting B</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Get a matrix of whole numbers (ints)</span>
-    <span class="n">lcm</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span> <span class="o">//</span> <span class="n">math</span><span class="o">.</span><span class="n">gcd</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">lcm</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span> <span class="o">//</span> <span class="n">math</span><span class="o">.</span><span class="n">gcd</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+
     <span class="n">reduced_transf</span> <span class="o">=</span> <span class="n">reduce</span><span class="p">(</span><span class="n">lcm</span><span class="p">,</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">transf</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">transf</span>
     <span class="n">reduced_transf</span> <span class="o">=</span> <span class="n">reduced_transf</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
 
@@ -1867,7 +1868,7 @@
             <span class="n">fcoords</span><span class="p">,</span> <span class="n">indices</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="p">:</span>
                 <span class="k">if</span> <span class="mi">1</span> <span class="o">&gt;</span> <span class="n">nn</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> \
-                                <span class="n">nn</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+                        <span class="n">nn</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
                     <span class="c1"># sites are noncontiguous within cell</span>
                     <span class="n">fcoords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
                     <span class="n">indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span>
@@ -1933,17 +1934,21 @@
 <span class="sd">        find the surface sites and apply operations like doping.</span>
 
 <span class="sd">    There are three cases where the slab in not centered:</span>
+
 <span class="sd">    1. The slab region is completely between two vacuums in the</span>
-<span class="sd">        box but not necessarily centered. We simply shift the</span>
-<span class="sd">        slab by the difference in its center of mass and 0.5</span>
-<span class="sd">        along the c direction.</span>
+<span class="sd">    box but not necessarily centered. We simply shift the</span>
+<span class="sd">    slab by the difference in its center of mass and 0.5</span>
+<span class="sd">    along the c direction.</span>
+
 <span class="sd">    2. The slab completely spills outside the box from the bottom</span>
-<span class="sd">        and into the top. This makes it incredibly difficult to</span>
-<span class="sd">        locate surface sites. We iterate through all sites that</span>
-<span class="sd">        spill over (z&gt;c) and shift all sites such that this specific</span>
-<span class="sd">        site is now on the other side. Repeat for all sites with z&gt;c.</span>
+<span class="sd">    and into the top. This makes it incredibly difficult to</span>
+<span class="sd">    locate surface sites. We iterate through all sites that</span>
+<span class="sd">    spill over (z&gt;c) and shift all sites such that this specific</span>
+<span class="sd">    site is now on the other side. Repeat for all sites with z&gt;c.</span>
+
 <span class="sd">    3. This is a simpler case of scenario 2. Either the top or bottom</span>
-<span class="sd">        slab sites are at c=0 or c=1. Treat as scenario 2.</span>
+<span class="sd">    slab sites are at c=0 or c=1. Treat as scenario 2.</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        slab (Slab): Slab structure to center</span>
 <span class="sd">    Returns:</span>
@@ -1976,7 +1981,6 @@
 
 
 <div class="viewcode-block" id="reduce_vector"><a class="viewcode-back" href="../../../pymatgen.core.surface.html#pymatgen.core.surface.reduce_vector">[docs]</a><span class="k">def</span> <span class="nf">reduce_vector</span><span class="p">(</span><span class="n">vector</span><span class="p">):</span>
-
     <span class="c1"># small function to reduce vectors</span>
 
     <span class="n">d</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">reduce</span><span class="p">(</span><span class="n">gcd</span><span class="p">,</span> <span class="n">vector</span><span class="p">))</span>
@@ -2013,7 +2017,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

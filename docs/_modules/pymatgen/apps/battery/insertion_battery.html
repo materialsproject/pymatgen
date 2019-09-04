@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.apps.battery.insertion_battery &#8212; pymatgen 2019.7.30 documentation</title>
+    <title>pymatgen.apps.battery.insertion_battery &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -116,7 +116,8 @@
         <span class="c1"># Make phase diagram to determine which entries are stable vs. unstable</span>
         <span class="n">pd</span> <span class="o">=</span> <span class="n">PhaseDiagram</span><span class="p">(</span><span class="n">pdentries</span><span class="p">)</span>
 
-        <span class="n">lifrac</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">get_atomic_fraction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_working_ion</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">lifrac</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">e</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">get_atomic_fraction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_working_ion</span><span class="p">)</span>
 
         <span class="c1"># stable entries ordered by amount of Li asc</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_stable_entries</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">([</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">pd</span><span class="o">.</span><span class="n">stable_entries</span>
@@ -193,9 +194,8 @@
         <span class="n">all_entries</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_stable_entries</span><span class="p">())</span>
         <span class="n">all_entries</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_unstable_entries</span><span class="p">())</span>
         <span class="c1"># sort all entries by amount of working ion ASC</span>
-        <span class="n">fsrt</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">get_atomic_fraction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">working_ion</span><span class="p">)</span>
         <span class="n">all_entries</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">all_entries</span><span class="p">],</span>
-                             <span class="n">key</span><span class="o">=</span><span class="n">fsrt</span><span class="p">)</span>
+                             <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">get_atomic_fraction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">working_ion</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">all_entries</span> <span class="k">if</span> <span class="n">charge_to_discharge</span> <span class="k">else</span> <span class="n">all_entries</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span></div>
 
     <span class="nd">@property</span>
@@ -379,26 +379,29 @@
              <span class="s2">&quot;fracA_discharge&quot;</span><span class="p">:</span> <span class="n">dischg_comp</span><span class="o">.</span><span class="n">get_atomic_fraction</span><span class="p">(</span><span class="n">ion</span><span class="p">),</span>
              <span class="s2">&quot;max_instability&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_max_instability</span><span class="p">(),</span>
              <span class="s2">&quot;min_instability&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_min_instability</span><span class="p">(),</span>
-             <span class="s2">&quot;material_ids&quot;</span> <span class="p">:</span> <span class="p">[</span><span class="n">itr_ent</span><span class="o">.</span><span class="n">entry_id</span> <span class="k">for</span> <span class="n">itr_ent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_entries</span><span class="p">],</span>
-             <span class="s2">&quot;stable_material_ids&quot;</span> <span class="p">:</span> <span class="p">[</span><span class="n">itr_ent</span><span class="o">.</span><span class="n">entry_id</span> <span class="k">for</span> <span class="n">itr_ent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_stable_entries</span><span class="p">()],</span>
+             <span class="s2">&quot;material_ids&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">itr_ent</span><span class="o">.</span><span class="n">entry_id</span> <span class="k">for</span> <span class="n">itr_ent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_entries</span><span class="p">],</span>
+             <span class="s2">&quot;stable_material_ids&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">itr_ent</span><span class="o">.</span><span class="n">entry_id</span> <span class="k">for</span> <span class="n">itr_ent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_stable_entries</span><span class="p">()],</span>
              <span class="s2">&quot;unstable_material_ids&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">itr_ent</span><span class="o">.</span><span class="n">entry_id</span> <span class="k">for</span> <span class="n">itr_ent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_unstable_entries</span><span class="p">()],</span>
              <span class="p">}</span>
 
         <span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="s1">&#39;decomposition_energy&#39;</span> <span class="ow">in</span> <span class="n">itr_ent</span><span class="o">.</span><span class="n">data</span> <span class="k">for</span> <span class="n">itr_ent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_entries</span><span class="p">]):</span>
             <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;stability_charge&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fully_charged_entry</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;decomposition_energy&#39;</span><span class="p">],</span>
-                 <span class="s2">&quot;stability_discharge&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fully_discharged_entry</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;decomposition_energy&#39;</span><span class="p">],</span>
-                 <span class="s2">&quot;stability_data&quot;</span><span class="p">:{</span><span class="n">itr_ent</span><span class="o">.</span><span class="n">entry_id</span><span class="p">:</span> <span class="n">itr_ent</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;decomposition_energy&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">itr_ent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_entries</span><span class="p">},</span>
-                 <span class="p">})</span>
+                      <span class="s2">&quot;stability_discharge&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fully_discharged_entry</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;decomposition_energy&#39;</span><span class="p">],</span>
+                      <span class="s2">&quot;stability_data&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">itr_ent</span><span class="o">.</span><span class="n">entry_id</span><span class="p">:</span> <span class="n">itr_ent</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;decomposition_energy&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">itr_ent</span> <span class="ow">in</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">_entries</span><span class="p">},</span>
+                      <span class="p">})</span>
 
         <span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="s1">&#39;muO2&#39;</span> <span class="ow">in</span> <span class="n">itr_ent</span><span class="o">.</span><span class="n">data</span> <span class="k">for</span> <span class="n">itr_ent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_entries</span><span class="p">]):</span>
-            <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;muO2_data&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="n">itr_ent</span><span class="o">.</span><span class="n">entry_id</span><span class="p">:</span> <span class="n">itr_ent</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;muO2&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">itr_ent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_entries</span><span class="p">}})</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;muO2_data&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">itr_ent</span><span class="o">.</span><span class="n">entry_id</span><span class="p">:</span> <span class="n">itr_ent</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;muO2&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">itr_ent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_entries</span><span class="p">}})</span>
 
         <span class="k">if</span> <span class="n">print_subelectrodes</span><span class="p">:</span>
-            <span class="n">f_dict</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">as_dict_summary</span><span class="p">(</span><span class="n">print_subelectrodes</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+            <span class="k">def</span> <span class="nf">f_dict</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">as_dict_summary</span><span class="p">(</span><span class="n">print_subelectrodes</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="n">d</span><span class="p">[</span><span class="s2">&quot;adj_pairs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">f_dict</span><span class="p">,</span>
-                                 <span class="bp">self</span><span class="o">.</span><span class="n">get_sub_electrodes</span><span class="p">(</span><span class="n">adjacent_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)))</span>
+                                      <span class="bp">self</span><span class="o">.</span><span class="n">get_sub_electrodes</span><span class="p">(</span><span class="n">adjacent_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)))</span>
             <span class="n">d</span><span class="p">[</span><span class="s2">&quot;all_pairs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">f_dict</span><span class="p">,</span>
-                                 <span class="bp">self</span><span class="o">.</span><span class="n">get_sub_electrodes</span><span class="p">(</span><span class="n">adjacent_only</span><span class="o">=</span><span class="kc">False</span><span class="p">)))</span>
+                                      <span class="bp">self</span><span class="o">.</span><span class="n">get_sub_electrodes</span><span class="p">(</span><span class="n">adjacent_only</span><span class="o">=</span><span class="kc">False</span><span class="p">)))</span>
         <span class="k">return</span> <span class="n">d</span></div>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -477,14 +480,12 @@
 
         <span class="c1"># check that the entries do not contain the same amount of the workin</span>
         <span class="c1"># element</span>
-        <span class="k">if</span> <span class="n">comp_charge</span><span class="o">.</span><span class="n">get_atomic_fraction</span><span class="p">(</span><span class="n">working_element</span><span class="p">)</span> <span class="o">==</span> \
-                <span class="n">comp_discharge</span><span class="o">.</span><span class="n">get_atomic_fraction</span><span class="p">(</span><span class="n">working_element</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">comp_charge</span><span class="o">.</span><span class="n">get_atomic_fraction</span><span class="p">(</span><span class="n">working_element</span><span class="p">)</span> <span class="o">==</span> <span class="n">comp_discharge</span><span class="o">.</span><span class="n">get_atomic_fraction</span><span class="p">(</span><span class="n">working_element</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;VoltagePair: The working ion atomic percentage &quot;</span>
                              <span class="s2">&quot;cannot be the same in both the entries&quot;</span><span class="p">)</span>
 
         <span class="c1"># check that the frameworks of the entries are equivalent</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">frame_charge_comp</span><span class="o">.</span><span class="n">reduced_formula</span> <span class="o">==</span> \
-                <span class="n">frame_discharge_comp</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">frame_charge_comp</span><span class="o">.</span><span class="n">reduced_formula</span> <span class="o">==</span> <span class="n">frame_discharge_comp</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;VoltagePair: the specified entries must have the&quot;</span>
                              <span class="s2">&quot; same compositional framework&quot;</span><span class="p">)</span>
 
@@ -510,16 +511,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_mass_charge</span> <span class="o">=</span> <span class="n">comp_charge</span><span class="o">.</span><span class="n">weight</span> <span class="o">/</span> <span class="n">norm_charge</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mass_discharge</span> <span class="o">=</span> <span class="n">comp_discharge</span><span class="o">.</span><span class="n">weight</span> <span class="o">/</span> <span class="n">norm_discharge</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_num_ions_transferred</span> <span class="o">=</span> \
-            <span class="p">(</span><span class="n">comp_discharge</span><span class="p">[</span><span class="n">working_element</span><span class="p">]</span> <span class="o">/</span> <span class="n">norm_discharge</span><span class="p">)</span> \
+        <span class="bp">self</span><span class="o">.</span><span class="n">_num_ions_transferred</span> <span class="o">=</span> <span class="p">(</span><span class="n">comp_discharge</span><span class="p">[</span><span class="n">working_element</span><span class="p">]</span> <span class="o">/</span> <span class="n">norm_discharge</span><span class="p">)</span> \
             <span class="o">-</span> <span class="p">(</span><span class="n">comp_charge</span><span class="p">[</span><span class="n">working_element</span><span class="p">]</span> <span class="o">/</span> <span class="n">norm_charge</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_voltage</span> <span class="o">=</span> \
             <span class="p">(((</span><span class="n">entry_charge</span><span class="o">.</span><span class="n">energy</span> <span class="o">/</span> <span class="n">norm_charge</span><span class="p">)</span> <span class="o">-</span>
-              <span class="p">(</span><span class="n">entry_discharge</span><span class="o">.</span><span class="n">energy</span> <span class="o">/</span> <span class="n">norm_discharge</span><span class="p">))</span> <span class="o">/</span> \
+              <span class="p">(</span><span class="n">entry_discharge</span><span class="o">.</span><span class="n">energy</span> <span class="o">/</span> <span class="n">norm_discharge</span><span class="p">))</span> <span class="o">/</span>
              <span class="bp">self</span><span class="o">.</span><span class="n">_num_ions_transferred</span> <span class="o">+</span> <span class="n">working_ion_entry</span><span class="o">.</span><span class="n">energy_per_atom</span><span class="p">)</span> <span class="o">/</span> <span class="n">working_ion_valence</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mAh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_ions_transferred</span> <span class="o">*</span> <span class="n">Charge</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;e&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;C&quot;</span><span class="p">)</span> <span class="o">*</span> \
-                    <span class="n">Time</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">)</span> <span class="o">*</span> <span class="n">N_A</span> <span class="o">*</span> <span class="mi">1000</span> <span class="o">*</span> <span class="n">working_ion_valence</span>
+            <span class="n">Time</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">)</span> <span class="o">*</span> <span class="n">N_A</span> <span class="o">*</span> <span class="mi">1000</span> <span class="o">*</span> <span class="n">working_ion_valence</span>
 
         <span class="c1"># Step 4: add (optional) hull and muO2 data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">decomp_e_charge</span> <span class="o">=</span> \
@@ -575,15 +575,15 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_working_ion_entry</span>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Insertion voltage pair with working ion </span><span class="si">{}</span><span class="s2">&quot;</span>
-                      <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_working_ion_entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">),</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Insertion voltage pair with working ion </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                      <span class="bp">self</span><span class="o">.</span><span class="n">_working_ion_entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">),</span>
                   <span class="s2">&quot;V = </span><span class="si">{}</span><span class="s2">, mAh = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">voltage</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mAh</span><span class="p">),</span>
-                  <span class="s2">&quot;mass_charge = </span><span class="si">{}</span><span class="s2">, mass_discharge = </span><span class="si">{}</span><span class="s2">&quot;</span>
-                      <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass_charge</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass_discharge</span><span class="p">),</span>
-                  <span class="s2">&quot;vol_charge = </span><span class="si">{}</span><span class="s2">, vol_discharge = </span><span class="si">{}</span><span class="s2">&quot;</span>
-                      <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vol_charge</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vol_discharge</span><span class="p">),</span>
-                  <span class="s2">&quot;frac_charge = </span><span class="si">{}</span><span class="s2">, frac_discharge = </span><span class="si">{}</span><span class="s2">&quot;</span>
-                      <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frac_charge</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frac_discharge</span><span class="p">)]</span>
+                  <span class="s2">&quot;mass_charge = </span><span class="si">{}</span><span class="s2">, mass_discharge = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                      <span class="bp">self</span><span class="o">.</span><span class="n">mass_charge</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass_discharge</span><span class="p">),</span>
+                  <span class="s2">&quot;vol_charge = </span><span class="si">{}</span><span class="s2">, vol_discharge = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                      <span class="bp">self</span><span class="o">.</span><span class="n">vol_charge</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vol_discharge</span><span class="p">),</span>
+                  <span class="s2">&quot;frac_charge = </span><span class="si">{}</span><span class="s2">, frac_discharge = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                      <span class="bp">self</span><span class="o">.</span><span class="n">frac_charge</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frac_discharge</span><span class="p">)]</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -618,7 +618,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

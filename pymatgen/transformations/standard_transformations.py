@@ -28,14 +28,12 @@ rather than site-specific manner.
 All transformations should inherit the AbstractTransformation ABC.
 """
 
-
 __author__ = "Shyue Ping Ong, Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.2"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Sep 23, 2011"
-
 
 logger = logging.getLogger(__name__)
 
@@ -155,6 +153,7 @@ class OxidationStateRemovalTransformation(AbstractTransformation):
     """
     This transformation removes oxidation states from a structure.
     """
+
     def __init__(self):
         pass
 
@@ -211,7 +210,7 @@ class SupercellTransformation(AbstractTransformation):
 
     def __str__(self):
         return "Supercell Transformation with scaling matrix " + \
-            "{}".format(self.scaling_matrix)
+               "{}".format(self.scaling_matrix)
 
     def __repr__(self):
         return self.__str__()
@@ -237,6 +236,7 @@ class SubstitutionTransformation(AbstractTransformation):
             which substitutes a single species with multiple species to
             generate a disordered structure.
     """
+
     def __init__(self, species_map):
         self.species_map = species_map
         self._species_map = dict(species_map)
@@ -258,8 +258,8 @@ class SubstitutionTransformation(AbstractTransformation):
 
     def __str__(self):
         return "Substitution Transformation :" + \
-            ", ".join([str(k) + "->" + str(v)
-                       for k, v in self._species_map.items()])
+               ", ".join([str(k) + "->" + str(v)
+                          for k, v in self._species_map.items()])
 
     def __repr__(self):
         return self.__str__()
@@ -281,6 +281,7 @@ class RemoveSpeciesTransformation(AbstractTransformation):
     Args:
         species_to_remove: List of species to remove. E.g., ["Li", "Mn"]
     """
+
     def __init__(self, species_to_remove):
         self.species_to_remove = species_to_remove
 
@@ -292,7 +293,7 @@ class RemoveSpeciesTransformation(AbstractTransformation):
 
     def __str__(self):
         return "Remove Species Transformation :" + \
-            ", ".join(self.species_to_remove)
+               ", ".join(self.species_to_remove)
 
     def __repr__(self):
         return self.__str__()
@@ -435,7 +436,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         self._all_structures = []
         self.no_oxi_states = no_oxi_states
         self.symmetrized_structures = symmetrized_structures
-        
+
     def apply_transformation(self, structure, return_ranked_list=False):
         """
         For this transformation, the apply_transformation method will return
@@ -556,11 +557,11 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             self._all_structures.append(
                 {"energy": output[0],
                  "energy_above_minimum":
-                 (output[0] - lowest_energy) / num_atoms,
+                     (output[0] - lowest_energy) / num_atoms,
                  "structure": s_copy.get_sorted_structure()})
 
         if return_ranked_list:
-            return self._all_structures
+            return self._all_structures[:num_to_return]
         else:
             return self._all_structures[0]["structure"]
 
@@ -596,6 +597,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
             tolerance of 0.5. Defaults to 0.5.
 
     """
+
     def __init__(self, tolerance=0.5):
         self.tolerance = tolerance
 
@@ -637,6 +639,7 @@ class ConventionalCellTransformation(AbstractTransformation):
         international_monoclinic (bool): whether to use beta (True) or alpha (False)
         as the non-right-angle in the unit cell
     """
+
     def __init__(self, symprec=0.01, angle_tolerance=5,
                  international_monoclinic=True):
         self.symprec = symprec
@@ -687,7 +690,6 @@ class PerturbStructureTransformation(AbstractTransformation):
     """
 
     def __init__(self, distance=0.01, min_distance=None):
-
         self.distance = distance
         self.min_distance = min_distance
 
@@ -698,7 +700,7 @@ class PerturbStructureTransformation(AbstractTransformation):
 
     def __str__(self):
         return "PerturbStructureTransformation : " + \
-            "Amplitude = {}".format(self.amplitude)
+               "Amplitude = {}".format(self.amplitude)
 
     def __repr__(self):
         return self.__str__()
@@ -729,7 +731,7 @@ class DeformStructureTransformation(AbstractTransformation):
 
     def __str__(self):
         return "DeformStructureTransformation : " + \
-            "Deformation = {}".format(str(self.deformation))
+               "Deformation = {}".format(str(self.deformation))
 
     def __repr__(self):
         return self.__str__()
@@ -757,12 +759,12 @@ class DiscretizeOccupanciesTransformation(AbstractTransformation):
             A float that sets the maximum difference between the original and
             discretized occupancies before throwing an error. If None, it is
             set to 1 / (4 * max_denominator).
-        fix_denominator(bool): 
-            If True, will enforce a common denominator for all species. 
-            This prevents a mix of denominators (for example, 1/3, 1/4) 
+        fix_denominator(bool):
+            If True, will enforce a common denominator for all species.
+            This prevents a mix of denominators (for example, 1/3, 1/4)
             that might require large cell sizes to perform an enumeration.
             'tol' needs to be > 1.0 in some cases.
-            
+
     """
 
     def __init__(self, max_denominator=5, tol=None, fix_denominator=False):
@@ -791,8 +793,8 @@ class DiscretizeOccupanciesTransformation(AbstractTransformation):
                 new_occ = float(
                     Fraction(old_occ).limit_denominator(self.max_denominator))
                 if self.fix_denominator:
-                    new_occ = around(old_occ*self.max_denominator)\
-                        / self.max_denominator
+                    new_occ = around(old_occ * self.max_denominator) \
+                              / self.max_denominator
                 if round(abs(old_occ - new_occ), 6) > self.tol:
                     raise RuntimeError(
                         "Cannot discretize structure within tolerance!")
@@ -834,7 +836,7 @@ class ChargedCellTransformation(AbstractTransformation):
 
     def __str__(self):
         return "Structure with charge " + \
-            "{}".format(self.charge)
+               "{}".format(self.charge)
 
     def __repr__(self):
         return self.__str__()
@@ -881,7 +883,7 @@ class ScaleToRelaxedTransformation(AbstractTransformation):
 
         self.params_percent_change = []
         for i, p in enumerate(relax_params):
-            self.params_percent_change.append(relax_params[i]/unrelax_params[i])
+            self.params_percent_change.append(relax_params[i] / unrelax_params[i])
 
         self.unrelaxed_structure = unrelaxed_structure
         self.relaxed_structure = relaxed_structure
@@ -897,7 +899,7 @@ class ScaleToRelaxedTransformation(AbstractTransformation):
                 regards to crystal and site positions.
         """
 
-        if self.species_map == None:
+        if self.species_map is None:
             match = StructureMatcher()
             s_map = \
                 match.get_best_electronegativity_anonymous_mapping(self.unrelaxed_structure,
@@ -907,7 +909,7 @@ class ScaleToRelaxedTransformation(AbstractTransformation):
 
         params = list(structure.lattice.abc)
         params.extend(structure.lattice.angles)
-        new_lattice = Lattice.from_parameters(*[p*self.params_percent_change[i] \
+        new_lattice = Lattice.from_parameters(*[p * self.params_percent_change[i]
                                                 for i, p in enumerate(params)])
         species, frac_coords = [], []
         for site in self.relaxed_structure:

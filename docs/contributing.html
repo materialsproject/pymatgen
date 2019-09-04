@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Collaborative Github Workflow &#8212; pymatgen 2019.7.30 documentation</title>
+    <title>Collaborative Github Workflow &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -127,20 +127,21 @@ maintainer cannot test your code, the contribution will be rejected.</p></li>
 <li><p><strong>Python PEP 8</strong> <a class="reference external" href="http://www.python.org/dev/peps/pep-0008/">code style</a>.
 We allow a few exceptions when they are well-justified (e.g., Element’s
 atomic number is given a variable name of capital Z, in line with accepted
-scientific convention), but generally, PEP 8 must be observed.</p></li>
-<li><p><strong>Python 3</strong>. All code should seamless work with Python 2.7 and Python 3.x.
-Please read <a class="reference external" href="https://docs.python.org/3/howto/pyporting.html">Python’s official guidelines</a> on how to write Python 3.x
-compatible code, including the usage of the “six” package. It is recommended
-that you install the “python-modernize” package and run it before submitting
-any pull requests.</p></li>
+scientific convention), but generally, PEP 8 must be observed. Code style
+will be automatically checked, but to aid you, you can copy the example
+pre-commit hook into your .git/hooks directly. This will automatically run
+pycodestyle prior to any commits. At the very least, copy pre-commit to
+.git/hooks/pre-push.</p></li>
+<li><p><strong>Python 3</strong>. We only support Python 3.5+.</p></li>
 <li><p><strong>Documentation</strong> required for all modules, classes and methods. In
 particular, the method docstrings should make clear the arguments expected
 and the return values. For complex algorithms (e.g., an Ewald summation), a
 summary of the alogirthm should be provided, and preferably with a link to a
 publication outlining the method in detail.</p></li>
-<li><p><strong>IDE</strong>. We highly recommend the use of Pycharm or Eclipse + PyDev. You
-should also set up pylint and pep8 and turn those on within the IDE setup.
-This will warn of any issues with coding styles.</p></li>
+<li><p><strong>IDE</strong>. We highly recommend the use of Pycharm. You should also set up
+pycodestyle and turn those on within the IDE setup. This will warn of any
+issues with coding styles. Many code style errors can be done by simply
+selecting the entire code and using the Code-&gt;Reformat Code within Pycharm.</p></li>
 </ol>
 <p>For the above, if in doubt, please refer to the core classes in pymatgen for
 examples of what is expected.</p>
@@ -221,7 +222,7 @@ tests, you need to fix it.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
       </ul>
     </div>
 

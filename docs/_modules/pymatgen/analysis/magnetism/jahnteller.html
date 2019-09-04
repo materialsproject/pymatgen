@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.magnetism.jahnteller &#8212; pymatgen 2019.7.30 documentation</title>
+    <title>pymatgen.analysis.magnetism.jahnteller &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -124,14 +124,14 @@
 
 <span class="sd">        :param structure: input structure</span>
 <span class="sd">        :param calculate_valences (bool): whether to attempt to calculate valences or not, structure</span>
-<span class="sd">        should have oxidation states to perform analysis</span>
+<span class="sd">            should have oxidation states to perform analysis</span>
 <span class="sd">        :param guesstimate_spin (bool): whether to guesstimate spin state from magnetic moments</span>
-<span class="sd">        or not, use with caution</span>
+<span class="sd">            or not, use with caution</span>
 <span class="sd">        :param op_threshold (float): threshold for order parameter above which to consider site</span>
-<span class="sd">        to match an octahedral or tetrahedral motif, since Jahn-Teller structures can often be</span>
-<span class="sd">        quite distorted, this threshold is smaller than one might expect</span>
+<span class="sd">            to match an octahedral or tetrahedral motif, since Jahn-Teller structures can often be</span>
+<span class="sd">            quite distorted, this threshold is smaller than one might expect</span>
 <span class="sd">        :return (dict): analysis of structure, with key &#39;strength&#39; which may be &#39;none&#39;, &#39;strong&#39;,</span>
-<span class="sd">        &#39;weak&#39;, or &#39;unknown&#39;</span>
+<span class="sd">            &#39;weak&#39;, or &#39;unknown&#39;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_primitive_structure</span><span class="p">()</span>
@@ -195,8 +195,7 @@
                         <span class="n">ligand_bond_lengths</span> <span class="o">=</span> <span class="p">[</span><span class="n">ligand</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">structure</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
                                                <span class="k">for</span> <span class="n">ligand</span> <span class="ow">in</span> <span class="n">ligands</span><span class="p">]</span>
                         <span class="n">ligands_species</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">ligand</span><span class="o">.</span><span class="n">specie</span><span class="p">)</span> <span class="k">for</span> <span class="n">ligand</span> <span class="ow">in</span> <span class="n">ligands</span><span class="p">]))</span>
-                        <span class="n">ligand_bond_length_spread</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">ligand_bond_lengths</span><span class="p">)</span> <span class="o">-</span> \
-                                                    <span class="nb">min</span><span class="p">(</span><span class="n">ligand_bond_lengths</span><span class="p">)</span>
+                        <span class="n">ligand_bond_length_spread</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">ligand_bond_lengths</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">ligand_bond_lengths</span><span class="p">)</span>
 
                         <span class="k">def</span> <span class="nf">trim</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
                             <span class="c1"># avoid storing to unreasonable precision, hurts readability</span>
@@ -336,7 +335,7 @@
 <span class="sd">        * in tetrahedral environments always weaker</span>
 <span class="sd">        :param motif (str): &quot;oct&quot; or &quot;tet&quot;</span>
 <span class="sd">        :param spin_config (dict): dict of &#39;e&#39; (e_g) and &#39;t&#39; (t2_g)</span>
-<span class="sd">        with number of electrons in each state</span>
+<span class="sd">            with number of electrons in each state</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">magnitude</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span>
         <span class="k">if</span> <span class="n">motif</span> <span class="o">==</span> <span class="s2">&quot;oct&quot;</span><span class="p">:</span>
@@ -435,7 +434,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

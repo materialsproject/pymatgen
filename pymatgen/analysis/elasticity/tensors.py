@@ -3,9 +3,8 @@
 # Distributed under the terms of the MIT License.
 
 import warnings
+from pymatgen.core.tensors import *
 
 warnings.warn("pymatgen.analysis.elasticity.tensors has been moved to "
               "pymatgen.core.tensors, please update dependencies accordingly. "
               "Links will removed in v2019.1.1.")
-from pymatgen.core.tensors import *
-

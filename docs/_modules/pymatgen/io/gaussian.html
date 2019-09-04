@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.gaussian &#8212; pymatgen 2019.7.30 documentation</title>
+    <title>pymatgen.io.gaussian &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -910,18 +910,15 @@
                             <span class="bp">self</span><span class="o">.</span><span class="n">eigenvalues</span> <span class="o">=</span> <span class="p">{</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">:</span> <span class="p">[]}</span>
                             <span class="k">for</span> <span class="n">eigenline</span> <span class="ow">in</span> <span class="n">eigen_txt</span><span class="p">:</span>
                                 <span class="k">if</span> <span class="s2">&quot;Alpha&quot;</span> <span class="ow">in</span> <span class="n">eigenline</span><span class="p">:</span>
-                                    <span class="bp">self</span><span class="o">.</span><span class="n">eigenvalues</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-                                        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">float_patt</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">eigenline</span><span class="p">)]</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">eigenvalues</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">float_patt</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">eigenline</span><span class="p">)]</span>
                                 <span class="k">elif</span> <span class="s2">&quot;Beta&quot;</span> <span class="ow">in</span> <span class="n">eigenline</span><span class="p">:</span>
                                     <span class="k">if</span> <span class="n">Spin</span><span class="o">.</span><span class="n">down</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">eigenvalues</span><span class="p">:</span>
                                         <span class="bp">self</span><span class="o">.</span><span class="n">eigenvalues</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-                                    <span class="bp">self</span><span class="o">.</span><span class="n">eigenvalues</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-                                        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">float_patt</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">eigenline</span><span class="p">)]</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">eigenvalues</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">float_patt</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">eigenline</span><span class="p">)]</span>
                             <span class="n">eigen_txt</span> <span class="o">=</span> <span class="p">[]</span>
 
                     <span class="c1"># read molecular orbital coefficients</span>
-                    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">num_basis_found</span><span class="p">)</span> <span class="ow">and</span> \
-                            <span class="n">num_basis_func_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">num_basis_found</span><span class="p">)</span> <span class="ow">and</span> <span class="n">num_basis_func_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
                         <span class="n">m</span> <span class="o">=</span> <span class="n">num_basis_func_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">num_basis_func</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
                         <span class="n">num_basis_found</span> <span class="o">=</span> <span class="kc">True</span>
@@ -1526,7 +1523,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

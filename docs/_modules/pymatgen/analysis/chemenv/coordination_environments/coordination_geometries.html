@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometries &#8212; pymatgen 2019.7.30 documentation</title>
+    <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometries &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="../../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -74,7 +74,6 @@
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span><span class="p">,</span> <span class="n">MontyDecoder</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">os</span>
-
 
 <span class="n">module_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
 
@@ -150,21 +149,22 @@
 <span class="sd">            Initializes a separation plane for a given perfect coordination geometry</span>
 
 <span class="sd">            :param mirror_plane: True if the separation plane is a mirror plane, in which case there is a correspondence</span>
-<span class="sd">            of the points in each point_group (can reduce the number of permutations)</span>
+<span class="sd">                of the points in each point_group (can reduce the number of permutations)</span>
 <span class="sd">            :param ordered_plane : True if the order of the points in the plane can be taken into account to reduce the</span>
-<span class="sd">            number of permutations</span>
+<span class="sd">                number of permutations</span>
 <span class="sd">            :param plane_points: Indices of the points that are in the plane in the perfect structure (and should be</span>
-<span class="sd">            found in the defective one as well)</span>
+<span class="sd">                found in the defective one as well)</span>
 <span class="sd">            :param point_groups: The two groups of points separated by the plane</span>
 <span class="sd">            :param plane_type: can be &quot;MIRROR&quot;, if the plane is a mirror plane going through the central site,</span>
-<span class="sd">             &#39;BASAL_THROUGH_CENTER&#39;, if the plane is a basal plane (no point on the &quot;left&quot; side) going through the central</span>
-<span class="sd">             site, &#39;BASAL&#39;, if the is a basal plane not going through the central site, &#39;UNEQUILIBRATED_THROUGH_CENTER&#39;, if</span>
-<span class="sd">             the plane cuts the geometry in two groups of points with different numbers of points on each side, and is going</span>
-<span class="sd">             through the centre, &#39;UNEQUILIBRATED&#39;, if the plane cuts the geometry in two groups of points with different</span>
-<span class="sd">             numbers of points on each side, and is not going through the centre, &#39;EQUILIBRATED_THROUGH_CENTER&#39;, if the</span>
-<span class="sd">             plane cuts the geometry in two groups of points of the same size, is going through the centre but is not a</span>
-<span class="sd">             mirror plane, &#39;EQUILIBRATED&#39;, if the plane cuts the geometry in two groups of points of the same size, is not</span>
-<span class="sd">             going through the centre but is not a mirror plane.</span>
+<span class="sd">                &#39;BASAL_THROUGH_CENTER&#39;, if the plane is a basal plane (no point on the &quot;left&quot; side) going through the</span>
+<span class="sd">                central site, &#39;BASAL&#39;, if the is a basal plane not going through the central site,</span>
+<span class="sd">                &#39;UNEQUILIBRATED_THROUGH_CENTER&#39;, if the plane cuts the geometry in two groups of points with different</span>
+<span class="sd">                numbers of points on each side, and is going through the centre, &#39;UNEQUILIBRATED&#39;, if the plane cuts</span>
+<span class="sd">                the geometry in two groups of points with different numbers of points on each side, and is not going</span>
+<span class="sd">                through the centre, &#39;EQUILIBRATED_THROUGH_CENTER&#39;, if the plane cuts the geometry in two groups of</span>
+<span class="sd">                points of the same size, is going through the centre but is not a mirror plane, &#39;EQUILIBRATED&#39;, if the</span>
+<span class="sd">                plane cuts the geometry in two groups of points of the same size, is not</span>
+<span class="sd">                going through the centre but is not a mirror plane.</span>
 <span class="sd">            &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">algorithm_type</span><span class="o">=</span><span class="n">SEPARATION_PLANE</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mirror_plane</span> <span class="o">=</span> <span class="n">mirror_plane</span>
@@ -277,7 +277,9 @@
                        <span class="bp">self</span><span class="o">.</span><span class="n">point_groups</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
         <span class="n">ordered_point_groups</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span>
                                 <span class="kc">False</span><span class="p">]</span> <span class="k">if</span> <span class="n">ordered_point_groups</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">ordered_point_groups</span>
-        <span class="n">rotate</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="n">s</span><span class="p">[</span><span class="o">-</span><span class="n">n</span><span class="p">:]</span> <span class="o">+</span> <span class="n">s</span><span class="p">[:</span><span class="o">-</span><span class="n">n</span><span class="p">]</span>
+
+        <span class="k">def</span> <span class="nf">rotate</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">s</span><span class="p">[</span><span class="o">-</span><span class="n">n</span><span class="p">:]</span> <span class="o">+</span> <span class="n">s</span><span class="p">[:</span><span class="o">-</span><span class="n">n</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">ordered_plane</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">ordered_plane</span><span class="p">:</span>
             <span class="n">plane_perms</span> <span class="o">=</span> <span class="p">[</span><span class="n">rotate</span><span class="p">(</span><span class="n">plane</span><span class="p">,</span> <span class="n">ii</span><span class="p">)</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">plane</span><span class="p">))]</span>
             <span class="n">inv_plane</span> <span class="o">=</span> <span class="n">plane</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
@@ -364,8 +366,9 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class used to store the ideal representation of a chemical environment or &quot;coordination geometry&quot;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">CSM_SKIP_SEPARATION_PLANE_ALGO</span> <span class="o">=</span> <span class="mf">10.0</span> <span class="c1"># Default value of continuous symmetry measure below which no further</span>
-                                        <span class="c1">#  search is performed for the separation plane algorithms</span>
+    <span class="n">CSM_SKIP_SEPARATION_PLANE_ALGO</span> <span class="o">=</span> <span class="mf">10.0</span>  <span class="c1"># Default value of continuous symmetry measure below which no further</span>
+
+    <span class="c1">#  search is performed for the separation plane algorithms</span>
 
 <div class="viewcode-block" id="CoordinationGeometry.NeighborsSetsHints"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.NeighborsSetsHints">[docs]</a>    <span class="k">class</span> <span class="nc">NeighborsSetsHints</span><span class="p">:</span>
 
@@ -473,12 +476,12 @@
 <span class="sd">        :param points: The list of the coordinates of all the points of this coordination geometry.</span>
 <span class="sd">        :param separation_planes: List of separation facets to help set up the permutations</span>
 <span class="sd">        :param permutation_safe_override: Computes all the permutations if set to True (overrides the plane separation</span>
-<span class="sd">        algorithms or any other algorithm, for testing purposes)</span>
+<span class="sd">            algorithms or any other algorithm, for testing purposes)</span>
 <span class="sd">        :param plane_ordering_override: Computes all the permutations of the plane separation algorithm if set to False</span>
-<span class="sd">        otherwise, uses the anticlockwise ordering of the separation facets (for testing purposes)</span>
+<span class="sd">            otherwise, uses the anticlockwise ordering of the separation facets (for testing purposes)</span>
 <span class="sd">        :param deactivate: deactivates this coordination geometry in the search</span>
 <span class="sd">        :param faces : list of the faces with their vertices given in a clockwise or anticlockwise order, for drawing</span>
-<span class="sd">        purposes</span>
+<span class="sd">            purposes</span>
 <span class="sd">        :param : list of edges, for drawing purposes</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mp_symbol</span> <span class="o">=</span> <span class="n">mp_symbol</span>
@@ -632,11 +635,11 @@
                 <span class="k">for</span> <span class="n">ipt1</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">)):</span>
                     <span class="n">pt1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">ipt1</span><span class="p">])</span>
                     <span class="n">mindist_cation_anion</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">mindist_cation_anion</span><span class="p">,</span>
-                                               <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">pt1</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">central_site</span><span class="p">))</span>
-                    <span class="k">for</span> <span class="n">ipt2</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ipt1</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">)):</span>
+                                               <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">pt1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">central_site</span><span class="p">))</span>
+                    <span class="k">for</span> <span class="n">ipt2</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ipt1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">)):</span>
                         <span class="n">pt2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">ipt2</span><span class="p">])</span>
                         <span class="n">mindist_anions</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">mindist_anions</span><span class="p">,</span>
-                                             <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">pt1</span><span class="o">-</span><span class="n">pt2</span><span class="p">))</span>
+                                             <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">pt1</span> <span class="o">-</span> <span class="n">pt2</span><span class="p">))</span>
                 <span class="n">anion_radius</span> <span class="o">=</span> <span class="n">mindist_anions</span> <span class="o">/</span> <span class="mf">2.0</span>
                 <span class="n">cation_radius</span> <span class="o">=</span> <span class="n">mindist_cation_anion</span> <span class="o">-</span> <span class="n">anion_radius</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_pauling_stability_ratio</span> <span class="o">=</span> <span class="n">cation_radius</span> <span class="o">/</span> <span class="n">anion_radius</span>
@@ -818,6 +821,7 @@
         <span class="n">pmeshes</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;pmesh_string&quot;</span><span class="p">:</span> <span class="n">out</span><span class="p">})</span>
         <span class="k">return</span> <span class="n">pmeshes</span></div></div>
 
+
 <div class="viewcode-block" id="AllCoordinationGeometries"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries">[docs]</a><span class="k">class</span> <span class="nc">AllCoordinationGeometries</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class used to store all the reference &quot;coordination geometries&quot; (list with instances of the CoordinationGeometry</span>
@@ -968,7 +972,7 @@
         <span class="k">if</span> <span class="n">coordination</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">gg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cg_list</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">gg</span><span class="o">.</span><span class="n">points</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span>
-                            <span class="p">(</span><span class="ow">not</span> <span class="n">gg</span><span class="o">.</span><span class="n">deactivate</span><span class="p">)</span> <span class="ow">or</span> <span class="n">include_deactivated</span><span class="p">):</span>
+                        <span class="p">(</span><span class="ow">not</span> <span class="n">gg</span><span class="o">.</span><span class="n">deactivate</span><span class="p">)</span> <span class="ow">or</span> <span class="n">include_deactivated</span><span class="p">):</span>
                     <span class="k">if</span> <span class="n">returned</span> <span class="o">==</span> <span class="s1">&#39;cg&#39;</span><span class="p">:</span>
                         <span class="n">geom</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gg</span><span class="p">)</span>
                     <span class="k">elif</span> <span class="n">returned</span> <span class="o">==</span> <span class="s1">&#39;mp_symbol&#39;</span><span class="p">:</span>
@@ -1178,8 +1182,8 @@
                         <span class="k">else</span><span class="p">:</span>
                             <span class="n">addinfo</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
                         <span class="n">mystring</span> <span class="o">+=</span> <span class="s1">&#39; - </span><span class="si">{mp}</span><span class="s1"> : </span><span class="si">{name}{addinfo}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mp</span><span class="o">=</span><span class="n">cg</span><span class="o">.</span><span class="n">mp_symbol</span><span class="p">,</span>
-                                                                  <span class="n">name</span><span class="o">=</span><span class="n">cg</span><span class="o">.</span><span class="n">get_name</span><span class="p">(),</span>
-                                                                  <span class="n">addinfo</span><span class="o">=</span><span class="n">addinfo</span><span class="p">)</span>
+                                                                         <span class="n">name</span><span class="o">=</span><span class="n">cg</span><span class="o">.</span><span class="n">get_name</span><span class="p">(),</span>
+                                                                         <span class="n">addinfo</span><span class="o">=</span><span class="n">addinfo</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="nb">type</span> <span class="o">==</span> <span class="s1">&#39;all_geometries&#39;</span><span class="p">:</span>
                     <span class="k">for</span> <span class="n">cg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_geometries</span><span class="p">(</span><span class="n">coordination</span><span class="o">=</span><span class="n">cn</span><span class="p">):</span>
                         <span class="n">mystring</span> <span class="o">+=</span> <span class="s1">&#39; - </span><span class="si">{mp}</span><span class="s1"> : </span><span class="si">{name}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mp</span><span class="o">=</span><span class="n">cg</span><span class="o">.</span><span class="n">mp_symbol</span><span class="p">,</span>
@@ -1216,7 +1220,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

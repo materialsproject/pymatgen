@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.composition module &#8212; pymatgen 2019.7.30 documentation</title>
+    <title>pymatgen.core.composition module &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -516,6 +516,18 @@ Composition(“Fe4P4O16”).</p>
 Li4Fe4P4O16.</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="pymatgen.core.composition.Composition.remove_charges">
+<code class="sig-name descname">remove_charges</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.remove_charges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.remove_charges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes the charges from any species in a Composition object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Composition object without charge decoration, for example
+{“Fe3+”: 2.0, “O2-“:3.0} becomes {“Fe”: 2.0, “O”:3.0}</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="pymatgen.core.composition.Composition.special_formulas">
 <code class="sig-name descname">special_formulas</code><em class="property"> = {'Cl': 'Cl2', 'CsO': 'Cs2O2', 'F': 'F2', 'H': 'H2', 'HO': 'H2O2', 'KO': 'K2O2', 'LiO': 'Li2O2', 'N': 'N2', 'NaO': 'Na2O2', 'O': 'O2', 'RbO': 'Rb2O2'}</em><a class="headerlink" href="#pymatgen.core.composition.Composition.special_formulas" title="Permalink to this definition">¶</a></dt>
@@ -626,7 +638,7 @@ the elements.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
       </ul>
     </div>
 

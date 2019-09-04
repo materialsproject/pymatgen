@@ -20,7 +20,6 @@ get_dimensionality_gorai:
     J. Mater. Chem. A 2, 4136 (2016).
 """
 
-
 import itertools
 import copy
 
@@ -197,6 +196,7 @@ def calculate_dimensionality_of_site(bonded_structure, site_index,
         function will return a tuple of (dimensionality, vertices), where
         vertices is a list of tuples. E.g. [(0, 0, 0), (1, 1, 1)].
     """
+
     def neighbours(comp_index):
         return [(s.index, s.jimage) for s
                 in bonded_structure.get_connected_sites(comp_index)]
@@ -341,7 +341,7 @@ def get_dimensionality_cheon(structure_raw, tolerance=0.45,
     if standardize:
         structure = SpacegroupAnalyzer(structure_raw).get_conventional_standard_structure()
     else:
-        structure=structure_raw
+        structure = structure_raw
     structure_save = copy.copy(structure_raw)
     connected_list1 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
     max1, min1, clusters1 = find_clusters(structure, connected_list1)
@@ -424,10 +424,10 @@ def find_connected_atoms(struct, tolerance=0.45, ldict=JmolNN().el_radius):
     species = list(map(str, struct.species))
     # in case of charged species
     for i, item in enumerate(species):
-        if not item in ldict.keys():
+        if item not in ldict.keys():
             species[i] = str(Specie.from_string(item).element)
     latmat = struct.lattice.matrix
-    connected_matrix = np.zeros((n_atoms,n_atoms))
+    connected_matrix = np.zeros((n_atoms, n_atoms))
 
     for i in range(n_atoms):
         for j in range(i + 1, n_atoms):
@@ -487,7 +487,7 @@ def find_clusters(struct, connected_matrix):
     for i in range(n_atoms):
         if not visited[i]:
             atom_cluster = set()
-            cluster=visit(i, atom_cluster)
+            cluster = visit(i, atom_cluster)
             clusters.append(cluster)
             cluster_sizes.append(len(cluster))
 
@@ -552,7 +552,3 @@ def get_dimensionality_gorai(structure, max_hkl=2, el_radius_updates=None,
                         num_surfaces += 1
 
     return 3 - min(num_surfaces, 2)
-
-from pymatgen.util.testing import PymatgenTest
-s=PymatgenTest.get_structure('Graphite')
-get_dimensionality_cheon(s, larger_cell=True)

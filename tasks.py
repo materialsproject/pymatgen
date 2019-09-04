@@ -4,7 +4,6 @@ Pyinvoke tasks.py file for automating releases and admin stuff.
 Author: Shyue Ping Ong
 """
 
-
 from invoke import task
 import glob
 import os
@@ -26,7 +25,7 @@ def make_doc(ctx):
     with open("CHANGES.rst") as f:
         contents = f.read()
 
-    toks = re.split("\-{3,}", contents)
+    toks = re.split(r"\-{3,}", contents)
     n = len(toks[0].split()[-1])
     changes = [toks[0]]
     changes.append("\n" + "\n".join(toks[1].strip().split("\n")[0:-1]))
@@ -37,7 +36,7 @@ def make_doc(ctx):
 
     with cd("docs_rst"):
         ctx.run("cp ../CHANGES.rst change_log.rst")
-        ctx.run("rm pymatgen.*.rst")
+        ctx.run("rm pymatgen.*.rst", warn=True)
         ctx.run("sphinx-apidoc --separate -d 7 -o . -f ../pymatgen")
         ctx.run("rm pymatgen*.tests.*rst")
         for f in glob.glob("*.rst"):
@@ -63,15 +62,15 @@ def make_doc(ctx):
                 with open(f, 'w') as fid:
                     fid.write("".join(newoutput))
         ctx.run("make html")
-        
+
         ctx.run("cp _static/* ../docs/html/_static")
 
     with cd("docs"):
-        ctx.run("rm *.html")
-        ctx.run("cp -r html/* .")
-        ctx.run("rm -r html")
-        ctx.run("rm -r doctrees")
-        ctx.run("rm -r _sources")
+        ctx.run("rm *.html", warn=True)
+        ctx.run("cp -r html/* .", warn=True)
+        ctx.run("rm -r html", warn=True)
+        ctx.run("rm -r doctrees", warn=True)
+        ctx.run("rm -r _sources", warn=True)
         ctx.run("rm -r _build", warn=True)
 
         # This makes sure pymatgen.org works to redirect to the Gihub page
@@ -124,30 +123,31 @@ def contribute_dash(ctx):
         ctx.run('git push')
     ctx.run("rm pymatgen.tgz")
 
+
 @task
 def submit_dash_pr(ctx):
     with cd("../Dash-User-Contributions/docsets/pymatgen"):
-
         payload = {
-          "title": "Update pymatgen docset to v%s" % NEW_VER,
-          "body": "Update pymatgen docset to v%s" % NEW_VER,
-          "head": "Dash-User-Contributions:master",
-          "base": "master"
+            "title": "Update pymatgen docset to v%s" % NEW_VER,
+            "body": "Update pymatgen docset to v%s" % NEW_VER,
+            "head": "Dash-User-Contributions:master",
+            "base": "master"
         }
         response = requests.post(
             "https://api.github.com/repos/materialsvirtuallab/Dash-User-Contributions/pulls",
             data=json.dumps(payload))
         print(response.text)
 
+
 @task
 def update_doc(ctx):
     make_doc(ctx)
     try:
         contribute_dash(ctx)
-    except:
+        ctx.run("mv pymatgen.tgz ..", warn=True)
+    except Exception:
         pass
     ctx.run("cp docs_rst/conf-normal.py docs_rst/conf.py")
-    ctx.run("mv pymatgen.tgz ..")
     make_doc(ctx)
     ctx.run("git add .")
     ctx.run("git commit -a -m \"Update docs\"")
@@ -246,9 +246,9 @@ def post_discourse(ctx):
     )
     print(response.text)
 
+
 @task
 def update_changelog(ctx):
-
     output = subprocess.check_output(["git", "log", "--pretty=format:%s",
                                       "v%s..HEAD" % CURRENT_VER])
     lines = ["* " + l for l in output.decode("utf-8").strip().split("\n")]

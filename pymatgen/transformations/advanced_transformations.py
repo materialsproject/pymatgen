@@ -494,13 +494,13 @@ class MagOrderParameterConstraint(MSONable):
         dependent on how many sites satisfy that motif.
 
         :param order_parameter (float): any number from 0.0 to 1.0,
-        typically 0.5 (antiferromagnetic) or 1.0 (ferromagnetic)
+            typically 0.5 (antiferromagnetic) or 1.0 (ferromagnetic)
         :param species_constraint (list): str or list of strings
-        of Specie symbols that the constraint should apply to
+            of Specie symbols that the constraint should apply to
         :param site_constraint_name (str): name of the site property
-        that the constraint should apply to, e.g. "coordination_no"
+            that the constraint should apply to, e.g. "coordination_no"
         :param site_constraints (list): list of values of the site
-        property that the constraints should apply to
+            property that the constraints should apply to
         """
 
         # validation
@@ -559,19 +559,19 @@ class MagOrderingTransformation(AbstractTransformation):
         approximation first.
 
         :param mag_species_spin: A mapping of elements/species to their
-        spin magnitudes, e.g. {"Fe3+": 5, "Mn3+": 4}
+            spin magnitudes, e.g. {"Fe3+": 5, "Mn3+": 4}
         :param order_parameter (float or list): if float, a specifies a
-        global order parameter and can take values from 0.0 to 1.0
-        (e.g. 0.5 for antiferromagnetic or 1.0 for ferromagnetic), if
-        list has to be a list of
-        :class: `pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint`
-        to specify more complicated orderings, see documentation for
-        MagOrderParameterConstraint more details on usage
+            global order parameter and can take values from 0.0 to 1.0
+            (e.g. 0.5 for antiferromagnetic or 1.0 for ferromagnetic), if
+            list has to be a list of
+            :class: `pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint`
+            to specify more complicated orderings, see documentation for
+            MagOrderParameterConstraint more details on usage
         :param energy_model: Energy model to rank the returned structures,
-        see :mod: `pymatgen.analysis.energy_models` for more information (note
-        that this is not necessarily a physical energy). By default, returned
-        structures use SymmetryModel() which ranks structures from most
-        symmetric to least.
+            see :mod: `pymatgen.analysis.energy_models` for more information (note
+            that this is not necessarily a physical energy). By default, returned
+            structures use SymmetryModel() which ranks structures from most
+            symmetric to least.
         :param kwargs: Additional kwargs that are passed to
         :class:`EnumerateStructureTransformation` such as min_cell_size etc.
         """
@@ -580,8 +580,7 @@ class MagOrderingTransformation(AbstractTransformation):
         if isinstance(order_parameter, float):
             # convert to constraint format
             order_parameter = [MagOrderParameterConstraint(order_parameter=order_parameter,
-                                                           species_constraints=
-                                                           list(mag_species_spin.keys()))]
+                                                           species_constraints=list(mag_species_spin.keys()))]
         elif isinstance(order_parameter, list):
             ops = [isinstance(item, MagOrderParameterConstraint) for item in order_parameter]
             if not any(ops):
@@ -641,15 +640,15 @@ class MagOrderingTransformation(AbstractTransformation):
         :param structure: ordered Structure
         :param order_parameters: list of MagOrderParameterConstraints
         :return: A structure decorated with disordered
-        DummySpecies on which to perform the enumeration.
-        Note that the DummySpecies are super-imposed on
-        to the original sites, to make it easier to
-        retrieve the original site after enumeration is
-        performed (this approach is preferred over a simple
-        mapping since multiple species may have the same
-        DummySpecie, depending on the constraints specified).
-        This approach can also preserve site properties even after
-        enumeration.
+            DummySpecies on which to perform the enumeration.
+            Note that the DummySpecies are super-imposed on
+            to the original sites, to make it easier to
+            retrieve the original site after enumeration is
+            performed (this approach is preferred over a simple
+            mapping since multiple species may have the same
+            DummySpecie, depending on the constraints specified).
+            This approach can also preserve site properties even after
+            enumeration.
         """
 
         dummy_struct = structure.copy()
@@ -669,9 +668,9 @@ class MagOrderingTransformation(AbstractTransformation):
         # one dummy species for each order parameter constraint
         dummy_species_symbols = [next(dummy_species_gen) for i in range(len(order_parameters))]
         dummy_species = [{
-                             DummySpecie(symbol, properties={'spin': Spin.up}): constraint.order_parameter,
-                             DummySpecie(symbol, properties={'spin': Spin.down}): 1 - constraint.order_parameter
-                         } for symbol, constraint in zip(dummy_species_symbols, order_parameters)]
+            DummySpecie(symbol, properties={'spin': Spin.up}): constraint.order_parameter,
+            DummySpecie(symbol, properties={'spin': Spin.down}): 1 - constraint.order_parameter
+        } for symbol, constraint in zip(dummy_species_symbols, order_parameters)]
 
         sites_to_add = []
 
@@ -825,7 +824,10 @@ class MagOrderingTransformation(AbstractTransformation):
 
         # remove duplicate structures and group according to energy model
         m = StructureMatcher(comparator=SpinComparator())
-        key = lambda x: SpacegroupAnalyzer(x, 0.1).get_space_group_number()
+
+        def key(x):
+            return SpacegroupAnalyzer(x, 0.1).get_space_group_number()
+
         out = []
         for _, g in groupby(sorted([d["structure"] for d in alls],
                                    key=key), key):
@@ -880,7 +882,7 @@ def _find_codopant(target, oxidation_state, allowed_elements=None):
                 r = sp.ionic_radius
                 if r is not None:
                     candidates.append((r, sp))
-        except:
+        except Exception:
             pass
     return min(candidates, key=lambda l: abs(l[0] / ref_radius - 1))[1]
 
@@ -953,17 +955,15 @@ class DopingTransformation(AbstractTransformation):
         radius = self.dopant.ionic_radius
 
         compatible_species = [
-            sp for sp in comp if sp.oxi_state == ox and
-            abs(sp.ionic_radius / radius - 1) < self.ionic_radius_tol]
+            sp for sp in comp if sp.oxi_state == ox and abs(sp.ionic_radius / radius - 1) < self.ionic_radius_tol]
 
         if (not compatible_species) and self.alio_tol:
             # We only consider aliovalent doping if there are no compatible
             # isovalent species.
-            compatible_species = [
-                sp for sp in comp
-                if abs(sp.oxi_state - ox) <= self.alio_tol and
-                abs(sp.ionic_radius / radius - 1) < self.ionic_radius_tol and
-                sp.oxi_state * ox >= 0]
+            compatible_species = [sp for sp in comp
+                                  if abs(sp.oxi_state - ox) <= self.alio_tol and
+                                  abs(sp.ionic_radius / radius - 1) < self.ionic_radius_tol and
+                                  sp.oxi_state * ox >= 0]
 
         if self.allowed_doping_species is not None:
             # Only keep allowed doping species.
@@ -1263,6 +1263,7 @@ class DisorderOrderedTransformation(AbstractTransformation):
 
         return disorder_mapping
 
+
 class GrainBoundaryTransformation(AbstractTransformation):
     """
     A transformation that creates a gb from a bulk structure.
@@ -1355,7 +1356,7 @@ class GrainBoundaryTransformation(AbstractTransformation):
             self.rm_ratio,
             self.quick_gen)
         return gb_struct
-      
+
     @property
     def inverse(self):
         return None
@@ -1363,6 +1364,7 @@ class GrainBoundaryTransformation(AbstractTransformation):
     @property
     def is_one_to_many(self):
         return False
+
 
 class CubicSupercellTransformation(AbstractTransformation):
     """
@@ -1412,8 +1414,8 @@ class CubicSupercellTransformation(AbstractTransformation):
         self.force_diagonal_transformation = force_diagonal_transformation
 
         # Variables to be solved for by 'apply_transformation()'
-        self.smallest_dim = None # norm of smallest direction of the resulting supercell
-        self.trans_mat = None # transformation matrix
+        self.smallest_dim = None  # norm of smallest direction of the resulting supercell
+        self.trans_mat = None  # transformation matrix
         self.nn_dist = None
 
     def _round_away_from_zero(self, x):
@@ -1463,7 +1465,7 @@ class CubicSupercellTransformation(AbstractTransformation):
             # indices of zero rows
             zero_row_idxs = np.where(~arr_rounded.any(axis=1))[0]
 
-            for zero_row_idx in zero_row_idxs: # loop over zero rows
+            for zero_row_idx in zero_row_idxs:  # loop over zero rows
                 zero_row = arr[zero_row_idx, :]
 
                 # Find the element of the zero row with the largest absolute
@@ -1474,7 +1476,8 @@ class CubicSupercellTransformation(AbstractTransformation):
                 col_idx_to_fix = col_idx_to_fix[np.random.randint(len(col_idx_to_fix))]
 
                 # Round the chosen element away from zero
-                arr_rounded[zero_row_idx, col_idx_to_fix] = self._round_away_from_zero(arr[zero_row_idx, col_idx_to_fix])
+                arr_rounded[zero_row_idx, col_idx_to_fix] = self._round_away_from_zero(
+                    arr[zero_row_idx, col_idx_to_fix])
 
         # Repeat process for zero columns
         if (~arr_rounded.any(axis=0)).any():  # Check for zero columns in T_rounded
@@ -1544,19 +1547,19 @@ class CubicSupercellTransformation(AbstractTransformation):
                 b = proposed_sc_lat_vecs[1]
                 c = proposed_sc_lat_vecs[2]
 
-                length1_vec = c - _proj(c, a) #a-c plane
+                length1_vec = c - _proj(c, a)  # a-c plane
                 length2_vec = a - _proj(a, c)
-                length3_vec = b - _proj(b, a) #b-a plane
+                length3_vec = b - _proj(b, a)  # b-a plane
                 length4_vec = a - _proj(a, b)
-                length5_vec = b - _proj(b, c) #b-c plane
+                length5_vec = b - _proj(b, c)  # b-c plane
                 length6_vec = c - _proj(c, b)
                 length_vecs = np.array([length1_vec, length2_vec, length3_vec,
                                         length4_vec, length5_vec, length6_vec])
 
                 lengths = np.linalg.norm(length_vecs, axis=1)
-                self.smallest_dim = np.amin(lengths) #shortest length
+                self.smallest_dim = np.amin(lengths)  # shortest length
                 smallest_dim_idx = np.argmin(lengths)
-                smallest_dim_vec = length_vecs[smallest_dim_idx] # shortest direction
+                smallest_dim_vec = length_vecs[smallest_dim_idx]  # shortest direction
 
                 # Get number of atoms
                 superstructure = SupercellTransformation(self.trans_mat).apply_transformation(structure)
@@ -1569,23 +1572,23 @@ class CubicSupercellTransformation(AbstractTransformation):
                 else:
                     # Increase threshold until proposed supercell meets requirements
                     if self.force_diagonal_transformation:
-                        #Find which supercell lattice vector contributes most to
+                        # Find which supercell lattice vector contributes most to
                         # the shortest dimension
                         sc_latvec1_proj_mag = np.linalg.norm(
-                                                _proj(proposed_sc_lat_vecs[0],
-                                                      smallest_dim_vec))
+                            _proj(proposed_sc_lat_vecs[0],
+                                  smallest_dim_vec))
                         sc_latvec2_proj_mag = np.linalg.norm(
-                                                _proj(proposed_sc_lat_vecs[1],
-                                                      smallest_dim_vec))
+                            _proj(proposed_sc_lat_vecs[1],
+                                  smallest_dim_vec))
                         sc_latvec3_proj_mag = np.linalg.norm(
-                                                _proj(proposed_sc_lat_vecs[2],
-                                                      smallest_dim_vec))
+                            _proj(proposed_sc_lat_vecs[2],
+                                  smallest_dim_vec))
                         sc_latvec_proj_mags = [sc_latvec1_proj_mag,
                                                sc_latvec2_proj_mag,
                                                sc_latvec3_proj_mag]
                         sc_proj_max_idx = sc_latvec_proj_mags.index(max(sc_latvec_proj_mags))
 
-                        #Increase the corresponding supercell lattice vector size
+                        # Increase the corresponding supercell lattice vector size
                         trans_mat_diagonal_update = np.array([0, 0, 0])
                         np.put(trans_mat_diagonal_update, sc_proj_max_idx, 1)
                     else:
@@ -1802,3 +1805,4 @@ class SQSTransformation(AbstractTransformation):
     @property
     def is_one_to_many(self):
         return False
+

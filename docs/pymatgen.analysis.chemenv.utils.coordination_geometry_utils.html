@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.chemenv.utils.coordination_geometry_utils module &#8212; pymatgen 2019.7.30 documentation</title>
+    <title>pymatgen.analysis.chemenv.utils.coordination_geometry_utils module &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -129,12 +129,14 @@ a fraction (using the delta_factor parameter) of the maximal point distance.
 :param delta: Distance interval for which two points are considered in the same group.
 :param delta_factor: If delta is None, the distance interval is taken as delta_factor times the maximal</p>
 <blockquote>
-<div><p>point distance.
-:param sign: Whether to add sign information in the indices sorting the points distances</p>
+<div><p>point distance.</p>
 </div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Distances from the plane to the points (positive values on the side of the normal to the plane,
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>sign</strong> – Whether to add sign information in the indices sorting the points distances</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Distances from the plane to the points (positive values on the side of the normal to the plane,
 negative values on the other side), as well as indices of the points from closest to furthest and
 grouped indices of distances separated by less than delta. For the sorting list and the grouped
 indices, when the sign parameter is True, items are given as tuples of (index, sign).</p>
@@ -152,9 +154,8 @@ to furthest is also computed.
 :param sign: Whether to add sign information in the indices sorting the points distances
 :return: Distances from the plane to the points (positive values on the side of the normal to the plane,</p>
 <blockquote>
-<div><p>negative values on the other side), as well as indices of the points from closest to furthest. For
-the latter, when the sign parameter is True, items of the sorting list are given as tuples of
-(index, sign).</p>
+<div><p>negative values on the other side), as well as indices of the points from closest to furthest. For the
+latter, when the sign parameter is True, items of the sorting list are given as tuples of (index, sign).</p>
 </div></blockquote>
 </dd></dl>
 
@@ -210,10 +211,16 @@ the latter, when the sign parameter is True, items of the sorting list are given
 and on the other side of the plane. The dist_tolerance parameter controls the tolerance to which a point
 is considered to lie on the plane or not (distance to the plane)
 :param points: list of points
-:param dist_tolerance: tolerance to which a point is considered to lie on the plane
-or not (distance to the plane)
-:return: The lists of indices of the points on one side of the plane, on the plane and
+:param dist_tolerance: tolerance to which a point is considered to lie on the plane</p>
+<blockquote>
+<div><p>or not (distance to the plane)</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The lists of indices of the points on one side of the plane, on the plane and
 on the other side of the plane</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -617,7 +624,7 @@ defined by two functions f_lower and f_upper.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
       </ul>
     </div>
 

@@ -1337,7 +1337,7 @@ $${qverbatim}
                 # output should of the form '2561553.sdb' or '352353.jessup' - just grab the first part for job id
                 queue_id = int(out.split()[3])
                 logger.info('Job submission was successful and queue_id is {}'.format(queue_id))
-            except:
+            except Exception:
                 # probably error parsing job code
                 logger.critical('Could not parse job id following slurm...')
         return SubmitResults(qid=queue_id, out=out, err=err, process=process)
@@ -1698,7 +1698,7 @@ $${qverbatim}
             try:
                 # output should of the form '2561553.sdb' or '352353.jessup' - just grab the first part for job id
                 queue_id = int(out.split('.')[0])
-            except:
+            except Exception:
                 # probably error parsing job code
                 logger.critical("Could not parse job id following qsub...")
         return SubmitResults(qid=queue_id, out=out, err=err, process=process)
@@ -1853,7 +1853,7 @@ $${qverbatim}
                 # output should of the form
                 # Your job 1659048 ("NAME_OF_JOB") has been submitted
                 queue_id = int(out.split(' ')[2])
-            except:
+            except Exception:
                 # probably error parsing job code
                 logger.critical("Could not parse job id following qsub...")
         return SubmitResults(qid=queue_id, out=out, err=err, process=process)
@@ -1947,7 +1947,7 @@ $${qverbatim}
             try:
                 # output should be the queue_id
                 queue_id = int(out.split()[0])
-            except:
+            except Exception:
                 # probably error parsing job code
                 logger.critical('Could not parse job id following msub...')
 
@@ -2067,7 +2067,7 @@ $${qverbatim}
                 token = out.split()[3]
                 s = token.split(".")[-1].replace('"', "")
                 queue_id = int(s)
-            except:
+            except Exception:
                 # probably error parsing job code
                 logger.critical("Could not parse job id following llsubmit...")
                 raise

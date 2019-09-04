@@ -259,10 +259,8 @@ class EnumlibAdaptor:
         output.append("full")
 
         ndisordered = sum([len(s) for s in disordered_sites])
-        base = int(ndisordered*lcm(*[f.limit_denominator(ndisordered *
-                                          self.max_cell_size).denominator
-                                       for f in map(fractions.Fraction,
-                                                    index_amounts)]))
+        base = int(ndisordered*lcm(*[f.limit_denominator(ndisordered * self.max_cell_size).denominator
+                                     for f in map(fractions.Fraction, index_amounts)]))
 
         # This multiplicative factor of 10 is to prevent having too small bases
         # which can lead to rounding issues in the next step.

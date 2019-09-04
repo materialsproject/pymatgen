@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies module &#8212; pymatgen 2019.7.30 documentation</title>
+    <title>pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies module &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -55,8 +55,10 @@ fraction. The choice of the strategy depends on the purpose of the user.</p>
 <p>Class used to define a Chemenv strategy for the neighbors and coordination environment to be applied to a
 StructureEnvironments object</p>
 <p>Abstract constructor for the all chemenv strategies.
-:param structure_environments: StructureEnvironments object containing all the information on the
-coordination of the sites in a structure</p>
+:param structure_environments: StructureEnvironments object containing all the information on the</p>
+<blockquote>
+<div><p>coordination of the sites in a structure</p>
+</div></blockquote>
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.AC">
 <code class="sig-name descname">AC</code><em class="property"> = &lt;pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions object&gt;</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.AC" title="Permalink to this definition">¶</a></dt>
@@ -119,8 +121,10 @@ can return a list of list of neighbors</p>
 <dd><p>Applies the strategy to the structure_environments object in order to define the coordination environment of
 a given site.
 :param site: Site for which the coordination environment is looked for
-:return: The coordination environment of the site. For complex strategies, where one allows multiple
-solutions, this can return a list of coordination environments for the site</p>
+:return: The coordination environment of the site. For complex strategies, where one allows multiple</p>
+<blockquote>
+<div><p>solutions, this can return a list of coordination environments for the site</p>
+</div></blockquote>
 </dd></dl>
 
 <dl class="method">
@@ -129,8 +133,10 @@ solutions, this can return a list of coordination environments for the site</p>
 <dd><p>Applies the strategy to the structure_environments object in order to define the coordination environment of
 a given site.
 :param site: Site for which the coordination environment is looked for
-:return: The coordination environment of the site. For complex strategies, where one allows multiple
-solutions, this can return a list of coordination environments for the site</p>
+:return: The coordination environment of the site. For complex strategies, where one allows multiple</p>
+<blockquote>
+<div><p>solutions, this can return a list of coordination environments for the site</p>
+</div></blockquote>
 </dd></dl>
 
 <dl class="method">
@@ -139,8 +145,10 @@ solutions, this can return a list of coordination environments for the site</p>
 <dd><p>Applies the strategy to the structure_environments object in order to define the coordination environment of
 a given site.
 :param site: Site for which the coordination environment is looked for
-:return: The coordination environment of the site. For complex strategies, where one allows multiple
-solutions, this can return a list of coordination environments for the site</p>
+:return: The coordination environment of the site. For complex strategies, where one allows multiple</p>
+<blockquote>
+<div><p>solutions, this can return a list of coordination environments for the site</p>
+</div></blockquote>
 </dd></dl>
 
 <dl class="method">
@@ -148,10 +156,16 @@ solutions, this can return a list of coordination environments for the site</p>
 <em class="property">abstract </em><code class="sig-name descname">get_site_neighbors</code><span class="sig-paren">(</span><em class="sig-param">site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#AbstractChemenvStrategy.get_site_neighbors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.get_site_neighbors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies the strategy to the structure_environments object in order to get the neighbors of a given site.
 :param site: Site for which the neighbors are looked for
-:param structure_environments: StructureEnvironments object containing all the information needed to get the
-neighbors of the site
-:return: The list of neighbors of the site. For complex strategies, where one allows multiple solutions, this
+:param structure_environments: StructureEnvironments object containing all the information needed to get the</p>
+<blockquote>
+<div><p>neighbors of the site</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The list of neighbors of the site. For complex strategies, where one allows multiple solutions, this
 can return a list of list of neighbors</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -587,8 +601,10 @@ can return a list of list of neighbors</p>
 <em class="property">class </em><code class="sig-name descname">MultiWeightsChemenvStrategy</code><span class="sig-paren">(</span><em class="sig-param">structure_environments=None</em>, <em class="sig-param">additional_condition=1</em>, <em class="sig-param">symmetry_measure_type='csm_wcs_ctwcc'</em>, <em class="sig-param">dist_ang_area_weight=None</em>, <em class="sig-param">self_csm_weight=None</em>, <em class="sig-param">delta_csm_weight=None</em>, <em class="sig-param">cn_bias_weight=None</em>, <em class="sig-param">angle_weight=None</em>, <em class="sig-param">normalized_angle_distance_weight=None</em>, <em class="sig-param">ce_estimator={'function': 'power2_inverse_power2_decreasing'</em>, <em class="sig-param">'options': {'max_csm': 8.0}}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#MultiWeightsChemenvStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiWeightsChemenvStrategy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.WeightedNbSetChemenvStrategy" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.WeightedNbSetChemenvStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.WeightedNbSetChemenvStrategy</span></code></a></p>
 <p>Constructor for the MultiWeightsChemenvStrategy.
-:param structure_environments: StructureEnvironments object containing all the information on the
-coordination of the sites in a structure</p>
+:param structure_environments: StructureEnvironments object containing all the information on the</p>
+<blockquote>
+<div><p>coordination of the sites in a structure</p>
+</div></blockquote>
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiWeightsChemenvStrategy.DEFAULT_CE_ESTIMATOR">
 <code class="sig-name descname">DEFAULT_CE_ESTIMATOR</code><em class="property"> = {'function': 'power2_inverse_power2_decreasing', 'options': {'max_csm': 8.0}}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiWeightsChemenvStrategy.DEFAULT_CE_ESTIMATOR" title="Permalink to this definition">¶</a></dt>
@@ -778,8 +794,10 @@ MultipleAbundanceChemenvStrategy object created using the as_dict method.
 parameters for the definition of neighbors in the Voronoi approach.
 The coordination environment is then given as the one with the lowest continuous symmetry measure</p>
 <p>Constructor for the SimpleAbundanceChemenvStrategy.
-:param structure_environments: StructureEnvironments object containing all the information on the
-coordination of the sites in a structure</p>
+:param structure_environments: StructureEnvironments object containing all the information on the</p>
+<blockquote>
+<div><p>coordination of the sites in a structure</p>
+</div></blockquote>
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy.DEFAULT_ADDITIONAL_CONDITION">
 <code class="sig-name descname">DEFAULT_ADDITIONAL_CONDITION</code><em class="property"> = 1</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy.DEFAULT_ADDITIONAL_CONDITION" title="Permalink to this definition">¶</a></dt>
@@ -822,8 +840,10 @@ SimpleAbundanceChemenvStrategy object created using the as_dict method.
 <dd><p>Applies the strategy to the structure_environments object in order to define the coordination environment of
 a given site.
 :param site: Site for which the coordination environment is looked for
-:return: The coordination environment of the site. For complex strategies, where one allows multiple
-solutions, this can return a list of coordination environments for the site</p>
+:return: The coordination environment of the site. For complex strategies, where one allows multiple</p>
+<blockquote>
+<div><p>solutions, this can return a list of coordination environments for the site</p>
+</div></blockquote>
 </dd></dl>
 
 <dl class="method">
@@ -832,8 +852,10 @@ solutions, this can return a list of coordination environments for the site</p>
 <dd><p>Applies the strategy to the structure_environments object in order to define the coordination environment of
 a given site.
 :param site: Site for which the coordination environment is looked for
-:return: The coordination environment of the site. For complex strategies, where one allows multiple
-solutions, this can return a list of coordination environments for the site</p>
+:return: The coordination environment of the site. For complex strategies, where one allows multiple</p>
+<blockquote>
+<div><p>solutions, this can return a list of coordination environments for the site</p>
+</div></blockquote>
 </dd></dl>
 
 <dl class="method">
@@ -841,10 +863,16 @@ solutions, this can return a list of coordination environments for the site</p>
 <code class="sig-name descname">get_site_neighbors</code><span class="sig-paren">(</span><em class="sig-param">site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#SimpleAbundanceChemenvStrategy.get_site_neighbors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy.get_site_neighbors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies the strategy to the structure_environments object in order to get the neighbors of a given site.
 :param site: Site for which the neighbors are looked for
-:param structure_environments: StructureEnvironments object containing all the information needed to get the
-neighbors of the site
-:return: The list of neighbors of the site. For complex strategies, where one allows multiple solutions, this
+:param structure_environments: StructureEnvironments object containing all the information needed to get the</p>
+<blockquote>
+<div><p>neighbors of the site</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The list of neighbors of the site. For complex strategies, where one allows multiple solutions, this
 can return a list of list of neighbors</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -942,8 +970,10 @@ created using the as_dict method.
 <dd><p>Applies the strategy to the structure_environments object in order to define the coordination environment of
 a given site.
 :param site: Site for which the coordination environment is looked for
-:return: The coordination environment of the site. For complex strategies, where one allows multiple
-solutions, this can return a list of coordination environments for the site</p>
+:return: The coordination environment of the site. For complex strategies, where one allows multiple</p>
+<blockquote>
+<div><p>solutions, this can return a list of coordination environments for the site</p>
+</div></blockquote>
 </dd></dl>
 
 <dl class="method">
@@ -952,8 +982,10 @@ solutions, this can return a list of coordination environments for the site</p>
 <dd><p>Applies the strategy to the structure_environments object in order to define the coordination environment of
 a given site.
 :param site: Site for which the coordination environment is looked for
-:return: The coordination environment of the site. For complex strategies, where one allows multiple
-solutions, this can return a list of coordination environments for the site</p>
+:return: The coordination environment of the site. For complex strategies, where one allows multiple</p>
+<blockquote>
+<div><p>solutions, this can return a list of coordination environments for the site</p>
+</div></blockquote>
 </dd></dl>
 
 <dl class="method">
@@ -962,8 +994,10 @@ solutions, this can return a list of coordination environments for the site</p>
 <dd><p>Applies the strategy to the structure_environments object in order to define the coordination environment of
 a given site.
 :param site: Site for which the coordination environment is looked for
-:return: The coordination environment of the site. For complex strategies, where one allows multiple
-solutions, this can return a list of coordination environments for the site</p>
+:return: The coordination environment of the site. For complex strategies, where one allows multiple</p>
+<blockquote>
+<div><p>solutions, this can return a list of coordination environments for the site</p>
+</div></blockquote>
 </dd></dl>
 
 <dl class="method">
@@ -971,10 +1005,16 @@ solutions, this can return a list of coordination environments for the site</p>
 <code class="sig-name descname">get_site_neighbors</code><span class="sig-paren">(</span><em class="sig-param">site</em>, <em class="sig-param">isite=None</em>, <em class="sig-param">dequivsite=None</em>, <em class="sig-param">dthissite=None</em>, <em class="sig-param">mysym=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#SimplestChemenvStrategy.get_site_neighbors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.get_site_neighbors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies the strategy to the structure_environments object in order to get the neighbors of a given site.
 :param site: Site for which the neighbors are looked for
-:param structure_environments: StructureEnvironments object containing all the information needed to get the
-neighbors of the site
-:return: The list of neighbors of the site. For complex strategies, where one allows multiple solutions, this
+:param structure_environments: StructureEnvironments object containing all the information needed to get the</p>
+<blockquote>
+<div><p>neighbors of the site</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The list of neighbors of the site. For complex strategies, where one allows multiple solutions, this
 can return a list of list of neighbors</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -1038,8 +1078,10 @@ TargettedPenaltiedAbundanceChemenvStrategy object created using the as_dict meth
 <dd><p>Applies the strategy to the structure_environments object in order to define the coordination environment of
 a given site.
 :param site: Site for which the coordination environment is looked for
-:return: The coordination environment of the site. For complex strategies, where one allows multiple
-solutions, this can return a list of coordination environments for the site</p>
+:return: The coordination environment of the site. For complex strategies, where one allows multiple</p>
+<blockquote>
+<div><p>solutions, this can return a list of coordination environments for the site</p>
+</div></blockquote>
 </dd></dl>
 
 <dl class="method">
@@ -1056,8 +1098,10 @@ solutions, this can return a list of coordination environments for the site</p>
 <em class="property">class </em><code class="sig-name descname">WeightedNbSetChemenvStrategy</code><span class="sig-paren">(</span><em class="sig-param">structure_environments=None</em>, <em class="sig-param">additional_condition=1</em>, <em class="sig-param">symmetry_measure_type='csm_wcs_ctwcc'</em>, <em class="sig-param">nb_set_weights=None</em>, <em class="sig-param">ce_estimator={'function': 'power2_inverse_power2_decreasing'</em>, <em class="sig-param">'options': {'max_csm': 8.0}}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#WeightedNbSetChemenvStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.WeightedNbSetChemenvStrategy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy</span></code></a></p>
 <p>Constructor for the WeightedNbSetChemenvStrategy.
-:param structure_environments: StructureEnvironments object containing all the information on the
-coordination of the sites in a structure</p>
+:param structure_environments: StructureEnvironments object containing all the information on the</p>
+<blockquote>
+<div><p>coordination of the sites in a structure</p>
+</div></blockquote>
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.WeightedNbSetChemenvStrategy.DEFAULT_CE_ESTIMATOR">
 <code class="sig-name descname">DEFAULT_CE_ESTIMATOR</code><em class="property"> = {'function': 'power2_inverse_power2_decreasing', 'options': {'max_csm': 8.0}}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.WeightedNbSetChemenvStrategy.DEFAULT_CE_ESTIMATOR" title="Permalink to this definition">¶</a></dt>
@@ -1090,8 +1134,10 @@ WeightedNbSetChemenvStrategy object created using the as_dict method.
 <dd><p>Applies the strategy to the structure_environments object in order to define the coordination environment of
 a given site.
 :param site: Site for which the coordination environment is looked for
-:return: The coordination environment of the site. For complex strategies, where one allows multiple
-solutions, this can return a list of coordination environments for the site</p>
+:return: The coordination environment of the site. For complex strategies, where one allows multiple</p>
+<blockquote>
+<div><p>solutions, this can return a list of coordination environments for the site</p>
+</div></blockquote>
 </dd></dl>
 
 <dl class="method">
@@ -1100,8 +1146,10 @@ solutions, this can return a list of coordination environments for the site</p>
 <dd><p>Applies the strategy to the structure_environments object in order to define the coordination environment of
 a given site.
 :param site: Site for which the coordination environment is looked for
-:return: The coordination environment of the site. For complex strategies, where one allows multiple
-solutions, this can return a list of coordination environments for the site</p>
+:return: The coordination environment of the site. For complex strategies, where one allows multiple</p>
+<blockquote>
+<div><p>solutions, this can return a list of coordination environments for the site</p>
+</div></blockquote>
 </dd></dl>
 
 <dl class="method">
@@ -1110,8 +1158,10 @@ solutions, this can return a list of coordination environments for the site</p>
 <dd><p>Applies the strategy to the structure_environments object in order to define the coordination environment of
 a given site.
 :param site: Site for which the coordination environment is looked for
-:return: The coordination environment of the site. For complex strategies, where one allows multiple
-solutions, this can return a list of coordination environments for the site</p>
+:return: The coordination environment of the site. For complex strategies, where one allows multiple</p>
+<blockquote>
+<div><p>solutions, this can return a list of coordination environments for the site</p>
+</div></blockquote>
 </dd></dl>
 
 <dl class="method">
@@ -1119,10 +1169,16 @@ solutions, this can return a list of coordination environments for the site</p>
 <code class="sig-name descname">get_site_neighbors</code><span class="sig-paren">(</span><em class="sig-param">site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#WeightedNbSetChemenvStrategy.get_site_neighbors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.WeightedNbSetChemenvStrategy.get_site_neighbors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies the strategy to the structure_environments object in order to get the neighbors of a given site.
 :param site: Site for which the neighbors are looked for
-:param structure_environments: StructureEnvironments object containing all the information needed to get the
-neighbors of the site
-:return: The list of neighbors of the site. For complex strategies, where one allows multiple solutions, this
+:param structure_environments: StructureEnvironments object containing all the information needed to get the</p>
+<blockquote>
+<div><p>neighbors of the site</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The list of neighbors of the site. For complex strategies, where one allows multiple solutions, this
 can return a list of list of neighbors</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -1182,7 +1238,7 @@ can return a list of list of neighbors</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
       </ul>
     </div>
 

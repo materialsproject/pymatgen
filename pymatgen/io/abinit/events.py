@@ -433,7 +433,7 @@ class EventsParser:
                         event = yaml.load(doc.text)   # Can't use ruamel safe_load!
                         #yaml.load(doc.text, Loader=ruamel.yaml.Loader)
                         #print(event.yaml_tag, type(event))
-                    except:
+                    except Exception:
                         #raise
                         # Wrong YAML doc. Check tha doc tag and instantiate the proper event.
                         message = "Malformatted YAML document at line: %d\n" % doc.lineno

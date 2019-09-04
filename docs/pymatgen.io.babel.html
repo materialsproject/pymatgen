@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.babel module &#8212; pymatgen 2019.7.30 documentation</title>
+    <title>pymatgen.io.babel module &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -149,13 +149,11 @@ formats.</p>
 <dt id="pymatgen.io.babel.BabelMolAdaptor.gen3d_conformer">
 <code class="sig-name descname">gen3d_conformer</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/babel.html#BabelMolAdaptor.gen3d_conformer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.gen3d_conformer" title="Permalink to this definition">¶</a></dt>
 <dd><p>A combined method to first generate 3D structures from 0D or 2D
-structures and then find the minimum energy conformer:
-1. Use OBBuilder to create a 3D structure using rules and ring templates
-2. Do 250 steps of a steepest descent geometry optimization with the</p>
-<blockquote>
-<div><p>MMFF94 forcefield</p>
-</div></blockquote>
-<ol class="arabic simple" start="3">
+structures and then find the minimum energy conformer:</p>
+<ol class="arabic simple">
+<li><p>Use OBBuilder to create a 3D structure using rules and ring templates</p></li>
+<li><p>Do 250 steps of a steepest descent geometry optimization with the
+MMFF94 forcefield</p></li>
 <li><p>Do 200 iterations of a Weighted Rotor conformational search
 (optimizing each conformer with 25 steps of a steepest descent)</p></li>
 <li><p>Do 250 steps of a conjugate gradient geometry optimization.</p></li>
@@ -321,7 +319,7 @@ sampleRingBonds-default False)</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
       </ul>
     </div>
 

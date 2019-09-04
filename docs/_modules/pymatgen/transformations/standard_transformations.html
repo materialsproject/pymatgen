@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.transformations.standard_transformations &#8212; pymatgen 2019.7.30 documentation</title>
+    <title>pymatgen.transformations.standard_transformations &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -75,14 +75,12 @@
 <span class="sd">All transformations should inherit the AbstractTransformation ABC.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong, Will Richards&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2011, The Materials Project&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.2&quot;</span>
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyuep@gmail.com&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Sep 23, 2011&quot;</span>
-
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -202,6 +200,7 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This transformation removes oxidation states from a structure.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span>
 
@@ -258,7 +257,7 @@
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;Supercell Transformation with scaling matrix &quot;</span> <span class="o">+</span> \
-            <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scaling_matrix</span><span class="p">)</span>
+               <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scaling_matrix</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
@@ -284,6 +283,7 @@
 <span class="sd">            which substitutes a single species with multiple species to</span>
 <span class="sd">            generate a disordered structure.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species_map</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species_map</span> <span class="o">=</span> <span class="n">species_map</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_species_map</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">species_map</span><span class="p">)</span>
@@ -305,8 +305,8 @@
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;Substitution Transformation :&quot;</span> <span class="o">+</span> \
-            <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;-&gt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-                       <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_species_map</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+               <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;-&gt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                          <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_species_map</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
@@ -328,6 +328,7 @@
 <span class="sd">    Args:</span>
 <span class="sd">        species_to_remove: List of species to remove. E.g., [&quot;Li&quot;, &quot;Mn&quot;]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species_to_remove</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species_to_remove</span> <span class="o">=</span> <span class="n">species_to_remove</span>
 
@@ -339,7 +340,7 @@
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;Remove Species Transformation :&quot;</span> <span class="o">+</span> \
-            <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_to_remove</span><span class="p">)</span>
+               <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_to_remove</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
@@ -482,7 +483,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_all_structures</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">no_oxi_states</span> <span class="o">=</span> <span class="n">no_oxi_states</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">symmetrized_structures</span> <span class="o">=</span> <span class="n">symmetrized_structures</span>
-        
+
 <div class="viewcode-block" id="OrderDisorderedStructureTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">return_ranked_list</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        For this transformation, the apply_transformation method will return</span>
@@ -603,11 +604,11 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_all_structures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="p">{</span><span class="s2">&quot;energy&quot;</span><span class="p">:</span> <span class="n">output</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                  <span class="s2">&quot;energy_above_minimum&quot;</span><span class="p">:</span>
-                 <span class="p">(</span><span class="n">output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">lowest_energy</span><span class="p">)</span> <span class="o">/</span> <span class="n">num_atoms</span><span class="p">,</span>
+                     <span class="p">(</span><span class="n">output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">lowest_energy</span><span class="p">)</span> <span class="o">/</span> <span class="n">num_atoms</span><span class="p">,</span>
                  <span class="s2">&quot;structure&quot;</span><span class="p">:</span> <span class="n">s_copy</span><span class="o">.</span><span class="n">get_sorted_structure</span><span class="p">()})</span>
 
         <span class="k">if</span> <span class="n">return_ranked_list</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_structures</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_structures</span><span class="p">[:</span><span class="n">num_to_return</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_structures</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;structure&quot;</span><span class="p">]</span></div>
 
@@ -643,6 +644,7 @@
 <span class="sd">            tolerance of 0.5. Defaults to 0.5.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tolerance</span> <span class="o">=</span> <span class="n">tolerance</span>
 
@@ -684,6 +686,7 @@
 <span class="sd">        international_monoclinic (bool): whether to use beta (True) or alpha (False)</span>
 <span class="sd">        as the non-right-angle in the unit cell</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
                  <span class="n">international_monoclinic</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">symprec</span> <span class="o">=</span> <span class="n">symprec</span>
@@ -725,22 +728,26 @@
 <span class="sd">    directions. Used for breaking symmetries.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        amplitude (float): Amplitude of perturbation in angstroms. All sites</span>
-<span class="sd">            will be perturbed by exactly that amplitude in a random direction.</span>
+<span class="sd">        distance (float): Distance of perturbation in angstroms. All sites</span>
+<span class="sd">            will be perturbed by exactly that distance in a random direction.</span>
+<span class="sd">        min_distance (None, int, or float): if None, all displacements will be</span>
+<span class="sd">            equidistant. If int or float, perturb each site a</span>
+<span class="sd">            distance drawn from the uniform distribution between</span>
+<span class="sd">            &#39;min_distance&#39; and &#39;distance&#39;.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">amplitude</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">amplitude</span> <span class="o">=</span> <span class="n">amplitude</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">min_distance</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">distance</span> <span class="o">=</span> <span class="n">distance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_distance</span> <span class="o">=</span> <span class="n">min_distance</span>
 
 <div class="viewcode-block" id="PerturbStructureTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PerturbStructureTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
         <span class="n">s</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">perturb</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">amplitude</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">perturb</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distance</span><span class="p">,</span> <span class="n">min_distance</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">min_distance</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">s</span></div>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;PerturbStructureTransformation : &quot;</span> <span class="o">+</span> \
-            <span class="s2">&quot;Amplitude = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">amplitude</span><span class="p">)</span>
+               <span class="s2">&quot;Amplitude = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">amplitude</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
@@ -771,7 +778,7 @@
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;DeformStructureTransformation : &quot;</span> <span class="o">+</span> \
-            <span class="s2">&quot;Deformation = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deformation</span><span class="p">))</span>
+               <span class="s2">&quot;Deformation = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deformation</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
@@ -799,12 +806,12 @@
 <span class="sd">            A float that sets the maximum difference between the original and</span>
 <span class="sd">            discretized occupancies before throwing an error. If None, it is</span>
 <span class="sd">            set to 1 / (4 * max_denominator).</span>
-<span class="sd">        fix_denominator(bool): </span>
-<span class="sd">            If True, will enforce a common denominator for all species. </span>
-<span class="sd">            This prevents a mix of denominators (for example, 1/3, 1/4) </span>
+<span class="sd">        fix_denominator(bool):</span>
+<span class="sd">            If True, will enforce a common denominator for all species.</span>
+<span class="sd">            This prevents a mix of denominators (for example, 1/3, 1/4)</span>
 <span class="sd">            that might require large cell sizes to perform an enumeration.</span>
 <span class="sd">            &#39;tol&#39; needs to be &gt; 1.0 in some cases.</span>
-<span class="sd">            </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_denominator</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fix_denominator</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -833,8 +840,8 @@
                 <span class="n">new_occ</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
                     <span class="n">Fraction</span><span class="p">(</span><span class="n">old_occ</span><span class="p">)</span><span class="o">.</span><span class="n">limit_denominator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_denominator</span><span class="p">))</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fix_denominator</span><span class="p">:</span>
-                    <span class="n">new_occ</span> <span class="o">=</span> <span class="n">around</span><span class="p">(</span><span class="n">old_occ</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">max_denominator</span><span class="p">)</span>\
-                        <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_denominator</span>
+                    <span class="n">new_occ</span> <span class="o">=</span> <span class="n">around</span><span class="p">(</span><span class="n">old_occ</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_denominator</span><span class="p">)</span> \
+                              <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_denominator</span>
                 <span class="k">if</span> <span class="nb">round</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">old_occ</span> <span class="o">-</span> <span class="n">new_occ</span><span class="p">),</span> <span class="mi">6</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
                         <span class="s2">&quot;Cannot discretize structure within tolerance!&quot;</span><span class="p">)</span>
@@ -876,7 +883,7 @@
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;Structure with charge &quot;</span> <span class="o">+</span> \
-            <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">)</span>
+               <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
@@ -923,7 +930,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">params_percent_change</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">relax_params</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">params_percent_change</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">relax_params</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">/</span><span class="n">unrelax_params</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">params_percent_change</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">relax_params</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">unrelax_params</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">unrelaxed_structure</span> <span class="o">=</span> <span class="n">unrelaxed_structure</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">relaxed_structure</span> <span class="o">=</span> <span class="n">relaxed_structure</span>
@@ -939,7 +946,7 @@
 <span class="sd">                regards to crystal and site positions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_map</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">match</span> <span class="o">=</span> <span class="n">StructureMatcher</span><span class="p">()</span>
             <span class="n">s_map</span> <span class="o">=</span> \
                 <span class="n">match</span><span class="o">.</span><span class="n">get_best_electronegativity_anonymous_mapping</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">unrelaxed_structure</span><span class="p">,</span>
@@ -949,7 +956,7 @@
 
         <span class="n">params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">abc</span><span class="p">)</span>
         <span class="n">params</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">angles</span><span class="p">)</span>
-        <span class="n">new_lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">p</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">params_percent_change</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> \
+        <span class="n">new_lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">p</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">params_percent_change</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
                                                 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="p">)])</span>
         <span class="n">species</span><span class="p">,</span> <span class="n">frac_coords</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">relaxed_structure</span><span class="p">:</span>
@@ -1001,7 +1008,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

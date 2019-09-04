@@ -9,7 +9,8 @@ import warnings
 import numpy as np
 import tempfile
 from pymatgen import Structure
-from pymatgen.io.lobster import Cohpcar, Icohplist, Doscar, Charge, Lobsterout, Fatband, Lobsterin, Bandoverlaps
+from pymatgen.io.lobster import Cohpcar, Icohplist, Doscar, Charge, Lobsterout, Fatband, Lobsterin, Bandoverlaps, \
+    Grosspop
 from pymatgen.io.vasp import Vasprun
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.util.testing import PymatgenTest
@@ -326,12 +327,12 @@ class DoscarTest(unittest.TestCase):
     def setUp(self):
         # first for spin polarized version
         doscar = os.path.join(test_dir_doscar, "DOSCAR.lobster.spin")
-        vasprun = os.path.join(test_dir_doscar, "vasprun.xml.lobster.spin")
+        poscar = os.path.join(test_dir_doscar, "POSCAR.lobster.spin_DOS")
+        # not spin polarized
         doscar2 = os.path.join(test_dir_doscar, "DOSCAR.lobster.nonspin")
-        vasprun2 = os.path.join(test_dir_doscar, "vasprun.xml.lobster.nonspin")
-
-        self.DOSCAR_spin_pol = Doscar(doscar=doscar, vasprun=vasprun)
-        self.DOSCAR_nonspin_pol = Doscar(doscar=doscar2, vasprun=vasprun2)
+        poscar2 = os.path.join(test_dir_doscar, "POSCAR.lobster.nonspin_DOS")
+        self.DOSCAR_spin_pol = Doscar(doscar=doscar, structure_file=poscar)
+        self.DOSCAR_nonspin_pol = Doscar(doscar=doscar2, structure_file=poscar2)
 
         with open(os.path.join(test_dir_doscar, 'structure_KF.json'), 'r') as f:
             data = json.load(f)
@@ -1386,6 +1387,30 @@ class BandoverlapsTest(unittest.TestCase):
 
         self.assertTrue(
             self.bandoverlaps2.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=1, limit_deviation=0.1))
+
+
+class GrosspopTest(unittest.TestCase):
+    def setUp(self):
+        self.grosspop1 = Grosspop(os.path.join(test_dir, "GROSSPOP.lobster"))
+
+    def testattributes(self):
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["3s"], 0.52)
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["3p_y"], 0.38)
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["3p_z"], 0.37)
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["3p_x"], 0.37)
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["total"], 1.64)
+        self.assertEqual(self.grosspop1.list_dict_grosspop[0]["element"], 'Si')
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Loewdin GP"]["3s"], 0.61)
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Loewdin GP"]["3p_y"], 0.52)
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Loewdin GP"]["3p_z"], 0.52)
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Loewdin GP"]["3p_x"], 0.52)
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Loewdin GP"]["total"], 2.16)
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[5]["Mulliken GP"]["2s"], 1.80)
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[5]["Loewdin GP"]["2s"], 1.60)
+        self.assertEqual(self.grosspop1.list_dict_grosspop[5]["element"], 'O')
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[8]["Mulliken GP"]["2s"], 1.80)
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[8]["Loewdin GP"]["2s"], 1.60)
+        self.assertEqual(self.grosspop1.list_dict_grosspop[8]["element"], 'O')
 
 
 if __name__ == "__main__":

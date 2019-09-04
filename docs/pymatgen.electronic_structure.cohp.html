@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.electronic_structure.cohp module &#8212; pymatgen 2019.7.30 documentation</title>
+    <title>pymatgen.electronic_structure.cohp module &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -227,7 +227,8 @@ avoid unicode issues between python 2 and python 3.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>label_list</strong> – list of labels for the COHP that should be included in the summed cohp</p></li>
-<li><p><strong>orbital_list</strong> – list of orbitals for the COHPs that should be included in the summed cohp (same order as label_list)</p></li>
+<li><p><strong>orbital_list</strong> – list of orbitals for the COHPs that should be included in the summed cohp (same order as
+label_list)</p></li>
 <li><p><strong>divisor</strong> – float/int, the summed cohp will be divided by this divisor</p></li>
 </ul>
 </dd>
@@ -260,16 +261,23 @@ avoid unicode issues between python 2 and python 3.</p>
 <dt id="pymatgen.electronic_structure.cohp.IcohpCollection">
 <em class="property">class </em><code class="sig-name descname">IcohpCollection</code><span class="sig-paren">(</span><em class="sig-param">list_labels</em>, <em class="sig-param">list_atom1</em>, <em class="sig-param">list_atom2</em>, <em class="sig-param">list_length</em>, <em class="sig-param">list_translation</em>, <em class="sig-param">list_num</em>, <em class="sig-param">list_icohp</em>, <em class="sig-param">is_spin_polarized</em>, <em class="sig-param">are_coops=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/cohp.html#IcohpCollection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.cohp.IcohpCollection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
-<p>Class to store IcohpValues
-:param is_spin_polarized: Boolean to indicate if the Lobster calculation was done spin polarized or not Boolean to indicate if the Lobster calculation was done spin polarized or not
-:param are_coops: Boolean to indicate whether ICOHPs or ICOOPs are stored
-:param list_labels: list of labels for ICOHP/ICOOP values
-:param list_atom1: list of str of atomnames e.g. “O1”
-:param list_atom2: list of str of atomnames e.g. “O1”
-:param list_length: list of lengths of corresponding bonds in Angstrom
-:param list_translation: list of translation list, e.g. [0,0,0]
-:param list_num: list of equivalent bonds, usually 1 starting from Lobster 3.0.0
-:param list_icohp: list of dict={Spin.up: icohpvalue for spin.up, Spin.down: icohpvalue for spin.down}</p>
+<p>Class to store IcohpValues</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>is_spin_polarized</strong> – Boolean to indicate if the Lobster calculation was done spin polarized or not Boolean to
+indicate if the Lobster calculation was done spin polarized or not</p></li>
+<li><p><strong>are_coops</strong> – Boolean to indicate whether ICOHPs or ICOOPs are stored</p></li>
+<li><p><strong>list_labels</strong> – list of labels for ICOHP/ICOOP values</p></li>
+<li><p><strong>list_atom1</strong> – list of str of atomnames e.g. “O1”</p></li>
+<li><p><strong>list_atom2</strong> – list of str of atomnames e.g. “O1”</p></li>
+<li><p><strong>list_length</strong> – list of lengths of corresponding bonds in Angstrom</p></li>
+<li><p><strong>list_translation</strong> – list of translation list, e.g. [0,0,0]</p></li>
+<li><p><strong>list_num</strong> – list of equivalent bonds, usually 1 starting from Lobster 3.0.0</p></li>
+<li><p><strong>list_icohp</strong> – list of dict={Spin.up: icohpvalue for spin.up, Spin.down: icohpvalue for spin.down}</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.electronic_structure.cohp.IcohpCollection.are_coops">
 <code class="sig-name descname">are_coops</code><a class="headerlink" href="#pymatgen.electronic_structure.cohp.IcohpCollection.are_coops" title="Permalink to this definition">¶</a></dt>
@@ -305,13 +313,18 @@ avoid unicode issues between python 2 and python 3.</p>
 <dl class="method">
 <dt id="pymatgen.electronic_structure.cohp.IcohpCollection.get_icohp_by_label">
 <code class="sig-name descname">get_icohp_by_label</code><span class="sig-paren">(</span><em class="sig-param">label</em>, <em class="sig-param">summed_spin_channels=True</em>, <em class="sig-param">spin=&lt;Spin.up: 1&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/cohp.html#IcohpCollection.get_icohp_by_label"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.cohp.IcohpCollection.get_icohp_by_label" title="Permalink to this definition">¶</a></dt>
-<dd><p>get an icohp value for a certain bond as indicated by the label (bond labels starting by “1” as in ICOHPLIST/ICOOPLIST)
-:param label: label in str format (usually the bond number in Icohplist.lobster/Icooplist.lobster
-:param summed_spin_channels: Boolean to indicate whether the ICOHPs/ICOOPs of both spin channels should be summed
-:param spin: if summed_spin_channels is equal to False, this spin indicates which spin channel should be returned</p>
+<dd><p>get an icohp value for a certain bond as indicated by the label (bond labels starting by “1” as in
+ICOHPLIST/ICOOPLIST)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>float describing ICOHP/ICOOP value</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>label</strong> – label in str format (usually the bond number in Icohplist.lobster/Icooplist.lobster</p></li>
+<li><p><strong>summed_spin_channels</strong> – Boolean to indicate whether the ICOHPs/ICOOPs of both spin channels should be summed</p></li>
+<li><p><strong>spin</strong> – if summed_spin_channels is equal to False, this spin indicates which spin channel should be returned</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>float describing ICOHP/ICOOP value</p>
 </dd>
 </dl>
 </dd></dl>
@@ -334,14 +347,22 @@ avoid unicode issues between python 2 and python 3.</p>
 <code class="sig-name descname">get_icohp_dict_of_site</code><span class="sig-paren">(</span><em class="sig-param">site</em>, <em class="sig-param">minsummedicohp=None</em>, <em class="sig-param">maxsummedicohp=None</em>, <em class="sig-param">minbondlength=0.0</em>, <em class="sig-param">maxbondlength=8.0</em>, <em class="sig-param">only_bonds_to=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/cohp.html#IcohpCollection.get_icohp_dict_of_site"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.cohp.IcohpCollection.get_icohp_dict_of_site" title="Permalink to this definition">¶</a></dt>
 <dd><p>get a dict of IcohpValue for a certain site (indicated by integer)
 :param site: integer describing the site of interest, order as in Icohplist.lobster/Icooplist.lobster, starts at 0
-:param minsummedicohp: float, minimal icohp/icoop of the bonds that are considered. It is the summed ICOHP value from both spin channels for spin polarized cases
-:param maxsummedicohp: float, maximal icohp/icoop of the bonds that are considered. It is the summed ICOHP value from both spin channels for spin polarized cases
-:param minbondlength: float, defines the minimum of the bond lengths of the bonds
-:param maxbondlength: float, defines the maximum of the bond lengths of the bonds
-:param only_bonds_to: list of strings describing the bonding partners that are allowed, e.g. [‘O’]</p>
+:param minsummedicohp: float, minimal icohp/icoop of the bonds that are considered. It is the summed ICOHP value</p>
+<blockquote>
+<div><p>from both spin channels for spin polarized cases</p>
+</div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>dict of IcohpValues, the keys correspond to the values from the initial list_labels</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>maxsummedicohp</strong> – float, maximal icohp/icoop of the bonds that are considered. It is the summed ICOHP value
+from both spin channels for spin polarized cases</p></li>
+<li><p><strong>minbondlength</strong> – float, defines the minimum of the bond lengths of the bonds</p></li>
+<li><p><strong>maxbondlength</strong> – float, defines the maximum of the bond lengths of the bonds</p></li>
+<li><p><strong>only_bonds_to</strong> – list of strings describing the bonding partners that are allowed, e.g. [‘O’]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dict of IcohpValues, the keys correspond to the values from the initial list_labels</p>
 </dd>
 </dl>
 </dd></dl>
@@ -349,14 +370,19 @@ avoid unicode issues between python 2 and python 3.</p>
 <dl class="method">
 <dt id="pymatgen.electronic_structure.cohp.IcohpCollection.get_summed_icohp_by_label_list">
 <code class="sig-name descname">get_summed_icohp_by_label_list</code><span class="sig-paren">(</span><em class="sig-param">label_list</em>, <em class="sig-param">divisor=1.0</em>, <em class="sig-param">summed_spin_channels=True</em>, <em class="sig-param">spin=&lt;Spin.up: 1&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/cohp.html#IcohpCollection.get_summed_icohp_by_label_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.cohp.IcohpCollection.get_summed_icohp_by_label_list" title="Permalink to this definition">¶</a></dt>
-<dd><p>get the sum of several ICOHP values that are indicated by a list of labels (labels of the bonds are the same as in ICOHPLIST/ICOOPLIST)
-:param label_list: list of labels of the ICOHPs/ICOOPs that should be summed
-:param divisor: is used to divide the sum
-:param summed_spin_channels: Boolean to indicate whether the ICOHPs/ICOOPs of both spin channels should be summed
-:param spin: if summed_spin_channels is equal to False, this spin indicates which spin channel should be returned</p>
+<dd><p>get the sum of several ICOHP values that are indicated by a list of labels (labels of the bonds are the same as
+in ICOHPLIST/ICOOPLIST)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>float that is a sum of all ICOHPs/ICOOPs as indicated with label_list</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>label_list</strong> – list of labels of the ICOHPs/ICOOPs that should be summed</p></li>
+<li><p><strong>divisor</strong> – is used to divide the sum</p></li>
+<li><p><strong>summed_spin_channels</strong> – Boolean to indicate whether the ICOHPs/ICOOPs of both spin channels should be summed</p></li>
+<li><p><strong>spin</strong> – if summed_spin_channels is equal to False, this spin indicates which spin channel should be returned</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>float that is a sum of all ICOHPs/ICOOPs as indicated with label_list</p>
 </dd>
 </dl>
 </dd></dl>
@@ -497,7 +523,7 @@ avoid unicode issues between python 2 and python 3.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
       </ul>
     </div>
 
