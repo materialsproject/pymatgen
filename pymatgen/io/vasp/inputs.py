@@ -9,6 +9,7 @@ import itertools
 import warnings
 import logging
 import math
+import json
 import glob
 import subprocess
 
@@ -605,6 +606,15 @@ class Poscar(MSONable):
         self.structure.add_site_property("velocities", velocities.tolist())
 
 
+cwd = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(cwd, "incar_parameters.json")) as incar_params:
+    incar_params = json.loads(incar_params.read())
+
+
+class BadIncarWarning(UserWarning):
+    pass
+
+
 class Incar(dict, MSONable):
     """
     INCAR object for reading and writing INCAR files. Essentially consists of
@@ -759,16 +769,10 @@ class Incar(dict, MSONable):
             key: INCAR parameter key
             val: Actual value of INCAR parameter.
         """
-        list_keys = ("LDAUU", "LDAUL", "LDAUJ", "MAGMOM", "DIPOL",
-                     "LANGEVIN_GAMMA", "QUAD_EFG", "EINT")
-        bool_keys = ("LDAU", "LWAVE", "LSCALU", "LCHARG", "LPLANE", "LUSE_VDW",
-                     "LHFCALC", "ADDGRID", "LSORBIT", "LNONCOLLINEAR")
-        float_keys = ("EDIFF", "SIGMA", "TIME", "ENCUTFOCK", "HFSCREEN",
-                      "POTIM", "EDIFFG", "AGGAC", "PARAM1", "PARAM2")
-        int_keys = ("NSW", "NBANDS", "NELMIN", "ISIF", "IBRION", "ISPIN",
-                    "ICHARG", "NELM", "ISMEAR", "NPAR", "LDAUPRINT", "LMAXMIX",
-                    "ENCUT", "NSIM", "NKRED", "NUPDOWN", "ISPIND", "LDAUTYPE",
-                    "IVDW")
+        list_keys = tuple([k for k in incar_params.keys() if type(incar_params[k]).__name__ == 'dict'])
+        bool_keys = tuple([k for k in incar_params.keys() if incar_params[k] == 'bool'])
+        float_keys = tuple([k for k in incar_params.keys() if incar_params[k] == 'float'])
+        int_keys = tuple([k for k in incar_params.keys() if incar_params[k] == 'int'])
 
         def smart_int_or_float(numstr):
             if numstr.find(".") != -1 or numstr.lower().find("e") != -1:
@@ -874,6 +878,45 @@ class Incar(dict, MSONable):
             else:
                 params[k] = v
         return Incar(params)
+
+    def check_params(self):
+        """
+        Raises a warning for nonsensical or non-existant INCAR tags and
+        parameters. If a keyword doesn't exist (e.g. theres a typo in a
+        keyword), your calculation will still run, however VASP will igore the
+        parameter without letting you know, hence why we have this Incar method.
+        """
+        for k in self.keys():
+
+            # First check if this parameter even exists
+            if k not in incar_params.keys():
+                warnings.warn("Cannot find %s in the list of INCAR flags" % (k),
+                              BadIncarWarning, stacklevel=2)
+
+            if k in incar_params.keys():
+                if type(incar_params[k]).__name__ == 'str':
+                    # Now we check if this is an appropriate parameter type
+                    if incar_params[k] == 'float':
+                        if not type(self[k]) not in ['float', 'int']:
+                            warnings.warn("%s: %s is not real" % (k, self[k]),
+                                          BadIncarWarning, stacklevel=2)
+                    elif type(self[k]).__name__ != incar_params[k]:
+                        warnings.warn("%s: %s is not a %s" % (k, self[k], incar_params[k]),
+                                      BadIncarWarning, stacklevel=2)
+
+                # if we have a list of possible parameters, check
+                # if the user given parameter is in this list
+                elif type(incar_params[k]).__name__ == 'list':
+                    if self[k] not in incar_params[k]:
+                        warnings.warn("%s: Cannot find %s in the list of parameters" % (k, self[k]),
+                                      BadIncarWarning, stacklevel=2)
+
+                # If an incar parameter only takes lists, check
+                # if the user provided setting is a list
+                elif type(incar_params[k]).__name__ == 'dict' \
+                        and type(self[k]).__name__ != 'list':
+                    warnings.warn("%s: %s is not a list" % (k, self[k]),
+                                  BadIncarWarning, stacklevel=2)
 
 
 class Kpoints_supported_modes(Enum):
