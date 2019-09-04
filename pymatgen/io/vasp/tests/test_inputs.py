@@ -592,6 +592,7 @@ SIGMA = 0.1"""
                 'LATTICE_CONSTRAINTS': [True, False, 'f'], # Should be a list of bools
                 'M_CONSTR': [True, 1, 'string'] # Should be a list of real numbers
             })
+            incar.check_params()
 
 
 class KpointsTest(PymatgenTest):
