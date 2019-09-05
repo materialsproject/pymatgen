@@ -1136,7 +1136,7 @@ class MPRester:
         Args:
             material_id (str): Materials Project material_id, e.g. 'mp-123'.
             orient (list) : substrate orientation to look for
-            number (int) : number of substrates to return;
+            number (int) : number of substrates to return
                 n=0 returns all available matches
         Returns:
             list of dicts with substrate matches

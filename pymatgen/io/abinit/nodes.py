@@ -23,10 +23,9 @@ from monty.json import MSONable
 from pymatgen.util.serialization import json_pretty_dump, pmg_serialize
 from .utils import File, Directory, Dirviz, irdvars_for_ext, abi_extensions
 
-
 import logging
-logger = logging.getLogger(__name__)
 
+logger = logging.getLogger(__name__)
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -43,21 +42,27 @@ class Status(int):
 
     # Possible status of the node. See monty.termocolor for the meaning of color, on_color and attrs.
     _STATUS_INFO = [
-        #(value, name, color, on_color, attrs)
-        (1,  "Initialized",   None     , None, None),         # Node has been initialized
-        (2,  "Locked",        "grey"   , None, None),         # Task is locked an must be explicitly unlocked by an external subject (Work).
-        (3,  "Ready",         None     , None, None),         # Node is ready i.e. all the depencies of the node have status S_OK
-        (4,  "Submitted",     "blue"   , None, None),         # Node has been submitted (The `Task` is running or we have started to finalize the Work)
-        (5,  "Running",       "magenta", None, None),         # Node is running.
-        (6,  "Done",          None     , None, None),         # Node done, This does not imply that results are ok or that the calculation completed successfully
-        (7,  "AbiCritical",   "red"    , None, None),         # Node raised an Error by ABINIT.
-        (8,  "QCritical",     "red"    , "on_white", None),   # Node raised an Error by submitting submission script, or by executing it
-        (9,  "Unconverged",   "red"    , "on_yellow", None),  # This usually means that an iterative algorithm didn't converge.
-        (10, "Error",         "red"    , None, None),         # Node raised an unrecoverable error, usually raised when an attempt to fix one of other types failed.
-        (11, "Completed",     "green"  , None, None),         # Execution completed successfully.
+        # (value, name, color, on_color, attrs)
+        (1, "Initialized", None, None, None),  # Node has been initialized
+        (2, "Locked", "grey", None, None),
+        # Task is locked an must be explicitly unlocked by an external subject (Work).
+        (3, "Ready", None, None, None),  # Node is ready i.e. all the depencies of the node have status S_OK
+        (4, "Submitted", "blue", None, None),
+        # Node has been submitted (The `Task` is running or we have started to finalize the Work)
+        (5, "Running", "magenta", None, None),  # Node is running.
+        (6, "Done", None, None, None),
+        # Node done, This does not imply that results are ok or that the calculation completed successfully
+        (7, "AbiCritical", "red", None, None),  # Node raised an Error by ABINIT.
+        (8, "QCritical", "red", "on_white", None),
+        # Node raised an Error by submitting submission script, or by executing it
+        (9, "Unconverged", "red", "on_yellow", None),  # This usually means that an iterative algorithm didn't converge.
+        (10, "Error", "red", None, None),
+        # Node raised an unrecoverable error, usually raised when an attempt to fix one of other types failed.
+        (11, "Completed", "green", None, None),  # Execution completed successfully.
     ]
     _STATUS2STR = collections.OrderedDict([(t[0], t[1]) for t in _STATUS_INFO])
-    _STATUS2COLOR_OPTS = collections.OrderedDict([(t[0], {"color": t[2], "on_color": t[3], "attrs": _2attrs(t[4])}) for t in _STATUS_INFO])
+    _STATUS2COLOR_OPTS = collections.OrderedDict(
+        [(t[0], {"color": t[2], "on_color": t[3], "attrs": _2attrs(t[4])}) for t in _STATUS_INFO])
 
     def __repr__(self):
         return "<%s: %s, at %s>" % (self.__class__.__name__, str(self), id(self))
@@ -117,6 +122,7 @@ class Dependency:
         # Register the NSCF calculation and its dependency on the SCF run via deps.
         nscf_task = work.register(nscf_strategy, deps={scf_task: "DEN"})
     """
+
     def __init__(self, node, exts=None):
         """
         Args:
@@ -132,7 +138,7 @@ class Dependency:
 
         # Save getters
         self.getters = [e for e in exts if e.startswith("@")]
-        #if self.getters: print(self.getters)
+        # if self.getters: print(self.getters)
 
     def __hash__(self):
         return hash(self._node)
@@ -213,6 +219,7 @@ class Product:
     A product represents an output file produced by ABINIT instance.
     This file is needed to start another `Task` or another `Work`.
     """
+
     def __init__(self, ext, path):
         """
         Args:
@@ -256,6 +263,7 @@ class Product:
 
 class GridFsFile(AttrDict):
     """Information on a file that will stored in the MongoDb gridfs collection."""
+
     def __init__(self, path, fs_id=None, mode="b"):
         super().__init__(path=path, fs_id=fs_id, mode=mode)
 
@@ -336,7 +344,7 @@ class NodeResults(dict, MSONable):
         for exc in exceptions:
             newstr = str(exc)
             if newstr not in self.exceptions:
-                self["exceptions"] += [newstr,]
+                self["exceptions"] += [newstr, ]
 
     @pmg_serialize
     def as_dict(self):
@@ -405,7 +413,7 @@ class NodeResults(dict, MSONable):
         doc[key] = self.as_dict()
 
         collection.save(doc)
-        #collection.update({'_id':mongo_id}, {"$set": doc}, upsert=False)
+        # collection.update({'_id':mongo_id}, {"$set": doc}, upsert=False)
 
 
 def check_spectator(node_method):
@@ -417,8 +425,8 @@ def check_spectator(node_method):
     def wrapper(*args, **kwargs):
         node = args[0]
         if node.in_spectator_mode:
-            #raise node.SpectatorError("You should not call this method when the node in spectator_mode")
-            #warnings.warn("You should not call %s when the node in spectator_mode" % node_method)
+            # raise node.SpectatorError("You should not call this method when the node in spectator_mode")
+            # warnings.warn("You should not call %s when the node in spectator_mode" % node_method)
             import warnings
 
         return node_method(*args, **kwargs)
@@ -446,7 +454,7 @@ class Node(metaclass=abc.ABCMeta):
     """
     Results = NodeResults
 
-    Error  = NodeError
+    Error = NodeError
     SpectatorError = SpectatorNodeError
 
     # Possible status of the node.
@@ -459,7 +467,7 @@ class Node(metaclass=abc.ABCMeta):
     S_ABICRITICAL = Status.from_string("AbiCritical")
     S_QCRITICAL = Status.from_string("QCritical")
     S_UNCONVERGED = Status.from_string("Unconverged")
-    #S_CANCELLED = Status.from_string("Cancelled")
+    # S_CANCELLED = Status.from_string("Cancelled")
     S_ERROR = Status.from_string("Error")
     S_OK = Status.from_string("Completed")
 
@@ -473,7 +481,7 @@ class Node(metaclass=abc.ABCMeta):
         S_ABICRITICAL,
         S_QCRITICAL,
         S_UNCONVERGED,
-        #S_CANCELLED,
+        # S_CANCELLED,
         S_ERROR,
         S_OK,
     ]
@@ -520,7 +528,7 @@ class Node(metaclass=abc.ABCMeta):
             # this usually happens when workdir has not been initialized
             return "<%s, node_id=%s, workdir=None>" % (self.__class__.__name__, self.node_id)
 
-    #def __setattr__(self, name, value):
+    # def __setattr__(self, name, value):
     #    if self.in_spectator_mode:
     #        raise RuntimeError("You should not call __setattr__ in spectator_mode")
     #    return super().__setattr__(name,value)
@@ -528,6 +536,7 @@ class Node(metaclass=abc.ABCMeta):
     @lazy_property
     def color_hex(self):
         """Node color as Hex Triplet https://en.wikipedia.org/wiki/Web_colors#Hex_triplet"""
+
         def clamp(x):
             return max(0, min(int(x), 255))
 
@@ -627,7 +636,7 @@ class Node(metaclass=abc.ABCMeta):
     @in_spectator_mode.setter
     def in_spectator_mode(self, mode):
         self._in_spectator_mode = bool(mode)
-        #self.history.info("in_spectator_mode set to %s" % mode)
+        # self.history.info("in_spectator_mode set to %s" % mode)
 
     @property
     def corrections(self):
@@ -742,6 +751,7 @@ class Node(metaclass=abc.ABCMeta):
             # remove the same list of dependencies from the task in the work
             for task in self:
                 task.remove_deps(deps)
+
     @property
     def deps_status(self):
         """Returns a list with the status of the dependencies."""
@@ -757,12 +767,12 @@ class Node(metaclass=abc.ABCMeta):
     def get_parents(self):
         """Return the list of nodes in the :class:`Flow` required by this :class:`Node`"""
         return [d.node for d in self.deps]
-        #parents = []
-        #for work in self.flow:
+        # parents = []
+        # for work in self.flow:
         #    if self.depends_on(work): parents.append(work)
         #    for task in work:
         #        if self.depends_on(task): parents.append(task)
-        #return parents
+        # return parents
 
     def get_children(self):
         """
@@ -820,7 +830,7 @@ class Node(metaclass=abc.ABCMeta):
             return pd.concat(frames)
 
         else:
-            #print("Ignoring node of type: `%s`" % type(self))
+            # print("Ignoring node of type: `%s`" % type(self))
             return pd.DataFrame(index=[self.name])
 
     def get_graphviz_dirtree(self, engine="automatic", **kwargs):
@@ -851,7 +861,7 @@ class Node(metaclass=abc.ABCMeta):
         try:
             return self._gc
         except AttributeError:
-            #if not self.is_flow and self.flow.gc: return self.flow.gc
+            # if not self.is_flow and self.flow.gc: return self.flow.gc
             return None
 
     @property
@@ -930,9 +940,9 @@ class Node(metaclass=abc.ABCMeta):
         logger.debug("Node %s broadcasts signal %s" % (self, signal))
         dispatcher.send(signal=signal, sender=self)
 
-   ##########################
-   ### Abstract protocol ####
-   ##########################
+    ##########################
+    # Abstract protocol ####
+    ##########################
 
     @property
     @abc.abstractmethod
@@ -994,7 +1004,7 @@ class FileNode(Node):
 
     def get_results(self, **kwargs):
         results = super().get_results(**kwargs)
-        #results.register_gridfs_files(filepath=self.filepath)
+        # results.register_gridfs_files(filepath=self.filepath)
         return results
 
     def add_filechild(self, node):
@@ -1029,9 +1039,9 @@ Continuing anyway assuming that the netcdf file provides the API/dims/vars neeed
             logger.warning(msg)
             self.history.warning(msg)
 
-        #try to find file in the same path
+        # try to find file in the same path
         filepath = os.path.dirname(self.filepath)
-        glob_result = glob.glob(os.path.join(filepath,"*%s"%abiext))
+        glob_result = glob.glob(os.path.join(filepath, "*%s" % abiext))
         if len(glob_result): return abilab.abiopen(glob_result[0])
         return self.abiopen()
 
@@ -1086,6 +1096,7 @@ class HistoryRecord:
     .. attribute:: message
         The result of record.getMessage(), computed just as the record is emitted
     """
+
     def __init__(self, level, pathname, lineno, msg, args, exc_info, func=None):
         """
         Initialize a logging record with interesting information.
@@ -1109,7 +1120,7 @@ class HistoryRecord:
         self.pathname = pathname
         self.msg = msg
 
-        self.levelname = "FOOBAR" #getLevelName(level)
+        self.levelname = "FOOBAR"  # getLevelName(level)
 
         try:
             self.filename = os.path.basename(pathname)
@@ -1119,7 +1130,7 @@ class HistoryRecord:
             self.module = "Unknown module"
 
         self.exc_info = exc_info
-        self.exc_text = None      # used to cache the traceback text
+        self.exc_text = None  # used to cache the traceback text
         self.lineno = lineno
         self.func_name = func
         self.created = time.time()
@@ -1200,22 +1211,23 @@ class NodeHistory(collections.deque):
 
 class NodeCorrections(list):
     """Iterable storing the correctios performed by the :class:`EventHandler`"""
-    #TODO
+    # TODO
     # Correction should have a human-readable message
     # and a list of operatins in JSON format (Modder?) so that
     # we can read them and re-apply the corrections to another task if needed.
 
-    #def count_event_class(self, event_class):
+    # def count_event_class(self, event_class):
     #    """
     #    Return the number of times the event class has been already fixed.
     #    """
     #    #return len([c for c in self if c["event"]["@class"] == str(event_class)])
 
-    #def _find(self, event_class)
+    # def _find(self, event_class)
 
 
 class GarbageCollector:
     """This object stores information on the """
+
     def __init__(self, exts, policy):
         self.exts, self.policy = set(exts), policy
 
@@ -1269,9 +1281,3 @@ def save_lastnode_id():
     with FileLock(_COUNTER_FILE):
         with AtomicFile(_COUNTER_FILE, mode="w") as fh:
             fh.write("%d\n" % _COUNTER)
-
-
-# Register function atexit
-import atexit
-atexit.register(save_lastnode_id)
-

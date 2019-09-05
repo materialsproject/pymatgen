@@ -41,17 +41,16 @@ from .tasks import ScfTask, DdkTask, DdeTask, TaskManager, FixQueueCriticalError
 from .utils import File, Directory, Editor
 from .abiinspect import yaml_read_irred_perts
 from .works import NodeContainer, Work, BandStructureWork, PhononWork, BecWork, G0W0Work, QptdmWork, DteWork
-from .events import EventsParser # autodoc_event_handlers
-
+from .events import EventsParser  # autodoc_event_handlers
 
 import logging
+
 logger = logging.getLogger(__name__)
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Matteo Giantomassi"
-
 
 __all__ = [
     "Flow",
@@ -78,11 +77,11 @@ def as_set(obj):
 
 
 class FlowResults(NodeResults):
-
     JSON_SCHEMA = NodeResults.JSON_SCHEMA.copy()
-    #JSON_SCHEMA["properties"] = {
+
+    # JSON_SCHEMA["properties"] = {
     #    "queries": {"type": "string", "required": True},
-    #}
+    # }
 
     @classmethod
     def from_node(cls, flow):
@@ -237,11 +236,11 @@ class Flow(Node, NodeContainer, MSONable):
         # When the node changes its status, it broadcast a signal.
         # The flow is listening to all the nodes of the calculation
         # [node_id][SIGNAL] = list_of_signal_handlers
-        #self._sig_slots =  slots = {}
-        #for work in self:
+        # self._sig_slots =  slots = {}
+        # for work in self:
         #    slots[work] = {s: [] for s in work.S_ALL}
 
-        #for task in self.iflat_tasks():
+        # for task in self.iflat_tasks():
         #    slots[task] = {s: [] for s in work.S_ALL}
 
     @pmg_serialize
@@ -271,7 +270,7 @@ class Flow(Node, NodeContainer, MSONable):
         Set the working directory. Cannot be set more than once unless chroot is True
         """
         if not chroot and hasattr(self, "workdir") and self.workdir != workdir:
-            raise ValueError("self.workdir != workdir: %s, %s" % (self.workdir,  workdir))
+            raise ValueError("self.workdir != workdir: %s, %s" % (self.workdir, workdir))
 
         # Directories with (input|output|temporary) data.
         self.workdir = os.path.abspath(workdir)
@@ -796,7 +795,7 @@ class Flow(Node, NodeContainer, MSONable):
         """The status of the :class:`Flow` i.e. the minimum of the status of its tasks and its works"""
         return min(work.get_all_status(only_min=True) for work in self)
 
-    #def restart_unconverged_tasks(self, max_nlauch, excs):
+    # def restart_unconverged_tasks(self, max_nlauch, excs):
     #    nlaunch = 0
     #    for task in self.unconverged_tasks:
     #        try:
@@ -862,7 +861,7 @@ class Flow(Node, NodeContainer, MSONable):
         lines = [str(self)]
         app = lines.append
 
-        app("Number of works: %d, total number of tasks: %s" % (len(self), self.num_tasks) )
+        app("Number of works: %d, total number of tasks: %s" % (len(self), self.num_tasks))
         app("Number of tasks with a given class:\n")
 
         # Build Table
@@ -915,7 +914,7 @@ class Flow(Node, NodeContainer, MSONable):
             # Convert range to list of work indices.
             wlist = list(range(wslice.start, wslice.step, wslice.stop))
 
-        #has_colours = stream_has_colours(stream)
+        # has_colours = stream_has_colours(stream)
         has_colours = True
         red = "red" if has_colours else None
 
@@ -952,16 +951,17 @@ class Flow(Node, NodeContainer, MSONable):
                     if timedelta is not None:
                         stime = str(timedelta) + "Q"
 
-                events = "|".join(2*["NA"])
+                events = "|".join(2 * ["NA"])
                 if report is not None:
                     events = '{:>4}|{:>3}'.format(*map(str, (
-                       report.num_warnings, report.num_comments)))
+                        report.num_warnings, report.num_comments)))
 
                 para_info = '{:>4}|{:>3}|{:>3}'.format(*map(str, (
-                   task.mpi_procs, task.omp_threads, "%.1f" % task.mem_per_proc.to("Gb"))))
+                    task.mpi_procs, task.omp_threads, "%.1f" % task.mem_per_proc.to("Gb"))))
 
                 task_info = list(map(str, [task.__class__.__name__,
-                                 (task.num_launches, task.num_restarts, task.num_corrections), stime, task.node_id]))
+                                           (task.num_launches, task.num_restarts, task.num_corrections), stime,
+                                           task.node_id]))
 
                 qinfo = "None"
                 if task.queue_id is not None:
@@ -997,7 +997,7 @@ class Flow(Node, NodeContainer, MSONable):
         Args:
             status: if not None, only the tasks with this status are select
             nids: optional list of node identifiers used to filter the tasks.
-	"""
+        """
         nrows, ncols = get_terminal_size()
 
         for task in self.iflat_tasks(status=status, nids=nids):
@@ -1005,7 +1005,7 @@ class Flow(Node, NodeContainer, MSONable):
             if report:
                 print(make_banner(str(task), width=ncols, mark="="))
                 print(report)
-                #report = report.filter_types()
+                # report = report.filter_types()
 
     def show_corrections(self, status=None, nids=None):
         """
@@ -1085,7 +1085,7 @@ class Flow(Node, NodeContainer, MSONable):
 
                 for vname in varnames:
                     value = task.input.get(vname, None)
-                    if value is None: # maybe in structure?
+                    if value is None:  # maybe in structure?
                         value = dstruct.get(vname, None)
                     if value is not None:
                         dlist[vname].append((task, value))
@@ -1111,7 +1111,7 @@ class Flow(Node, NodeContainer, MSONable):
                 else:
                     s += "\n\nDependencies: None"
 
-                lines.append(2*"\n" + 80 * "=" + "\n" + s + 2*"\n")
+                lines.append(2 * "\n" + 80 * "=" + "\n" + s + 2 * "\n")
 
             stream.writelines(lines)
 
@@ -1129,7 +1129,7 @@ class Flow(Node, NodeContainer, MSONable):
         if nodes_files:
             print("Found %s files with extension `%s` produced by the flow" % (len(nodes_files), ext), file=stream)
 
-            table = [[f.relpath, "%.2f" % (f.get_stat().st_size / 1024**2),
+            table = [[f.relpath, "%.2f" % (f.get_stat().st_size / 1024 ** 2),
                       node.node_id, node.__class__.__name__]
                      for node, f in nodes_files]
             print(tabulate(table, headers=["File", "Size [Mb]", "Node_ID", "Node Class"]), file=stream)
@@ -1227,7 +1227,7 @@ class Flow(Node, NodeContainer, MSONable):
             for nid, task in zip(nids, tasks):
                 cprint(repr(task), **task.status.color_opts)
                 self.show_history(nids=[nid], full_history=False, metadata=False)
-                #if task.num_restarts:
+                # if task.num_restarts:
                 #    self.show_restarts(nids=[nid])
                 if task.num_corrections:
                     self.show_corrections(nids=[nid])
@@ -1439,7 +1439,7 @@ class Flow(Node, NodeContainer, MSONable):
             else:
                 app("get_envent_report returned None!")
 
-            app("=" * len(header) + 2*"\n")
+            app("=" * len(header) + 2 * "\n")
 
         return stream.writelines(lines)
 
@@ -1462,7 +1462,7 @@ class Flow(Node, NodeContainer, MSONable):
             else:
                 lines.append("File does not exist!")
 
-            lines.append("=" * len(header) + 2*"\n")
+            lines.append("=" * len(header) + 2 * "\n")
 
         return stream.writelines(lines)
 
@@ -1507,14 +1507,14 @@ class Flow(Node, NodeContainer, MSONable):
             ntasks += 1
 
             #  Start with error files.
-            for efname in ["qerr_file", "stderr_file",]:
+            for efname in ["qerr_file", "stderr_file", ]:
                 err_file = getattr(task, efname)
                 if err_file.exists:
                     s = err_file.read()
                     if not s: continue
                     print(make_banner(str(err_file), width=ncols, mark="="))
                     cprint(s, color="red")
-                    #count += 1
+                    # count += 1
 
             # Check main log file.
             try:
@@ -1527,7 +1527,7 @@ class Flow(Node, NodeContainer, MSONable):
             except Exception as exc:
                 s = str(exc)
 
-            count = 0 # count > 0 means we found some useful info that could explain the failures.
+            count = 0  # count > 0 means we found some useful info that could explain the failures.
             if s is not None:
                 cprint(s, color="red")
                 count += 1
@@ -1536,7 +1536,8 @@ class Flow(Node, NodeContainer, MSONable):
                 # Inspect all log files produced by the other nodes.
                 log_files = task.tmpdir.list_filepaths(wildcard="*LOG_*")
                 if not log_files:
-                    cprint("No *LOG_* file in tmpdir. This usually happens if you are running with many CPUs", color="magenta")
+                    cprint("No *LOG_* file in tmpdir. This usually happens if you are running with many CPUs",
+                           color="magenta")
 
                 for log_file in log_files:
                     try:
@@ -1625,12 +1626,13 @@ class Flow(Node, NodeContainer, MSONable):
                 node_id = int(fh.read())
 
             if self.node_id != node_id:
-                msg = ("\nFound node_id %s in file:\n\n  %s\n\nwhile the node_id of the present flow is %d.\n"
-                       "This means that you are trying to build a new flow in a directory already used by another flow.\n"
-                       "Possible solutions:\n"
-                       "   1) Change the workdir of the new flow.\n"
-                       "   2) remove the old directory either with `rm -r` or by calling the method flow.rmtree()\n"
-                        % (node_id, nodeid_path, self.node_id))
+                msg = (
+                    "\nFound node_id %s in file:\n\n  %s\n\nwhile the node_id of the present flow is %d.\n"
+                    "This means that you are trying to build a new flow in a directory already used by another flow.\n"
+                    "Possible solutions:\n"
+                    "   1) Change the workdir of the new flow.\n"
+                    "   2) remove the old directory either with `rm -r` or by calling the method flow.rmtree()\n"
+                    % (node_id, nodeid_path, self.node_id))
                 raise RuntimeError(msg)
 
         else:
@@ -1673,7 +1675,7 @@ class Flow(Node, NodeContainer, MSONable):
             warnings.warn("Cannot pickle_dump since we have chrooted from %s" % self.has_chrooted)
             return -1
 
-        #if self.in_spectator_mode:
+        # if self.in_spectator_mode:
         #    warnings.warn("Cannot pickle_dump since flow is in_spectator_mode")
         #    return -2
 
@@ -1863,7 +1865,7 @@ class Flow(Node, NodeContainer, MSONable):
             self
         """
         if not self.allocated:
-            #raise RuntimeError("You must call flow.allocate() before invoking flow.use_smartio()")
+            # raise RuntimeError("You must call flow.allocate() before invoking flow.use_smartio()")
             self.allocate()
 
         for task in self.iflat_tasks():
@@ -1872,7 +1874,7 @@ class Flow(Node, NodeContainer, MSONable):
                 # Change the input so that output files are produced
                 # only if the calculation is not converged.
                 task.history.info("Will disable IO for task")
-                task.set_vars(prtwf=-1, prtden=0) # TODO: prt1wf=-1,
+                task.set_vars(prtwf=-1, prtden=0)  # TODO: prt1wf=-1,
             else:
                 must_produce_abiexts = []
                 for child in children:
@@ -1881,7 +1883,7 @@ class Flow(Node, NodeContainer, MSONable):
                         must_produce_abiexts.extend(d.exts)
 
                 must_produce_abiexts = set(must_produce_abiexts)
-                #print("must_produce_abiexts", must_produce_abiexts)
+                # print("must_produce_abiexts", must_produce_abiexts)
 
                 # Variables supporting smart-io.
                 smart_prtvars = {
@@ -1896,7 +1898,7 @@ class Flow(Node, NodeContainer, MSONable):
 
         return self
 
-    #def new_from_input_decorators(self, new_workdir, decorators)
+    # def new_from_input_decorators(self, new_workdir, decorators)
     #    """
     #    Return a new :class:`Flow` in which all the Abinit inputs have been
     #    decorated by decorators.
@@ -1908,6 +1910,7 @@ class Flow(Node, NodeContainer, MSONable):
 
     def show_dependencies(self, stream=sys.stdout):
         """Writes to the given stream the ASCII representation of the dependency tree."""
+
         def child_iter(node):
             return [d.node for d in node.deps]
 
@@ -1960,8 +1963,8 @@ class Flow(Node, NodeContainer, MSONable):
                 self.flow.db_insert()
                 self.finalized = True
             except Exception:
-                 logger.critical("MongoDb insertion failed.")
-                 return 2
+                logger.critical("MongoDb insertion failed.")
+                return 2
 
         # Here we remove the big output files if we have the garbage collector
         # and the policy is set to "flow."
@@ -1992,7 +1995,7 @@ class Flow(Node, NodeContainer, MSONable):
 
         self.set_gc(gc)
         for work in self:
-            #work.set_gc(gc) # TODO Add support for Works and flow policy
+            # work.set_gc(gc) # TODO Add support for Works and flow policy
             for task in work:
                 task.set_gc(gc)
 
@@ -2007,7 +2010,7 @@ class Flow(Node, NodeContainer, MSONable):
 
         # Observe the nodes that must reach S_OK in order to call the callbacks.
         for cbk in self._callbacks:
-            #cbk.enable()
+            # cbk.enable()
             for dep in cbk.deps:
                 logger.info("connecting %s \nwith sender %s, signal %s" % (str(cbk), dep.node, dep.node.S_OK))
                 dispatcher.connect(self.on_dep_ok, signal=dep.node.S_OK, sender=dep.node, weak=False)
@@ -2018,7 +2021,7 @@ class Flow(Node, NodeContainer, MSONable):
         # the flow that this callback should be disabled.
 
         # Register the callbacks for the Work.
-        #for work in self:
+        # for work in self:
         #    slot = self._sig_slots[work]
         #    for signal in S_ALL:
         #        done_signal = getattr(work, "_done_ " + signal, False)
@@ -2031,7 +2034,7 @@ class Flow(Node, NodeContainer, MSONable):
         #            dispatcher.connect(self.on_dep_ok, signal=signal, sender=dep.node, weak=False)
 
         # Register the callbacks for the Tasks.
-        #self.show_receivers()
+        # self.show_receivers()
 
     def disconnect_signals(self):
         """Disable the signals within the `Flow`."""
@@ -2074,7 +2077,7 @@ class Flow(Node, NodeContainer, MSONable):
         else:
             self.disconnect_signals()
 
-    #def get_results(self, **kwargs)
+    # def get_results(self, **kwargs)
 
     def rapidfire(self, check_status=True, max_nlaunch=-1, max_loops=1, sleep_time=5, **kwargs):
         """
@@ -2175,6 +2178,7 @@ class Flow(Node, NodeContainer, MSONable):
         Returns:
             The name of the tarfile.
         """
+
         def any2bytes(s):
             """Convert string or number to memory in bytes."""
             if is_string(s):
@@ -2239,7 +2243,7 @@ class Flow(Node, NodeContainer, MSONable):
         os.chdir(back)
         return name
 
-    #def abirobot(self, ext, check_status=True, nids=None):
+    # def abirobot(self, ext, check_status=True, nids=None):
     #    """
     #    Builds and return the :class:`Robot` subclass from the file extension `ext`.
     #    `nids` is an optional list of node identifiers used to filter the tasks in the flow.
@@ -2263,18 +2267,18 @@ class Flow(Node, NodeContainer, MSONable):
         self.allocate()
 
         from graphviz import Digraph
-        fg = Digraph("flow", #filename="flow_%s.gv" % os.path.basename(self.relworkdir),
-            engine="fdp" if engine == "automatic" else engine)
+        fg = Digraph("flow",  # filename="flow_%s.gv" % os.path.basename(self.relworkdir),
+                     engine="fdp" if engine == "automatic" else engine)
 
         # Set graph attributes.
         # https://www.graphviz.org/doc/info/
-        #fg.attr(label="%s@%s" % (self.__class__.__name__, self.relworkdir))
+        # fg.attr(label="%s@%s" % (self.__class__.__name__, self.relworkdir))
         fg.attr(label=repr(self))
-        #fg.attr(fontcolor="white", bgcolor='purple:pink')
+        # fg.attr(fontcolor="white", bgcolor='purple:pink')
         fg.attr(rankdir="LR", pagedir="BL")
-        #fg.attr(constraint="false", pack="true", packMode="clust")
+        # fg.attr(constraint="false", pack="true", packMode="clust")
         fg.node_attr.update(color='lightblue2', style='filled')
-        #fg.node_attr.update(ranksep='equally')
+        # fg.node_attr.update(ranksep='equally')
 
         # Add input attributes.
         if graph_attr is not None:
@@ -2286,11 +2290,11 @@ class Flow(Node, NodeContainer, MSONable):
 
         def node_kwargs(node):
             return dict(
-                #shape="circle",
+                # shape="circle",
                 color=node.color_hex,
                 fontsize="8.0",
                 label=(str(node) if not hasattr(node, "pos_str") else
-                    node.pos_str + "\n" + node.__class__.__name__),
+                       node.pos_str + "\n" + node.__class__.__name__),
             )
 
         edge_kwargs = dict(arrowType="vee", style="solid")
@@ -2302,8 +2306,8 @@ class Flow(Node, NodeContainer, MSONable):
             with fg.subgraph(name=cluster_name) as wg:
                 wg.attr(**cluster_kwargs)
                 wg.attr(label="%s (%s)" % (work.__class__.__name__, work.name))
-                #wg.attr(label=repr(work))
-                #wg.attr(label="%s (%s)\n%s (%s)" % (
+                # wg.attr(label=repr(work))
+                # wg.attr(label="%s (%s)\n%s (%s)" % (
                 #    work.__class__.__name__, work.name, work.relworkdir, work.node_id))
                 for task in work:
                     wg.node(task.name, **node_kwargs(task))
@@ -2323,7 +2327,7 @@ class Flow(Node, NodeContainer, MSONable):
             seen = set()
             for child in children:
                 # This is not needed, too much confusing
-                #fg.edge(cluster_name, child.name, color=work.color_hex, **edge_kwargs)
+                # fg.edge(cluster_name, child.name, color=work.color_hex, **edge_kwargs)
                 # Find file extensions required by work
                 i = [dep.node for dep in child.deps].index(work)
                 for ext in child.deps[i].exts:
@@ -2338,10 +2342,10 @@ class Flow(Node, NodeContainer, MSONable):
         # Treat the case in which we have a task that depends on external files.
         seen = set()
         for task in self.iflat_tasks():
-            #print(task.get_parents())
+            # print(task.get_parents())
             for node in (p for p in task.get_parents() if p.is_file):
-                #print("parent file node", node)
-                #infile = "%s (%s)" % (ext, work.name)
+                # print("parent file node", node)
+                # infile = "%s (%s)" % (ext, work.name)
                 infile = node.filepath
                 if infile not in seen:
                     seen.add(infile)
@@ -2367,12 +2371,12 @@ class Flow(Node, NodeContainer, MSONable):
         graph = self.get_graphviz(**kwargs)
         graph.format = fmt
         graph.attr(dpi=str(dpi))
-        #print(graph)
+        # print(graph)
         _, tmpname = tempfile.mkstemp()
         path = graph.render(tmpname, view=False, cleanup=True)
         ax, fig, _ = get_ax_fig_plt(ax=ax, figsize=figsize, dpi=dpi)
         import matplotlib.image as mpimg
-        ax.imshow(mpimg.imread(path, format="png")) #, interpolation="none")
+        ax.imshow(mpimg.imread(path, format="png"))  # , interpolation="none")
         ax.axis("off")
 
         return fig
@@ -2413,7 +2417,7 @@ class Flow(Node, NodeContainer, MSONable):
 
             filedeps = [d for d in task.deps if d.node.is_file]
             for d in filedeps:
-                #print(d.node, d.exts)
+                # print(d.node, d.exts)
                 g.add_node(d.node, name="%s (%s)" % (d.node.basename, d.node.node_id))
                 g.add_edge(d.node, task)
                 edge_labels[(d.node, task)] = "+".join(d.exts)
@@ -2428,7 +2432,7 @@ class Flow(Node, NodeContainer, MSONable):
                 g.add_edge(task, work)
                 edge_labels[(task, work)] = "all_ok "
             for child in children:
-                #print(child)
+                # print(child)
                 g.add_edge(work, child)
                 i = [dep.node for dep in child.deps].index(work)
                 edge_labels[(work, child)] = "+".join(child.deps[i].exts)
@@ -2477,17 +2481,17 @@ class Flow(Node, NodeContainer, MSONable):
                 # Draw nodes (color is given by status)
                 node_color = status.color_opts["color"]
                 if node_color is None: node_color = "black"
-                #print("num nodes %s with node_color %s" % (len(tasks), node_color))
+                # print("num nodes %s with node_color %s" % (len(tasks), node_color))
 
                 nx.draw_networkx_nodes(g, pos,
                                        nodelist=tasks,
                                        node_color=node_color,
                                        node_size=[make_node_size(task) for task in tasks],
                                        alpha=0.5, ax=ax
-                                       #label=str(status),
+                                       # label=str(status),
                                        )
             # Draw edges.
-            nx.draw_networkx_edges(g, pos, width=2.0, alpha=0.5, arrows=arrows, ax=ax) # edge_color='r')
+            nx.draw_networkx_edges(g, pos, width=2.0, alpha=0.5, arrows=arrows, ax=ax)  # edge_color='r')
 
             # Draw labels
             nx.draw_networkx_labels(g, pos, labels, font_size=12, ax=ax)
@@ -2495,7 +2499,7 @@ class Flow(Node, NodeContainer, MSONable):
             # Draw edge labels
             if with_edge_labels:
                 nx.draw_networkx_edge_labels(g, pos, edge_labels=edge_labels, ax=ax)
-                #label_pos=0.5, font_size=10, font_color='k', font_family='sans-serif', font_weight='normal',
+                # label_pos=0.5, font_size=10, font_color='k', font_family='sans-serif', font_weight='normal',
                 # alpha=1.0, bbox=None, ax=None, rotate=True, **kwds)
 
         else:
@@ -2726,6 +2730,7 @@ class PhononFlow(Flow):
         For instance, EPH calculations are much easier to implement by connecting a single
         work that computes all the q-points with the EPH tasks instead of using PhononFlow.
     """
+
     @classmethod
     def from_scf_input(cls, workdir, scf_input, ph_ngqpt, with_becs=True, manager=None, allocate=True):
         """
@@ -2818,6 +2823,7 @@ class NonLinearCoeffFlow(Flow):
        nirred tasks where nirred is the number of irreducible perturbations
        for that particular q-point.
     """
+
     @classmethod
     def from_scf_input(cls, workdir, scf_input, manager=None, allocate=True):
         """
@@ -2883,7 +2889,7 @@ class NonLinearCoeffFlow(Flow):
         # Call the method of the super class.
         retcode = super().finalize()
         print("retcode", retcode)
-        #if retcode != 0: return retcode
+        # if retcode != 0: return retcode
         return retcode
 
 
@@ -2955,7 +2961,7 @@ def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, 
         abivars = dict(
             paral_rf=-1,
             rfatpol=[1, natom],  # Set of atoms to displace.
-            rfdir=[1, 1, 1],     # Along this set of reduced coordinate axis.
+            rfdir=[1, 1, 1],  # Along this set of reduced coordinate axis.
         )
 
         fake_task.set_vars(abivars)
@@ -2994,22 +3000,22 @@ def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, 
         logger.info(irred_perts[0]['qpt'])
 
         for irred_pert in irred_perts:
-            #print(irred_pert)
+            # print(irred_pert)
             new_input = ph_input.deepcopy()
 
-            #rfatpol   1 1   # Only the first atom is displaced
-            #rfdir   1 0 0   # Along the first reduced coordinate axis
+            # rfatpol   1 1   # Only the first atom is displaced
+            # rfdir   1 0 0   # Along the first reduced coordinate axis
             qpt = irred_pert["qpt"]
             idir = irred_pert["idir"]
             ipert = irred_pert["ipert"]
 
             # TODO this will work for phonons, but not for the other types of perturbations.
             rfdir = 3 * [0]
-            rfdir[idir -1] = 1
+            rfdir[idir - 1] = 1
             rfatpol = [ipert, ipert]
 
             new_input.set_vars(
-                #rfpert=1,
+                # rfpert=1,
                 qpt=qpt,
                 rfdir=rfdir,
                 rfatpol=rfatpol,

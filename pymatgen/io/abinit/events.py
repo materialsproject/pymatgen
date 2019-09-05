@@ -99,7 +99,7 @@ class AbinitEvent(yaml.YAMLObject):
             src_file: String with the name of the Fortran file where the event is raised.
             src_line Integer giving the line number in src_file.
         """
-        #print("src_file", src_file, "src_line", src_line)
+        # print("src_file", src_file, "src_line", src_line)
         self.message = message
         self.src_file = src_file
         self.src_line = src_line
@@ -131,7 +131,8 @@ class AbinitEvent(yaml.YAMLObject):
         return "\n".join((self.header, self.message))
 
     def __eq__(self, other):
-        if other is None: return False
+        if other is None:
+            return False
         return self.message == other.message
 
     def __ne__(self, other):
@@ -210,6 +211,7 @@ class AbinitYamlWarning(AbinitCriticalWarning):
     Raised if the YAML parser cannot parse the document and the doc tas is a Warning.
     """
 
+
 ###############################
 # Warnings triggering restart #
 ###############################
@@ -230,7 +232,7 @@ class RelaxConvergenceWarning(AbinitCriticalWarning):
 
 
 # TODO: for the time being we don't discern between GS and PhononCalculations.
-#class PhononConvergenceWarning(AbinitCriticalWarning):
+# class PhononConvergenceWarning(AbinitCriticalWarning):
 #    """Warning raised when the phonon calculation did not converge."""
 #    yaml_tag = u'!PhononConvergenceWarning'
 
@@ -264,6 +266,7 @@ class EventReport(collections.abc.Iterable, MSONable):
 
         stat: information about a file as returned by os.stat
     """
+
     def __init__(self, filename, events=None):
         """
         List of ABINIT events.
@@ -293,7 +296,7 @@ class EventReport(collections.abc.Iterable, MSONable):
         return self._events[slice]
 
     def __str__(self):
-        #has_colours = stream_has_colours(stream)
+        # has_colours = stream_has_colours(stream)
         has_colours = True
 
         lines = []
@@ -302,10 +305,10 @@ class EventReport(collections.abc.Iterable, MSONable):
         app("Events found in %s\n" % self.filename)
         for i, event in enumerate(self):
             if has_colours:
-                app("[%d] %s" % (i+1, colored(event.header, color=event.color)))
+                app("[%d] %s" % (i + 1, colored(event.header, color=event.color)))
                 app(indent(event.message, 4))
             else:
-                app("[%d] %s" % (i+1, str(event)))
+                app("[%d] %s" % (i + 1, str(event)))
 
         app("num_errors: %s, num_warnings: %s, num_comments: %s, completed: %s\n" % (
             self.num_errors, self.num_warnings, self.num_comments, self.run_completed))
@@ -387,7 +390,8 @@ class EventReport(collections.abc.Iterable, MSONable):
     def filter_types(self, event_types):
         events = []
         for ev in self:
-            if type(ev) in event_types: events.append(ev)
+            if type(ev) in event_types:
+                events.append(ev)
         return self.__class__(filename=self.filename, events=events)
 
     def get_events_of_type(self, event_class):
@@ -427,14 +431,14 @@ class EventsParser:
         with YamlTokenizer(filename) as tokens:
             for doc in tokens:
                 if w.match(doc.tag):
-                    #print("got doc.tag", doc.tag,"--")
+                    # print("got doc.tag", doc.tag,"--")
                     try:
-                        #print(doc.text)
-                        event = yaml.load(doc.text)   # Can't use ruamel safe_load!
-                        #yaml.load(doc.text, Loader=ruamel.yaml.Loader)
-                        #print(event.yaml_tag, type(event))
+                        # print(doc.text)
+                        event = yaml.load(doc.text)  # Can't use ruamel safe_load!
+                        # yaml.load(doc.text, Loader=ruamel.yaml.Loader)
+                        # print(event.yaml_tag, type(event))
                     except Exception:
-                        #raise
+                        # raise
                         # Wrong YAML doc. Check tha doc tag and instantiate the proper event.
                         message = "Malformatted YAML document at line: %d\n" % doc.lineno
                         message += doc.text
@@ -454,10 +458,10 @@ class EventsParser:
 
                 # Check whether the calculation completed.
                 if doc.tag == "!FinalSummary":
-                    #print(doc)
+                    # print(doc)
                     run_completed = True
                     d = doc.as_dict()
-                    #print(d)
+                    # print(d)
                     start_datetime, end_datetime = d["start_datetime"], d["end_datetime"]
 
         report.set_run_completed(run_completed, start_datetime, end_datetime)
@@ -511,7 +515,7 @@ class EventHandler(MSONable, metaclass=abc.ABCMeta):
     event_class = AbinitEvent
     """AbinitEvent subclass associated to this handler."""
 
-    #can_change_physics
+    # can_change_physics
 
     FIXED = 1
     NOT_FIXED = 0
@@ -589,7 +593,8 @@ class EventHandler(MSONable, metaclass=abc.ABCMeta):
             """
             new_d = {}
             for key, value in d.items():
-                if isinstance(value, np.ndarray): value = value.tolist()
+                if isinstance(value, np.ndarray):
+                    value = value.tolist()
                 new_d[key] = value
 
             return new_d
@@ -640,11 +645,11 @@ class Correction(MSONable):
                    event=dec.process_decoded(d['event']), reset=d['reset'])
 
 
-#class WarningHandler(EventHandler):
+# class WarningHandler(EventHandler):
 #    """Base class for handlers associated to ABINIT warnings."""
 #    event_class = AbinitWarning
 #
-#class BugHandler(EventHandler):
+# class BugHandler(EventHandler):
 #    """Base class for handlers associated to ABINIT bugs."""
 #    event_class = AbinitBug
 
@@ -653,7 +658,8 @@ class ErrorHandler(EventHandler):
     """Base class for handlers associated to ABINIT errors."""
     event_class = AbinitError
 
-_ABC_EVHANDLER_CLASSES = set([ErrorHandler,])
+
+_ABC_EVHANDLER_CLASSES = set([ErrorHandler, ])
 
 
 # Public API
@@ -664,7 +670,8 @@ def autodoc_event_handlers(stream=sys.stdout):
     """
     lines = []
     for cls in all_subclasses(EventHandler):
-        if cls in _ABC_EVHANDLER_CLASSES: continue
+        if cls in _ABC_EVHANDLER_CLASSES:
+            continue
         event_class = cls.event_class
         lines.extend(cls.cls2str().split("\n"))
 
@@ -689,7 +696,8 @@ def as_event_class(obj):
     """
     if is_string(obj):
         for c in all_subclasses(AbinitEvent):
-            if c.__name__ == obj or c.yaml_tag == obj: return c
+            if c.__name__ == obj or c.yaml_tag == obj:
+                return c
         raise ValueError("Cannot find event class associated to %s" % obj)
 
     # Assume class.
@@ -698,7 +706,7 @@ def as_event_class(obj):
 
 
 ############################################
-########## Concrete classes ################
+# Concrete classes ################
 ############################################
 
 class DilatmxError(AbinitError):
@@ -736,13 +744,15 @@ class DilatmxErrorHandler(ErrorHandler):
 
         task._change_structure(last_structure)
 
-        #read the suggested dilatmx
+        # read the suggested dilatmx
         # new_dilatmx = 1.05
         # if new_dilatmx > self.max_dilatmx:
-        #     msg = "Suggested dilatmx ({}) exceeds maximux configured value ({}).".format(new_dilatmx, self.max_dilatmx)
+        #     msg = "Suggested dilatmx ({}) exceeds maximux configured value ({}).".format(new_dilatmx,
+        #     self.max_dilatmx)
         #     return self.NOT_FIXED
         # task.strategy.abinit_input.set_vars(dilatmx=new_dilatmx)
-        msg = "Take last structure from DILATMX_STRUCT.nc, will try to restart with dilatmx %s" % task.get_inpvar("dilatmx")
+        msg = "Take last structure from DILATMX_STRUCT.nc, will try to restart with dilatmx %s" % task.get_inpvar(
+            "dilatmx")
         task.log_correction(event, msg)
         # Note that we change the structure but we don't try restart from the previous WFK|DEN file
         # because Abinit called mpi_abort and therefore no final WFK|DEN file has been produced.
@@ -756,7 +766,7 @@ class DilatmxErrorHandler(ErrorHandler):
             filepath = outdir.has_abiext("DILATMX_STRUCT.nc")
             last_structure = Structure.from_file(filepath)
             abiinput.set_structure(last_structure)
-            #FIXME restart from DEN files not always working with interpolation
+            # FIXME restart from DEN files not always working with interpolation
             return Correction(self, self.compare_inputs(abiinput, old_abiinput), event, reset=True)
             # return Correction(self, self.compare_inputs(abiinput, old_abiinput), event, event=False)
         except Exception as exc:
@@ -866,12 +876,11 @@ class MemoryErrorHandler(ErrorHandler):
     can_change_physics = False
 
     def handle_task_event(self, task, event):
-
-      task.manager.increase_resources()
-      return self.FIXED
+        task.manager.increase_resources()
+        return self.FIXED
 
     def handle_input_event(self, abiinput, outdir, event):
-      """
-      Shouldn't do anything on the input
-      """
-      return None
+        """
+        Shouldn't do anything on the input
+        """
+        return None
