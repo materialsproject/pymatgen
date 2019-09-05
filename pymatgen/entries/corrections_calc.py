@@ -11,25 +11,65 @@ from pymatgen import Composition
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.analysis.reaction_calculator import ComputedReaction
 
+"""
+This module calculates corrections for the species listed below, fitted to the experimental and computed entries given to the CorrectionCalculator constructor.
+"""
+
 
 class CorrectionCalculator:
+
+    """
+    A CorrectionCalculator contains experimental and computed entries which it uses to compute corrections.
+
+    It graphs residual errors after applying the computed corrections and creates the MPCompatibility.yaml file the Correction classes use.
+
+    Attributes:
+        species: list of species that corrections are being calculated for
+        exp_compounds: list of dictionaries which each contain a compound's formula and experimental data
+        calc_compounds: dictionary of ComputedEntry objects
+        corrections: list of corrections in same order as species list
+        corrections_std_error: list of the variances of the corrections in same order as species list
+        corrections_dict: dictionary of format {'species': (value, error)} for easier correction lookup
+    """
     
     species = ['oxide', 'peroxide', 'superoxide', 'F', 'Cl', 'Br', 'I', 'N', 'S', 'Se',\
                'Si', 'Sb', 'Te', 'V', 'Cr', 'Mn', 'Fe', 'Co','Ni', 'Cu', 'Mo'] #species that we're fitting corrections for
 
-    def __init__(self, exp_json, comp_json):
+    def __init__(self, exp_json: str, comp_json: str) -> None:
+
+        """
+        Initializes a CorrectionCalculator.
+
+        Args:
+            exp_json: name of json file that contains experimental data
+            comp_json: name of json file that contains computed entries
+        """
+
         self.exp_compounds = loadfn(exp_json) #experimental data
         self.calc_compounds = loadfn(comp_json) #computed entries
         self.corrections = []
         self.corrections_std_error = []
-        self.corrections_dict = {} #{'compound': (value, error)}
+        self.corrections_dict = {} #{'species': (value, error)}
 
         #these three lists are just to help the graph_residual_error_per_species() method
         self.oxides = [] 
         self.peroxides = []
         self.superoxides = []
 
-    def compute_corrections(self, allow_polyanions=False, allow_large_errors=False, allow_unstable=False):
+    def compute_corrections(self, allow_polyanions: bool=False, allow_large_errors: bool=False, allow_unstable: bool=False) -> dict:
+
+        """
+        Computes the corrections and fills in correction, corrections_std_error, and corrections_dict.
+
+        Args:
+            allow_polyanions: optional variable, boolean controlling whether compounds with problematic polyanions will be included in the fit
+            allow_large_errors: optional variable, boolean controlling whether compounds with large experimental uncertainties will be included in the fit
+            allow_unstable: optional variable, boolean controlling whether unstable compounds with large e_above_hull will be included in the fit
+
+        Raises:
+            ValueError: calc_compounds is missing an entry
+        """
+
         self.names = []
         self.diffs = []
         self.coeff_mat = []
@@ -101,7 +141,12 @@ class CorrectionCalculator:
         return self.corrections_dict
 
 
-    def graph_residual_error(self):
+    def graph_residual_error(self) -> None:
+
+        """
+        Graphs the residual errors for all compounds after applying computed corrections.
+        """
+
         if len(self.corrections) == 0:
             self.compute_corrections()
         
@@ -134,9 +179,20 @@ class CorrectionCalculator:
         print('Mean = ' + str(abs(np.mean(np.array(self.diffs)))))
         print('Std Dev = ' + str(np.std(np.array(self.diffs))))   
         
-    def graph_residual_error_per_species(self, specie):
+    def graph_residual_error_per_species(self, specie: str) -> None:
+
+        """
+        Graphs the residual errors for each compound that contains specie after applying computed corrections.
+
+        Args:
+            specie: the specie/group that residual errors are being plotted for
+
+        Raises:
+            ValueError: the specie is not a valid specie that this class fits corrections for
+        """
+
         if specie not in self.species:
-            raise Exception('not a valid specie')
+            raise ValueError('not a valid specie')
 
         if len(self.corrections) == 0:
             self.compute_corrections()
@@ -185,9 +241,12 @@ class CorrectionCalculator:
 
         print(labels_species) 
 
-    def make_yaml(self, name='MP'):
+    def make_yaml(self, name: str='MP') -> None:
         """
-        create the _name_Compatibility.yaml that stores corrections as well as _name_CompatibilityErrors.yaml for correction errors
+        Creates the _name_Compatibility.yaml that stores corrections as well as _name_CompatibilityErrors.yaml for correction errors.
+
+        Args:
+            name: optional argument, alternate name for the outputted yaml file
         """
 
         if len(self.corrections) == 0:
@@ -246,7 +305,8 @@ class CorrectionCalculator:
             gas_corr[key] = val
             gas_corr_error[key] = self.corrections_dict[elem][1]
 
-        gas_corr['H2'] =  -3.23973666138 #from old mpcompatibility
+        #from old mpcompatibility
+        gas_corr['H2'] =  -3.23973666138 
         gas_corr_error['H2'] = 0
 
         for elem in ['V', 'Cr', 'Mn', 'Fe', 'Co','Ni', 'Cu', 'Mo']:
