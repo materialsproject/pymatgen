@@ -508,7 +508,7 @@ class MPRester:
             entry_elts = set(entry.composition.elements)
             # Ensure no OH chemsys or extraneous elements from ion references
             if not (entry_elts <= {Element('H'), Element('O')} or
-                            extra_elts.intersection(entry_elts)):
+                    extra_elts.intersection(entry_elts)):
                 # replace energy with formation energy, use dict to
                 # avoid messing with the ion_ref_pd and to keep all old params
                 form_e = ion_ref_pd.get_form_energy(entry)
