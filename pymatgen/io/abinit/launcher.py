@@ -498,10 +498,12 @@ class PyFlowScheduler:
         a lightweight tarball file with inputs and the most important output files
         is created in customer_servide_dir.
         """
-        if self.customer_service_dir is None: return
+        if self.customer_service_dir is None:
+            return
         doit = self.exceptions or not self.flow.all_ok
         doit = True
-        if not doit: return
+        if not doit:
+            return
 
         prefix = os.path.basename(self.flow.workdir) + "_"
 
@@ -510,7 +512,8 @@ class PyFlowScheduler:
         suffix = str(datetime.datetime.now()).replace(" ", "-")
         # Remove milliseconds
         i = suffix.index(".")
-        if i != -1: suffix = suffix[:i]
+        if i != -1:
+            suffix = suffix[:i]
         suffix += ".tar.gz"
 
         # back = os.getcwd()
@@ -639,10 +642,12 @@ class PyFlowScheduler:
         # fix only prepares for restarting, and sets to ready
         if self.fix_qcritical:
             nfixed = flow.fix_queue_critical()
-            if nfixed: print("Fixed %d QCritical error(s)" % nfixed)
+            if nfixed:
+                print("Fixed %d QCritical error(s)" % nfixed)
 
         nfixed = flow.fix_abicritical()
-        if nfixed: print("Fixed %d AbiCritical error(s)" % nfixed)
+        if nfixed:
+            print("Fixed %d AbiCritical error(s)" % nfixed)
 
         # update database
         flow.pickle_dump()
@@ -916,7 +921,8 @@ def sendmail(subject, text, mailto, sender=None):
     except OSError:
         sender = 'abipyscheduler@youknowwhere'
 
-    if is_string(mailto): mailto = [mailto]
+    if is_string(mailto):
+        mailto = [mailto]
 
     from email.mime.text import MIMEText
     mail = MIMEText(text)
@@ -932,7 +938,8 @@ def sendmail(subject, text, mailto, sender=None):
     import sys
 
     sendmail = which("sendmail")
-    if sendmail is None: return -1
+    if sendmail is None:
+        return -1
     if sys.version_info[0] < 3:
         p = Popen([sendmail, "-t"], stdin=PIPE, stderr=PIPE)
     else:
@@ -1112,8 +1119,10 @@ class BatchLauncher:
             self.set_timelimit(36000)
 
         # Initialize list of flows.
-        if flows is None: flows = []
-        if not isinstance(flows, (list, tuple)): flows = [flows]
+        if flows is None:
+            flows = []
+        if not isinstance(flows, (list, tuple)):
+            flows = [flows]
         self.flows = flows
 
     def set_timelimit(self, timelimit):
@@ -1242,7 +1251,8 @@ class BatchLauncher:
             flow.build_and_pickle_dump()
 
         # Submit the task and save the queue id.
-        if dry_run: return -1
+        if dry_run:
+            return -1
 
         print("Will submit %s flows in batch script" % len(self.flows))
         self.qjob, process = self.qadapter.submit_to_queue(self.script_file.path)

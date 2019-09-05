@@ -72,7 +72,8 @@ class JobStatus(int):
     def from_string(cls, s):
         """Return a :class:`JobStatus` instance from its string representation."""
         for num, text in cls._STATUS_TABLE.items():
-            if text == s: return cls(num)
+            if text == s:
+                return cls(num)
         else:
             # raise ValueError("Wrong string %s" % s)
             logger.warning("Got unknown status: %s" % s)
@@ -111,7 +112,8 @@ class QueueJob:
             qname: Name of the queue (optional).
         """
         for cls in all_subclasses(QueueJob):
-            if cls.QTYPE == qtype: break
+            if cls.QTYPE == qtype:
+                break
         else:
             logger.critical("Cannot find QueueJob subclass registered for qtype %s" % qtype)
             cls = QueueJob
@@ -210,11 +212,13 @@ class QueueJob:
         SIGXFSZ     25,25,31    Core    File size limit exceeded (4.2BSD)
         """
         for sig_name in ("SIGFPE",):
-            if self.received_signal(sig_name): return sig_name
+            if self.received_signal(sig_name):
+                return sig_name
         return False
 
     def received_signal(self, sig_name):
-        if self.signal is None: return False
+        if self.signal is None:
+            return False
         # Get the numeric value from signal and compare it with self.signal
         import signal
         try:
@@ -259,14 +263,16 @@ class SlurmJob(QueueJob):
             return None
 
         lines = out.splitlines()
-        if len(lines) <= 2: return None
+        if len(lines) <= 2:
+            return None
 
         from datetime import datetime
         for line in lines:
             tokens = line.split()
             if int(tokens[0]) == self.qid:
                 date_string = tokens[5]
-                if date_string == "N/A": return None
+                if date_string == "N/A":
+                    return None
                 return datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%S")
 
         return None
@@ -319,7 +325,8 @@ class SlurmJob(QueueJob):
             exitcode, signal = int(exitcode), None
 
         i = status.find("+")
-        if i != -1: status = status[:i]
+        if i != -1:
+            status = status[:i]
 
         self.set_status_exitcode_signal(JobStatus.from_string(status), exitcode, signal)
         return AttrDict(exitcode=exitcode, signal=signal, status=status)

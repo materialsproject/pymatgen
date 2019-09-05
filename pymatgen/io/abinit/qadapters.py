@@ -156,8 +156,10 @@ class OmpEnv(AttrDict):
     @classmethod
     def as_ompenv(cls, obj):
         """Convert an object into a OmpEnv"""
-        if isinstance(obj, cls): return obj
-        if obj is None: return cls()
+        if isinstance(obj, cls):
+            return obj
+        if obj is None:
+            return cls()
         return cls(**obj)
 
     def __init__(self, *args, **kwargs):
@@ -271,7 +273,8 @@ class _ExcludeNodesFile:
 
     def __init__(self):
         if not os.path.exists(self.FILEPATH):
-            if not os.path.exists(self.DIRPATH): os.makedirs(self.DIRPATH)
+            if not os.path.exists(self.DIRPATH):
+                os.makedirs(self.DIRPATH)
             with FileLock(self.FILEPATH):
                 with open(self.FILEPATH, "w") as fh:
                     json.dump({}, fh)
@@ -299,7 +302,8 @@ _EXCL_NODES_FILE = _ExcludeNodesFile()
 def show_qparams(qtype, stream=sys.stdout):
     """Print to the given stream the template of the :class:`QueueAdapter` of type `qtype`."""
     for cls in all_subclasses(QueueAdapter):
-        if cls.QTYPE == qtype: return stream.write(cls.QTEMPLATE)
+        if cls.QTYPE == qtype:
+            return stream.write(cls.QTEMPLATE)
 
     raise ValueError("Cannot find class associated to qtype %s" % qtype)
 
@@ -563,7 +567,8 @@ limits:
             `ValueError` if errors.
         """
         # No validation for ShellAdapter.
-        if isinstance(self, ShellAdapter): return
+        if isinstance(self, ShellAdapter):
+            return
 
         # Parse the template so that we know the list of supported options.
         err_msg = ""
@@ -609,14 +614,16 @@ limits:
 
     def _parse_job(self, d):
         setup = d.pop("setup", None)
-        if is_string(setup): setup = [setup]
+        if is_string(setup):
+            setup = [setup]
         self.setup = setup[:] if setup is not None else []
 
         omp_env = d.pop("omp_env", None)
         self.omp_env = omp_env.copy() if omp_env is not None else {}
 
         modules = d.pop("modules", None)
-        if is_string(modules): modules = [modules]
+        if is_string(modules):
+            modules = [modules]
         self.modules = modules[:] if modules is not None else []
 
         shell_env = d.pop("shell_env", None)
@@ -633,11 +640,13 @@ limits:
             self.shell_runner = MpiRunner(self.shell_runner, options=shell_runner_options)
 
         pre_run = d.pop("pre_run", None)
-        if is_string(pre_run): pre_run = [pre_run]
+        if is_string(pre_run):
+            pre_run = [pre_run]
         self.pre_run = pre_run[:] if pre_run is not None else []
 
         post_run = d.pop("post_run", None)
-        if is_string(post_run): post_run = [post_run]
+        if is_string(post_run):
+            post_run = [post_run]
         self.post_run = post_run[:] if post_run is not None else []
 
         if d:
@@ -661,7 +670,8 @@ limits:
         app = lines.append
         app("Hardware:\n" + str(self.hw))
         # lines.extend(["qparams:\n", str(self.qparams)])
-        if self.has_omp: app(str(self.omp_env))
+        if self.has_omp:
+            app(str(self.omp_env))
 
         return "\n".join(lines)
 
@@ -869,9 +879,12 @@ limits:
 
     def can_run_pconf(self, pconf):
         """True if the qadapter in principle is able to run the :class:`ParalConf` pconf"""
-        if not self.hint_cores >= pconf.num_cores >= self.min_cores: return False
-        if not self.hw.can_use_omp_threads(self.omp_threads): return False
-        if pconf.mem_per_proc > self.hw.mem_per_node: return False
+        if not self.hint_cores >= pconf.num_cores >= self.min_cores:
+            return False
+        if not self.hw.can_use_omp_threads(self.omp_threads):
+            return False
+        if pconf.mem_per_proc > self.hw.mem_per_node:
+            return False
         if self.allocation == "force_nodes" and pconf.num_cores % self.hw.cores_per_node != 0:
             return False
 
@@ -915,7 +928,8 @@ limits:
             # One node is enough
             return Distrib(num_nodes=1, mpi_per_node=mpi_procs, exact=True)
 
-        if num_nodes == 0: num_nodes = 2
+        if num_nodes == 0:
+            num_nodes = 2
         mpi_per_node = mpi_procs // num_nodes
         if mpi_per_node * mem_per_proc <= hw.mem_per_node and rest_cores == 0:
             # Commensurate with nodes.
@@ -935,7 +949,8 @@ limits:
         if (mpi_procs * omp_threads) % mpi_per_node != 0:
             # Have to reduce the number of MPI procs per node
             for mpi_per_node in reversed(range(1, mpi_per_node)):
-                if mpi_per_node > hw.cores_per_node: continue
+                if mpi_per_node > hw.cores_per_node:
+                    continue
                 num_nodes = (mpi_procs * omp_threads) // mpi_per_node
                 if (mpi_procs * omp_threads) % mpi_per_node == 0 and mpi_per_node * mem_per_proc <= hw.mem_per_node:
                     return Distrib(num_nodes=num_nodes, mpi_per_node=mpi_per_node, exact=False)
@@ -1110,7 +1125,8 @@ limits:
         Args:
             username: (str) the username of the jobs to count (default is to autodetect)
         """
-        if username is None: username = getpass.getuser()
+        if username is None:
+            username = getpass.getuser()
         njobs, process = self._get_njobs_in_queue(username=username)
 
         if process is not None and process.returncode != 0:

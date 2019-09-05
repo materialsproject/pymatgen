@@ -329,7 +329,8 @@ class ParalHints(collections.abc.Iterable):
             obj = conf if key is None else AttrDict(conf[key])
             add_it = condition(obj=obj)
             # if key is "vars": print("conf", conf, "added:", add_it)
-            if add_it: new_confs.append(conf)
+            if add_it:
+                new_confs.append(conf)
 
         self._confs = new_confs
 
@@ -421,7 +422,8 @@ class ParalHints(collections.abc.Iterable):
                     hints.sort_by_speedup()
         else:
             hints = hints.multidimensional_optimization(priorities=policy.autoparal_priorities)
-            if len(hints) == 0: raise ValueError("len(hints) == 0")
+            if len(hints) == 0:
+                raise ValueError("len(hints) == 0")
 
         # TODO: make sure that num_cores == 1 is never selected when we have more than one configuration
         # if len(hints) > 1:
@@ -499,7 +501,8 @@ class TaskPolicy:
         lines = []
         app = lines.append
         for k, v in self.__dict__.items():
-            if k.startswith("_"): continue
+            if k.startswith("_"):
+                continue
             app("%s: %s" % (k, v))
         return "\n".join(lines)
 
@@ -623,8 +626,10 @@ batch_adapter:
         Convert obj into TaskManager instance. Accepts string, filepath, dictionary, `TaskManager` object.
         If obj is None, the manager is initialized from the user config file.
         """
-        if isinstance(obj, cls): return obj
-        if obj is None: return cls.from_user_config()
+        if isinstance(obj, cls):
+            return obj
+        if obj is None:
+            return cls.from_user_config()
 
         if is_string(obj):
             if os.path.exists(obj):
@@ -664,7 +669,8 @@ batch_adapter:
         # Build list of QAdapters. Neglect entry if priority == 0 or `enabled: no"
         qads = []
         for d in kwargs.pop("qadapters"):
-            if d.get("enabled", False): continue
+            if d.get("enabled", False):
+                continue
             qad = make_qadapter(**d)
             if qad.priority > 0:
                 qads.append(qad)
@@ -685,7 +691,8 @@ batch_adapter:
         # Initialize the qadapter for batch script submission.
         d = kwargs.pop("batch_adapter", None)
         self.batch_adapter = None
-        if d: self.batch_adapter = make_qadapter(**d)
+        if d:
+            self.batch_adapter = make_qadapter(**d)
         # print("batch_adapter", self.batch_adapter)
 
         if kwargs:
@@ -714,7 +721,8 @@ batch_adapter:
         # when we build the new Manager.
         has_shell_qad = False
         for d in my_kwargs["qadapters"]:
-            if d["queue"]["qtype"] == "shell": has_shell_qad = True
+            if d["queue"]["qtype"] == "shell":
+                has_shell_qad = True
         if has_shell_qad:
             my_kwargs["qadapters"] = [d for d in my_kwargs["qadapters"] if d["queue"]["qtype"] == "shell"]
 
@@ -731,7 +739,8 @@ batch_adapter:
             if "job" in d and "shell_runner" in d["job"]:
                 shell_runner = d["job"]["shell_runner"]
                 # print("shell_runner:", shell_runner, type(shell_runner))
-                if not shell_runner or shell_runner == "None": shell_runner = ""
+                if not shell_runner or shell_runner == "None":
+                    shell_runner = ""
                 d["job"]["mpi_runner"] = shell_runner
                 # print("shell_runner:", shell_runner)
 
@@ -826,7 +835,8 @@ batch_adapter:
 
         # Change the number of MPI/OMP cores.
         self.set_mpi_procs(pconf.mpi_procs)
-        if self.has_omp: self.set_omp_threads(pconf.omp_threads)
+        if self.has_omp:
+            self.set_omp_threads(pconf.omp_threads)
 
         # Set memory per proc.
         # FIXME: Fixer may have changed the memory per proc and should not be resetted by ParalConf
@@ -966,7 +976,8 @@ batch_adapter:
         # Pass information on the time limit to Abinit (we always assume ndtset == 1)
         if isinstance(task, AbinitTask):
             args = kwargs.get("exec_args", [])
-            if args is None: args = []
+            if args is None:
+                args = []
             args = args[:]
             args.append("--timelimit %s" % qu.time2slurm(self.qadapter.timelimit))
             kwargs["exec_args"] = args
@@ -1165,12 +1176,16 @@ class AbinitBuild:
 
         # Parse info.
         for line in self.info.splitlines():
-            if "Version" in line: self.version = line.split()[-1]
+            if "Version" in line:
+                self.version = line.split()[-1]
             if "TRIO flavor" in line:
                 self.has_netcdf = "netcdf" in line
-            if "openMP support" in line: self.has_omp = yesno2bool(line)
-            if "Parallel build" in line: self.has_mpi = yesno2bool(line)
-            if "Parallel I/O" in line: self.has_mpiio = yesno2bool(line)
+            if "openMP support" in line:
+                self.has_omp = yesno2bool(line)
+            if "Parallel build" in line:
+                self.has_mpi = yesno2bool(line)
+            if "Parallel I/O" in line:
+                self.has_mpiio = yesno2bool(line)
 
     def __str__(self):
         lines = []
@@ -1227,14 +1242,16 @@ class MyTimedelta(datetime.timedelta):
         """Remove microseconds from timedelta default __str__"""
         s = super().__str__()
         microsec = s.find(".")
-        if microsec != -1: s = s[:microsec]
+        if microsec != -1:
+            s = s[:microsec]
         return s
 
     @classmethod
     def as_timedelta(cls, delta):
         """Convert delta into a MyTimedelta object."""
         # Cannot monkey patch the __class__ and must pass through __new__ as the object is immutable.
-        if isinstance(delta, cls): return delta
+        if isinstance(delta, cls):
+            return delta
         return cls(delta.days, delta.seconds, delta.microseconds)
 
 
@@ -1259,9 +1276,12 @@ class TaskDateTimes:
         app = lines.append
 
         app("Initialization done on: %s" % self.init)
-        if self.submission is not None: app("Submitted on: %s" % self.submission)
-        if self.start is not None: app("Started on: %s" % self.start)
-        if self.end is not None: app("Completed on: %s" % self.end)
+        if self.submission is not None:
+            app("Submitted on: %s" % self.submission)
+        if self.start is not None:
+            app("Started on: %s" % self.start)
+        if self.end is not None:
+            app("Completed on: %s" % self.end)
 
         return "\n".join(lines)
 
@@ -1271,7 +1291,8 @@ class TaskDateTimes:
 
     def get_runtime(self):
         """:class:`timedelta` with the run-time, None if the Task is not running"""
-        if self.start is None: return None
+        if self.start is None:
+            return None
 
         if self.end is None:
             delta = datetime.datetime.now() - self.start
@@ -1289,14 +1310,16 @@ class TaskDateTimes:
             This value is always greater than the real value computed by the resource manager
             as we start to count only when check_status sets the `Task` status to S_RUN.
         """
-        if self.submission is None: return None
+        if self.submission is None:
+            return None
 
         if self.start is None:
             delta = datetime.datetime.now() - self.submission
         else:
             delta = self.start - self.submission
             # This happens when we read the exact start datetime from the ABINIT log file.
-            if delta.total_seconds() < 0: delta = datetime.timedelta(seconds=0)
+            if delta.total_seconds() < 0:
+                delta = datetime.timedelta(seconds=0)
 
         return MyTimedelta.as_timedelta(delta)
 
@@ -1481,7 +1504,8 @@ class Task(Node, metaclass=abc.ABCMeta):
     def make_input(self, with_header=False):
         """Construct the input file of the calculation."""
         s = str(self.input)
-        if with_header: s = str(self) + "\n" + s
+        if with_header:
+            s = str(self) + "\n" + s
         return s
 
     def ipath_from_ext(self, ext):
@@ -1546,8 +1570,10 @@ class Task(Node, metaclass=abc.ABCMeta):
     # @check_spectator
     def cancel(self):
         """Cancel the job. Returns 1 if job was cancelled."""
-        if self.queue_id is None: return 0
-        if self.status >= self.S_DONE: return 0
+        if self.queue_id is None:
+            return 0
+        if self.status >= self.S_DONE:
+            return 0
 
         exit_status = self.manager.cancel(self.queue_id)
         if exit_status != 0:
@@ -1644,7 +1670,8 @@ class Task(Node, metaclass=abc.ABCMeta):
         if submit:
             # Relaunch the task.
             fired = self.start()
-            if not fired: self.history.warning("Restart failed")
+            if not fired:
+                self.history.warning("Restart failed")
         else:
             fired = False
 
@@ -1816,7 +1843,8 @@ class Task(Node, metaclass=abc.ABCMeta):
             raise RuntimeError("Trying to unlock a task with status %s" % self.status)
 
         self._status = self.S_READY
-        if check_status: self.check_status()
+        if check_status:
+            self.check_status()
         self.history.info("Unlocked by %s", source_node)
 
     # @check_spectator
@@ -2135,7 +2163,8 @@ class Task(Node, metaclass=abc.ABCMeta):
                     # Try netcdf file.
                     # TODO: this case should be treated in a cleaner way.
                     path += ".nc"
-                    if os.path.exists(path): dest += ".nc"
+                    if os.path.exists(path):
+                        dest += ".nc"
 
                 if not os.path.exists(path):
                     raise self.Error("%s: %s is needed by this task but it does not exist" % (self, path))
@@ -2362,7 +2391,8 @@ class Task(Node, metaclass=abc.ABCMeta):
         # needed by the children who haven't reached S_OK
         except_exts = set()
         for child in self.get_children():
-            if child.status == self.S_OK: continue
+            if child.status == self.S_OK:
+                continue
             # Find the position of self in child.deps and add the extensions.
             i = [dep.node for dep in child.deps].index(self)
             except_exts.update(child.deps[i].exts)
@@ -2371,7 +2401,8 @@ class Task(Node, metaclass=abc.ABCMeta):
         exts = self.gc.exts.difference(except_exts)
         # print("Will remove its extensions: ", exts)
         paths += self.outdir.remove_exts(exts)
-        if not follow_parents: return paths
+        if not follow_parents:
+            return paths
 
         # Remove the files in the outdir of my parents if all the possible dependencies have been fulfilled.
         for parent in self.get_parents():
@@ -2380,7 +2411,8 @@ class Task(Node, metaclass=abc.ABCMeta):
             # e.g {"WFK": [node1, node2]}
             ext2nodes = collections.defaultdict(list)
             for child in parent.get_children():
-                if child.status == child.S_OK: continue
+                if child.status == child.S_OK:
+                    continue
                 i = [d.node for d in child.deps].index(parent)
                 for ext in child.deps[i].exts:
                     ext2nodes[ext].append(child)
@@ -2623,7 +2655,8 @@ class AbinitTask(Task):
         # Build a simple manager to run the job in a shell subprocess
         import tempfile
         workdir = tempfile.mkdtemp() if workdir is None else workdir
-        if manager is None: manager = TaskManager.from_user_config()
+        if manager is None:
+            manager = TaskManager.from_user_config()
 
         # Construct the task and run it
         task = cls.from_input(inp, workdir=workdir, manager=manager.to_shell_manager(mpi_procs=mpi_procs))
@@ -2651,8 +2684,10 @@ class AbinitTask(Task):
             return "Will rename %s to %s" % (afile.path, new_path)
 
         logs = []
-        if self.output_file.exists: logs.append(rename_file(self.output_file))
-        if self.log_file.exists: logs.append(rename_file(self.log_file))
+        if self.output_file.exists:
+            logs.append(rename_file(self.output_file))
+        if self.log_file.exists:
+            logs.append(rename_file(self.log_file))
 
         if logs:
             self.history.info("\n".join(logs))
@@ -2820,7 +2855,8 @@ class AbinitTask(Task):
         # Will get all the possible configurations up to max_ncpus
         # Return immediately if max_ncpus == 1
         max_ncpus = self.manager.max_cores
-        if max_ncpus == 1: return 0
+        if max_ncpus == 1:
+            return 0
 
         autoparal_vars = dict(autoparal=policy.autoparal, max_ncpus=max_ncpus, mem_test=0)
         self.set_vars(autoparal_vars)
@@ -2957,7 +2993,8 @@ class AbinitTask(Task):
 
         # Move files to reset and append digit with reset index.
         def move_file(f):
-            if not f.exists: return
+            if not f.exists:
+                return
             try:
                 f.move(os.path.join(reset_dir, f.basename + "_" + str(num_reset)))
             except OSError as exc:
@@ -3188,7 +3225,8 @@ class ProduceHist:
             return self._hist_path
         except AttributeError:
             path = self.outdir.has_abiext("HIST")
-            if path: self._hist_path = path
+            if path:
+                self._hist_path = path
             return path
 
     def open_hist(self):
@@ -3224,7 +3262,8 @@ class GsTask(AbinitTask):
             return self._gsr_path
         except AttributeError:
             path = self.outdir.has_abiext("GSR")
-            if path: self._gsr_path = path
+            if path:
+                self._gsr_path = path
             return path
 
     def open_gsr(self):
@@ -3264,7 +3303,8 @@ class ScfTask(GsTask):
         for ext in ("WFK", "DEN"):
             restart_file = self.outdir.has_abiext(ext)
             irdvars = irdvars_for_ext(ext)
-            if restart_file: break
+            if restart_file:
+                break
         else:
             raise self.RestartError("%s: Cannot find WFK or DEN file to restart from." % self)
 
@@ -3291,7 +3331,8 @@ class ScfTask(GsTask):
             return None
 
         if scf_cycle is not None:
-            if "title" not in kwargs: kwargs["title"] = str(self)
+            if "title" not in kwargs:
+                kwargs["title"] = str(self)
             return scf_cycle.plot(**kwargs)
 
         return None
@@ -3512,7 +3553,8 @@ class RelaxTask(GsTask, ProduceHist):
         elif what == "scf":
             # Get info on the different SCF cycles
             relaxation = abiinspect.Relaxation.from_file(self.output_file.path)
-            if "title" not in kwargs: kwargs["title"] = str(self)
+            if "title" not in kwargs:
+                kwargs["title"] = str(self)
             return relaxation.plot(**kwargs) if relaxation is not None else None
 
         else:
@@ -3552,7 +3594,8 @@ class RelaxTask(GsTask, ProduceHist):
 
         # Rename last TIMDEN with out_DEN.
         ofile = self.outdir.path_in("out_DEN")
-        if last_timden.path.endswith(".nc"): ofile += ".nc"
+        if last_timden.path.endswith(".nc"):
+            ofile += ".nc"
         self.history.info("Renaming last_denfile %s --> %s" % (last_timden.path, ofile))
         os.rename(last_timden.path, ofile)
 
@@ -3612,7 +3655,8 @@ class DfptTask(AbinitTask):
             return self._ddb_path
         except AttributeError:
             path = self.outdir.has_abiext("DDB")
-            if path: self._ddb_path = path
+            if path:
+                self._ddb_path = path
             return path
 
     def open_ddb(self):
@@ -3823,7 +3867,8 @@ class PhononTask(DfptTask):
         """
         scf_cycle = abiinspect.PhononScfCycle.from_file(self.output_file.path)
         if scf_cycle is not None:
-            if "title" not in kwargs: kwargs["title"] = str(self)
+            if "title" not in kwargs:
+                kwargs["title"] = str(self)
             return scf_cycle.plot(**kwargs)
 
     def get_results(self, **kwargs):
@@ -3894,7 +3939,8 @@ class ScrTask(ManyBodyTask):
             return self._scr_path
         except AttributeError:
             path = self.outdir.has_abiext("SCR.nc")
-            if path: self._scr_path = path
+            if path:
+                self._scr_path = path
             return path
 
     def open_scr(self):
@@ -3956,7 +4002,8 @@ class SigmaTask(ManyBodyTask):
             return self._sigres_path
         except AttributeError:
             path = self.outdir.has_abiext("SIGRES")
-            if path: self._sigres_path = path
+            if path:
+                self._sigres_path = path
             return path
 
     def open_sigres(self):
@@ -4092,7 +4139,8 @@ class BseTask(ManyBodyTask):
             return self._mdf_path
         except AttributeError:
             path = self.outdir.has_abiext("MDF.nc")
-            if path: self._mdf_path = path
+            if path:
+                self._mdf_path = path
             return path
 
     def open_mdf(self):
@@ -4173,8 +4221,10 @@ class OpticTask(Task):
         kwargs.update(dict(*args))
         self.history.info("OpticTask intercepted set_vars with args %s" % kwargs)
 
-        if "autoparal" in kwargs: self.input.set_vars(autoparal=kwargs["autoparal"])
-        if "max_ncpus" in kwargs: self.input.set_vars(max_ncpus=kwargs["max_ncpus"])
+        if "autoparal" in kwargs:
+            self.input.set_vars(autoparal=kwargs["autoparal"])
+        if "max_ncpus" in kwargs:
+            self.input.set_vars(max_ncpus=kwargs["max_ncpus"])
 
     @property
     def executable(self):
@@ -4266,7 +4316,8 @@ class OpticTask(Task):
 
         # Move files to reset and append digit with reset index.
         def move_file(f):
-            if not f.exists: return
+            if not f.exists:
+                return
             try:
                 f.move(os.path.join(reset_dir, f.basename + "_" + str(num_reset)))
             except OSError as exc:
@@ -4428,7 +4479,8 @@ class OpticTask(Task):
         # Will get all the possible configurations up to max_ncpus
         # Return immediately if max_ncpus == 1
         max_ncpus = self.manager.max_cores
-        if max_ncpus == 1: return 0
+        if max_ncpus == 1:
+            return 0
 
         autoparal_vars = dict(autoparal=policy.autoparal, max_ncpus=max_ncpus)
         self.set_vars(autoparal_vars)
@@ -4551,7 +4603,8 @@ class AnaddbTask(Task):
         # Build a simple manager to run the job in a shell subprocess
         import tempfile
         workdir = tempfile.mkdtemp() if workdir is None else workdir
-        if manager is None: manager = TaskManager.from_user_config()
+        if manager is None:
+            manager = TaskManager.from_user_config()
 
         # Construct the task and run it
         return cls(inp, ddb_node,
@@ -4586,15 +4639,18 @@ class AnaddbTask(Task):
     def ddb_filepath(self):
         """Returns (at runtime) the absolute path of the input DDB file."""
         # This is not very elegant! A possible approach could to be path self.ddb_node.outdir!
-        if isinstance(self.ddb_node, FileNode): return self.ddb_node.filepath
+        if isinstance(self.ddb_node, FileNode):
+            return self.ddb_node.filepath
         path = self.ddb_node.outdir.has_abiext("DDB")
         return path if path else "DDB_FILE_DOES_NOT_EXIST"
 
     @property
     def md_filepath(self):
         """Returns (at runtime) the absolute path of the input MD file."""
-        if self.md_node is None: return "MD_FILE_DOES_NOT_EXIST"
-        if isinstance(self.md_node, FileNode): return self.md_node.filepath
+        if self.md_node is None:
+            return "MD_FILE_DOES_NOT_EXIST"
+        if isinstance(self.md_node, FileNode):
+            return self.md_node.filepath
 
         path = self.md_node.outdir.has_abiext("MD")
         return path if path else "MD_FILE_DOES_NOT_EXIST"
@@ -4602,8 +4658,10 @@ class AnaddbTask(Task):
     @property
     def gkk_filepath(self):
         """Returns (at runtime) the absolute path of the input GKK file."""
-        if self.gkk_node is None: return "GKK_FILE_DOES_NOT_EXIST"
-        if isinstance(self.gkk_node, FileNode): return self.gkk_node.filepath
+        if self.gkk_node is None:
+            return "GKK_FILE_DOES_NOT_EXIST"
+        if isinstance(self.gkk_node, FileNode):
+            return self.gkk_node.filepath
 
         path = self.gkk_node.outdir.has_abiext("GKK")
         return path if path else "GKK_FILE_DOES_NOT_EXIST"
@@ -4611,8 +4669,10 @@ class AnaddbTask(Task):
     @property
     def ddk_filepath(self):
         """Returns (at runtime) the absolute path of the input DKK file."""
-        if self.ddk_node is None: return "DDK_FILE_DOES_NOT_EXIST"
-        if isinstance(self.ddk_node, FileNode): return self.ddk_node.filepath
+        if self.ddk_node is None:
+            return "DDK_FILE_DOES_NOT_EXIST"
+        if isinstance(self.ddk_node, FileNode):
+            return self.ddk_node.filepath
 
         path = self.ddk_node.outdir.has_abiext("DDK")
         return path if path else "DDK_FILE_DOES_NOT_EXIST"

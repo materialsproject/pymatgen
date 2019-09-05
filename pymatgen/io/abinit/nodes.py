@@ -74,7 +74,8 @@ class Status(int):
     @classmethod
     def as_status(cls, obj):
         """Convert obj into Status."""
-        if obj is None: return None
+        if obj is None:
+            return None
         return obj if isinstance(obj, cls) else cls.from_string(obj)
 
     @classmethod
@@ -131,7 +132,8 @@ class Dependency:
         """
         self._node = Node.as_node(node)
 
-        if exts and is_string(exts): exts = exts.split()
+        if exts and is_string(exts):
+            exts = exts.split()
 
         # Extract extensions.
         self.exts = [e for e in exts if not e.startswith("@")]
@@ -185,7 +187,8 @@ class Dependency:
 
             - @structure
         """
-        if not self.getters: return
+        if not self.getters:
+            return
 
         for getter in self.getters:
             if getter == "@structure":
@@ -304,10 +307,14 @@ class NodeResults(dict, MSONable):
         super().__init__(**kwargs)
         self.node = node
 
-        if "in" not in self: self["in"] = Namespace()
-        if "out" not in self: self["out"] = Namespace()
-        if "exceptions" not in self: self["exceptions"] = []
-        if "files" not in self: self["files"] = Namespace()
+        if "in" not in self:
+            self["in"] = Namespace()
+        if "out" not in self:
+            self["out"] = Namespace()
+        if "exceptions" not in self:
+            self["exceptions"] = []
+        if "files" not in self:
+            self["files"] = Namespace()
 
     @property
     def exceptions(self):
@@ -334,7 +341,8 @@ class NodeResults(dict, MSONable):
         d = {}
         for k, v in kwargs.items():
             mode = "b"
-            if isinstance(v, (list, tuple)): v, mode = v
+            if isinstance(v, (list, tuple)):
+                v, mode = v
             d[k] = GridFsFile(path=v, mode=mode)
 
         self["files"].update(d)
@@ -511,7 +519,8 @@ class Node(metaclass=abc.ABCMeta):
         self._status = self.S_INIT
 
     def __eq__(self, other):
-        if not isinstance(other, Node): return False
+        if not isinstance(other, Node):
+            return False
         return self.node_id == other.node_id
 
     def __ne__(self, other):
@@ -789,9 +798,11 @@ class Node(metaclass=abc.ABCMeta):
         # Inspect the entire flow to get children.
         children = []
         for work in self.flow:
-            if work.depends_on(self): children.append(work)
+            if work.depends_on(self):
+                children.append(work)
             for task in work:
-                if task.depends_on(self): children.append(task)
+                if task.depends_on(self):
+                    children.append(task)
         return children
 
     def str_deps(self):
@@ -936,7 +947,8 @@ class Node(metaclass=abc.ABCMeta):
         through send, terminating the dispatch loop, so it is quite
         possible to not have all receivers called if a raises an error.
         """
-        if self.in_spectator_mode: return None
+        if self.in_spectator_mode:
+            return None
         logger.debug("Node %s broadcasts signal %s" % (self, signal))
         dispatcher.send(signal=signal, sender=self)
 
@@ -1042,7 +1054,8 @@ Continuing anyway assuming that the netcdf file provides the API/dims/vars neeed
         # try to find file in the same path
         filepath = os.path.dirname(self.filepath)
         glob_result = glob.glob(os.path.join(filepath, "*%s" % abiext))
-        if len(glob_result): return abilab.abiopen(glob_result[0])
+        if len(glob_result):
+            return abilab.abiopen(glob_result[0])
         return self.abiopen()
 
 
@@ -1137,7 +1150,8 @@ class HistoryRecord:
         self.asctime = time.asctime()
         # Remove milliseconds
         i = self.asctime.find(".")
-        if i != -1: self.asctime = self.asctime[:i]
+        if i != -1:
+            self.asctime = self.asctime[:i]
 
     def __repr__(self):
         return '<%s, %s, %s, %s,\n"%s">' % (self.__class__.__name__, self.levelno, self.pathname, self.lineno, self.msg)
@@ -1160,7 +1174,8 @@ class HistoryRecord:
             except Exception:
                 msg += str(self.args)
 
-        if asctime: msg = "[" + self.asctime + "] " + msg
+        if asctime:
+            msg = "[" + self.asctime + "] " + msg
 
         # Add metadata
         if metadata:
@@ -1254,7 +1269,8 @@ def init_counter():
     if _COUNTER is None:
         with open(_COUNTER_FILE, "r") as fh:
             s = fh.read().strip()
-            if not s: s = "-1"
+            if not s:
+                s = "-1"
             _COUNTER = int(s)
 
 

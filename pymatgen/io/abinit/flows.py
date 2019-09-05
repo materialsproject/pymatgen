@@ -154,7 +154,8 @@ class Flow(Node, NodeContainer, MSONable):
             work_class: The class of the :class:`Work`.
             remove: attempt to remove working directory `workdir` if directory already exists.
         """
-        if not isinstance(inputs, (list, tuple)): inputs = [inputs]
+        if not isinstance(inputs, (list, tuple)):
+            inputs = [inputs]
 
         flow = cls(workdir, manager=manager, pickle_protocol=pickle_protocol, remove=remove)
         work = work_class()
@@ -167,7 +168,8 @@ class Flow(Node, NodeContainer, MSONable):
     @classmethod
     def as_flow(cls, obj):
         """Convert obj into a Flow. Accepts filepath, dict, or Flow object."""
-        if isinstance(obj, cls): return obj
+        if isinstance(obj, cls):
+            return obj
         if is_string(obj):
             return cls.pickle_load(obj)
         elif isinstance(obj, collections.abc.Mapping):
@@ -191,12 +193,14 @@ class Flow(Node, NodeContainer, MSONable):
         super().__init__()
 
         if workdir is not None:
-            if remove and os.path.exists(workdir): shutil.rmtree(workdir)
+            if remove and os.path.exists(workdir):
+                shutil.rmtree(workdir)
             self.set_workdir(workdir)
 
         self.creation_date = time.asctime()
 
-        if manager is None: manager = TaskManager.from_user_config()
+        if manager is None:
+            manager = TaskManager.from_user_config()
         self.manager = manager.deepcopy()
 
         # List of works.
@@ -227,7 +231,8 @@ class Flow(Node, NodeContainer, MSONable):
         # Save the location of the script used to generate the flow.
         # This trick won't work if we are running with nosetests, py.test etc
         pyfile = find_top_pyfile()
-        if "python" in pyfile or "ipython" in pyfile: pyfile = "<" + pyfile + ">"
+        if "python" in pyfile or "ipython" in pyfile:
+            pyfile = "<" + pyfile + ">"
         self.set_pyfile(pyfile)
 
         # TODO
@@ -597,7 +602,8 @@ class Flow(Node, NodeContainer, MSONable):
         class2tasks = OrderedDict()
         for task in self.iflat_tasks():
             cls = task.__class__
-            if cls not in class2tasks: class2tasks[cls] = []
+            if cls not in class2tasks:
+                class2tasks[cls] = []
             class2tasks[cls].append(task)
 
         return class2tasks
@@ -615,10 +621,12 @@ class Flow(Node, NodeContainer, MSONable):
                 yield self
 
             for work in self:
-                if nids and work.node_id not in nids: continue
+                if nids and work.node_id not in nids:
+                    continue
                 yield work
                 for task in work:
-                    if nids and task.node_id not in nids: continue
+                    if nids and task.node_id not in nids:
+                        continue
                     yield task
         else:
             # Get the operator from the string.
@@ -628,20 +636,26 @@ class Flow(Node, NodeContainer, MSONable):
             status = Status.as_status(status)
 
             if not (nids and self.node_id not in nids):
-                if op(self.status, status): yield self
+                if op(self.status, status):
+                    yield self
 
             for wi, work in enumerate(self):
-                if nids and work.node_id not in nids: continue
-                if op(work.status, status): yield work
+                if nids and work.node_id not in nids:
+                    continue
+                if op(work.status, status):
+                    yield work
 
                 for ti, task in enumerate(work):
-                    if nids and task.node_id not in nids: continue
-                    if op(task.status, status): yield task
+                    if nids and task.node_id not in nids:
+                        continue
+                    if op(task.status, status):
+                        yield task
 
     def node_from_nid(self, nid):
         """Return the node in the `Flow` with the given `nid` identifier"""
         for node in self.iflat_nodes():
-            if node.node_id == nid: return node
+            if node.node_id == nid:
+                return node
         raise ValueError("Cannot find node with node id: %s" % nid)
 
     def iflat_tasks_wti(self, status=None, op="==", nids=None):
@@ -685,7 +699,8 @@ class Flow(Node, NodeContainer, MSONable):
         if status is None:
             for wi, work in enumerate(self):
                 for ti, task in enumerate(work):
-                    if nids and task.node_id not in nids: continue
+                    if nids and task.node_id not in nids:
+                        continue
                     if with_wti:
                         yield task, wi, ti
                     else:
@@ -700,7 +715,8 @@ class Flow(Node, NodeContainer, MSONable):
 
             for wi, work in enumerate(self):
                 for ti, task in enumerate(work):
-                    if nids and task.node_id not in nids: continue
+                    if nids and task.node_id not in nids:
+                        continue
                     if op(task.status, status):
                         if with_wti:
                             yield task, wi, ti
@@ -731,7 +747,8 @@ class Flow(Node, NodeContainer, MSONable):
         isok, tuples = True, []
         for task in self.iflat_tasks():
             t = task.input.abivalidate()
-            if t.retcode != 0: isok = False
+            if t.retcode != 0:
+                isok = False
             tuples.append(t)
 
         return isok, tuples
@@ -919,10 +936,12 @@ class Flow(Node, NodeContainer, MSONable):
         red = "red" if has_colours else None
 
         for i, work in enumerate(self):
-            if nids and work.node_id not in nids: continue
+            if nids and work.node_id not in nids:
+                continue
             print("", file=stream)
             cprint_map("Work #%d: %s, Finalized=%s" % (i, work, work.finalized), cmap={"True": "green"}, file=stream)
-            if wlist is not None and i in wlist: continue
+            if wlist is not None and i in wlist:
+                continue
             if verbose == 0 and work.finalized:
                 print("  Finalized works are not shown. Use verbose > 0 to force output.", file=stream)
                 continue
@@ -933,7 +952,8 @@ class Flow(Node, NodeContainer, MSONable):
             table = []
             tot_num_errors = 0
             for task in work:
-                if nids and task.node_id not in nids: continue
+                if nids and task.node_id not in nids:
+                    continue
                 task_name = os.path.basename(task.name)
 
                 # FIXME: This should not be done here.
@@ -1020,13 +1040,15 @@ class Flow(Node, NodeContainer, MSONable):
         nrows, ncols = get_terminal_size()
         count = 0
         for task in self.iflat_tasks(status=status, nids=nids):
-            if task.num_corrections == 0: continue
+            if task.num_corrections == 0:
+                continue
             count += 1
             print(make_banner(str(task), width=ncols, mark="="))
             for corr in task.corrections:
                 pprint(corr)
 
-        if not count: print("No correction found.")
+        if not count:
+            print("No correction found.")
         return count
 
     def show_history(self, status=None, nids=None, full_history=False, metadata=False):
@@ -1352,7 +1374,8 @@ class Flow(Node, NodeContainer, MSONable):
 
             Invalid ids are ignored
         """
-        if not isinstance(nids, collections.abc.Iterable): nids = [nids]
+        if not isinstance(nids, collections.abc.Iterable):
+            nids = [nids]
 
         n2task = {task.node_id: task for task in self.iflat_tasks()}
         return [n2task[n] for n in nids if n in n2task]
@@ -1511,7 +1534,8 @@ class Flow(Node, NodeContainer, MSONable):
                 err_file = getattr(task, efname)
                 if err_file.exists:
                     s = err_file.read()
-                    if not s: continue
+                    if not s:
+                        continue
                     print(make_banner(str(err_file), width=ncols, mark="="))
                     cprint(s, color="red")
                     # count += 1
@@ -1601,7 +1625,8 @@ class Flow(Node, NodeContainer, MSONable):
 
     def rmtree(self, ignore_errors=False, onerror=None):
         """Remove workdir (same API as shutil.rmtree)."""
-        if not os.path.exists(self.workdir): return
+        if not os.path.exists(self.workdir):
+            return
         shutil.rmtree(self.workdir, ignore_errors=ignore_errors, onerror=onerror)
 
     def rm_and_build(self):
@@ -1612,7 +1637,8 @@ class Flow(Node, NodeContainer, MSONable):
     def build(self, *args, **kwargs):
         """Make directories and files of the `Flow`."""
         # Allocate here if not done yet!
-        if not self.allocated: self.allocate()
+        if not self.allocated:
+            self.allocate()
 
         self.indir.makedirs()
         self.outdir.makedirs()
@@ -1655,11 +1681,13 @@ class Flow(Node, NodeContainer, MSONable):
                 the abinit parser. If the validation fails, ValueError is raise.
         """
         self.build()
-        if not abivalidate: return self.pickle_dump()
+        if not abivalidate:
+            return self.pickle_dump()
 
         # Validation with Abinit.
         isok, errors = self.abivalidate_inputs()
-        if isok: return self.pickle_dump()
+        if isok:
+            return self.pickle_dump()
         errlines = []
         for i, e in enumerate(errors):
             errlines.append("[%d] %s" % (i, e))
@@ -1728,7 +1756,8 @@ class Flow(Node, NodeContainer, MSONable):
                 work = self.works[-1]
 
         task = work.register(input, deps=deps, task_class=task_class)
-        if not append: self.register_work(work)
+        if not append:
+            self.register_work(work)
 
         return work
 
@@ -1844,7 +1873,8 @@ class Flow(Node, NodeContainer, MSONable):
 
         self.check_dependencies()
 
-        if not hasattr(self, "_allocated"): self._allocated = 0
+        if not hasattr(self, "_allocated"):
+            self._allocated = 0
         self._allocated += 1
 
         if use_smartio:
@@ -2095,7 +2125,8 @@ class Flow(Node, NodeContainer, MSONable):
         """
         self.check_pid_file()
         self.set_spectator_mode(False)
-        if check_status: self.check_status()
+        if check_status:
+            self.check_status()
         from .launcher import PyLauncher
         return PyLauncher(self, **kwargs).rapidfire(max_nlaunch=max_nlaunch, max_loops=max_loops, sleep_time=sleep_time)
 
@@ -2109,7 +2140,8 @@ class Flow(Node, NodeContainer, MSONable):
         """
         self.check_pid_file()
         self.set_spectator_mode(False)
-        if check_status: self.check_status()
+        if check_status:
+            self.check_status()
         from .launcher import PyLauncher
         return PyLauncher(self, **kwargs).single_shot()
 
@@ -2208,22 +2240,26 @@ class Flow(Node, NodeContainer, MSONable):
             """
             # Skip links.
             if tarinfo.issym() or tarinfo.islnk():
-                if verbose: print("Excluding link: %s" % tarinfo.name)
+                if verbose:
+                    print("Excluding link: %s" % tarinfo.name)
                 return None
 
             # Check size in bytes
             if max_filesize is not None and tarinfo.size > max_filesize:
-                if verbose: print("Excluding %s due to max_filesize" % tarinfo.name)
+                if verbose:
+                    print("Excluding %s due to max_filesize" % tarinfo.name)
                 return None
 
             # Filter filenames.
             if exclude_exts and any(tarinfo.name.endswith(ext) for ext in exclude_exts):
-                if verbose: print("Excluding %s due to extension" % tarinfo.name)
+                if verbose:
+                    print("Excluding %s due to extension" % tarinfo.name)
                 return None
 
             # Exlude directories (use dir basenames).
             if exclude_dirs and any(dir_name in exclude_dirs for dir_name in tarinfo.name.split(os.path.sep)):
-                if verbose: print("Excluding %s due to exclude_dirs" % tarinfo.name)
+                if verbose:
+                    print("Excluding %s due to exclude_dirs" % tarinfo.name)
                 return None
 
             return tarinfo
@@ -2322,7 +2358,8 @@ class Flow(Node, NodeContainer, MSONable):
         # Treat the case in which we have a work producing output for other tasks.
         for work in self:
             children = work.get_children()
-            if not children: continue
+            if not children:
+                continue
             cluster_name = "cluster%s" % work.name
             seen = set()
             for child in children:
@@ -2480,7 +2517,8 @@ class Flow(Node, NodeContainer, MSONable):
 
                 # Draw nodes (color is given by status)
                 node_color = status.color_opts["color"]
-                if node_color is None: node_color = "black"
+                if node_color is None:
+                    node_color = "black"
                 # print("num nodes %s with node_color %s" % (len(tasks), node_color))
 
                 nx.draw_networkx_nodes(g, pos,
@@ -2569,7 +2607,8 @@ class G0W0WithQptdmFlow(Flow):
         for task in work:
             task.set_work(work)
             # Add the garbage collector.
-            if self.gc is not None: task.set_gc(self.gc)
+            if self.gc is not None:
+                task.set_gc(self.gc)
 
         work.connect_signals()
         work.build()
@@ -2684,7 +2723,8 @@ def bandstructure_flow(workdir, scf_input, nscf_input, dos_inputs=None, manager=
     # Handy aliases
     flow.scf_task, flow.nscf_task, flow.dos_tasks = work.scf_task, work.nscf_task, work.dos_tasks
 
-    if allocate: flow.allocate()
+    if allocate:
+        flow.allocate()
     return flow
 
 
@@ -2709,7 +2749,8 @@ def g0w0_flow(workdir, scf_input, nscf_input, scr_input, sigma_inputs, manager=N
     flow = flow_class(workdir, manager=manager)
     work = G0W0Work(scf_input, nscf_input, scr_input, sigma_inputs)
     flow.register_work(work)
-    if allocate: flow.allocate()
+    if allocate:
+        flow.allocate()
     return flow
 
 
@@ -2773,7 +2814,8 @@ class PhononFlow(Flow):
 
             flow.register_work(ph_work)
 
-        if allocate: flow.allocate()
+        if allocate:
+            flow.allocate()
 
         return flow
 
@@ -2848,7 +2890,8 @@ class NonLinearCoeffFlow(Flow):
 
         flow.register_work(nl_work)
 
-        if allocate: flow.allocate()
+        if allocate:
+            flow.allocate()
 
         return flow
 
@@ -3028,7 +3071,8 @@ def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, 
 
         flow.register_work(work_qpt)
 
-    if allocate: flow.allocate()
+    if allocate:
+        flow.allocate()
 
     return flow
 
@@ -3063,5 +3107,6 @@ def phonon_conv_flow(workdir, scf_input, qpoints, params, manager=None, allocate
             # Add the PhononWork connected to this scf_task.
             flow.register_work(PhononWork.from_scf_task(work[0], qpoints=qpt))
 
-    if allocate: flow.allocate()
+    if allocate:
+        flow.allocate()
     return flow
