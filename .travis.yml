@@ -34,12 +34,12 @@ before_script:
 script:
   - export PATH="$HOME/miniconda/bin:$PATH"
   - source activate test-environment
-  - echo "pycodestyle check before running tests... Note that the tests are chained. If codestyle fails, tests will not be run and you need to fix codestyle first."
+  - echo "pycodestyle followed by tests... Note that if codestyle fails, tests will not be run and you need to fix codestyle first."
   - travis_wait 28800 pycodestyle pymatgen && pytest $EXCLUDE_TESTS pymatgen
-  - echo "--- Done ---"
 notifications:
   email:
     recipients:
       - shyuep@gmail.com
+      - mkhorton@lbl.gov
     on_success: change
     on_failure: always
