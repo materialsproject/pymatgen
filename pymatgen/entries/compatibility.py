@@ -7,7 +7,7 @@ import os
 import abc
 import warnings
 
-from collections import defaultdicts
+from collections import defaultdict
 from math import sqrt
 
 from monty.design_patterns import cached_class
