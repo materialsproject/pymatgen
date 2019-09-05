@@ -10,7 +10,7 @@ env:
     - GULP_LIB=`pwd`/cmd_line/gulp/Libraries
     - MPLBACKEND=Agg
     - PMG_MAPI_ENDPOINT=https://zola.lbl.gov/rest/v2
-    - EXCLUDE_TESTS="--ignore=pymatgen/ext/tests/test_matproj.py --ignore=pymatgen/analysis/tests/test_pourbaix_diagram.py --ignore-glob='pymatgen/analysis/defects/tests/test_*.py'"
+    - EXCLUDE_TESTS="--ignore=pymatgen/ext/tests/test_matproj.py"
 # command to install dependencies
 sudo: false
 install:
