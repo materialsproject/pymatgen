@@ -32,7 +32,7 @@ https://www.sciencedirect.com/science/article/pii/S0010465518301632
 
 References are:
 
-    Georg K.H.Madsen, Jesús Carrete, Matthieu J.Verstraete;
+    Georg K.H.Madsen, Jesús Carrete, Matthieu J.Verstraete
     BoltzTraP2, a program for interpolating band structures and
     calculating semi-classical transport coefficients
     Computer Physics Communications 231, 140-145, 2018

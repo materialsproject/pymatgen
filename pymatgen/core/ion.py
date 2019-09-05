@@ -17,6 +17,7 @@ __date__ = "Dec 10, 2012"
 
 import re
 import numpy as np
+from copy import deepcopy
 
 from pymatgen.core.composition import Composition
 from monty.json import MSONable
@@ -155,8 +156,9 @@ class Ion(Composition, MSONable):
             d:
                 {symbol: amount} dict.
         """
-        charge = d.pop('charge')
-        composition = Composition(d)
+        input = deepcopy(d)
+        charge = input.pop('charge')
+        composition = Composition(input)
         return Ion(composition, charge)
 
     @property
