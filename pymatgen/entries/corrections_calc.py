@@ -1,11 +1,10 @@
 from collections import OrderedDict
 import numpy as np
-import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 from scipy.optimize import curve_fit
 import ruamel.yaml
 
 from monty.serialization import loadfn
-from adjustText import adjust_text
 
 from pymatgen import Composition
 from pymatgen.entries.computed_entries import ComputedEntry
@@ -153,23 +152,15 @@ class CorrectionCalculator:
         indices = [i for i in range(len(self.diffs))]
         abs_errors = [abs(i) for i in (self.diffs - np.dot(self.coeff_mat, self.corrections))]
         labels_graph = self.names.copy()
-        uncertainty_graph = self.exp_uncer.copy()
-        abs_errors, labels_graph, uncertainty_graph = (list(t) for t in zip(*sorted(zip(abs_errors, labels_graph, uncertainty_graph)))) #sort by error
-        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(20, 20))
-        num = len(indices)//2
-        ax2.scatter(indices[num:], abs_errors[num:])
-        ax2.set_ylim(bottom=ax1.get_ylim()[0])
-        texts = []
-        for i, txt in enumerate(labels_graph[num:]):
-            texts.append(ax2.text(indices[i+num], abs_errors[i+num], txt, fontsize = 12))
-        adjust_text(texts, ax = ax2)
-        ax1.scatter(indices[:num], abs_errors[:num])
-        ax1.set_ylim(top=ax2.get_ylim()[1])
-        texts = []
-        for i, txt in enumerate(labels_graph[:num]):
-            texts.append(ax1.text(indices[i], abs_errors[i], txt, fontsize = 12))
-        adjust_text(texts, ax = ax1)
-        plt.show()
+        abs_errors, labels_graph = (list(t) for t in zip(*sorted(zip(abs_errors, labels_graph)))) #sort by error
+        
+        num = len(abs_errors)
+        fig = go.Figure(data=go.Scatter(x=np.linspace(1, num, num), y=abs_errors,\
+                                        mode='markers', text=labels_graph),\
+                       layout=go.Layout(title=go.layout.Title(text = 'Residual Errors'),\
+                                        yaxis=go.layout.YAxis(title=go.layout.yaxis.Title(text = 'Residual Error (eV/atom)'))))
+        fig.show()
+        
         print('Residual Error:')
         print('Median = ' + str(np.median(np.array(abs_errors))))
         print('Mean = ' + str(np.mean(np.array(abs_errors))))
@@ -177,7 +168,7 @@ class CorrectionCalculator:
         print('Original Error:')
         print('Median = ' + str(abs(np.median(np.array(self.diffs)))))
         print('Mean = ' + str(abs(np.mean(np.array(self.diffs)))))
-        print('Std Dev = ' + str(np.std(np.array(self.diffs))))   
+        print('Std Dev = ' + str(np.std(np.array(self.diffs))))  
         
     def graph_residual_error_per_species(self, specie: str) -> None:
 
@@ -220,16 +211,15 @@ class CorrectionCalculator:
                     del labels_species[num-i-1]
                     del abs_errors[num-i-1]
                     del diffs_cpy[num-i-1]        
-        abs_errors, labels_species, diffs_cpy = (list(t) for t in zip(*sorted(zip(abs_errors, labels_species, diffs_cpy)))) #sort by error
-        indices = [i for i in range(len(diffs_cpy))]
-        if len(indices) > 20:
-            plt.figure(figsize=(20, 10))
-        plt.scatter(indices, abs_errors)
-        texts = []
-        for i, txt in enumerate(labels_species):
-            texts.append(plt.text(indices[i], abs_errors[i], txt, fontsize = 12))
-        adjust_text(texts)
-        plt.show()
+        abs_errors, labels_species = (list(t) for t in zip(*sorted(zip(abs_errors, labels_species)))) #sort by error
+        
+        num = len(abs_errors)
+        fig = go.Figure(data=go.Scatter(x=np.linspace(1, num, num), y=abs_errors,\
+                                        mode='markers', text=labels_species),\
+                       layout=go.Layout(title=go.layout.Title(text = 'Residual Errors for ' + specie),\
+                                        yaxis=go.layout.YAxis(title=go.layout.yaxis.Title(text = 'Residual Error (eV/atom)'))))
+        fig.show()
+        
         print('Residual Error:')
         print('Median = ' + str(np.median(np.array(abs_errors))))
         print('Mean = ' + str(np.mean(np.array(abs_errors))))
@@ -237,9 +227,7 @@ class CorrectionCalculator:
         print('Original Error:')
         print('Median = ' + str(abs(np.median(np.array(diffs_cpy)))))
         print('Mean = ' + str(abs(np.mean(np.array(diffs_cpy)))))
-        print('Std Dev = ' + str(np.std(np.array(diffs_cpy)))) 
-
-        print(labels_species) 
+        print('Std Dev = ' + str(np.std(np.array(diffs_cpy))))
 
     def make_yaml(self, name: str='MP') -> None:
         """
