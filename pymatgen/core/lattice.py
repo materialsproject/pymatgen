@@ -11,7 +11,7 @@ from math import gcd
 
 from fractions import Fraction
 
-from typing import List, Union, Dict, Tuple, Iterator, Optional
+from typing import List, Union, Dict, Tuple, Iterator, Optional, Sequence
 from pymatgen.util.typing import Vector3Like
 
 import numpy as np
@@ -63,18 +63,18 @@ class Lattice(MSONable):
         """
         m = np.array(matrix, dtype=np.float64).reshape((3, 3))
         m.setflags(write=False)
-        self._matrix = m
-        self._inv_matrix = None
+        self._matrix = m  # type: np.ndarray
+        self._inv_matrix = None  # type: Optional[np.ndarray]
         self._diags = None
-        self._lll_matrix_mappings = {}
+        self._lll_matrix_mappings = {}  # type: Dict[float, np.ndarray]
         self._lll_inverse = None
 
     @property
-    def lengths(self):
-        return tuple(np.sqrt(np.sum(self._matrix ** 2, axis=1)).tolist())
+    def lengths(self) -> Tuple[float, float, float]:
+        return tuple(np.sqrt(np.sum(self._matrix ** 2, axis=1)).tolist())  # type: ignore
 
     @property
-    def angles(self) -> Tuple[float]:
+    def angles(self) -> Tuple[float, float, float]:
         """
         Returns the angles (alpha, beta, gamma) of the lattice.
         """
@@ -86,7 +86,7 @@ class Lattice(MSONable):
             k = (i + 2) % 3
             angles[i] = abs_cap(dot(m[j], m[k]) / (lengths[j] * lengths[k]))
         angles = np.arccos(angles) * 180.0 / pi
-        return tuple(angles.tolist())
+        return tuple(angles.tolist())  # type: ignore
 
     @property
     def is_orthogonal(self):
@@ -292,7 +292,7 @@ class Lattice(MSONable):
         return Lattice.from_parameters(a, a, a, alpha, alpha, alpha)
 
     @staticmethod
-    def from_lengths_and_angles(abc: List[float], ang: List[float]):
+    def from_lengths_and_angles(abc: Sequence[float], ang: Sequence[float]):
         """
         Create a Lattice using unit cell lengths and angles (in degrees).
 
@@ -409,11 +409,11 @@ class Lattice(MSONable):
         return self.lengths[2]
 
     @property
-    def abc(self) -> Tuple[float]:
+    def abc(self) -> Tuple[float, float, float]:
         """
         Lengths of the lattice vectors, i.e. (a, b, c)
         """
-        return tuple(self.lengths)
+        return self.lengths
 
     @property
     def alpha(self) -> float:

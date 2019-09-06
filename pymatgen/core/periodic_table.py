@@ -9,8 +9,8 @@ import numpy as np
 from io import open
 from pathlib import Path
 from enum import Enum
-
-from pymatgen.core.units import Mass, Length, unitized, FloatWithUnit, Unit, \
+from typing import Optional, Callable
+from pymatgen.core.units import Mass, Length, FloatWithUnit, Unit, \
     SUPPORTED_UNIT_NAMES
 from pymatgen.util.string import formula_double_format
 from monty.json import MSONable
@@ -504,7 +504,6 @@ class Element(Enum):
         return self._data.copy()
 
     @property
-    @unitized("ang")
     def average_ionic_radius(self):
         """
         Average ionic radius for element (with units). The average is taken
@@ -512,12 +511,12 @@ class Element(Enum):
         """
         if "Ionic radii" in self._data:
             radii = self._data["Ionic radii"]
-            return sum(radii.values()) / len(radii)
+            radius = sum(radii.values()) / len(radii)
         else:
-            return 0
+            radius = 0.0
+        return FloatWithUnit(radius, "ang")
 
     @property
-    @unitized("ang")
     def average_cationic_radius(self):
         """
         Average cationic radius for element (with units). The average is
@@ -528,11 +527,10 @@ class Element(Enum):
             radii = [v for k, v in self._data["Ionic radii"].items()
                      if int(k) > 0]
             if radii:
-                return sum(radii) / len(radii)
-        return 0
+                return FloatWithUnit(sum(radii) / len(radii), "ang")
+        return FloatWithUnit(0.0, "ang")
 
     @property
-    @unitized("ang")
     def average_anionic_radius(self):
         """
         Average anionic radius for element (with units). The average is
@@ -543,18 +541,17 @@ class Element(Enum):
             radii = [v for k, v in self._data["Ionic radii"].items()
                      if int(k) < 0]
             if radii:
-                return sum(radii) / len(radii)
-        return 0
+                return FloatWithUnit(sum(radii) / len(radii), "ang")
+        return FloatWithUnit(0.0, "ang")
 
     @property
-    @unitized("ang")
     def ionic_radii(self):
         """
         All ionic radii of the element as a dict of
         {oxidation state: ionic radii}. Radii are given in ang.
         """
         if "Ionic radii" in self._data:
-            return {int(k): v for k, v in self._data["Ionic radii"].items()}
+            return {int(k): FloatWithUnit(v, "ang") for k, v in self._data["Ionic radii"].items()}
         else:
             return {}
 
@@ -594,12 +591,11 @@ class Element(Enum):
         return tuple(self._data.get("ICSD oxidation states", list()))
 
     @property
-    @unitized("ang")
     def metallic_radius(self):
         """
         Metallic radius of the element. Radius is given in ang.
         """
-        return self._data["Metallic radius"]
+        return FloatWithUnit(self._data["Metallic radius"], "ang")
 
     @property
     def full_electronic_structure(self):
@@ -1018,7 +1014,7 @@ class Element(Enum):
                 "element": self.symbol}
 
     @staticmethod
-    def print_periodic_table(filter_function: callable = None):
+    def print_periodic_table(filter_function: Optional[Callable] = None):
         """
         A pretty ASCII printer for the periodic table, based on some
         filter_function.
@@ -1256,29 +1252,9 @@ class Specie(MSONable):
             Shannon radius for specie in the specified environment.
         """
         radii = self._el.data["Shannon radii"]
-        # if cn == 1:
-        #     cn_str = "I"
-        # elif cn == 2:
-        #     cn_str = "II"
-        # elif cn == 3:
-        #     cn_str = "III"
-        # elif cn == 4:
-        #     cn_str = "IV"
-        # elif cn == 5:
-        #     cn_str = "V"
-        # elif cn == 6:
-        #     cn_str = "VI"
-        # elif cn == 7:
-        #     cn_str = "VII"
-        # elif cn == 8:
-        #     cn_str = "VIII"
-        # elif cn == 9:
-        #     cn_str = "IX"
-        # else:
-        #     raise ValueError("Invalid coordination number")
-
-        if len(radii[str(int(self._oxi_state))][cn]) == 1:
-            k, data = list(radii[str(int(self._oxi_state))][cn].items())[0]
+        radii = radii[str(int(self._oxi_state))][cn]  # type: ignore
+        if len(radii) == 1:  # type: ignore
+            k, data = list(radii.items())[0]  # type: ignore
             if k != spin:
                 warnings.warn(
                     "Specified spin state of %s not consistent with database "
@@ -1286,7 +1262,7 @@ class Specie(MSONable):
                     "that value is returned." % (spin, k)
                 )
         else:
-            data = radii[str(int(self._oxi_state))][cn][spin]
+            data = radii[spin]
         return data["%s_radius" % radius_type]
 
     def get_crystal_field_spin(self, coordination: str = "oct",
@@ -1313,13 +1289,11 @@ class Specie(MSONable):
         elec = self.full_electronic_structure
         if len(elec) < 4 or elec[-1][1] != "s" or elec[-2][1] != "d":
             raise AttributeError(
-                "Invalid element {} for crystal field calculation.".format(
-                    self.symbol))
+                "Invalid element {} for crystal field calculation.".format(self.symbol))
         nelectrons = elec[-1][2] + elec[-2][2] - self.oxi_state
         if nelectrons < 0 or nelectrons > 10:
             raise AttributeError(
-                "Invalid oxidation state {} for element {}"
-                .format(self.oxi_state, self.symbol))
+                "Invalid oxidation state {} for element {}".format(self.oxi_state, self.symbol))
         if spin_config == "high":
             return nelectrons if nelectrons <= 5 else 10 - nelectrons
         elif spin_config == "low":
@@ -1431,9 +1405,8 @@ class DummySpecie(Specie):
         """
         if not isinstance(other, DummySpecie):
             return False
-        return isinstance(other, Specie) and self.symbol == other.symbol \
-            and self.oxi_state == other.oxi_state \
-            and self._properties == other._properties
+        return (isinstance(other, Specie) and self.symbol == other.symbol and self.oxi_state == other.oxi_state
+                and self._properties == other._properties)
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -1503,9 +1476,9 @@ class DummySpecie(Specie):
         if m:
             sym = m.group(1)
             if m.group(2) == "" and m.group(3) == "":
-                oxi = 0
+                oxi = 0.0
             else:
-                oxi = 1 if m.group(2) == "" else float(m.group(2))
+                oxi = 1.0 if m.group(2) == "" else float(m.group(2))
                 oxi = -oxi if m.group(3) == "-" else oxi
             properties = None
             if m.group(4):
@@ -1513,23 +1486,6 @@ class DummySpecie(Specie):
                 properties = {toks[0]: float(toks[1])}
             return DummySpecie(sym, oxi, properties)
         raise ValueError("Invalid DummySpecies String")
-
-    @classmethod
-    def safe_from_composition(cls, comp: "Composition",
-                              oxidation_state: float = 0):
-        """
-        Returns a DummySpecie object that can be safely used
-        with (i.e. not present in) a given composition
-        """
-        # We don't want to add a DummySpecie with the same
-        # symbol as anything in the composition, even if the
-        # oxidation state is different
-        els = comp.element_composition.elements
-        for c in 'abcdfghijklmnopqrstuvwxyz':
-            if DummySpecie('X' + c) not in els:
-                return DummySpecie('X' + c, oxidation_state)
-        raise ValueError("All attempted DummySpecies already "
-                         "present in {}".format(comp))
 
     def as_dict(self):
         d = {"@module": self.__class__.__module__,

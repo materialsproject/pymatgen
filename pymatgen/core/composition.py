@@ -12,7 +12,7 @@ import os
 import re
 
 from collections import defaultdict
-
+from typing import Tuple, List
 from monty.serialization import loadfn
 
 from functools import total_ordering
@@ -21,7 +21,7 @@ from monty.fractions import gcd, gcd_float
 from pymatgen.core.periodic_table import get_el_sp, Element, Specie, DummySpecie
 from pymatgen.util.string import formula_double_format
 from monty.json import MSONable
-from pymatgen.core.units import unitized
+from pymatgen.core.units import FloatWithUnit
 
 """
 This module implements a Composition class to represent compositions,
@@ -253,12 +253,11 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         return hashcode
 
     @property
-    def average_electroneg(self):
-        return sum((el.X * abs(amt) for el, amt in self.items())) / \
-               self.num_atoms
+    def average_electroneg(self) -> float:
+        return sum((el.X * abs(amt) for el, amt in self.items())) / self.num_atoms
 
     @property
-    def total_electrons(self):
+    def total_electrons(self) -> float:
         return sum((el.Z * abs(amt) for el, amt in self.items()))
 
     def almost_equals(self, other, rtol=0.1, atol=1e-8):
@@ -280,7 +279,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         return True
 
     @property
-    def is_element(self):
+    def is_element(self) -> bool:
         """
         True if composition is for an element.
         """
@@ -290,7 +289,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         return Composition(self, allow_negative=self.allow_negative)
 
     @property
-    def formula(self):
+    def formula(self) -> str:
         """
         Returns a formula string, with elements sorted by electronegativity,
         e.g., Li4 Fe4 P4 O16.
@@ -301,7 +300,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         return " ".join(formula)
 
     @property
-    def alphabetical_formula(self):
+    def alphabetical_formula(self) -> str:
         """
         Returns a formula string, with elements sorted by alphabetically
         e.g., Fe4 Li4 O16 P4.
@@ -312,7 +311,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         return " ".join(formula)
 
     @property
-    def iupac_formula(self):
+    def iupac_formula(self) -> str:
         """
         Returns a formula string, with elements sorted by the iupac
         electronegativity ordering defined in Table VI of "Nomenclature of
@@ -329,7 +328,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         return " ".join(formula)
 
     @property
-    def element_composition(self):
+    def element_composition(self) -> 'Composition':
         """
         Returns the composition replacing any species by the corresponding
         element.
@@ -338,7 +337,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
                            allow_negative=self.allow_negative)
 
     @property
-    def fractional_composition(self):
+    def fractional_composition(self) -> 'Composition':
         """
         Returns the normalized composition which the number of species sum to
         1.
@@ -349,7 +348,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         return self / self._natoms
 
     @property
-    def reduced_composition(self):
+    def reduced_composition(self) -> 'Composition':
         """
         Returns the reduced composition,i.e. amounts normalized by greatest
         common denominator. e.g., Composition("FePO4") for
@@ -357,7 +356,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         """
         return self.get_reduced_composition_and_factor()[0]
 
-    def get_reduced_composition_and_factor(self):
+    def get_reduced_composition_and_factor(self) -> Tuple['Composition', float]:
         """
         Calculates a reduced composition and factor.
 
@@ -368,7 +367,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         factor = self.get_reduced_formula_and_factor()[1]
         return self / factor, factor
 
-    def get_reduced_formula_and_factor(self, iupac_ordering=False):
+    def get_reduced_formula_and_factor(self, iupac_ordering=False) -> Tuple[str, float]:
         """
         Calculates a reduced formula and factor.
 
@@ -433,7 +432,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         return formula, factor * g
 
     @property
-    def reduced_formula(self):
+    def reduced_formula(self) -> str:
         """
         Returns a pretty normalized formula, i.e., LiFePO4 instead of
         Li4Fe4P4O16.
@@ -441,7 +440,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         return self.get_reduced_formula_and_factor()[0]
 
     @property
-    def hill_formula(self):
+    def hill_formula(self) -> str:
         c = self.element_composition
         elements = sorted([el.symbol for el in c.keys()])
         if "C" in elements:
@@ -452,7 +451,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         return " ".join(formula)
 
     @property
-    def elements(self):
+    def elements(self) -> List[Element]:
         """
         Returns view of elements in Composition.
         """
@@ -472,12 +471,11 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         return self._natoms
 
     @property
-    @unitized("amu")
     def weight(self):
         """
         Total molecular weight of Composition
         """
-        return sum([amount * el.atomic_mass
+        return sum([amount * FloatWithUnit(el.atomic_mass, "amu")
                     for el, amount in self.items()])
 
     def get_atomic_fraction(self, el):
@@ -598,7 +596,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         return anon
 
     @property
-    def chemical_system(self):
+    def chemical_system(self) -> str:
         """
         Get the chemical system of a Composition, for example "O-Si" for
         SiO2. Chemical system is a string of a list of elements
@@ -1251,5 +1249,4 @@ class ChemicalPotential(dict, MSONable):
 
 if __name__ == "__main__":
     import doctest
-
     doctest.testmod()

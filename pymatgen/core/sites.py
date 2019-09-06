@@ -163,7 +163,7 @@ class Site(collections.abc.Hashable, MSONable):
             return ", ".join(["{}:{:.3f}".format(sp, self.species[sp])
                               for sp in sorted_species])
 
-    @property
+    @property  # type: ignore
     @deprecated(message="Use site.species instead. This will be deprecated with effect from pymatgen 2020.")
     def species_and_occu(self):
         """

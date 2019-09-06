@@ -13,3 +13,4 @@ h5py==2.9.0
 #BoltzTraP2==18.9.1
 f90nml==1.1.2
 pycodestyle==2.5.0
+mypy==0.720

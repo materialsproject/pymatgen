@@ -36,6 +36,7 @@ script:
   - source activate test-environment
   - echo "pycodestyle followed by tests... Note that if codestyle fails, tests will not be run and you need to fix codestyle first."
   - travis_wait 28800 pycodestyle pymatgen && pytest $EXCLUDE_TESTS pymatgen
+  - mypy --ignore-missing-imports -m pymatgen.core.periodic_table -m pymatgen.core.composition
 notifications:
   email:
     recipients:
