@@ -16,10 +16,10 @@ from pymatgen.util.typing import Vector3Like
 
 import numpy as np
 from numpy.linalg import inv
-from numpy import pi, dot, transpose, radians
+from numpy import pi, dot, transpose
 
 from monty.json import MSONable
-from pymatgen.util.coord import pbc_shortest_vectors, in_coord_list
+from pymatgen.util.coord import pbc_shortest_vectors
 from pymatgen.util.num import abs_cap
 
 """
@@ -596,7 +596,7 @@ class Lattice(MSONable):
         cart = self.get_cartesian_coords(frac)
         # this can't be broadcast because they're different lengths
         inds = [
-            np.logical_and(dist / l < 1 + ltol, dist / l > 1 / (1 + ltol))
+            np.logical_and(dist / l < 1 + ltol, dist / l > 1 / (1 + ltol))  # type: ignore
             for l in lengths
         ]
         c_a, c_b, c_c = (cart[i] for i in inds)
@@ -619,7 +619,7 @@ class Lattice(MSONable):
                 all_j[:, None], np.logical_and(alphab, betab[i][None, :])
             )
             for j, k in np.argwhere(inds):
-                scale_m = np.array((f_a[i], f_b[j], f_c[k]), dtype=np.int)
+                scale_m = np.array((f_a[i], f_b[j], f_c[k]), dtype=np.int)  # type: ignore
                 if abs(np.linalg.det(scale_m)) < 1e-8:
                     continue
 
@@ -671,6 +671,7 @@ class Lattice(MSONable):
                 other_lattice, ltol, atol, skip_rotation_matrix=skip_rotation_matrix
         ):
             return x
+        return None
 
     def get_lll_reduced_lattice(self, delta: float = 0.75) -> "Lattice":
         if delta not in self._lll_matrix_mappings:
@@ -756,7 +757,7 @@ class Lattice(MSONable):
                     # We have to do p/q, so do lstsq(q.T, p.T).T instead.
                     p = dot(a[:, k:3].T, b[:, (k - 2): k])
                     q = np.diag(m[(k - 2): k])
-                    result = np.linalg.lstsq(q.T, p.T, rcond=None)[0].T
+                    result = np.linalg.lstsq(q.T, p.T, rcond=None)[0].T  # type: ignore
                     u[k:3, (k - 2): k] = result
 
         return a.T, mapping.T
@@ -791,18 +792,10 @@ class Lattice(MSONable):
         """
         # lll reduction is more stable for skewed cells
         matrix = self.lll_matrix
-        a = matrix[0]
-        b = matrix[1]
-        c = matrix[2]
         e = tol * self.volume ** (1 / 3)
 
         # Define metric tensor
-        G = [
-            [dot(a, a), dot(a, b), dot(a, c)],
-            [dot(a, b), dot(b, b), dot(b, c)],
-            [dot(a, c), dot(b, c), dot(c, c)],
-        ]
-        G = np.array(G)
+        G = np.dot(matrix, matrix.T)
 
         # This sets an upper limit on the number of iterations.
         for count in range(100):
@@ -1291,9 +1284,7 @@ class Lattice(MSONable):
         return recp_symmops
 
 
-def get_integer_index(
-        miller_index: bool, round_dp: int = 4, verbose: bool = True
-) -> Tuple[int, int, int]:
+def get_integer_index(miller_index: Sequence[float], round_dp: int = 4, verbose: bool = True) -> Tuple[int, int, int]:
     """
     Attempt to convert a vector of floats to whole numbers.
 
@@ -1306,45 +1297,44 @@ def get_integer_index(
     Returns:
         (tuple): The Miller index.
     """
-    miller_index = np.asarray(miller_index)
-
+    mi = np.asarray(miller_index)
     # deal with the case we have small irregular floats
     # that are all equal or factors of each other
-    miller_index /= min([m for m in miller_index if m != 0])
-    miller_index /= np.max(np.abs(miller_index))
+    mi /= min([m for m in mi if m != 0])
+    mi /= np.max(np.abs(mi))
 
     # deal with the case we have nice fractions
-    md = [Fraction(n).limit_denominator(12).denominator for n in miller_index]
-    miller_index *= reduce(lambda x, y: x * y, md)
-    int_miller_index = np.int_(np.round(miller_index, 1))
-    miller_index /= np.abs(reduce(gcd, int_miller_index))
+    md = [Fraction(n).limit_denominator(12).denominator for n in mi]
+    mi *= reduce(lambda x, y: x * y, md)
+    int_miller_index = np.int_(np.round(mi, 1))
+    mi /= np.abs(reduce(gcd, int_miller_index))
 
     # round to a reasonable precision
-    miller_index = np.array([round(h, round_dp) for h in miller_index])
+    mi = np.array([round(h, round_dp) for h in mi])
 
     # need to recalculate this after rounding as values may have changed
-    int_miller_index = np.int_(np.round(miller_index, 1))
-    if np.any(np.abs(miller_index - int_miller_index) > 1e-6) and verbose:
+    int_miller_index = np.int_(np.round(mi, 1))
+    if np.any(np.abs(mi - int_miller_index) > 1e-6) and verbose:
         warnings.warn("Non-integer encountered in Miller index")
     else:
-        miller_index = int_miller_index
+        mi = int_miller_index
 
     # minimise the number of negative indexes
-    miller_index += 0  # converts -0 to 0
+    mi += 0  # converts -0 to 0
 
     def n_minus(index):
         return len([h for h in index if h < 0])
 
-    if n_minus(miller_index) > n_minus(miller_index * -1):
-        miller_index *= -1
+    if n_minus(mi) > n_minus(mi * -1):
+        mi *= -1
 
     # if only one index is negative, make sure it is the smallest
     # e.g. (-2 1 0) -> (2 -1 0)
     if (
-            sum(miller_index != 0) == 2
-            and n_minus(miller_index) == 1
-            and abs(min(miller_index)) > max(miller_index)
+            sum(mi != 0) == 2
+            and n_minus(mi) == 1
+            and abs(min(mi)) > max(mi)
     ):
-        miller_index *= -1
+        mi *= -1
 
-    return tuple(miller_index)
+    return tuple(mi)  # type: ignore
