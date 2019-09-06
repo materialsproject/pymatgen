@@ -385,7 +385,7 @@ class QCOutput(MSONable):
         Parses species and initial geometry.
         """
         header_pattern = r"Standard Nuclear Orientation \(Angstroms\)\s+I\s+Atom\s+X\s+Y\s+Z\s+-+"
-        table_pattern = r"\s*\d+\s+([a-zA-Z]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*"
+        table_pattern = r"\s*\d+\s+([a-zA-Z]+)\s*([\d\-\.\*]+)\s*([\d\-\.\*]+)\s*([\d\-\.\*]+)\s*"
         footer_pattern = r"\s*-+"
         temp_geom = read_table_pattern(self.text, header_pattern,
                                        table_pattern, footer_pattern)
@@ -411,7 +411,10 @@ class QCOutput(MSONable):
             for ii, entry in enumerate(temp_geom):
                 species += [entry[0]]
                 for jj in range(3):
-                    geometry[ii, jj] = float(entry[jj + 1])
+                    if "*" in entry[jj + 1]:
+                        geometry[ii, jj] = 10000000000.0
+                    else:
+                        geometry[ii, jj] = float(entry[jj + 1])
             self.data["species"] = species
             self.data["initial_geometry"] = geometry
             if self.data["charge"] is not None and self.data["multiplicity"] is not None:
