@@ -48,7 +48,6 @@ jobs:
             pmg structure --convert --filenames test_files/Li2O.cif POSCAR.pmg
             pmg structure --convert --filenames POSCAR.pmg pmg.cif
             pmg analyze -d test_files
-            if [ "$CI_PULL_REQUEST" == "" ]; then coveralls; fi
           no_output_timeout: 3600
       - store_artifacts:
           path: coverage_reports/
