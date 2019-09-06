@@ -21,7 +21,7 @@ from monty.fractions import gcd, gcd_float
 from pymatgen.core.periodic_table import get_el_sp, Element, Specie, DummySpecie
 from pymatgen.util.string import formula_double_format
 from monty.json import MSONable
-from pymatgen.core.units import FloatWithUnit
+from pymatgen.core.units import Mass
 
 """
 This module implements a Composition class to represent compositions,
@@ -475,7 +475,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         """
         Total molecular weight of Composition
         """
-        return sum([amount * el.atomic_mass for el, amount in self.items()])
+        return Mass(sum([amount * el.atomic_mass for el, amount in self.items()]), "amu")
 
     def get_atomic_fraction(self, el):
         """
