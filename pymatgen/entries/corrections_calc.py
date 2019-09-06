@@ -11,7 +11,8 @@ from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.analysis.reaction_calculator import ComputedReaction
 
 """
-This module calculates corrections for the species listed below, fitted to the experimental and computed entries given to the CorrectionCalculator constructor.
+This module calculates corrections for the species listed below, fitted to the experimental and computed
+entries given to the CorrectionCalculator constructor.
 """
 
 
@@ -20,7 +21,8 @@ class CorrectionCalculator:
     """
     A CorrectionCalculator contains experimental and computed entries which it uses to compute corrections.
 
-    It graphs residual errors after applying the computed corrections and creates the MPCompatibility.yaml file the Correction classes use.
+    It graphs residual errors after applying the computed corrections and creates the MPCompatibility.yaml
+    file the Correction classes use.
 
     Attributes:
         species: list of species that corrections are being calculated for
@@ -87,9 +89,12 @@ class CorrectionCalculator:
         Computes the corrections and fills in correction, corrections_std_error, and corrections_dict.
 
         Args:
-            allow_polyanions: optional variable, boolean controlling whether compounds with problematic polyanions will be included in the fit
-            allow_large_errors: optional variable, boolean controlling whether compounds with large experimental uncertainties will be included in the fit
-            allow_unstable: optional variable, boolean controlling whether unstable compounds with large e_above_hull will be included in the fit
+            allow_polyanions: optional variable, boolean controlling whether compounds with problematic polyanions
+                will be included in the fit
+            allow_large_errors: optional variable, boolean controlling whether compounds with large experimental
+                uncertainties will be included in the fit
+            allow_unstable: optional variable, boolean controlling whether unstable compounds with large e_above_hull
+                will be included in the fit
 
         Raises:
             ValueError: calc_compounds is missing an entry
@@ -156,10 +161,8 @@ class CorrectionCalculator:
         mean_uncer = np.nanmean(sigma)
         sigma = np.where(np.isnan(sigma), mean_uncer, sigma)
 
-        f = lambda x, *m: np.dot(x, m)
-
         popt, pcov = curve_fit(
-            f,
+            func,
             self.coeff_mat,
             self.diffs,
             p0=np.ones(21),
@@ -174,6 +177,13 @@ class CorrectionCalculator:
                 round(self.corrections_std_error[i], 4),
             )
         return self.corrections_dict
+
+    @staticmethod
+    def func(x, *m):
+        """
+        Helper function for curve_fit
+        """
+        return np.dot(x, m)
 
     def graph_residual_error(self) -> None:
 
@@ -294,7 +304,8 @@ class CorrectionCalculator:
 
     def make_yaml(self, name: str = "MP") -> None:
         """
-        Creates the _name_Compatibility.yaml that stores corrections as well as _name_CompatibilityErrors.yaml for correction errors.
+        Creates the _name_Compatibility.yaml that stores corrections as well as _name_CompatibilityErrors.yaml
+        for correction errors.
 
         Args:
             name: optional argument, alternate name for the outputted yaml file
