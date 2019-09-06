@@ -176,13 +176,13 @@ class PotcarCorrection(Correction):
 class GasCorrection(Correction):
     """
     Correct energies of diatomic gases to obtain the right formation energies.
-   
+
     Note that this depends on calculations being run within the same input set.
 
     References:
-        Persson, K. A.; Waldwick, B.; Lazic, P.; Ceder, G. Prediction of Solid-Aqueous 
-        Equilibria: Scheme to Combine First-Principles Calculations of Solids with 
-        Experimental Aqueous States. Phys. Rev. B - Condens. Matter Mater. Phys. 
+        Persson, K. A.; Waldwick, B.; Lazic, P.; Ceder, G. Prediction of Solid-Aqueous
+        Equilibria: Scheme to Combine First-Principles Calculations of Solids with
+        Experimental Aqueous States. Phys. Rev. B - Condens. Matter Mater. Phys.
         2012, 85 (23), 1–12. https://doi.org/10.1103/PhysRevB.85.235438.
     """
 
