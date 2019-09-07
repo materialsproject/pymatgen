@@ -15,11 +15,13 @@ This module calculates corrections for the species listed below, fitted to the e
 entries given to the CorrectionCalculator constructor.
 """
 
+
 def func(x, *m):
     """
     Helper function for curve_fit.
     """
     return np.dot(x, m)
+
 
 class CorrectionCalculator:
 
