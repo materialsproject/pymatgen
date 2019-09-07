@@ -646,8 +646,8 @@ class MaterialsProjectCompatibility(Compatibility):
         self.compat_type = compat_type
         self.correct_peroxide = correct_peroxide
         self.check_potcar_hash = check_potcar_hash
-        fp = os.path.join(MODULE_DIR, "test_compatibility.yaml")
-        fp_error = os.path.join(MODULE_DIR, "test_compatibility_errors.yaml")
+        fp = os.path.join(MODULE_DIR, "MPCompatibility.yaml")
+        fp_error = os.path.join(MODULE_DIR, "MPCompatibilityErrors.yaml")
         super().__init__(
             [
                 PotcarCorrection(MPRelaxSet, check_hash=check_potcar_hash),
