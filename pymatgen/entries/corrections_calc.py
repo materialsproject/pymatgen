@@ -15,6 +15,11 @@ This module calculates corrections for the species listed below, fitted to the e
 entries given to the CorrectionCalculator constructor.
 """
 
+def func(x, *m):
+    """
+    Helper function for curve_fit.
+    """
+    return np.dot(x, m)
 
 class CorrectionCalculator:
 
@@ -57,18 +62,18 @@ class CorrectionCalculator:
         "Mo",
     ]  # species that we're fitting corrections for
 
-    def __init__(self, exp_json: str, comp_json: str) -> None:
+    def __init__(self, exp_gz: str, comp_gz: str) -> None:
 
         """
         Initializes a CorrectionCalculator.
 
         Args:
-            exp_json: name of json file that contains experimental data
-            comp_json: name of json file that contains computed entries
+            exp_gz: name of gzip file that contains experimental data
+            comp_gz: name of gzip file that contains computed entries
         """
 
-        self.exp_compounds = loadfn(exp_json)  # experimental data
-        self.calc_compounds = loadfn(comp_json)  # computed entries
+        self.exp_compounds = loadfn(exp_gz)  # experimental data
+        self.calc_compounds = loadfn(comp_gz)  # computed entries
         self.corrections = []
         self.corrections_std_error = []
         self.corrections_dict = {}  # {'species': (value, error)}
@@ -177,13 +182,6 @@ class CorrectionCalculator:
                 round(self.corrections_std_error[i], 4),
             )
         return self.corrections_dict
-
-    @staticmethod
-    def func(x, *m):
-        """
-        Helper function for curve_fit
-        """
-        return np.dot(x, m)
 
     def graph_residual_error(self) -> None:
 
