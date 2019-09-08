@@ -112,7 +112,7 @@ setup(
         "pymatgen.analysis.magnetism": ["*.json", "*.yaml"],
         "pymatgen.analysis.structure_prediction": ["data/*.json", "*.yaml"],
         "pymatgen.io": ["*.yaml"],
-        "pymatgen.io.vasp": ["*.yaml"],
+        "pymatgen.io.vasp": ["*.yaml", "*.json"],
         "pymatgen.io.lammps": ["templates/*.*"],
         "pymatgen.io.feff": ["*.yaml"],
         "pymatgen.symmetry": ["*.yaml", "*.json", "*.sqlite"],
