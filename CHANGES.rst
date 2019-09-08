@@ -1,6 +1,10 @@
 Change log
 ==========
 
+v2019.9.8
+---------
+* Supplemental release to address missing incar_parameters.json
+
 v2019.9.7
 ---------
 * New fast Pourbaix algorithm (@montoyjh)
