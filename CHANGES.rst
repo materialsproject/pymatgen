@@ -1,6 +1,15 @@
 Change log
 ==========
 
+v2019.9.7
+---------
+* New fast Pourbaix algorithm (@montoyjh)
+* VASP Incar parameter checking (@richardtran415)
+* New VASP input set for Lobster, read support for GROSSPOP file (@JaGeo)
+* New CombinedData class  for LAMMPS (@htz1992213)
+* Improvements to molecule fragmenter (@samblau)
+* Various bug fixes and improvements (@dongsenfo, @shyuep, @ardunn, @nathan-diodan, @rkingsbury)
+
 v2019.8.23
 ----------
 * pycodestyle now enforced, except on tests. Developers should install
