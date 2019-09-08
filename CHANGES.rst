@@ -8,7 +8,7 @@ v2019.9.7
 * New VASP input set for Lobster, read support for GROSSPOP file (@JaGeo)
 * New CombinedData class  for LAMMPS (@htz1992213)
 * Improvements to molecule fragmenter (@samblau)
-* Various bug fixes and improvements (@dongsenfo, @shyuep, @ardunn, @nathan-diodan, @rkingsbury)
+* Various bug fixes and improvements (@dongsenfo, @shyuep, @ardunn, @nathan-diodan, @rkingsbury, @kmu)
 
 v2019.8.23
 ----------
