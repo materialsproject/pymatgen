@@ -64,6 +64,7 @@
 
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="k">import</span> <span class="n">Composition</span>
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
@@ -202,8 +203,9 @@
 <span class="sd">            d:</span>
 <span class="sd">                {symbol: amount} dict.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">charge</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;charge&#39;</span><span class="p">)</span>
-        <span class="n">composition</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="nb">input</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="n">charge</span> <span class="o">=</span> <span class="nb">input</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;charge&#39;</span><span class="p">)</span>
+        <span class="n">composition</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Ion</span><span class="p">(</span><span class="n">composition</span><span class="p">,</span> <span class="n">charge</span><span class="p">)</span></div>
 
     <span class="nd">@property</span>

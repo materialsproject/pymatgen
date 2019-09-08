@@ -355,7 +355,7 @@ Li0.5O0.25 returns (Li2O, 0.25). O0.25 returns (O2, 0.125)</p>
 
 <dl class="method">
 <dt id="pymatgen.core.composition.Composition.get_reduced_composition_and_factor">
-<code class="sig-name descname">get_reduced_composition_and_factor</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.get_reduced_composition_and_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.get_reduced_composition_and_factor" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_reduced_composition_and_factor</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Tuple[pymatgen.core.composition.Composition, float]<a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.get_reduced_composition_and_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.get_reduced_composition_and_factor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates a reduced composition and factor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -367,7 +367,7 @@ Li4Fe4P4O16 returns (Composition(“LiFePO4”), 4).</p>
 
 <dl class="method">
 <dt id="pymatgen.core.composition.Composition.get_reduced_formula_and_factor">
-<code class="sig-name descname">get_reduced_formula_and_factor</code><span class="sig-paren">(</span><em class="sig-param">iupac_ordering=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.get_reduced_formula_and_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.get_reduced_formula_and_factor" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_reduced_formula_and_factor</code><span class="sig-paren">(</span><em class="sig-param">iupac_ordering=False</em><span class="sig-paren">)</span> &#x2192; Tuple[str, float]<a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.get_reduced_formula_and_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.get_reduced_formula_and_factor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates a reduced formula and factor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -565,7 +565,8 @@ False if the Composition contains any dummy species.</p>
 <dl class="method">
 <dt id="pymatgen.core.composition.Composition.weight">
 <em class="property">property </em><code class="sig-name descname">weight</code><a class="headerlink" href="#pymatgen.core.composition.Composition.weight" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Total molecular weight of Composition</p>
+</dd></dl>
 
 </dd></dl>
 

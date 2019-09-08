@@ -256,7 +256,7 @@ If acell is not given, the Abinit default is used i.e. [1,1,1] Bohr</p>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.from_lengths_and_angles">
-<em class="property">static </em><code class="sig-name descname">from_lengths_and_angles</code><span class="sig-paren">(</span><em class="sig-param">abc: List[float], ang: List[float]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.from_lengths_and_angles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.from_lengths_and_angles" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_lengths_and_angles</code><span class="sig-paren">(</span><em class="sig-param">abc: Sequence[float], ang: Sequence[float]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.from_lengths_and_angles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.from_lengths_and_angles" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a Lattice using unit cell lengths and angles (in degrees).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -756,7 +756,7 @@ are preserved.</p>
 
 <dl class="function">
 <dt id="pymatgen.core.lattice.get_integer_index">
-<code class="sig-name descname">get_integer_index</code><span class="sig-paren">(</span><em class="sig-param">miller_index: bool</em>, <em class="sig-param">round_dp: int = 4</em>, <em class="sig-param">verbose: bool = True</em><span class="sig-paren">)</span> &#x2192; Tuple[int, int, int]<a class="reference internal" href="_modules/pymatgen/core/lattice.html#get_integer_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.get_integer_index" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_integer_index</code><span class="sig-paren">(</span><em class="sig-param">miller_index: Sequence[float], round_dp: int = 4, verbose: bool = True</em><span class="sig-paren">)</span> &#x2192; Tuple[int, int, int]<a class="reference internal" href="_modules/pymatgen/core/lattice.html#get_integer_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.get_integer_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Attempt to convert a vector of floats to whole numbers.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

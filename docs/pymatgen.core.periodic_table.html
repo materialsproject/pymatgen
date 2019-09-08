@@ -144,13 +144,6 @@ species, e.g., “X2+”, “X3+”.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pymatgen.core.periodic_table.DummySpecie.safe_from_composition">
-<em class="property">classmethod </em><code class="sig-name descname">safe_from_composition</code><span class="sig-paren">(</span><em class="sig-param">comp: Composition</em>, <em class="sig-param">oxidation_state: float = 0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/periodic_table.html#DummySpecie.safe_from_composition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.periodic_table.DummySpecie.safe_from_composition" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a DummySpecie object that can be safely used
-with (i.e. not present in) a given composition</p>
-</dd></dl>
-
-<dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">symbol</code></dt>
 <dd></dd></dl>
@@ -1077,17 +1070,25 @@ easier serialization.</p>
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">average_anionic_radius</code></dt>
-<dd></dd></dl>
+<dd><p>Average anionic radius for element (with units). The average is
+taken over all negative oxidation states of the element for which
+data is present.</p>
+</dd></dl>
 
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">average_cationic_radius</code></dt>
-<dd></dd></dl>
+<dd><p>Average cationic radius for element (with units). The average is
+taken over all positive oxidation states of the element for which
+data is present.</p>
+</dd></dl>
 
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">average_ionic_radius</code></dt>
-<dd></dd></dl>
+<dd><p>Average ionic radius for element (with units). The average is taken
+over all oxidation states of the element for which data is present.</p>
+</dd></dl>
 
 <dl class="method">
 <dt>
@@ -1154,7 +1155,9 @@ ICSD database AND at least 1% of entries for that element</p>
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">ionic_radii</code></dt>
-<dd></dd></dl>
+<dd><p>All ionic radii of the element as a dict of
+{oxidation state: ionic radii}. Radii are given in ang.</p>
+</dd></dl>
 
 <dl class="method">
 <dt>
@@ -1256,7 +1259,8 @@ and hydrogen.</p>
 <dl class="method">
 <dt id="pymatgen.core.periodic_table.Element.metallic_radius">
 <em class="property">property </em><code class="sig-name descname">metallic_radius</code><a class="headerlink" href="#pymatgen.core.periodic_table.Element.metallic_radius" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Metallic radius of the element. Radius is given in ang.</p>
+</dd></dl>
 
 <dl class="method">
 <dt>

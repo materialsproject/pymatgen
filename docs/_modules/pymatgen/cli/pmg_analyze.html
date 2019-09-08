@@ -76,7 +76,7 @@
 <span class="n">SAVE_FILE</span> <span class="o">=</span> <span class="s2">&quot;vasp_data.gz&quot;</span>
 
 
-<div class="viewcode-block" id="get_energies"><a class="viewcode-back" href="../../../pymatgen.cli.pmg_analyze.html#pymatgen.cli.pmg_analyze.get_energies">[docs]</a><span class="k">def</span> <span class="nf">get_energies</span><span class="p">(</span><span class="n">rootdir</span><span class="p">,</span> <span class="n">reanalyze</span><span class="p">,</span> <span class="n">verbose</span><span class="p">,</span> <span class="n">detailed</span><span class="p">,</span> <span class="n">sort</span><span class="p">,</span> <span class="n">fmt</span><span class="p">):</span>
+<div class="viewcode-block" id="get_energies"><a class="viewcode-back" href="../../../pymatgen.cli.pmg_analyze.html#pymatgen.cli.pmg_analyze.get_energies">[docs]</a><span class="k">def</span> <span class="nf">get_energies</span><span class="p">(</span><span class="n">rootdir</span><span class="p">,</span> <span class="n">reanalyze</span><span class="p">,</span> <span class="n">verbose</span><span class="p">,</span> <span class="n">quick</span><span class="p">,</span> <span class="n">sort</span><span class="p">,</span> <span class="n">fmt</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Doc string.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -84,7 +84,7 @@
         <span class="n">logformat</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%(relativeCreated)d</span><span class="s2"> msecs : </span><span class="si">%(message)s</span><span class="s2">&quot;</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">logformat</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">detailed</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">quick</span><span class="p">:</span>
         <span class="n">drone</span> <span class="o">=</span> <span class="n">SimpleVaspToComputedEntryDrone</span><span class="p">(</span><span class="n">inc_structure</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">drone</span> <span class="o">=</span> <span class="n">VaspToComputedEntryDrone</span><span class="p">(</span><span class="n">inc_structure</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -115,8 +115,8 @@
 
     <span class="n">all_data</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">detailed</span><span class="p">:</span>
-            <span class="n">delta_vol</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;delta_volume&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">quick</span><span class="p">:</span>
+            <span class="n">delta_vol</span> <span class="o">=</span> <span class="s2">&quot;NA&quot;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">delta_vol</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">volume</span> <span class="o">/</span> \
                         <span class="n">e</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;initial_structure&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">volume</span> <span class="o">-</span> <span class="mi">1</span>
@@ -175,7 +175,7 @@
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">get_energies</span> <span class="ow">or</span> <span class="n">default_energies</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">directories</span><span class="p">:</span>
             <span class="n">get_energies</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">reanalyze</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">,</span>
-                         <span class="n">args</span><span class="o">.</span><span class="n">detailed</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">sort</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">format</span><span class="p">)</span>
+                         <span class="n">args</span><span class="o">.</span><span class="n">quick</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">sort</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">format</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">ion_list</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">ion_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;All&quot;</span><span class="p">:</span>
             <span class="n">ion_list</span> <span class="o">=</span> <span class="kc">None</span>

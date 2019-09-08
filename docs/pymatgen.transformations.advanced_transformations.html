@@ -712,6 +712,55 @@ the structure using that specie.</p></li>
 </dd></dl>
 
 <dl class="class">
+<dt id="pymatgen.transformations.advanced_transformations.SQSTransformation">
+<em class="property">class </em><code class="sig-name descname">SQSTransformation</code><span class="sig-paren">(</span><em class="sig-param">clusters</em>, <em class="sig-param">supercell=None</em>, <em class="sig-param">total_atoms=None</em>, <em class="sig-param">search_time=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#SQSTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SQSTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
+<p>A transformation that creates a SQS from a structure with partial occupancies.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>clusters</strong> (<em>dict</em>) – dictionary of cluster interactions with entries in the form</p></li>
+<li><p><strong>atoms</strong> – cutoff in angstroms</p></li>
+<li><p><strong>supercell</strong> (<em>list</em>) – dimensions of the supercell in units of the original unit cell</p></li>
+<li><p><strong>total_atoms</strong> (<em>int</em>) – total number of atoms in the final SQS. Choose either</p></li>
+<li><p><strong>OR supercell</strong> (<em>this</em>) – </p></li>
+<li><p><strong>search_time</strong> (<em>int</em>) – The time spent looking for the ideal SQS in minutes</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.transformations.advanced_transformations.SQSTransformation.apply_transformation">
+<code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param">struc</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#SQSTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SQSTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>structure</strong> (<em>Pymatgen Structure</em>) – Pymatgen Structure with partial occupancies</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Pymatgen Structure which is an SQS of the input structure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.transformations.advanced_transformations.SQSTransformation.inverse">
+<em class="property">property </em><code class="sig-name descname">inverse</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SQSTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the inverse transformation if available.
+Otherwise, should return None.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.transformations.advanced_transformations.SQSTransformation.is_one_to_many">
+<em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SQSTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines if a Transformation is a one-to-many transformation. If a
+Transformation is a one-to-many transformation, the
+apply_transformation method should have a keyword arg
+“return_ranked_list” which allows for the transformed structures to be
+returned as a ranked list.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="pymatgen.transformations.advanced_transformations.SlabTransformation">
 <em class="property">class </em><code class="sig-name descname">SlabTransformation</code><span class="sig-paren">(</span><em class="sig-param">miller_index</em>, <em class="sig-param">min_slab_size</em>, <em class="sig-param">min_vacuum_size</em>, <em class="sig-param">lll_reduce=False</em>, <em class="sig-param">center_slab=False</em>, <em class="sig-param">in_unit_planes=False</em>, <em class="sig-param">primitive=True</em>, <em class="sig-param">max_normal_search=None</em>, <em class="sig-param">shift=0</em>, <em class="sig-param">tol=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#SlabTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SlabTransformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>

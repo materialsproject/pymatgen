@@ -210,7 +210,7 @@
             <span class="k">return</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">:</span><span class="si">{:.3f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">sp</span><span class="p">])</span>
                               <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">sorted_species</span><span class="p">])</span>
 
-    <span class="nd">@property</span>
+    <span class="nd">@property</span>  <span class="c1"># type: ignore</span>
     <span class="nd">@deprecated</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;Use site.species instead. This will be deprecated with effect from pymatgen 2020.&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">species_and_occu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
