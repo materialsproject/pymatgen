@@ -186,7 +186,7 @@ def set_ver(ctx):
 def update_coverage(ctx):
     with cd("docs/_build/html/"):
         ctx.run("git pull")
-    ctx.run("nosetests --config=nose.cfg --cover-html --cover-html-dir=docs/_build/html/coverage")
+    ctx.run("pytest pymatgen")
     update_doc()
 
 
