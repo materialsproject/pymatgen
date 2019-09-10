@@ -59,7 +59,8 @@ def _read_nlines(filename, nlines):
     lines = []
     with open(filename, 'r') as fh:
         for lineno, line in enumerate(fh):
-            if lineno == nlines: break
+            if lineno == nlines:
+                break
             lines.append(line)
         return lines
 
@@ -116,7 +117,8 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
         return PseudoParser().parse(filename)
 
     def __eq__(self, other):
-        if other is None: return False
+        if other is None:
+            return False
         return (self.md5 == other.md5 and
                 self.__class__ == other.__class__ and
                 self.Z == other.Z and
@@ -289,7 +291,8 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
 
         # Build new object and copy dojo_report if present.
         new = self.__class__.from_file(new_path)
-        if self.has_dojo_report: new.dojo_report = self.dojo_report.deepcopy()
+        if self.has_dojo_report:
+            new.dojo_report = self.dojo_report.deepcopy()
 
         return new
 
@@ -358,7 +361,8 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
         lattice = 10 * np.eye(3)
         structure = Structure(lattice, [self.element], coords=[[0, 0, 0]])
 
-        if self.ispaw and pawecutdg is None: pawecutdg = ecut * 4
+        if self.ispaw and pawecutdg is None:
+            pawecutdg = ecut * 4
         inp = gs_input(structure, pseudos=[self], ecut=ecut, pawecutdg=pawecutdg,
                        spin_mode="unpolarized", kppa=1)
         # Add prtpsps = -1 to make Abinit print the PSPS.nc file and stop.
@@ -489,8 +493,10 @@ class AbinitPseudo(Pseudo):
         # Treate ONCVPSP pseudos
         if self._pspcod == 8:
             switch = self.header["extension_switch"]
-            if switch in (0, 1): return False
-            if switch in (2, 3): return True
+            if switch in (0, 1):
+                return False
+            if switch in (2, 3):
+                return True
             raise ValueError("Don't know how to handle extension_switch: %s" % switch)
 
         # TODO Treat HGH HGHK pseudos
@@ -596,7 +602,8 @@ def _dict_from_lines(lines, key_nums, sep=None):
     kwargs = Namespace()
 
     for (i, nk) in enumerate(key_nums):
-        if nk == 0: continue
+        if nk == 0:
+            continue
         line = lines[i]
 
         tokens = [t.strip() for t in line.split()]
@@ -832,7 +839,8 @@ class NcAbinitHeader(AbinitHeader):
         projectors = OrderedDict()
         for idx in range(2 * (lmax + 1)):
             line = lines[idx]
-            if idx % 2 == 0: proj_info = [line, ]
+            if idx % 2 == 0:
+                proj_info = [line, ]
             if idx % 2 == 1:
                 proj_info.append(line)
                 d = _dict_from_lines(proj_info, [5, 4])
@@ -1046,7 +1054,8 @@ class PseudoParser:
             root, ext = os.path.splitext(fname)
             path = os.path.join(dirname, fname)
             if (ext in exclude_exts or fname in exclude_fnames or
-                fname.startswith(".") or not os.path.isfile(path)): continue
+                    fname.startswith(".") or not os.path.isfile(path)):
+                continue
             paths.append(path)
 
         pseudos = []
@@ -1532,7 +1541,8 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
         """
         Return an instance of :class:`PseudoTable` from the iterable items.
         """
-        if isinstance(items, cls): return items
+        if isinstance(items, cls):
+            return items
         return cls(items)
 
     @classmethod
@@ -1567,7 +1577,8 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
             logger.info('Creating PseudoTable with %i pseudopotentials' % len(pseudos))
 
         else:
-            if exts is None: exts = ("psp8",)
+            if exts is None:
+                exts = ("psp8",)
 
             for p in find_exts(top, exts, exclude_dirs=exclude_dirs):
                 try:
@@ -1685,7 +1696,8 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
         True if table is complete i.e. all elements with Z < zmax have at least on pseudopotential
         """
         for z in range(1, zmax):
-            if not self[z]: return False
+            if not self[z]:
+                return False
         return True
 
     def all_combinations_for_elements(self, element_symbols):
@@ -1767,9 +1779,11 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
         pseudos = []
         for p in self:
             if exclude:
-                if p.symbol in symbols: continue
+                if p.symbol in symbols:
+                    continue
             else:
-                if p.symbol not in symbols: continue
+                if p.symbol not in symbols:
+                    continue
 
             pseudos.append(p)
 
@@ -1808,7 +1822,8 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
         """Return string with data in tabular form."""
         table = []
         for p in self:
-            if filter_function is not None and filter_function(p): continue
+            if filter_function is not None and filter_function(p):
+                continue
             table.append([p.basename, p.symbol, p.Z_val, p.l_max, p.l_local, p.xc, p.type])
         return tabulate(table, headers=["basename", "symbol", "Z_val", "l_max", "l_local", "XC", "type"],
                         tablefmt="grid")
@@ -1855,7 +1870,8 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
         Return new class:`PseudoTable` object with pseudos in the given rows of the periodic table.
         rows can be either a int or a list of integers.
         """
-        if not isinstance(rows, (list, tuple)): rows = [rows]
+        if not isinstance(rows, (list, tuple)):
+            rows = [rows]
         return self.__class__([p for p in self if p.element.row in rows])
 
     def select_family(self, family):

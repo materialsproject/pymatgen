@@ -44,6 +44,12 @@
             
   <div class="section" id="module-pymatgen.io.vasp.inputs">
 <span id="pymatgen-io-vasp-inputs-module"></span><h1>pymatgen.io.vasp.inputs module<a class="headerlink" href="#module-pymatgen.io.vasp.inputs" title="Permalink to this headline">¶</a></h1>
+<dl class="exception">
+<dt id="pymatgen.io.vasp.inputs.BadIncarWarning">
+<em class="property">exception </em><code class="sig-name descname">BadIncarWarning</code><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#BadIncarWarning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.BadIncarWarning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">UserWarning</span></code></p>
+</dd></dl>
+
 <dl class="class">
 <dt id="pymatgen.io.vasp.inputs.Incar">
 <em class="property">class </em><code class="sig-name descname">Incar</code><span class="sig-paren">(</span><em class="sig-param">params=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Incar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Incar" title="Permalink to this definition">¶</a></dt>
@@ -60,6 +66,15 @@ a dictionary with some helper functions</p>
 <dt id="pymatgen.io.vasp.inputs.Incar.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Incar.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Incar.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>A JSON serializable dict representation of an object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.vasp.inputs.Incar.check_params">
+<code class="sig-name descname">check_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Incar.check_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Incar.check_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raises a warning for nonsensical or non-existant INCAR tags and
+parameters. If a keyword doesn’t exist (e.g. theres a typo in a
+keyword), your calculation will still run, however VASP will igore the
+parameter without letting you know, hence why we have this Incar method.</p>
 </dd></dl>
 
 <dl class="method">

@@ -153,7 +153,8 @@ class NetcdfReader:
             dim = self._read_dimensions(dimname, path=path)[0]
             return len(dim)
         except self.Error:
-            if default is NO_DEFAULT: raise
+            if default is NO_DEFAULT:
+                raise
             return default
 
     def read_varnames(self, path="/"):
@@ -182,7 +183,8 @@ class NetcdfReader:
         try:
             var = self.read_variable(varname, path=path)
         except self.Error:
-            if default is NO_DEFAULT: raise
+            if default is NO_DEFAULT:
+                raise
             return default
 
         if cmode is None:

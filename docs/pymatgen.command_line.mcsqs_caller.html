@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.electronic_structure.boltztrap2 module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.command_line.mcsqs_caller module &#8212; pymatgen 2019.8.23 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -42,8 +42,29 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="pymatgen-electronic-structure-boltztrap2-module">
-<h1>pymatgen.electronic_structure.boltztrap2 module<a class="headerlink" href="#pymatgen-electronic-structure-boltztrap2-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-pymatgen.command_line.mcsqs_caller">
+<span id="pymatgen-command-line-mcsqs-caller-module"></span><h1>pymatgen.command_line.mcsqs_caller module<a class="headerlink" href="#module-pymatgen.command_line.mcsqs_caller" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="pymatgen.command_line.mcsqs_caller.run_mcsqs">
+<code class="sig-name descname">run_mcsqs</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">clusters</em>, <em class="sig-param">supercell=None</em>, <em class="sig-param">total_atoms=None</em>, <em class="sig-param">search_time=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/command_line/mcsqs_caller.html#run_mcsqs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.mcsqs_caller.run_mcsqs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function for calling mcsqs with different arguments</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>clusters</strong> (<em>dict</em>) – dictionary of cluster interactions with entries in the form</p></li>
+<li><p><strong>atoms</strong> (<em>#</em>) – cutoff in angstroms</p></li>
+<li><p><strong>supercell</strong> (<em>list</em>) – dimensions of the supercell in units of the original unit cell</p></li>
+<li><p><strong>total_atoms</strong> (<em>int</em>) – total number of atoms in the final SQS. Choose either</p></li>
+<li><p><strong>OR supercell</strong> (<em>this</em>) – </p></li>
+<li><p><strong>search_time</strong> (<em>int</em>) – The time spent looking for the ideal SQS in minutes</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Pymatgen structure which is an SQS of the input structure</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 
 
@@ -55,7 +76,7 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/pymatgen.electronic_structure.boltztrap2.rst.txt"
+      <li><a href="_sources/pymatgen.command_line.mcsqs_caller.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>

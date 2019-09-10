@@ -52,9 +52,16 @@
 <p>A <cite>TaskManager</cite> is responsible for the generation of the job script and the submission
 of the task, as well as for the specification of the parameters passed to the resource manager
 (e.g. Slurm, PBS …) and/or the run-time specification of the ABINIT variables governing the parallel execution.
-A <cite>TaskManager</cite> delegates the generation of the submission script and the submission of the task to the <code class="xref py py-class docutils literal notranslate"><span class="pre">QueueAdapter</span></code>.
-A <cite>TaskManager</cite> has a <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskPolicy</span></code> that governs the specification of the parameters for the parallel executions.
-Ideally, the TaskManager should be the <strong>main entry point</strong> used by the task to deal with job submission/optimization</p>
+A <cite>TaskManager</cite> delegates the generation of the submission script and the submission of the task to the</p>
+<blockquote>
+<div><p><code class="xref py py-class docutils literal notranslate"><span class="pre">QueueAdapter</span></code>.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>A <cite>TaskManager</cite> has a <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskPolicy</span></code> that governs the specification of the parameters for the parallel</dt><dd><p>executions.</p>
+</dd>
+</dl>
+<p>Ideally, the TaskManager should be the <strong>main entry point</strong> used by the task to deal with job
+submission/optimization</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -71,7 +78,7 @@ Ideally, the TaskManager should be the <strong>main entry point</strong> used by
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.USER_CONFIG_DIR">
-<code class="sig-name descname">USER_CONFIG_DIR</code><em class="property"> = '/Users/shyue/.abinit/abipy'</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.USER_CONFIG_DIR" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">USER_CONFIG_DIR</code><em class="property"> = '/Users/matt/.abinit/abipy'</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.USER_CONFIG_DIR" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -1261,7 +1268,8 @@ to change the input when we connect this task</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>anaddb_input</strong> – string with the anaddb variables.</p></li>
 <li><p><strong>ddb_node</strong> – The node that will produce the DDB file. Accept <code class="xref py py-class docutils literal notranslate"><span class="pre">Task</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Work</span></code> or filepath.</p></li>
-<li><p><strong>gkk_node</strong> – The node that will produce the GKK file (optional). Accept <code class="xref py py-class docutils literal notranslate"><span class="pre">Task</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Work</span></code> or filepath.</p></li>
+<li><p><strong>gkk_node</strong> – The node that will produce the GKK file (optional). Accept <code class="xref py py-class docutils literal notranslate"><span class="pre">Task</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Work</span></code> or
+filepath.</p></li>
 <li><p><strong>md_node</strong> – The node that will produce the MD file (optional). Accept <cite>Task</cite>, <cite>Work</cite> or filepath.</p></li>
 <li><p><strong>gkk_node</strong> – The node that will produce the GKK file (optional). Accept <cite>Task</cite>, <cite>Work</cite> or filepath.</p></li>
 <li><p><strong>workdir</strong> – Path to the working directory (optional).</p></li>

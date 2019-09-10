@@ -523,8 +523,7 @@ class ParallelEfficiency(dict):
 
                 data.append((sect_name, self.estimator(values)))
 
-        fsort = lambda t: t[1]
-        data.sort(key=fsort, reverse=reverse)
+        data.sort(key=lambda t: t[1], reverse=reverse)
         return tuple([sect_name for (sect_name, e) in data])
 
     def totable(self, stop=None, reverse=True):
@@ -752,9 +751,8 @@ class AbinitTimer:
 
         if sorted:
             # Sort new_values and rearrange new_names.
-            fsort = lambda t: t[1]
             nandv = [nv for nv in zip(new_names, new_values)]
-            nandv.sort(key=fsort)
+            nandv.sort(key=lambda t: t[1])
             new_names, new_values = [n[0] for n in nandv], [n[1] for n in nandv]
 
         return new_names, new_values
@@ -767,8 +765,7 @@ class AbinitTimer:
 
     def order_sections(self, key, reverse=True):
         """Sort sections according to the value of key."""
-        fsort = lambda s: s.__dict__[key]
-        return sorted(self.sections, key=fsort, reverse=reverse)
+        return sorted(self.sections, key=lambda s: s.__dict__[key], reverse=reverse)
 
     @add_fig_kwargs
     def cpuwall_histogram(self, ax=None, **kwargs):
