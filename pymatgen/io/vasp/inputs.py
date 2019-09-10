@@ -911,13 +911,6 @@ class Incar(dict, MSONable):
                         warnings.warn("%s: Cannot find %s in the list of parameters" % (k, self[k]),
                                       BadIncarWarning, stacklevel=2)
 
-                # If an incar parameter only takes lists, check
-                # if the user provided setting is a list
-                elif type(incar_params[k]).__name__ == 'dict' \
-                        and type(self[k]).__name__ != 'list':
-                    warnings.warn("%s: %s is not a list" % (k, self[k]),
-                                  BadIncarWarning, stacklevel=2)
-
 
 class Kpoints_supported_modes(Enum):
     Automatic = 0
