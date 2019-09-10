@@ -4,9 +4,7 @@ jobs:
     working_directory: ~/pymatgen
     docker:
       - image: materialsvirtuallab/circle-ci-pmg-py3:3.7.3
-#        environment:
-#          PMG_MAPI_ENDPOINT: https://zola.lbl.gov/rest/v2
-    # parallelism: 4
+    parallelism: 4
     steps:
       - checkout
       - run:
@@ -14,7 +12,6 @@ jobs:
             export PATH=$HOME/miniconda3/bin:$PATH
             conda config --set always_yes yes --set changeps1 no
             conda update -q conda
-            conda info -a
             conda create -q -n test-environment python=3.7 numpy scipy matplotlib sympy cython pandas networkx pytest cmake h5py
             source activate test-environment
             conda update --quiet numpy scipy matplotlib sympy cython pandas networkx pytest pip cmake h5py
@@ -25,16 +22,12 @@ jobs:
             export CFLAGS=$CFLAGS" -std=gnu++11"
             pip install BoltzTraP2
             export CFLAGS=${CFLAGS%% -std=gnu++11}
-      - run:
-          command: |
-            export PATH=$HOME/miniconda3/bin:$PATH
             # Add executables and path.
             for EXEPATH in `pwd`/cmd_line/*/Linux_64bit; do export PATH=$PATH:$EXEPATH; done
             export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
             export MPLBACKEND=Agg
-            source activate test-environment
             pip install --quiet -e .
-            pytest --ignore=pymatgen/analysis/tests/test_pourbaix_diagram.py --cov=pymatgen --cov-report html:coverage_reports pymatgen
+            pytest --workers auto --ignore=pymatgen/analysis/tests/test_pourbaix_diagram.py --cov=pymatgen --cov-report html:coverage_reports pymatgen
             echo "pycodestyle checks..."
             pycodestyle pymatgen
             echo "--- Done ---"
@@ -55,6 +48,8 @@ jobs:
           destination: tr1
       - store_test_results:
           path: coverage_reports/
+      - store_test_results:
+          path: test-results
 
 workflows:
   version: 2
