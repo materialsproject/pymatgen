@@ -972,6 +972,112 @@ class OxideTypeCorrectionTest(unittest.TestCase):
         li2o_entry_corrected = self.compat.process_entry(li2o_entry)
         self.assertAlmostEqual(li2o_entry_corrected.energy, -3.0 - 0.66975, 4)
 
+class SulfideTypeCorrectionTest(unittest.TestCase):
+    def setUp(self):
+        self.compat = MaterialsProjectCompatibility(check_potcar_hash=False)
+
+    def test_struct_no_struct(self):
+        # Processing an Entry should produce the same correction whether or not
+        # that entry has a Structure attached to it.
+        # This test will FAIL in previous version of pymatgen in which
+        # 'polysulfide' was a valid output from structure_analyzer.sulfide_type()
+
+        # Na2S2, entry mp-2400, with and without structure
+        from collections import defaultdict
+
+        entry_struct_as_dict = {'@module': 'pymatgen.entries.computed_entries',
+        '@class': 'ComputedStructureEntry',
+        'energy': -28.42580746,
+        'composition': defaultdict(float, {'Na': 4.0, 'S': 4.0}),
+        'correction': 0,
+        'parameters': {'run_type': 'GGA',
+        'is_hubbard': False,
+        'pseudo_potential': {'functional': 'PBE',
+        'labels': ['Na_pv', 'S'],
+        'pot_type': 'paw'},
+        'hubbards': {},
+        'potcar_symbols': ['PBE Na_pv', 'PBE S'],
+        'oxide_type': 'None'},
+        'data': {'oxide_type': 'None'},
+        'entry_id': 'mp-2400',
+        'structure': {'@module': 'pymatgen.core.structure',
+        '@class': 'Structure',
+        'charge': None,
+        'lattice': {'matrix': [[4.5143094, 0.0, 0.0],
+            [-2.2571547, 3.90950662, 0.0],
+            [0.0, 0.0, 10.28414905]],
+        'a': 4.5143094,
+        'b': 4.514309399183436,
+        'c': 10.28414905,
+        'alpha': 90.0,
+        'beta': 90.0,
+        'gamma': 120.00000000598358,
+        'volume': 181.50209256783256},
+        'sites': [{'species': [{'element': 'Na', 'occu': 1}],
+            'abc': [0.0, 0.0, 0.0],
+            'xyz': [0.0, 0.0, 0.0],
+            'label': 'Na',
+            'properties': {'magmom': 0.0}},
+        {'species': [{'element': 'Na', 'occu': 1}],
+            'abc': [0.0, 0.0, 0.5],
+            'xyz': [0.0, 0.0, 5.142074525],
+            'label': 'Na',
+            'properties': {'magmom': 0.0}},
+        {'species': [{'element': 'Na', 'occu': 1}],
+            'abc': [0.33333333, 0.66666667, 0.25],
+            'xyz': [-2.2571547075855847e-08, 2.6063377596983557, 2.5710372625],
+            'label': 'Na',
+            'properties': {'magmom': 0.0}},
+        {'species': [{'element': 'Na', 'occu': 1}],
+            'abc': [0.66666667, 0.33333333, 0.75],
+            'xyz': [2.2571547225715474, 1.3031688603016447, 7.7131117875],
+            'label': 'Na',
+            'properties': {'magmom': 0.0}},
+        {'species': [{'element': 'S', 'occu': 1}],
+            'abc': [0.33333333, 0.66666667, 0.644551],
+            'xyz': [-2.2571547075855847e-08, 2.6063377596983557, 6.62865855432655],
+            'label': 'S',
+            'properties': {'magmom': 0.0}},
+        {'species': [{'element': 'S', 'occu': 1}],
+            'abc': [0.66666667, 0.33333333, 0.144551],
+            'xyz': [2.2571547225715474, 1.3031688603016447, 1.4865840293265502],
+            'label': 'S',
+            'properties': {'magmom': 0.0}},
+        {'species': [{'element': 'S', 'occu': 1}],
+            'abc': [0.66666667, 0.33333333, 0.355449],
+            'xyz': [2.2571547225715474, 1.3031688603016447, 3.65549049567345],
+            'label': 'S',
+            'properties': {'magmom': 0.0}},
+        {'species': [{'element': 'S', 'occu': 1}],
+            'abc': [0.33333333, 0.66666667, 0.855449],
+            'xyz': [-2.2571547075855847e-08, 2.6063377596983557, 8.79756502067345],
+            'label': 'S',
+            'properties': {'magmom': 0.0}}]}}
+
+        entry_no_struct_as_dict = {'@module': 'pymatgen.entries.computed_entries',
+        '@class': 'ComputedEntry',
+        'energy': -28.42580746,
+        'composition': defaultdict(float, {'Na': 4.0, 'S': 4.0}),
+        'correction': -2.65384,
+        'parameters': {'run_type': 'GGA',
+        'is_hubbard': False,
+        'pseudo_potential': {'functional': 'PBE',
+        'labels': ['Na_pv', 'S'],
+        'pot_type': 'paw'},
+        'hubbards': {},
+        'potcar_symbols': ['PBE Na_pv', 'PBE S'],
+        'oxide_type': 'None'},
+        'data': {'oxide_type': 'None'},
+        'entry_id': 'mp-2400'}
+
+        na2s2_entry_struct = ComputedStructureEntry.from_dict(entry_struct_as_dict)
+        na2s2_entry_nostruct = ComputedEntry.from_dict(entry_no_struct_as_dict)
+
+        struct_corrected = self.compat.process_entry(na2s2_entry_struct)
+        nostruct_corrected = self.compat.process_entry(na2s2_entry_nostruct)
+        
+        self.assertAlmostEqual(struct_corrected.correction,
+            nostruct_corrected.correction, 4)
 
 class OxideTypeCorrectionNoPeroxideCorrTest(unittest.TestCase):
     def setUp(self):
