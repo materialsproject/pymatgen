@@ -769,7 +769,7 @@ class Incar(dict, MSONable):
             key: INCAR parameter key
             val: Actual value of INCAR parameter.
         """
-        list_keys = tuple([k for k in incar_params.keys() if type(incar_params[k]).__name__ == 'dict'])
+        list_keys = tuple([k for k in incar_params.keys() if incar_params[k]== 'list'])
         bool_keys = tuple([k for k in incar_params.keys() if incar_params[k] == 'bool'])
         float_keys = tuple([k for k in incar_params.keys() if incar_params[k] == 'float'])
         int_keys = tuple([k for k in incar_params.keys() if incar_params[k] == 'int'])
