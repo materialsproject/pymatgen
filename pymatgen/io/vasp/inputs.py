@@ -769,7 +769,7 @@ class Incar(dict, MSONable):
             key: INCAR parameter key
             val: Actual value of INCAR parameter.
         """
-        list_keys = tuple([k for k in incar_params.keys() if type(incar_params[k]).__name__ == 'dict'])
+        list_keys = tuple([k for k in incar_params.keys() if incar_params[k] == 'list'])
         bool_keys = tuple([k for k in incar_params.keys() if incar_params[k] == 'bool'])
         float_keys = tuple([k for k in incar_params.keys() if incar_params[k] == 'float'])
         int_keys = tuple([k for k in incar_params.keys() if incar_params[k] == 'int'])
@@ -910,13 +910,6 @@ class Incar(dict, MSONable):
                     if self[k] not in incar_params[k]:
                         warnings.warn("%s: Cannot find %s in the list of parameters" % (k, self[k]),
                                       BadIncarWarning, stacklevel=2)
-
-                # If an incar parameter only takes lists, check
-                # if the user provided setting is a list
-                elif type(incar_params[k]).__name__ == 'dict' \
-                        and type(self[k]).__name__ != 'list':
-                    warnings.warn("%s: %s is not a list" % (k, self[k]),
-                                  BadIncarWarning, stacklevel=2)
 
 
 class Kpoints_supported_modes(Enum):

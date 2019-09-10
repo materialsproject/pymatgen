@@ -60,28 +60,20 @@
  "CLN": "int",
  "CLNT": "int",
  "CLZ": "float",
- "CMBJ": {
-  "list": "float"
- },
+ "CMBJ": "list",
  "CMBJA": "float",
  "CMBJB": "float",
  "CSHIFT": "float",
  "DEPER": "float",
  "DIMER_DIST": "float",
- "DIPOL": {
-  "list": "float"
- },
+ "DIPOL": "list",
  "DQ": "float",
  "EBREAK": "float",
  "EDIFF": "float",
  "EDIFFG": "float",
  "EFIELD": "float",
- "EFIELD_PEAD": {
-  "list": "float"
- },
- "EINT": {
-  "list": "float"
- },
+ "EFIELD_PEAD": "list",
+ "EINT": "list",
  "EMAX": "float",
  "EMIN": "float",
  "ENAUG": "float",
@@ -93,12 +85,8 @@
  "EPSILON": "float",
  "EVENONLY": "bool",
  "EVENONLYGW": "bool",
- "FERDO": {
-  "list": "float"
- },
- "FERWE": {
-  "list": "float"
- },
+ "FERDO": "list",
+ "FERWE": "list",
  "FINDIFF": "int",
  "GGA": [
   "91",
@@ -166,9 +154,7 @@
   57,
   58
  ],
- "IBAND": {
-  "list": "int"
- },
+ "IBAND": "list",
  "IBRION": [
   -1,
   0,
@@ -225,9 +211,7 @@
   2,
   4
  ],
- "INCREM": {
-  "list": "float"
- },
+ "INCREM": "list",
  "INIMIX": [
   0,
   1,
@@ -296,25 +280,17 @@
  "KBLOCK": "int",
  "KGAMMA": "bool",
  "KPAR": "int",
- "KPOINT_BSE": {
-  "list": "int"
- },
- "KPUSE": {
-  "list": "int"
- },
+ "KPOINT_BSE": "list",
+ "KPUSE": "list",
  "KSPACING": "float",
  "LADDER": "bool",
  "LAECHG": "bool",
  "LAMBDA": "float",
- "LANGEVIN_GAMMA": {
-  "list": "float"
- },
+ "LANGEVIN_GAMMA": "list",
  "LANGEVIN_GAMMA_L": "float",
  "LASPH": "bool",
  "LASYNC": "bool",
- "LATTICE_CONSTRAINTS": {
-  "list": "bool"
- },
+ "LATTICE_CONSTRAINTS": "list",
  "LBERRY": "bool",
  "LBLUEOUT": "bool",
  "LBONE": "bool",
@@ -324,12 +300,8 @@
  "LCHIMAG": "bool",
  "LCORR": "bool",
  "LDAU": "bool",
- "LDAUJ": {
-  "list": "float"
- },
- "LDAUL": {
-  "list": "int"
- },
+ "LDAUJ": "list",
+ "LDAUL": "list",
  "LDAUPRINT": [
   0,
   1,
@@ -340,9 +312,7 @@
   2,
   4
  ],
- "LDAUU": {
-  "list": "float"
- },
+ "LDAUU": "list",
  "LDIAG": "bool",
  "LDIPOL": "bool",
  "LEFG": "bool",
@@ -413,12 +383,8 @@
  "LWRITE_UNK": "bool",
  "LWRITE_WANPROJ": "bool",
  "LZEROZ": "bool",
- "M_CONSTR": {
-  "list": "float"
- },
- "MAGMOM": {
-  "list": "float"
- },
+ "M_CONSTR": "list",
+ "MAGMOM": "list",
  "MAXMEM": "int",
  "MAXMIX": "int",
  "MDALGO": [
@@ -453,15 +419,11 @@
  "ML_FF_CSIG": "float",
  "ML_FF_CSLOPE": "float",
  "ML_FF_CTIFOR": "float",
- "ML_FF_EATOM": {
-  "list": "float"
- },
+ "ML_FF_EATOM": "list",
  "ML_FF_IAFILT2_MB": "int",
  "ML_FF_IBROAD1_MB": "int",
  "ML_FF_IBROAD2_MB": "int",
- "ML_FF_ICOUPLE_MB": {
-  "list": "int"
- },
+ "ML_FF_ICOUPLE_MB": "list",
  "ML_FF_ICUT1_MB": "int",
  "ML_FF_ICUT2_MB": "int",
  "ML_FF_IERR": "int",
@@ -521,9 +483,7 @@
  "NBMOD": "int",
  "NBSEEIG": "int",
  "NCORE": "int",
- "NCRPA_BANDS": {
-  "list": "int"
- },
+ "NCRPA_BANDS": "list",
  "NDAV": "int",
  "NEDOS": "int",
  "NELECT": "float",
@@ -535,9 +495,7 @@
  "NGXF": "int",
  "NGY": "int",
  "NGYF": "int",
- "NGYROMAG": {
-  "list": "float"
- },
+ "NGYROMAG": "list",
  "NGZ": "int",
  "NGZF": "int",
  "NKRED": "int",
@@ -556,13 +514,9 @@
  "NPAR": "int",
  "NPPSTR": "int",
  "NSIM": "int",
- "NSUBSYS": {
-  "list": "int"
- },
+ "NSUBSYS": "list",
  "NSW": "int",
- "NTARGET_STATES": {
-  "list": "int"
- },
+ "NTARGET_STATES": "list",
  "NTAUPAR": "int",
  "NUPDOWN": "int",
  "NWRITE": [
@@ -588,9 +542,7 @@
  "PHON_LMC": "bool",
  "PHON_NSTRUCT": "int",
  "PHON_NTLIST": "int",
- "PHON_TLIST": {
-  "list": "int"
- },
+ "PHON_TLIST": "list",
  "PLEVEL": "int",
  "PMASS": "float",
  "POMASS": "float",
@@ -612,39 +564,21 @@
  ],
  "PROUTINE": "int",
  "PSTRESS": "float",
- "PSUBSYS": {
-  "list": "float"
- },
+ "PSUBSYS": "list",
  "PTHRESHOLD": "float",
- "QMAXFOCKAE": {
-  "list": "float"
- },
- "QSPIRAL": {
-  "list": "float"
- },
- "QUAD_EFG": {
-  "list": "float"
- },
- "RANDOM_SEED": {
-  "list": "int"
- },
- "ROPT": {
-  "list": "float"
- },
- "RWIGS": {
-  "list": "float"
- },
- "SAXIS": {
-  "list": "float"
- },
+ "QMAXFOCKAE": "list",
+ "QSPIRAL": "list",
+ "QUAD_EFG": "list",
+ "RANDOM_SEED": "list",
+ "ROPT": "list",
+ "RWIGS": "list",
+ "SAXIS": "list",
  "SCSRAD": "float",
  "SHAKEMAXITER": "int",
  "SHAKETOL": "float",
  "SIGMA": "float",
  "SMASS": "float",
- "SMEARINGS": {
-  "list": "int"
- },
+ "SMEARINGS": "list",
  "SPRING": "int",
  "STEP_MAX": "float",
  "STEP_SIZE": "float",
@@ -653,26 +587,16 @@
  "TEBEG": "float",
  "TEEND": "float",
  "TIME": "float",
- "TSUBSYS": {
-  "list": "float"
- },
- "VALUE_MAX": {
-  "list": "float"
- },
- "VALUE_MIN": {
-  "list": "float"
- },
+ "TSUBSYS": "list",
+ "VALUE_MAX": "list",
+ "VALUE_MIN": "list",
  "VCUTOFF": "float",
  "VDW_A1": "float",
  "VDW_A2": "float",
- "VDW_C6": {
-  "list": "float"
- },
+ "VDW_C6": "list",
  "VDW_CNRADIUS": "float",
  "VDW_D": "float",
- "VDW_R0": {
-  "list": "float"
- },
+ "VDW_R0": "list",
  "VDW_RADIUS": "float",
  "VDW_S6": "float",
  "VDW_S8": "float",
