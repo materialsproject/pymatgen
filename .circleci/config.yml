@@ -4,7 +4,6 @@ jobs:
     working_directory: ~/pymatgen
     docker:
       - image: materialsvirtuallab/circle-ci-pmg-py3:3.7.3
-    parallelism: 4
     steps:
       - checkout
       - run:
@@ -27,7 +26,7 @@ jobs:
             export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
             export MPLBACKEND=Agg
             pip install --quiet -e .
-            pytest --workers auto --ignore=pymatgen/analysis/tests/test_pourbaix_diagram.py --cov=pymatgen --cov-report html:coverage_reports pymatgen
+            pytest --ignore=pymatgen/analysis/tests/test_pourbaix_diagram.py --cov=pymatgen --cov-report html:coverage_reports pymatgen
             echo "pycodestyle checks..."
             pycodestyle pymatgen
             echo "--- Done ---"
