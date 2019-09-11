@@ -435,7 +435,7 @@ class GaussianInput:
         output.append("")
         output.append(self.title)
         output.append("")
-        output.append("{} {}".format(self.charge, self.spin_multiplicity))
+        output.append("%d %d" % (self.charge, self.spin_multiplicity))
         if isinstance(self._mol, Molecule):
             if cart_coords is True:
                 output.append(self.get_cart_coords())

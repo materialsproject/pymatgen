@@ -15,6 +15,7 @@ import scipy.signal
 import scipy.stats
 from scipy.interpolate import interp1d
 import math
+import logging
 
 from abc import ABCMeta
 
@@ -28,6 +29,8 @@ __maintainer__ = "Daniil Kitchaev, Ziqin Rong"
 __email__ = "dkitch@mit.edu, rongzq08@mit.edu"
 __status__ = "Development"
 __date__ = "March 17, 2015"
+
+logger = logging.getLogger(__name__)
 
 
 class NEBPathfinder:
@@ -61,7 +64,7 @@ class NEBPathfinder:
         in relax_sites, the path is relaxed by the elastic band method within
         the static potential V.
         """
-        images = self.__s1.interpolate(self.__s2, images=self.__n_images,
+        images = self.__s1.interpolate(self.__s2, nimages=self.__n_images,
                                        interpolate_lattices=False)
         for site_i in self.__relax_sites:
             start_f = images[0].sites[site_i].frac_coords
@@ -145,7 +148,7 @@ class NEBPathfinder:
         # (http://www.cims.nyu.edu/~eve2/main.htm)
         #
 
-        # print("Getting path from {} to {} (coords wrt V grid)".format(start, end))
+        # logger.debug("Getting path from {} to {} (coords wrt V grid)".format(start, end))
 
         # Set parameters
         if not dr:
@@ -195,7 +198,7 @@ class NEBPathfinder:
                              dV[2][int(pt[0]) % d[0]][int(pt[1]) % d[1]][
                                  int(pt[2]) % d[2]] / dr[0]] for pt in s])
             # if(step % 100 == 0):
-            #    print(edV)
+            #    logger.debug(edV)
 
             # Update according to force due to potential and string elasticity
             ds_plus = s - np.roll(s, 1, axis=0)
@@ -229,11 +232,11 @@ class NEBPathfinder:
                     "avoid divergence.")
 
             if step > min_iter and tol < max_tol:
-                print("Converged at step {}".format(step))
+                logger.debug("Converged at step {}".format(step))
                 break
 
             if step % 100 == 0:
-                print("Step {} - ds = {}".format(step, tol))
+                logger.debug("Step {} - ds = {}".format(step, tol))
         return s
 
     @staticmethod
@@ -299,8 +302,8 @@ class StaticPotential(metaclass=ABCMeta):
             np.ndindex(v_dim[0] + 1, v_dim[1] + 1, v_dim[2] + 1))])
         v_ogrid = padded_v.reshape(
             ((v_dim[0] + 1) * (v_dim[1] + 1) * (v_dim[2] + 1), -1))
-        ngrid_a, ngrid_b, ngrid_c = np.mgrid[0: v_dim[0]: v_dim[0] / new_dim[0], 0: v_dim[1]: v_dim[1] / new_dim[1],
-                                             0: v_dim[2]: v_dim[2] / new_dim[2]]
+        ngrid_a, ngrid_b, ngrid_c = (np.mgrid[0: v_dim[0]: v_dim[0] / new_dim[0], 0: v_dim[1]: v_dim[1] / new_dim[1],
+                                     0: v_dim[2]: v_dim[2] / new_dim[2]])
 
         v_ngrid = scipy.interpolate.griddata(ogrid_list, v_ogrid,
                                              (ngrid_a, ngrid_b, ngrid_c),
@@ -412,7 +415,7 @@ class FreeVolumePotential(StaticPotential):
                         [a_d / dim[0], b_d / dim[1], c_d / dim[2]])
                     d_f = sorted(s.get_sites_in_sphere(coords_f, s.lattice.a),
                                  key=lambda x: x[1])[0][1]
-                    # print(d_f)
+                    # logger.debug(d_f)
                     gauss_dist[int(a_d)][int(b_d)][int(c_d)] = d_f / r
         v = scipy.stats.norm.pdf(gauss_dist)
         return v
