@@ -151,16 +151,16 @@ class Poscar(MSONable):
     def predictor_corrector(self):
         return self.structure.site_properties.get("predictor_corrector")
 
-    @velocities.setter
+    @velocities.setter  # type: ignore
     def velocities(self, velocities):
         self.structure.add_site_property("velocities", velocities)
 
-    @selective_dynamics.setter
+    @selective_dynamics.setter  # type: ignore
     def selective_dynamics(self, selective_dynamics):
         self.structure.add_site_property("selective_dynamics",
                                          selective_dynamics)
 
-    @predictor_corrector.setter
+    @predictor_corrector.setter  # type: ignore
     def predictor_corrector(self, predictor_corrector):
         self.structure.add_site_property("predictor_corrector",
                                          predictor_corrector)

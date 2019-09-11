@@ -39,7 +39,6 @@ from pymatgen.entries.computed_entries import \
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar
 from pymatgen.util.io_utils import clean_lines, micro_pyawk
 from pymatgen.util.num import make_symmetric_matrix_from_upper_tri
-from scipy.io import FortranFile
 
 """
 Classes for reading/manipulating/writing VASP ouput files.
@@ -598,7 +597,7 @@ class Vasprun(MSONable):
         """
         return self.converged_electronic and self.converged_ionic
 
-    @property
+    @property  # type: ignore
     @unitized("eV")
     def final_energy(self):
         """
@@ -1883,7 +1882,7 @@ class Outcar:
         self.dielectric_energies = np.array(energies)
         self.dielectric_tensor_function = np.array(data["REAL"]) + 1j * np.array(data["IMAGINARY"])
 
-    @property
+    @property  # type: ignore
     @deprecated(message="frequencies has been renamed to dielectric_energies.")
     def frequencies(self):
         return self.dielectric_energies
@@ -3562,7 +3561,7 @@ class Oszicar:
             all_energies.append(tuple(energies))
         return tuple(all_energies)
 
-    @property
+    @property  # type: ignore
     @unitized("eV")
     def final_energy(self):
         """

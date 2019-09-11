@@ -590,12 +590,12 @@ class FermiDos(Dos, MSONable):
             dos.efermi.
         """
         fermi = self.efermi  # initialize target fermi
-        relative_error = float("inf")
+        relative_error = [float("inf")]
         for _ in range(precision):
             frange = np.arange(-nstep, nstep + 1) * step + fermi
             calc_doping = np.array([self.get_doping(f, temperature)
                                     for f in frange])
-            relative_error = abs(calc_doping / concentration - 1.0)
+            relative_error = np.abs(calc_doping / concentration - 1.0)
             fermi = frange[np.argmin(relative_error)]
             step /= 10.0
 

@@ -12,7 +12,7 @@ try:
 
     no_vis = False
 except ImportError:
-    StructureVis = None
+    StructureVis = None  # type: ignore
     no_vis = True
 
 

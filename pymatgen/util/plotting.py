@@ -6,7 +6,6 @@ import math
 import numpy as np
 
 from pymatgen.core.periodic_table import Element
-from itertools import combinations
 
 """
 Utilities for generating nicer plots.

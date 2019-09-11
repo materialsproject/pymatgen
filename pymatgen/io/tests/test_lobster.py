@@ -1339,11 +1339,11 @@ class BandoverlapsTest(unittest.TestCase):
             self.bandoverlaps1.bandoverlapsdict[Spin.down]["0.0261194 0.0261194 0.473881"]["matrix"][0][-1], 4.0066e-07)
 
         # maxDeviation
-        self.assertAlmostEqual(self.bandoverlaps1.maxDeviation[0], 0.000278953)
-        self.assertAlmostEqual(self.bandoverlaps1.maxDeviation[-1], 4.31567e-05)
+        self.assertAlmostEqual(self.bandoverlaps1.max_deviation[0], 0.000278953)
+        self.assertAlmostEqual(self.bandoverlaps1.max_deviation[-1], 4.31567e-05)
 
-        self.assertAlmostEqual(self.bandoverlaps2.maxDeviation[0], 0.000473319)
-        self.assertAlmostEqual(self.bandoverlaps2.maxDeviation[-1], 1.48451e-05)
+        self.assertAlmostEqual(self.bandoverlaps2.max_deviation[0], 0.000473319)
+        self.assertAlmostEqual(self.bandoverlaps2.max_deviation[-1], 1.48451e-05)
 
     def test_has_good_quality(self):
         self.assertFalse(self.bandoverlaps1.has_good_quality_maxDeviation(limit_maxDeviation=0.1))

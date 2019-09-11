@@ -43,7 +43,7 @@ jobs:
             pycodestyle pymatgen
             echo "--- Done ---"
             echo "mypy checks..."
-            mypy pymatgen/core pymatgen/symmetry pymatgen/transformations pymatgen/command_line pymatgen/analysis pymatgen/entries
+            mypy pymatgen
             echo "--- Done ---"
             # Command line tests
             pmg structure --convert --filenames test_files/Li2O.cif POSCAR.pmg

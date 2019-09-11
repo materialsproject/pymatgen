@@ -5,7 +5,6 @@
 
 import re
 import numpy as np
-import warnings
 import collections
 import os
 from monty.io import zopen
@@ -15,14 +14,11 @@ import fnmatch
 import itertools
 import warnings
 import spglib
+from typing import List, Dict
 from collections import defaultdict
-from collections import OrderedDict
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.electronic_structure.dos import Dos, LobsterCompleteDos
-from pymatgen.core.structure import Structure
-from pymatgen.electronic_structure.bandstructure import Kpoint
-from pymatgen.io.vasp.inputs import Kpoints
 from pymatgen.electronic_structure.bandstructure import LobsterBandStructureSymmLine
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Potcar
@@ -1275,8 +1271,8 @@ class Lobsterin(dict, MSONable):
         if self.get("basisfunctions") is None:
             raise IOError("No basis functions are provided. The program cannot calculate nbands.")
         else:
-            basis_functions = []
-            for string_basis in self.get("basisfunctions"):
+            basis_functions = []  # type: List[str]
+            for string_basis in self["basisfunctions"]:
                 # string_basis.lstrip()
                 string_basis_raw = string_basis.strip().split(" ")
                 while "" in string_basis_raw:
@@ -1530,7 +1526,7 @@ class Lobsterin(dict, MSONable):
             data = f.read().split("\n")
         if len(data) == 0:
             raise IOError("lobsterin file contains no data.")
-        Lobsterindict = {}
+        Lobsterindict = {}  # type: Dict
 
         for datum in data:
             # will remove all commments to avoid complications
@@ -1714,8 +1710,8 @@ class Bandoverlaps:
         Args:
          contents: list of strings
         """
-        self.bandoverlapsdict = {}
-        self.maxDeviation = []
+        self.bandoverlapsdict = {}  # type: Dict
+        self.max_deviation = []  # type: List
         # This has to be done like this because there can be different numbers of problematic k-points per spin
         for line in contents:
             if "Overlap Matrix (abs) of the orthonormalized projected bands for spin 0" in line:
@@ -1736,7 +1732,7 @@ class Bandoverlaps:
                     self.bandoverlapsdict[spin][" ".join(kpoint_array)] = {}
                 maxdev = line.split(" ")[2]
                 self.bandoverlapsdict[spin][" ".join(kpoint_array)]["maxDeviation"] = float(maxdev)
-                self.maxDeviation.append(float(maxdev))
+                self.max_deviation.append(float(maxdev))
                 self.bandoverlapsdict[spin][" ".join(kpoint_array)]["matrix"] = []
 
             else:
@@ -1755,7 +1751,7 @@ class Bandoverlaps:
              Boolean that will give you information about the quality of the projection
         """
 
-        for deviation in self.maxDeviation:
+        for deviation in self.max_deviation:
             if deviation > limit_maxDeviation:
                 return False
         return True
