@@ -84,7 +84,7 @@ class CollinearMagneticStructureAnalyzer:
             round_magmoms: bool = False,
             detect_valences: bool = False,
             make_primitive: bool = True,
-            default_magmoms: bool = None,
+            default_magmoms: dict = None,
             set_net_positive: bool = True,
             threshold: float = 0.00,
             threshold_nonmag: float = 0.1,
@@ -354,7 +354,7 @@ class CollinearMagneticStructureAnalyzer:
                     "Failed to round magmoms intelligently, "
                     "falling back to simple rounding."
                 )
-                warnings.warn(e)
+                warnings.warn(str(e))
 
             # and finally round roughly to the number of significant figures in our kde width
             num_decimals = len(str(round_magmoms_mode).split(".")[1]) + 1

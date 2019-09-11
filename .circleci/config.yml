@@ -28,7 +28,7 @@ jobs:
       - save_cache:
           key: pmg-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}
           paths:
-            - $HOME/miniconda3/envs/test-environment
+            - /root/miniconda3/envs/test-environment
       - run:
           command: |
             export PATH=$HOME/miniconda3/bin:$PATH
