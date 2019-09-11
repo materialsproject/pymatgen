@@ -6,9 +6,13 @@ jobs:
       - image: materialsvirtuallab/circle-ci-pmg-py3:3.7.3
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - pmg-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}
       - run:
           command: |
             export PATH=$HOME/miniconda3/bin:$PATH
+            echo $HOME
             conda config --set always_yes yes --set changeps1 no
             conda update -q conda
             conda create -q -n test-environment python=3.7 numpy scipy matplotlib sympy cython pandas networkx pytest cmake h5py
@@ -21,6 +25,14 @@ jobs:
             export CFLAGS=$CFLAGS" -std=gnu++11"
             pip install BoltzTraP2
             export CFLAGS=${CFLAGS%% -std=gnu++11}
+      - save_cache:
+          key: pmg-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}
+          paths:
+            - $HOME/miniconda3/envs/test-environment
+      - run:
+          command: |
+            export PATH=$HOME/miniconda3/bin:$PATH
+            source activate test-environment
             # Add executables and path.
             for EXEPATH in `pwd`/cmd_line/*/Linux_64bit; do export PATH=$PATH:$EXEPATH; done
             export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
