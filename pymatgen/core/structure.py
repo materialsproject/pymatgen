@@ -528,7 +528,7 @@ class IStructure(SiteCollection, MSONable):
     """
 
     def __init__(self,
-                 lattice: Lattice,
+                 lattice: Union[List, np.ndarray, Lattice],
                  species: List[Union[str, Element, Specie, DummySpecie, Composition]],
                  coords: Sequence[Sequence[float]],
                  charge: float = None,
@@ -648,7 +648,7 @@ class IStructure(SiteCollection, MSONable):
     @classmethod
     def from_spacegroup(cls,
                         sg: str,
-                        lattice: Lattice,
+                        lattice: Union[List, np.ndarray, Lattice],
                         species: Sequence[Union[str, Element, Specie, DummySpecie, Composition]],
                         coords: Sequence[Sequence[float]],
                         site_properties: Dict[str, Sequence] = None,
@@ -720,7 +720,7 @@ class IStructure(SiteCollection, MSONable):
 
         frac_coords = np.array(coords, dtype=np.float) \
             if not coords_are_cartesian else \
-            lattice.get_fractional_coords(coords)
+            latt.get_fractional_coords(coords)
 
         props = {} if site_properties is None else site_properties
 
@@ -740,8 +740,8 @@ class IStructure(SiteCollection, MSONable):
     @classmethod
     def from_magnetic_spacegroup(
             cls,
-            msg: str,
-            lattice: Lattice,
+            msg: Union[str, 'MagneticSpaceGroup'],
+            lattice: Union[List, np.ndarray, Lattice],
             species: Sequence[Union[str, Element, Specie, DummySpecie, Composition]],
             coords: Sequence[Sequence[float]],
             site_properties: Dict[str, Sequence],
@@ -800,7 +800,7 @@ class IStructure(SiteCollection, MSONable):
             magmoms = [Magmom(m) for m in site_properties['magmom']]
 
         if not isinstance(msg, MagneticSpaceGroup):
-            msg = MagneticSpaceGroup(msg)
+            msg = MagneticSpaceGroup(msg)  # type: ignore
 
         if isinstance(lattice, Lattice):
             latt = lattice
@@ -811,7 +811,7 @@ class IStructure(SiteCollection, MSONable):
             raise ValueError(
                 "Supplied lattice with parameters %s is incompatible with "
                 "supplied spacegroup %s!" % (latt.lengths_and_angles,
-                                             msg.symbol)
+                                             msg.sg_symbol)
             )
 
         if len(species) != len(coords):
@@ -2688,7 +2688,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
     __hash__ = None  # type: ignore
 
     def __init__(self,
-                 lattice: Lattice,
+                 lattice: Union[List, np.ndarray, Lattice],
                  species: List[Union[str, Element, Specie, DummySpecie, Composition]],
                  coords: Sequence[Sequence[float]],
                  charge: float = None,

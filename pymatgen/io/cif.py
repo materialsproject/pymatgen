@@ -43,11 +43,9 @@ __date__ = "Sep 23, 2011"
 
 sub_spgrp = partial(re.sub, r"[\s_]", "")
 
-space_groups = {sub_spgrp(k): k
-                for k in SYMM_DATA['space_group_encoding'].keys()}
+space_groups = {sub_spgrp(k): k for k in SYMM_DATA['space_group_encoding'].keys()}  # type: ignore
 
-space_groups.update({sub_spgrp(k): k
-                     for k in SYMM_DATA['space_group_encoding'].keys()})
+space_groups.update({sub_spgrp(k): k for k in SYMM_DATA['space_group_encoding'].keys()})  # type: ignore
 
 _COD_DATA = None
 
