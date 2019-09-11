@@ -8,7 +8,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - pmg-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}
+            - pmg-v2-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}
       - run:
           command: |
             export PATH=$HOME/miniconda3/bin:$PATH
@@ -26,7 +26,7 @@ jobs:
             pip install BoltzTraP2
             export CFLAGS=${CFLAGS%% -std=gnu++11}
       - save_cache:
-          key: pmg-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}
+          key: pmg-v2-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}
           paths:
             - /root/miniconda3/envs/test-environment
       - run:
@@ -43,7 +43,7 @@ jobs:
             pycodestyle pymatgen
             echo "--- Done ---"
             echo "mypy checks..."
-            mypy pymatgen/core pymatgen/symmetry pymatgen/transformations pymatgen/command_line
+            mypy pymatgen/core pymatgen/symmetry pymatgen/transformations pymatgen/command_line pymatgen/analysis
             echo "--- Done ---"
             # Command line tests
             pmg structure --convert --filenames test_files/Li2O.cif POSCAR.pmg
