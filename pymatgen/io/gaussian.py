@@ -301,7 +301,7 @@ class GaussianInput:
         title = ' '.join(title)
         ind += 1
         toks = re.split(r"[,\s]+", lines[route_index + ind])
-        charge = int(toks[0])
+        charge = int(float(toks[0]))
         spin_mult = int(toks[1])
         coord_lines = []
         spaces = 0

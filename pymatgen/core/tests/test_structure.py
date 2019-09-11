@@ -1180,7 +1180,7 @@ class IMoleculeTest(PymatgenTest):
     def test_repr_str(self):
         ans = """Full Formula (H4 C1)
 Reduced Formula: H4C
-Charge = 0, Spin Mult = 1
+Charge = 0.0, Spin Mult = 1
 Sites (5)
 0 C     0.000000     0.000000     0.000000
 1 H     0.000000     0.000000     1.089000
