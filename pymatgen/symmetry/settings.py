@@ -10,10 +10,7 @@ from pymatgen.core import Lattice
 from pymatgen.util.string import transformation_to_string
 from pymatgen.core.operations import MagSymmOp, SymmOp
 
-try:
-    from typing import Union, List, Tuple
-except Exception:
-    pass  # harmless, just used for type hinting in IDE
+from typing import Union, List, Tuple
 
 __author__ = "Matthew Horton"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -82,9 +79,9 @@ class JonesFaithfulTransformation:
             a = np.array([1, 0, 0])
             b = np.array([0, 1, 0])
             c = np.array([0, 0, 1])
-            basis_change, origin_shift = transformation_string.split(";")
-            basis_change = basis_change.split(",")
-            origin_shift = origin_shift.split(",")
+            b_change, o_shift = transformation_string.split(";")
+            basis_change = b_change.split(",")
+            origin_shift = o_shift.split(",")
             # add implicit multiplication symbols
             basis_change = [re.sub(
                 r'(?<=\w|\))(?=\() | (?<=\))(?=\w) | (?<=(\d|a|b|c))(?=([abc]))',
