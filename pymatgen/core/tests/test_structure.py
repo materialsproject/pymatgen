@@ -617,10 +617,7 @@ class StructureTest(PymatgenTest):
         s.replace_species({"Ge": {"Ge": 0.5, "Si": 0.5}})
         self.assertEqual(s.formula, "Si0.75 Ge0.25 N1 O1")
 
-        # In this case, s.ntypesp is ambiguous.
-        # code should raise AttributeError.
-        with self.assertRaises(TypeError):
-            s.ntypesp
+        self.assertEqual(s.ntypesp, 4)
 
         s.replace_species({"Ge": "Si"})
         s.substitute(1, "hydroxyl")

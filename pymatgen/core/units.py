@@ -151,11 +151,11 @@ DERIVED_UNITS = {
     }
 }
 
-ALL_UNITS = dict(list(BASE_UNITS.items()) + list(DERIVED_UNITS.items()))
+ALL_UNITS = dict(list(BASE_UNITS.items()) + list(DERIVED_UNITS.items()))  # type: ignore
 SUPPORTED_UNIT_NAMES = tuple([i for d in ALL_UNITS.values() for i in d.keys()])
 
 # Mapping unit name --> unit type (unit names must be unique).
-_UNAME2UTYPE = {}
+_UNAME2UTYPE = {}  # type: ignore
 for utype, d in ALL_UNITS.items():
     assert not set(d.keys()).intersection(_UNAME2UTYPE.keys())
     _UNAME2UTYPE.update({uname: utype for uname in d})

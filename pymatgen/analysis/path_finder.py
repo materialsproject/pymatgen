@@ -61,7 +61,7 @@ class NEBPathfinder:
         in relax_sites, the path is relaxed by the elastic band method within
         the static potential V.
         """
-        images = self.__s1.interpolate(self.__s2, nimages=self.__n_images,
+        images = self.__s1.interpolate(self.__s2, images=self.__n_images,
                                        interpolate_lattices=False)
         for site_i in self.__relax_sites:
             start_f = images[0].sites[site_i].frac_coords
