@@ -31,7 +31,7 @@ jobs:
             pycodestyle pymatgen
             echo "--- Done ---"
             echo "mypy checks..."
-            mypy --ignore-missing-imports --follow-imports skip pymatgen/core
+            mypy pymatgen/core
             echo "--- Done ---"
             # Command line tests
             pmg structure --convert --filenames test_files/Li2O.cif POSCAR.pmg
