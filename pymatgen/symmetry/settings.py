@@ -99,17 +99,14 @@ class JonesFaithfulTransformation:
             raise ValueError("Failed to parse transformation string.")
 
     @property
-    def P(self):
-        # type: () -> List[List(float)]
+    def P(self) -> List[List[float]]:
         """
-
         :return: transformation matri
         """
         return self._P
 
     @property
-    def p(self):
-        # type: () -> List[float]
+    def p(self) -> List[float]:
         """
 
         :return: translation vector
@@ -117,8 +114,7 @@ class JonesFaithfulTransformation:
         return self._p
 
     @property
-    def inverse(self):
-        # type: () -> JonesFaithfulTransformation
+    def inverse(self) -> 'JonesFaithfulTransformation':
         """
 
         :return: JonesFaithfulTransformation
@@ -127,23 +123,20 @@ class JonesFaithfulTransformation:
         return JonesFaithfulTransformation(Q, -np.matmul(Q, self.p))
 
     @property
-    def transformation_string(self):
-        # type: () -> str
+    def transformation_string(self) -> str:
         """
         :return: transformation string
         """
         return self._get_transformation_string_from_Pp(self.P, self.p)
 
     @staticmethod
-    def _get_transformation_string_from_Pp(P, p):
-        # type: (List[List[float]], List[float]) -> str
+    def _get_transformation_string_from_Pp(P: List[List[float]], p: List[float]) -> str:
         P = np.array(P).transpose()
         P_string = transformation_to_string(P, components=('a', 'b', 'c'))
         p_string = transformation_to_string(np.zeros((3, 3)), p)
         return P_string + ";" + p_string
 
-    def transform_symmop(self, symmop):
-        # type: (Union[SymmOp, MagSymmOp]) -> Union[SymmOp, MagSymmOp]
+    def transform_symmop(self, symmop: Union[SymmOp, MagSymmOp]) -> Union[SymmOp, MagSymmOp]:
         """
         Takes a symmetry operation and transforms it.
         :param symmop: SymmOp or MagSymmOp
@@ -162,9 +155,9 @@ class JonesFaithfulTransformation:
         elif isinstance(symmop, SymmOp):
             return SymmOp.from_rotation_and_translation(
                 rotation_matrix=W_, translation_vec=w_, tol=symmop.tol)
+        raise RuntimeError
 
-    def transform_coords(self, coords):
-        # type: (List[List[float]]) -> List[List[float]]
+    def transform_coords(self, coords: List[List[float]]) -> List[List[float]]:
         """
         Takes a list of co-ordinates and transforms them.
         :param coords: List of coords
@@ -174,7 +167,7 @@ class JonesFaithfulTransformation:
         for x in coords:
             x = np.array(x)
             Q = np.linalg.inv(self.P)
-            x_ = np.matmul(Q, (x - self.p))
+            x_ = np.matmul(Q, (x - self.p))  # type: ignore
             new_coords.append(x_.tolist())
         return new_coords
 
