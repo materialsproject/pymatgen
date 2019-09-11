@@ -740,7 +740,7 @@ class IStructure(SiteCollection, MSONable):
     @classmethod
     def from_magnetic_spacegroup(
             cls,
-            msg: Union[str, 'MagneticSpaceGroup'],
+            msg: Union[str, 'MagneticSpaceGroup'],  # type: ignore
             lattice: Union[List, np.ndarray, Lattice],
             species: Sequence[Union[str, Element, Specie, DummySpecie, Composition]],
             coords: Sequence[Sequence[float]],
@@ -826,8 +826,7 @@ class IStructure(SiteCollection, MSONable):
                 "different!" % (len(species), len(magmoms))
             )
 
-        frac_coords = coords if not coords_are_cartesian else \
-            lattice.get_fractional_coords(coords)
+        frac_coords = coords if not coords_are_cartesian else latt.get_fractional_coords(coords)
 
         all_sp = []  # type: List[Union[str, Element, Specie, DummySpecie, Composition]]
         all_coords = []  # type: List[List[float]]
