@@ -1037,7 +1037,7 @@ class FatbandTest(PymatgenTest):
             bs_spin.get_projections_on_elements_and_orbitals({"O0+": ["2p"]})[Spin.down][0][0]["O0+"]["2p"],
             0.002 * 3 + 0.003 * 3)
         dict_here = \
-            bs_spin.get_projections_on_elements_and_orbitals({"Si0+": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.down][0][0]
+            bs_spin.get_projections_on_elements_and_orbitals({"Si0+": ["3s", "3p"], "O0+": ["2s", "2p"]})[Spin.down][0][0]
         self.assertAlmostEqual(dict_here["Si0+"]["3s"], 0.192)
         self.assertAlmostEqual(dict_here["Si0+"]["3p"], 0.003)
         self.assertAlmostEqual(dict_here["O0+"]["2s"], 0.792)
