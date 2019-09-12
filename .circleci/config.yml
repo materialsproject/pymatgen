@@ -11,19 +11,19 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - pmg-v2-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}
+            - pmg-v3-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}
       - run:
           command: |
             export PATH=$HOME/miniconda3/bin:$PATH
+            conda config --set always_yes yes --set changeps1 no
+            conda config --system --add channels conda-forge
+            conda config --system --add channels openbabel
             if [ -e $HOME/miniconda3/envs/test-environment ]; then
               echo "Conda env already present from the cache."
             else
               conda update -q conda
-              conda create -q -n test-environment python=3.7 numpy scipy matplotlib sympy cython pandas networkx pytest cmake h5py
+              conda create -q -n test-environment python=3.7 numpy scipy matplotlib sympy cython pandas networkx pytest pip cmake h5py openbabel python-igraph
             fi
-            conda config --set always_yes yes --set changeps1 no
-            conda config --system --add channels conda-forge
-            conda config --system --add channels openbabel
             source activate test-environment
             conda update --quiet numpy scipy matplotlib sympy cython pandas networkx pytest pip cmake h5py openbabel python-igraph
             # conda install --quiet -c clinicalgraphics vtk
@@ -32,7 +32,7 @@ jobs:
             pip install --quiet BoltzTraP2
             export CFLAGS=${CFLAGS%% -std=gnu++11}
       - save_cache:
-          key: pmg-v2-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}
+          key: pmg-v3-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}
           paths:
             - /root/miniconda3/envs/test-environment
       - run:
