@@ -180,7 +180,7 @@ class Trajectory(MSONable):
                 return [self.frac_coords[i] for i in range(start, stop, step)]
             elif isinstance(frames, list) or isinstance(frames, np.ndarray):
                 # For list input, return a list of the displacements
-                pruned_frames = [i for i in frames if i < len(self)] # Get rid of frames that exceed trajectory length
+                pruned_frames = [i for i in frames if i < len(self)]  # Get rid of frames that exceed trajectory length
                 if len(pruned_frames) < len(frames):
                     warnings.warn('Some or all selected frames exceed trajectory length')
                 return [self.frac_coords[i] for i in pruned_frames]
@@ -221,7 +221,7 @@ class Trajectory(MSONable):
                                   base_positions=self.base_positions)
             elif isinstance(frames, list) or isinstance(frames, np.ndarray):
                 # For list input, return a trajectory of the specified times
-                pruned_frames = [i for i in frames if i < len(self)] # Get rid of frames that exceed trajectory length
+                pruned_frames = [i for i in frames if i < len(self)]  # Get rid of frames that exceed trajectory length
                 if len(pruned_frames) < len(frames):
                     warnings.warn('Some or all selected frames exceed trajectory length')
                 lattice = self.lattice if self.constant_lattice else [self.lattice[i] for i in pruned_frames]
@@ -459,4 +459,3 @@ class Trajectory(MSONable):
 
         with zopen(filename, "wt") as f:
             f.write(xdatcar_string)
-
