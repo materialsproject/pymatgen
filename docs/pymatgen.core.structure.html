@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.structure module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.core.structure module &#8212; pymatgen 2019.9.12 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,9 +44,11 @@
             
   <div class="section" id="module-pymatgen.core.structure">
 <span id="pymatgen-core-structure-module"></span><h1>pymatgen.core.structure module<a class="headerlink" href="#module-pymatgen.core.structure" title="Permalink to this headline">¶</a></h1>
+<p>This module provides classes used to define a non-periodic molecule and a
+periodic structure.</p>
 <dl class="class">
 <dt id="pymatgen.core.structure.IMolecule">
-<em class="property">class </em><code class="sig-name descname">IMolecule</code><span class="sig-paren">(</span><em class="sig-param">species: list</em>, <em class="sig-param">coords: list</em>, <em class="sig-param">charge: float = 0</em>, <em class="sig-param">spin_multiplicity: float = None</em>, <em class="sig-param">validate_proximity: bool = False</em>, <em class="sig-param">site_properties: dict = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IMolecule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IMolecule" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">IMolecule</code><span class="sig-paren">(</span><em class="sig-param">species: List[Union[str, pymatgen.core.periodic_table.Element, pymatgen.core.periodic_table.Specie, pymatgen.core.periodic_table.DummySpecie, pymatgen.core.composition.Composition]], coords: Sequence[Sequence[float]], charge: float = 0.0, spin_multiplicity: float = None, validate_proximity: bool = False, site_properties: dict = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IMolecule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IMolecule" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.core.structure.SiteCollection" title="pymatgen.core.structure.SiteCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.structure.SiteCollection</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Basic immutable Molecule object without periodicity. Essentially a
 sequence of sites. IMolecule is made to be immutable so that they can
@@ -371,7 +373,7 @@ filename. Defaults is None, i.e. string output.</p></li>
 
 <dl class="class">
 <dt id="pymatgen.core.structure.IStructure">
-<em class="property">class </em><code class="sig-name descname">IStructure</code><span class="sig-paren">(</span><em class="sig-param">lattice: pymatgen.core.lattice.Lattice</em>, <em class="sig-param">species: list</em>, <em class="sig-param">coords: list</em>, <em class="sig-param">charge: float = None</em>, <em class="sig-param">validate_proximity: bool = False</em>, <em class="sig-param">to_unit_cell: bool = False</em>, <em class="sig-param">coords_are_cartesian: bool = False</em>, <em class="sig-param">site_properties: dict = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">IStructure</code><span class="sig-paren">(</span><em class="sig-param">lattice: Union[List, numpy.ndarray, pymatgen.core.lattice.Lattice], species: List[Union[str, pymatgen.core.periodic_table.Element, pymatgen.core.periodic_table.Specie, pymatgen.core.periodic_table.DummySpecie, pymatgen.core.composition.Composition]], coords: Sequence[Sequence[float]], charge: float = None, validate_proximity: bool = False, to_unit_cell: bool = False, coords_are_cartesian: bool = False, site_properties: dict = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.core.structure.SiteCollection" title="pymatgen.core.structure.SiteCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.structure.SiteCollection</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Basic immutable Structure object with periodicity. Essentially a sequence
 of PeriodicSites having a common lattice. IStructure is made to be
@@ -539,7 +541,7 @@ are within merge_tol from each other will be merged. Usually
 
 <dl class="method">
 <dt id="pymatgen.core.structure.IStructure.from_magnetic_spacegroup">
-<em class="property">classmethod </em><code class="sig-name descname">from_magnetic_spacegroup</code><span class="sig-paren">(</span><em class="sig-param">msg: str</em>, <em class="sig-param">lattice: pymatgen.core.lattice.Lattice</em>, <em class="sig-param">species: List</em>, <em class="sig-param">coords: List</em>, <em class="sig-param">site_properties: Dict[str</em>, <em class="sig-param">List] = None</em>, <em class="sig-param">coords_are_cartesian: bool = False</em>, <em class="sig-param">tol: float = 1e-05</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.from_magnetic_spacegroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.from_magnetic_spacegroup" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_magnetic_spacegroup</code><span class="sig-paren">(</span><em class="sig-param">msg: Union[str, MagneticSpaceGroup], lattice: Union[List, numpy.ndarray, pymatgen.core.lattice.Lattice], species: Sequence[Union[str, pymatgen.core.periodic_table.Element, pymatgen.core.periodic_table.Specie, pymatgen.core.periodic_table.DummySpecie, pymatgen.core.composition.Composition]], coords: Sequence[Sequence[float]], site_properties: Dict[str, Sequence], coords_are_cartesian: bool = False, tol: float = 1e-05</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.from_magnetic_spacegroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.from_magnetic_spacegroup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a structure using a magnetic spacegroup. Note that only
 symmetrically distinct species, coords and magmoms should be provided.]
 All equivalent sites are generated from the spacegroup operations.</p>
@@ -613,7 +615,7 @@ cell.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.core.structure.IStructure.from_spacegroup">
-<em class="property">classmethod </em><code class="sig-name descname">from_spacegroup</code><span class="sig-paren">(</span><em class="sig-param">sg: str</em>, <em class="sig-param">lattice: pymatgen.core.lattice.Lattice</em>, <em class="sig-param">species: List</em>, <em class="sig-param">coords: List</em>, <em class="sig-param">site_properties: Dict[str</em>, <em class="sig-param">List] = None</em>, <em class="sig-param">coords_are_cartesian: bool = False</em>, <em class="sig-param">tol: float = 1e-05</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.from_spacegroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.from_spacegroup" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_spacegroup</code><span class="sig-paren">(</span><em class="sig-param">sg: str, lattice: Union[List, numpy.ndarray, pymatgen.core.lattice.Lattice], species: Sequence[Union[str, pymatgen.core.periodic_table.Element, pymatgen.core.periodic_table.Specie, pymatgen.core.periodic_table.DummySpecie, pymatgen.core.composition.Composition]], coords: Sequence[Sequence[float]], site_properties: Dict[str, Sequence] = None, coords_are_cartesian: bool = False, tol: float = 1e-05</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.from_spacegroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.from_spacegroup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a structure using a spacegroup. Note that only symmetrically
 distinct species and coords should be provided. All equivalent sites
 are generated from the spacegroup operations.</p>
@@ -951,7 +953,7 @@ Defaults to 5 degrees.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.core.structure.IStructure.interpolate">
-<code class="sig-name descname">interpolate</code><span class="sig-paren">(</span><em class="sig-param">end_structure</em>, <em class="sig-param">nimages: int = 10</em>, <em class="sig-param">interpolate_lattices: bool = False</em>, <em class="sig-param">pbc: bool = True</em>, <em class="sig-param">autosort_tol: float = 0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.interpolate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.interpolate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">interpolate</code><span class="sig-paren">(</span><em class="sig-param">end_structure</em>, <em class="sig-param">nimages: Union[int</em>, <em class="sig-param">Iterable] = 10</em>, <em class="sig-param">interpolate_lattices: bool = False</em>, <em class="sig-param">pbc: bool = True</em>, <em class="sig-param">autosort_tol: float = 0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.interpolate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.interpolate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Interpolate between this structure and end_structure. Useful for
 construction of NEB inputs.</p>
 <dl class="field-list simple">
@@ -1048,7 +1050,7 @@ CifWriter.__init__ method for generation of symmetric cifs.</p></li>
 
 <dl class="class">
 <dt id="pymatgen.core.structure.Molecule">
-<em class="property">class </em><code class="sig-name descname">Molecule</code><span class="sig-paren">(</span><em class="sig-param">species: list</em>, <em class="sig-param">coords: list</em>, <em class="sig-param">charge: float = 0</em>, <em class="sig-param">spin_multiplicity: float = None</em>, <em class="sig-param">validate_proximity: bool = False</em>, <em class="sig-param">site_properties: dict = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#Molecule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Molecule" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Molecule</code><span class="sig-paren">(</span><em class="sig-param">species: List[Union[str, pymatgen.core.periodic_table.Element, pymatgen.core.periodic_table.Specie, pymatgen.core.periodic_table.DummySpecie, pymatgen.core.composition.Composition]], coords: Sequence[Sequence[float]], charge: float = 0.0, spin_multiplicity: float = None, validate_proximity: bool = False, site_properties: dict = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#Molecule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Molecule" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.core.structure.IMolecule" title="pymatgen.core.structure.IMolecule"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.structure.IMolecule</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.MutableSequence</span></code></p>
 <p>Mutable Molecule. It has all the methods in IMolecule, but in addition,
 it allows a user to perform edits on the molecule.</p>
@@ -1502,13 +1504,13 @@ distance.</p>
 
 <dl class="method">
 <dt id="pymatgen.core.structure.SiteCollection.group_by_types">
-<code class="sig-name descname">group_by_types</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#SiteCollection.group_by_types"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.group_by_types" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">group_by_types</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Iterator[Union[pymatgen.core.sites.Site, pymatgen.core.sites.PeriodicSite]]<a class="reference internal" href="_modules/pymatgen/core/structure.html#SiteCollection.group_by_types"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.group_by_types" title="Permalink to this definition">¶</a></dt>
 <dd><p>Iterate over species grouped by type</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.structure.SiteCollection.indices_from_symbol">
-<code class="sig-name descname">indices_from_symbol</code><span class="sig-paren">(</span><em class="sig-param">symbol: str</em><span class="sig-paren">)</span> &#x2192; Tuple[int]<a class="reference internal" href="_modules/pymatgen/core/structure.html#SiteCollection.indices_from_symbol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.indices_from_symbol" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">indices_from_symbol</code><span class="sig-paren">(</span><em class="sig-param">symbol: str</em><span class="sig-paren">)</span> &#x2192; Tuple[int, ...]<a class="reference internal" href="_modules/pymatgen/core/structure.html#SiteCollection.indices_from_symbol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.indices_from_symbol" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a tuple with the sequential indices of the sites
 that contain an element with the given chemical symbol.</p>
 </dd></dl>
@@ -1637,15 +1639,14 @@ molecules / structures). Should return a string type or write to a file.</p>
 <dl class="method">
 <dt id="pymatgen.core.structure.SiteCollection.types_of_specie">
 <em class="property">property </em><code class="sig-name descname">types_of_specie</code><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.types_of_specie" title="Permalink to this definition">¶</a></dt>
-<dd><p>List of types of specie. Only works for ordered structures.
-Disordered structures will raise TypeError.</p>
+<dd><p>List of types of specie.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.core.structure.Structure">
-<em class="property">class </em><code class="sig-name descname">Structure</code><span class="sig-paren">(</span><em class="sig-param">lattice: pymatgen.core.lattice.Lattice</em>, <em class="sig-param">species: list</em>, <em class="sig-param">coords: numpy.ndarray</em>, <em class="sig-param">charge: float = None</em>, <em class="sig-param">validate_proximity: bool = False</em>, <em class="sig-param">to_unit_cell: bool = False</em>, <em class="sig-param">coords_are_cartesian: bool = False</em>, <em class="sig-param">site_properties: dict = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#Structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Structure</code><span class="sig-paren">(</span><em class="sig-param">lattice: Union[List, numpy.ndarray, pymatgen.core.lattice.Lattice], species: List[Union[str, pymatgen.core.periodic_table.Element, pymatgen.core.periodic_table.Specie, pymatgen.core.periodic_table.DummySpecie, pymatgen.core.composition.Composition]], coords: Sequence[Sequence[float]], charge: float = None, validate_proximity: bool = False, to_unit_cell: bool = False, coords_are_cartesian: bool = False, site_properties: dict = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#Structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.core.structure.IStructure" title="pymatgen.core.structure.IStructure"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.structure.IStructure</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.MutableSequence</span></code></p>
 <p>Mutable version of structure.</p>
 <p>Create a periodic structure.</p>
@@ -1766,7 +1767,12 @@ too close to an existing site. Defaults to False.</p></li>
 <dl class="method">
 <dt id="pymatgen.core.structure.Structure.lattice">
 <em class="property">property </em><code class="sig-name descname">lattice</code><a class="headerlink" href="#pymatgen.core.structure.Structure.lattice" title="Permalink to this definition">¶</a></dt>
-<dd><p>Lattice of the structure.</p>
+<dd><p>Lattice assciated with structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -2055,7 +2061,7 @@ Raised when the structure has problems, e.g., atoms that are too close.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>
 
