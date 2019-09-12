@@ -1058,7 +1058,7 @@ class Specie(MSONable):
     supported_properties = ("spin",)
 
     def __init__(self, symbol: str,
-                 oxidation_state: float = None,
+                 oxidation_state: float = 0.0,
                  properties: dict = None):
         """
         Initializes a Specie.
@@ -1463,7 +1463,7 @@ class DummySpecie(Specie):
         DummySpecie is always assigned an electronegativity of 0. The effect of
         this is that DummySpecie are always sorted in front of actual Specie.
         """
-        return 0
+        return 0.0
 
     @property
     def symbol(self) -> str:

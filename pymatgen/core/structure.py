@@ -392,7 +392,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                 for el, occu in site.species.items():
                     sym = el.symbol
                     new_sp[Specie(sym, oxidation_states[sym])] = occu
-                site.species = new_sp
+                site.species = Composition(new_sp)
         except KeyError:
             raise ValueError("Oxidation state of all elements must be "
                              "specified in the dictionary.")
@@ -413,7 +413,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             for el, occu in site.species.items():
                 sym = el.symbol
                 new_sp[Specie(sym, ox)] = occu
-            site.species = new_sp
+            site.species = Composition(new_sp)
 
     def remove_oxidation_states(self):
         """
@@ -424,7 +424,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             for el, occu in site.species.items():
                 sym = el.symbol
                 new_sp[Element(sym)] += occu
-            site.species = new_sp
+            site.species = Composition(new_sp)
 
     def add_oxidation_state_by_guess(self, **kwargs):
         """
@@ -453,7 +453,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                 oxi_state = getattr(sp, "oxi_state", None)
                 new_sp[Specie(sym, oxidation_state=oxi_state,
                               properties={'spin': spins.get(str(sp), spins.get(sym, None))})] = occu
-            site.species = new_sp
+            site.species = Composition(new_sp)
 
     def add_spin_by_site(self, spins: List[float]):
         """
@@ -474,7 +474,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                 oxi_state = getattr(sp, "oxi_state", None)
                 new_sp[Specie(sym, oxidation_state=oxi_state,
                               properties={'spin': spin})] = occu
-            site.species = new_sp
+            site.species = Composition(new_sp)
 
     def remove_spin(self):
         """
