@@ -155,63 +155,99 @@ class Trajectory(MSONable):
     def __getitem__(self, frames):
         """
         Gets a subset of the trajectory if a slice is given, if an int is given, return a structure
-
         Args:
             frames (int, slice): int or slice of trajectory to return
-
         Return:
             (Trajectory, Structure) Subset of trajectory
         """
-        if isinstance(frames, int) and frames < self.frac_coords.shape[0]:
-            lattice = self.lattice if self.constant_lattice else self.lattice[frames]
-            site_properties = self.site_properties[frames] if self.site_properties else None
-            return Structure(Lattice(lattice), self.species, self.frac_coords[frames], site_properties=site_properties,
-                             to_unit_cell=True)
+        # If trajectory is in displacement mode, return the displacements at that frame
+        if self.coords_are_displacement:
+            if isinstance(frames, int):
+                if frames >= np.shape(self.frac_coords)[0]:
+                    raise ValueError('Selected frame exceeds trajectory length')
+                # For integer input, return the displacements at that timestep
+                return self.frac_coords[frames]
+            elif isinstance(frames, slice):
+                # For slice input, return a list of the displacements
+                start, stop, step = frames.indices(len(self))
+                return [self.frac_coords[i] for i in range(start, stop, step)]
+            elif isinstance(frames, list) or isinstance(frames, np.ndarray):
+                # For list input, return a list of the displacements
+                pruned_frames = [i for i in frames if i < len(self)] # Get rid of frames that exceed trajectory length
+                if len(pruned_frames) < len(frames):
+                    warnings.warn('Some or all selected frames exceed trajectory length')
+                return [self.frac_coords[i] for i in pruned_frames]
+            else:
+                raise Exception('Given accessor is not of type int, slice, list, or array')
 
-        if isinstance(frames, slice):
-            frames = np.arange(frames.start, frames.stop, frames.step)
-        elif not (isinstance(frames, list) or isinstance(frames, np.ndarray)):
-            try:
-                frames = np.asarray(frames)
-            except Exception:
+        # If trajectory is in positions mode, return a structure for the given frame or trajectory for the given frames
+        elif not self.coords_are_displacement:
+            if isinstance(frames, int):
+                if frames >= np.shape(self.frac_coords)[0]:
+                    raise ValueError('Selected frame exceeds trajectory length')
+                # For integer input, return the structure at that timestep
+                lattice = self.lattice if self.constant_lattice else self.lattice[frames]
+                site_properties = self.site_properties[frames] if self.site_properties else None
+                return Structure(Lattice(lattice), self.species, self.frac_coords[frames],
+                                 site_properties=site_properties,
+                                 to_unit_cell=True)
+            elif isinstance(frames, slice):
+                # For slice input, return a trajectory of the sliced time
+                start, stop, step = frames.indices(len(self))
+                pruned_frames = range(start, stop, step)
+                lattice = self.lattice if self.constant_lattice else [self.lattice[i] for i in pruned_frames]
+                frac_coords = [self.frac_coords[i] for i in pruned_frames]
+                site_properties = [self.site_properties for i in pruned_frames]
+                frame_properties = {}
+                for key, item in self.frame_properties.items():
+                    frame_properties[key] = [item[i] for i in pruned_frames]
+                return Trajectory(lattice, self.species, frac_coords, time_step=self.time_step,
+                                  site_properties=site_properties, frame_properties=frame_properties,
+                                  constant_lattice=self.constant_lattice, coords_are_displacement=False,
+                                  base_positions=self.base_positions)
+            elif isinstance(frames, list) or isinstance(frames, np.ndarray):
+                # For list input, return a trajectory of the specified times
+                pruned_frames = [i for i in frames if i < len(self)] # Get rid of frames that exceed trajectory length
+                if len(pruned_frames) < len(frames):
+                    warnings.warn('Some or all selected frames exceed trajectory length')
+                lattice = self.lattice if self.constant_lattice else [self.lattice[i] for i in pruned_frames]
+                frac_coords = [self.frac_coords[i] for i in pruned_frames]
+                site_properties = [self.site_properties for i in pruned_frames]
+                frame_properties = {}
+                for key, item in self.frame_properties.items():
+                    frame_properties[key] = [item[i] for i in pruned_frames]
+                return Trajectory(lattice, self.species, frac_coords, time_step=self.time_step,
+                                  site_properties=site_properties, frame_properties=frame_properties,
+                                  constant_lattice=self.constant_lattice, coords_are_displacement=False,
+                                  base_positions=self.base_positions)
+            else:
                 raise Exception('Given accessor is not of type int, slice, tuple, list, or array')
 
-        if (isinstance(frames, list) or isinstance(frames, np.ndarray)) and \
-                (np.asarray([frames]) < self.frac_coords.shape[0]).all():
-            if self.constant_lattice:
-                lattice = self.lattice
-            else:
-                lattice = self.lattice[frames, :]
-            return Trajectory(lattice, self.species, self.frac_coords[frames, :], self.time_step,
-                              self.site_properties)
-        else:
-            warnings.warn('Some or all selected frames exceed trajectory length')
-        return
-
     def copy(self):
-        return Trajectory(self.lattice, self.species, self.frac_coords, self.time_step, self.site_properties,
-                          self.constant_lattice, self.coords_are_displacement, self.base_positions)
+        return Trajectory(self.lattice, self.species, self.frac_coords, time_step=self.time_step,
+                          site_properties=self.site_properties, frame_properties=self.frame_properties,
+                          constant_lattice=self.constant_lattice, coords_are_displacement=False,
+                          base_positions=self.base_positions)
 
     @classmethod
     def from_structures(cls, structures, constant_lattice=True, **kwargs):
         """
         Convenience constructor to obtain trajectory from a list of structures.
         Note: Assumes no atoms removed during simulation
-
         Args:
             structures (list): list of pymatgen Structure objects.
             constant_lattice (bool): Whether the lattice changes during the simulation, such as in an NPT MD
                 simulation. True results in
-
         Returns:
             (Trajectory)
-
         """
         frac_coords = [structure.frac_coords for structure in structures]
         if constant_lattice:
             lattice = structures[0].lattice.matrix
         else:
             lattice = [structure.lattice.matrix for structure in structures]
+        site_properties = {}
+
         site_properties = [structure.site_properties for structure in structures]
         return cls(lattice, structures[0].species, frac_coords, site_properties=site_properties,
                    constant_lattice=constant_lattice, **kwargs)
@@ -255,7 +291,7 @@ class Trajectory(MSONable):
         return d
 
     @staticmethod
-    def _combine_attribute(attr_1, attr_2, len_1, len_2):
+    def _combine_lattice(attr_1, attr_2, len_1, len_2):
         """
         Helper function to combine trajectory properties such as site_properties or lattice
         """
