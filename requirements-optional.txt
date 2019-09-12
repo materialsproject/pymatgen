@@ -14,3 +14,4 @@ h5py==2.10.0
 f90nml==1.1.2
 pycodestyle==2.5.0
 mypy==0.720
+pydocstyle==4.0.1

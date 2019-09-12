@@ -1,6 +1,13 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
+
+"""
+This module provides a base class for tensor-like objects and methods for
+basic tensor manipulation.  It also provides a class, SquareTensor,
+that provides basic methods for creating and manipulating rank 2 tensors
+"""
+
 from scipy.linalg import polar
 import numpy as np
 import itertools
@@ -16,12 +23,6 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
 from pymatgen.analysis.structure_matcher import StructureMatcher
-
-"""
-This module provides a base class for tensor-like objects and methods for
-basic tensor manipulation.  It also provides a class, SquareTensor,
-that provides basic methods for creating and manipulating rank 2 tensors
-"""
 
 __author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -688,7 +689,7 @@ class Tensor(np.ndarray, MSONable):
                           "with max diff of {}".format(max_diff))
         return self.__class__(test_new)
 
-    def as_dict(self, voigt=False):
+    def as_dict(self, voigt: bool = False) -> dict:
         """
         Serializes the tensor object
 
@@ -711,6 +712,7 @@ class Tensor(np.ndarray, MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        """MSONAble from_dict implementation."""
         voigt = d.get('voigt')
         if voigt:
             return cls.from_voigt(d["input_array"])
@@ -725,6 +727,10 @@ class TensorCollection(collections.abc.Sequence, MSONable):
     """
 
     def __init__(self, tensor_list, base_class=Tensor):
+        """
+        :param tensor_list: List of tensors.
+        :param base_class: Class to be used.
+        """
         self.tensors = [base_class(t) if not isinstance(t, base_class)
                         else t for t in tensor_list]
 
@@ -738,26 +744,62 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         return self.tensors.__iter__()
 
     def zeroed(self, tol=1e-3):
+        """
+        :param tol: Tolerance
+        :return: TensorCollection where small values are set to 0.
+        """
         return self.__class__([t.zeroed(tol) for t in self])
 
     def transform(self, symm_op):
+        """
+        Transforms TensorCollection with a symmetry operation.
+
+        :param symm_op: SymmetryOperation.
+        :return: TensorCollection.
+        """
         return self.__class__([t.transform(symm_op) for t in self])
 
     def rotate(self, matrix, tol=1e-3):
+        """
+        Rotates TensorCollection.
+
+        :param matrix: Rotation matrix.
+        :param tol: tolerance.
+        :return: TensorCollection.
+        """
         return self.__class__([t.rotate(matrix, tol) for t in self])
 
     @property
     def symmetrized(self):
+        """
+        :return: TensorCollection where all tensors are symmetrized.
+        """
         return self.__class__([t.symmetrized for t in self])
 
     def is_symmetric(self, tol=1e-5):
+        """
+        :param tol: tolerance
+        :return: Whether all tensors are symmetric.
+        """
         return all([t.is_symmetric(tol) for t in self])
 
     def fit_to_structure(self, structure, symprec=0.1):
+        """
+        Fits all tensors to a Structure.
+
+        :param structure: Structure
+        :param symprec: symmetry precision.
+        :return: TensorCollection.
+        """
         return self.__class__([t.fit_to_structure(structure, symprec)
                                for t in self])
 
     def is_fit_to_structure(self, structure, tol=1e-2):
+        """
+        :param structure: Structure
+        :param tol: tolerance
+        :return: Whether all tensors are fitted to Structure.
+        """
         return all([t.is_fit_to_structure(structure, tol) for t in self])
 
     @property

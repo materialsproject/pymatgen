@@ -2,6 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Defines the classes relating to 3D lattices.
+"""
+
 import math
 import itertools
 import warnings
@@ -21,10 +25,6 @@ from numpy import pi, dot, transpose
 from monty.json import MSONable
 from pymatgen.util.coord import pbc_shortest_vectors
 from pymatgen.util.num import abs_cap
-
-"""
-This module defines the classes relating to 3D lattices.
-"""
 
 __author__ = "Shyue Ping Ong, Michael Kocher"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -71,6 +71,9 @@ class Lattice(MSONable):
 
     @property
     def lengths(self) -> Tuple[float, float, float]:
+        """
+        :return: The lengths (a, b, c) of the lattice.
+        """
         return tuple(np.sqrt(np.sum(self._matrix ** 2, axis=1)).tolist())  # type: ignore
 
     @property
@@ -89,7 +92,10 @@ class Lattice(MSONable):
         return tuple(angles.tolist())  # type: ignore
 
     @property
-    def is_orthogonal(self):
+    def is_orthogonal(self) -> bool:
+        """
+        :return: Whether all angles are 90 degrees.
+        """
         return all([abs(a - 90) < 1e-5 for a in self.angles])
 
     def __format__(self, fmt_spec=""):
@@ -473,23 +479,29 @@ class Lattice(MSONable):
 
     @property
     def lll_matrix(self) -> np.ndarray:
+        """
+        :return: The matrix for LLL reduction
+        """
         if 0.75 not in self._lll_matrix_mappings:
             self._lll_matrix_mappings[0.75] = self._calculate_lll()
         return self._lll_matrix_mappings[0.75][0]
 
     @property
     def lll_mapping(self) -> np.ndarray:
+        """
+        :return: The mapping between the LLL reduced lattice and the original
+            lattice.
+        """
         if 0.75 not in self._lll_matrix_mappings:
             self._lll_matrix_mappings[0.75] = self._calculate_lll()
         return self._lll_matrix_mappings[0.75][1]
 
     @property
     def lll_inverse(self) -> np.ndarray:
-        if self._lll_inverse is not None:
-            return self._lll_inverse
-        else:
-            self._lll_inverse = np.linalg.inv(self.lll_mapping)
-            return self._lll_inverse
+        """
+        :return: Inverse of self.lll_mapping.
+        """
+        return np.linalg.inv(self.lll_mapping)
 
     def __repr__(self):
         outs = [
@@ -524,7 +536,7 @@ class Lattice(MSONable):
         return "\n".join([" ".join(["%.6f" % i for i in row]) for row in self._matrix])
 
     def as_dict(self, verbosity: int = 0) -> Dict:
-        """""
+        """
         Json-serialization dict representation of the Lattice.
 
         Args:
@@ -674,6 +686,10 @@ class Lattice(MSONable):
         return None
 
     def get_lll_reduced_lattice(self, delta: float = 0.75) -> "Lattice":
+        """
+        :param delta: Delta parameter.
+        :return: LLL reduced Lattice.
+        """
         if delta not in self._lll_matrix_mappings:
             self._lll_matrix_mappings[delta] = self._calculate_lll()
         return Lattice(self._lll_matrix_mappings[delta][0])
@@ -1163,6 +1179,11 @@ class Lattice(MSONable):
     def is_hexagonal(
             self, hex_angle_tol: float = 5, hex_length_tol: float = 0.01
     ) -> bool:
+        """
+        :param hex_angle_tol: Angle tolerance
+        :param hex_length_tol: Length tolerance
+        :return: Whether lattice corresponds to hexagonal lattice.
+        """
         lengths, angles = self.lengths_and_angles
         right_angles = [i for i in range(3) if abs(angles[i] - 90) < hex_angle_tol]
         hex_angles = [i for i in range(3)

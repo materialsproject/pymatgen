@@ -2,6 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module provides classes that operate on points or vectors in 3D space.
+"""
 
 import numpy as np
 import re
@@ -13,11 +16,6 @@ from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.string import transformation_to_string
 
 from monty.json import MSONable
-
-"""
-This module provides classes that operate on points or vectors in 3D space.
-"""
-
 
 __author__ = "Shyue Ping Ong, Shyam Dwaraknath, Matthew Horton"
 __copyright__ = "Copyright 2011, The Materials Project"

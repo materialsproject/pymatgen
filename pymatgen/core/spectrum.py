@@ -2,16 +2,16 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module defines classes to represent any type of spectrum, essentially any
+x y value pairs.
+"""
+
 from monty.json import MSONable
 import numpy as np
 from scipy.ndimage.filters import gaussian_filter1d
 
 from pymatgen.util.coord import get_linear_interpolated_value
-
-"""
-This module defines classes to represent any type of spectrum, essentially any
-x y value pairs.
-"""
 
 __author__ = "Chen Zheng"
 __copyright__ = "Copyright 2012, The Materials Project"

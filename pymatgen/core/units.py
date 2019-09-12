@@ -2,15 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
-import numpy as np
-import collections
-from numbers import Number
-import numbers
-from functools import partial
-
-import scipy.constants as const
-
 """
 This module implements a FloatWithUnit, which is a subclass of float. It
 also defines supported units for some commonly used units for energy, length,
@@ -19,6 +10,13 @@ another, and additions and subtractions perform automatic conversion if
 units are detected. An ArrayWithUnit is also implemented, which is a subclass
 of numpy's ndarray with similar unit features.
 """
+import numpy as np
+import collections
+from numbers import Number
+import numbers
+from functools import partial
+
+import scipy.constants as const
 
 __author__ = "Shyue Ping Ong, Matteo Giantomassi"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -175,7 +173,7 @@ class UnitError(BaseException):
     """
 
 
-def check_mappings(u):
+def _check_mappings(u):
     for v in DERIVED_UNITS.values():
         for k2, v2 in v.items():
             if all([v2.get(ku, 0) == vu for ku, vu in u.items()]) and \
@@ -213,7 +211,7 @@ class Unit(collections.abc.Mapping):
                 unit[k] += p
         else:
             unit = {k: v for k, v in dict(unit_def).items() if v != 0}
-        self._unit = check_mappings(unit)
+        self._unit = _check_mappings(unit)
 
     def __mul__(self, other):
         new_units = collections.defaultdict(int)
@@ -359,6 +357,7 @@ class FloatWithUnit(float):
         return cls(num, unit, unit_type=unit_type)
 
     def __new__(cls, val, unit, unit_type=None):
+        """Overrides __new__ since we are subclassing a Python primitive/"""
         new = float.__new__(cls, val)
         new._unit = Unit(unit)
         new._unit_type = unit_type
@@ -475,11 +474,17 @@ class FloatWithUnit(float):
         self._unit = state["_unit"]
 
     @property
-    def unit_type(self):
+    def unit_type(self) -> str:
+        """
+        :return: The type of unit. Energy, Charge, etc.
+        """
         return self._unit_type
 
     @property
-    def unit(self):
+    def unit(self) -> str:
+        """
+        :return: The unit, e.g., "eV".
+        """
         return self._unit
 
     def to(self, new_unit):
@@ -543,6 +548,9 @@ class ArrayWithUnit(np.ndarray):
     Error = UnitError
 
     def __new__(cls, input_array, unit, unit_type=None):
+        """
+        Override __new__.
+        """
         # Input array is an already formed ndarray instance
         # We first cast to be our class type
         obj = np.asarray(input_array).view(cls)
@@ -561,14 +569,18 @@ class ArrayWithUnit(np.ndarray):
         self._unit = getattr(obj, "_unit", None)
         self._unit_type = getattr(obj, "_unit_type", None)
 
-    # TODO abstract base class property?
     @property
-    def unit_type(self):
+    def unit_type(self) -> str:
+        """
+        :return: The type of unit. Energy, Charge, etc.
+        """
         return self._unit_type
 
-    # TODO abstract base class property?
     @property
-    def unit(self):
+    def unit(self) -> str:
+        """
+        :return: The unit, e.g., "eV".
+        """
         return self._unit
 
     def __reduce__(self):
