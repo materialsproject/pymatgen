@@ -22,7 +22,8 @@ jobs:
               conda create -q -n test-environment python=3.7 numpy scipy matplotlib sympy cython pandas networkx pytest cmake h5py
             fi
             conda config --set always_yes yes --set changeps1 no
-            conda config --system --add channels conda-forge openbabel
+            conda config --system --add channels conda-forge
+            conda config --system --add channels openbabel
             source activate test-environment
             conda update --quiet numpy scipy matplotlib sympy cython pandas networkx pytest pip cmake h5py openbabel python-igraph
             # conda install --quiet -c clinicalgraphics vtk
