@@ -51,7 +51,7 @@ jobs:
             mypy pymatgen
             echo "--- Done ---"
             pytest --ignore=pymatgen/analysis/tests/test_pourbaix_diagram.py --cov=pymatgen --cov-report html:coverage_reports pymatgen
-            export MODIFIED_FILES=`git diff --diff-filter=d --name-only HEAD v2019.9.12 | grep -E '\.(py)' | tr '\n' ' '`
+            export MODIFIED_FILES=`git diff --diff-filter=d --name-only HEAD v2019.9.12 | grep -E '\.(py)' | sed '/test_/d' | tr '\n' ' '`
             echo "pydocstyle checks for $MODIFIED_FILES..."
             pydocstyle --count pymatgen/core $MODIFIED_FILES
             echo "--- Done ---"

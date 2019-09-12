@@ -169,9 +169,19 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         return len(self.entries)
 
     def add(self, element):
+        """
+        Add an entry.
+
+        :param element: Entry
+        """
         self.entries.add(element)
 
     def discard(self, element):
+        """
+        Discard an entry.
+
+        :param element: Entry
+        """
         self.entries.discard(element)
 
     @property
@@ -223,6 +233,9 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         return EntrySet(subset)
 
     def as_dict(self):
+        """
+        :return: MSONable dict
+        """
         return {
             "entries": list(self.entries)
         }
