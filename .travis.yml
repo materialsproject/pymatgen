@@ -34,8 +34,10 @@ before_script:
 script:
   - export PATH="$HOME/miniconda/bin:$PATH"
   - source activate test-environment
-  - echo "pycodestyle followed by tests... Note that if codestyle fails, tests will not be run and you need to fix codestyle first."
-  - travis_wait 28800 pycodestyle pymatgen && pydocstyle --count pymatgen/core && mypy pymatgen && pytest $EXCLUDE_TESTS pymatgen
+  - export MODIFIED_FILES=`git diff --diff-filter=d --name-only HEAD v2019.9.12 | grep -E '\.(py)' | tr '\n' ' '`
+  - echo "pycodestyle->pydocstyle->mypy->pytest... Note that this fails on the first command with error."
+  - echo "It is highly recommended that you use the pre-commit hook provided in pymatgen (simply copy pre-commit to .git/hooks) to check before pushing your code."
+  - travis_wait 28800 pycodestyle pymatgen && pydocstyle --count pymatgen/core $MODIFIED_FILES && mypy pymatgen && pytest $EXCLUDE_TESTS pymatgen
 notifications:
   email:
     recipients:
