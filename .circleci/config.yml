@@ -46,6 +46,9 @@ jobs:
             echo "pycodestyle checks..."
             pycodestyle pymatgen
             echo "--- Done ---"
+            echo "pydocstyle checks..."
+            pydocstyle --count pymatgen/core
+            echo "--- Done ---"
             echo "mypy checks..."
             mypy pymatgen
             echo "--- Done ---"

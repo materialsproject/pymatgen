@@ -2,6 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module provides classes used to define a non-periodic molecule and a
+periodic structure.
+"""
 
 import math
 import os
@@ -33,11 +37,6 @@ from pymatgen.util.coord import get_angle, all_distances, \
 from pymatgen.core.units import Mass, Length
 
 from monty.io import zopen
-
-"""
-This module provides classes used to define a non-periodic molecule and a
-periodic structure.
-"""
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -489,12 +488,12 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             site.species = new_sp
 
     def extract_cluster(self, target_sites: List[Site], **kwargs):
-        """
+        r"""
         Extracts a cluster of atoms based on bond lengths
 
         Args:
             target_sites ([Site]): List of initial sites to nucleate cluster.
-            \\*\\*kwargs: kwargs passed through to CovalentBond.is_bonded.
+            **kwargs: kwargs passed through to CovalentBond.is_bonded.
 
         Returns:
             [Site/PeriodicSite] Cluster of atoms.
@@ -1883,7 +1882,7 @@ class IStructure(SiteCollection, MSONable):
         return cls.from_sites(sites, charge=charge)
 
     def to(self, fmt=None, filename=None, **kwargs):
-        """
+        r"""
         Outputs the structure to a file or string.
 
         Args:
@@ -1894,7 +1893,7 @@ class IStructure(SiteCollection, MSONable):
             filename (str): If provided, output will be written to a file. If
                 fmt is not specified, the format is determined from the
                 filename. Defaults is None, i.e. string output.
-            \\*\\*kwargs: Kwargs passthru to relevant methods. E.g., This allows
+            **kwargs: Kwargs passthru to relevant methods. E.g., This allows
                 the passing of parameters like symprec to the
                 CifWriter.__init__ method for generation of symmetric cifs.
 
@@ -2815,6 +2814,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
     @property
     def lattice(self):
+        """
+        :return: Lattice assciated with structure.
+        """
         return self._lattice
 
     @lattice.setter

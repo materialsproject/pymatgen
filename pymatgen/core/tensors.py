@@ -17,7 +17,6 @@ import string
 import os
 from monty.json import MSONable
 from monty.serialization import loadfn
-from monty.dev import deprecated
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.operations import SymmOp
@@ -804,33 +803,72 @@ class TensorCollection(collections.abc.Sequence, MSONable):
 
     @property
     def voigt(self):
+        """
+        :return: TensorCollection where all tensors are in voight form.
+        """
         return [t.voigt for t in self]
 
     @property
     def ranks(self):
+        """
+        :return: Ranks for all tensors.
+        """
         return [t.rank for t in self]
 
     def is_voigt_symmetric(self, tol=1e-6):
+        """
+        :param tol: tolerance
+        :return: Whether all tensors are voigt symmetric.
+        """
         return all([t.is_voigt_symmetric(tol) for t in self])
 
     @classmethod
     def from_voigt(cls, voigt_input_list, base_class=Tensor):
+        """
+        Creates TensorCollection from voigt form.
+
+        :param voigt_input_list: List of voigt tensors
+        :param base_class: Class for tensor.
+        :return: TensorCollection.
+        """
         return cls([base_class.from_voigt(v) for v in voigt_input_list])
 
     def convert_to_ieee(self, structure, initial_fit=True,
                         refine_rotation=True):
+        """
+        Convert all tensors to IEEE.
+
+        :param structure: Structure
+        :param initial_fit: Whether to perform an initial fit.
+        :param refine_rotation: Whether to refine the rotation.
+        :return: TensorCollection.
+        """
         return self.__class__(
             [t.convert_to_ieee(structure, initial_fit, refine_rotation)
              for t in self])
 
     def round(self, *args, **kwargs):
+        """
+        Round all tensors.
+
+        :param args: Passthrough to Tensor.round
+        :param kwargs: Passthrough to Tensor.round
+        :return: TensorCollection.
+        """
         return self.__class__([t.round(*args, **kwargs) for t in self])
 
     @property
     def voigt_symmetrized(self):
+        """
+        :return: TensorCollection where all tensors are voigt symmetrized.
+        """
         return self.__class__([t.voigt_symmetrized for t in self])
 
     def as_dict(self, voigt=False):
+        """
+        :param voigt: Whether to use voight form.
+        :return: Dict representation of TensorCollection.
+        """
         tensor_list = self.voigt if voigt else self
         d = {"@module": self.__class__.__module__,
              "@class": self.__class__.__name__,
@@ -841,6 +879,12 @@ class TensorCollection(collections.abc.Sequence, MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Creates TensorCollection from dict.
+
+        :param d: dict
+        :return: TensorCollection
+        """
         voigt = d.get('voigt')
         if voigt:
             return cls.from_voigt(d["tensor_list"])
@@ -1058,9 +1102,15 @@ class TensorMapping(collections.abc.MutableMapping):
             yield item
 
     def values(self):
+        """
+        :return: Values in mapping.
+        """
         return self._value_list
 
     def items(self):
+        """
+        :return: Items in mapping.
+        """
         return zip(self._tensor_list, self._value_list)
 
     def __contains__(self, item):
@@ -1079,41 +1129,3 @@ class TensorMapping(collections.abc.MutableMapping):
         elif len(indices) == 0:
             return None
         return indices[0]
-
-
-@deprecated(message="get_tkd_value is deprecated and will be removed in "
-                    "pymatgen version 2019.1.1, please use the TensorMapping "
-                    "class instead")
-def get_tkd_value(tensor_keyed_dict, tensor, allclose_kwargs=None):
-    """
-    Helper function to find a value in a tensor-keyed-
-    dictionary using an approximation to the key.  This
-    is useful if rounding errors in construction occur
-    or hashing issues arise in tensor-keyed-dictionaries
-    (e. g. from symmetry_reduce).  Resolves most
-    hashing issues, and is preferable to redefining
-    eq methods in the base tensor class.
-
-    Args:
-        tensor_keyed_dict (dict): dict with Tensor keys
-        tensor (Tensor): tensor to find value of in the dict
-        allclose_kwargs (dict): dict of keyword-args
-            to pass to allclose.
-    """
-    if allclose_kwargs is None:
-        allclose_kwargs = {}
-    for tkey, value in tensor_keyed_dict.items():
-        if np.allclose(tensor, tkey, **allclose_kwargs):
-            return value
-
-
-@deprecated(message="set_tkd_value is deprecated and will be removed in "
-                    "pymatgen version 2019.1.1, please use the TensorMapping "
-                    "class instead")
-def set_tkd_value(tensor_keyed_dict, tensor, set_value, allclose_kwargs=None):
-    if allclose_kwargs is None:
-        allclose_kwargs = {}
-    for tkey in tensor_keyed_dict.keys():
-        if np.allclose(tensor, tkey, **allclose_kwargs):
-            tensor_keyed_dict[tkey] = set_value
-            return

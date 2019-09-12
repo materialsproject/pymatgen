@@ -380,10 +380,12 @@ class SymmOp(MSONable):
         return SymmOp(m)
 
     def as_dict(self):
-        d = {"@module": self.__class__.__module__,
-             "@class": self.__class__.__name__,
-             "matrix": self.affine_matrix.tolist(), "tolerance": self.tol}
-        return d
+        """
+        :return: MSONAble dict.
+        """
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "matrix": self.affine_matrix.tolist(), "tolerance": self.tol}
 
     def as_xyz_string(self):
         """
@@ -433,6 +435,10 @@ class SymmOp(MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        :param d: dict
+        :return: SymmOp from dict representation.
+        """
         return cls(d["matrix"], d["tolerance"])
 
 
@@ -570,6 +576,9 @@ class MagSymmOp(SymmOp):
         return xyzt_string + ", {:+}".format(self.time_reversal)
 
     def as_dict(self):
+        """
+        :return: MSONABle dict
+        """
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "matrix": self.affine_matrix.tolist(), "tolerance": self.tol,
@@ -577,5 +586,9 @@ class MagSymmOp(SymmOp):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        :param d: dict
+        :return: MagneticSymmOp from dict representation.
+        """
         return cls(d["matrix"], tol=d["tolerance"],
                    time_reversal=d["time_reversal"])

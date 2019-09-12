@@ -77,7 +77,10 @@ class Site(collections.abc.Hashable, MSONable):
         raise AttributeError(a)
 
     @property
-    def species(self):
+    def species(self) -> Composition:
+        """
+        :return: The species on the site as a composition, e.g., Fe0.5Mn0.5.
+        """
         return self._species
 
     @species.setter

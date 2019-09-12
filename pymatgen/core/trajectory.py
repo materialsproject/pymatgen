@@ -2,6 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module provides classes used to define a MD trajectory.
+"""
+
 import itertools
 import os
 import warnings
@@ -13,10 +17,6 @@ from monty.json import MSONable
 from pymatgen.core.structure import Structure, Lattice, Element, Specie, DummySpecie, Composition
 from pymatgen.io.vasp.outputs import Xdatcar, Vasprun
 from typing import List, Union, Sequence
-
-"""
-This module provides classes used to define a MD trajectory.
-"""
 
 __author__ = "Eric Sivonxay, Shyam Dwaraknath"
 __version__ = "0.0"
@@ -254,6 +254,9 @@ class Trajectory(MSONable):
                 raise Exception('Given accessor is not of type int, slice, tuple, list, or array')
 
     def copy(self):
+        """
+        :return: Copy of Trajectory.
+        """
         return Trajectory(self.lattice, self.species, self.frac_coords, time_step=self.time_step,
                           site_properties=self.site_properties, frame_properties=self.frame_properties,
                           constant_lattice=self.constant_lattice, coords_are_displacement=False,
@@ -264,6 +267,7 @@ class Trajectory(MSONable):
         """
         Convenience constructor to obtain trajectory from a list of structures.
         Note: Assumes no atoms removed during simulation
+
         Args:
             structures (list): list of pymatgen Structure objects.
             constant_lattice (bool): Whether the lattice changes during the simulation, such as in an NPT MD
@@ -306,6 +310,9 @@ class Trajectory(MSONable):
         return cls.from_structures(structures, constant_lattice=constant_lattice, **kwargs)
 
     def as_dict(self):
+        """
+        :return: MSONAble dict.
+        """
         d = {"@module": self.__class__.__module__,
              "@class": self.__class__.__name__,
              "species": self.species, "time_step": self.time_step,
@@ -422,6 +429,7 @@ class Trajectory(MSONable):
         """
         Writes Xdatcar to a file. The supported kwargs are the same as those for
         the Xdatcar_from_structs.get_string method and are passed through directly.
+
         Args:
             filename (str): name of file (It's prudent to end the filename with 'XDATCAR',
                 as most visualization and analysis software require this for autodetection)

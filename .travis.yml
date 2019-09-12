@@ -35,7 +35,7 @@ script:
   - export PATH="$HOME/miniconda/bin:$PATH"
   - source activate test-environment
   - echo "pycodestyle followed by tests... Note that if codestyle fails, tests will not be run and you need to fix codestyle first."
-  - travis_wait 28800 pycodestyle pymatgen && mypy pymatgen && pytest $EXCLUDE_TESTS pymatgen
+  - travis_wait 28800 pycodestyle pymatgen && pydocstyle --count pymatgen/core && mypy pymatgen && pytest $EXCLUDE_TESTS pymatgen
 notifications:
   email:
     recipients:
