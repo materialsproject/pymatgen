@@ -31,7 +31,7 @@ class Trajectory(MSONable):
 
     def __init__(self, lattice: Union[List, np.ndarray, Lattice],
                  species: List[Union[str, Element, Specie, DummySpecie, Composition]],
-                 frac_coords: Sequence[Sequence[float]],
+                 frac_coords: List[Sequence[Sequence[float]]],
                  time_step: float = 2,
                  site_properties: dict = None,
                  frame_properties: dict = None,
