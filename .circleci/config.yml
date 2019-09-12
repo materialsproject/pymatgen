@@ -42,16 +42,17 @@ jobs:
             # Add executables and path.
             for EXEPATH in `pwd`/cmd_line/*/Linux_64bit; do export PATH=$PATH:$EXEPATH; done
             pip install --quiet -e .
-            pytest --ignore=pymatgen/analysis/tests/test_pourbaix_diagram.py --cov=pymatgen --cov-report html:coverage_reports pymatgen
             echo "pycodestyle checks..."
             pycodestyle pymatgen
             echo "--- Done ---"
-            echo "pydocstyle checks..."
-            pydocstyle --count pymatgen/core
+            export MODIFIED_FILES=`git diff --diff-filter=d --name-only HEAD HEAD~1 | grep -E '\.(py)'`
+            echo "pydocstyle checks for $MODIFIED_FILES..."
+            pydocstyle --count pymatgen/core $MODIFIED_FILES
             echo "--- Done ---"
             echo "mypy checks..."
             mypy pymatgen
             echo "--- Done ---"
+            pytest --ignore=pymatgen/analysis/tests/test_pourbaix_diagram.py --cov=pymatgen --cov-report html:coverage_reports pymatgen
             # Command line tests
             pmg structure --convert --filenames test_files/Li2O.cif POSCAR.pmg
             pmg structure --convert --filenames POSCAR.pmg pmg.cif
