@@ -73,6 +73,9 @@ class Trajectory(MSONable):
         if isinstance(frac_coords, list):
             frac_coords = np.array(frac_coords)
 
+        if isinstance(lattice, Lattice):
+            lattice = lattice.matrix
+
         if isinstance(lattice, list):
             lattice = np.array(lattice)
 
