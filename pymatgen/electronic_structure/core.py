@@ -2,14 +2,14 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from monty.json import MSONable
-from enum import Enum, unique
-import numpy as np
-
 """
 This module provides core classes needed by all define electronic structure,
 such as the Spin, Orbital, etc.
 """
+
+from monty.json import MSONable
+from enum import Enum, unique
+import numpy as np
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
