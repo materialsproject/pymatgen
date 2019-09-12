@@ -19,6 +19,15 @@ class TrajectoryTest(PymatgenTest):
         self.traj = Trajectory.from_file(os.path.join(test_dir, "Traj_XDATCAR"))
         self.structures = xdatcar.structures
 
+    def _check_traj_equality(self, traj_1, traj_2):
+        if np.sum(np.square(np.subtract(traj_1.lattice, traj_2.lattice))) > 0.0001:
+            return False
+
+        if traj_1.species != traj_2.species:
+            return False
+
+        return all([i == j for i, j in zip(self.traj, traj_2)])
+
     def test_single_index_slice(self):
         self.assertTrue(all([self.traj[i] == self.structures[i] for i in range(0, len(self.structures), 19)]))
 
@@ -75,7 +84,7 @@ class TrajectoryTest(PymatgenTest):
 
         # compare the overall site properties list
         self.assertEqual(traj.site_properties, site_properties)
-        # compare the site properties after slicing
+        # # compare the site properties after slicing
         self.assertEqual(traj[0].site_properties, site_properties[0])
         self.assertEqual(traj[1:].site_properties, site_properties[1:])
 
@@ -98,8 +107,8 @@ class TrajectoryTest(PymatgenTest):
         # compare the overall site properties list
         self.assertEqual(traj.frame_properties, frame_properties)
         # compare the site properties after slicing
-        self.assertEqual(traj[0].frame_properties, frame_properties[0])
-        self.assertEqual(traj[1:].frame_properties, frame_properties[1:])
+        expected_output = {'energy_per_atom': [-3.0971, -3.0465]}
+        self.assertEqual(traj[1:].frame_properties, expected_output)
 
     def test_extend(self):
         traj = self.traj.copy()
@@ -134,7 +143,8 @@ class TrajectoryTest(PymatgenTest):
         traj_2 = Trajectory(lattice, species, frac_coords)
 
         # Test combining two trajectories with no site properties
-        traj_combined = traj_1.extend(traj_2)
+        traj_combined = traj_1.copy()
+        traj_combined.extend(traj_2)
         self.assertEqual(traj_combined.site_properties, None)
 
     def test_extend_equivalent_site_props(self):
@@ -154,7 +164,8 @@ class TrajectoryTest(PymatgenTest):
         traj_2 = Trajectory(lattice, species, frac_coords, site_properties=site_properties_2)
 
         # Test combining two trajectories with similar site_properties
-        traj_combined = traj_1.extend(traj_2)
+        traj_combined = traj_1.copy()
+        traj_combined.extend(traj_2)
         self.assertEqual(traj_combined.site_properties, site_properties_1)
 
     def test_extend_inequivalent_site_props(self):
@@ -174,7 +185,8 @@ class TrajectoryTest(PymatgenTest):
         traj_2 = Trajectory(lattice, species, frac_coords, site_properties=site_properties_2)
 
         # Test combining two trajectories with similar site_properties
-        traj_combined = traj_1.extend(traj_2)
+        traj_combined = traj_1.copy()
+        traj_combined.extend(traj_2)
         expected_site_props = [{'selective_dynamics': [[False, False, False], [False, False, False]], 'magmom': [5, 5]},
                                {'selective_dynamics': [[False, False, False], [False, False, False]], 'magmom': [5, 5]},
                                {'selective_dynamics': [[False, False, False], [False, False, False]], 'magmom': [5, 5]},
@@ -193,7 +205,8 @@ class TrajectoryTest(PymatgenTest):
         traj_2 = Trajectory(lattice, species, frac_coords, site_properties=site_properties_2)
 
         # Test combining two trajectories with similar site_properties
-        traj_combined = traj_1.extend(traj_2)
+        traj_combined = traj_1.copy()
+        traj_combined.extend(traj_2)
         expected_site_props = [{'selective_dynamics': [[True, False, False], [False, False, False]], 'magmom': [5, 5]},
                                {'selective_dynamics': [[True, False, False], [False, False, False]], 'magmom': [5, 5]},
                                {'selective_dynamics': [[True, False, False], [False, False, False]], 'magmom': [5, 5]},
@@ -201,8 +214,10 @@ class TrajectoryTest(PymatgenTest):
                                {'selective_dynamics': [[True, False, True], [False, False, False]], 'magmom': [5, 5]},
                                {'selective_dynamics': [[True, True, False], [False, False, False]], 'magmom': [5, 5]}]
         self.assertEqual(traj_combined.site_properties, expected_site_props)
+
         ## The other way around
-        traj_combined = traj_2.extend(traj_1)
+        traj_combined = traj_2.copy()
+        traj_combined.extend(traj_1)
         expected_site_props = [{'selective_dynamics': [[False, True, True], [False, False, False]],'magmom': [5, 5]},
                                {'selective_dynamics': [[True, False, True], [False, False, False]], 'magmom': [5, 5]},
                                {'selective_dynamics': [[True, True, False], [False, False, False]], 'magmom': [5, 5]},
@@ -221,7 +236,8 @@ class TrajectoryTest(PymatgenTest):
         traj_2 = Trajectory(lattice, species, frac_coords, site_properties=site_properties_2)
 
         # Test combining two trajectories with similar site_properties
-        traj_combined = traj_1.extend(traj_2)
+        traj_combined = traj_1.copy()
+        traj_combined.extend(traj_2)
         expected_site_props = [None,
                                None,
                                None,
@@ -229,8 +245,10 @@ class TrajectoryTest(PymatgenTest):
                                {'selective_dynamics': [[True, False, True], [False, False, False]], 'magmom': [5, 5]},
                                {'selective_dynamics': [[True, True, False], [False, False, False]], 'magmom': [5, 5]}]
         self.assertEqual(traj_combined.site_properties, expected_site_props)
+
         ## The other way around
-        traj_combined = traj_2.extend(traj_1)
+        traj_combined = traj_2.copy()
+        traj_combined.extend(traj_1)
         expected_site_props = [{'selective_dynamics': [[False, True, True], [False, False, False]],'magmom': [5, 5]},
                                {'selective_dynamics': [[True, False, True], [False, False, False]], 'magmom': [5, 5]},
                                {'selective_dynamics': [[True, True, False], [False, False, False]], 'magmom': [5, 5]},
@@ -251,7 +269,8 @@ class TrajectoryTest(PymatgenTest):
         traj_2 = Trajectory(lattice, species, frac_coords)
 
         # Test combining two trajectories with no site properties
-        traj_combined = traj_1.extend(traj_2)
+        traj_combined = traj_1.copy()
+        traj_combined.extend(traj_2)
         self.assertEqual(traj_combined.frame_properties, None)
 
     def test_extend_frame_props(self):
@@ -269,14 +288,16 @@ class TrajectoryTest(PymatgenTest):
         traj_2 = Trajectory(lattice, species, frac_coords, frame_properties=frame_properties_2)
 
         # Test combining two trajectories with similar site_properties
-        traj_combined = traj_1.extend(traj_2)
+        traj_combined = traj_1.copy()
+        traj_combined.extend(traj_2)
         expected_frame_properties = {'energy': [-3, -3.9, -4.1, -4.2, -4.25, -4.3]}
         self.assertEqual(traj_combined.frame_properties, expected_frame_properties)
 
         # Mismatched frame propertied
         frame_properties_3 = {'energy': [-4.2, -4.25, -4.3], 'pressure':[2, 2.5, 2.5]}
         traj_3 = Trajectory(lattice, species, frac_coords, frame_properties=frame_properties_3)
-        traj_combined = traj_1.extend(traj_3)
+        traj_combined = traj_1.copy()
+        traj_combined.extend(traj_3)
         expected_frame_properties = {'energy': [-3, -3.9, -4.1, -4.2, -4.25, -4.3],
                                      'pressure': [None, None, None, 2, 2.5, 2.5]}
         self.assertEqual(traj_combined.frame_properties, expected_frame_properties)
@@ -321,21 +342,12 @@ class TrajectoryTest(PymatgenTest):
         traj = Trajectory.from_dict(d)
         self.assertEqual(type(traj), Trajectory)
 
-    def _check_traj_equality(self, traj_1, traj_2):
-        if np.sum(np.square(np.subtract(traj_1.lattice, traj_2.lattice))) > 0.0001:
-            return False
-
-        if traj_1.species != traj_2.species:
-            return False
-
-        return all([i == j for i, j in zip(self.traj, traj_2)])
-
     def test_xdatcar_write(self):
         self.traj.write_Xdatcar(filename="traj_test_XDATCAR")
 
         # Load trajectory from written xdatcar and compare to original
 
-        written_traj = Trajectory.from_file(os.path.join("./", "Traj_XDATCAR"))
+        written_traj = Trajectory.from_file(os.path.join("./", "traj_test_XDATCAR"))
         self._check_traj_equality(self.traj, written_traj)
 
 

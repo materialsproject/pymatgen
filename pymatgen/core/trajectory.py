@@ -140,14 +140,17 @@ class Trajectory(MSONable):
         self.to_positions()
         trajectory.to_positions()
 
+        self.site_properties = self._combine_site_props(self.site_properties, trajectory.site_properties,
+                                                        np.shape(self.frac_coords)[0],
+                                                        np.shape(trajectory.frac_coords)[0])
+        self.frame_properties = self._combine_frame_props(self.frame_properties, trajectory.frame_properties,
+                                                          np.shape(self.frac_coords)[0],
+                                                          np.shape(trajectory.frac_coords)[0])
+
         self.frac_coords = np.concatenate((self.frac_coords, trajectory.frac_coords), axis=0)
         self.lattice, self.constant_lattice = self._combine_lattice(self.lattice, trajectory.lattice,
                                                                     np.shape(self.frac_coords)[0],
                                                                     np.shape(trajectory.frac_coords)[0])
-        if self.site_properties and trajectory.site_properties:
-            self.site_properties = self._combine_site_props(self.site_properties, trajectory.site_properties,
-                                                            np.shape(self.frac_coords)[0],
-                                                            np.shape(trajectory.frac_coords))
 
     def __iter__(self):
         for i in range(np.shape(self.frac_coords)[0]):
@@ -192,6 +195,7 @@ class Trajectory(MSONable):
                 # For integer input, return the structure at that timestep
                 lattice = self.lattice if self.constant_lattice else self.lattice[frames]
                 site_properties = self.site_properties[frames] if self.site_properties else None
+                site_properties = self.site_properties[frames] if self.site_properties else None
                 return Structure(Lattice(lattice), self.species, self.frac_coords[frames],
                                  site_properties=site_properties,
                                  to_unit_cell=True)
@@ -201,10 +205,16 @@ class Trajectory(MSONable):
                 pruned_frames = range(start, stop, step)
                 lattice = self.lattice if self.constant_lattice else [self.lattice[i] for i in pruned_frames]
                 frac_coords = [self.frac_coords[i] for i in pruned_frames]
-                site_properties = [self.site_properties for i in pruned_frames]
-                frame_properties = {}
-                for key, item in self.frame_properties.items():
-                    frame_properties[key] = [item[i] for i in pruned_frames]
+                if self.site_properties is not None:
+                    site_properties = [self.site_properties[i] for i in pruned_frames]
+                else:
+                    site_properties = None
+                if self.frame_properties is not None:
+                    frame_properties = {}
+                    for key, item in self.frame_properties.items():
+                        frame_properties[key] = [item[i] for i in pruned_frames]
+                else:
+                    frame_properties = None
                 return Trajectory(lattice, self.species, frac_coords, time_step=self.time_step,
                                   site_properties=site_properties, frame_properties=frame_properties,
                                   constant_lattice=self.constant_lattice, coords_are_displacement=False,
@@ -216,10 +226,16 @@ class Trajectory(MSONable):
                     warnings.warn('Some or all selected frames exceed trajectory length')
                 lattice = self.lattice if self.constant_lattice else [self.lattice[i] for i in pruned_frames]
                 frac_coords = [self.frac_coords[i] for i in pruned_frames]
-                site_properties = [self.site_properties for i in pruned_frames]
-                frame_properties = {}
-                for key, item in self.frame_properties.items():
-                    frame_properties[key] = [item[i] for i in pruned_frames]
+                if self.site_properties is not None:
+                    site_properties = [self.site_properties[i] for i in pruned_frames]
+                else:
+                    site_properties = None
+                if self.frame_properties is not None:
+                    frame_properties = {}
+                    for key, item in self.frame_properties.items():
+                        frame_properties[key] = [item[i] for i in pruned_frames]
+                else:
+                    frame_properties = None
                 return Trajectory(lattice, self.species, frac_coords, time_step=self.time_step,
                                   site_properties=site_properties, frame_properties=frame_properties,
                                   constant_lattice=self.constant_lattice, coords_are_displacement=False,
@@ -284,7 +300,7 @@ class Trajectory(MSONable):
              "@class": self.__class__.__name__,
              "species": self.species, "time_step": self.time_step,
              "site_properties": self.site_properties,
-             "frame_proprties": self.frame_properties,
+             "frame_properties": self.frame_properties,
              "constant_lattice": self.constant_lattice,
              "coords_are_displacement": self.coords_are_displacement,
              "base_positions": self.base_positions}
@@ -312,8 +328,28 @@ class Trajectory(MSONable):
 
     @staticmethod
     def _combine_site_props(attr_1, attr_2, len_1, len_2):
+        """
+        Helper function to combine site properties of 2 trajectories
+        """
         if attr_1 is None and attr_2 is None:
             return None
+        elif attr_1 is None or attr_2 is None:
+            new_site_properties = []
+            if attr_1 is None:
+                new_site_properties.extend([None for i in range(len_1)])
+            elif len(attr_1) == 1:
+                new_site_properties.extend([attr_1[0] for i in range(len_1)])
+            elif len(attr_1) > 1:
+                new_site_properties.extend(attr_1)
+
+            if attr_2 is None:
+                new_site_properties.extend([None for i in range(len_2)])
+            elif len(attr_2) == 1:
+                new_site_properties.extend([attr_2[0] for i in range(len_2)])
+            elif len(attr_2) > 1:
+                new_site_properties.extend(attr_2)
+
+            return new_site_properties
         elif len(attr_1) == 1 and len(attr_2) == 1:
             # If both properties lists are do not change within their respective trajectory
             if attr_1 == attr_2:
@@ -353,7 +389,7 @@ class Trajectory(MSONable):
             return None
 
         # Find all common keys
-        all_keys = set(attr_1.keys()) + set(attr_2.keys())
+        all_keys = set(attr_1.keys()).union(set(attr_2.keys()))
 
         # Initialize dict with the common keys
         new_frame_props = dict(zip(all_keys, [[] for i in all_keys]))
