@@ -45,7 +45,7 @@ jobs:
             echo "pycodestyle checks..."
             pycodestyle pymatgen
             echo "--- Done ---"
-            export MODIFIED_FILES=`git diff --diff-filter=d --name-only HEAD HEAD~1 | grep -E '\.(py)'`
+            export MODIFIED_FILES=`git diff --diff-filter=d --name-only HEAD v2019.9.12 | grep -E '\.(py)'`
             echo "pydocstyle checks for $MODIFIED_FILES..."
             pydocstyle --count pymatgen/core $MODIFIED_FILES
             echo "--- Done ---"

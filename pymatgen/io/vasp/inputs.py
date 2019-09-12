@@ -2,6 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Classes for reading/manipulating/writing VASP input files. All major VASP input
+files.
+"""
 
 import os
 import re
@@ -39,11 +43,6 @@ from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.typing import PathLike
 from monty.json import MSONable
 
-"""
-Classes for reading/manipulating/writing VASP input files. All major VASP input
-files.
-"""
-
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, Vincent L Chevrier, Stephen Dacek"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.1"
@@ -60,21 +59,6 @@ class Poscar(MSONable):
     Object for representing the data in a POSCAR or CONTCAR file.
     Please note that this current implementation. Most attributes can be set
     directly.
-
-    Args:
-        structure (Structure):  Structure object.
-        comment (str): Optional comment line for POSCAR. Defaults to unit
-            cell formula of structure. Defaults to None.
-        selective_dynamics (Nx3 array): bool values for selective dynamics,
-            where N is number of sites. Defaults to None.
-        true_names (bool): Set to False is the names in the POSCAR are not
-            well-defined and ambiguous. This situation arises commonly in
-            vasp < 5 where the POSCAR sometimes does not contain element
-            symbols. Defaults to True.
-        velocities (Nx3 array): Velocities for the POSCAR. Typically parsed
-            in MD runs or can be used to initialize velocities.
-        predictor_corrector (Nx3 array): Predictor corrector for the POSCAR.
-            Typically parsed in MD runs.
 
     .. attribute:: structure
 
@@ -120,6 +104,22 @@ class Poscar(MSONable):
     def __init__(self, structure, comment=None, selective_dynamics=None,
                  true_names=True, velocities=None, predictor_corrector=None,
                  predictor_corrector_preamble=None):
+        """
+        Args:
+            structure (Structure):  Structure object.
+            comment (str): Optional comment line for POSCAR. Defaults to unit
+                cell formula of structure. Defaults to None.
+            selective_dynamics (Nx3 array): bool values for selective dynamics,
+                where N is number of sites. Defaults to None.
+            true_names (bool): Set to False is the names in the POSCAR are not
+                well-defined and ambiguous. This situation arises commonly in
+                vasp < 5 where the POSCAR sometimes does not contain element
+                symbols. Defaults to True.
+            velocities (Nx3 array): Velocities for the POSCAR. Typically parsed
+                in MD runs or can be used to initialize velocities.
+            predictor_corrector (Nx3 array): Predictor corrector for the POSCAR.
+                Typically parsed in MD runs.
+        """
         if structure.is_ordered:
             site_properties = {}
             if selective_dynamics:
@@ -141,10 +141,12 @@ class Poscar(MSONable):
 
     @property
     def velocities(self):
+        """Velocities in Poscar"""
         return self.structure.site_properties.get("velocities")
 
     @property
     def selective_dynamics(self):
+        """Selective dynamics in Poscar"""
         return self.structure.site_properties.get("selective_dynamics")
 
     @property
