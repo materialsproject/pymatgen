@@ -10,8 +10,9 @@ from fnmatch import fnmatch
 import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
-from pymatgen.core.structure import Structure, Lattice
+from pymatgen.core.structure import Structure, Lattice, Element, Specie, DummySpecie, Composition
 from pymatgen.io.vasp.outputs import Xdatcar, Vasprun
+from typing import List, Union, Sequence
 
 """
 This module provides classes used to define a MD trajectory.
@@ -28,9 +29,15 @@ class Trajectory(MSONable):
     Provides basic functions such as slicing trajectory or obtaining displacements.
     """
 
-    def __init__(self, lattice, species, frac_coords, time_step=2, site_properties=None,
-                 frame_properties=None, constant_lattice=True,
-                 coords_are_displacement=False, base_positions=None):
+    def __init__(self, lattice: Union[List, np.ndarray, Lattice],
+                 species: List[Union[str, Element, Specie, DummySpecie, Composition]],
+                 frac_coords: Sequence[Sequence[float]],
+                 time_step: float = 2,
+                 site_properties: dict = None,
+                 frame_properties: dict = None,
+                 constant_lattice: bool = True,
+                 coords_are_displacement: bool = False,
+                 base_positions: Sequence[Sequence[float]] = None):
         """
         Create a trajectory object
         Args:
