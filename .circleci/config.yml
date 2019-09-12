@@ -4,6 +4,9 @@ jobs:
     working_directory: ~/pymatgen
     docker:
       - image: materialsvirtuallab/circle-ci-pmg-py3:3.7.3
+    environment:
+      GULP_LIB: "/root/pymatgen/cmd_line/gulp/Libraries"
+      MPLBACKEND: "Agg"
     steps:
       - checkout
       - restore_cache:
@@ -15,10 +18,10 @@ jobs:
             if [ -e $HOME/miniconda3/envs/test-environment ]; then
               echo "Conda env already present from the cache."
             else
-              conda config --set always_yes yes --set changeps1 no
               conda update -q conda
               conda create -q -n test-environment python=3.7 numpy scipy matplotlib sympy cython pandas networkx pytest cmake h5py
             fi
+            conda config --set always_yes yes --set changeps1 no
             source activate test-environment
             conda update --quiet numpy scipy matplotlib sympy cython pandas networkx pytest pip cmake h5py
             conda install --quiet -c openbabel openbabel
@@ -38,8 +41,6 @@ jobs:
             source activate test-environment
             # Add executables and path.
             for EXEPATH in `pwd`/cmd_line/*/Linux_64bit; do export PATH=$PATH:$EXEPATH; done
-            export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
-            export MPLBACKEND=Agg
             pip install --quiet -e .
             pytest --ignore=pymatgen/analysis/tests/test_pourbaix_diagram.py --cov=pymatgen --cov-report html:coverage_reports pymatgen
             echo "pycodestyle checks..."
