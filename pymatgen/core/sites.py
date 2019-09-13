@@ -2,22 +2,20 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module defines classes representing non-periodic and periodic sites.
+"""
 
 import collections
 import numpy as np
 
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element, Specie, DummySpecie,\
+from pymatgen.core.periodic_table import Element, Specie, DummySpecie, \
     get_el_sp
 from monty.json import MSONable
 from pymatgen.util.coord import pbc_diff
 from pymatgen.core.composition import Composition
 from monty.dev import deprecated
-
-"""
-This module defines classes representing non-periodic and periodic sites.
-"""
-
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -79,7 +77,10 @@ class Site(collections.abc.Hashable, MSONable):
         raise AttributeError(a)
 
     @property
-    def species(self):
+    def species(self) -> Composition:
+        """
+        :return: The species on the site as a composition, e.g., Fe0.5Mn0.5.
+        """
         return self._species
 
     @species.setter

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.symmetry.analyzer &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.symmetry.analyzer &#8212; pymatgen 2019.9.12 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.9.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -143,35 +143,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_space_group_data</span> <span class="o">=</span> <span class="n">spglib</span><span class="o">.</span><span class="n">get_symmetry_dataset</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_cell</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_symprec</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="o">=</span><span class="n">angle_tolerance</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get_space_group_symbol</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get the spacegroup symbol (e.g., Pnma) for structure.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            (str): Spacegroup symbol for structure.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_space_group_data</span><span class="p">[</span><span class="s2">&quot;international&quot;</span><span class="p">]</span>
-
-    <span class="k">def</span> <span class="nf">get_space_group_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get the international spacegroup number (e.g., 62) for structure.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            (int): International spacegroup number for structure.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_space_group_data</span><span class="p">[</span><span class="s2">&quot;number&quot;</span><span class="p">])</span>
-
-<div class="viewcode-block" id="SpacegroupAnalyzer.get_space_group_operations"><a class="viewcode-back" href="../../../pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_space_group_operations">[docs]</a>    <span class="k">def</span> <span class="nf">get_space_group_operations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get the SpacegroupOperations for the Structure.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            SpacgroupOperations object.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">SpacegroupOperations</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_space_group_symbol</span><span class="p">(),</span>
-                                    <span class="bp">self</span><span class="o">.</span><span class="n">get_space_group_number</span><span class="p">(),</span>
-                                    <span class="bp">self</span><span class="o">.</span><span class="n">get_symmetry_operations</span><span class="p">())</span></div>
-
 <div class="viewcode-block" id="SpacegroupAnalyzer.get_space_group_symbol"><a class="viewcode-back" href="../../../pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_space_group_symbol">[docs]</a>    <span class="k">def</span> <span class="nf">get_space_group_symbol</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the spacegroup symbol (e.g., Pnma) for structure.</span>
@@ -189,6 +160,17 @@
 <span class="sd">            (int): International spacegroup number for structure.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_space_group_data</span><span class="p">[</span><span class="s2">&quot;number&quot;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="SpacegroupAnalyzer.get_space_group_operations"><a class="viewcode-back" href="../../../pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_space_group_operations">[docs]</a>    <span class="k">def</span> <span class="nf">get_space_group_operations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the SpacegroupOperations for the Structure.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            SpacgroupOperations object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">SpacegroupOperations</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_space_group_symbol</span><span class="p">(),</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">get_space_group_number</span><span class="p">(),</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">get_symmetry_operations</span><span class="p">())</span></div>
 
 <div class="viewcode-block" id="SpacegroupAnalyzer.get_hall"><a class="viewcode-back" href="../../../pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_hall">[docs]</a>    <span class="k">def</span> <span class="nf">get_hall</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1711,7 +1693,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.9.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

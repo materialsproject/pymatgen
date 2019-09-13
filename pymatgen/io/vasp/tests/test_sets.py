@@ -17,7 +17,6 @@ from pymatgen.io.vasp.outputs import Vasprun
 dec = MontyDecoder()
 
 
-
 class MITMPRelaxSetTest(PymatgenTest):
     @classmethod
     def setUpClass(cls):
@@ -884,6 +883,7 @@ class MVLGWSetTest(PymatgenTest):
 
     def tearDown(self):
         warnings.simplefilter("default")
+        shutil.rmtree(self.tmp)
 
     def test_static(self):
         mvlgwsc = MVLGWSet(self.s)
@@ -953,9 +953,6 @@ class MVLGWSetTest(PymatgenTest):
         self.assertEqual(mvlgwgbse1.incar["ANTIRES"], 0)
         self.assertEqual(mvlgwgbse1.incar["NBANDSO"], 20)
         self.assertEqual(mvlgwgbse1.incar["ALGO"], "BSE")
-
-    def tearDown(self):
-        shutil.rmtree(self.tmp)
 
 
 class MPHSEBSTest(PymatgenTest):

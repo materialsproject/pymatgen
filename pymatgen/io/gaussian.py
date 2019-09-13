@@ -301,7 +301,7 @@ class GaussianInput:
         title = ' '.join(title)
         ind += 1
         toks = re.split(r"[,\s]+", lines[route_index + ind])
-        charge = int(toks[0])
+        charge = int(float(toks[0]))
         spin_mult = int(toks[1])
         coord_lines = []
         spaces = 0
@@ -435,7 +435,7 @@ class GaussianInput:
         output.append("")
         output.append(self.title)
         output.append("")
-        output.append("{} {}".format(self.charge, self.spin_multiplicity))
+        output.append("%d %d" % (self.charge, self.spin_multiplicity))
         if isinstance(self._mol, Molecule):
             if cart_coords is True:
                 output.append(self.get_cart_coords())

@@ -125,7 +125,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         """
         return Potcar(self.potcar_symbols, functional=self.potcar_functional)
 
-    @property
+    @property  # type: ignore
     @deprecated(message="Use the get_vasp_input() method instead.")
     def all_input(self):
         """
@@ -1898,7 +1898,7 @@ class MPMDSet(MPRelaxSet):
 
         if Element('H') in structure.species:
             defaults['POTIM'] = 0.5
-        defaults['NSW'] = defaults['NSW'] * 4
+            defaults['NSW'] = defaults['NSW'] * 4
 
         super().__init__(structure, **kwargs)
 

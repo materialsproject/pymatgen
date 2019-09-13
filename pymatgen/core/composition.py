@@ -2,6 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module implements a Composition class to represent compositions,
+and a ChemicalPotential class to represent potentials.
+"""
 
 import collections
 import numbers
@@ -22,11 +26,6 @@ from pymatgen.core.periodic_table import get_el_sp, Element, Specie, DummySpecie
 from pymatgen.util.string import formula_double_format
 from monty.json import MSONable
 from pymatgen.core.units import Mass
-
-"""
-This module implements a Composition class to represent compositions,
-and a ChemicalPotential class to represent potentials.
-"""
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -96,7 +95,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
     oxi_prob = None  # prior probability of oxidation used by oxi_state_guesses
 
     def __init__(self, *args, strict=False, **kwargs):  # allow_negative=False
-        """
+        r"""
         Very flexible Composition construction, similar to the built-in Python
         dict(). Also extended to allow simple string init.
 
@@ -118,7 +117,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
             strict: Only allow valid Elements and Species in the Composition.
 
             allow_negative: Whether to allow negative compositions. This
-                argument must be popped from the \\*\\*kwargs due to \\*args
+                argument must be popped from the **kwargs due to *args
                 ambiguity.
         """
         self.allow_negative = kwargs.pop('allow_negative', False)
@@ -254,10 +253,16 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
 
     @property
     def average_electroneg(self) -> float:
+        """
+        :return: Average electronegativity of the composition.
+        """
         return sum((el.X * abs(amt) for el, amt in self.items())) / self.num_atoms
 
     @property
     def total_electrons(self) -> float:
+        """
+        :return: Total number of electrons in composition.
+        """
         return sum((el.Z * abs(amt) for el, amt in self.items()))
 
     def almost_equals(self, other, rtol=0.1, atol=1e-8):
@@ -286,6 +291,9 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         return len(self) == 1
 
     def copy(self):
+        """
+        :return: A copy of the composition.
+        """
         return Composition(self, allow_negative=self.allow_negative)
 
     @property
@@ -441,6 +449,16 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
 
     @property
     def hill_formula(self) -> str:
+        """
+        :return: Hill formula. The Hill system (or Hill notation) is a system
+        of writing empirical chemical formulas, molecular chemical formulas and
+        components of a condensed formula such that the number of carbon atoms
+        in a molecule is indicated first, the number of hydrogen atoms next,
+        and then the number of all other chemical elements subsequently, in
+        alphabetical order of the chemical symbols. When the formula contains
+        no carbon, all the elements, including hydrogen, are listed
+        alphabetically.
+        """
         c = self.element_composition
         elements = sorted([el.symbol for el in c.keys()])
         if "C" in elements:
@@ -1248,4 +1266,5 @@ class ChemicalPotential(dict, MSONable):
 
 if __name__ == "__main__":
     import doctest
+
     doctest.testmod()

@@ -16,6 +16,7 @@ import copy
 
 import logging
 import sys
+import warnings
 
 """
 This module implements a simple algorithm for extracting nearest neighbor

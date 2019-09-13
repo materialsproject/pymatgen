@@ -2,6 +2,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""Setup.py for pymatgen."""
+
 import sys
 import platform
 
@@ -10,7 +12,9 @@ from setuptools.command.build_ext import build_ext as _build_ext
 
 
 class build_ext(_build_ext):
+    """Extension builder that checks for numpy before install."""
     def finalize_options(self):
+        """Override finalize_options."""
         _build_ext.finalize_options(self)
         # Prevent numpy from thinking it is still in its setup process:
         import builtins
@@ -86,7 +90,7 @@ who require Python 2.7 should install pymatgen v2018.x.
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2019.9.8",
+    version="2019.9.12",
     cmdclass={'build_ext': build_ext},
     setup_requires=['numpy>=1.14.3', 'setuptools>=18.0'],
     python_requires='>=3.6',

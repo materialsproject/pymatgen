@@ -125,24 +125,6 @@ class SpacegroupAnalyzer:
                                     self.get_space_group_number(),
                                     self.get_symmetry_operations())
 
-    def get_space_group_symbol(self):
-        """
-        Get the spacegroup symbol (e.g., Pnma) for structure.
-
-        Returns:
-            (str): Spacegroup symbol for structure.
-        """
-        return self._space_group_data["international"]
-
-    def get_space_group_number(self):
-        """
-        Get the international spacegroup number (e.g., 62) for structure.
-
-        Returns:
-            (int): International spacegroup number for structure.
-        """
-        return int(self._space_group_data["number"])
-
     def get_hall(self):
         """
         Returns Hall symbol for structure.

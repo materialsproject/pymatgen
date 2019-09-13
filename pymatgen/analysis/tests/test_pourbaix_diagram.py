@@ -238,7 +238,8 @@ class PourbaixDiagramTest(unittest.TestCase):
                          len(new_binary.stable_entries))
 
     # The two tests below rely on the MP Rest interface.
-    @unittest.skip
+    @unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY"),
+                     "PMG_MAPI_KEY environment variable not set.")
     def test_heavy(self):
         from pymatgen import MPRester
         mpr = MPRester()

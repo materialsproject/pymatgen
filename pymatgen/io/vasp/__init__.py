@@ -10,5 +10,6 @@ classes to be simply called as pymatgen.io.vasp.Incar for example, to retain
 backwards compatibility.
 """
 
-from .inputs import *
-from .outputs import *
+from .inputs import Incar, Poscar, Potcar, Kpoints, PotcarSingle
+from .outputs import Vasprun, BSVasprun, Outcar, VolumetricData, Locpot, Chgcar, Elfcar, Procar, Oszicar, Xdatcar, \
+    Dynmat, Wavecar, Wavederf, Waveder

@@ -9,7 +9,7 @@ from monty.design_patterns import cached_class
 
 import textwrap
 
-from pymatgen.core import Lattice
+from pymatgen.core.lattice import Lattice
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.groups import SymmetryGroup, in_array_list
 from pymatgen.core.operations import MagSymmOp

@@ -7,14 +7,18 @@
 #
 # To enable this hook, rename this file to "pre-commit".
 
-
-for file in $(git diff --diff-filter=d --cached --name-only | grep -E '\.(py)$')
-do
-	echo "Checking $file"
-	pycodestyle "$file"	
-	if [ $? -ne 0 ]; then
-		echo "Bad code style detected on $file. Fix before commit."
-		exit 1
-	fi
-done
-
+status=0
+files=$(git diff --diff-filter=d --cached --name-only | grep -E '\.(py)$' | sed '/test_/d')
+files=`echo $files | tr '\n' ' '`
+echo "Check code styles for $files"
+pycodestyle pymatgen/dao.py $files
+if [ $? -ne 0 ]; then
+  echo "Bad code style detected. Fix before commit."
+  exit 1
+fi
+echo "Check doc styles for $files"
+pydocstyle pymatgen/dao.py $files
+if [ $? -ne 0 ]; then
+  echo "Bad doc style detected. Fix before commit."
+  exit 1
+fi

@@ -268,7 +268,7 @@ def release(ctx, notest=False, nodoc=False):
     ctx.run("rm -r dist build pymatgen.egg-info", warn=True)
     set_ver(ctx)
     if not notest:
-        ctx.run("nosetests")
+        ctx.run("pytest pymatgen")
     publish(ctx)
     if not nodoc:
         # update_doc(ctx)

@@ -2,6 +2,15 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module provides classes to interface with the Materials Project REST
+API v2 to enable the creation of data structures and pymatgen objects using
+Materials Project data.
+
+To make use of the Materials API, you need to be a registered user of the
+Materials Project, and obtain an API key by going to your dashboard at
+https://www.materialsproject.org/dashboard.
+"""
 
 import sys
 import itertools
@@ -30,16 +39,6 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 from pymatgen.util.sequence import get_chunks, PBar
 
-"""
-This module provides classes to interface with the Materials Project REST
-API v2 to enable the creation of data structures and pymatgen objects using
-Materials Project data.
-
-To make use of the Materials API, you need to be a registered user of the
-Materials Project, and obtain an API key by going to your dashboard at
-https://www.materialsproject.org/dashboard.
-"""
-
 __author__ = "Shyue Ping Ong, Shreyas Cholia"
 __credits__ = "Anubhav Jain"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -63,24 +62,6 @@ class MPRester:
 
     For more advanced uses of the Materials API, please consult the API
     documentation at https://github.com/materialsproject/mapidoc.
-
-    Args:
-        api_key (str): A String API key for accessing the MaterialsProject
-            REST interface. Please obtain your API key at
-            https://www.materialsproject.org/dashboard. If this is None,
-            the code will check if there is a "PMG_MAPI_KEY" setting.
-            If so, it will use that environment variable. This makes
-            easier for heavy users to simply add this environment variable to
-            their setups and MPRester can then be called without any arguments.
-        endpoint (str): Url of endpoint to access the MaterialsProject REST
-            interface. Defaults to the standard Materials Project REST
-            address at "https://materialsproject.org/rest/v2", but
-            can be changed to other urls implementing a similar interface.
-        include_user_agent (bool): If True, will include a user agent with the
-            HTTP request including information on pymatgen and system version
-            making the API request. This helps MP support pymatgen users, and
-            is similar to what most web browsers send with each page request.
-            Set to False to disable the user agent.
     """
 
     supported_properties = ("energy", "energy_per_atom", "volume",
@@ -102,6 +83,25 @@ class MPRester:
                                  "band_gap", "density", "icsd_id", "cif")
 
     def __init__(self, api_key=None, endpoint=None, include_user_agent=True):
+        """
+        Args:
+            api_key (str): A String API key for accessing the MaterialsProject
+                REST interface. Please obtain your API key at
+                https://www.materialsproject.org/dashboard. If this is None,
+                the code will check if there is a "PMG_MAPI_KEY" setting.
+                If so, it will use that environment variable. This makes
+                easier for heavy users to simply add this environment variable to
+                their setups and MPRester can then be called without any arguments.
+            endpoint (str): Url of endpoint to access the MaterialsProject REST
+                interface. Defaults to the standard Materials Project REST
+                address at "https://materialsproject.org/rest/v2", but
+                can be changed to other urls implementing a similar interface.
+            include_user_agent (bool): If True, will include a user agent with the
+                HTTP request including information on pymatgen and system version
+                making the API request. This helps MP support pymatgen users, and
+                is similar to what most web browsers send with each page request.
+                Set to False to disable the user agent.
+        """
         if api_key is not None:
             self.api_key = api_key
         else:
@@ -730,7 +730,7 @@ class MPRester:
 
     def query(self, criteria, properties, chunk_size=500, max_tries_per_chunk=5,
               mp_decode=True):
-        """
+        r"""
 
         Performs an advanced query using MongoDB-like syntax for directly
         querying the Materials Project database. This allows one to perform
@@ -764,8 +764,8 @@ class MPRester:
 
                 Other syntax examples:
                 mp-1234: Interpreted as a Materials ID.
-                Fe2O3 or \\*2O3: Interpreted as reduced formulas.
-                Li-Fe-O or \\*-Fe-O: Interpreted as chemical systems.
+                Fe2O3 or *2O3: Interpreted as reduced formulas.
+                Li-Fe-O or *-Fe-O: Interpreted as chemical systems.
 
                 You can mix and match with spaces, which are interpreted as
                 "OR". E.g. "mp-1234 FeO" means query for all compounds with

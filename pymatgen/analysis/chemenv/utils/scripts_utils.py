@@ -12,7 +12,7 @@ try:
 
     no_vis = False
 except ImportError:
-    StructureVis = None
+    StructureVis = None  # type: ignore
     no_vis = True
 
 
@@ -42,7 +42,7 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-strategies_class_lookup = OrderedDict()
+strategies_class_lookup = OrderedDict()  # type: dict
 strategies_class_lookup['SimplestChemenvStrategy'] = SimplestChemenvStrategy
 
 

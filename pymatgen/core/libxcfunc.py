@@ -408,6 +408,11 @@ class LibxcFunc(Enum):
     # end_include_dont_touch
 
     def __init__(self, num):
+        """
+        Init.
+
+        :param num: Number for the xc.
+        """
         info = _all_xcfuncs[self.value]
         self.kind = info["Kind"]
         self.family = info["Family"]

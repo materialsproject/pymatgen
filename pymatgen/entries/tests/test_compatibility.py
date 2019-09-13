@@ -20,7 +20,7 @@ import unittest
 
 from monty.json import MontyDecoder
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility, \
-    MITCompatibility, AqueousCorrection, MITAqueousCompatibility, MaterialsProjectAqueousCompatibility
+    MITCompatibility, AqueousCorrection, MITAqueousCompatibility
 from pymatgen.entries.computed_entries import ComputedEntry, \
     ComputedStructureEntry
 from pymatgen import Composition, Lattice, Structure, Element

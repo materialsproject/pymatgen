@@ -181,7 +181,7 @@ $theory_spec
 """)
 
         output = t.substitute(
-            title=self.title, charge=self.charge,
+            title=self.title, charge=int(self.charge),
             spinmult=self.spin_multiplicity,
             basis_set_option=self.basis_set_option,
             bset_spec="\n".join(bset_spec),
