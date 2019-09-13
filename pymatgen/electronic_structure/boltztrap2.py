@@ -22,7 +22,7 @@ except ImportError:
 BoltzTraT2 is a python software interpolating band structures and
 computing materials properties from dft band structure using Boltzmann
 semi-classical transport theory.
-This module provides a pymatgen interface to BoltzTraT2. 
+This module provides a pymatgen interface to BoltzTraT2.
 Some of the code is written following the examples provided in BoltzTraP2
 
 BoltzTraT2 has been developed by Georg Madsen, Jesús Carrete, Matthieu J. Verstraete.
@@ -32,15 +32,15 @@ https://www.sciencedirect.com/science/article/pii/S0010465518301632
 
 References are:
 
-    Georg K.H.Madsen, Jesús Carrete, Matthieu J.Verstraete;
-    BoltzTraP2, a program for interpolating band structures and 
+    Georg K.H.Madsen, Jesús Carrete, Matthieu J.Verstraete
+    BoltzTraP2, a program for interpolating band structures and
     calculating semi-classical transport coefficients
     Computer Physics Communications 231, 140-145, 2018
-    
+
     Madsen, G. K. H., and Singh, D. J. (2006).
     BoltzTraP. A code for calculating band-structure dependent quantities.
     Computer Physics Communications, 175, 67-71
-    
+
 TODO:
 - spin polarized bands
 - read first derivative of the eigenvalues from vasprun.xml (mommat)
@@ -59,26 +59,37 @@ __date__ = "August 2018"
 class BandstructureLoader:
     """Loader for Bandsstrcture object"""
 
-    def __init__(self, bs_obj, structure=None, nelect=None):
-        """Structure and nelect is needed to be provide"""
+    def __init__(self, bs_obj, structure=None, nelect=None, spin=None):
+        """
+            Structure and nelect is needed to be provide.
+            spin must be select if bs is spin-polarized.
+        """
         self.kpoints = np.array([kp.frac_coords for kp in bs_obj.kpoints])
 
         if structure is None:
-            try:
-                self.structure = bs_obj.structure
-            except:
-                BaseException('No structure found in the bs obj.')
+            self.structure = bs_obj.structure
         else:
             self.structure = structure
 
         self.atoms = AseAtomsAdaptor.get_atoms(self.structure)
+        self.proj = None
 
         if len(bs_obj.bands) == 1:
             e = list(bs_obj.bands.values())[0]
             self.ebands = e * units.eV
             self.dosweight = 2.0
+            if bs_obj.projections:
+                self.proj = bs_obj.projections[Spin.up].transpose((1, 0, 3, 2))
+
         elif len(bs_obj.bands) == 2:
-            raise BaseException("spin bs case not implemented")
+            if not spin:
+                raise BaseException("spin-polarized bs, you need to select a spin")
+            elif spin in (-1, 1):
+                e = bs_obj.bands[Spin(spin)]
+                self.ebands = e * units.eV
+                self.dosweight = 1.0
+                if bs_obj.projections:
+                    self.proj = bs_obj.projections[Spin(spin)].transpose((1, 0, 3, 2))
 
         self.lattvec = self.atoms.get_cell().T * units.Angstrom
         self.mommat = None
@@ -88,8 +99,11 @@ class BandstructureLoader:
         self.nelect = nelect
         self.UCvol = self.structure.volume * units.Angstrom ** 3
 
-        self.vbm_idx = list(bs_obj.get_vbm()['band_index'].values())[0][-1]
-        self.cbm_idx = list(bs_obj.get_cbm()['band_index'].values())[0][0]
+        self.spin = spin
+
+        if not bs_obj.is_metal() and not spin:
+            self.vbm_idx = list(bs_obj.get_vbm()['band_index'].values())[0][-1]
+            self.cbm_idx = list(bs_obj.get_cbm()['band_index'].values())[0][0]
 
     def get_lattvec(self):
         try:
@@ -110,13 +124,31 @@ class BandstructureLoader:
         # for iband in range(len(self.ebands)):
         # BoltzTraP2.misc.info(iband, bandmin[iband], bandmax[iband], (
         # (bandmin[iband] < emax) & (bandmax[iband] > emin)))
-        self.ebands = self.ebands[nemin:nemax]
+        self.ebands = self.ebands[nemin:nemax + 1]
+
+        if isinstance(self.proj, np.ndarray):
+            self.proj = self.proj[:, nemin:nemax + 1, :, :]
+
         if self.mommat is not None:
-            self.mommat = self.mommat[:, nemin:nemax, :]
+            self.mommat = self.mommat[:, nemin:nemax + 1, :]
         # Removing bands may change the number of valence electrons
         if self.nelect is not None:
             self.nelect -= self.dosweight * nemin
         return nemin, nemax
+
+    def set_upper_lower_bands(self, e_lower, e_upper):
+        """
+            Set fake upper/lower bands, useful to set the same energy
+            range in the spin up/down bands when calculating the DOS
+        """
+        lower_band = e_lower * np.ones((1, self.ebands.shape[1]))
+        upper_band = e_upper * np.ones((1, self.ebands.shape[1]))
+
+        self.ebands = np.vstack((lower_band, self.ebands, upper_band))
+        if isinstance(self.proj, np.ndarray):
+            proj_lower = self.proj[:, 0:1, :, :]
+            proj_upper = self.proj[:, -1:, :, :]
+            self.proj = np.concatenate((proj_lower, self.proj, proj_upper), axis=1)
 
     def get_volume(self):
         try:
@@ -135,7 +167,7 @@ class VasprunLoader:
             self.kpoints = np.array(vrun_obj.actual_kpoints)
             self.structure = vrun_obj.final_structure
             self.atoms = AseAtomsAdaptor.get_atoms(self.structure)
-            self.proj = []
+            self.proj = None
             if len(vrun_obj.eigenvalues) == 1:
                 e = list(vrun_obj.eigenvalues.values())[0]
                 self.ebands = e[:, :, 0].transpose() * units.eV
@@ -151,6 +183,7 @@ class VasprunLoader:
             # TODO: read mommat from vasprun
             self.mommat = None
             self.magmom = None
+            self.spin = None
             self.fermi = vrun_obj.efermi * units.eV
             self.nelect = vrun_obj.parameters['NELECT']
             self.UCvol = self.structure.volume * units.Angstrom ** 3
@@ -182,8 +215,8 @@ class VasprunLoader:
         self.ebands = self.ebands[nemin:nemax]
 
         if isinstance(self.proj, np.ndarray):
-            self.proj = self.proj[:,nemin:nemax,:,:]
-            
+            self.proj = self.proj[:, nemin:nemax, :, :]
+
         if self.mommat is not None:
             self.mommat = self.mommat[:, nemin:nemax, :]
         # Removing bands may change the number of valence electrons
@@ -200,10 +233,10 @@ class VasprunLoader:
         return self.UCvol
 
 
-class BztInterpolator(object):
+class BztInterpolator:
     """
         Interpolate the dft band structures
-        
+
         Args:
             data: A loader
             lpfac: the number of interpolation points in the real space. By
@@ -264,7 +297,7 @@ class BztInterpolator(object):
     def get_dos(self, partial_dos=False, npts_mu=10000, T=None):
         """
             Return a Dos object interpolating bands
-            
+
             Args:
                 partial_dos: if True, projections will be interpolated as well
                     and partial doses will be return. Projections must be available
@@ -272,12 +305,14 @@ class BztInterpolator(object):
                 npts_mu: number of energy points of the Dos
                 T: parameter used to smooth the Dos
         """
+        spin = self.data.spin if isinstance(self.data.spin, int) else 1
+
         energies, densities, vvdos, cdos = BL.BTPDOS(self.eband, self.vvband, npts=npts_mu)
         if T is not None:
             densities = BL.smoothen_DOS(energies, densities, T)
 
         tdos = Dos(self.efermi / units.eV, energies / units.eV,
-                   {Spin(1): densities})
+                   {Spin(spin): densities})
 
         if partial_dos:
             tdos = self.get_partial_doses(tdos=tdos, npts_mu=npts_mu, T=T)
@@ -286,13 +321,15 @@ class BztInterpolator(object):
 
     def get_partial_doses(self, tdos, npts_mu, T):
         """
-            Return a CompleteDos object interpolating the projections
-            
-            tdos: total dos previously calculated
-            npts_mu: number of energy points of the Dos
-            T: parameter used to smooth the Dos
+        Return a CompleteDos object interpolating the projections
+
+        tdos: total dos previously calculated
+        npts_mu: number of energy points of the Dos
+        T: parameter used to smooth the Dos
         """
-        if self.data.proj == []:
+        spin = self.data.spin if isinstance(self.data.spin, int) else 1
+
+        if not isinstance(self.data.proj, np.ndarray):
             raise BoltztrapError("No projections loaded.")
 
         bkp_data_ebands = np.copy(self.data.ebands)
@@ -303,7 +340,8 @@ class BztInterpolator(object):
             if site not in pdoss:
                 pdoss[site] = {}
             for iorb, orb in enumerate(Orbital):
-                if iorb == self.data.proj.shape[-1]: break
+                if iorb == self.data.proj.shape[-1]:
+                    break
 
                 if orb not in pdoss[site]:
                     pdoss[site][orb] = {}
@@ -318,30 +356,27 @@ class BztInterpolator(object):
                 if T is not None:
                     pdos = BL.smoothen_DOS(edos, pdos, T)
 
-                pdoss[site][orb][Spin(1)] = pdos
+                pdoss[site][orb][Spin(spin)] = pdos
 
         self.data.ebands = bkp_data_ebands
 
         return CompleteDos(self.data.structure, total_dos=tdos, pdoss=pdoss)
 
-    def save(self):
-        pass
 
-
-class BztTransportProperties(object):
+class BztTransportProperties:
     """
         Compute Seebeck, Conductivity, Electrical part of thermal conductivity
         and Hall coefficient, conductivity effective mass, Power Factor tensors
         w.r.t. the chemical potential and temperatures, from dft band structure via
         interpolation.
-        
+
         Args:
             BztInterpolator: a BztInterpolator previously generated
             temp_r: numpy array of temperatures at which to calculate trasport properties
             doping: doping levels at which to calculate trasport properties
             npts_mu: number of energy points at which to calculate trasport properties
             CRTA: constant value of the relaxation time
-            
+
         Upon creation, it contains properties tensors w.r.t. the chemical potential
         of size (len(temp_r),npts_mu,3,3):
             Conductivity_mu (S/m), Seebeck_mu (microV/K), Kappa_mu (W/(m*K)),
@@ -353,7 +388,7 @@ class BztTransportProperties(object):
                 (len(temp_r),npts_mu)
             mu_r_eV: array of energies in eV and with E_fermi at 0.0
                 where all the properties are calculated.
-        
+
         Example:
             bztTransp = BztTransportProperties(bztInterp,temp_r = np.arange(100,1400,100))
     """
@@ -518,11 +553,11 @@ class BztTransportProperties(object):
         dumpfn(self.props_dict, fname)
 
 
-class BztPlotter(object):
+class BztPlotter:
     """
         Plotter to plot transport properties, interpolated bands along some high
         symmetry k-path, and fermisurface
-        
+
         Example:
             bztPlotter = BztPlotter(bztTransp,bztInterp)
     """
@@ -531,15 +566,16 @@ class BztPlotter(object):
         self.bzt_transP = bzt_transP
         self.bzt_interp = bzt_interp
 
-    def plot_props(self, prop_y, prop_x, prop_z,
+    def plot_props(self, prop_y, prop_x, prop_z='temp',
                    output='avg_eigs', dop_type='n', doping=None,
                    temps=None, xlim=(-2, 2), ax=None):
 
         """
             Function to plot the transport properties.
-            
+
             Args:
-                prop_y: property to plot among ("Conductivity","Seebeck","Kappa","Carrier_conc","Hall_carrier_conc_trace"). Abbreviations are possible, like "S" for "Seebeck"
+                prop_y: property to plot among ("Conductivity","Seebeck","Kappa","Carrier_conc",
+                    "Hall_carrier_conc_trace"). Abbreviations are possible, like "S" for "Seebeck"
                 prop_x: independent variable in the x-axis among ('mu','doping','temp')
                 prop_z: third variable to plot multiple curves ('doping','temp')
                 output: 'avg_eigs' to plot the average of the eigenvalues of the properties
@@ -553,7 +589,7 @@ class BztPlotter(object):
                     when prop_z='temp'
                 xlim: chemical potential range, useful when prop_x='mu'
                 ax: figure.axes where to plot. If None, a new figure is produced.
-                
+
             Example:
             bztPlotter.plot_props('S','mu','temp',temps=[600,900,1200]).show()
             more example are provided in the notebook
@@ -605,7 +641,7 @@ class BztPlotter(object):
             if prop_z == 'temp' and prop_x == 'mu':
                 for temp in temps:
                     ti = temps_all.index(temp)
-                    prop_out = p_array[ti]
+                    prop_out = p_array[ti] if idx_prop == 6 else np.abs(p_array[ti])
                     plt.semilogy(mu, prop_out, label=str(temp) + ' K')
 
                 plt.xlabel(r"$\mu$ (eV)", fontsize=30)
@@ -681,10 +717,28 @@ class BztPlotter(object):
         """
         if self.bzt_interp is None:
             raise BoltztrapError("BztInterpolator not present")
-        
-        tdos = self.bzt_interp.get_dos(T=T,npts_mu=npoints)
-        #print(npoints)
+
+        tdos = self.bzt_interp.get_dos(T=T, npts_mu=npoints)
+        # print(npoints)
         dosPlotter = DosPlotter()
-        dosPlotter.add_dos('Total',tdos)
-        
+        dosPlotter.add_dos('Total', tdos)
+
         return dosPlotter
+
+
+def merge_up_down_doses(dos_up, dos_dn):
+    cdos = Dos(dos_up.efermi, dos_up.energies,
+               {Spin.up: dos_up.densities[Spin.up], Spin.down: dos_dn.densities[Spin.down]})
+
+    if hasattr(dos_up, 'pdos') and hasattr(dos_dn, 'pdos'):
+        pdoss = {}
+        for site in dos_up.pdos:
+            pdoss.setdefault(site, {})
+            for orb in dos_up.pdos[site]:
+                pdoss[site].setdefault(orb, {})
+                pdoss[site][orb][Spin.up] = dos_up.pdos[site][orb][Spin.up]
+                pdoss[site][orb][Spin.down] = dos_dn.pdos[site][orb][Spin.down]
+
+        cdos = CompleteDos(dos_up.structure, total_dos=cdos, pdoss=pdoss)
+
+    return cdos

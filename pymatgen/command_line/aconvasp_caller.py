@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals
 
 """
 Interface with command line aconvasp. http://aflowlib.org/
@@ -98,7 +97,7 @@ def get_vasp_kpoint_file_sym(structure):
     started = False
     kpoints_string = ""
     for line in output[0].split("\n"):
-        #print line
+        # print line
         if started or line.find("END") != -1:
             kpoints_string = kpoints_string + line + "\n"
         if line.find("KPOINTS TO RUN") != -1:

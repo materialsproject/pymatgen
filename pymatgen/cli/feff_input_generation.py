@@ -3,7 +3,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division
 
 """
 Example script that generates FEFF input files from a cif file
@@ -17,7 +16,7 @@ from pymatgen.io.vasp import *
 from pymatgen.io.cif import CifParser
 
 __author__ = "Alan Dozier"
-__credits__= "Anubhav Jain, Shyue Ping Ong"
+__credits__ = "Anubhav Jain, Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "1.0.2"
 __maintainer__ = "Alan Dozier"
@@ -67,7 +66,7 @@ def main():
     print("\n\nATOMS\n")
     print(ATOMS)
 
-    #x.write_input(structure, calc_type, source, central_atom, comment, "./feffinput")
+    # x.write_input(structure, calc_type, source, central_atom, comment, "./feffinput")
 
 
 if __name__ == "__main__":

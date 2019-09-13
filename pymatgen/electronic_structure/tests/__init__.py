@@ -1,1 +1,3 @@
-from __future__ import unicode_literals
+"""
+Tests for pymatgen.electronic_structure
+"""

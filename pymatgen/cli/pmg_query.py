@@ -2,7 +2,6 @@
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
-from __future__ import division, unicode_literals, print_function
 
 """
 #TODO: Replace with proper module doc.
@@ -54,5 +53,3 @@ def do_query(args):
 
         t = sorted(t, key=lambda x: x[headers.index("E above hull (eV)")])
         print(tabulate(t, headers=headers, tablefmt="pipe", floatfmt=".3f"))
-
-

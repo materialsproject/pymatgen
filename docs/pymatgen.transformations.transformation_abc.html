@@ -1,19 +1,18 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.transformations.transformation_abc module &#8212; pymatgen 2018.11.6 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.transformations.transformation_abc module &#8212; pymatgen 2019.9.12 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -34,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.11.6 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -47,28 +46,26 @@
 <span id="pymatgen-transformations-transformation-abc-module"></span><h1>pymatgen.transformations.transformation_abc module<a class="headerlink" href="#module-pymatgen.transformations.transformation_abc" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.transformations.transformation_abc.AbstractTransformation">
-<em class="property">class </em><code class="descname">AbstractTransformation</code><a class="reference internal" href="_modules/pymatgen/transformations/transformation_abc.html#AbstractTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.transformation_abc.AbstractTransformation" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">AbstractTransformation</code><a class="reference internal" href="_modules/pymatgen/transformations/transformation_abc.html#AbstractTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.transformation_abc.AbstractTransformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Abstract transformation class.</p>
 <dl class="method">
 <dt id="pymatgen.transformations.transformation_abc.AbstractTransformation.apply_transformation">
-<code class="descname">apply_transformation</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/transformation_abc.html#AbstractTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.transformation_abc.AbstractTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/transformation_abc.html#AbstractTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.transformation_abc.AbstractTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies the transformation to a structure. Depending on whether a
 transformation is one-to-many, there may be an option to return a
 ranked list of structures.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> – input structure</li>
-<li><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – input structure</p></li>
+<li><p><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
 returned. If return_ranked_list is a number, that number of
-structures is returned.</li>
+structures is returned.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">depending on returned_ranked list, either a transformed structure
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>depending on returned_ranked list, either a transformed structure
 or
 a list of dictionaries, where each dictionary is of the form
 {‘structure’ = …. , ‘other_arguments’}
@@ -78,22 +75,20 @@ This transformation is parsed by the alchemy classes for generating
 a more specific transformation history. Any other information will
 be stored in the transformation_parameters dictionary in the
 transmuted structure class.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.transformations.transformation_abc.AbstractTransformation.inverse">
-<code class="descname">inverse</code><a class="headerlink" href="#pymatgen.transformations.transformation_abc.AbstractTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract property </em><code class="sig-name descname">inverse</code><a class="headerlink" href="#pymatgen.transformations.transformation_abc.AbstractTransformation.inverse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the inverse transformation if available.
 Otherwise, should return None.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.transformations.transformation_abc.AbstractTransformation.is_one_to_many">
-<code class="descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.transformation_abc.AbstractTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract property </em><code class="sig-name descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.transformation_abc.AbstractTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determines if a Transformation is a one-to-many transformation. If a
 Transformation is a one-to-many transformation, the
 apply_transformation method should have a keyword arg
@@ -101,9 +96,9 @@ apply_transformation method should have a keyword arg
 returned as a ranked list.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.transformations.transformation_abc.AbstractTransformation.use_multiprocessing">
-<code class="descname">use_multiprocessing</code><a class="headerlink" href="#pymatgen.transformations.transformation_abc.AbstractTransformation.use_multiprocessing" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">use_multiprocessing</code><a class="headerlink" href="#pymatgen.transformations.transformation_abc.AbstractTransformation.use_multiprocessing" title="Permalink to this definition">¶</a></dt>
 <dd><p>Indicates whether the transformation can be applied by a
 subprocessing pool. This should be overridden to return True for
 transformations that the transmuter can parallelize.</p>
@@ -127,13 +122,11 @@ transformations that the transmuter can parallelize.</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -151,13 +144,13 @@ transformations that the transmuter can parallelize.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.11.6 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

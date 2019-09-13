@@ -2,19 +2,17 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
+"""
+This class implements definitions for various kinds of bonds. Typically used in
+Molecule analysis.
+"""
+
 import os
 import json
 import collections
 import warnings
 
 from pymatgen.core.periodic_table import Element
-
-"""
-This class implements definitions for various kinds of bonds. Typically used in
-Molecule analysis.
-"""
-
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -38,7 +36,7 @@ def _load_bond_length_data():
 bond_lengths = _load_bond_length_data()
 
 
-class CovalentBond(object):
+class CovalentBond:
     """
     Defines a covalent bond between two sites.
     """
@@ -78,8 +76,8 @@ class CovalentBond(object):
             Float value of bond order. For example, for C-C bond in
             benzene, return 1.7.
         """
-        sp1 = list(self.site1.species_and_occu.keys())[0]
-        sp2 = list(self.site2.species_and_occu.keys())[0]
+        sp1 = list(self.site1.species.keys())[0]
+        sp2 = list(self.site2.species.keys())[0]
         dist = self.site1.distance(self.site2)
         return get_bond_order(sp1, sp2, dist, tol, default_bl)
 
@@ -101,8 +99,8 @@ class CovalentBond(object):
         Returns:
             Boolean indicating whether two sites are bonded.
         """
-        sp1 = list(site1.species_and_occu.keys())[0]
-        sp2 = list(site2.species_and_occu.keys())[0]
+        sp1 = list(site1.species.keys())[0]
+        sp2 = list(site2.species.keys())[0]
         dist = site1.distance(site2)
         syms = tuple(sorted([sp1.symbol, sp2.symbol]))
         if syms in bond_lengths:
@@ -177,7 +175,7 @@ def get_bond_order(sp1, sp2, dist, tol=0.2, default_bl=None):
     # Transform bond lengths dict to list assuming bond data is successive
     # and add an imaginary bond 0 length
     lengths_list = [all_lengths[1] * (1 + tol)] + \
-                   [all_lengths[idx+1] for idx in range(len(all_lengths))]
+                   [all_lengths[idx + 1] for idx in range(len(all_lengths))]
     trial_bond_order = 0
     while trial_bond_order < len(lengths_list):
         if lengths_list[trial_bond_order] < dist:

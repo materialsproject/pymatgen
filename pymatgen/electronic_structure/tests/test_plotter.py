@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import unittest
 import os
 import json
@@ -49,7 +48,7 @@ class DosPlotterTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_add_dos_dict(self):
         d = self.plotter.get_dos_dict()
@@ -78,6 +77,7 @@ class DosPlotterTest(unittest.TestCase):
         self.plotter.save_plot("dosplot.png")
         self.assertTrue(os.path.isfile("dosplot.png"))
         os.remove("dosplot.png")
+        plt.close("all")
 
 
 class BSPlotterTest(unittest.TestCase):
@@ -90,7 +90,7 @@ class BSPlotterTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_bs_plot_data(self):
         self.assertEqual(len(self.plotter.bs_plot_data()['distances'][0]), 16,
@@ -121,6 +121,7 @@ class BSPlotterTest(unittest.TestCase):
         self.plotter.save_plot("bsplot.png")
         self.assertTrue(os.path.isfile("bsplot.png"))
         os.remove("bsplot.png")
+        plt.close("all")
 
 
 class BSPlotterProjectedTest(unittest.TestCase):
@@ -133,7 +134,7 @@ class BSPlotterProjectedTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     # Minimal baseline testing for get_plot. not a true test. Just checks that
     # it can actually execute.
@@ -154,7 +155,7 @@ class BSDOSPlotterTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     # Minimal baseline testing for get_plot. not a true test. Just checks that
     # it can actually execute.
@@ -167,7 +168,7 @@ class BSDOSPlotterTest(unittest.TestCase):
         plt = p.get_plot(v.get_band_structure(
             kpoints_filename=os.path.join(test_dir, "KPOINTS_Si_bands")),
             v.complete_dos)
-        plt.close()
+        plt.close("all")
 
 
 class PlotBZTest(unittest.TestCase):
@@ -188,7 +189,7 @@ class PlotBZTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_bz_plot(self):
         fig, ax = plot_ellipsoid(self.hessian, self.center,
@@ -215,7 +216,7 @@ class BoltztrapPlotterTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_plots(self):
         bz = BoltztrapAnalyzer.from_files(
@@ -257,7 +258,7 @@ class CohpPlotterTest(PymatgenTest):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_attributes(self):
         self.assertFalse(self.cohp_plot.are_coops)
@@ -357,7 +358,7 @@ class CohpPlotterTest(PymatgenTest):
 
         # Cleanup.
         plt_cohp.close()
-        plt_coop.close()
+        plt_coop.close("all")
 
     def test_save_plot(self):
         self.cohp_plot.add_cohp_dict(self.cohp.all_cohps)
@@ -365,7 +366,7 @@ class CohpPlotterTest(PymatgenTest):
         self.cohp_plot.save_plot("cohpplot.png")
         self.assertTrue(os.path.isfile("cohpplot.png"))
         os.remove("cohpplot.png")
-        plt_cohp.close()
+        plt_cohp.close("all")
 
 
 if __name__ == "__main__":

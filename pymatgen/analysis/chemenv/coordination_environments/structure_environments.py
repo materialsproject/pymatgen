@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 """
 This module contains objects that are used to describe the environments in a structure. The most detailed object
@@ -20,7 +19,6 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-
 import numpy as np
 from collections import OrderedDict
 from pymatgen.core.sites import PeriodicSite
@@ -36,6 +34,7 @@ from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
 allcg = AllCoordinationGeometries()
 symbol_cn_mapping = allcg.get_symbol_cn_mapping()
 
+
 class StructureEnvironments(MSONable):
     """
     Class used to store the chemical environments of a given structure.
@@ -46,6 +45,7 @@ class StructureEnvironments(MSONable):
         """
         Class used to store a given set of neighbors of a given site (based on the detailed_voronoi).
         """
+
         def __init__(self, structure, isite, detailed_voronoi, site_voronoi_indices, sources=None):
             self.structure = structure
             self.isite = isite
@@ -107,7 +107,7 @@ class StructureEnvironments(MSONable):
 
         @property
         def sphere_fraction_angles(self):
-            return [0.25*self.voronoi[inb]['angle']/np.pi for inb in self.site_voronoi_indices]
+            return [0.25 * self.voronoi[inb]['angle'] / np.pi for inb in self.site_voronoi_indices]
 
         @property
         def info(self):
@@ -150,7 +150,7 @@ class StructureEnvironments(MSONable):
                     if idist == 0:
                         plateau = np.inf
                     else:
-                        plateau = all_nbs_normalized_distances_sorted[idist-1] - maxdist
+                        plateau = all_nbs_normalized_distances_sorted[idist - 1] - maxdist
                     break
             if plateau is None:
                 raise ValueError('Plateau not found ...')
@@ -170,7 +170,7 @@ class StructureEnvironments(MSONable):
                     if iang == 0:
                         plateau = minang
                     else:
-                        plateau = minang - all_nbs_normalized_angles_sorted[iang-1]
+                        plateau = minang - all_nbs_normalized_angles_sorted[iang - 1]
                     break
             if plateau is None:
                 raise ValueError('Plateau not found ...')
@@ -266,14 +266,14 @@ class StructureEnvironments(MSONable):
             move_ap_index = True
             while True:
                 last_pt = sorted_points[-1]
-                if move_ap_index: # "Move" the angle parameter
+                if move_ap_index:  # "Move" the angle parameter
                     idp = last_pt[0]
                     iap = None
                     for pt in new_pts:
                         if pt[0] == idp and pt != last_pt:
                             iap = pt[1]
                             break
-                else:             # "Move" the distance parameter
+                else:  # "Move" the distance parameter
                     idp = None
                     iap = last_pt[1]
                     for pt in new_pts:
@@ -341,7 +341,7 @@ class StructureEnvironments(MSONable):
         :param sites_map: Mapping of equivalent sites to the unequivalent sites that have been computed.
         :param equivalent_sites: List of list of equivalent sites of the structure
         :param struct_sites_to_irreducible_site_list_map: Maps the index of a site to the index of the item in the
-        list of equivalent sites to which the site belongs.
+            list of equivalent sites to which the site belongs.
         :param ce_list: List of chemical environments
         :param structure: Structure object
         """
@@ -349,7 +349,7 @@ class StructureEnvironments(MSONable):
         self.valences = valences
         self.sites_map = sites_map
         self.equivalent_sites = equivalent_sites
-        #self.struct_sites_to_irreducible_site_list_map = struct_sites_to_irreducible_site_list_map
+        # self.struct_sites_to_irreducible_site_list_map = struct_sites_to_irreducible_site_list_map
         self.ce_list = ce_list
         self.structure = structure
         if neighbors_sets is None:
@@ -364,8 +364,7 @@ class StructureEnvironments(MSONable):
             return
         if additional_conditions is None:
             additional_conditions = self.AC.ALL
-        if (self.AC.ONLY_ACB in additional_conditions or
-                self.AC.ONLY_ACB_AND_NO_E2SEB) and valences is None:
+        if (self.AC.ONLY_ACB in additional_conditions or self.AC.ONLY_ACB_AND_NO_E2SEB) and valences is None:
             raise ChemenvError('StructureEnvironments', 'init_neighbors_sets',
                                'Valences are not given while only_anion_cation_bonds are allowed. Cannot continue')
         site_distance_parameters = self.voronoi.neighbors_normalized_distances[isite]
@@ -496,9 +495,9 @@ class StructureEnvironments(MSONable):
         :param plot_type: How to plot the coordinations
         :param title: Title for the figure
         :param max_dist: Maximum distance to be plotted when the plotting of the distance is set to 'initial_normalized'
-                         or 'initial_real' (Warning: this is not the same meaning in both cases! In the first case,
-                         the closest atom lies at a "normalized" distance of 1.0 so that 2.0 means refers to this
-                         normalized distance while in the second case, the real distance is used)
+            or 'initial_real' (Warning: this is not the same meaning in both cases! In the first case, the closest atom
+            lies at a "normalized" distance of 1.0 so that 2.0 means refers to this normalized distance while in the
+            second case, the real distance is used)
         :param figsize: Size of the figure to be plotted
         :return: Nothing returned, just plot the figure
         """
@@ -551,7 +550,7 @@ class StructureEnvironments(MSONable):
                 for mp_symbol, cg_dict in mingeoms:
                     csm = cg_dict['other_symmetry_measures'][symmetry_measure_type]
                     subplot.plot(ix, csm, 'ob')
-                    subplot.annotate(mp_symbol, xy = (ix, csm))
+                    subplot.annotate(mp_symbol, xy=(ix, csm))
                 cn_maps.append((cn, inb_set))
                 ix += 1
 
@@ -577,7 +576,7 @@ class StructureEnvironments(MSONable):
             ymax_wd = 2.5
             yticks_wd = np.linspace(1.0, ymax_wd, 7)
         else:
-            ymax_wd = np.ceil(1.1*max_wd)
+            ymax_wd = np.ceil(1.1 * max_wd)
             yticks_wd = np.linspace(1.0, ymax_wd, 6)
 
         yticks_wa = np.linspace(0.0, 1.0, 6)
@@ -591,24 +590,22 @@ class StructureEnvironments(MSONable):
         ydmax = 1.0 - frac_top
 
         def yang(wa):
-            return (yamax-yamin) * np.array(wa) + yamin
+            return (yamax - yamin) * np.array(wa) + yamin
 
         def ydist(wd):
             return (np.array(wd) - 1.0) / (ymax_wd - 1.0) * (ydmax - ydmin) + ydmin
 
         for ix, was in enumerate(all_was):
-            subplot_distang.plot(0.2+ix*np.ones_like(was), yang(was), '<g')
+            subplot_distang.plot(0.2 + ix * np.ones_like(was), yang(was), '<g')
             if np.mod(ix, 2) == 0:
                 alpha = 0.3
             else:
                 alpha = 0.1
-            subplot_distang.fill_between([-0.5+ix, 0.5+ix],
+            subplot_distang.fill_between([-0.5 + ix, 0.5 + ix],
                                          [1.0, 1.0], 0.0,
                                          facecolor='k', alpha=alpha, zorder=-1000)
         for ix, wds in enumerate(all_wds):
-            subplot_distang.plot(0.2+ix*np.ones_like(wds), ydist(wds), 'sm')
-
-
+            subplot_distang.plot(0.2 + ix * np.ones_like(wds), ydist(wds), 'sm')
 
         subplot_distang.plot([-0.5, len(cn_maps)], [0.5, 0.5], 'k--', alpha=0.5)
 
@@ -630,12 +627,11 @@ class StructureEnvironments(MSONable):
         fake_subplot_ang.yaxis.set_label_position("right")
         fake_subplot_dist.yaxis.set_label_position("right")
 
-
         subplot_distang.set_ylim([0.0, 1.0])
         subplot.set_xticks(range(len(cn_maps)))
         subplot.set_ylabel('Continuous symmetry measure')
-        subplot.set_xlim([-0.5, len(cn_maps)-0.5])
-        subplot_distang.set_xlim([-0.5, len(cn_maps)-0.5])
+        subplot.set_xlim([-0.5, len(cn_maps) - 0.5])
+        subplot_distang.set_xlim([-0.5, len(cn_maps) - 0.5])
         subplot.set_xticklabels([str(cn_map) for cn_map in cn_maps])
 
         return fig, subplot
@@ -651,9 +647,9 @@ class StructureEnvironments(MSONable):
         :param plot_type: How to plot the coordinations
         :param title: Title for the figure
         :param max_dist: Maximum distance to be plotted when the plotting of the distance is set to 'initial_normalized'
-                         or 'initial_real' (Warning: this is not the same meaning in both cases! In the first case,
-                         the closest atom lies at a "normalized" distance of 1.0 so that 2.0 means refers to this
-                         normalized distance while in the second case, the real distance is used)
+            or 'initial_real' (Warning: this is not the same meaning in both cases! In the first case, the closest atom
+            lies at a "normalized" distance of 1.0 so that 2.0 means refers to this normalized distance while in the
+            second case, the real distance is used)
         :param figsize: Size of the figure to be plotted
         :return: The figure object to be plotted or saved to file
         """
@@ -666,14 +662,14 @@ class StructureEnvironments(MSONable):
             print('Plotting Chemical Environments requires matplotlib ... exiting "plot" function')
             return
 
-        #Initializes the figure
+        # Initializes the figure
         if figsize is None:
             fig = mpl.figure()
         else:
             fig = mpl.figure(figsize=figsize)
         subplot = fig.add_subplot(111)
 
-        #Initializes the distance and angle parameters
+        # Initializes the distance and angle parameters
         if plot_type is None:
             plot_type = {'distance_parameter': ('initial_normalized', None),
                          'angle_parameter': ('initial_normalized_inverted', None)}
@@ -693,10 +689,12 @@ class StructureEnvironments(MSONable):
             else:
                 exponent = plot_type['distance_parameter'][1]['exponent']
             xlabel = 'Distance parameter : $1.0-\\frac{{1.0}}{{\\alpha^{{{:d}}}}}$'.format(exponent)
+
             def dp_func(dp):
-                return 1.0-1.0/np.power(dp, exponent)
+                return 1.0 - 1.0 / np.power(dp, exponent)
         elif plot_type['distance_parameter'][0] == 'initial_normalized':
             xlabel = 'Distance parameter : $\\alpha$'
+
             def dp_func(dp):
                 return dp
         else:
@@ -705,10 +703,12 @@ class StructureEnvironments(MSONable):
 
         if plot_type['angle_parameter'][0] == 'one_minus_gamma':
             ylabel = 'Angle parameter : $1.0-\\gamma$'
+
             def ap_func(ap):
-                return 1.0-ap
+                return 1.0 - ap
         elif plot_type['angle_parameter'][0] in ['initial_normalized_inverted', 'initial_normalized']:
             ylabel = 'Angle parameter : $\\gamma$'
+
             def ap_func(ap):
                 return ap
         else:
@@ -750,13 +750,13 @@ class StructureEnvironments(MSONable):
                                 (nb_set_surface_pts[0][1] + nb_set_surface_pts[ipt][1]) / 2)
 
                 if (np.abs(nb_set_surface_pts[-1][1] - nb_set_surface_pts[-2][1]) > 0.06 and
-                      np.abs(min(nb_set_surface_pts[-1][0], dist_limits[1]) - nb_set_surface_pts[0][0]) > 0.125):
+                        np.abs(min(nb_set_surface_pts[-1][0], dist_limits[1]) - nb_set_surface_pts[0][0]) > 0.125):
                     xytext = ((min(nb_set_surface_pts[-1][0], dist_limits[1]) + nb_set_surface_pts[0][0]) / 2,
                               (nb_set_surface_pts[-1][1] + nb_set_surface_pts[-2][1]) / 2)
                     subplot.annotate(mytext, xy=xytext,
                                      ha='center', va='center', color=myinvcolor, fontsize='x-small')
                 elif (np.abs(nb_set_surface_pts[ipt][1] - nb_set_surface_pts[0][1]) > 0.1 and
-                    np.abs(min(nb_set_surface_pts[ipt][0], dist_limits[1]) - nb_set_surface_pts[0][0]) > 0.125):
+                      np.abs(min(nb_set_surface_pts[ipt][0], dist_limits[1]) - nb_set_surface_pts[0][0]) > 0.125):
                     xytext = patch_center
                     subplot.annotate(mytext, xy=xytext,
                                      ha='center', va='center', color=myinvcolor, fontsize='x-small')
@@ -772,7 +772,7 @@ class StructureEnvironments(MSONable):
         if strategy is not None:
             try:
                 strategy.add_strategy_visualization_to_subplot(subplot=subplot)
-            except:
+            except Exception:
                 pass
         if plot_type['angle_parameter'][0] == 'initial_normalized_inverted':
             subplot.axes.invert_yaxis()
@@ -782,7 +782,7 @@ class StructureEnvironments(MSONable):
         cb.set_label('Continuous symmetry measure')
         return fig, subplot
 
-    def plot_environments(self,  isite, plot_type=None, title='Coordination numbers', max_dist=2.0,
+    def plot_environments(self, isite, plot_type=None, title='Coordination numbers', max_dist=2.0,
                           additional_condition=AC.ONLY_ACB, figsize=None, strategy=None):
         """
         Plotting of the coordination numbers of a given site for all the distfactor/angfactor parameters. If the
@@ -792,9 +792,9 @@ class StructureEnvironments(MSONable):
         :param plot_type: How to plot the coordinations
         :param title: Title for the figure
         :param max_dist: Maximum distance to be plotted when the plotting of the distance is set to 'initial_normalized'
-                         or 'initial_real' (Warning: this is not the same meaning in both cases! In the first case,
-                         the closest atom lies at a "normalized" distance of 1.0 so that 2.0 means refers to this
-                         normalized distance while in the second case, the real distance is used)
+            or 'initial_real' (Warning: this is not the same meaning in both cases! In the first case, the closest atom
+            lies at a "normalized" distance of 1.0 so that 2.0 means refers to this normalized distance while in the
+            second case, the real distance is used)
         :param figsize: Size of the figure to be plotted
         :return: Nothing returned, just plot the figure
         """
@@ -805,10 +805,10 @@ class StructureEnvironments(MSONable):
             return
         fig.show()
 
-    def save_environments_figure(self,  isite, imagename='image.png', plot_type=None, title='Coordination numbers',
+    def save_environments_figure(self, isite, imagename='image.png', plot_type=None, title='Coordination numbers',
                                  max_dist=2.0, additional_condition=AC.ONLY_ACB, figsize=None):
         fig, subplot = self.get_environments_figure(isite=isite, plot_type=plot_type, title=title, max_dist=max_dist,
-                                           additional_condition=additional_condition, figsize=figsize)
+                                                    additional_condition=additional_condition, figsize=figsize)
         if fig is None:
             return
         fig.savefig(imagename)
@@ -1021,6 +1021,7 @@ class LightStructureEnvironments(MSONable):
         Class used to store a given set of neighbors of a given site (based on a list of sites, the voronoi
         container is not part of the LightStructureEnvironments object).
         """
+
         def __init__(self, structure, isite, all_nbs_sites, all_nbs_sites_indices):
             self.structure = structure
             self.isite = isite
@@ -1074,7 +1075,7 @@ class LightStructureEnvironments(MSONable):
         def as_dict(self):
             return {'isite': self.isite,
                     'all_nbs_sites_indices': self.all_nbs_sites_indices_unsorted}
-                    # 'all_nbs_sites_indices_unsorted': self.all_nbs_sites_indices_unsorted}
+            # 'all_nbs_sites_indices_unsorted': self.all_nbs_sites_indices_unsorted}
 
         @classmethod
         def from_dict(cls, dd, structure, all_nbs_sites):
@@ -1170,28 +1171,28 @@ class LightStructureEnvironments(MSONable):
 
     def setup_statistic_lists(self):
         self.statistics_dict = {'valences_origin': self.valences_origin,
-                                'anion_list': {},                                                    # OK
-                                'anion_number': None,                                                # OK
-                                'anion_atom_list': {},                                               # OK
-                                'anion_atom_number': None,                                           # OK
-                                'cation_list': {},                                                   # OK
-                                'cation_number': None,                                               # OK
-                                'cation_atom_list': {},                                              # OK
-                                'cation_atom_number': None,                                          # OK
-                                'neutral_list': {},                                                  # OK
-                                'neutral_number': None,                                              # OK
-                                'neutral_atom_list': {},                                             # OK
-                                'neutral_atom_number': None,                                         # OK
-                                'atom_coordination_environments_present': {},                        # OK
-                                'ion_coordination_environments_present': {},                         # OK
-                                'coordination_environments_ion_present': {},                         # OK
-                                'coordination_environments_atom_present': {},                        # OK
-                                'fraction_ion_coordination_environments_present': {},                # OK
-                                'fraction_atom_coordination_environments_present': {},               # OK
-                                'fraction_coordination_environments_ion_present': {},                # OK
-                                'fraction_coordination_environments_atom_present': {},               # OK
-                                'count_ion_present': {},                                             # OK
-                                'count_atom_present': {},                                            # OK
+                                'anion_list': {},  # OK
+                                'anion_number': None,  # OK
+                                'anion_atom_list': {},  # OK
+                                'anion_atom_number': None,  # OK
+                                'cation_list': {},  # OK
+                                'cation_number': None,  # OK
+                                'cation_atom_list': {},  # OK
+                                'cation_atom_number': None,  # OK
+                                'neutral_list': {},  # OK
+                                'neutral_number': None,  # OK
+                                'neutral_atom_list': {},  # OK
+                                'neutral_atom_number': None,  # OK
+                                'atom_coordination_environments_present': {},  # OK
+                                'ion_coordination_environments_present': {},  # OK
+                                'coordination_environments_ion_present': {},  # OK
+                                'coordination_environments_atom_present': {},  # OK
+                                'fraction_ion_coordination_environments_present': {},  # OK
+                                'fraction_atom_coordination_environments_present': {},  # OK
+                                'fraction_coordination_environments_ion_present': {},  # OK
+                                'fraction_coordination_environments_atom_present': {},  # OK
+                                'count_ion_present': {},  # OK
+                                'count_atom_present': {},  # OK
                                 'count_coordination_environments_present': {}}
         atom_stat = self.statistics_dict['atom_coordination_environments_present']
         ce_atom_stat = self.statistics_dict['coordination_environments_atom_present']
@@ -1203,7 +1204,7 @@ class LightStructureEnvironments(MSONable):
             # Building anion and cation list
             site_species = []
             if self.valences != 'undefined':
-                for sp, occ in site.species_and_occu.items():
+                for sp, occ in site.species.items():
                     valence = self.valences[isite]
                     strspecie = str(Specie(sp.symbol, valence))
                     if valence < 0:
@@ -1234,7 +1235,7 @@ class LightStructureEnvironments(MSONable):
                     if ce_symbol not in count_ce:
                         count_ce[ce_symbol] = 0.0
                     count_ce[ce_symbol] += fraction
-                for sp, occ in site.species_and_occu.items():
+                for sp, occ in site.species.items():
                     elmt = sp.symbol
                     if elmt not in atom_stat:
                         atom_stat[elmt] = {}
@@ -1316,7 +1317,7 @@ class LightStructureEnvironments(MSONable):
         csms = []
         fractions = []
         for isite, site in enumerate(self.structure):
-            if element in [sp.symbol for sp in site.species_and_occu]:
+            if element in [sp.symbol for sp in site.species]:
                 if self.valences == 'undefined' or oxi_state == self.valences[isite]:
                     for ce_dict in self.coordination_environments[isite]:
                         if ce_symbol == ce_dict['ce_symbol']:
@@ -1330,7 +1331,7 @@ class LightStructureEnvironments(MSONable):
         element = specie.symbol
         oxi_state = specie.oxi_state
         for isite, site in enumerate(self.structure):
-            if element in [sp.symbol for sp in site.species_and_occu]:
+            if element in [sp.symbol for sp in site.species]:
                 if self.valences == 'undefined' or oxi_state == self.valences[isite]:
                     if self.coordination_environments[isite] is None:
                         continue
@@ -1425,7 +1426,7 @@ class LightStructureEnvironments(MSONable):
         :return: True if the coordination environment is found, False otherwise
         """
         for isite, site in enumerate(self.structure):
-            if (Element(atom_symbol) in site.species_and_occu.
+            if (Element(atom_symbol) in site.species.
                     element_composition and self.site_contains_environment(isite, ce_symbol)):
                 return True
         return False
@@ -1514,6 +1515,7 @@ class LightStructureEnvironments(MSONable):
                    structure=structure,
                    valences=d['valences'])
 
+
 class ChemicalEnvironments(MSONable):
     """
     Class used to store all the information about the chemical environment of a given site for a given list of
@@ -1533,8 +1535,6 @@ class ChemicalEnvironments(MSONable):
                                       'yet implemented')
 
     def __getitem__(self, mp_symbol):
-        if not mp_symbol in self.coord_geoms:
-            raise IndexError()
         return self.coord_geoms[mp_symbol]
 
     def __len__(self):
@@ -1726,7 +1726,7 @@ class ChemicalEnvironments(MSONable):
             else:
                 p2l_map = {int(key): int(val) for key, val in d['coord_geoms'][cg]['perfect2local_map'].items()}
             if ('other_symmetry_measures' in d['coord_geoms'][cg] and
-                        d['coord_geoms'][cg]['other_symmetry_measures'] is not None):
+                    d['coord_geoms'][cg]['other_symmetry_measures'] is not None):
                 other_csms = d['coord_geoms'][cg]['other_symmetry_measures']
             else:
                 other_csms = None

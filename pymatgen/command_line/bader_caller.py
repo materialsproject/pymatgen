@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import os
 import subprocess
@@ -11,7 +10,6 @@ import warnings
 import glob
 import numpy as np
 
-from six.moves import map, zip
 from pymatgen.io.vasp.outputs import Chgcar
 from pymatgen.io.vasp.inputs import Potcar
 from monty.dev import requires
@@ -43,7 +41,7 @@ __date__ = "4/5/13"
 BADEREXE = which("bader") or which("bader.exe")
 
 
-class BaderAnalysis(object):
+class BaderAnalysis:
     """
     Bader analysis for a CHGCAR.
 
@@ -86,7 +84,7 @@ class BaderAnalysis(object):
         calculating charge transferred).
 
     .. attribute: chgcar_ref
-    
+
         Chgcar reference which calculated by AECCAR0 + AECCAR2.
         (See http://theory.cm.utexas.edu/henkelman/code/bader/ for details.)
 
@@ -161,7 +159,7 @@ class BaderAnalysis(object):
 
             try:
                 self.version = float(stdout.split()[5])
-            except:
+            except Exception:
                 self.version = -1  # Unknown
             if self.version < 1.0:
                 warnings.warn('Your installed version of Bader is outdated, '
@@ -218,10 +216,10 @@ class BaderAnalysis(object):
                         return data[startx:startx + xwidth, starty:starty + ywidth, startz:startz + zwidth]
 
                     # Finds the central encompassing volume which holds all the data within a precision
-                    def find_encompassing_vol(data,prec=1e-3):
+                    def find_encompassing_vol(data, prec=1e-3):
                         total = np.sum(data)
                         for i in range(np.max(data.shape)):
-                            sliced_data = slice_from_center(data,i,i,i)
+                            sliced_data = slice_from_center(data, i, i, i)
                             if total - np.sum(sliced_data) < 0.1:
                                 return sliced_data
                         return None
@@ -235,7 +233,7 @@ class BaderAnalysis(object):
                 self.atomic_densities = atomic_densities
 
     @classmethod
-    def rebuild_chgcar(cls,atomic_densities):
+    def rebuild_chgcar(cls, atomic_densities):
 
         pass
 

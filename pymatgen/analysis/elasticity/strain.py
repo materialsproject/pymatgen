@@ -2,8 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
 """
 This module provides classes and methods used to describe deformations and
@@ -14,7 +12,7 @@ generating deformed structure sets for further calculations.
 import numpy as np
 import scipy
 import itertools
-from six.moves import zip
+
 import collections
 from monty.dev import deprecated
 
@@ -47,7 +45,7 @@ class Deformation(SquareTensor):
             deformation_gradient (3x3 array-like): the 3x3 array-like
                 representing the deformation gradient
         """
-        obj = super(Deformation, cls).__new__(cls, deformation_gradient)
+        obj = super().__new__(cls, deformation_gradient)
         return obj.view(cls)
 
     def is_independent(self, tol=1e-8):
@@ -83,7 +81,7 @@ class Deformation(SquareTensor):
         def_struct = structure.copy()
         old_latt = def_struct.lattice.matrix
         new_latt = np.transpose(np.dot(self, np.transpose(old_latt)))
-        def_struct.modify_lattice(Lattice(new_latt))
+        def_struct.lattice = Lattice(new_latt)
         return def_struct
 
     @classmethod
@@ -103,7 +101,7 @@ class Deformation(SquareTensor):
         return cls(f)
 
 
-class DeformedStructureSet(collections.Sequence):
+class DeformedStructureSet(collections.abc.Sequence):
     """
     class that generates a set of independently deformed structures that
     can be used to calculate linear stress-strain response
@@ -177,7 +175,7 @@ class Strain(SquareTensor):
         """
         vscale = np.ones((6,))
         vscale[3:] *= 2
-        obj = super(Strain, cls).__new__(cls, strain_matrix, vscale=vscale)
+        obj = super().__new__(cls, strain_matrix, vscale=vscale)
         if not obj.is_symmetric():
             raise ValueError("Strain objects must be initialized "
                              "with a symmetric array or a voigt-notation "
@@ -227,13 +225,6 @@ class Strain(SquareTensor):
         else:
             raise ValueError("Index must either be 2-tuple or integer "
                              "corresponding to full-tensor or voigt index")
-
-    @property
-    @deprecated(message="the deformation_matrix property is deprecated, and "
-                        "will be removed in pymatgen v2019.1.1, please use the "
-                        "get_deformation_matrix method instead.")
-    def deformation_matrix(self):
-        return self.get_deformation_matrix()
 
     def get_deformation_matrix(self, shape="upper"):
         """

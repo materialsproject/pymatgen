@@ -9,16 +9,13 @@ following work::
     Ceder, The Journal of Chemical Physics 145 (7), 074112
 """
 
-from __future__ import division, print_function, unicode_literals, \
-    absolute_import
-
 import numpy as np
 import numpy.linalg as la
 import scipy.signal
 import scipy.stats
 from scipy.interpolate import interp1d
 import math
-import six
+import logging
 
 from abc import ABCMeta
 
@@ -32,6 +29,8 @@ __maintainer__ = "Daniil Kitchaev, Ziqin Rong"
 __email__ = "dkitch@mit.edu, rongzq08@mit.edu"
 __status__ = "Development"
 __date__ = "March 17, 2015"
+
+logger = logging.getLogger(__name__)
 
 
 class NEBPathfinder:
@@ -149,8 +148,8 @@ class NEBPathfinder:
         # (http://www.cims.nyu.edu/~eve2/main.htm)
         #
 
-        # print("Getting path from {} to {} (coords wrt V grid)".format(start, end))
-        
+        # logger.debug("Getting path from {} to {} (coords wrt V grid)".format(start, end))
+
         # Set parameters
         if not dr:
             dr = np.array(
@@ -199,7 +198,7 @@ class NEBPathfinder:
                              dV[2][int(pt[0]) % d[0]][int(pt[1]) % d[1]][
                                  int(pt[2]) % d[2]] / dr[0]] for pt in s])
             # if(step % 100 == 0):
-            #    print(edV)
+            #    logger.debug(edV)
 
             # Update according to force due to potential and string elasticity
             ds_plus = s - np.roll(s, 1, axis=0)
@@ -208,9 +207,9 @@ class NEBPathfinder:
             ds_minus[-1] = (ds_minus[-1] - ds_minus[-1])
             Fpot = edV
             Fel = keff * (la.norm(ds_plus) - la.norm(ds0_plus)) * (
-                ds_plus / la.norm(ds_plus))
+                    ds_plus / la.norm(ds_plus))
             Fel += keff * (la.norm(ds_minus) - la.norm(ds0_minus)) * (
-                ds_minus / la.norm(ds_minus))
+                    ds_minus / la.norm(ds_minus))
             s -= h * (Fpot + Fel)
 
             # Fix endpoints
@@ -233,11 +232,11 @@ class NEBPathfinder:
                     "avoid divergence.")
 
             if step > min_iter and tol < max_tol:
-                print("Converged at step {}".format(step))
+                logger.debug("Converged at step {}".format(step))
                 break
 
             if step % 100 == 0:
-                print("Step {} - ds = {}".format(step, tol))
+                logger.debug("Step {} - ds = {}".format(step, tol))
         return s
 
     @staticmethod
@@ -262,7 +261,7 @@ class NEBPathfinder:
                          disc_coords[2] / v.shape[2]])
 
 
-class StaticPotential(six.with_metaclass(ABCMeta)):
+class StaticPotential(metaclass=ABCMeta):
     """
     Defines a general static potential for diffusion calculations. Implements
     grid-rescaling and smearing for the potential grid. Also provides a
@@ -303,9 +302,8 @@ class StaticPotential(six.with_metaclass(ABCMeta)):
             np.ndindex(v_dim[0] + 1, v_dim[1] + 1, v_dim[2] + 1))])
         v_ogrid = padded_v.reshape(
             ((v_dim[0] + 1) * (v_dim[1] + 1) * (v_dim[2] + 1), -1))
-        ngrid_a, ngrid_b, ngrid_c = np.mgrid[0: v_dim[0]: v_dim[0] / new_dim[0],
-                                    0: v_dim[1]: v_dim[1] / new_dim[1],
-                                    0: v_dim[2]: v_dim[2] / new_dim[2]]
+        ngrid_a, ngrid_b, ngrid_c = (np.mgrid[0: v_dim[0]: v_dim[0] / new_dim[0], 0: v_dim[1]: v_dim[1] / new_dim[1],
+                                     0: v_dim[2]: v_dim[2] / new_dim[2]])
 
         v_ngrid = scipy.interpolate.griddata(ogrid_list, v_ogrid,
                                              (ngrid_a, ngrid_b, ngrid_c),
@@ -354,7 +352,7 @@ class StaticPotential(six.with_metaclass(ABCMeta)):
         gauss = scipy.stats.norm.pdf(gauss_dist)
         gauss = gauss / np.sum(gauss, dtype=float)
         padded_v = np.pad(self.__v, (
-        (r_disc[0], r_disc[0]), (r_disc[1], r_disc[1]), (r_disc[2], r_disc[2])),
+            (r_disc[0], r_disc[0]), (r_disc[1], r_disc[1]), (r_disc[2], r_disc[2])),
                           mode='wrap')
         smeared_v = scipy.signal.convolve(padded_v, gauss, mode='valid')
         self.__v = smeared_v
@@ -417,7 +415,7 @@ class FreeVolumePotential(StaticPotential):
                         [a_d / dim[0], b_d / dim[1], c_d / dim[2]])
                     d_f = sorted(s.get_sites_in_sphere(coords_f, s.lattice.a),
                                  key=lambda x: x[1])[0][1]
-                    # print(d_f)
+                    # logger.debug(d_f)
                     gauss_dist[int(a_d)][int(b_d)][int(c_d)] = d_f / r
         v = scipy.stats.norm.pdf(gauss_dist)
         return v

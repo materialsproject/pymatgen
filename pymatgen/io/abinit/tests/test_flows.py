@@ -1,7 +1,6 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-from __future__ import unicode_literals, division, print_function
 
 import os
 import tempfile
@@ -25,7 +24,7 @@ def ref_file(filename):
     return os.path.join(_test_dir, filename)
 
 
-class FakeAbinitInput(object):
+class FakeAbinitInput:
     """Emulate an Abinit input."""
     @lazy_property
     def pseudos(self):
@@ -92,7 +91,7 @@ batch_adapter: *batch
 """
     def setUp(self):
         """Initialization phase."""
-        super(FlowUnitTest, self).setUp()
+        super().setUp()
 
         # Temporary directory for the flow.
         self.workdir = tempfile.mkdtemp()

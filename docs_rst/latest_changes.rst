@@ -1,8 +1,7 @@
 Change log
 ==========
 
-v2018.11.6
+v2019.9.12
 ----------
-* Ionic radius based CrystalNN (@computron)
-* InterfacialReactivity (@dbroberg)
-* Misc bug fixes
+* Massive updates to type annotations, especially for core classes.
+* pycodestyle, pydocstyle and mypy will henchforth be enforced for all new PRs.

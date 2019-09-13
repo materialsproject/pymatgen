@@ -7,15 +7,12 @@
 A convenience script engine to read Gaussian output in a directory tree.
 """
 
-from __future__ import division, print_function
-
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Jul 9, 2012"
-
 
 import argparse
 import os
@@ -77,13 +74,13 @@ def main():
     parser.add_argument('-v', '--verbose', dest="verbose",
                         action='store_const', const=True,
                         help='verbose mode. Provides detailed output ' +
-                        'on progress.')
+                             'on progress.')
     parser.add_argument('-f', '--force', dest="reanalyze",
                         action='store_const',
                         const=True,
                         help='force reanalysis. Typically, gaussian_analyzer' +
-                        ' will just reuse a gaussian_analyzer_data.gz if ' +
-                        'present. This forces the analyzer to reanalyze.')
+                             ' will just reuse a gaussian_analyzer_data.gz if ' +
+                             'present. This forces the analyzer to reanalyze.')
 
     args = parser.parse_args()
     for d in args.directories:

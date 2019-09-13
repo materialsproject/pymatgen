@@ -2,11 +2,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import abc
-
-import six
-from six.moves import map
 
 from pymatgen.core.periodic_table import get_el_sp
 from monty.json import MSONable
@@ -29,7 +25,7 @@ __email__ = "wrichards@mit.edu"
 __date__ = "Sep 25, 2012"
 
 
-class AbstractStructureFilter(six.with_metaclass(abc.ABCMeta, MSONable)):
+class AbstractStructureFilter(MSONable, metaclass=abc.ABCMeta):
     """
     AbstractStructureFilter that defines an API to perform testing of
     Structures. Structures that return True to a test are retained during
@@ -69,26 +65,24 @@ class ContainsSpecieFilter(AbstractStructureFilter):
         self._exclude = exclude
 
     def test(self, structure):
-        #set up lists to compare
+        # set up lists to compare
         if not self._strict:
-            #compare by atomic number
-            atomic_number = lambda x: x.Z
-            filter_set = set(map(atomic_number, self._species))
-            structure_set = set(map(atomic_number,
-                                structure.composition.elements))
+            # compare by atomic number
+            filter_set = set([sp.Z for sp in self._species])
+            structure_set = set([sp.Z for sp in structure.composition.elements])
         else:
-            #compare by specie or element object
+            # compare by specie or element object
             filter_set = set(self._species)
             structure_set = set(structure.composition.elements)
 
         if self._AND and filter_set <= structure_set:
-            #return true if we aren't excluding since all are in structure
+            # return true if we aren't excluding since all are in structure
             return not self._exclude
         elif (not self._AND) and filter_set & structure_set:
-            #return true if we aren't excluding since one is in structure
+            # return true if we aren't excluding since one is in structure
             return not self._exclude
         else:
-            #return false if we aren't excluding otherwise
+            # return false if we aren't excluding otherwise
             return self._exclude
 
     def __repr__(self):
@@ -134,15 +128,15 @@ class SpecieProximityFilter(AbstractStructureFilter):
     def test(self, structure):
         all_species = set(self.specie_and_min_dist.keys())
         for site in structure:
-            species = site.species_and_occu.keys()
+            species = site.species.keys()
             sp_to_test = set(species).intersection(all_species)
             if sp_to_test:
                 max_r = max([self.specie_and_min_dist[sp]
                              for sp in sp_to_test])
                 nn = structure.get_neighbors(site, max_r)
                 for sp in sp_to_test:
-                    for (nnsite, dist) in nn:
-                        if sp in nnsite.species_and_occu.keys():
+                    for nnsite, dist, *_ in nn:
+                        if sp in nnsite.species.keys():
                             if dist < self.specie_and_min_dist[sp]:
                                 return False
         return True

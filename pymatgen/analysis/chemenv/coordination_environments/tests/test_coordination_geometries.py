@@ -16,7 +16,7 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries
 allcg = AllCoordinationGeometries()
 
 
-class FakeSite(object):
+class FakeSite:
 
     def __init__(self, coords):
         self.coords = coords

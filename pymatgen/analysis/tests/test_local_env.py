@@ -1,8 +1,7 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
-from __future__ import unicode_literals
+import warnings
 
 import numpy as np
 from math import pi
@@ -336,6 +335,15 @@ class CovalentBondNNTest(PymatgenTest):
         acetylene = strat.get_nn_info(self.acetylene, 0)
         self.assertAlmostEqual(acetylene[0]["weight"], 1.19, places=2)
 
+    def test_bonded_structure(self):
+        strat = CovalentBondNN()
+
+        benzene = strat.get_bonded_structure(self.benzene)
+        self.assertEqual(len(benzene.find_rings()), 1)
+
+        acetylene = strat.get_bonded_structure(self.acetylene)
+        self.assertEqual(len(acetylene.graph.nodes), 4)
+
     def tearDown(self):
         del self.benzene
         del self.acetylene
@@ -369,6 +377,8 @@ class MiniDistNNTest(PymatgenTest):
             [1.595, 0.92, 2.155]], coords_are_cartesian=True)
 
     def test_all_nn_classes(self):
+        self.assertAlmostEqual(MinimumDistanceNN(cutoff=5, get_all_sites=True).get_cn(
+            self.cscl, 0), 14)
         self.assertAlmostEqual(MinimumDistanceNN().get_cn(
             self.diamond, 0), 4)
         self.assertAlmostEqual(MinimumDistanceNN().get_cn(
@@ -980,7 +990,6 @@ class LocalStructOrderParamsTest(PymatgenTest):
         with self.assertRaises(ValueError):
             ops_101.get_order_parameters(self.bcc, 0, indices_neighs=[2])
 
-
     def tearDown(self):
         del self.single_bond
         del self.linear
@@ -1012,6 +1021,11 @@ class CrystalNNTest(PymatgenTest):
         self.lifepo4.add_oxidation_state_by_guess()
         self.he_bcc = self.get_structure('He_BCC')
         self.he_bcc.add_oxidation_state_by_guess()
+        self.prev_warnings = warnings.filters
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.filters = self.prev_warnings
 
     def test_sanity(self):
         with self.assertRaises(ValueError):
@@ -1085,6 +1099,21 @@ class CrystalNNTest(PymatgenTest):
         cnn = CrystalNN(distance_cutoffs=(1.25, 5))
         self.assertEqual(cnn.get_cn(self.he_bcc, 0, use_weights=False), 8)
 
+    def test_shifted_sites(self):
+        cnn = CrystalNN()
+
+        sites =  [[0., 0.2, 0.2], [0, 0, 0]]
+        struct = Structure([7, 0, 0, 0, 7, 0, 0, 0, 7], ['I'] * len(sites), sites)
+        bonded_struct = cnn.get_bonded_structure(struct)
+
+        sites_shifted =  [[1., 0.2, 0.2], [0, 0, 0]]
+        struct_shifted = Structure([7, 0, 0, 0, 7, 0, 0, 0, 7], ['I'] * len(sites_shifted),
+                                   sites_shifted)
+        bonded_struct_shifted = cnn.get_bonded_structure(struct_shifted)
+
+        self.assertEqual(len(bonded_struct.get_connected_sites(0)),
+                         len(bonded_struct_shifted.get_connected_sites(0)))
+
 
 class CutOffDictNNTest(PymatgenTest):
 
@@ -1094,7 +1123,12 @@ class CutOffDictNNTest(PymatgenTest):
             ["C", "C"], [[2.554, 1.806, 4.423], [0.365, 0.258, 0.632]],
             coords_are_cartesian=True
         )
+        self.prev_warnings = warnings.filters
+        warnings.simplefilter("ignore")
 
+    def tearDown(self):
+        warnings.filters = self.prev_warnings
+        
     def test_cn(self):
 
         nn = CutOffDictNN({('C', 'C'): 2})
@@ -1102,6 +1136,13 @@ class CutOffDictNNTest(PymatgenTest):
 
         nn_null = CutOffDictNN()
         self.assertEqual(nn_null.get_cn(self.diamond, 0), 0)
+
+    def test_from_preset(self):
+        nn = CutOffDictNN.from_preset("vesta_2019")
+        self.assertEqual(nn.get_cn(self.diamond, 0), 4)
+
+        # test error thrown on unknown preset
+        self.assertRaises(ValueError, CutOffDictNN.from_preset, "test")
 
 
 @unittest.skipIf(not which('critic2'), "critic2 executable not present")
@@ -1113,6 +1154,11 @@ class Critic2NNTest(PymatgenTest):
             ["C", "C"], [[2.554, 1.806, 4.423], [0.365, 0.258, 0.632]],
             coords_are_cartesian=True
         )
+        self.prev_warnings = warnings.filters
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.filters = self.prev_warnings
 
     def test_cn(self):
 

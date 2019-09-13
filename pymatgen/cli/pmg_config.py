@@ -3,7 +3,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import os
 import sys
 import glob
@@ -12,12 +11,7 @@ import subprocess
 from monty.serialization import loadfn, dumpfn
 
 from pymatgen import SETTINGS_FILE
-try:
-    from urllib.request import urlretrieve
-except ImportError:
-    from urllib import urlretrieve
-from six.moves import input
-
+from urllib.request import urlretrieve
 
 """
 A master convenience script with many tools for vasp and structure analysis.
@@ -29,7 +23,6 @@ __version__ = "4.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "ongsp@ucsd.edu"
 __date__ = "Aug 13 2016"
-
 
 SAVE_FILE = "vasp_data.gz"
 
@@ -152,7 +145,7 @@ def install_software(args):
         subprocess.call(["ifort", "--version"])
         print("Found ifort")
         fortran_command = "ifort"
-    except:
+    except Exception:
         try:
             subprocess.call(["gfortran", "--version"])
             print("Found gfortran")

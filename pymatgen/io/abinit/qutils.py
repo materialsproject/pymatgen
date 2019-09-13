@@ -6,12 +6,12 @@ The preferred way of importing this module is:
 
     import qutils as qu
 """
-from __future__ import print_function, division, unicode_literals
 
 from monty.string import is_string
 from pymatgen.core.units import Time, Memory
 
 import logging
+
 logger = logging.getLogger(__name__)
 
 
@@ -34,7 +34,7 @@ def slurm_parse_timestr(s):
     """
     days, hours, minutes, seconds = 0, 0, 0, 0
 
-    if type(s) == type(1):
+    if isinstance(s, int):
         return Time(s, "s")
 
     if '-' in s:
@@ -66,7 +66,7 @@ def slurm_parse_timestr(s):
         else:
             raise ValueError("More than 2 ':' in string!")
 
-    return Time((days*24 + hours)*3600 + minutes*60 + seconds, "s")
+    return Time((days * 24 + hours) * 3600 + minutes * 60 + seconds, "s")
 
 
 def time2slurm(timeval, unit="s"):
@@ -77,7 +77,7 @@ def time2slurm(timeval, unit="s"):
     >>> assert time2slurm(61) == '0-0:1:1' and time2slurm(60*60+1) == '0-1:0:1'
     >>> assert time2slurm(0.5, unit="h") == '0-0:30:0'
     """
-    d, h, m, s = 24*3600, 3600, 60, 1
+    d, h, m, s = 24 * 3600, 3600, 60, 1
 
     timeval = Time(timeval, unit).to("s")
     days, hours = divmod(timeval, d)

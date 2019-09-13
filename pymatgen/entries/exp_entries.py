@@ -2,12 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 """
 This module defines Entry classes for containing experimental data.
 """
-
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -31,16 +29,17 @@ class ExpEntry(PDEntry, MSONable):
 
     Current version works only with solid phases and at 298K. Further
     extensions for temperature dependence are planned.
-
-    Args:
-        composition: Composition of the entry. For flexibility, this can take
-            the form of all the typical input taken by a Composition, including
-            a {symbol: amt} dict, a string formula, and others.
-        thermodata: A sequence of ThermoData associated with the entry.
-        temperature: A temperature for the entry in Kelvin. Defaults to 298K.
     """
 
     def __init__(self, composition, thermodata, temperature=298):
+        """
+        Args:
+            composition: Composition of the entry. For flexibility, this can take
+                the form of all the typical input taken by a Composition, including
+                a {symbol: amt} dict, a string formula, and others.
+            thermodata: A sequence of ThermoData associated with the entry.
+            temperature: A temperature for the entry in Kelvin. Defaults to 298K.
+        """
         comp = Composition(composition)
         self._thermodata = thermodata
         found = False
@@ -54,7 +53,7 @@ class ExpEntry(PDEntry, MSONable):
             raise ValueError("List of Thermodata does not contain enthalpy "
                              "values.")
         self.temperature = temperature
-        super(ExpEntry, self).__init__(comp, enthalpy)
+        super().__init__(comp, enthalpy)
 
     def __repr__(self):
         return "ExpEntry {}, Energy = {:.4f}".format(self.composition.formula,
@@ -65,10 +64,17 @@ class ExpEntry(PDEntry, MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        :param d: Dict representation.
+        :return: ExpEntry
+        """
         thermodata = [ThermoData.from_dict(td) for td in d["thermodata"]]
         return cls(d["composition"], thermodata, d["temperature"])
 
     def as_dict(self):
+        """
+        :return: MSONable dict
+        """
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "thermodata": [td.as_dict() for td in self._thermodata],

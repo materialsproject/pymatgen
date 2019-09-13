@@ -2,14 +2,12 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, print_function, unicode_literals, absolute_import
 
 """
 This module defines utility classes and functions.
 """
 
 import os
-import six
 import tempfile
 from io import open
 from subprocess import Popen, PIPE
@@ -33,11 +31,12 @@ __author__ = 'Kiran Mathew, Brandon Wood, Michael Humbert'
 __email__ = 'kmathew@lbl.gov'
 
 
-class Polymer(object):
+class Polymer:
     """
     Generate polymer chain via Random walk. At each position there are
     a total of 5 possible moves(excluding the previous direction).
     """
+
     def __init__(self, start_monomer, s_head, s_tail,
                  monomer, head, tail,
                  end_monomer, e_head, e_tail,
@@ -87,8 +86,7 @@ class Polymer(object):
         self._create(self.monomer, self.mon_vector)
         # terminate the chain with the end_monomer
         self.n_units += 1
-        end_mon_vector = end_monomer.cart_coords[e_tail] - \
-                         end_monomer.cart_coords[e_head]
+        end_mon_vector = end_monomer.cart_coords[e_tail] - end_monomer.cart_coords[e_head]
         self._create(end_monomer, end_mon_vector)
         self.molecule = Molecule.from_sites(self.molecule.sites)
 
@@ -101,7 +99,7 @@ class Polymer(object):
             mon_vector (numpy.array): molecule vector that starts from the
                 start atom index to the end atom index
         """
-        while self.length != (self.n_units-1):
+        while self.length != (self.n_units - 1):
             if self.linear_chain:
                 move_direction = np.array(mon_vector) / np.linalg.norm(mon_vector)
             else:
@@ -113,9 +111,9 @@ class Polymer(object):
         pick a move at random from the list of moves
         """
         nmoves = len(self.moves)
-        move = np.random.randint(1, nmoves+1)
+        move = np.random.randint(1, nmoves + 1)
         while self.prev_move == (move + 3) % nmoves:
-            move = np.random.randint(1, nmoves+1)
+            move = np.random.randint(1, nmoves + 1)
         self.prev_move = move
         return np.array(self.moves[move])
 
@@ -146,8 +144,7 @@ class Polymer(object):
             move_direction (numpy.array): direction along which the monomer
                 will be positioned
         """
-        translate_by = self.molecule.cart_coords[self.end] + \
-                       self.link_distance * move_direction
+        translate_by = self.molecule.cart_coords[self.end] + self.link_distance * move_direction
         monomer.translate_sites(range(len(monomer)), translate_by)
         if not self.linear_chain:
             self._align_monomer(monomer, mon_vector, move_direction)
@@ -155,9 +152,8 @@ class Polymer(object):
         does_cross = False
         for i, site in enumerate(monomer):
             try:
-                self.molecule.append(site.specie, site.coords,
-                                     properties=site.properties)
-            except:
+                self.molecule.append(site.specie, site.coords, properties=site.properties)
+            except Exception:
                 does_cross = True
                 polymer_length = len(self.molecule)
                 self.molecule.remove_sites(
@@ -168,7 +164,7 @@ class Polymer(object):
             self.end += len(self.monomer)
 
 
-class PackmolRunner(object):
+class PackmolRunner:
     """
     Wrapper for the Packmol software that can be used to pack various types of
     molecules into a one single unit.
@@ -218,8 +214,7 @@ class PackmolRunner(object):
         if not self.control_params.get("filetype"):
             self.control_params["filetype"] = filetype
         if not self.control_params.get("output"):
-            self.control_params["output"] = "{}.{}".format(
-                output_file.split(".")[0], self.control_params["filetype"])
+            self.control_params["output"] = "{}.{}".format(output_file.split(".")[0], self.control_params["filetype"])
         if self.boxit:
             self._set_box()
 
@@ -245,10 +240,10 @@ class PackmolRunner(object):
         """
         net_volume = 0.0
         for idx, mol in enumerate(self.mols):
-            length = max([np.max(mol.cart_coords[:, i])-np.min(mol.cart_coords[:, i])
-                           for i in range(3)]) + 2.0
-            net_volume += (length**3.0) * float(self.param_list[idx]['number'])
-        length = net_volume**(1.0/3.0)
+            length = max([np.max(mol.cart_coords[:, i]) - np.min(mol.cart_coords[:, i])
+                          for i in range(3)]) + 2.0
+            net_volume += (length ** 3.0) * float(self.param_list[idx]['number'])
+        length = net_volume ** (1.0 / 3.0)
         for idx, mol in enumerate(self.mols):
             self.param_list[idx]['inside box'] = '0.0 0.0 0.0 {} {} {}'.format(
                 length, length, length)
@@ -261,7 +256,7 @@ class PackmolRunner(object):
             input_dir (string): path to the input directory
         """
         with open(os.path.join(input_dir, self.input_file), 'wt', encoding="utf-8") as inp:
-            for k, v in six.iteritems(self.control_params):
+            for k, v in self.control_params.items():
                 inp.write('{} {}\n'.format(k, self._format_param_val(v)))
             # write the structures of the constituent molecules to file and set
             # the molecule id and the corresponding filename in the packmol
@@ -272,7 +267,7 @@ class PackmolRunner(object):
                         idx, self.control_params["filetype"])).encode("ascii")
                 # pdb
                 if self.control_params["filetype"] == "pdb":
-                    self.write_pdb(mol, filename, num=idx+1)
+                    self.write_pdb(mol, filename, num=idx + 1)
                 # all other filetypes
                 else:
                     a = BabelMolAdaptor(mol)
@@ -285,7 +280,7 @@ class PackmolRunner(object):
                     "structure {}.{}\n".format(
                         os.path.join(input_dir, str(idx)),
                         self.control_params["filetype"]))
-                for k, v in six.iteritems(self.param_list[idx]):
+                for k, v in self.param_list[idx].items():
                     inp.write('  {} {}\n'.format(k, self._format_param_val(v)))
                 inp.write('end structure\n')
 
@@ -355,7 +350,7 @@ class PackmolRunner(object):
         self.map_residue_to_mol = {}
         lookup = {}
         for idx, mol in enumerate(self.mols):
-            if not mol.formula in lookup:
+            if mol.formula not in lookup:
                 mol.translate_sites(indices=range(len(mol)),
                                     vector=-mol.center_of_mass)
                 lookup[mol.formula] = mol.copy()
@@ -421,13 +416,14 @@ class PackmolRunner(object):
 
         # only for pdb
         if not self.control_params["filetype"] == "pdb":
-            raise
+            raise ValueError()
 
         filename = filename or self.control_params["output"]
         bma = BabelMolAdaptor.from_file(filename, "pdb")
         pbm = pb.Molecule(bma._obmol)
 
-        assert len(pbm.residues) == sum([x["number"] for x in self.param_list])
+        assert len(pbm.residues) == sum([x["number"]
+                                         for x in self.param_list])
 
         packed_mol = self.convert_obatoms_to_molecule(
             pbm.residues[0].atoms, residue_name=pbm.residues[0].name,
@@ -435,15 +431,16 @@ class PackmolRunner(object):
 
         for resid in pbm.residues[1:]:
             mol = self.convert_obatoms_to_molecule(
-                resid.atoms, residue_name=resid.name, site_property=site_property)
+                resid.atoms, residue_name=resid.name,
+                site_property=site_property)
             for site in mol:
-                packed_mol.append(site.species_and_occu, site.coords,
+                packed_mol.append(site.species, site.coords,
                                   properties=site.properties)
 
         return packed_mol
 
 
-class LammpsRunner(object):
+class LammpsRunner:
     def __init__(self, input_filename="lammps.in", bin="lammps"):
         """
         LAMMPS wrapper
@@ -456,7 +453,7 @@ class LammpsRunner(object):
         if not which(self.lammps_bin[-1]):
             raise RuntimeError(
                 "LammpsRunner requires the executable {} to be in the path. "
-                "Please download and install LAMMPS from " \
+                "Please download and install LAMMPS from "
                 "http://lammps.sandia.gov. "
                 "Don't forget to add the binary to your path".format(self.lammps_bin[-1]))
         self.input_filename = input_filename

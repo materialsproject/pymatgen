@@ -1,1 +1,3 @@
-from __future__ import unicode_literals
+"""
+tests for pymatgen.entries
+"""

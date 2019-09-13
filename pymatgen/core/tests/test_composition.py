@@ -6,7 +6,6 @@ Created on Nov 10, 2012
 
 @author: shyue
 """
-from __future__ import division, unicode_literals
 
 from pymatgen.util.testing import PymatgenTest
 
@@ -138,6 +137,13 @@ class CompositionTest(PymatgenTest):
         self.assertEqual(Composition("Na 3 Zr (PO 4) 3").reduced_formula,
                          "Na3Zr(PO4)3")
 
+    def test_iupac_formula(self):
+        correct_formulas = ['Li3 Fe2 P3 O12', 'Li3 Fe1 P1 O5', 'Li1 Mn2 O4',
+                            'Li4 O4', 'Li3 Mo3 Fe2 O12', 'Li3 Fe2 C10 P6 O54',
+                            'Li1.5 Si0.5', 'Zn1 H1 O1']
+        all_formulas = [c.iupac_formula for c in self.comp]
+        self.assertEqual(all_formulas, correct_formulas)
+
     def test_mixed_valence(self):
         comp = Composition({"Fe2+": 2, "Fe3+": 4, "Li+": 8})
         self.assertEqual(comp.reduced_formula, "Li4Fe3")
@@ -179,6 +185,15 @@ class CompositionTest(PymatgenTest):
         all_formulas = [c.reduced_formula for c in self.comp]
         self.assertEqual(all_formulas, correct_reduced_formulas)
 
+        # test iupac reduced formula (polyanions should still appear at the end)
+        all_formulas = [c.get_reduced_formula_and_factor(iupac_ordering=True)[0]
+                        for c in self.comp]
+        self.assertEqual(all_formulas, correct_reduced_formulas)
+        self.assertEqual(
+            Composition('H6CN').get_integer_formula_and_factor(
+                iupac_ordering=True)[0],
+            'CNH6')
+
         # test rounding
         c = Composition({'Na': 2 - Composition.amount_tolerance / 2, 'Cl': 2})
         self.assertEqual('NaCl', c.reduced_formula)
@@ -187,18 +202,30 @@ class CompositionTest(PymatgenTest):
         correct_reduced_formulas = ['Li3Fe2(PO4)3', 'Li3FePO5', 'LiMn2O4',
                                     'Li2O2', 'Li3Fe2(MoO4)3',
                                     'Li3Fe2P6(C5O27)2', 'Li3Si', 'ZnHO']
-        all_formulas = [c.get_integer_formula_and_factor()[0] for c in self.comp]
+        all_formulas = [c.get_integer_formula_and_factor()[0]
+                        for c in self.comp]
         self.assertEqual(all_formulas, correct_reduced_formulas)
         self.assertEqual(Composition('Li0.5O0.25').get_integer_formula_and_factor(),
                          ('Li2O', 0.25))
         self.assertEqual(Composition('O0.25').get_integer_formula_and_factor(),
                          ('O2', 0.125))
-        formula, factor = Composition("Li0.16666667B1.0H1.0").get_integer_formula_and_factor()
+        formula, factor = Composition(
+            "Li0.16666667B1.0H1.0").get_integer_formula_and_factor()
         self.assertEqual(formula, 'Li(BH)6')
         self.assertAlmostEqual(factor, 1 / 6)
 
+        # test iupac reduced formula (polyanions should still appear at the end)
+        all_formulas = [c.get_integer_formula_and_factor(iupac_ordering=True)[0]
+                        for c in self.comp]
+        self.assertEqual(all_formulas, correct_reduced_formulas)
+        self.assertEqual(
+            Composition('H6CN0.5').get_integer_formula_and_factor(
+                iupac_ordering=True),
+            ('C2NH12', 0.5))
+
     def test_num_atoms(self):
         correct_num_atoms = [20, 10, 7, 8, 20, 75, 2, 3]
+
         all_natoms = [c.num_atoms for c in self.comp]
         self.assertEqual(all_natoms, correct_num_atoms)
 
@@ -257,6 +284,7 @@ class CompositionTest(PymatgenTest):
     def test_pickle(self):
         for c in self.comp:
             self.serialize_with_pickle(c, test_eq=True)
+            self.serialize_with_pickle(c.to_data_dict, test_eq=True)
 
     def test_add(self):
         self.assertEqual((self.comp[0] + self.comp[2]).formula,
@@ -276,7 +304,7 @@ class CompositionTest(PymatgenTest):
         self.assertRaises(CompositionError, Composition('O').__sub__,
                           Composition('H'))
 
-        #check that S is completely removed by subtraction
+        # check that S is completely removed by subtraction
         c1 = Composition({'S': 1 + Composition.amount_tolerance / 2, 'O': 1})
         c2 = Composition({'S': 1})
         self.assertEqual(len((c1 - c2).elements), 1)
@@ -319,7 +347,7 @@ class CompositionTest(PymatgenTest):
         self.assertTrue(c3 < c1)
         self.assertTrue(c4 > c1)
         self.assertEqual(sorted([c1, c1_1, c2, c4, c3]),
-                        [c3, c1, c1_1, c4, c2])
+                         [c3, c1, c1_1, c4, c2])
 
     def test_almost_equals(self):
         c1 = Composition({'Fe': 2.0, 'O': 3.0, 'Mn': 0})
@@ -342,7 +370,7 @@ class CompositionTest(PymatgenTest):
             self.assertAlmostEqual(c.fractional_composition.num_atoms, 1)
 
     def test_init_numerical_tolerance(self):
-        self.assertEqual(Composition({'B':1, 'C':-1e-12}), Composition('B'))
+        self.assertEqual(Composition({'B': 1, 'C': -1e-12}), Composition('B'))
 
     def test_negative_compositions(self):
         self.assertEqual(Composition('Li-1(PO-1)4', allow_negative=True).formula,
@@ -354,7 +382,7 @@ class CompositionTest(PymatgenTest):
         self.assertEqual(Composition('Li-2.5Mg4', allow_negative=True).reduced_composition,
                          Composition('Li-2.5Mg4', allow_negative=True))
 
-        #test math
+        # test math
         c1 = Composition('LiCl', allow_negative=True)
         c2 = Composition('Li')
         self.assertEqual(c1 - 2 * c2, Composition({'Li': -1, 'Cl': 1},
@@ -362,7 +390,7 @@ class CompositionTest(PymatgenTest):
         self.assertEqual((c1 + c2).allow_negative, True)
         self.assertEqual(c1 / -1, Composition('Li-1Cl-1', allow_negative=True))
 
-        #test num_atoms
+        # test num_atoms
         c1 = Composition('Mg-1Li', allow_negative=True)
         self.assertEqual(c1.num_atoms, 2)
         self.assertEqual(c1.get_atomic_fraction('Mg'), 0.5)
@@ -370,11 +398,11 @@ class CompositionTest(PymatgenTest):
         self.assertEqual(c1.fractional_composition,
                          Composition('Mg-0.5Li0.5', allow_negative=True))
 
-        #test copy
+        # test copy
         self.assertEqual(c1.copy(), c1)
 
-        #test species
-        c1 = Composition({'Mg':1, 'Mg2+':-1}, allow_negative=True)
+        # test species
+        c1 = Composition({'Mg': 1, 'Mg2+': -1}, allow_negative=True)
         self.assertEqual(c1.num_atoms, 2)
         self.assertEqual(c1.element_composition, Composition())
         self.assertEqual(c1.average_electroneg, 1.31)
@@ -433,6 +461,16 @@ class CompositionTest(PymatgenTest):
                          oxi_state_guesses(max_sites=-1)[0],
                          {"Li": 1, "Fe": 2, "P": 5, "O": -2})
 
+        # negative max_sites less than -1 - should throw error if cannot reduce
+        # to under the abs(max_sites) number of sites. Will also timeout if
+        # incorrect.
+        self.assertEqual(
+            Composition("Sb10000O10000F10000").oxi_state_guesses(
+                max_sites=-3)[0],
+            {"Sb": 3, "O": -2, "F": -1})
+        self.assertRaises(ValueError, Composition("LiOF").oxi_state_guesses,
+                          max_sites=-2)
+
         self.assertRaises(ValueError, Composition("V2O3").
                           oxi_state_guesses, max_sites=1)
 
@@ -461,6 +499,54 @@ class CompositionTest(PymatgenTest):
         cmp = Composition(formula)
         cmp2 = Composition.from_dict(sym_dict)
         self.assertEqual(cmp, cmp2)
+
+    def test_contains_element_type(self):
+
+        formula = "EuTiO3"
+        cmp = Composition(formula)
+        self.assertTrue(cmp.contains_element_type("lanthanoid"))
+        self.assertFalse(cmp.contains_element_type("noble_gas"))
+        self.assertTrue(cmp.contains_element_type("f-block"))
+        self.assertFalse(cmp.contains_element_type("s-block"))
+
+    def test_chemical_system(self):
+
+        formula = "NaCl"
+        cmp = Composition(formula)
+        self.assertEqual(cmp.chemical_system, "Cl-Na")
+
+    def test_is_valid(self):
+
+        formula = "NaCl"
+        cmp = Composition(formula)
+        self.assertTrue(cmp.valid)
+
+        formula = "NaClX"
+        cmp = Composition(formula)
+        self.assertFalse(cmp.valid)
+
+        self.assertRaises(ValueError,
+                          Composition,
+                          "NaClX", strict=True)
+
+    def test_remove_charges(self):
+        cmp1 = Composition({'Al3+': 2.0, 'O2-': 3.0})
+
+        cmp2 = Composition({'Al': 2.0, 'O': 3.0})
+        self.assertNotEqual(str(cmp1), str(cmp2))
+
+        cmp1 = cmp1.remove_charges()
+        self.assertEqual(str(cmp1), str(cmp2))
+
+        cmp1 = cmp1.remove_charges()
+        self.assertEqual(str(cmp1), str(cmp2))
+
+        cmp1 = Composition({'Fe3+': 2.0, 'Fe2+': 3.0, 'O2-': 6.0})
+        cmp2 = Composition({'Fe': 5.0, 'O': 6.0})
+        self.assertNotEqual(str(cmp1), str(cmp2))
+
+        cmp1 = cmp1.remove_charges()
+        self.assertEqual(str(cmp1), str(cmp2))
 
 
 class ChemicalPotentialTest(unittest.TestCase):
@@ -501,5 +587,4 @@ class ChemicalPotentialTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

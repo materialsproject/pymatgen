@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import re
 
 import numpy as np
@@ -84,7 +83,7 @@ def read_route_line(route):
     return functional, basis_set, route_params, dieze_tag
 
 
-class GaussianInput(object):
+class GaussianInput:
     """
     An object representing a Gaussian input file.
 
@@ -302,7 +301,7 @@ class GaussianInput(object):
         title = ' '.join(title)
         ind += 1
         toks = re.split(r"[,\s]+", lines[route_index + ind])
-        charge = int(toks[0])
+        charge = int(float(toks[0]))
         spin_mult = int(toks[1])
         coord_lines = []
         spaces = 0
@@ -436,7 +435,7 @@ class GaussianInput(object):
         output.append("")
         output.append(self.title)
         output.append("")
-        output.append("{} {}".format(self.charge, self.spin_multiplicity))
+        output.append("%d %d" % (self.charge, self.spin_multiplicity))
         if isinstance(self._mol, Molecule):
             if cart_coords is True:
                 output.append(self.get_cart_coords())
@@ -487,7 +486,7 @@ class GaussianInput(object):
                              link0_parameters=d["link0_parameters"])
 
 
-class GaussianOutput(object):
+class GaussianOutput:
     """
     Parser for Gaussian output files.
 
@@ -864,18 +863,15 @@ class GaussianOutput(object):
                             self.eigenvalues = {Spin.up: []}
                             for eigenline in eigen_txt:
                                 if "Alpha" in eigenline:
-                                    self.eigenvalues[Spin.up] += [float(e)
-                                        for e in float_patt.findall(eigenline)]
+                                    self.eigenvalues[Spin.up] += [float(e) for e in float_patt.findall(eigenline)]
                                 elif "Beta" in eigenline:
                                     if Spin.down not in self.eigenvalues:
                                         self.eigenvalues[Spin.down] = []
-                                    self.eigenvalues[Spin.down] += [float(e)
-                                        for e in float_patt.findall(eigenline)]
+                                    self.eigenvalues[Spin.down] += [float(e) for e in float_patt.findall(eigenline)]
                             eigen_txt = []
 
                     # read molecular orbital coefficients
-                    if (not num_basis_found) and \
-                            num_basis_func_patt.search(line):
+                    if (not num_basis_found) and num_basis_func_patt.search(line):
                         m = num_basis_func_patt.search(line)
                         self.num_basis_func = int(m.group(1))
                         num_basis_found = True

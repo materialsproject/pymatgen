@@ -2,12 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import sys
 import os
 import abc
-import six
 from copy import deepcopy
 import logging
 
@@ -44,7 +42,7 @@ sh.setFormatter(formatter)
 logger.addHandler(sh)
 
 
-class AbstractFeffInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
+class AbstractFeffInputSet(MSONable, metaclass=abc.ABCMeta):
     """
     Abstract base class representing a set of Feff input parameters.
     The idea is that using a FeffInputSet, a complete set of input files
@@ -115,7 +113,7 @@ class AbstractFeffInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
                                  ["HEADER", "PARAMETERS", "POTENTIALS", "ATOMS"]
                                  if k in feff)
 
-        for k, v in six.iteritems(feff):
+        for k, v in feff.items():
             with open(os.path.join(output_dir, k), "w") as f:
                 f.write(str(v))
 
@@ -172,8 +170,7 @@ class FEFFDictSet(AbstractFeffInputSet):
             del self.config_dict["_del"]
         # k-space feff only for small systems. The hardcoded system size in
         # feff is around 14 atoms.
-        self.small_system = True if (len(self.structure) < 14 and \
-                                     'EXAFS' not in self.config_dict) else False
+        self.small_system = True if (len(self.structure) < 14 and 'EXAFS' not in self.config_dict) else False
 
     def header(self, source='', comment=''):
         """
@@ -243,7 +240,7 @@ class FEFFDictSet(AbstractFeffInputSet):
     def __str__(self):
         output = [self.spectrum]
         output.extend(["%s = %s" % (k, str(v))
-                       for k, v in six.iteritems(self.config_dict)])
+                       for k, v in self.config_dict.items()])
         output.append("")
         return "\n".join(output)
 
@@ -325,10 +322,10 @@ class MPXANESSet(FEFFDictSet):
                 only when feff is run in the reciprocal space mode.
             user_tag_settings (dict): override default tag settings
         """
-        super(MPXANESSet, self).__init__(absorbing_atom, structure, radius,
-                                         MPXANESSet.CONFIG, edge=edge,
-                                         spectrum="XANES", nkpts=nkpts,
-                                         user_tag_settings=user_tag_settings)
+        super().__init__(absorbing_atom, structure, radius,
+                         MPXANESSet.CONFIG, edge=edge,
+                         spectrum="XANES", nkpts=nkpts,
+                         user_tag_settings=user_tag_settings)
 
 
 class MPEXAFSSet(FEFFDictSet):
@@ -350,10 +347,10 @@ class MPEXAFSSet(FEFFDictSet):
                 only when feff is run in the reciprocal space mode.
             user_tag_settings (dict): override default tag settings
         """
-        super(MPEXAFSSet, self).__init__(absorbing_atom, structure, radius,
-                                         MPEXAFSSet.CONFIG, edge=edge,
-                                         spectrum="EXAFS", nkpts=nkpts,
-                                         user_tag_settings=user_tag_settings)
+        super().__init__(absorbing_atom, structure, radius,
+                         MPEXAFSSet.CONFIG, edge=edge,
+                         spectrum="EXAFS", nkpts=nkpts,
+                         user_tag_settings=user_tag_settings)
 
 
 class MPEELSDictSet(FEFFDictSet):
@@ -403,10 +400,10 @@ class MPEELSDictSet(FEFFDictSet):
         if user_eels_settings:
             eels_config_dict[spectrum].update(user_eels_settings)
 
-        super(MPEELSDictSet, self).__init__(absorbing_atom, structure, radius,
-                                            eels_config_dict, edge=edge,
-                                            spectrum=spectrum, nkpts=nkpts,
-                                            user_tag_settings=user_tag_settings)
+        super().__init__(absorbing_atom, structure, radius,
+                         eels_config_dict, edge=edge,
+                         spectrum=spectrum, nkpts=nkpts,
+                         user_tag_settings=user_tag_settings)
 
 
 class MPELNESSet(MPEELSDictSet):
@@ -438,12 +435,12 @@ class MPELNESSet(MPEELSDictSet):
             user_tag_settings (dict): override default tag settings
         """
 
-        super(MPELNESSet, self).__init__(absorbing_atom, structure, edge,
-                                         "ELNES", radius, beam_energy,
-                                         beam_direction, collection_angle,
-                                         convergence_angle, MPELNESSet.CONFIG,
-                                         user_eels_settings=user_eels_settings,
-                                         nkpts=nkpts, user_tag_settings=user_tag_settings)
+        super().__init__(absorbing_atom, structure, edge,
+                         "ELNES", radius, beam_energy,
+                         beam_direction, collection_angle,
+                         convergence_angle, MPELNESSet.CONFIG,
+                         user_eels_settings=user_eels_settings,
+                         nkpts=nkpts, user_tag_settings=user_tag_settings)
 
 
 class MPEXELFSSet(MPEELSDictSet):
@@ -475,9 +472,9 @@ class MPEXELFSSet(MPEELSDictSet):
             user_tag_settings (dict): override default tag settings
         """
 
-        super(MPEXELFSSet, self).__init__(absorbing_atom, structure, edge,
-                                          "EXELFS", radius, beam_energy,
-                                          beam_direction, collection_angle,
-                                          convergence_angle, MPEXELFSSet.CONFIG,
-                                          user_eels_settings=user_eels_settings,
-                                          nkpts=nkpts, user_tag_settings=user_tag_settings)
+        super().__init__(absorbing_atom, structure, edge,
+                         "EXELFS", radius, beam_energy,
+                         beam_direction, collection_angle,
+                         convergence_angle, MPEXELFSSet.CONFIG,
+                         user_eels_settings=user_eels_settings,
+                         nkpts=nkpts, user_tag_settings=user_tag_settings)

@@ -2,11 +2,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals, division, print_function
 import re
 import abc
-import six
-
 from abc import ABCMeta, abstractmethod
 
 """
@@ -24,8 +21,7 @@ __all_errors__ = ['SubmitError', 'FullQueueError', 'DiskError', 'TimeCancelError
                   'NodeFailureError']
 
 
-@six.add_metaclass(ABCMeta)
-class CorrectorProtocolScheduler(object):
+class CorrectorProtocolScheduler(metaclass=ABCMeta):
     """
     Abstract class to define the protocol / interface for correction operators. The client code quadapters / submission
     script generator method / ... should implement these methods.
@@ -75,8 +71,7 @@ class CorrectorProtocolScheduler(object):
         """
 
 
-@six.add_metaclass(ABCMeta)
-class CorrectorProtocolApplication(object):
+class CorrectorProtocolApplication(metaclass=ABCMeta):
     """
     Abstract class to define the protocol / interface for correction operators. The client code quadapters / submission
     script generator method / ... should implement these methods.
@@ -105,8 +100,7 @@ class CorrectorProtocolApplication(object):
         """
 
 
-@six.add_metaclass(ABCMeta)
-class AbstractError(object):
+class AbstractError(metaclass=ABCMeta):
     """
     Error base class
     """
@@ -234,8 +228,7 @@ class NodeFailureError(AbstractError):
         return [(CorrectorProtocolScheduler.exclude_nodes, [self.nodes])]
 
 
-@six.add_metaclass(ABCMeta)
-class AbstractErrorParser(object):
+class AbstractErrorParser(metaclass=ABCMeta):
     """
     Abstract class for parsing errors originating from the scheduler system and error that are not reported by the
     program itself, i.e. segmentation faults.
@@ -251,6 +244,7 @@ class AbstractErrorParser(object):
                 }
 
     """
+
     def __init__(self, err_file, out_file=None, run_err_file=None, batch_err_file=None):
         self.files = {'err': err_file, 'out': out_file, 'run_err': run_err_file, 'batch_err': batch_err_file}
         self.errors = []
@@ -282,7 +276,7 @@ class AbstractErrorParser(object):
         metadata = None
         for k in errmsg.keys():
             if self.files[k] is not None:
-                #print('parsing ', self.files[k], ' for ', errmsg[k]['string'])
+                # print('parsing ', self.files[k], ' for ', errmsg[k]['string'])
                 try:
                     with open(self.files[k], mode='r') as f:
                         lines = f.read().split('\n')
@@ -323,6 +317,7 @@ class SlurmErrorParser(AbstractErrorParser):
     """
     Implementation of the error definitions for the Slurm scheduler
     """
+
     @property
     def error_definitions(self):
         return {
@@ -344,8 +339,8 @@ class SlurmErrorParser(AbstractErrorParser):
                     'meta_filter': {}
                 }
             },
-#slurmstepd: error: *** JOB 1803480 CANCELLED AT 2015-12-16T14:57:32 DUE TO TIME LIMIT on lmWn009 ***
-#slurmstepd: error: *** JOB 1803712 CANCELLED AT 2015-12-17T15:21:41 DUE TO TIME LIMIT on lmWn001 ***
+            # slurmstepd: error: *** JOB 1803480 CANCELLED AT 2015-12-16T14:57:32 DUE TO TIME LIMIT on lmWn009 ***
+            # slurmstepd: error: *** JOB 1803712 CANCELLED AT 2015-12-17T15:21:41 DUE TO TIME LIMIT on lmWn001 ***
             TimeCancelError: {
                 'err': {
                     'string': "DUE TO TIME LIMIT",

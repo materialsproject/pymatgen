@@ -1,4 +1,3 @@
-from __future__ import print_function, absolute_import
 
 from pymatgen.core.structure import Molecule
 from monty.json import MSONable
@@ -343,7 +342,7 @@ class AdfKey(MSONable):
         """
         Return a json string representation of the MSONable AdfKey object.
         """
-        return super(AdfKey, self).to_json()
+        return super().to_json()
 
     @classmethod
     def from_dict(cls, d):
@@ -584,7 +583,7 @@ class AdfTask(MSONable):
         """
         Return a json string representation of the MSONable AdfTask object.
         """
-        return super(AdfTask, self).to_json()
+        return super().to_json()
 
     @classmethod
     def from_dict(cls, d):
@@ -618,7 +617,7 @@ class AdfTask(MSONable):
                    others)
 
 
-class AdfInput(object):
+class AdfInput:
     """
     A basic ADF input file writer.
     """
@@ -670,7 +669,7 @@ class AdfInput(object):
             f.write("END INPUT")
 
 
-class AdfOutput(object):
+class AdfOutput:
     """
     A basic ADF output file parser.
 

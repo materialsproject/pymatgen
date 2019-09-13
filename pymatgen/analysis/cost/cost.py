@@ -10,7 +10,6 @@ optimization is performed to determine a set of compositions that can be mixed
 to give the desired compound with lowest total cost.
 """
 
-from __future__ import division, unicode_literals
 import abc
 from collections import defaultdict
 import csv
@@ -18,7 +17,6 @@ import os
 import itertools
 from monty.design_patterns import singleton
 from monty.string import unicode2str
-import six
 
 import scipy.constants as const
 
@@ -27,14 +25,12 @@ from pymatgen.util.provenance import is_valid_bibtex
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
 from io import open
 
-
 __author__ = 'Anubhav Jain'
 __copyright__ = 'Copyright 2013, The Materials Project'
 __version__ = '0.1'
 __maintainer__ = 'Anubhav Jain'
 __email__ = 'ajain@lbl.gov'
 __date__ = 'Aug 27, 2013'
-
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -58,7 +54,7 @@ class CostEntry(PDEntry):
             reference:
                 Reference data as BiBTeX string
         """
-        super(CostEntry, self).__init__(composition, cost, name)
+        super().__init__(composition, cost, name)
         if reference and not is_valid_bibtex(reference):
             raise ValueError(
                 "Invalid format for cost reference! Should be BibTeX string.")
@@ -69,7 +65,7 @@ class CostEntry(PDEntry):
                                                           self.energy)
 
 
-class CostDB(six.with_metaclass(abc.ABCMeta)):
+class CostDB(metaclass=abc.ABCMeta):
     """
     Abstract class for representing a Cost database.
     Can be extended, e.g. for file-based or REST-based databases
@@ -120,12 +116,13 @@ class CostDBElements(CostDBCSV):
     """
     Singleton object that provides the cost data for elements
     """
+
     def __init__(self):
         CostDBCSV.__init__(
             self, os.path.join(module_dir, "costdb_elements.csv"))
 
 
-class CostAnalyzer(object):
+class CostAnalyzer:
     """
     Given a CostDB, figures out the minimum cost solutions via convex hull
     """
@@ -186,4 +183,4 @@ class CostAnalyzer(object):
         """
         comp = comp if isinstance(comp, Composition) else Composition(comp)
         return self.get_cost_per_mol(comp) / (
-            comp.weight.to("kg") * const.N_A)
+                comp.weight.to("kg") * const.N_A)

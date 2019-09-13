@@ -1,10 +1,6 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
-from __future__ import division, print_function, unicode_literals, \
-    absolute_import
-
 import unittest
 import os
 import random
@@ -18,7 +14,7 @@ from ruamel.yaml import YAML
 from pymatgen import Molecule, Element, Lattice, Structure
 
 from pymatgen.io.lammps.data import LammpsBox, LammpsData, Topology,\
-    ForceField, lattice_2_lmpbox, structure_2_lmpdata
+    ForceField, lattice_2_lmpbox, structure_2_lmpdata, CombinedData
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         "test_files", "lammps")
@@ -245,7 +241,7 @@ class LammpsDataTest(unittest.TestCase):
         virus = self.virus.get_string()
         virus_lines = virus.split("\n")
         pairij_coeff = virus_lines[virus_lines.index("PairIJ Coeffs") + 5]
-        self.assertEqual(pairij_coeff, "1  4  1  1.000  1.12250")
+        self.assertEqual(pairij_coeff.strip(), "1  4  1  1.000  1.12250")
 
     def test_write_file(self):
         filename1 = "test1.data"
@@ -599,6 +595,7 @@ class TopologyTest(unittest.TestCase):
                           [6, 0, 1, 2], [6, 0, 1, 7], [6, 0, 1, 8],
                           [0, 1, 2, 3], [7, 1, 2, 3], [8, 1, 2, 3]]
         np.testing.assert_array_equal(tp_etoh["Dihedrals"], etoh_dihedrals)
+        self.assertIsNotNone(json.dumps(topo_etoh.as_dict()))
         # bond flag to off
         topo_etoh0 = Topology.from_bonding(molecule=etoh, bond=False,
                                            angle=True, dihedral=True)
@@ -745,9 +742,16 @@ class FuncTest(unittest.TestCase):
         tetra_latt = Lattice.tetragonal(5, 5)
         tetra_box, _ = lattice_2_lmpbox(tetra_latt)
         self.assertIsNone(tetra_box.tilt)
-        orthorhombic_latt = Lattice.orthorhombic(5, 5, 5)
-        orthorhombic_box, _ = lattice_2_lmpbox(orthorhombic_latt)
-        self.assertIsNone(orthorhombic_box.tilt)
+        ortho_latt = Lattice.orthorhombic(5, 5, 5)
+        ortho_box, _ = lattice_2_lmpbox(ortho_latt)
+        self.assertIsNone(ortho_box.tilt)
+        rot_tetra_latt = Lattice([[5, 0, 0], [0, 2, 2], [0, -2, 2]])
+        _, rotop = lattice_2_lmpbox(rot_tetra_latt)
+        np.testing.\
+            assert_array_almost_equal(rotop.rotation_matrix,
+                                      [[1, 0, 0],
+                                       [0, 2 ** 0.5 / 2, 2 ** 0.5 / 2],
+                                       [0, -2 ** 0.5 / 2, 2 ** 0.5 / 2]])
 
     @unittest.skip("The function is deprecated")
     def test_structure_2_lmpdata(self):
@@ -779,6 +783,140 @@ class FuncTest(unittest.TestCase):
         self.assertEqual(len(ld_elements.masses), 2)
         np.testing.assert_array_almost_equal(ld_elements.masses["mass"],
                                              [1.00794, 12.01070])
+
+
+class CombinedDataTest(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.ec = LammpsData.\
+            from_file(filename=os.path.join(test_dir, "ec.data"))
+        cls.fec = LammpsData.\
+            from_file(filename=os.path.join(test_dir, "fec.data"))
+        cls.coord = CombinedData. \
+            parse_xyz(filename=os.path.join(test_dir, "ec_fec.xyz"))
+        cls.ec_fec1 = CombinedData. \
+            from_files(os.path.join(test_dir, "ec_fec.xyz"), [1200, 300],
+                       os.path.join(test_dir, "ec.data"),
+                       os.path.join(test_dir, "fec.data"))
+        cls.ec_fec2 = CombinedData. \
+            from_lammpsdata([cls.ec, cls.fec], ['EC', 'FEC'], [1200, 300], cls.coord)
+
+    def test_from_files(self):
+        # general tests
+        ec_fec = self.ec_fec1
+        # header stats and Nos. of columns
+        self.assertEqual(ec_fec.names, ['cluster1', 'cluster2'])
+        self.assertEqual(ec_fec.nums, [1200, 300])
+        self.assertEqual(ec_fec.masses.shape, (12, 1))
+        self.assertEqual(ec_fec.atoms.shape, (15000, 6))
+        self.assertListEqual(list(ec_fec.atoms.columns),
+                             ["molecule-ID", "type", "q", "x", "y", "z"])
+        topo = ec_fec.topology
+        self.assertEqual(topo["Bonds"].shape, (15000, 3))
+        self.assertEqual(topo["Angles"].shape, (25500, 4))
+        self.assertEqual(topo["Dihedrals"].shape, (42000, 5))
+        self.assertEqual(topo["Impropers"].shape, (1500, 5))
+        ff = ec_fec.force_field
+        self.assertEqual(ff["Pair Coeffs"].shape, (12, 2))
+        self.assertEqual(ff["Bond Coeffs"].shape, (15, 2))
+        self.assertEqual(ff["Angle Coeffs"].shape, (24, 2))
+        self.assertEqual(ff["Dihedral Coeffs"].shape, (39, 6))
+        self.assertEqual(ff["Improper Coeffs"].shape, (2, 3))
+        # header box
+        np.testing.assert_array_equal(ec_fec.box.bounds,
+                                      [[-1.000000, 54.000000],
+                                       [-1.000000, 54.000000],
+                                       [-1.000000, 54.000000]])
+        # body
+        self.assertEqual(ec_fec.masses.at[7, "mass"], 1.008)
+        self.assertEqual(ff["Pair Coeffs"].at[9, "coeff2"], 3.750)
+        self.assertEqual(ff["Bond Coeffs"].at[5, "coeff2"], 1.0900)
+        self.assertEqual(ff["Angle Coeffs"].at[24, "coeff2"], 108.46005)
+        self.assertTrue(np.isnan(ff["Dihedral Coeffs"].at[30, "coeff6"]))
+        self.assertEqual(ff["Improper Coeffs"].at[2, "coeff1"], 10.5)
+        self.assertEqual(ec_fec.atoms.at[29, "molecule-ID"], 3)
+        self.assertEqual(ec_fec.atoms.at[29, "type"], 5)
+        self.assertEqual(ec_fec.atoms.at[29, "q"], 0.0755)
+        self.assertAlmostEqual(ec_fec.atoms.at[29, "x"], 14.442260)
+        self.assertEqual(ec_fec.atoms.at[14958, "molecule-ID"], 1496)
+        self.assertEqual(ec_fec.atoms.at[14958, "type"], 11)
+        self.assertAlmostEqual(ec_fec.atoms.at[14958, "y"], 41.010962)
+        self.assertEqual(topo["Bonds"].at[47, "type"], 5)
+        self.assertEqual(topo["Bonds"].at[47, "atom2"], 47)
+        self.assertEqual(topo["Bonds"].at[953, "atom1"], 951)
+        self.assertEqual(topo["Angles"].at[105, "type"], 2)
+        self.assertEqual(topo["Angles"].at[105, "atom3"], 63)
+        self.assertEqual(topo["Angles"].at[14993, "atom2"], 8815)
+        self.assertEqual(topo["Dihedrals"].at[151, "type"], 4)
+        self.assertEqual(topo["Dihedrals"].at[151, "atom4"], 55)
+        self.assertEqual(topo["Dihedrals"].at[41991, "type"], 30)
+        self.assertEqual(topo["Dihedrals"].at[41991, "atom2"], 14994)
+        self.assertEqual(topo["Impropers"].at[4, "atom4"], 34)
+
+    def test_from_lammpsdata(self):
+        # general tests
+        ec_fec = self.ec_fec2
+        # header stats and Nos. of columns
+        self.assertEqual(ec_fec.names, ['EC', 'FEC'])
+        self.assertEqual(ec_fec.nums, [1200, 300])
+        self.assertEqual(ec_fec.masses.shape, (12, 1))
+        self.assertEqual(ec_fec.atoms.shape, (15000, 6))
+        self.assertListEqual(list(ec_fec.atoms.columns),
+                             ["molecule-ID", "type", "q", "x", "y", "z"])
+        topo = ec_fec.topology
+        self.assertEqual(topo["Bonds"].shape, (15000, 3))
+        self.assertEqual(topo["Angles"].shape, (25500, 4))
+        self.assertEqual(topo["Dihedrals"].shape, (42000, 5))
+        self.assertEqual(topo["Impropers"].shape, (1500, 5))
+        ff = ec_fec.force_field
+        self.assertEqual(ff["Pair Coeffs"].shape, (12, 2))
+        self.assertEqual(ff["Bond Coeffs"].shape, (15, 2))
+        self.assertEqual(ff["Angle Coeffs"].shape, (24, 2))
+        self.assertEqual(ff["Dihedral Coeffs"].shape, (39, 6))
+        self.assertEqual(ff["Improper Coeffs"].shape, (2, 3))
+        # header box
+        np.testing.assert_array_equal(ec_fec.box.bounds,
+                                      [[-1.000000, 54.000000],
+                                       [-1.000000, 54.000000],
+                                       [-1.000000, 54.000000]])
+        # body
+        self.assertEqual(ec_fec.masses.at[7, "mass"], 1.008)
+        self.assertEqual(ff["Pair Coeffs"].at[9, "coeff2"], 3.750)
+        self.assertEqual(ff["Bond Coeffs"].at[5, "coeff2"], 1.0900)
+        self.assertEqual(ff["Angle Coeffs"].at[24, "coeff2"], 108.46005)
+        self.assertTrue(np.isnan(ff["Dihedral Coeffs"].at[30, "coeff6"]))
+        self.assertEqual(ff["Improper Coeffs"].at[2, "coeff1"], 10.5)
+        self.assertEqual(ec_fec.atoms.at[29, "molecule-ID"], 3)
+        self.assertEqual(ec_fec.atoms.at[29, "type"], 5)
+        self.assertEqual(ec_fec.atoms.at[29, "q"], 0.0755)
+        self.assertAlmostEqual(ec_fec.atoms.at[29, "x"], 14.442260)
+        self.assertEqual(ec_fec.atoms.at[14958, "molecule-ID"], 1496)
+        self.assertEqual(ec_fec.atoms.at[14958, "type"], 11)
+        self.assertAlmostEqual(ec_fec.atoms.at[14958, "y"], 41.010962)
+        self.assertEqual(topo["Bonds"].at[47, "type"], 5)
+        self.assertEqual(topo["Bonds"].at[47, "atom2"], 47)
+        self.assertEqual(topo["Bonds"].at[953, "atom1"], 951)
+        self.assertEqual(topo["Angles"].at[105, "type"], 2)
+        self.assertEqual(topo["Angles"].at[105, "atom3"], 63)
+        self.assertEqual(topo["Angles"].at[14993, "atom2"], 8815)
+        self.assertEqual(topo["Dihedrals"].at[151, "type"], 4)
+        self.assertEqual(topo["Dihedrals"].at[151, "atom4"], 55)
+        self.assertEqual(topo["Dihedrals"].at[41991, "type"], 30)
+        self.assertEqual(topo["Dihedrals"].at[41991, "atom2"], 14994)
+        self.assertEqual(topo["Impropers"].at[4, "atom4"], 34)
+
+    def test_get_string(self):
+        # general tests
+        ec_fec_lines = self.ec_fec1.get_string().splitlines()
+        # header information
+        self.assertEqual(ec_fec_lines[1], "# 1200 cluster1 + 300 cluster2")
+        # data type consistency tests
+        self.assertEqual(ec_fec_lines[98], "1  harmonic 3.200000000 -1 2")
+        self.assertEqual(ec_fec_lines[109], "12  charmm 2.700000000 2 180 0.0")
+        self.assertEqual(ec_fec_lines[113],
+                         "16  multi/harmonic 0.382999522 -1.148998570 0.000000000 1.531998090 0.000000000")
+        self.assertEqual(ec_fec_lines[141], "1  10.5 -1  2")
 
 
 if __name__ == "__main__":

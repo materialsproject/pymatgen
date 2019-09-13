@@ -13,7 +13,6 @@ Performance and Resource Considerations" by Gaultois et al., published
 in Chemistry of Materials (2013).
 """
 
-from __future__ import division
 import os
 from monty.design_patterns import singleton
 from pymatgen import Element, Composition
@@ -31,7 +30,7 @@ csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
 
 
 @singleton
-class HHIModel(object):
+class HHIModel:
 
     def __init__(self):
         self.symbol_hhip_hhir = {}  # symbol->(HHI_production, HHI reserve)
@@ -78,8 +77,8 @@ class HHIModel(object):
                 hhi_r += dr * percent
             return hhi_p, hhi_r
 
-        except:
-            return (None, None)
+        except Exception:
+            return None, None
 
     def get_hhi_production(self, comp_or_form):
         """

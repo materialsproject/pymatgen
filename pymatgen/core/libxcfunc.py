@@ -8,7 +8,6 @@ but use the API provided by the Xcfunc object defined in core.xcfunc.py.
 Part of this module is automatically generated so be careful when refactoring stuff.
 Use the script ~pymatgen/dev_scripts/regen_libxcfunc.py to regenerate the enum values.
 """
-from __future__ import division, unicode_literals, print_function
 
 import json
 import os
@@ -409,13 +408,18 @@ class LibxcFunc(Enum):
     # end_include_dont_touch
 
     def __init__(self, num):
+        """
+        Init.
+
+        :param num: Number for the xc.
+        """
         info = _all_xcfuncs[self.value]
         self.kind = info["Kind"]
         self.family = info["Family"]
 
     def __str__(self):
         return "name=%s, kind=%s, family=%s" % (
-        self.name, self.kind, self.family)
+            self.name, self.kind, self.family)
 
     @staticmethod
     def all_families():

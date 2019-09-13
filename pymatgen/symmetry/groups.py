@@ -2,12 +2,11 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import os
 from itertools import product
 from fractions import Fraction
 from abc import ABCMeta, abstractmethod
-from collections import Sequence
+from collections.abc import Sequence
 import numpy as np
 import warnings
 import re
@@ -28,7 +27,6 @@ __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "ongsp@ucsd.edu"
 __date__ = "4/4/14"
-
 
 SYMM_DATA = None
 
@@ -269,6 +267,7 @@ class SpaceGroup(SymmetryGroup):
                 symm_ops.append(m)
             self.generators = symm_ops
             self.full_symbol = data["full_symbol"]
+            self.point_group = data["point_group"]
             self.int_number = data["int_number"]
             self.order = data["order"]
 
@@ -378,26 +377,22 @@ class SpaceGroup(SymmetryGroup):
 
         if crys_system == "cubic":
             a = abc[0]
-            return check(abc, [a, a, a], tol) and\
-                check(angles, [90, 90, 90], angle_tol)
+            return check(abc, [a, a, a], tol) and check(angles, [90, 90, 90], angle_tol)
         elif crys_system == "hexagonal" or (
                 crys_system == "trigonal" and (
-                    self.symbol.endswith("H") or
-                    self.int_number in [143, 144, 145, 147, 149, 150, 151, 152,
-                                        153, 154, 156, 157, 158, 159, 162, 163,
-                                        164, 165])):
+                self.symbol.endswith("H") or
+                self.int_number in [143, 144, 145, 147, 149, 150, 151, 152,
+                                    153, 154, 156, 157, 158, 159, 162, 163,
+                                    164, 165])):
             a = abc[0]
-            return check(abc, [a, a, None], tol)\
-                and check(angles, [90, 90, 120], angle_tol)
+            return check(abc, [a, a, None], tol) and check(angles, [90, 90, 120], angle_tol)
         elif crys_system == "trigonal":
             a = abc[0]
             alpha = angles[0]
-            return check(abc, [a, a, a], tol) \
-                   and check(angles, [alpha, alpha, alpha], angle_tol)
+            return check(abc, [a, a, a], tol) and check(angles, [alpha, alpha, alpha], angle_tol)
         elif crys_system == "tetragonal":
             a = abc[0]
-            return check(abc, [a, a, None], tol) and\
-                check(angles, [90, 90, 90], angle_tol)
+            return check(abc, [a, a, None], tol) and check(angles, [90, 90, 90], angle_tol)
         elif crys_system == "orthorhombic":
             return check(angles, [90, 90, 90], angle_tol)
         elif crys_system == "monoclinic":

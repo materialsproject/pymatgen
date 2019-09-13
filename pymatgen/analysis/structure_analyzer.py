@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 import warnings
 import ruamel.yaml as yaml
@@ -19,7 +18,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
-
 
 from math import pi, acos
 import numpy as np
@@ -68,7 +66,7 @@ def average_coordination_number(structures, freq=10):
     return coordination_numbers
 
 
-class VoronoiAnalyzer(object):
+class VoronoiAnalyzer:
     """
     Performs a statistical analysis of Voronoi polyhedra around each site.
     Each Voronoi polyhedron is described using Schaefli notation.
@@ -180,7 +178,7 @@ class VoronoiAnalyzer(object):
         return plt
 
 
-class RelaxationAnalyzer(object):
+class RelaxationAnalyzer:
     """
     This class analyzes the relaxation in a calculation.
     """
@@ -256,7 +254,7 @@ class RelaxationAnalyzer(object):
         return data
 
 
-class VoronoiConnectivity(object):
+class VoronoiConnectivity:
     """
     Computes the solid angles swept out by the shared face of the voronoi
     polyhedron between two sites.
@@ -358,7 +356,7 @@ class VoronoiConnectivity(object):
             site_index (int): index of the site (3 in the example)
             image_index (int): index of the image (12 in the example)
         """
-        atoms_n_occu = self.s[site_index].species_and_occu
+        atoms_n_occu = self.s[site_index].species
         lattice = self.s.lattice
         coords = self.s[site_index].frac_coords + self.offsets[image_index]
         return PeriodicSite(atoms_n_occu, coords, lattice)
@@ -394,15 +392,15 @@ def get_max_bond_lengths(structure, el_radius_updates=None):
     """
     Provides max bond length estimates for a structure based on the JMol
     table and algorithms.
-    
+
     Args:
         structure: (structure)
         el_radius_updates: (dict) symbol->float to update atomic radii
-    
-    Returns: (dict) - (Element1, Element2) -> float. The two elements are 
+
+    Returns: (dict) - (Element1, Element2) -> float. The two elements are
         ordered by Z.
     """
-    #jmc = JMolCoordFinder(el_radius_updates)
+    # jmc = JMolCoordFinder(el_radius_updates)
     jmnn = JmolNN(el_radius_updates=el_radius_updates)
 
     bonds_lens = {}
@@ -497,7 +495,7 @@ def contains_peroxide(structure, relative_cutoff=1.1):
         return False
 
 
-class OxideType(object):
+class OxideType:
     """
     Separate class for determining oxide type.
 
@@ -535,14 +533,14 @@ class OxideType(object):
         elif isinstance(structure.composition.elements[0], Specie):
             elmap = collections.defaultdict(float)
             for site in structure:
-                for species, occu in site.species_and_occu.items():
+                for species, occu in site.species.items():
                     elmap[species.element] += occu
             comp = Composition(elmap)
         if Element("O") not in comp or comp.is_element:
             return "None", 0
 
         for site in structure:
-            syms = [sp.symbol for sp in site.species_and_occu.keys()]
+            syms = [sp.symbol for sp in site.species.keys()]
             if "O" in syms:
                 o_sites_frac_coords.append(site.frac_coords)
             if "H" in syms:
@@ -628,11 +626,21 @@ def sulfide_type(structure):
                sites[0].specie == s]
 
     def process_site(site):
-        neighbors = structure.get_neighbors(site, 4)
+
+        # in an exceptionally rare number of structures, the search
+        # radius needs to be increased to find a neighbor atom
+        search_radius = 4
+        neighbors = []
+        while len(neighbors) == 0:
+            neighbors = structure.get_neighbors(site, search_radius)
+            search_radius *= 2
+            if search_radius > max(structure.lattice.abc) * 2:
+                break
+
         neighbors = sorted(neighbors, key=lambda n: n[1])
-        nn, dist = neighbors[0]
-        coord_elements = [site.specie for site, d in neighbors
-                          if d < dist + 0.4][:4]
+        dist = neighbors[0].distance
+        coord_elements = [nn.site.specie for nn in neighbors
+                          if nn.distance < dist + 0.4][:4]
         avg_electroneg = np.mean([e.X for e in coord_elements])
         if avg_electroneg > s.X:
             return "sulfate"
@@ -648,5 +656,3 @@ def sulfide_type(structure):
         return "polysulfide"
     else:
         return "sulfide"
-
-

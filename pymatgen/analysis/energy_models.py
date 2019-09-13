@@ -2,10 +2,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import abc
-
-import six
 
 from monty.json import MSONable
 from pymatgen.analysis.ewald import EwaldSummation
@@ -25,7 +22,7 @@ __email__ = "shyuep@gmail.com"
 __date__ = "11/19/13"
 
 
-class EnergyModel(six.with_metaclass(abc.ABCMeta, MSONable)):
+class EnergyModel(MSONable, metaclass=abc.ABCMeta):
     """
     Abstract structure filter class.
     """
@@ -107,8 +104,7 @@ class SymmetryModel(EnergyModel):
         self.angle_tolerance = angle_tolerance
 
     def get_energy(self, structure):
-        f = SpacegroupAnalyzer(structure, symprec=self.symprec,
-                           angle_tolerance=self.angle_tolerance)
+        f = SpacegroupAnalyzer(structure, symprec=self.symprec, angle_tolerance=self.angle_tolerance)
         return -f.get_space_group_number()
 
     def as_dict(self):
@@ -135,11 +131,11 @@ class IsingModel(EnergyModel):
     def get_energy(self, structure):
         all_nn = structure.get_all_neighbors(r=self.max_radius)
         energy = 0
-        for i, nn in enumerate(all_nn):
+        for i, nns in enumerate(all_nn):
             s1 = getattr(structure[i].specie, "spin", 0)
-            for site, dist in nn:
-                energy += self.j * s1 * getattr(site.specie, "spin",
-                                                0) / (dist ** 2)
+            for nn in nns:
+                energy += self.j * s1 * getattr(nn.site.specie, "spin",
+                                                0) / (nn.distance ** 2)
         return energy
 
     def as_dict(self):

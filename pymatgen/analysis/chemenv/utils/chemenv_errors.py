@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 """
 This module contains the error classes for the chemenv package.
@@ -49,7 +48,7 @@ class BVAValencesNotFoundChemenvError(AbstractChemenvError):
         self.structure = structure
 
     def __str__(self):
-        return 'The valences were not found for the following structure : \n' +\
+        return 'The valences were not found for the following structure : \n' + \
                self.structure.composition.reduced_formula
 
 

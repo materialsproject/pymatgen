@@ -2,8 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals
-
 """
 Module containing class to create an ion
 """
@@ -18,6 +16,7 @@ __date__ = "Dec 10, 2012"
 
 import re
 import numpy as np
+from copy import deepcopy
 
 from pymatgen.core.composition import Composition
 from monty.json import MSONable
@@ -36,11 +35,17 @@ class Ion(Composition, MSONable):
         Flexible Ion construction, similar to Composition.
         For more information, please see pymatgen.core.Composition
         """
-        super(Ion, self).__init__(composition)
+        super().__init__(composition)
         self._charge = charge
 
     @classmethod
-    def from_formula(cls, formula):
+    def from_formula(cls, formula: str) -> 'Ion':
+        """
+        Creates Ion from formula.
+
+        :param formula:
+        :return: Ion
+        """
         charge = 0.0
         f = formula
         m = re.search(r"\[([^\[\]]+)\]", f)
@@ -73,7 +78,7 @@ class Ion(Composition, MSONable):
         Returns a formula string, with elements sorted by electronegativity,
         e.g., Li4 Fe4 P4 O16.
         """
-        formula = super(Ion, self).formula
+        formula = super().formula
         chg_str = ""
         if self.charge > 0:
             chg_str = " +" + formula_double_format(self.charge, False)
@@ -87,7 +92,7 @@ class Ion(Composition, MSONable):
         An anonymized formula. Appends charge to the end
         of anonymized composition
         """
-        anon_formula = super(Ion, self).anonymized_formula
+        anon_formula = super().anonymized_formula
         chg = self._charge
         chg_str = ""
         if chg > 0:
@@ -101,7 +106,7 @@ class Ion(Composition, MSONable):
         """
         Returns a reduced formula string with appended charge.
         """
-        reduced_formula = super(Ion, self).reduced_formula
+        reduced_formula = super().reduced_formula
         charge = self._charge / self.get_reduced_composition_and_factor()[1]
         if charge > 0:
             if abs(charge) == 1:
@@ -123,7 +128,7 @@ class Ion(Composition, MSONable):
         """
         Returns a reduced formula string with appended charge
         """
-        alph_formula = super(Ion, self).alphabetical_formula
+        alph_formula = super().alphabetical_formula
         chg_str = ""
         if self.charge > 0:
             chg_str = " +" + formula_double_format(self.charge, False)
@@ -143,7 +148,7 @@ class Ion(Composition, MSONable):
         Returns:
             dict with composition, as well as charge
         """
-        d = super(Ion, self).as_dict()
+        d = super().as_dict()
         d['charge'] = self.charge
         return d
 
@@ -156,8 +161,9 @@ class Ion(Composition, MSONable):
             d:
                 {symbol: amount} dict.
         """
-        charge = d.pop('charge')
-        composition = Composition(d)
+        input = deepcopy(d)
+        charge = input.pop('charge')
+        composition = Composition(input)
         return Ion(composition, charge)
 
     @property
@@ -173,6 +179,7 @@ class Ion(Composition, MSONable):
 
     @property
     def composition(self):
+        """Composition of ion."""
         return Composition(self._data)
 
     def __eq__(self, other):

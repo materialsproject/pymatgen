@@ -47,7 +47,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 
 
-class COD(object):
+class COD:
     """
     An interface to the Crystallography Open Database.
     """

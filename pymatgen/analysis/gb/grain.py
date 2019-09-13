@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import numpy as np
 from fractions import Fraction
 from math import gcd, floor, cos
@@ -103,7 +102,7 @@ class GrainBoundary(Structure):
         self.init_cell = init_cell
         self.vacuum_thickness = vacuum_thickness
         self.ab_shift = ab_shift
-        super(GrainBoundary, self).__init__(
+        super().__init__(
             lattice, species, coords, validate_proximity=validate_proximity,
             coords_are_cartesian=coords_are_cartesian,
             site_properties=site_properties)
@@ -209,20 +208,18 @@ class GrainBoundary(Structure):
             "Join plane: %s" % (self.join_plane,),
             "vacuum thickness: %s" % (self.vacuum_thickness,),
             "ab_shift: %s" % (self.ab_shift,), ]
-        to_s = lambda x: "%0.6f" % x
-        outs.append("abc   : " + " ".join([to_s(i).rjust(10)
-                                           for i in self.lattice.abc]))
-        outs.append("angles: " + " ".join([to_s(i).rjust(10)
-                                           for i in self.lattice.angles]))
+
+        def to_s(x, rjust=10):
+            return ("%0.6f" % x).rjust(rjust)
+        outs.append("abc   : " + " ".join([to_s(i) for i in self.lattice.abc]))
+        outs.append("angles: " + " ".join([to_s(i) for i in self.lattice.angles]))
         outs.append("Sites ({i})".format(i=len(self)))
         for i, site in enumerate(self):
-            outs.append(" ".join([str(i + 1), site.species_string,
-                                  " ".join([to_s(j).rjust(12)
-                                            for j in site.frac_coords])]))
+            outs.append(" ".join([str(i + 1), site.species_string, " ".join([to_s(j, 12) for j in site.frac_coords])]))
         return "\n".join(outs)
 
     def as_dict(self):
-        d = super(GrainBoundary, self).as_dict()
+        d = super().as_dict()
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         d["init_cell"] = self.init_cell.as_dict()
@@ -255,7 +252,7 @@ class GrainBoundary(Structure):
             site_properties=s.site_properties)
 
 
-class GrainBoundaryGenerator(object):
+class GrainBoundaryGenerator:
     """
     This class is to generate grain boundaries (GBs) from bulk
     conventional cell (fcc, bcc can from the primitive cell), and works for Cubic,
@@ -415,8 +412,8 @@ class GrainBoundaryGenerator(object):
         elif lat_type == 'o':
             logger.info('Make sure this is for orthorhombic system')
             if ratio is None:
-                raise RuntimeError('CSL donot exist if all axial ratios are irrational'
-                                   'for orthorhombic system')
+                raise RuntimeError('CSL does not exist if all axial ratios are irrational '
+                                   'for an orthorhombic system')
             elif len(ratio) != 3:
                 raise RuntimeError('Orthorhombic system needs correct c2:b2:a2 ratio')
         elif lat_type == 'h':
@@ -568,7 +565,7 @@ class GrainBoundaryGenerator(object):
             normal_v_plane = np.cross(t_matrix[0], t_matrix[1])
             unit_normal_v = normal_v_plane / np.linalg.norm(normal_v_plane)
             unit_ab_adjust = (t_matrix[2] - np.dot(unit_normal_v, t_matrix[2]) * unit_normal_v) \
-                             / np.dot(unit_normal_v, t_matrix[2])
+                / np.dot(unit_normal_v, t_matrix[2])
         else:
             oriended_unit_cell = top_grain.copy()
             unit_ab_adjust = 0.0
@@ -624,7 +621,7 @@ class GrainBoundaryGenerator(object):
         translation_v = unit_normal_v * vacuum_thickness
 
         # construct the final lattice
-        whole_matrix_no_vac = half_lattice.matrix
+        whole_matrix_no_vac = np.array(half_lattice.matrix)
         whole_matrix_no_vac[2] = half_lattice.matrix[2] * 2
         whole_matrix_with_vac = whole_matrix_no_vac.copy()
         whole_matrix_with_vac[2] = whole_matrix_no_vac[2] + translation_v * 2
@@ -632,8 +629,7 @@ class GrainBoundaryGenerator(object):
 
         # construct the coords, move top grain with translation_v
         all_coords = []
-        grain_labels = bottom_grain.site_properties['grain_label'] \
-                       + top_grain.site_properties['grain_label']
+        grain_labels = bottom_grain.site_properties['grain_label'] + top_grain.site_properties['grain_label']
         for site in bottom_grain:
             all_coords.append(site.coords)
         for site in top_grain:
@@ -2279,7 +2275,7 @@ def fix_pbc(structure, matrix=None):
 
     for site in structure:
         spec.append(site.specie)
-        coord = site.frac_coords
+        coord = np.array(site.frac_coords)
         for i in range(3):
             coord[i] -= floor(coord[i])
             if np.allclose(coord[i], 1):

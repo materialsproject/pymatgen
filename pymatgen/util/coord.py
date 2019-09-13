@@ -2,9 +2,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
-from six.moves import zip
 import itertools
 import numpy as np
 import math
@@ -22,7 +20,6 @@ __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Nov 27, 2011"
-
 
 # array size threshold for looping instead of broadcasting
 LOOP_THRESHOLD = 1e6
@@ -117,7 +114,7 @@ def coord_list_mapping_pbc(subset, superset, atol=1e-8):
     Returns:
         list of indices such that superset[indices] = subset
     """
-    atol = np.array([1., 1. ,1.]) * atol
+    atol = np.array([1., 1., 1.]) * atol
     return cuc.coord_list_mapping_pbc(subset, superset, atol)
 
 
@@ -294,12 +291,9 @@ def lattice_points_in_supercell(supercell_matrix):
     mins = np.min(d_points, axis=0)
     maxes = np.max(d_points, axis=0) + 1
 
-    ar = np.arange(mins[0], maxes[0])[:, None] * \
-         np.array([1, 0, 0])[None, :]
-    br = np.arange(mins[1], maxes[1])[:, None] * \
-         np.array([0, 1, 0])[None, :]
-    cr = np.arange(mins[2], maxes[2])[:, None] * \
-         np.array([0, 0, 1])[None, :]
+    ar = np.arange(mins[0], maxes[0])[:, None] * np.array([1, 0, 0])[None, :]
+    br = np.arange(mins[1], maxes[1])[:, None] * np.array([0, 1, 0])[None, :]
+    cr = np.arange(mins[2], maxes[2])[:, None] * np.array([0, 0, 1])[None, :]
 
     all_points = ar[:, None, None] + br[None, :, None] + cr[None, None, :]
     all_points = all_points.reshape((-1, 3))
@@ -358,7 +352,7 @@ def get_angle(v1, v2, units="degrees"):
         raise ValueError("Invalid units {}".format(units))
 
 
-class Simplex(object):
+class Simplex:
     """
     A generalized simplex object. See http://en.wikipedia.org/wiki/Simplex.
 

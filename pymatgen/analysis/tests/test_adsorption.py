@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-from __future__ import print_function
 
 import unittest
 
@@ -7,6 +5,7 @@ from pymatgen.util.testing import PymatgenTest
 from pymatgen.analysis.adsorption import *
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen import Structure, Lattice, Molecule
+from pymatgen.util.coord import in_coord_list
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
@@ -96,6 +95,23 @@ class AdsorbateSiteFinderTest(PymatgenTest):
         self.assertEqual(len(structures_hollow), len(sites['hollow']))
         for n, structure in enumerate(structures_hollow):
             self.assertTrue(in_coord_list(sites['hollow'], structure[-2].coords))
+        # Check molecule not changed after rotation when added to surface
+        co = Molecule("CO", [[1.0, -0.5, 3], [0.8, 0.46, 3.75]])
+        structures = self.asf_211.generate_adsorption_structures(co)
+        self.assertEqual(co, Molecule("CO", [[1.0, -0.5, 3], [0.8, 0.46, 3.75]]))
+        # Check translation
+        sites = self.asf_211.find_adsorption_sites()
+        ads_site_coords = sites['all'][0]
+        c_site = structures[0].sites[-2]
+        self.assertEqual(str(c_site.specie), 'C')
+        self.assertArrayAlmostEqual(c_site.coords, sites['all'][0])
+        # Check no translation
+        structures = self.asf_111.generate_adsorption_structures(co, translate=False)
+        self.assertEqual(co, Molecule("CO", [[1.0, -0.5, 3], [0.8, 0.46, 3.75]]))
+        sites = self.asf_111.find_adsorption_sites()
+        ads_site_coords = sites['all'][0]
+        c_site = structures[0].sites[-2]
+        self.assertArrayAlmostEqual(c_site.coords, ads_site_coords+np.array([1.0, -0.5, 3]))
 
     def test_adsorb_both_surfaces(self):
 

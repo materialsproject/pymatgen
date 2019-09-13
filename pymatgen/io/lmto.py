@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License
 
-from __future__ import division, unicode_literals
 
 import re
 import numpy as np
@@ -28,7 +27,7 @@ __email__ = "esters@uoregon.edu"
 __date__ = "Nov 30, 2017"
 
 
-class LMTOCtrl(object):
+class LMTOCtrl:
     """
     Class for parsing CTRL files from the Stuttgart LMTO-ASA code.
     Currently, only HEADER, VERS and the structure can be used.
@@ -246,11 +245,11 @@ class LMTOCtrl(object):
             pass
 
         for token in ["HEADER", "VERS"]:
-                try:
-                    value = re.split(token + r"\s*", struc_lines[token])[1]
-                    structure_tokens[token] = value.strip()
-                except IndexError:
-                    pass
+            try:
+                value = re.split(token + r"\s*", struc_lines[token])[1]
+                structure_tokens[token] = value.strip()
+            except IndexError:
+                pass
         return LMTOCtrl.from_dict(structure_tokens)
 
     @classmethod
@@ -308,7 +307,7 @@ class LMTOCtrl(object):
         return cls(structure, header=d["HEADER"], version=d["VERS"])
 
 
-class LMTOCopl(object):
+class LMTOCopl:
     """
     Class for reading COPL files, which contain COHP data.
 

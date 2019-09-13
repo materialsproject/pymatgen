@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import unicode_literals
 
 """
 Interface with command line GULP.
@@ -27,11 +26,8 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.bond_valence import BVAnalyzer
-from six.moves import map
-from six.moves import zip
 
 from monty.tempfile import ScratchDir
-
 
 _anions = set(map(Element, ["O", "S", "F", "Cl", "Br", "N", "P"]))
 _cations = set(map(Element, [
@@ -44,16 +40,16 @@ _cations = set(map(Element, [
     "Tm", "Yb", "Lu"
 ]))
 _gulp_kw = {
-    #Control of calculation type
+    # Control of calculation type
     "angle", "bond", "cosmo", "cosmic", "cost", "defect", "distance",
     "eem", "efg", "fit", "free_energy", "gasteiger", "genetic",
     "gradients", "md", "montecarlo", "noautobond", "noenergy", "optimise",
     "pot", "predict", "preserve_Q", "property", "phonon", "qeq", "qbond",
     "single", "sm", "static_first", "torsion", "transition_state",
-    #Geometric variable specification
+    # Geometric variable specification
     "breathe", "bulk_noopt", "cellonly", "conp", "conv", "isotropic",
     "orthorhombic", "nobreathe", "noflgs", "shell", "unfix",
-    #Algorithm
+    # Algorithm
     "c6", "dipole", "fbfgs", "fix_molecule", "full", "hill", "kfull",
     "marvinSE", "madelung", "minimum_image", "molecule", "molmec", "molq",
     "newda", "noanisotropic_2b", "nod2sym", "nodsymmetry",
@@ -62,25 +58,25 @@ _gulp_kw = {
     "noreal", "norecip", "norepulsive", "nosasinitevery", "nosderv",
     "nozeropt", "numerical", "qiter", "qok", "spatial", "storevectors",
     "nomolecularinternalke", "voight", "zsisa",
-    #Optimisation method
+    # Optimisation method
     "conjugate", "dfp", "lbfgs", "numdiag", "positive", "rfo", "unit",
-    #Output control
+    # Output control
     "average", "broaden_dos", "cartesian", "compare", "conserved",
     "dcharge", "dynamical_matrix",
     "eigenvectors", "global", "hessian", "hexagonal", "intensity", "linmin",
     "meanke", "nodensity_out", "nodpsym", "nofirst_point", "nofrequency",
     "nokpoints", "operators", "outcon", "prt_eam", "prt_two",
     "prt_regi_before", "qsas", "restore", "save", "terse",
-    #Structure control
+    # Structure control
     "full", "hexagonal", "lower_symmetry", "nosymmetry",
-    #PDF control
+    # PDF control
     "PDF", "PDFcut", "PDFbelow", "PDFkeep", "coreinfo", "nowidth", "nopartial",
-    #Miscellaneous
+    # Miscellaneous
     "nomodcoord", "oldunits", "zero_potential"
 }
 
 
-class GulpIO(object):
+class GulpIO:
     """
     To generate GULP input and process output
     """
@@ -93,7 +89,7 @@ class GulpIO(object):
         Args:
             \\*args: 1st line keywords
         """
-        #if len(list(filter(lambda x: x in _gulp_kw, args))) != len(args):
+        # if len(list(filter(lambda x: x in _gulp_kw, args))) != len(args):
         #    raise GulpError("Wrong keywords given")
         gin = " ".join(args)
         gin += "\n"
@@ -129,9 +125,10 @@ class GulpIO(object):
         if cell_flg:
             gin += "cell\n"
             l = structure.lattice
-            lat_str = [str(i) for i in [l.a, l.b, l.c, l.alpha, l.beta,
-                                        l.gamma]]
-            gin += " ".join(lat_str) + "\n"
+            lat_str = "{0:6f} {1:6f} {2:6f} {3:6f} {4:6f} {5:6f}".format(
+                l.a, l.b, l.c, l.alpha, l.beta, l.gamma
+            )
+            gin += lat_str + "\n"
 
         if frac_flg:
             gin += "frac\n"
@@ -196,29 +193,10 @@ class GulpIO(object):
         Returns:
             GULP input string specifying library option
         """
-        gulplib_set = lambda: 'GULP_LIB' in os.environ.keys()
-        readable = lambda f: os.path.isfile(f) and os.access(f, os.R_OK)
+        gulplib_set = 'GULP_LIB' in os.environ.keys()
 
-        #dirpath, fname = os.path.split(file_name)
-        #if dirpath:  # Full path specified
-        #    if readable(file_name):
-        #        gin = 'library ' + file_name
-        #    else:
-        #        raise GulpError('GULP Library not found')
-        #else:
-        #    fpath = os.path.join(os.getcwd(), file_name)  # Check current dir
-        #    if readable(fpath):
-        #        gin = 'library ' + fpath
-        #    elif gulplib_set():
-        #        fpath = os.path.join(os.environ['GULP_LIB'], file_name)
-        #        if readable(fpath):
-        #            gin = 'library ' + file_name
-        #        else:
-        #            raise GulpError('GULP Library not found')
-        #    else:
-        #        raise GulpError('GULP Library not found')
-        #gin += "\n"
-        #return gin
+        def readable(f):
+            return os.path.isfile(f) and os.access(f, os.R_OK)
 
         gin = ""
         dirpath, fname = os.path.split(file_name)
@@ -228,7 +206,7 @@ class GulpIO(object):
             fpath = os.path.join(os.getcwd(), file_name)  # Check current dir
             if readable(fpath):
                 gin = 'library ' + fpath
-            elif gulplib_set():         # Check the GULP_LIB path
+            elif gulplib_set:  # Check the GULP_LIB path
                 fpath = os.path.join(os.environ['GULP_LIB'], file_name)
                 if readable(fpath):
                     gin = 'library ' + file_name
@@ -276,7 +254,7 @@ class GulpIO(object):
         """
         if not val_dict:
             try:
-                #If structure is oxidation state decorated, use that first.
+                # If structure is oxidation state decorated, use that first.
                 el = [site.specie.symbol for site in structure]
                 valences = [site.specie.oxi_state for site in structure]
                 val_dict = dict(zip(el, valences))
@@ -286,7 +264,7 @@ class GulpIO(object):
                 valences = bv.get_valences(structure)
                 val_dict = dict(zip(el, valences))
 
-        #Try bush library first
+        # Try bush library first
         bpb = BuckinghamPotential('bush')
         bpl = BuckinghamPotential('lewis')
         gin = ""
@@ -306,12 +284,12 @@ class GulpIO(object):
                 gin += bpb.spring_dict[el]
                 continue
 
-            #Try lewis library next if element is not in bush
-            #use_lewis = True
+            # Try lewis library next if element is not in bush
+            # use_lewis = True
             if el != "O":  # For metals the key is "Metal_OxiState+"
                 k = el + '_' + str(int(val_dict[key])) + '+'
                 if k not in bpl.species_dict.keys():
-                    #use_lewis = False
+                    # use_lewis = False
                     raise GulpError("Element {} not in library".format(k))
                 gin += "species\n"
                 gin += bpl.species_dict[k]
@@ -341,7 +319,7 @@ class GulpIO(object):
             uc (Default=True): Unit Cell Flag.
             keywords: GULP first line keywords.
         """
-        #gin="static noelectrostatics \n "
+        # gin="static noelectrostatics \n "
         gin = self.keyword_line(*keywords)
         gin += self.structure_lines(
             structure, cell_flg=periodic, frac_flg=periodic,
@@ -396,7 +374,7 @@ class GulpIO(object):
             raise GulpError("Energy not found in Gulp output")
 
     def get_relaxed_structure(self, gout):
-        #Find the structure lines
+        # Find the structure lines
         structure_lines = []
         cell_param_lines = []
         output_lines = gout.split("\n")
@@ -457,7 +435,7 @@ class GulpIO(object):
             else:
                 i += 1
 
-        #Process the structure lines
+        # Process the structure lines
         if structure_lines:
             sp = []
             coords = []
@@ -481,7 +459,7 @@ class GulpIO(object):
         return Structure(latt, sp, coords)
 
 
-class GulpCaller(object):
+class GulpCaller:
     """
     Class to run gulp from commandline
     """
@@ -493,6 +471,7 @@ class GulpCaller(object):
         Args:
             cmd: Command. Defaults to gulp.
         """
+
         def is_exe(f):
             return os.path.isfile(f) and os.access(f, os.X_OK)
 
@@ -644,7 +623,7 @@ class GulpConvergenceError(Exception):
         return self.msg
 
 
-class BuckinghamPotential(object):
+class BuckinghamPotential:
     """
     Generate the Buckingham Potential Table from the bush.lib and lewis.lib.
 
@@ -690,9 +669,8 @@ class BuckinghamPotential(object):
                                 species_dict["O_shel"] = row
                         else:
                             metal = elmnt.split('_')[0]
-                            #oxi_state = metaloxi.split('_')[1][0]
-                            species_dict[elmnt] = metal + " core " + \
-                                row.split()[2] + "\n"
+                            # oxi_state = metaloxi.split('_')[1][0]
+                            species_dict[elmnt] = metal + " core " + row.split()[2] + "\n"
                     continue
 
                 if pot_flg:
@@ -703,16 +681,16 @@ class BuckinghamPotential(object):
                             pot_dict["O"] = row
                         else:
                             metal = elmnt.split('_')[0]
-                            #oxi_state = metaloxi.split('_')[1][0]
+                            # oxi_state = metaloxi.split('_')[1][0]
                             pot_dict[elmnt] = metal + " " + " ".join(
-                            row.split()[1:]) + "\n"
+                                row.split()[1:]) + "\n"
                     continue
 
                 if spring_flg:
                     spring_dict[elmnt] = row
 
             if bush_lewis_flag == "bush":
-                #Fill the null keys in spring dict with empty strings
+                # Fill the null keys in spring dict with empty strings
                 for key in pot_dict.keys():
                     if key not in spring_dict.keys():
                         spring_dict[key] = ""
@@ -722,7 +700,7 @@ class BuckinghamPotential(object):
             self.spring_dict = spring_dict
 
 
-class TersoffPotential(object):
+class TersoffPotential:
     """
     Generate Tersoff Potential Table from "OxideTersoffPotentialentials" file
     """

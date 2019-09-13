@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 import re
 
 from pymatgen.core.structure import Molecule
@@ -20,7 +19,7 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Apr 17, 2012"
 
 
-class XYZ(object):
+class XYZ:
     """
     Basic class for importing and exporting Molecules or Structures in XYZ
     format.

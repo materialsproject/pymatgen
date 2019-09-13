@@ -11,23 +11,21 @@ environment:
       CONDA_PY: "36"
       CONDA_BUILD: "TRUE"
       SPLIT_RUN: "FALSE"
-  PMG_MAPI_KEY:
-    secure: XIbk1W27nucVUHTVpIL2B+FodL9w2Efyw5PqTdnfbHg=
+#  PMG_MAPI_KEY:
+#    secure: XIbk1W27nucVUHTVpIL2B+FodL9w2Efyw5PqTdnfbHg=
   PYPIPWD:
     secure: QPpXonUAeLJ8p3f936jh7g==
 install:
   # Add the paths
   - 'set PATH=%PYTHON%;%PYTHON%\Library\bin;%PYTHON%\Scripts;%PATH%'
-  # Check that we have the expected version and architecture for Python
-  # - 'python --version'
-  # - 'python -c "import struct; print(struct.calcsize(''P'') * 8)"'
-
+  - 'set MPLBACKEND=Agg'
+  - 'conda config --system --add channels conda-forge'
   # Install the build dependencies of the project via conda and pip
-  - 'conda install --yes --quiet numpy scipy matplotlib setuptools wheel pip'
+  - 'conda install --yes --quiet numpy scipy matplotlib sympy cython pandas pip python-igraph'
   - 'conda install --yes --quiet --channel matsci spglib netcdf4 h5py'
-  - 'conda update --yes --all'
-  - "pip install -r requirements.txt"
-  - "pip install pybtex nose coverage ase coveralls fdint ase twine networkx"
+  # - 'conda update --yes --all'
+  - 'pip install -r requirements.txt'
+  - 'pip install pybtex pytest pytest-cov ase coveralls fdint ase twine networkx'
   # Note that pyhull is excluded because it does not work on Windows.
   # Run develop to install in dev mode and build C extension.
   - "python setup.py develop"
@@ -35,7 +33,7 @@ install:
 build: false
 
 test_script:
-  - IF NOT "%APPVEYOR_REPO_BRANCH%" == "stable" (nosetests)
+  - "pytest --ignore=pymatgen/ext/tests/test_matproj.py --ignore=pymatgen/analysis/tests/test_pourbaix_diagram.py --ignore=pymatgen/tests/test_init.py --ignore-glob='pymatgen/analysis/defects/tests/test_*.py' pymatgen"
 
 notifications:
   - provider: Email

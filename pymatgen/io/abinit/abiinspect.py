@@ -5,17 +5,12 @@
 This module provides objects to inspect the status of the Abinit tasks at run-time.
 by extracting information from the main output file (text format).
 """
-from __future__ import unicode_literals, division, print_function
 
 import os
 import numpy as np
 import ruamel.yaml as yaml
-import six
 
-try:
-    from collections.abc import Mapping, Iterable, Iterator
-except ImportError:
-    from collections import Mapping, Iterable, Iterator
+from collections.abc import Mapping, Iterable, Iterator
 from collections import OrderedDict
 from tabulate import tabulate
 from monty.functools import lazy_property
@@ -41,7 +36,7 @@ def _magic_parser(stream, magic):
 
         The parser is very fragile and should be replaced by YAML.
     """
-    #Example (SCF cycle, similar format is used for phonons):
+    # Example (SCF cycle, similar format is used for phonons):
     #
     #  iter   Etot(hartree)      deltaE(h)  residm     vres2
     #  ETOT  1  -8.8604027880849    -8.860E+00 2.458E-02 3.748E+00
@@ -57,13 +52,14 @@ def _magic_parser(stream, magic):
             fields = OrderedDict((k, []) for k in keys)
 
         if fields is not None:
-            #print(line)
+            # print(line)
             in_doc += 1
             if in_doc == 1:
                 continue
 
             # End of the section.
-            if not line: break
+            if not line:
+                break
 
             tokens = list(map(float, line.split()[1:]))
             assert len(tokens) == len(keys)
@@ -85,23 +81,24 @@ def plottable_from_outfile(filepath):
     # TODO
     # Figure out how to detect the type of calculations
     # without having to parse the input. Possible approach: YAML doc
-    #with YamlTokenizer(filepath) as r:
+    # with YamlTokenizer(filepath) as r:
     #    doc = r.next_doc_with_tag("!CalculationType")
     #    d = yaml.safe_load(doc.text_notag)
     #    calc_type = d["calculation_type"]
 
-    #ctype2class = {
+    # ctype2class = {
     #    "Ground State": GroundStateScfCycle,
     #    "Phonon": PhononScfCycle,
     #    "Relaxation": Relaxation,
-    #}
-    #obj = ctype2class.get(calc_type, None)
+    # }
+    # obj = ctype2class.get(calc_type, None)
 
     obj = GroundStateScfCycle
     if obj is not None:
         return obj.from_file(filepath)
     else:
         return None
+
 
 # Use log scale for these variables.
 _VARS_SUPPORTING_LOGSCALE = set(["residm", "vres2", "nres2"])
@@ -112,6 +109,7 @@ _VARS_WITH_YRANGE = {
     "deltaE(Ha)": (-1e-3, +1e-3),
 }
 
+
 class ScfCycle(Mapping):
     """
     It essentially consists of a dictionary mapping string
@@ -121,6 +119,7 @@ class ScfCycle(Mapping):
 
         num_iterations: Number of iterations performed.
     """
+
     def __init__(self, fields):
         self.fields = fields
         all_lens = [len(lst) for lst in self.values()]
@@ -258,7 +257,7 @@ class PhononScfCycle(D2DEScfCycle):
     """Iterations of the DFPT SCF cycle for phonons."""
 
 
-class CyclesPlotter(object):
+class CyclesPlotter:
     """Relies on the plot method of cycle objects to build multiple subfigures."""
 
     def __init__(self):
@@ -314,6 +313,7 @@ class Relaxation(Iterable):
         during the structural relaxation. A more powerful and detailed analysis
         can be obtained by using the HIST.nc file.
     """
+
     def __init__(self, cycles):
         self.cycles = cycles
         self.num_iterations = len(self.cycles)
@@ -355,7 +355,8 @@ class Relaxation(Iterable):
         cycles = []
         while True:
             scf_cycle = GroundStateScfCycle.from_stream(stream)
-            if scf_cycle is None: break
+            if scf_cycle is None:
+                break
             cycles.append(scf_cycle)
 
         return cls(cycles) if cycles else None
@@ -454,8 +455,9 @@ class Relaxation(Iterable):
 
         return fig
 
+
 # TODO
-#class HaydockIterations(Iterable):
+# class HaydockIterations(Iterable):
 #    """This object collects info on the different steps of the Haydock technique used in the Bethe-Salpeter code"""
 #    @classmethod
 #    def from_file(cls, filepath):
@@ -499,9 +501,8 @@ class Relaxation(Iterable):
 #        return fig
 
 
-
 ##################
-## Yaml parsers.
+# Yaml parsers.
 ##################
 
 class YamlTokenizerError(Exception):
@@ -546,7 +547,7 @@ class YamlTokenizer(Iterator):
     def close(self):
         try:
             self.stream.close()
-        except:
+        except Exception:
             print("Exception in YAMLTokenizer.close()")
             print("Python traceback:")
             print(straceback())
@@ -584,7 +585,7 @@ class YamlTokenizer(Iterator):
 
         for i, line in enumerate(self.stream):
             self.linepos += 1
-            #print(i, line)
+            # print(i, line)
 
             if line.startswith("---"):
                 # Include only lines in the form:
@@ -634,7 +635,7 @@ class YamlTokenizer(Iterator):
         """
         while True:
             try:
-                doc = six.advance_iterator(self)
+                doc = next(self)
                 if doc.tag == doc_tag:
                     return doc
 
@@ -675,10 +676,10 @@ def yaml_read_irred_perts(filename, doc_tag="!IrredPerts"):
         d = yaml.safe_load(doc.text_notag)
 
         return [AttrDict(**pert) for pert in d["irred_perts"]]
-        #return d["irred_perts"]
+        # return d["irred_perts"]
 
 
-class YamlDoc(object):
+class YamlDoc:
     """
     Handy object that stores that YAML document, its main tag and the
     position inside the file.
@@ -710,7 +711,8 @@ class YamlDoc(object):
         return self.text
 
     def __eq__(self, other):
-        if other is None: return False
+        if other is None:
+            return False
         return (self.text == other.text and
                 self.lineno == other.lineno and
                 self.tag == other.tag)

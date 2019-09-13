@@ -1,6 +1,3 @@
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import division
 
 import unittest
 import os
@@ -8,7 +5,7 @@ import warnings
 import numpy as np
 import json
 import random
-from six.moves import zip
+
 from scipy.misc import central_diff_weights
 from copy import deepcopy
 
@@ -263,7 +260,7 @@ class ElasticTensorExpansionTest(PymatgenTest):
         warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.resetwarnings()
+        warnings.simplefilter("default")
 
     def test_init(self):
         cijkl = Tensor.from_voigt(self.c2)

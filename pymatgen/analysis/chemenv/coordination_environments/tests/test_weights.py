@@ -22,7 +22,7 @@ se_files_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "
                             'test_files', "chemenv", "structure_environments_files")
 
 
-class FakeNbSet(object):
+class FakeNbSet:
 
     def __init__(self, cn=None):
         self.cn = cn
@@ -32,11 +32,11 @@ class FakeNbSet(object):
     pass
 
 
-class DummyStructureEnvironments(object):
+class DummyStructureEnvironments:
     pass
 
 
-class DummyVoronoiContainer(object):
+class DummyVoronoiContainer:
     pass
 
 

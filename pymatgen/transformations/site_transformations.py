@@ -2,10 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
-
-from six.moves import map
-from six.moves import zip
 
 import math
 import itertools
@@ -427,7 +423,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
             for ind in indices:
                 new_sp = {sp: occu * fraction
                           for sp, occu
-                          in structure[ind].species_and_occu.items()}
+                          in structure[ind].species.items()}
                 s[ind] = new_sp
         # Perform enumeration
         from pymatgen.transformations.advanced_transformations import \
@@ -529,7 +525,7 @@ class AddSitePropertyTransformation(AbstractTransformation):
     def apply_transformation(self, structure):
         """
         apply the transformation
-        
+
         Args:
             structure (Structure): structure to add site properties to
         """

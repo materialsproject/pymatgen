@@ -6,25 +6,22 @@
 This module provides classes to perform fitting of structures.
 """
 
-from __future__ import division, unicode_literals
-
-import six
-from six.moves import filter
-from six.moves import zip
-
 import numpy as np
 import itertools
 import abc
 
 from monty.json import MSONable
+from pymatgen.core import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.composition import Composition
 
 from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.optimization.linear_assignment import LinearAssignment
-from pymatgen.util.coord_cython import pbc_shortest_vectors, is_coord_subset_pbc
+from pymatgen.optimization.linear_assignment import LinearAssignment  # type: ignore
+from pymatgen.util.coord_cython import pbc_shortest_vectors, is_coord_subset_pbc  # type: ignore
 from pymatgen.util.coord import lattice_points_in_supercell
+from pymatgen.analysis.defects.core import Interstitial, \
+    Defect, Vacancy, Substitution
 
 __author__ = "William Davidson Richards, Stephen Dacek, Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -35,7 +32,7 @@ __status__ = "Production"
 __date__ = "Dec 3, 2012"
 
 
-class AbstractComparator(six.with_metaclass(abc.ABCMeta, MSONable)):
+class AbstractComparator(MSONable, metaclass=abc.ABCMeta):
     """
     Abstract Comparator class. A Comparator defines how sites are compared in
     a structure.
@@ -245,17 +242,16 @@ class OrderDisorderElementComparator(AbstractComparator):
         Returns:
             True always
         """
-        set1 = set(sp1.element_composition.keys())
-        set2 = set(sp2.element_composition.keys())
-        if set1.intersection(set2):
-            return True
-        return False
+        set1 = set(sp1.elements)
+        set2 = set(sp2.elements)
+        return set1.issubset(set2) or set2.issubset(set1)
 
     def get_hash(self, composition):
-        """"
-        No hash possible
         """
-        return 1
+        Returns: Fractional composition
+        """
+        return composition.fractional_composition
+
 
 class OccupancyComparator(AbstractComparator):
     """
@@ -284,6 +280,7 @@ class OccupancyComparator(AbstractComparator):
     def get_hash(self, composition):
         # Difficult to define sensible hash
         return 1
+
 
 class StructureMatcher(MSONable):
     """
@@ -403,11 +400,11 @@ class StructureMatcher(MSONable):
             try:
                 el = get_el_sp(self._supercell_size)
                 fu = s2.composition[el] / s1.composition[el]
-            except:
-                raise ValueError('invalid argument for supercell_size')
+            except Exception:
+                raise ValueError('Invalid argument for supercell_size.')
 
-        if fu < 2/3:
-            return int(round(1/fu)), False
+        if fu < 2 / 3:
+            return int(round(1 / fu)), False
         else:
             return int(round(fu)), True
 
@@ -437,6 +434,7 @@ class StructureMatcher(MSONable):
 
         yields: s1, s2, supercell_matrix, average_lattice, supercell_matrix
         """
+
         def av_lat(l1, l2):
             params = (np.array(l1.lengths_and_angles) +
                       np.array(l2.lengths_and_angles)) / 2
@@ -458,6 +456,7 @@ class StructureMatcher(MSONable):
                     fc = (fc[:, None, :] + lp[None, :, :]).reshape((-1, 3))
                     fc -= np.floor(fc)
                     yield fc, s2_fc, av_lat(l, s2.lattice), sc_m
+
         if s1_supercell:
             for x in sc_generator(struct1, struct2):
                 yield x
@@ -528,12 +527,12 @@ class StructureMatcher(MSONable):
         for sp2, i in itertools.groupby(enumerate(struct2.species_and_occu),
                                         key=lambda x: x[1]):
             i = list(i)
-            inner.append((sp2, slice(i[0][0], i[-1][0]+1)))
+            inner.append((sp2, slice(i[0][0], i[-1][0] + 1)))
 
         for sp1, j in itertools.groupby(enumerate(struct1.species_and_occu),
                                         key=lambda x: x[1]):
             j = list(j)
-            j = slice(j[0][0], j[-1][0]+1)
+            j = slice(j[0][0], j[-1][0] + 1)
             for sp2, i in inner:
                 mask[i, j, :] = not self._comparator.are_equal(sp1, sp2)
 
@@ -636,15 +635,15 @@ class StructureMatcher(MSONable):
             fu, s1_supercell = self._get_supercell_size(struct1, struct2)
         else:
             fu, s1_supercell = 1, True
-        mult = fu if s1_supercell else 1/fu
+        mult = fu if s1_supercell else 1 / fu
 
         # rescale lattice to same volume
         if self._scale:
             ratio = (struct2.volume / (struct1.volume * mult)) ** (1 / 6)
             nl1 = Lattice(struct1.lattice.matrix * ratio)
-            struct1.modify_lattice(nl1)
+            struct1.lattice = nl1
             nl2 = Lattice(struct2.lattice.matrix / ratio)
-            struct2.modify_lattice(nl2)
+            struct2.lattice = nl2
 
         return struct1, struct2, fu, s1_supercell
 
@@ -653,7 +652,7 @@ class StructureMatcher(MSONable):
         """
         Matches one struct onto the other
         """
-        ratio = fu if s1_supercell else 1/fu
+        ratio = fu if s1_supercell else 1 / fu
         if len(struct1) * ratio >= len(struct2):
             return self._strict_match(
                 struct1, struct2, fu, s1_supercell=s1_supercell,
@@ -700,7 +699,7 @@ class StructureMatcher(MSONable):
         for s1fc, s2fc, avg_l, sc_m in \
                 self._get_supercells(struct1, struct2, fu, s1_supercell):
             # compute fractional tolerance
-            normalization = (len(s1fc) / avg_l.volume) ** (1/3)
+            normalization = (len(s1fc) / avg_l.volume) ** (1 / 3)
             inv_abc = np.array(avg_l.reciprocal_lattice.abc)
             frac_tol = inv_abc * self.stol / (np.pi * normalization)
             # loop over all translations
@@ -749,10 +748,14 @@ class StructureMatcher(MSONable):
 
         # Use structure hash to pre-group structures
         if anonymous:
-            c_hash = lambda c: c.anonymized_formula
+            def c_hash(c):
+                return c.anonymized_formula
         else:
             c_hash = self._comparator.get_hash
-        s_hash = lambda s: c_hash(s[1].composition)
+
+        def s_hash(s):
+            return c_hash(s[1].composition)
+
         sorted_s_list = sorted(enumerate(s_list), key=s_hash)
         all_groups = []
 
@@ -764,7 +767,7 @@ class StructureMatcher(MSONable):
                 matches = [i]
                 if anonymous:
                     inds = filter(lambda i: self.fit_anonymous(refs,
-                            unmatched[i][1]), list(range(len(unmatched))))
+                                                               unmatched[i][1]), list(range(len(unmatched))))
                 else:
                     inds = filter(lambda i: self.fit(refs, unmatched[i][1]),
                                   list(range(len(unmatched))))
@@ -811,7 +814,7 @@ class StructureMatcher(MSONable):
         if len(sp1) != len(sp2):
             return None
 
-        ratio = fu if s1_supercell else 1/fu
+        ratio = fu if s1_supercell else 1 / fu
         swapped = len(struct1) * ratio < len(struct2)
 
         s1_comp = struct1.composition
@@ -1005,7 +1008,7 @@ class StructureMatcher(MSONable):
         struct1, struct2 = self._process_species((struct1, struct2))
 
         s1, s2, fu, s1_supercell = self._preprocess(struct1, struct2, False)
-        ratio = fu if s1_supercell else 1/fu
+        ratio = fu if s1_supercell else 1 / fu
         if s1_supercell and fu > 1:
             raise ValueError("Struct1 must be the supercell, "
                              "not the other way around")
@@ -1105,4 +1108,85 @@ class StructureMatcher(MSONable):
             return None
 
         return match[4]
-    
+
+
+class PointDefectComparator(MSONable):
+    """
+    A class that matches pymatgen Point Defect objects even if their
+    cartesian co-ordinates are different (compares sublattices for the defect)
+
+    NOTE: for defect complexes (more than a single defect),
+    this comparator will break.
+
+    Args:
+        check_charge (bool): Gives option to check
+            if charges are identical.
+            Default is False (different charged defects can be same)
+        check_primitive_cell (bool): Gives option to
+            compare different supercells of bulk_structure,
+            rather than directly compare supercell sizes
+            Default is False (requires bulk_structure in each defect to be same size)
+        check_lattice_scale (bool): Gives option to scale volumes of
+            structures to each other identical lattice constants.
+            Default is False (enforces same
+            lattice constants in both structures)
+    """
+
+    def __init__(self, check_charge=False, check_primitive_cell=False,
+                 check_lattice_scale=False):
+        self.check_charge = check_charge
+        self.check_primitive_cell = check_primitive_cell
+        self.check_lattice_scale = check_lattice_scale
+
+    def are_equal(self, d1, d2):
+        """
+        Args:
+            d1: First defect. A pymatgen Defect object.
+            d2: Second defect. A pymatgen Defect object.
+
+        Returns:
+            True if defects are identical in type and sublattice.
+        """
+        possible_defect_types = (Defect, Vacancy, Substitution, Interstitial)
+
+        if not isinstance(d1, possible_defect_types) or not isinstance(d2, possible_defect_types):
+            raise ValueError("Cannot use PointDefectComparator to"
+                             " compare non-defect objects...")
+
+        if not isinstance(d1, d2.__class__):
+            return False
+        elif d1.site.specie != d2.site.specie:
+            return False
+        elif self.check_charge and (d1.charge != d2.charge):
+            return False
+
+        sm = StructureMatcher(ltol=0.01,
+                              primitive_cell=self.check_primitive_cell,
+                              scale=self.check_lattice_scale)
+
+        if not sm.fit(d1.bulk_structure, d2.bulk_structure):
+            return False
+
+        d1 = d1.copy()
+        d2 = d2.copy()
+        if self.check_primitive_cell or self.check_lattice_scale:
+            # if allowing for base structure volume or supercell modifications,
+            # then need to preprocess defect objects to allow for matching
+            d1_mod_bulk_structure, d2_mod_bulk_structure, _, _ = sm._preprocess(
+                d1.bulk_structure, d2.bulk_structure)
+            d1_defect_site = PeriodicSite(d1.site.specie, d1.site.coords,
+                                          d1_mod_bulk_structure.lattice,
+                                          to_unit_cell=True,
+                                          coords_are_cartesian=True)
+            d2_defect_site = PeriodicSite(d2.site.specie, d2.site.coords,
+                                          d2_mod_bulk_structure.lattice,
+                                          to_unit_cell=True,
+                                          coords_are_cartesian=True)
+
+            d1._structure = d1_mod_bulk_structure
+            d2._structure = d2_mod_bulk_structure
+            d1._defect_site = d1_defect_site
+            d2._defect_site = d2_defect_site
+
+        return sm.fit(d1.generate_defect_structure(),
+                      d2.generate_defect_structure())

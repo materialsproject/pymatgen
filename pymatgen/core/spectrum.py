@@ -2,16 +2,16 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module defines classes to represent any type of spectrum, essentially any
+x y value pairs.
+"""
+
 from monty.json import MSONable
 import numpy as np
 from scipy.ndimage.filters import gaussian_filter1d
 
 from pymatgen.util.coord import get_linear_interpolated_value
-
-"""
-This module defines classes to represent any type of spectrum, essentially any
-x y value pairs.
-"""
 
 __author__ = "Chen Zheng"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -37,16 +37,16 @@ class Spectrum(MSONable):
     YLABEL = "y"
 
     def __init__(self, x, y, *args, **kwargs):
-        """
+        r"""
         Args:
             x (ndarray): A ndarray of N values.
             y (ndarray): A ndarray of N x k values. The first dimension must be
                 the same as that of x. Each of the k values are interpreted as
-            \\*args: All subclasses should provide args other than x and y
-                when calling super, e.g., super(Subclass, self).__init__(
+            *args: All subclasses should provide args other than x and y
+                when calling super, e.g., super().__init__(
                 x, y, arg1, arg2, kwarg1=val1, ..). This guarantees the +, -, *,
                 etc. operators work properly.
-            \\*\\*kwargs: Same as that for \\*args.
+            **kwargs: Same as that for *args.
         """
         self.x = np.array(x)
         self.y = np.array(y)

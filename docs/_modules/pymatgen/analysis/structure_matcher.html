@@ -1,19 +1,18 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.structure_matcher &#8212; pymatgen 2018.11.6 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.structure_matcher &#8212; pymatgen 2019.9.12 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -34,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.11.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.9.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -54,25 +53,22 @@
 <span class="sd">This module provides classes to perform fitting of structures.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
-
-<span class="kn">import</span> <span class="nn">six</span>
-<span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">filter</span>
-<span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">zip</span>
-
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">abc</span>
 
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="k">import</span> <span class="n">PeriodicSite</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="k">import</span> <span class="n">Lattice</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="k">import</span> <span class="n">Composition</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">get_el_sp</span>
-<span class="kn">from</span> <span class="nn">pymatgen.optimization.linear_assignment</span> <span class="k">import</span> <span class="n">LinearAssignment</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.coord_cython</span> <span class="k">import</span> <span class="n">pbc_shortest_vectors</span><span class="p">,</span> <span class="n">is_coord_subset_pbc</span>
+<span class="kn">from</span> <span class="nn">pymatgen.optimization.linear_assignment</span> <span class="k">import</span> <span class="n">LinearAssignment</span>  <span class="c1"># type: ignore</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.coord_cython</span> <span class="k">import</span> <span class="n">pbc_shortest_vectors</span><span class="p">,</span> <span class="n">is_coord_subset_pbc</span>  <span class="c1"># type: ignore</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="k">import</span> <span class="n">lattice_points_in_supercell</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.core</span> <span class="k">import</span> <span class="n">Interstitial</span><span class="p">,</span> \
+    <span class="n">Defect</span><span class="p">,</span> <span class="n">Vacancy</span><span class="p">,</span> <span class="n">Substitution</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;William Davidson Richards, Stephen Dacek, Shyue Ping Ong&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2011, The Materials Project&quot;</span>
@@ -83,7 +79,7 @@
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Dec 3, 2012&quot;</span>
 
 
-<div class="viewcode-block" id="AbstractComparator"><a class="viewcode-back" href="../../../pymatgen.analysis.structure_matcher.html#pymatgen.analysis.structure_matcher.AbstractComparator">[docs]</a><span class="k">class</span> <span class="nc">AbstractComparator</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">with_metaclass</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">)):</span>
+<div class="viewcode-block" id="AbstractComparator"><a class="viewcode-back" href="../../../pymatgen.analysis.structure_matcher.html#pymatgen.analysis.structure_matcher.AbstractComparator">[docs]</a><span class="k">class</span> <span class="nc">AbstractComparator</span><span class="p">(</span><span class="n">MSONable</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Abstract Comparator class. A Comparator defines how sites are compared in</span>
 <span class="sd">    a structure.</span>
@@ -293,17 +289,16 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            True always</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">set1</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">sp1</span><span class="o">.</span><span class="n">element_composition</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-        <span class="n">set2</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">sp2</span><span class="o">.</span><span class="n">element_composition</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-        <span class="k">if</span> <span class="n">set1</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">set2</span><span class="p">):</span>
-            <span class="k">return</span> <span class="kc">True</span>
-        <span class="k">return</span> <span class="kc">False</span></div>
+        <span class="n">set1</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">sp1</span><span class="o">.</span><span class="n">elements</span><span class="p">)</span>
+        <span class="n">set2</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">sp2</span><span class="o">.</span><span class="n">elements</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">set1</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">set2</span><span class="p">)</span> <span class="ow">or</span> <span class="n">set2</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">set1</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="OrderDisorderElementComparator.get_hash"><a class="viewcode-back" href="../../../pymatgen.analysis.structure_matcher.html#pymatgen.analysis.structure_matcher.OrderDisorderElementComparator.get_hash">[docs]</a>    <span class="k">def</span> <span class="nf">get_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">composition</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;&quot;</span>
-<span class="sd">        No hash possible</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: Fractional composition</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="mi">1</span></div></div>
+        <span class="k">return</span> <span class="n">composition</span><span class="o">.</span><span class="n">fractional_composition</span></div></div>
+
 
 <div class="viewcode-block" id="OccupancyComparator"><a class="viewcode-back" href="../../../pymatgen.analysis.structure_matcher.html#pymatgen.analysis.structure_matcher.OccupancyComparator">[docs]</a><span class="k">class</span> <span class="nc">OccupancyComparator</span><span class="p">(</span><span class="n">AbstractComparator</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -332,6 +327,7 @@
 <div class="viewcode-block" id="OccupancyComparator.get_hash"><a class="viewcode-back" href="../../../pymatgen.analysis.structure_matcher.html#pymatgen.analysis.structure_matcher.OccupancyComparator.get_hash">[docs]</a>    <span class="k">def</span> <span class="nf">get_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">composition</span><span class="p">):</span>
         <span class="c1"># Difficult to define sensible hash</span>
         <span class="k">return</span> <span class="mi">1</span></div></div>
+
 
 <div class="viewcode-block" id="StructureMatcher"><a class="viewcode-back" href="../../../pymatgen.analysis.structure_matcher.html#pymatgen.analysis.structure_matcher.StructureMatcher">[docs]</a><span class="k">class</span> <span class="nc">StructureMatcher</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -451,11 +447,11 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">el</span> <span class="o">=</span> <span class="n">get_el_sp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_supercell_size</span><span class="p">)</span>
                 <span class="n">fu</span> <span class="o">=</span> <span class="n">s2</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">/</span> <span class="n">s1</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">el</span><span class="p">]</span>
-            <span class="k">except</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;invalid argument for supercell_size&#39;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid argument for supercell_size.&#39;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">fu</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="o">/</span><span class="mi">3</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">fu</span><span class="p">)),</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">fu</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="o">/</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">fu</span><span class="p">)),</span> <span class="kc">False</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">fu</span><span class="p">)),</span> <span class="kc">True</span>
 
@@ -485,6 +481,7 @@
 
 <span class="sd">        yields: s1, s2, supercell_matrix, average_lattice, supercell_matrix</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">def</span> <span class="nf">av_lat</span><span class="p">(</span><span class="n">l1</span><span class="p">,</span> <span class="n">l2</span><span class="p">):</span>
             <span class="n">params</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">l1</span><span class="o">.</span><span class="n">lengths_and_angles</span><span class="p">)</span> <span class="o">+</span>
                       <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">l2</span><span class="o">.</span><span class="n">lengths_and_angles</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span>
@@ -506,6 +503,7 @@
                     <span class="n">fc</span> <span class="o">=</span> <span class="p">(</span><span class="n">fc</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">lp</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:])</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
                     <span class="n">fc</span> <span class="o">-=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">fc</span><span class="p">)</span>
                     <span class="k">yield</span> <span class="n">fc</span><span class="p">,</span> <span class="n">s2_fc</span><span class="p">,</span> <span class="n">av_lat</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">s2</span><span class="o">.</span><span class="n">lattice</span><span class="p">),</span> <span class="n">sc_m</span>
+
         <span class="k">if</span> <span class="n">s1_supercell</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">sc_generator</span><span class="p">(</span><span class="n">struct1</span><span class="p">,</span> <span class="n">struct2</span><span class="p">):</span>
                 <span class="k">yield</span> <span class="n">x</span>
@@ -576,12 +574,12 @@
         <span class="k">for</span> <span class="n">sp2</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="nb">enumerate</span><span class="p">(</span><span class="n">struct2</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">),</span>
                                         <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
             <span class="n">i</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-            <span class="n">inner</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">sp2</span><span class="p">,</span> <span class="nb">slice</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">i</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)))</span>
+            <span class="n">inner</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">sp2</span><span class="p">,</span> <span class="nb">slice</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">i</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)))</span>
 
         <span class="k">for</span> <span class="n">sp1</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="nb">enumerate</span><span class="p">(</span><span class="n">struct1</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">),</span>
                                         <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
             <span class="n">j</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
-            <span class="n">j</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">j</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">j</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">j</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">j</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">sp2</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">inner</span><span class="p">:</span>
                 <span class="n">mask</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_comparator</span><span class="o">.</span><span class="n">are_equal</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">)</span>
 
@@ -684,15 +682,15 @@
             <span class="n">fu</span><span class="p">,</span> <span class="n">s1_supercell</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_supercell_size</span><span class="p">(</span><span class="n">struct1</span><span class="p">,</span> <span class="n">struct2</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">fu</span><span class="p">,</span> <span class="n">s1_supercell</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kc">True</span>
-        <span class="n">mult</span> <span class="o">=</span> <span class="n">fu</span> <span class="k">if</span> <span class="n">s1_supercell</span> <span class="k">else</span> <span class="mi">1</span><span class="o">/</span><span class="n">fu</span>
+        <span class="n">mult</span> <span class="o">=</span> <span class="n">fu</span> <span class="k">if</span> <span class="n">s1_supercell</span> <span class="k">else</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">fu</span>
 
         <span class="c1"># rescale lattice to same volume</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scale</span><span class="p">:</span>
             <span class="n">ratio</span> <span class="o">=</span> <span class="p">(</span><span class="n">struct2</span><span class="o">.</span><span class="n">volume</span> <span class="o">/</span> <span class="p">(</span><span class="n">struct1</span><span class="o">.</span><span class="n">volume</span> <span class="o">*</span> <span class="n">mult</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">6</span><span class="p">)</span>
             <span class="n">nl1</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">(</span><span class="n">struct1</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span> <span class="o">*</span> <span class="n">ratio</span><span class="p">)</span>
-            <span class="n">struct1</span><span class="o">.</span><span class="n">modify_lattice</span><span class="p">(</span><span class="n">nl1</span><span class="p">)</span>
+            <span class="n">struct1</span><span class="o">.</span><span class="n">lattice</span> <span class="o">=</span> <span class="n">nl1</span>
             <span class="n">nl2</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">(</span><span class="n">struct2</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span> <span class="o">/</span> <span class="n">ratio</span><span class="p">)</span>
-            <span class="n">struct2</span><span class="o">.</span><span class="n">modify_lattice</span><span class="p">(</span><span class="n">nl2</span><span class="p">)</span>
+            <span class="n">struct2</span><span class="o">.</span><span class="n">lattice</span> <span class="o">=</span> <span class="n">nl2</span>
 
         <span class="k">return</span> <span class="n">struct1</span><span class="p">,</span> <span class="n">struct2</span><span class="p">,</span> <span class="n">fu</span><span class="p">,</span> <span class="n">s1_supercell</span>
 
@@ -701,7 +699,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Matches one struct onto the other</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">ratio</span> <span class="o">=</span> <span class="n">fu</span> <span class="k">if</span> <span class="n">s1_supercell</span> <span class="k">else</span> <span class="mi">1</span><span class="o">/</span><span class="n">fu</span>
+        <span class="n">ratio</span> <span class="o">=</span> <span class="n">fu</span> <span class="k">if</span> <span class="n">s1_supercell</span> <span class="k">else</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">fu</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">struct1</span><span class="p">)</span> <span class="o">*</span> <span class="n">ratio</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">struct2</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strict_match</span><span class="p">(</span>
                 <span class="n">struct1</span><span class="p">,</span> <span class="n">struct2</span><span class="p">,</span> <span class="n">fu</span><span class="p">,</span> <span class="n">s1_supercell</span><span class="o">=</span><span class="n">s1_supercell</span><span class="p">,</span>
@@ -748,7 +746,7 @@
         <span class="k">for</span> <span class="n">s1fc</span><span class="p">,</span> <span class="n">s2fc</span><span class="p">,</span> <span class="n">avg_l</span><span class="p">,</span> <span class="n">sc_m</span> <span class="ow">in</span> \
                 <span class="bp">self</span><span class="o">.</span><span class="n">_get_supercells</span><span class="p">(</span><span class="n">struct1</span><span class="p">,</span> <span class="n">struct2</span><span class="p">,</span> <span class="n">fu</span><span class="p">,</span> <span class="n">s1_supercell</span><span class="p">):</span>
             <span class="c1"># compute fractional tolerance</span>
-            <span class="n">normalization</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s1fc</span><span class="p">)</span> <span class="o">/</span> <span class="n">avg_l</span><span class="o">.</span><span class="n">volume</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span>
+            <span class="n">normalization</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s1fc</span><span class="p">)</span> <span class="o">/</span> <span class="n">avg_l</span><span class="o">.</span><span class="n">volume</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span>
             <span class="n">inv_abc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">avg_l</span><span class="o">.</span><span class="n">reciprocal_lattice</span><span class="o">.</span><span class="n">abc</span><span class="p">)</span>
             <span class="n">frac_tol</span> <span class="o">=</span> <span class="n">inv_abc</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">stol</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">normalization</span><span class="p">)</span>
             <span class="c1"># loop over all translations</span>
@@ -797,10 +795,14 @@
 
         <span class="c1"># Use structure hash to pre-group structures</span>
         <span class="k">if</span> <span class="n">anonymous</span><span class="p">:</span>
-            <span class="n">c_hash</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">anonymized_formula</span>
+            <span class="k">def</span> <span class="nf">c_hash</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">anonymized_formula</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">c_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_comparator</span><span class="o">.</span><span class="n">get_hash</span>
-        <span class="n">s_hash</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">c_hash</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">composition</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">s_hash</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">c_hash</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">composition</span><span class="p">)</span>
+
         <span class="n">sorted_s_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">enumerate</span><span class="p">(</span><span class="n">s_list</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="n">s_hash</span><span class="p">)</span>
         <span class="n">all_groups</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -812,7 +814,7 @@
                 <span class="n">matches</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">anonymous</span><span class="p">:</span>
                     <span class="n">inds</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_anonymous</span><span class="p">(</span><span class="n">refs</span><span class="p">,</span>
-                            <span class="n">unmatched</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">unmatched</span><span class="p">))))</span>
+                                                               <span class="n">unmatched</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">unmatched</span><span class="p">))))</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">inds</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">refs</span><span class="p">,</span> <span class="n">unmatched</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span>
                                   <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">unmatched</span><span class="p">))))</span>
@@ -859,7 +861,7 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sp1</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sp2</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">None</span>
 
-        <span class="n">ratio</span> <span class="o">=</span> <span class="n">fu</span> <span class="k">if</span> <span class="n">s1_supercell</span> <span class="k">else</span> <span class="mi">1</span><span class="o">/</span><span class="n">fu</span>
+        <span class="n">ratio</span> <span class="o">=</span> <span class="n">fu</span> <span class="k">if</span> <span class="n">s1_supercell</span> <span class="k">else</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">fu</span>
         <span class="n">swapped</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">struct1</span><span class="p">)</span> <span class="o">*</span> <span class="n">ratio</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">struct2</span><span class="p">)</span>
 
         <span class="n">s1_comp</span> <span class="o">=</span> <span class="n">struct1</span><span class="o">.</span><span class="n">composition</span>
@@ -1053,7 +1055,7 @@
         <span class="n">struct1</span><span class="p">,</span> <span class="n">struct2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_species</span><span class="p">((</span><span class="n">struct1</span><span class="p">,</span> <span class="n">struct2</span><span class="p">))</span>
 
         <span class="n">s1</span><span class="p">,</span> <span class="n">s2</span><span class="p">,</span> <span class="n">fu</span><span class="p">,</span> <span class="n">s1_supercell</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocess</span><span class="p">(</span><span class="n">struct1</span><span class="p">,</span> <span class="n">struct2</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-        <span class="n">ratio</span> <span class="o">=</span> <span class="n">fu</span> <span class="k">if</span> <span class="n">s1_supercell</span> <span class="k">else</span> <span class="mi">1</span><span class="o">/</span><span class="n">fu</span>
+        <span class="n">ratio</span> <span class="o">=</span> <span class="n">fu</span> <span class="k">if</span> <span class="n">s1_supercell</span> <span class="k">else</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">fu</span>
         <span class="k">if</span> <span class="n">s1_supercell</span> <span class="ow">and</span> <span class="n">fu</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Struct1 must be the supercell, &quot;</span>
                              <span class="s2">&quot;not the other way around&quot;</span><span class="p">)</span>
@@ -1153,7 +1155,88 @@
             <span class="k">return</span> <span class="kc">None</span>
 
         <span class="k">return</span> <span class="n">match</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span></div></div>
-    
+
+
+<div class="viewcode-block" id="PointDefectComparator"><a class="viewcode-back" href="../../../pymatgen.analysis.structure_matcher.html#pymatgen.analysis.structure_matcher.PointDefectComparator">[docs]</a><span class="k">class</span> <span class="nc">PointDefectComparator</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class that matches pymatgen Point Defect objects even if their</span>
+<span class="sd">    cartesian co-ordinates are different (compares sublattices for the defect)</span>
+
+<span class="sd">    NOTE: for defect complexes (more than a single defect),</span>
+<span class="sd">    this comparator will break.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        check_charge (bool): Gives option to check</span>
+<span class="sd">            if charges are identical.</span>
+<span class="sd">            Default is False (different charged defects can be same)</span>
+<span class="sd">        check_primitive_cell (bool): Gives option to</span>
+<span class="sd">            compare different supercells of bulk_structure,</span>
+<span class="sd">            rather than directly compare supercell sizes</span>
+<span class="sd">            Default is False (requires bulk_structure in each defect to be same size)</span>
+<span class="sd">        check_lattice_scale (bool): Gives option to scale volumes of</span>
+<span class="sd">            structures to each other identical lattice constants.</span>
+<span class="sd">            Default is False (enforces same</span>
+<span class="sd">            lattice constants in both structures)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check_charge</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">check_primitive_cell</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">check_lattice_scale</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_charge</span> <span class="o">=</span> <span class="n">check_charge</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_primitive_cell</span> <span class="o">=</span> <span class="n">check_primitive_cell</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_lattice_scale</span> <span class="o">=</span> <span class="n">check_lattice_scale</span>
+
+<div class="viewcode-block" id="PointDefectComparator.are_equal"><a class="viewcode-back" href="../../../pymatgen.analysis.structure_matcher.html#pymatgen.analysis.structure_matcher.PointDefectComparator.are_equal">[docs]</a>    <span class="k">def</span> <span class="nf">are_equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d1</span><span class="p">,</span> <span class="n">d2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            d1: First defect. A pymatgen Defect object.</span>
+<span class="sd">            d2: Second defect. A pymatgen Defect object.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            True if defects are identical in type and sublattice.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">possible_defect_types</span> <span class="o">=</span> <span class="p">(</span><span class="n">Defect</span><span class="p">,</span> <span class="n">Vacancy</span><span class="p">,</span> <span class="n">Substitution</span><span class="p">,</span> <span class="n">Interstitial</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d1</span><span class="p">,</span> <span class="n">possible_defect_types</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d2</span><span class="p">,</span> <span class="n">possible_defect_types</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot use PointDefectComparator to&quot;</span>
+                             <span class="s2">&quot; compare non-defect objects...&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d1</span><span class="p">,</span> <span class="n">d2</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">elif</span> <span class="n">d1</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span> <span class="o">!=</span> <span class="n">d2</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_charge</span> <span class="ow">and</span> <span class="p">(</span><span class="n">d1</span><span class="o">.</span><span class="n">charge</span> <span class="o">!=</span> <span class="n">d2</span><span class="o">.</span><span class="n">charge</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">sm</span> <span class="o">=</span> <span class="n">StructureMatcher</span><span class="p">(</span><span class="n">ltol</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+                              <span class="n">primitive_cell</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">check_primitive_cell</span><span class="p">,</span>
+                              <span class="n">scale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">check_lattice_scale</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">sm</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">d1</span><span class="o">.</span><span class="n">bulk_structure</span><span class="p">,</span> <span class="n">d2</span><span class="o">.</span><span class="n">bulk_structure</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">d1</span> <span class="o">=</span> <span class="n">d1</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">d2</span> <span class="o">=</span> <span class="n">d2</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_primitive_cell</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_lattice_scale</span><span class="p">:</span>
+            <span class="c1"># if allowing for base structure volume or supercell modifications,</span>
+            <span class="c1"># then need to preprocess defect objects to allow for matching</span>
+            <span class="n">d1_mod_bulk_structure</span><span class="p">,</span> <span class="n">d2_mod_bulk_structure</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">_preprocess</span><span class="p">(</span>
+                <span class="n">d1</span><span class="o">.</span><span class="n">bulk_structure</span><span class="p">,</span> <span class="n">d2</span><span class="o">.</span><span class="n">bulk_structure</span><span class="p">)</span>
+            <span class="n">d1_defect_site</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span><span class="n">d1</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">d1</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span>
+                                          <span class="n">d1_mod_bulk_structure</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span>
+                                          <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                          <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">d2_defect_site</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span><span class="n">d2</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">d2</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span>
+                                          <span class="n">d2_mod_bulk_structure</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span>
+                                          <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                          <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="n">d1</span><span class="o">.</span><span class="n">_structure</span> <span class="o">=</span> <span class="n">d1_mod_bulk_structure</span>
+            <span class="n">d2</span><span class="o">.</span><span class="n">_structure</span> <span class="o">=</span> <span class="n">d2_mod_bulk_structure</span>
+            <span class="n">d1</span><span class="o">.</span><span class="n">_defect_site</span> <span class="o">=</span> <span class="n">d1_defect_site</span>
+            <span class="n">d2</span><span class="o">.</span><span class="n">_defect_site</span> <span class="o">=</span> <span class="n">d2_defect_site</span>
+
+        <span class="k">return</span> <span class="n">sm</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">d1</span><span class="o">.</span><span class="n">generate_defect_structure</span><span class="p">(),</span>
+                      <span class="n">d2</span><span class="o">.</span><span class="n">generate_defect_structure</span><span class="p">())</span></div></div>
 </pre></div>
 
           </div>
@@ -1162,13 +1245,11 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -1186,7 +1267,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.11.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.9.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1194,7 +1275,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

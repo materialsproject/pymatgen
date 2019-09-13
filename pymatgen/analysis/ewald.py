@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
 
 from math import pi, sqrt, log
 from datetime import datetime
@@ -28,7 +27,7 @@ __status__ = "Production"
 __date__ = "Aug 1 2012"
 
 
-class EwaldSummation(object):
+class EwaldSummation:
     """
     Calculates the electrostatic energy of a periodic array of charges using
     the Ewald technique.
@@ -114,7 +113,7 @@ class EwaldSummation(object):
 
         # Compute the correction for a charged cell
         self._charged_cell_energy = - EwaldSummation.CONV_FACT / 2 * np.pi / \
-                                    structure.volume / self._eta * structure.charge ** 2
+            structure.volume / self._eta * structure.charge ** 2
 
     def compute_partial_energy(self, removed_indices):
         """
@@ -251,18 +250,17 @@ class EwaldSummation(object):
             raise AttributeError(
                 "Forces are available only if compute_forces is True!")
         return self._forces
-        
+
     def get_site_energy(self, site_index):
         """Compute the energy for a single site in the structure
-        
+
         Args:
             site_index (int): Index of site
         ReturnS:
             (float) - Energy of that site"""
         if self._charged:
             warn('Per atom energies for charged structures not supported in EwaldSummation')
-        return np.sum(self._recip[:,site_index]) + np.sum(self._real[:,site_index]) \
-            + self._point[site_index]
+        return np.sum(self._recip[:, site_index]) + np.sum(self._real[:, site_index]) + self._point[site_index]
 
     def _calc_recip(self):
         """
@@ -313,7 +311,7 @@ class EwaldSummation(object):
             if self._compute_forces:
                 pref = 2 * expval / g2 * oxistates
                 factor = prefactor * pref * (
-                    sreal * np.sin(gr) - simag * np.cos(gr))
+                        sreal * np.sin(gr) - simag * np.cos(gr))
 
                 forces += factor[:, None] * g[None, :]
 
@@ -339,7 +337,7 @@ class EwaldSummation(object):
 
         for i in range(numsites):
             nfcoords, rij, js, _ = self._s.lattice.get_points_in_sphere(fcoords,
-                                    coords[i], self._rmax, zip_results=False)
+                                                                        coords[i], self._rmax, zip_results=False)
 
             # remove the rii term
             inds = rij > 1e-8
@@ -377,17 +375,17 @@ class EwaldSummation(object):
     def __str__(self):
         if self._compute_forces:
             output = ["Real = " + str(self.real_space_energy),
-                  "Reciprocal = " + str(self.reciprocal_space_energy),
-                  "Point = " + str(self.point_energy),
-                  "Total = " + str(self.total_energy),
-                  "Forces:\n" + str(self.forces)
-                  ]           
+                      "Reciprocal = " + str(self.reciprocal_space_energy),
+                      "Point = " + str(self.point_energy),
+                      "Total = " + str(self.total_energy),
+                      "Forces:\n" + str(self.forces)
+                      ]
         else:
             output = ["Real = " + str(self.real_space_energy),
-                  "Reciprocal = " + str(self.reciprocal_space_energy),
-                  "Point = " + str(self.point_energy),
-                  "Total = " + str(self.total_energy),
-                  "Forces were not computed"]
+                      "Reciprocal = " + str(self.reciprocal_space_energy),
+                      "Point = " + str(self.point_energy),
+                      "Total = " + str(self.total_energy),
+                      "Forces were not computed"]
         return "\n".join(output)
 
 
@@ -477,7 +475,7 @@ class EwaldMinimizer:
         ewald sum calls recursive function to iterate through permutations
         """
         if self._algo == EwaldMinimizer.ALGO_FAST or \
-                        self._algo == EwaldMinimizer.ALGO_BEST_FIRST:
+                self._algo == EwaldMinimizer.ALGO_BEST_FIRST:
             return self._recurse(self._matrix, self._m_list,
                                  set(range(len(self._matrix))))
 
@@ -491,7 +489,7 @@ class EwaldMinimizer:
         else:
             bisect.insort(self._output_lists, [matrix_sum, m_list])
         if self._algo == EwaldMinimizer.ALGO_BEST_FIRST and \
-                        len(self._output_lists) == self._num_to_return:
+                len(self._output_lists) == self._num_to_return:
             self._finished = True
         if len(self._output_lists) > self._num_to_return:
             self._output_lists.pop()
@@ -548,8 +546,7 @@ class EwaldMinimizer:
             interaction_correction = average_correction * speedup_parameter \
                 + interaction_correction * (1 - speedup_parameter)
 
-        best_case = np.sum(matrix) + np.inner(sums[::-1], fractions - 1) \
-            + interaction_correction
+        best_case = np.sum(matrix) + np.inner(sums[::-1], fractions - 1) + interaction_correction
 
         return best_case
 
@@ -650,7 +647,7 @@ def compute_average_oxidation_state(site):
     """
     try:
         avg_oxi = sum([sp.oxi_state * occu
-                       for sp, occu in site.species_and_occu.items()
+                       for sp, occu in site.species.items()
                        if sp is not None])
         return avg_oxi
     except AttributeError:

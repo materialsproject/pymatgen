@@ -1,15 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-from __future__ import unicode_literals
 
 import os
 import unittest
 
 from pymatgen.analysis.path_finder import NEBPathfinder, ChgcarPotential
-from pymatgen.io.vasp import Poscar, Chgcar, Element
+from pymatgen.io.vasp import Poscar, Chgcar
+from pymatgen.core.periodic_table import Element
 
 __author__ = 'Ziqin (Shaun) Rong'
 __version__ = '0.1'

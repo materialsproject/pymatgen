@@ -1,19 +1,18 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.path_finder &#8212; pymatgen 2018.11.6 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.path_finder &#8212; pymatgen 2019.9.12 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -34,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.11.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.9.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -57,16 +56,13 @@
 <span class="sd">    Ceder, The Journal of Chemical Physics 145 (7), 074112</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span><span class="p">,</span> \
-    <span class="n">absolute_import</span>
-
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">numpy.linalg</span> <span class="k">as</span> <span class="nn">la</span>
 <span class="kn">import</span> <span class="nn">scipy.signal</span>
 <span class="kn">import</span> <span class="nn">scipy.stats</span>
 <span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="k">import</span> <span class="n">interp1d</span>
 <span class="kn">import</span> <span class="nn">math</span>
-<span class="kn">import</span> <span class="nn">six</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 
 <span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">ABCMeta</span>
 
@@ -80,6 +76,8 @@
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;dkitch@mit.edu, rongzq08@mit.edu&quot;</span>
 <span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Development&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;March 17, 2015&quot;</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="NEBPathfinder"><a class="viewcode-back" href="../../../pymatgen.analysis.path_finder.html#pymatgen.analysis.path_finder.NEBPathfinder">[docs]</a><span class="k">class</span> <span class="nc">NEBPathfinder</span><span class="p">:</span>
@@ -197,8 +195,8 @@
         <span class="c1"># (http://www.cims.nyu.edu/~eve2/main.htm)</span>
         <span class="c1">#</span>
 
-        <span class="c1"># print(&quot;Getting path from {} to {} (coords wrt V grid)&quot;.format(start, end))</span>
-        
+        <span class="c1"># logger.debug(&quot;Getting path from {} to {} (coords wrt V grid)&quot;.format(start, end))</span>
+
         <span class="c1"># Set parameters</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">dr</span><span class="p">:</span>
             <span class="n">dr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
@@ -247,7 +245,7 @@
                              <span class="n">dV</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="nb">int</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">%</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="nb">int</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">%</span> <span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span>
                                  <span class="nb">int</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">%</span> <span class="n">d</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">/</span> <span class="n">dr</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">s</span><span class="p">])</span>
             <span class="c1"># if(step % 100 == 0):</span>
-            <span class="c1">#    print(edV)</span>
+            <span class="c1">#    logger.debug(edV)</span>
 
             <span class="c1"># Update according to force due to potential and string elasticity</span>
             <span class="n">ds_plus</span> <span class="o">=</span> <span class="n">s</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
@@ -256,9 +254,9 @@
             <span class="n">ds_minus</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">ds_minus</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ds_minus</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
             <span class="n">Fpot</span> <span class="o">=</span> <span class="n">edV</span>
             <span class="n">Fel</span> <span class="o">=</span> <span class="n">keff</span> <span class="o">*</span> <span class="p">(</span><span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">ds_plus</span><span class="p">)</span> <span class="o">-</span> <span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">ds0_plus</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span>
-                <span class="n">ds_plus</span> <span class="o">/</span> <span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">ds_plus</span><span class="p">))</span>
+                    <span class="n">ds_plus</span> <span class="o">/</span> <span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">ds_plus</span><span class="p">))</span>
             <span class="n">Fel</span> <span class="o">+=</span> <span class="n">keff</span> <span class="o">*</span> <span class="p">(</span><span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">ds_minus</span><span class="p">)</span> <span class="o">-</span> <span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">ds0_minus</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span>
-                <span class="n">ds_minus</span> <span class="o">/</span> <span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">ds_minus</span><span class="p">))</span>
+                    <span class="n">ds_minus</span> <span class="o">/</span> <span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">ds_minus</span><span class="p">))</span>
             <span class="n">s</span> <span class="o">-=</span> <span class="n">h</span> <span class="o">*</span> <span class="p">(</span><span class="n">Fpot</span> <span class="o">+</span> <span class="n">Fel</span><span class="p">)</span>
 
             <span class="c1"># Fix endpoints</span>
@@ -281,11 +279,11 @@
                     <span class="s2">&quot;avoid divergence.&quot;</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">step</span> <span class="o">&gt;</span> <span class="n">min_iter</span> <span class="ow">and</span> <span class="n">tol</span> <span class="o">&lt;</span> <span class="n">max_tol</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Converged at step </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">step</span><span class="p">))</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Converged at step </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">step</span><span class="p">))</span>
                 <span class="k">break</span>
 
             <span class="k">if</span> <span class="n">step</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Step </span><span class="si">{}</span><span class="s2"> - ds = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">tol</span><span class="p">))</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Step </span><span class="si">{}</span><span class="s2"> - ds = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">tol</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">s</span></div>
 
     <span class="nd">@staticmethod</span>
@@ -310,7 +308,7 @@
                          <span class="n">disc_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span></div>
 
 
-<div class="viewcode-block" id="StaticPotential"><a class="viewcode-back" href="../../../pymatgen.analysis.path_finder.html#pymatgen.analysis.path_finder.StaticPotential">[docs]</a><span class="k">class</span> <span class="nc">StaticPotential</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">with_metaclass</span><span class="p">(</span><span class="n">ABCMeta</span><span class="p">)):</span>
+<div class="viewcode-block" id="StaticPotential"><a class="viewcode-back" href="../../../pymatgen.analysis.path_finder.html#pymatgen.analysis.path_finder.StaticPotential">[docs]</a><span class="k">class</span> <span class="nc">StaticPotential</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Defines a general static potential for diffusion calculations. Implements</span>
 <span class="sd">    grid-rescaling and smearing for the potential grid. Also provides a</span>
@@ -351,9 +349,8 @@
             <span class="n">np</span><span class="o">.</span><span class="n">ndindex</span><span class="p">(</span><span class="n">v_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))])</span>
         <span class="n">v_ogrid</span> <span class="o">=</span> <span class="n">padded_v</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
             <span class="p">((</span><span class="n">v_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">v_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">v_dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
-        <span class="n">ngrid_a</span><span class="p">,</span> <span class="n">ngrid_b</span><span class="p">,</span> <span class="n">ngrid_c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">new_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                                    <span class="mi">0</span><span class="p">:</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">new_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
-                                    <span class="mi">0</span><span class="p">:</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">new_dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+        <span class="n">ngrid_a</span><span class="p">,</span> <span class="n">ngrid_b</span><span class="p">,</span> <span class="n">ngrid_c</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">new_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">:</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">new_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                     <span class="mi">0</span><span class="p">:</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">new_dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
 
         <span class="n">v_ngrid</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">interpolate</span><span class="o">.</span><span class="n">griddata</span><span class="p">(</span><span class="n">ogrid_list</span><span class="p">,</span> <span class="n">v_ogrid</span><span class="p">,</span>
                                              <span class="p">(</span><span class="n">ngrid_a</span><span class="p">,</span> <span class="n">ngrid_b</span><span class="p">,</span> <span class="n">ngrid_c</span><span class="p">),</span>
@@ -402,7 +399,7 @@
         <span class="n">gauss</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">gauss_dist</span><span class="p">)</span>
         <span class="n">gauss</span> <span class="o">=</span> <span class="n">gauss</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">gauss</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="n">padded_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__v</span><span class="p">,</span> <span class="p">(</span>
-        <span class="p">(</span><span class="n">r_disc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">r_disc</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="p">(</span><span class="n">r_disc</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">r_disc</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="p">(</span><span class="n">r_disc</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">r_disc</span><span class="p">[</span><span class="mi">2</span><span class="p">])),</span>
+            <span class="p">(</span><span class="n">r_disc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">r_disc</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="p">(</span><span class="n">r_disc</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">r_disc</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="p">(</span><span class="n">r_disc</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">r_disc</span><span class="p">[</span><span class="mi">2</span><span class="p">])),</span>
                           <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;wrap&#39;</span><span class="p">)</span>
         <span class="n">smeared_v</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">signal</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">padded_v</span><span class="p">,</span> <span class="n">gauss</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;valid&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__v</span> <span class="o">=</span> <span class="n">smeared_v</span></div></div>
@@ -465,7 +462,7 @@
                         <span class="p">[</span><span class="n">a_d</span> <span class="o">/</span> <span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">b_d</span> <span class="o">/</span> <span class="n">dim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">c_d</span> <span class="o">/</span> <span class="n">dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
                     <span class="n">d_f</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">get_sites_in_sphere</span><span class="p">(</span><span class="n">coords_f</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">a</span><span class="p">),</span>
                                  <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
-                    <span class="c1"># print(d_f)</span>
+                    <span class="c1"># logger.debug(d_f)</span>
                     <span class="n">gauss_dist</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">a_d</span><span class="p">)][</span><span class="nb">int</span><span class="p">(</span><span class="n">b_d</span><span class="p">)][</span><span class="nb">int</span><span class="p">(</span><span class="n">c_d</span><span class="p">)]</span> <span class="o">=</span> <span class="n">d_f</span> <span class="o">/</span> <span class="n">r</span>
         <span class="n">v</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">gauss_dist</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">v</span></div>
@@ -502,13 +499,11 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -526,7 +521,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.11.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.9.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -534,7 +529,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
