@@ -2,6 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module implements more advanced transformations.
+"""
 
 import numpy as np
 from fractions import Fraction
@@ -39,10 +42,6 @@ from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
 from pymatgen.analysis.adsorption import AdsorbateSiteFinder
 from pymatgen.command_line.mcsqs_caller import run_mcsqs
 
-"""
-This module implements more advanced transformations.
-"""
-
 __author__ = "Shyue Ping Ong, Stephen Dacek, Anubhav Jain, Matthew Horton"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "1.0"
@@ -57,16 +56,26 @@ class ChargeBalanceTransformation(AbstractTransformation):
     """
     This is a transformation that disorders a structure to make it charge
     balanced, given an oxidation state-decorated structure.
-
-    Args:
-        charge_balance_sp: specie to add or remove. Currently only removal
-            is supported
     """
 
     def __init__(self, charge_balance_sp):
+        """
+        Args:
+            charge_balance_sp: specie to add or remove. Currently only removal
+                is supported
+        """
         self.charge_balance_sp = str(charge_balance_sp)
 
     def apply_transformation(self, structure):
+        """
+        Applies the transformation.
+
+        Args:
+            structure: Input Structure
+
+        Returns:
+            Charge balanced structure.
+        """
         charge = structure.charge
         specie = get_el_sp(self.charge_balance_sp)
         num_to_remove = charge / specie.oxi_state
@@ -91,10 +100,12 @@ class ChargeBalanceTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
+        """Returns: None"""
         return None
 
     @property
     def is_one_to_many(self):
+        """Returns: False"""
         return False
 
 
@@ -104,21 +115,33 @@ class SuperTransformation(AbstractTransformation):
     from a list of transformations and returns one structure for each
     transformation. The primary use for this class is extending a transmuter
     object.
-
-    Args:
-        transformations ([transformations]): List of transformations to apply
-            to a structure. One transformation is applied to each output
-            structure.
-        nstructures_per_trans (int): If the transformations are one-to-many and,
-            nstructures_per_trans structures from each transformation are
-            added to the full list. Defaults to 1, i.e., only best structure.
     """
 
     def __init__(self, transformations, nstructures_per_trans=1):
+        """
+        Args:
+            transformations ([transformations]): List of transformations to apply
+                to a structure. One transformation is applied to each output
+                structure.
+            nstructures_per_trans (int): If the transformations are one-to-many and,
+                nstructures_per_trans structures from each transformation are
+                added to the full list. Defaults to 1, i.e., only best structure.
+        """
+
         self._transformations = transformations
         self.nstructures_per_trans = nstructures_per_trans
 
     def apply_transformation(self, structure, return_ranked_list=False):
+        """
+        Applies the transformation.
+
+        Args:
+            structure: Input Structure
+            return_ranked_list: Number of structures to return.
+
+        Returns:
+            Structures with all transformations applied.
+        """
         if not return_ranked_list:
             raise ValueError(
                 "SuperTransformation has no single best structure"
@@ -151,10 +174,12 @@ class SuperTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
+        """Returns: None"""
         return None
 
     @property
     def is_one_to_many(self):
+        """Returns: True"""
         return True
 
 
@@ -204,6 +229,16 @@ class MultipleSubstitutionTransformation:
         self.order = order
 
     def apply_transformation(self, structure, return_ranked_list=False):
+        """
+        Applies the transformation.
+
+        Args:
+            structure: Input Structure
+            return_ranked_list: Number of structures to return.
+
+        Returns:
+            Structures with all substitutions applied.
+        """
         if not return_ranked_list:
             raise ValueError(
                 "MultipleSubstitutionTransformation has no single"
@@ -253,10 +288,12 @@ class MultipleSubstitutionTransformation:
 
     @property
     def inverse(self):
+        """Returns: None"""
         return None
 
     @property
     def is_one_to_many(self):
+        """Returns: True"""
         return True
 
 
@@ -265,45 +302,6 @@ class EnumerateStructureTransformation(AbstractTransformation):
     Order a disordered structure using enumlib. For complete orderings, this
     generally produces fewer structures that the OrderDisorderedStructure
     transformation, and at a much faster speed.
-
-    Args:
-        min_cell_size:
-            The minimum cell size wanted. Must be an int. Defaults to 1.
-        max_cell_size:
-            The maximum cell size wanted. Must be an int. Defaults to 1.
-        symm_prec:
-            Tolerance to use for symmetry.
-        refine_structure:
-            This parameter has the same meaning as in enumlib_caller.
-            If you are starting from a structure that has been relaxed via
-            some electronic structure code, it is usually much better to
-            start with symmetry determination and then obtain a refined
-            structure. The refined structure have cell parameters and
-            atomic positions shifted to the expected symmetry positions,
-            which makes it much less sensitive precision issues in enumlib.
-            If you are already starting from an experimental cif, refinment
-            should have already been done and it is not necessary. Defaults
-            to False.
-        enum_precision_parameter (float): Finite precision parameter for
-            enumlib. Default of 0.001 is usually ok, but you might need to
-            tweak it for certain cells.
-        check_ordered_symmetry (bool): Whether to check the symmetry of
-            the ordered sites. If the symmetry of the ordered sites is
-            lower, the lowest symmetry ordered sites is included in the
-            enumeration. This is important if the ordered sites break
-            symmetry in a way that is important getting possible
-            structures. But sometimes including ordered sites
-            slows down enumeration to the point that it cannot be
-            completed. Switch to False in those cases. Defaults to True.
-        max_disordered_sites (int):
-            An alternate parameter to max_cell size. Will sequentially try
-            larger and larger cell sizes until (i) getting a result or (ii)
-            the number of disordered sites in the cell exceeds
-            max_disordered_sites. Must set max_cell_size to None when using
-            this parameter.
-        sort_criteria (str): Sort by Ewald energy ("ewald", must have oxidation
-            states and slow) or by number of sites ("nsites", much faster).
-        timeout (float): timeout in minutes to pass to EnumlibAdaptor
     """
 
     def __init__(
@@ -318,6 +316,46 @@ class EnumerateStructureTransformation(AbstractTransformation):
         sort_criteria="ewald",
         timeout=None,
     ):
+        """
+        Args:
+            min_cell_size:
+                The minimum cell size wanted. Must be an int. Defaults to 1.
+            max_cell_size:
+                The maximum cell size wanted. Must be an int. Defaults to 1.
+            symm_prec:
+                Tolerance to use for symmetry.
+            refine_structure:
+                This parameter has the same meaning as in enumlib_caller.
+                If you are starting from a structure that has been relaxed via
+                some electronic structure code, it is usually much better to
+                start with symmetry determination and then obtain a refined
+                structure. The refined structure have cell parameters and
+                atomic positions shifted to the expected symmetry positions,
+                which makes it much less sensitive precision issues in enumlib.
+                If you are already starting from an experimental cif, refinment
+                should have already been done and it is not necessary. Defaults
+                to False.
+            enum_precision_parameter (float): Finite precision parameter for
+                enumlib. Default of 0.001 is usually ok, but you might need to
+                tweak it for certain cells.
+            check_ordered_symmetry (bool): Whether to check the symmetry of
+                the ordered sites. If the symmetry of the ordered sites is
+                lower, the lowest symmetry ordered sites is included in the
+                enumeration. This is important if the ordered sites break
+                symmetry in a way that is important getting possible
+                structures. But sometimes including ordered sites
+                slows down enumeration to the point that it cannot be
+                completed. Switch to False in those cases. Defaults to True.
+            max_disordered_sites (int):
+                An alternate parameter to max_cell size. Will sequentially try
+                larger and larger cell sizes until (i) getting a result or (ii)
+                the number of disordered sites in the cell exceeds
+                max_disordered_sites. Must set max_cell_size to None when using
+                this parameter.
+            sort_criteria (str): Sort by Ewald energy ("ewald", must have oxidation
+                states and slow) or by number of sites ("nsites", much faster).
+            timeout (float): timeout in minutes to pass to EnumlibAdaptor
+        """
         self.symm_prec = symm_prec
         self.min_cell_size = min_cell_size
         self.max_cell_size = max_cell_size
@@ -335,7 +373,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
 
     def apply_transformation(self, structure, return_ranked_list=False):
         """
-        Return either a single ordered structure or a sequence of all ordered
+        Returns either a single ordered structure or a sequence of all ordered
         structures.
 
         Args:
@@ -462,10 +500,12 @@ class EnumerateStructureTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
+        """Returns: None"""
         return None
 
     @property
     def is_one_to_many(self):
+        """Returns: True"""
         return True
 
 
@@ -473,19 +513,31 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
     """
     This transformation takes a structure and uses the structure
     prediction module to find likely site substitutions.
-
-    Args:
-        threshold: Threshold for substitution.
-        **kwargs: Args for SubstitutionProbability class lambda_table, alpha
     """
 
     def __init__(self, threshold=1e-2, scale_volumes=True, **kwargs):
+        r"""
+        Args:
+            threshold: Threshold for substitution.
+            scale_volumes: Whether to scale volumes after substitution.
+            **kwargs: Args for SubstitutionProbability class lambda_table, alpha
+        """
         self.kwargs = kwargs
         self.threshold = threshold
         self.scale_volumes = scale_volumes
         self._substitutor = SubstitutionPredictor(threshold=threshold, **kwargs)
 
     def apply_transformation(self, structure, return_ranked_list=False):
+        """
+        Applies the transformation.
+
+        Args:
+            structure: Input Structure
+            return_ranked_list: Number of structures to return.
+
+        Returns:
+            Predicted Structures.
+        """
         if not return_ranked_list:
             raise ValueError(
                 "SubstitutionPredictorTransformation doesn't"
@@ -521,14 +573,24 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
+        """Returns: None"""
         return None
 
     @property
     def is_one_to_many(self):
+        """Returns: True"""
         return True
 
 
 class MagOrderParameterConstraint(MSONable):
+    """
+    This class can be used to supply MagOrderingTransformation
+    to just a specific subset of species or sites that satisfy the
+    provided constraints. This can be useful for setting an order
+    parameters for, for example, ferrimagnetic structures which
+    might order on certain motifs, with the global order parameter
+    dependent on how many sites satisfy that motif.
+    """
     def __init__(
         self,
         order_parameter,
@@ -537,13 +599,6 @@ class MagOrderParameterConstraint(MSONable):
         site_constraints=None,
     ):
         """
-        This class can be used to supply MagOrderingTransformation
-        to just a specific subset of species or sites that satisfy the
-        provided constraints. This can be useful for setting an order
-        parameters for, for example, ferrimagnetic structures which
-        might order on certain motifs, with the global order parameter
-        dependent on how many sites satisfy that motif.
-
         :param order_parameter (float): any number from 0.0 to 1.0,
             typically 0.5 (antiferromagnetic) or 1.0 (ferromagnetic)
         :param species_constraint (list): str or list of strings
@@ -601,6 +656,12 @@ class MagOrderParameterConstraint(MSONable):
 
 
 class MagOrderingTransformation(AbstractTransformation):
+    """
+    This transformation takes a structure and returns a list of collinear
+    magnetic orderings. For disordered structures, make an ordered
+    approximation first.
+    """
+
     def __init__(
         self,
         mag_species_spin,
@@ -609,10 +670,6 @@ class MagOrderingTransformation(AbstractTransformation):
         **kwargs
     ):
         """
-        This transformation takes a structure and returns a list of collinear
-        magnetic orderings. For disordered structures, make an ordered
-        approximation first.
-
         :param mag_species_spin: A mapping of elements/species to their
             spin magnitudes, e.g. {"Fe3+": 5, "Mn3+": 4}
         :param order_parameter (float or list): if float, a specifies a
@@ -939,10 +996,12 @@ class MagOrderingTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
+        """Returns: None"""
         return None
 
     @property
     def is_one_to_many(self):
+        """Returns: True"""
         return True
 
 
@@ -993,7 +1052,7 @@ class DopingTransformation(AbstractTransformation):
         allowed_doping_species=None,
         **kwargs
     ):
-        """
+        r"""
         Args:
             dopant (Specie-like): E.g., Al3+. Must have oxidation state.
             ionic_radius_tol (float): E.g., Fractional allowable ionic radii
@@ -1015,7 +1074,7 @@ class DopingTransformation(AbstractTransformation):
             allowed_doping_species (list): Species that are allowed to be
                 doping sites. This is an inclusionary list. If specified,
                 any sites which are not
-            \\*\\*kwargs:
+            **kwargs:
                 Same keyword args as :class:`EnumerateStructureTransformation`,
                 i.e., min_cell_size, etc.
         """
@@ -1195,17 +1254,18 @@ class DopingTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
+        """Returns: None"""
         return None
 
     @property
     def is_one_to_many(self):
+        """Returns: True"""
         return True
 
 
 class SlabTransformation(AbstractTransformation):
     """
     A transformation that creates a slab from a structure.
-
     """
 
     def __init__(
@@ -1247,6 +1307,15 @@ class SlabTransformation(AbstractTransformation):
         self.tol = 0.1
 
     def apply_transformation(self, structure):
+        """
+        Applies the transformation.
+
+        Args:
+            structure: Input Structure
+
+        Returns:
+            Slab Structures.
+        """
         sg = SlabGenerator(
             structure,
             self.miller_index,
@@ -1263,11 +1332,13 @@ class SlabTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
+        """Returns: None"""
         return None
 
     @property
     def is_one_to_many(self):
-        return None
+        """Returns: False"""
+        return False
 
 
 class DisorderOrderedTransformation(AbstractTransformation):
@@ -1296,7 +1367,8 @@ class DisorderOrderedTransformation(AbstractTransformation):
             structure: ordered structure
             return_ranked_list: as in other pymatgen Transformations
 
-        Returns: transformed disordered structure(s)
+        Returns:
+            Transformed disordered structure(s)
         """
 
         if not structure.is_ordered:
@@ -1328,10 +1400,12 @@ class DisorderOrderedTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
+        """Returns: None"""
         return None
 
     @property
     def is_one_to_many(self):
+        """Returns: True"""
         return True
 
     @staticmethod
@@ -1504,6 +1578,16 @@ class GrainBoundaryTransformation(AbstractTransformation):
         self.quick_gen = quick_gen
 
     def apply_transformation(self, structure):
+        """
+        Applies the transformation.
+
+        Args:
+            structure: Input Structure
+            return_ranked_list: Number of structures to return.
+
+        Returns:
+            Grain boundary Structures.
+        """
         gbg = GrainBoundaryGenerator(structure)
         gb_struct = gbg.gb_from_parameters(
             self.rotation_axis,
@@ -1523,10 +1607,12 @@ class GrainBoundaryTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
+        """Returns: None"""
         return None
 
     @property
     def is_one_to_many(self):
+        """Returns: False"""
         return False
 
 
@@ -1799,14 +1885,19 @@ class CubicSupercellTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
+        """Returns: None"""
         return None
 
     @property
     def is_one_to_many(self):
+        """Returns: False"""
         return False
 
 
 class AddAdsorbateTransformation(AbstractTransformation):
+    """
+    Create absorbate structures.
+    """
     def __init__(
         self,
         adsorbate,
@@ -1890,14 +1981,21 @@ class AddAdsorbateTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
+        """Returns: None"""
         return None
 
     @property
     def is_one_to_many(self):
+        """Returns: True"""
         return True
 
 
 class SubstituteSurfaceSiteTransformation(AbstractTransformation):
+    """
+    Use AdsorptionSiteFinder to perform substitution-type doping on the surface
+    and returns all possible configurations where one dopant is substituted
+    per surface. Can substitute one surface or both.
+    """
     def __init__(
         self,
         atom,
@@ -1910,11 +2008,6 @@ class SubstituteSurfaceSiteTransformation(AbstractTransformation):
         dist_from_surf=0,
     ):
         """
-        Use AdsorptionSiteFinder to perform substitution-type doping on the surface and
-        returns all possible configurations where one dopant is substituted
-        per surface. Can substitute one surface or both.
-
-
         Args:
             atom (str): atom corresponding to substitutional dopant
             selective_dynamics (bool): flag for whether to assign
@@ -1979,10 +2072,12 @@ class SubstituteSurfaceSiteTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
+        """Returns: None"""
         return None
 
     @property
     def is_one_to_many(self):
+        """Returns: True"""
         return True
 
 
@@ -2034,8 +2129,10 @@ class SQSTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
+        """Returns: None"""
         return None
 
     @property
     def is_one_to_many(self):
+        """Returns: False"""
         return False
