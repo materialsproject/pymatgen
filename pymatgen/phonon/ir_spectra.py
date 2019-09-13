@@ -26,6 +26,7 @@ __maintainer__ = "Henrique Miranda"
 __email__ = "miranda.henrique@gmail.com"
 __date__ = "Oct 31, 2018"
 
+
 class IRDielectricTensor(MSONable):
     """
     Class to handle the Ionic Dielectric Tensor
@@ -35,7 +36,8 @@ class IRDielectricTensor(MSONable):
     def __init__(self, oscillator_strength, phfreqs_gamma, epsilon_infinity, structure):
         """
         Args:
-            oscillatator_strength: IR oscillator strengths as defined in Eq. 54 in :cite:`Gonze1997` PRB55, 10355 (1997).
+            oscillatator_strength: IR oscillator strengths as defined
+                                   in Eq. 54 in :cite:`Gonze1997` PRB55, 10355 (1997).
             phfreqs_gamma: Phonon frequencies at the Gamma point
             epsilon_infinity: electronic susceptibility as defined in Eq. 29.
             structure: A Structure object corresponding to the structure used for the calculation.
@@ -72,15 +74,15 @@ class IRDielectricTensor(MSONable):
                 "structure": self.structure.as_dict(),
                 "epsilon_infinity": self.epsilon_infinity.tolist()}
 
-    def write_json(self,filename):
+    def write_json(self, filename):
         """
         Save a json file with this data
         """
         import json
-        with open(filename,'w') as f:
-            json.dump(self.as_dict(),f)
+        with open(filename, 'w') as f:
+            json.dump(self.as_dict(), f)
 
-    def get_ir_spectra(self,broad=0.00005,emin=0,emax=None,divs=500):
+    def get_ir_spectra(self, broad=0.00005, emin=0, emax=None, divs=500):
         """
         The IR spectra is obtained for the different directions
 
@@ -95,26 +97,29 @@ class IRDielectricTensor(MSONable):
             dielectric_tensor: ndivsx3x3 numpy array with the dielectric tensor
                          for the range of frequencies
         """
-        if isinstance(broad,float): broad = [broad]*self.nphfreqs
-        if isinstance(broad,list) and len(broad) != self.nphfreqs:
+        if isinstance(broad, float):
+            broad = [broad]*self.nphfreqs
+        if isinstance(broad, list) and len(broad) != self.nphfreqs:
             raise ValueError('The number of elements in the broad_list '
                              'is not the same as the number of frequencies')
 
-        if emax is None: emax = self.max_phfreq + max(broad)*20
-        frequencies = np.linspace(emin,emax,divs)
+        if emax is None:
+            emax = self.max_phfreq + max(broad)*20
+        frequencies = np.linspace(emin, emax, divs)
 
         na = np.newaxis
-        dielectric_tensor = np.zeros((divs, 3, 3),dtype=complex)
+        dielectric_tensor = np.zeros((divs, 3, 3), dtype=complex)
         for i in range(3, len(self.phfreqs_gamma)):
-            g =  broad[i] * self.phfreqs_gamma[i]
-            dielectric_tensor += (self.oscillator_strength[i,:,:] /
-                                 (self.phfreqs_gamma[i]**2 - frequencies[:,na,na]**2 - 1j*g))
-        dielectric_tensor += self.epsilon_infinity[na,:,:]
+            g = broad[i] * self.phfreqs_gamma[i]
+            num = self.oscillator_strength[i, :, :]
+            den = (self.phfreqs_gamma[i]**2 - frequencies[:, na, na]**2 - 1j*g)
+            dielectric_tensor += num / den
+        dielectric_tensor += self.epsilon_infinity[na, :, :]
 
-        return frequencies,dielectric_tensor
+        return frequencies, dielectric_tensor
 
     @add_fig_kwargs
-    def plot(self,components=('xx',),reim="reim",show_phonon_frequencies=True,xlim=None,ylim=None,**kwargs):
+    def plot(self, components=('xx',), reim="reim", show_phonon_frequencies=True, xlim=None, ylim=None, **kwargs):
         """
         Helper function to generate the Spectrum plotter and directly plot the results
 
@@ -124,17 +129,17 @@ class IRDielectricTensor(MSONable):
             reim: If 're' (im) is present in the string plots the real (imaginary) part of the dielectric tensor
             show_phonon_frequencies: plot a dot where the phonon frequencies are to help identify IR inactive modes
         """
-        plotter = self.get_plotter(components=components,reim=reim,**kwargs)
-        plt = plotter.get_plot(xlim=xlim,ylim=ylim)
+        plotter = self.get_plotter(components=components, reim=reim, **kwargs)
+        plt = plotter.get_plot(xlim=xlim, ylim=ylim)
 
         if show_phonon_frequencies:
             phfreqs_gamma = self.phfreqs_gamma[3:]
-            plt.scatter(phfreqs_gamma*1000,np.zeros_like(phfreqs_gamma))
+            plt.scatter(phfreqs_gamma*1000, np.zeros_like(phfreqs_gamma))
         plt.xlabel(r'$\epsilon(\omega)$')
         plt.xlabel(r'Frequency (meV)')
         return plt
 
-    def get_plotter(self,components=('xx',),reim="reim",**kwargs):
+    def get_plotter(self, components=('xx',), reim="reim", **kwargs):
         """
         Return an instance of the Spectrum plotter containing the different requested components
 
@@ -143,24 +148,23 @@ class IRDielectricTensor(MSONable):
                         Can be either two indexes or a string like 'xx' to plot the (0,0) component
             reim: If 're' (im) is present in the string plots the real (imaginary) part of the dielectric tensor
         """
-        directions_map = {'x':0,'y':1,'z':2,0:0,1:1,2:2}
+        directions_map = {'x': 0, 'y': 1, 'z': 2, 0: 0, 1: 1, 2: 2}
         functions_map = {'re': lambda x: x.real, 'im': lambda x: x.imag}
-        reim_label = {'re':'Re','im':'Im'}
+        reim_label = {'re': 'Re', 'im': 'Im'}
 
-        frequencies,dielectric_tensor = self.get_ir_spectra()
+        frequencies, dielectric_tensor = self.get_ir_spectra()
 
         plotter = SpectrumPlotter()
         for component in components:
             if not all([direction in directions_map.keys() for direction in component]) or len(component) != 2:
                 raise ValueError('Invalid value found in components: {}'.format(component))
-            i,j = [directions_map[direction] for direction in component]
+            i, j = [directions_map[direction] for direction in component]
             for fstr in functions_map:
                 if fstr in reim:
                     f = functions_map[fstr]
-                    label = r"%s{$\epsilon_{%s%s}$}"%(reim_label[fstr],'xyz'[i],'xyz'[j])
-                    y = f(dielectric_tensor[:,i,j])
-                    spectrum = Spectrum(frequencies*1000,y,label=label,**kwargs)
-                    plotter.add_spectrum(label,spectrum)
+                    label = r"%s{$\epsilon_{%s%s}$}" % (reim_label[fstr], 'xyz'[i], 'xyz'[j])
+                    y = f(dielectric_tensor[:, i, j])
+                    spectrum = Spectrum(frequencies*1000, y, label=label, **kwargs)
+                    plotter.add_spectrum(label, spectrum)
 
         return plotter
-
