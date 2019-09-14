@@ -38,7 +38,7 @@ if __name__ == '__main__':
         try:
             nperms = int(test)
             perms_def = 'ndefined'
-        except:
+        except Exception:
             perms_def = 'on_demand'
 
     for coordination in range(1, 13):
@@ -64,7 +64,7 @@ if __name__ == '__main__':
             perms_type = 'explicit'
             try:
                 nperms = int(test)
-            except:
+            except Exception:
                 raise ValueError('Could not turn {} into integer ...'.format(test))
             perms_iterator = []
             for ii in range(nperms):

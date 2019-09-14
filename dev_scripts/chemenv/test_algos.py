@@ -53,7 +53,7 @@ if __name__ == '__main__':
     else:
         try:
             nperms = int(test)
-        except:
+        except Exception:
             raise ValueError('Could not turn {} into integer ...'.format(test))
         perms_iterator = []
         for ii in range(nperms):
