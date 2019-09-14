@@ -126,8 +126,6 @@ class VasprunTest(PymatgenTest):
                             for i in vasprun.ionic_steps])
         self.assertEqual(29, len(vasprun.ionic_steps))
         self.assertEqual(len(vasprun.structures), len(vasprun.ionic_steps))
-        self.assertEqual(vasprun.lattice,
-                         vasprun.lattice_rec.reciprocal_lattice)
 
         for i, step in enumerate(vasprun.ionic_steps):
             self.assertEqual(vasprun.structures[i], step["structure"])

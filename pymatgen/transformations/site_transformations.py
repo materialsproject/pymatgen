@@ -2,6 +2,12 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module defines site transformations which transforms a structure into
+another structure. Site transformations differ from standard transformations
+in that they operate in a site-specific manner.
+All transformations should inherit the AbstractTransformation ABC.
+"""
 
 import math
 import itertools
@@ -16,13 +22,6 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
 
-"""
-This module defines site transformations which transforms a structure into
-another structure. Site transformations differ from standard transformations
-in that they operate in a site-specific manner.
-All transformations should inherit the AbstractTransformation ABC.
-"""
-
 __author__ = "Shyue Ping Ong, Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.2"
@@ -34,18 +33,19 @@ __date__ = "Sep 23, 2011"
 class InsertSitesTransformation(AbstractTransformation):
     """
     This transformation substitutes certain sites with certain species.
-
-    Args:
-        species: A list of species. e.g., ["Li", "Fe"]
-        coords: A list of coords corresponding to those species. e.g.,
-            [[0,0,0],[0.5,0.5,0.5]].
-        coords_are_cartesian (bool): Set to True if coords are given in
-            cartesian coords. Defaults to False.
-        validate_proximity (bool): Set to False if you do not wish to ensure
-            that added sites are not too close to other sites. Defaults to True.
     """
     def __init__(self, species, coords, coords_are_cartesian=False,
                  validate_proximity=True):
+        """
+        Args:
+            species: A list of species. e.g., ["Li", "Fe"]
+            coords: A list of coords corresponding to those species. e.g.,
+                [[0,0,0],[0.5,0.5,0.5]].
+            coords_are_cartesian (bool): Set to True if coords are given in
+                cartesian coords. Defaults to False.
+            validate_proximity (bool): Set to False if you do not wish to ensure
+                that added sites are not too close to other sites. Defaults to True.
+        """
         if len(species) != len(coords):
             raise ValueError("Species and coords must be the same length!")
         self.species = species
@@ -54,6 +54,16 @@ class InsertSitesTransformation(AbstractTransformation):
         self.validate_proximity = validate_proximity
 
     def apply_transformation(self, structure):
+        """
+        Apply the transformation.
+
+        Arg:
+            structure (Structure): A structurally similar structure in
+                regards to crystal and site positions.
+
+        Return:
+            Returns a copy of structure with sites inserted.
+        """
         s = structure.copy()
         for i, sp in enumerate(self.species):
             s.insert(i, sp, self.coords[i],
@@ -70,29 +80,42 @@ class InsertSitesTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
+        """Return: None"""
         return None
 
     @property
     def is_one_to_many(self):
+        """Return: False"""
         return False
 
 
 class ReplaceSiteSpeciesTransformation(AbstractTransformation):
     """
     This transformation substitutes certain sites with certain species.
-
-    Args:
-        indices_species_map: A dict containing the species mapping in
-            int-string pairs. E.g., { 1:"Na"} or {2:"Mn2+"}. Multiple
-            substitutions can be done. Overloaded to accept sp_and_occu
-            dictionary. E.g. {1: {"Ge":0.75, "C":0.25} }, which
-            substitutes a single species with multiple species to generate a
-            disordered structure.
     """
     def __init__(self, indices_species_map):
+        """
+        Args:
+            indices_species_map: A dict containing the species mapping in
+                int-string pairs. E.g., { 1:"Na"} or {2:"Mn2+"}. Multiple
+                substitutions can be done. Overloaded to accept sp_and_occu
+                dictionary. E.g. {1: {"Ge":0.75, "C":0.25} }, which
+                substitutes a single species with multiple species to generate a
+                disordered structure.
+        """
         self.indices_species_map = indices_species_map
 
     def apply_transformation(self, structure):
+        """
+        Apply the transformation.
+
+        Arg:
+            structure (Structure): A structurally similar structure in
+                regards to crystal and site positions.
+
+        Return:
+            Returns a copy of structure with sites replaced.
+        """
         s = structure.copy()
         for i, sp in self.indices_species_map.items():
             s[int(i)] = sp
@@ -108,24 +131,38 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
+        """Return: None"""
         return None
 
     @property
     def is_one_to_many(self):
+        """Return: False"""
         return False
 
 
 class RemoveSitesTransformation(AbstractTransformation):
     """
     Remove certain sites in a structure.
-
-    Args:
-        indices_to_remove: List of indices to remove. E.g., [0, 1, 2]
     """
     def __init__(self, indices_to_remove):
+        """
+        Args:
+            indices_to_remove: List of indices to remove. E.g., [0, 1, 2]
+        """
+
         self.indices_to_remove = indices_to_remove
 
     def apply_transformation(self, structure):
+        """
+        Apply the transformation.
+
+        Arg:
+            structure (Structure): A structurally similar structure in
+                regards to crystal and site positions.
+
+        Return:
+            Returns a copy of structure with sites removed.
+        """
         s = structure.copy()
         s.remove_sites(self.indices_to_remove)
         return s
@@ -139,34 +176,47 @@ class RemoveSitesTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
+        """Return: None"""
         return None
 
     @property
     def is_one_to_many(self):
+        """Return: False"""
         return False
 
 
 class TranslateSitesTransformation(AbstractTransformation):
     """
     This class translates a set of sites by a certain vector.
-
-    Args:
-        indices_to_move: The indices of the sites to move
-        translation_vector: Vector to move the sites. If a list of list or numpy
-            array of shape, (len(indices_to_move), 3), is provided then each
-            translation vector is applied to the corresponding site in the
-            indices_to_move.
-        vector_in_frac_coords: Set to True if the translation vector is in
-            fractional coordinates, and False if it is in cartesian
-            coordinations. Defaults to True.
     """
     def __init__(self, indices_to_move, translation_vector,
                  vector_in_frac_coords=True):
+        """
+        Args:
+            indices_to_move: The indices of the sites to move
+            translation_vector: Vector to move the sites. If a list of list or numpy
+                array of shape, (len(indices_to_move), 3), is provided then each
+                translation vector is applied to the corresponding site in the
+                indices_to_move.
+            vector_in_frac_coords: Set to True if the translation vector is in
+                fractional coordinates, and False if it is in cartesian
+                coordinations. Defaults to True.
+        """
         self.indices_to_move = indices_to_move
         self.translation_vector = np.array(translation_vector)
         self.vector_in_frac_coords = vector_in_frac_coords
 
     def apply_transformation(self, structure):
+        """
+        Apply the transformation.
+
+        Arg:
+            structure (Structure): A structurally similar structure in
+                regards to crystal and site positions.
+
+        Return:
+            Returns a copy of structure with sites translated.
+        """
         s = structure.copy()
         if self.translation_vector.shape == (len(self.indices_to_move), 3):
             for i, idx in enumerate(self.indices_to_move):
@@ -188,12 +238,17 @@ class TranslateSitesTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
+        """
+        Returns:
+            TranslateSitesTranformation with the reverse translation.
+        """
         return TranslateSitesTransformation(
             self.indices_to_move, -self.translation_vector,
             self.vector_in_frac_coords)
 
     @property
     def is_one_to_many(self):
+        """Return: False"""
         return False
 
     def as_dict(self):
@@ -210,19 +265,6 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
     Remove fraction of specie from a structure.
     Requires an oxidation state decorated structure for ewald sum to be
     computed.
-
-
-    Args:
-        indices:
-            A list of list of indices.
-            e.g. [[0, 1], [2, 3, 4, 5]]
-        fractions:
-            The corresponding fractions to remove. Must be same length as
-            indices. e.g., [0.5, 0.25]
-        algo:
-            This parameter allows you to choose the algorithm to perform
-            ordering. Use one of PartialRemoveSpecieTransformation.ALGO_*
-            variables to set the algo.
 
     Given that the solution to selecting the right removals is NP-hard, there
     are several algorithms provided with varying degrees of accuracy and speed.
@@ -263,12 +305,25 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
     ALGO_ENUMERATE = 3
 
     def __init__(self, indices, fractions, algo=ALGO_COMPLETE):
+        """
+        Args:
+            indices:
+                A list of list of indices.
+                e.g. [[0, 1], [2, 3, 4, 5]]
+            fractions:
+                The corresponding fractions to remove. Must be same length as
+                indices. e.g., [0.5, 0.25]
+            algo:
+                This parameter allows you to choose the algorithm to perform
+                ordering. Use one of PartialRemoveSpecieTransformation.ALGO_*
+                variables to set the algo.
+        """
         self.indices = indices
         self.fractions = fractions
         self.algo = algo
         self.logger = logging.getLogger(self.__class__.__name__)
 
-    def best_first_ordering(self, structure, num_remove_dict):
+    def _best_first_ordering(self, structure, num_remove_dict):
         self.logger.debug("Performing best first ordering")
         starttime = time.time()
         self.logger.debug("Performing initial ewald sum...")
@@ -307,7 +362,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         return [{"energy": sum(sum(ematrix)),
                  "structure": s.get_sorted_structure()}]
 
-    def complete_ordering(self, structure, num_remove_dict):
+    def _complete_ordering(self, structure, num_remove_dict):
         self.logger.debug("Performing complete ordering...")
         all_structures = []
         symprec = 0.2
@@ -365,7 +420,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         all_structures = sorted(all_structures, key=lambda s: s["energy"])
         return all_structures
 
-    def fast_ordering(self, structure, num_remove_dict, num_to_return=1):
+    def _fast_ordering(self, structure, num_remove_dict, num_to_return=1):
         """
         This method uses the matrix form of ewaldsum to calculate the ewald
         sums of the potential structures. This is on the order of 4 orders of
@@ -416,7 +471,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
 
         return all_structures
 
-    def enumerate_ordering(self, structure):
+    def _enumerate_ordering(self, structure):
         # Generate the disordered structure first.
         s = structure.copy()
         for indices, fraction in zip(self.indices, self.fractions):
@@ -479,15 +534,15 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
                           .format(num_to_return))
 
         if self.algo == PartialRemoveSitesTransformation.ALGO_FAST:
-            all_structures = self.fast_ordering(structure, num_remove_dict,
-                                                num_to_return)
+            all_structures = self._fast_ordering(structure, num_remove_dict,
+                                                 num_to_return)
         elif self.algo == PartialRemoveSitesTransformation.ALGO_COMPLETE:
-            all_structures = self.complete_ordering(structure, num_remove_dict)
+            all_structures = self._complete_ordering(structure, num_remove_dict)
         elif self.algo == PartialRemoveSitesTransformation.ALGO_BEST_FIRST:
-            all_structures = self.best_first_ordering(structure,
-                                                      num_remove_dict)
+            all_structures = self._best_first_ordering(structure,
+                                                       num_remove_dict)
         elif self.algo == PartialRemoveSitesTransformation.ALGO_ENUMERATE:
-            all_structures = self.enumerate_ordering(structure)
+            all_structures = self._enumerate_ordering(structure)
         else:
             raise ValueError("Invalid algo.")
 
@@ -504,10 +559,12 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
+        """Return: None"""
         return None
 
     @property
     def is_one_to_many(self):
+        """Return: True"""
         return True
 
 
@@ -524,10 +581,14 @@ class AddSitePropertyTransformation(AbstractTransformation):
 
     def apply_transformation(self, structure):
         """
-        apply the transformation
+        Apply the transformation.
 
-        Args:
-            structure (Structure): structure to add site properties to
+        Arg:
+            structure (Structure): A structurally similar structure in
+                regards to crystal and site positions.
+
+        Return:
+            Returns a copy of structure with sites properties added.
         """
         new_structure = structure.copy()
         for prop in self.site_properties.keys():
@@ -536,8 +597,10 @@ class AddSitePropertyTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
+        """Return: None"""
         return None
 
     @property
     def is_one_to_many(self):
+        """Return: False"""
         return False
