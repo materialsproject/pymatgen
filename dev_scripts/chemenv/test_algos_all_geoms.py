@@ -29,7 +29,7 @@ if __name__ == '__main__':
 
     allcg = AllCoordinationGeometries()
 
-    test = raw_input('Standard ("s", all permutations for cn <= 6, 500 random permutations for cn > 6) or on demand')
+    test = input('Standard ("s", all permutations for cn <= 6, 500 random permutations for cn > 6) or on demand')
     if test == 's':
         perms_def = 'standard'
     elif test == 'o':
@@ -53,7 +53,7 @@ if __name__ == '__main__':
         elif perms_def == 'ndefined':
             test = nperms
         else:
-            test = raw_input('Enter if you want to test all possible permutations ("all" or "a") or a given number of random permutations (i.e. "25")')
+            test = input('Enter if you want to test all possible permutations ("all" or "a") or a given number of random permutations (i.e. "25")')
         myindices = range(coordination)
 
         if test == 'all' or test == 'a':
@@ -119,6 +119,6 @@ if __name__ == '__main__':
 
                     if not min(results[0]) < 1.5:
                         print('Following is not close to 0.0 ...')
-                        raw_input(results)
+                        input(results)
                 print('   => ', algos_results)
                 iperm += 1

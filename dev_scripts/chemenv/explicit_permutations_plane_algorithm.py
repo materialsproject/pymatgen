@@ -21,7 +21,7 @@ if __name__ == '__main__':
     # Choose the geometry
     allcg = AllCoordinationGeometries()
     while True:
-        cg_symbol = raw_input('Enter symbol of the geometry for which you want to get the explicit permutations : ')
+        cg_symbol = input('Enter symbol of the geometry for which you want to get the explicit permutations : ')
         try:
             cg = allcg[cg_symbol]
             break
@@ -105,7 +105,7 @@ if __name__ == '__main__':
         print(cgsm)
         if cgsm[0] is None:
             print('IS NONE !')
-            raw_input()
+            input()
             continue
 
         csms, perms, algos, sep_perms = cgsm[0], cgsm[1], cgsm[2], cgsm[3]
@@ -132,7 +132,7 @@ if __name__ == '__main__':
         newalgos.append(sepplanealgo)
 
     # Write update geometry file ?
-    test = raw_input('Save it ? ("y" to confirm)')
+    test = input('Save it ? ("y" to confirm)')
     if test == 'y':
         cg._algorithms = newalgos
         cg_dict = cg.as_dict()

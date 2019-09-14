@@ -176,7 +176,7 @@ if __name__ == '__main__':
                   '{:d} explicit permutations'.format(eop,
                                                       len(algo.explicit_permutations)))
             if algo.other_plane_points is None:
-                raw_input('Multiplicity and other plane points is not defined for this algorithm !')
+                input('Multiplicity and other plane points is not defined for this algorithm !')
 
             # Setup of safe permutations
             permutations = algo.safe_separation_permutations(ordered_plane=algo.ordered_plane,
@@ -341,7 +341,7 @@ if __name__ == '__main__':
                     mincsm = min(csms)
                     if not mincsm < 1.0:
                         print('Following is not close enough to 0.0 ...')
-                        raw_input(csms)
+                        input(csms)
                     mincsm_indices = []
                     for icsm, csm in enumerate(csms):
                         if np.isclose(mincsm, csm, rtol=0.0):
