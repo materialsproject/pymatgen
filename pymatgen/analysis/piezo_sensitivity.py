@@ -1,6 +1,8 @@
+"""
+Piezo sensitivity analysis module.
+"""
+
 from pymatgen.core.tensors import Tensor
-from pymatgen.symmetry import site_symmetries as ss
-from pymatgen.analysis.piezo import PiezoTensor
 import pymatgen.io.phonopy
 
 import numpy as np
@@ -10,7 +12,6 @@ from monty.dev import requires
 
 try:
     from phonopy import Phonopy
-    from phonopy.structure.atoms import PhonopyAtoms
     from phonopy.harmonic import dynmat_to_fc as dyntofc
 except ImportError:
     Phonopy = None
@@ -100,11 +101,9 @@ class BornEffectiveCharge:
                 passed.append([site, neweig])
         BEC_operations = []
         for atom in range(len(relations)):
-            good = 0
             BEC_operations.append(relations[atom])
             BEC_operations[atom].append([])
 
-            good = 0
             for op in uniquepointops:
                 new = op.transform_tensor(self.bec[relations[atom][1]])
 
@@ -132,7 +131,6 @@ class BornEffectiveCharge:
 
         l = len(struc)
         BEC = np.zeros((l, 3, 3))
-        primsites = []
         for atom in range(len(self.BEC_operations)):
             if self.BEC_operations[atom][0] == self.BEC_operations[atom][1]:
                 temp_tensor = Tensor(np.random.rand(3, 3) - 0.5)
@@ -490,7 +488,6 @@ class ForceConstantMatrix:
         """
 
         operations = self.FCM_operations
-        numsites = len(self.structure)
         D = unsymmetrized_fcm
         for op in operations:
             same = 0
@@ -568,7 +565,6 @@ class ForceConstantMatrix:
             3Nx3N numpy array representing the force constant matrix
         """
 
-        numsites = len(self.structure)
         check = 0
         count = 0
         while check == 0:
@@ -626,7 +622,6 @@ class ForceConstantMatrix:
         D = np.ones([numsites * 3, numsites * 3])
         for num in range(numiter):
             X = np.real(fcm)
-            passed = []
 
             # symmetry operations
             pastrow = 0
@@ -792,7 +787,6 @@ def get_piezo(BEC, IST, FCM, rcond=0.0001):
     numsites = len(BEC)
     temp_fcm = np.reshape(np.swapaxes(FCM, 1, 2), (numsites * 3, numsites * 3))
 
-    piezo = np.zeros([3, 3, 3])
     eigs, vecs = np.linalg.eig(temp_fcm)
     K = np.linalg.pinv(
         -temp_fcm,
@@ -823,7 +817,6 @@ def rand_piezo(struc, pointops, sharedops, BEC, IST, FCM, anumiter=10):
         list in the form of [Nx3x3 random born effective charge tenosr,
         Nx3x3x3 random internal strain tensor, NxNx3x3 random force constant matrix, 3x3x3 piezo tensor]
     """
-    numsites = len(struc.sites)
     bec = BornEffectiveCharge(struc, BEC, pointops)
     bec.get_BEC_operations()
     rand_BEC = bec.get_rand_BEC()
