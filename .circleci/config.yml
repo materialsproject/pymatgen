@@ -49,7 +49,7 @@ jobs:
             echo "--- Done ---"
             echo "flake8 checks..."
             flake8 --count --select=E9,F63,F7,F82 --show-source --statistics pymatgen
-            flake8 --count --show-source --statistics pymatgen/core pymatgen/electronic_structure pymatgen/ext pymatgen/io pymatgen/transformations
+            flake8 --count --show-source --statistics pymatgen/core pymatgen/electronic_structure pymatgen/ext pymatgen/io pymatgen/transformations pymatgen/analysis
             # exit-zero treats all errors as warnings.
             flake8 --count --exit-zero --max-complexity=10 --statistics pymatgen
             echo "--- Done ---"
