@@ -2,6 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Module for BondDissociationEnergies.
+"""
 
 import logging
 
@@ -26,17 +29,18 @@ logger = logging.getLogger(__name__)
 
 
 class BondDissociationEnergies(MSONable):
+    """
+    Standard constructor for bond dissociation energies. All bonds in the principle molecule are
+    looped through and their dissociation energies are calculated given the energies of the resulting
+    fragments, or, in the case of a ring bond, from the energy of the molecule obtained from breaking
+    the bond and opening the ring. This class should only be called after the energies of the optimized
+    principle molecule and all relevant optimized fragments have been determined, either from quantum
+    chemistry or elsewhere. It was written to provide the analysis after running an Atomate fragmentation
+    workflow.
+    """
 
     def __init__(self, molecule_entry, fragment_entries, allow_additional_charge_separation=False, multibreak=False):
         """
-        Standard constructor for bond dissociation energies. All bonds in the principle molecule are
-        looped through and their dissociation energies are calculated given the energies of the resulting
-        fragments, or, in the case of a ring bond, from the energy of the molecule obtained from breaking
-        the bond and opening the ring. This class should only be called after the energies of the optimized
-        principle molecule and all relevant optimized fragments have been determined, either from quantum
-        chemistry or elsewhere. It was written to provide the analysis after running an Atomate fragmentation
-        workflow.
-
         Note that the entries passed by the user must have the following keys: formula_pretty, initial_molecule,
         final_molecule. If a PCM is present, all entries should also have a pcm_dielectric key.
 
@@ -115,6 +119,12 @@ class BondDissociationEnergies(MSONable):
                 self.fragment_and_process(bond_pair)
 
     def fragment_and_process(self, bonds):
+        """
+        Fragment and process bonds.
+
+        :param bonds: Bonds to process.
+        :return:
+        """
         # Try to split the principle:
         try:
             frags = self.mol_graph.split_molecule_subgraphs(bonds, allow_reverse=True)
@@ -161,8 +171,7 @@ class BondDissociationEnergies(MSONable):
                         # We shouldn't ever encounter more than one good entry.
                         raise RuntimeError("There should only be one valid ring opening fragment! Exiting...")
             elif len(bonds) == 2:
-                if not multibreak:
-                    raise RuntimeError("Should only be trying to break two bonds if multibreak is true! Exiting...")
+                raise RuntimeError("Should only be trying to break two bonds if multibreak is true! Exiting...")
             else:
                 print('No reason to try and break more than two bonds at once! Exiting...')
                 raise ValueError
@@ -235,10 +244,15 @@ class BondDissociationEnergies(MSONable):
                                 num_entries_for_this_frag_pair += 1
 
     def search_fragment_entries(self, frag):
-        # Search all fragment entries for those isomorphic to the given fragment.
-        # We distinguish between entries where both initial and final molgraphs are isomorphic to the
-        # given fragment (entries) vs those where only the intial molgraph is isomorphic to the given
-        # fragment (initial_entries) vs those where only the final molgraph is isomorphic (final_entries)
+        """
+        Search all fragment entries for those isomorphic to the given fragment.
+        We distinguish between entries where both initial and final molgraphs are isomorphic to the
+        given fragment (entries) vs those where only the intial molgraph is isomorphic to the given
+        fragment (initial_entries) vs those where only the final molgraph is isomorphic (final_entries)
+
+        Args:
+            frag: Fragment
+        """
         entries = []
         initial_entries = []
         final_entries = []
@@ -252,6 +266,12 @@ class BondDissociationEnergies(MSONable):
         return [entries, initial_entries, final_entries]
 
     def filter_fragment_entries(self, fragment_entries):
+        """
+        Filter the fragment entries.
+
+        :param fragment_entries:
+        :return:
+        """
         self.filtered_entries = []
         for entry in fragment_entries:
             # Check and make sure that PCM dielectric is consistent with principle:
@@ -310,7 +330,13 @@ class BondDissociationEnergies(MSONable):
                 self.filtered_entries += [entry]
 
     def build_new_entry(self, frags, bonds):
-        # Simple function to format a bond dissociation entry that will eventually be returned to the user.
+        """
+        Simple function to format a bond dissociation entry that will eventually be returned to the user.
+
+        :param frags:
+        :param bonds:
+        :return:
+        """
         specie = nx.get_node_attributes(self.mol_graph.graph, "specie")
         if len(frags) == 2:
             new_entry = [self.molecule_entry["final_energy"] - (frags[0]["final_energy"] + frags[1]["final_energy"]),

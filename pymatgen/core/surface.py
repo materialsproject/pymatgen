@@ -554,7 +554,7 @@ class Slab(Structure):
         """
 
         # tag the sites as either surface sites or not
-        surf_sites_dict = self.get_surface_sites(tag=True)
+        self.get_surface_sites(tag=True)
 
         a = SpacegroupAnalyzer(self)
         symm_structure = a.get_symmetrized_structure()

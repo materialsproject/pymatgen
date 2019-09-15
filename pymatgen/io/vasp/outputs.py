@@ -3424,6 +3424,7 @@ class Procar:
             current_band = 0
             done = False
             spin = Spin.down
+            weights = None
 
             for l in f:
                 l = l.strip()

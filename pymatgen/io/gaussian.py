@@ -2,6 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module implements input and output processing from Gaussian.
+"""
+
 import re
 
 import numpy as np
@@ -15,9 +19,6 @@ from pymatgen.util.coord import get_angle
 import scipy.constants as cst
 
 from pymatgen.electronic_structure.core import Spin
-"""
-This module implements input and output processing from Gaussian.
-"""
 
 __author__ = 'Shyue Ping Ong, Germain  Salvato-Vallverdu, Xin Chen'
 __copyright__ = 'Copyright 2013, The Materials Virtual Lab'
@@ -86,30 +87,6 @@ def read_route_line(route):
 class GaussianInput:
     """
     An object representing a Gaussian input file.
-
-    Args:
-        mol: Input molecule. If molecule is a single string, it is used as a
-            direct input to the geometry section of the Gaussian input
-            file.
-        charge: Charge of the molecule. If None, charge on molecule is used.
-            Defaults to None. This allows the input file to be set a
-            charge independently from the molecule itself.
-        spin_multiplicity: Spin multiplicity of molecule. Defaults to None,
-            which means that the spin multiplicity is set to 1 if the
-            molecule has no unpaired electrons and to 2 if there are
-            unpaired electrons.
-        title: Title for run. Defaults to formula of molecule if None.
-        functional: Functional for run.
-        basis_set: Basis set for run.
-        route_parameters: Additional route parameters as a dict. For example,
-            {'SP':"", "SCF":"Tight"}
-        input_parameters: Additional input parameters for run as a dict. Used
-            for example, in PCM calculations.  E.g., {"EPS":12}
-        link0_parameters: Link0 parameters as a dict. E.g., {"%mem": "1000MW"}
-        dieze_tag: # preceding the route line. E.g. "#p"
-        gen_basis: allows a user-specified basis set to be used in a Gaussian
-            calculation. If this is not None, the attribute ``basis_set`` will
-            be set to "Gen".
     """
 
     # Commonly used regex patterns
@@ -121,6 +98,31 @@ class GaussianInput:
                  functional="HF", basis_set="6-31G(d)", route_parameters=None,
                  input_parameters=None, link0_parameters=None, dieze_tag="#P",
                  gen_basis=None):
+        """
+        Args:
+            mol: Input molecule. If molecule is a single string, it is used as a
+                direct input to the geometry section of the Gaussian input
+                file.
+            charge: Charge of the molecule. If None, charge on molecule is used.
+                Defaults to None. This allows the input file to be set a
+                charge independently from the molecule itself.
+            spin_multiplicity: Spin multiplicity of molecule. Defaults to None,
+                which means that the spin multiplicity is set to 1 if the
+                molecule has no unpaired electrons and to 2 if there are
+                unpaired electrons.
+            title: Title for run. Defaults to formula of molecule if None.
+            functional: Functional for run.
+            basis_set: Basis set for run.
+            route_parameters: Additional route parameters as a dict. For example,
+                {'SP':"", "SCF":"Tight"}
+            input_parameters: Additional input parameters for run as a dict. Used
+                for example, in PCM calculations.  E.g., {"EPS":12}
+            link0_parameters: Link0 parameters as a dict. E.g., {"%mem": "1000MW"}
+            dieze_tag: # preceding the route line. E.g. "#p"
+            gen_basis: allows a user-specified basis set to be used in a Gaussian
+                calculation. If this is not None, the attribute ``basis_set`` will
+                be set to "Gen".
+        """
         self._mol = mol
         self.charge = charge if charge is not None else mol.charge
         nelectrons = - self.charge + mol.charge + mol.nelectrons
@@ -460,6 +462,9 @@ class GaussianInput:
             f.write(self.to_string(cart_coords))
 
     def as_dict(self):
+        """
+        :return: MSONable dict
+        """
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "molecule": self.molecule.as_dict(),
@@ -475,6 +480,10 @@ class GaussianInput:
 
     @classmethod
     def from_dict(cls, d):
+        """
+        :param d: dict
+        :return: GaussianInput
+        """
         return GaussianInput(mol=Molecule.from_dict(d["molecule"]),
                              functional=d["functional"],
                              basis_set=d["basis_set"],
@@ -489,9 +498,6 @@ class GaussianInput:
 class GaussianOutput:
     """
     Parser for Gaussian output files.
-
-    Args:
-        filename: Filename of Gaussian output file.
 
     .. note::
 
@@ -683,15 +689,25 @@ class GaussianOutput:
     """
 
     def __init__(self, filename):
+        """
+        Args:
+            filename: Filename of Gaussian output file.
+        """
         self.filename = filename
         self._parse(filename)
 
     @property
     def final_energy(self):
+        """
+        :return: Final energy in Gaussian output.
+        """
         return self.energies[-1]
 
     @property
     def final_structure(self):
+        """
+        :return: Final structure in Gaussian output.
+        """
         return self.structures[-1]
 
     def _parse(self, filename):
@@ -781,6 +797,7 @@ class GaussianOutput:
         parse_bond_order = False
         input_structures = list()
         std_structures = list()
+        geom_orientation = None
 
         with zopen(filename) as f:
             for line in f:
