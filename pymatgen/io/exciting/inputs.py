@@ -212,9 +212,13 @@ class ExcitingInput(MSONable):
         # write atomic positions for each species
         index = 0
         for i in new_struct.types_of_specie:
+            species = ET.SubElement(structure, 'species', speciesfile=i.symbol + '.xml')
             sites = new_struct.indices_from_symbol(i.symbol)
 
             for j in sites:
+                coord = "%16.8f %16.8f %16.8f" % (new_struct[j].frac_coords[0],
+                                                  new_struct[j].frac_coords[1],
+                                                  new_struct[j].frac_coords[2])
                 # obtain cartesian coords from fractional ones if needed
                 if cartesian:
                     coord2 = []
@@ -223,17 +227,30 @@ class ExcitingInput(MSONable):
                                  new_struct[j].frac_coords[k] * basis[1][k] +
                                  new_struct[j].frac_coords[k] * basis[2][k]) * ang2bohr
                         coord2.append(inter)
+                    coord = "%16.8f %16.8f %16.8f" % (coord2[0],
+                                                      coord2[1],
+                                                      coord2[2])
 
                 # write atomic positions
                 index = index + 1
+                _ = ET.SubElement(species, 'atom', coord=coord)
         # write bandstructure if needed
         if bandstr and celltype == 'primitive':
             kpath = HighSymmKpath(new_struct, symprec=symprec, angle_tolerance=angle_tolerance)
+            prop = ET.SubElement(root, 'properties')
+            bandstrct = ET.SubElement(prop, 'bandstructure')
             for i in range(len(kpath.kpath['path'])):
+                plot = ET.SubElement(bandstrct, 'plot1d')
+                path = ET.SubElement(plot, 'path', steps='100')
                 for j in range(len(kpath.kpath['path'][i])):
                     symbol = kpath.kpath['path'][i][j]
+                    coords = kpath.kpath['kpoints'][symbol]
+                    coord = "%16.8f %16.8f %16.8f" % (coords[0],
+                                                      coords[1],
+                                                      coords[2])
                     if symbol == '\\Gamma':
                         symbol = 'GAMMA'
+                    _ = ET.SubElement(path, 'point', coord=coord, label=symbol)
         elif bandstr and celltype != 'primitive':
             raise ValueError("Bandstructure is only implemented for the \
                               standard primitive unit cell!")
