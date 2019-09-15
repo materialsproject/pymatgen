@@ -25,6 +25,5 @@ jobs:
     - name: Test with pytest
       run: |
         pip install -e .
-        for EXEPATH in `pwd`/cmd_line/*/Linux_64bit; do export PATH=$PATH:$EXEPATH; done
-        export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
+        export PATH=$PATH:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit:`pwd`/cmd_line/boltztrap/Linux_64bit
         pytest pymatgen
