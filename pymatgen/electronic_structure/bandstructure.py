@@ -1130,7 +1130,6 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
                 for i in range(len(d['projections'][spin])):
                     ddd = []
                     for j in range(len(d['projections'][spin][i])):
-                        dddd = []
                         ddd.append(d['projections'][spin][i][j])
                     dd.append(np.array(ddd))
                 projections[Spin(int(spin))] = np.array(dd)
@@ -1153,7 +1152,6 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
             returns an empty dict
         """
         result = {}
-        structure = self.structure
         for spin, v in self.projections.items():
             result[spin] = [[collections.defaultdict(float)
                              for i in range(len(self.kpoints))]
@@ -1184,7 +1182,6 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
             dict.
         """
         result = {}
-        structure = self.structure
         el_orb_spec = {get_el_sp(el): orbs for el, orbs in el_orb_spec.items()}
         for spin, v in self.projections.items():
             result[spin] = [[{str(e): collections.defaultdict(float)

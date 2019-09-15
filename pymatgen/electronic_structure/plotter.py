@@ -2,6 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module implements plotter for DOS and band structure.
+"""
+
 import logging
 import math
 import itertools
@@ -18,7 +22,7 @@ except ImportError:
     mlab = None
 
 from pymatgen.core.periodic_table import Element
-from pymatgen.electronic_structure.core import Spin, Orbital, OrbitalType
+from pymatgen.electronic_structure.core import Spin, OrbitalType
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.util.plotting import pretty_plot, \
     add_fig_kwargs, get_ax3d_fig_plt
@@ -26,11 +30,6 @@ from collections import Counter
 import copy
 
 from pymatgen.electronic_structure.boltztrap import BoltztrapError
-from pymatgen.symmetry.bandstructure import HighSymmKpath
-
-"""
-This module implements plotter for DOS and band structure.
-"""
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Anubhav Jain"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -59,18 +58,19 @@ class DosPlotter:
         # form returned by CompleteDos.get_spd/element/others_dos().
         plotter.add_dos_dict({"dos1": dos1, "dos2": dos2})
         plotter.add_dos_dict(complete_dos.get_spd_dos())
-
-    Args:
-        zero_at_efermi: Whether to shift all Dos to have zero energy at the
-            fermi energy. Defaults to True.
-        stack: Whether to plot the DOS as a stacked area graph
-        key_sort_func: function used to sort the dos_dict keys.
-        sigma: A float specifying a standard deviation for Gaussian smearing
-            the DOS for nicer looking plots. Defaults to None for no
-            smearing.
     """
 
     def __init__(self, zero_at_efermi=True, stack=False, sigma=None):
+        """
+        Args:
+            zero_at_efermi: Whether to shift all Dos to have zero energy at the
+                fermi energy. Defaults to True.
+            stack: Whether to plot the DOS as a stacked area graph
+            key_sort_func: function used to sort the dos_dict keys.
+            sigma: A float specifying a standard deviation for Gaussian smearing
+                the DOS for nicer looking plots. Defaults to None for no
+                smearing.
+        """
         self.zero_at_efermi = zero_at_efermi
         self.stack = stack
         self.sigma = sigma
@@ -248,12 +248,13 @@ class DosPlotter:
 class BSPlotter:
     """
     Class to plot or get data to facilitate the plot of band structure objects.
-
-    Args:
-        bs: A BandStructureSymmLine object.
     """
 
     def __init__(self, bs):
+        """
+        Args:
+            bs: A BandStructureSymmLine object.
+        """
         if not isinstance(bs, BandStructureSymmLine):
             raise ValueError(
                 "BSPlotter only works with BandStructureSymmLine objects. "
@@ -419,7 +420,6 @@ class BSPlotter:
                 Default is None such that no tolerance will be used.
         """
         plt = pretty_plot(12, 8)
-        from matplotlib import rc
         import scipy.interpolate as scint
 
         # main internal config options
@@ -699,12 +699,13 @@ class BSPlotterProjected(BSPlotter):
     """
     Class to plot or get data to facilitate the plot of band structure objects
     projected along orbitals, elements or sites.
-
-    Args:
-        bs: A BandStructureSymmLine object with projections.
     """
 
     def __init__(self, bs):
+        """
+        Args:
+            bs: A BandStructureSymmLine object with projections.
+        """
         if len(bs.projections) == 0:
             raise ValueError("try to plot projections"
                              " on a band structure without any")
@@ -1412,7 +1413,6 @@ class BSPlotterProjected(BSPlotter):
                 "The number of sub-figures %s might be too manny and the implementation might take a long time.\n"
                 "A smaller number or a plot with selected symmetry lines (selected_branches) might be better.\n"
                 % str(number_figs))
-        import math
         from pymatgen.util.plotting import pretty_plot
         band_linewidth = 0.5
         plt = pretty_plot(w_h_size[0], w_h_size[1])
@@ -2533,12 +2533,13 @@ class BoltztrapPlotter:
     # TODO: We need a unittest for this. Come on folks.
     """
     class containing methods to plot the data from Boltztrap.
-
-    Args:
-        bz: a BoltztrapAnalyzer object
     """
 
     def __init__(self, bz):
+        """
+        Args:
+            bz: a BoltztrapAnalyzer object
+        """
         self._bz = bz
 
     def _plot_doping(self, temp):
@@ -2910,7 +2911,6 @@ class BoltztrapPlotter:
             a matplotlib object
         """
         import matplotlib.pyplot as plt
-        import matplotlib.ticker as mtick
 
         if output == 'average':
             cond = self._bz.get_conductivity(relaxation_time=relaxation_time,
@@ -3441,17 +3441,16 @@ class CohpPlotter:
     Class for plotting crystal orbital Hamilton populations (COHPs) or
     crystal orbital overlap populations (COOPs). It is modeled after the
     DosPlotter object.
-
-    Args/attributes:
-        zero_at_efermi: Whether to shift all populations to have zero
-            energy at the Fermi level. Defaults to True.
-
-        are_coops: Switch to indicate that these are COOPs, not COHPs.
-            Defaults to False for COHPs.
-
     """
 
     def __init__(self, zero_at_efermi=True, are_coops=False):
+        """
+        Args:
+            zero_at_efermi: Whether to shift all populations to have zero
+                energy at the Fermi level. Defaults to True.
+            are_coops: Switch to indicate that these are COOPs, not COHPs.
+                Defaults to False for COHPs.
+        """
         self.zero_at_efermi = zero_at_efermi
         self.are_coops = are_coops
         self._cohps = OrderedDict()
