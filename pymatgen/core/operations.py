@@ -392,9 +392,6 @@ class SymmOp(MSONable):
         Returns a string of the form 'x, y, z', '-x, -y, z',
         '-y+1/2, x+1/2, z+1/2', etc. Only works for integer rotation matrices
         """
-        xyz = ['x', 'y', 'z']
-        strings = []
-
         # test for invalid rotation matrix
         if not np.all(np.isclose(self.rotation_matrix,
                                  np.round(self.rotation_matrix))):

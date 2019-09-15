@@ -13,7 +13,7 @@ import json
 import os
 
 from io import open
-from enum import Enum, unique
+from enum import Enum
 from monty.json import MontyEncoder
 
 # The libxc version used to generate this file!
