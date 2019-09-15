@@ -13,13 +13,13 @@ files=`echo $files | tr '\n' ' '`
 echo "Check code styles for $files"
 pycodestyle pymatgen/dao.py $files
 if [ $? -ne 0 ]; then
-  echo "Bad code style detected. Fix before commit."
+  echo "Bad code style detected by pycodestyle. Fix before commit."
   exit 1
 fi
 echo "Flake8 for $files"
 flake8 pymatgen/dao.py $files
 if [ $? -ne 0 ]; then
-  echo "Bad doc style detected. Fix before commit."
+  echo "Bad code style detected by flake8. Fix before commit."
   exit 1
 fi
 echo "Check doc styles for $files"

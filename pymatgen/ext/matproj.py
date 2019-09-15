@@ -19,7 +19,7 @@ import platform
 import re
 import warnings
 from time import sleep
-
+import requests
 from monty.json import MontyDecoder, MontyEncoder
 
 from copy import deepcopy
@@ -115,16 +115,6 @@ class MPRester:
         if self.preamble != "https://materialsproject.org/rest/v2":
             warnings.warn("Non-default endpoint used: {}".format(self.preamble))
 
-        import requests
-        if sys.version_info[0] < 3:
-            try:
-                from pybtex import __version__
-            except ImportError:
-                warnings.warn("If you query for structure data encoded using MP's "
-                              "Structure Notation Language (SNL) format and you use "
-                              "`mp_decode=True` (the default) for MPRester queries, "
-                              "you should install dependencies via "
-                              "`pip install pymatgen[matproj.snl]`.")
         self.session = requests.Session()
         self.session.headers = {"x-api-key": self.api_key}
         if include_user_agent:
@@ -1208,7 +1198,7 @@ class MPRester:
             pymatgen.analysis.wulff.WulffShape
         """
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-        from pymatgen.analysis.wulff import WulffShape, hkl_tuple_to_str
+        from pymatgen.analysis.wulff import WulffShape
 
         structure = self.get_structure_by_material_id(material_id)
         surfaces = self.get_surface_data(material_id)["surfaces"]
