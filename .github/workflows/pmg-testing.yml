@@ -26,4 +26,5 @@ jobs:
       run: |
         pip install -e .
         export PATH=$PATH:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit:`pwd`/cmd_line/boltztrap/Linux_64bit
+        export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
         pytest pymatgen
