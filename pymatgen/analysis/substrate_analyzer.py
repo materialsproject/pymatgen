@@ -13,8 +13,6 @@ from pymatgen.analysis.elasticity.strain import Deformation
 from pymatgen.core.surface import (SlabGenerator,
                                    get_symmetrically_distinct_miller_indices)
 
-from math import gcd
-
 __author__ = "Shyam Dwaraknath"
 __copyright__ = "Copyright 2016, The Materials Project"
 __version__ = "1.0"

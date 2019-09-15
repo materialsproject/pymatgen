@@ -1259,7 +1259,7 @@ class ReactionDiagram:
                             Composition(dict(zip(elements, comp))),
                             energy=energy, attribute=rxn_str)
                         rxn_entries.append(entry)
-                except np.linalg.LinAlgError as ex:
+                except np.linalg.LinAlgError:
                     logger.debug("Reactants = %s" % (", ".join([
                         entry1.composition.reduced_formula,
                         entry2.composition.reduced_formula])))
@@ -1689,9 +1689,6 @@ class PDPlotter:
                 'Energy [meV/at] above hull (in red)\nInverse energy ['
                 'meV/at] above hull (in green)',
                 rotation=-90, ha='left', va='center')
-            ticks = cbar.ax.get_yticklabels()
-            # cbar.ax.set_yticklabels(['${v}$'.format(
-            #     v=float(t.get_text().strip('$'))*1000.0) for t in ticks])
         f = plt.gcf()
         f.set_size_inches((8, 6))
         plt.subplots_adjust(left=0.09, right=0.98, top=0.98, bottom=0.07)
