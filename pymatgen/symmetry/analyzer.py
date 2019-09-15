@@ -2,6 +2,17 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+An interface to the excellent spglib library by Atsushi Togo
+(http://spglib.sourceforge.net/) for pymatgen.
+
+v1.0 - Now works with both ordered and disordered structure.
+v2.0 - Updated for spglib 1.6.
+v3.0 - pymatgen no longer ships with spglib. Instead, spglib (the python
+       version) is now a dependency and the SpacegroupAnalyzer merely serves
+       as an interface to spglib for pymatgen Structures.
+"""
+
 import itertools
 import logging
 from collections import defaultdict
@@ -23,17 +34,6 @@ from pymatgen.core.structure import PeriodicSite
 from pymatgen.core.operations import SymmOp
 from pymatgen.util.coord import find_in_coord_list, pbc_diff
 
-"""
-An interface to the excellent spglib library by Atsushi Togo
-(http://spglib.sourceforge.net/) for pymatgen.
-
-v1.0 - Now works with both ordered and disordered structure.
-v2.0 - Updated for spglib 1.6.
-v3.0 - pymatgen no longer ships with spglib. Instead, spglib (the python
-       version) is now a dependency and the SpacegroupAnalyzer merely serves
-       as an interface to spglib for pymatgen Structures.
-"""
-
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "3.0"
@@ -47,21 +47,22 @@ logger = logging.getLogger(__name__)
 class SpacegroupAnalyzer:
     """
     Takes a pymatgen.core.structure.Structure object and a symprec.
-    Uses pyspglib to perform various symmetry finding operations.
-
-    Args:
-        structure (Structure/IStructure): Structure to find symmetry
-        symprec (float): Tolerance for symmetry finding. Defaults to 0.01,
-            which is fairly strict and works well for properly refined
-            structures with atoms in the proper symmetry coordinates. For
-            structures with slight deviations from their proper atomic
-            positions (e.g., structures relaxed with electronic structure
-            codes), a looser tolerance of 0.1 (the value used in Materials
-            Project) is often needed.
-        angle_tolerance (float): Angle tolerance for symmetry finding.
+    Uses spglib to perform various symmetry finding operations.
     """
 
     def __init__(self, structure, symprec=0.01, angle_tolerance=5):
+        """
+        Args:
+            structure (Structure/IStructure): Structure to find symmetry
+            symprec (float): Tolerance for symmetry finding. Defaults to 0.01,
+                which is fairly strict and works well for properly refined
+                structures with atoms in the proper symmetry coordinates. For
+                structures with slight deviations from their proper atomic
+                positions (e.g., structures relaxed with electronic structure
+                codes), a looser tolerance of 0.1 (the value used in Materials
+                Project) is often needed.
+            angle_tolerance (float): Angle tolerance for symmetry finding.
+        """
         self._symprec = symprec
         self._angle_tol = angle_tolerance
         self._structure = structure
@@ -1313,7 +1314,6 @@ class PointGroupAnalyzer:
             return visited, ops
 
         eq_sets = copy.deepcopy(eq_sets)
-        new_eq_sets = {}
         ops = copy.deepcopy(operations)
         to_be_deleted = set()
         for i in eq_sets:
@@ -1533,15 +1533,16 @@ def generate_full_symmops(symmops, tol):
 class SpacegroupOperations(list):
     """
     Represents a space group, which is a collection of symmetry operations.
-
-    Args:
-        int_symbol (str): International symbol of the spacegroup.
-        int_number (int): International number of the spacegroup.
-        symmops ([SymmOp]): Symmetry operations associated with the
-            spacegroup.
     """
 
     def __init__(self, int_symbol, int_number, symmops):
+        """
+        Args:
+            int_symbol (str): International symbol of the spacegroup.
+            int_number (int): International number of the spacegroup.
+            symmops ([SymmOp]): Symmetry operations associated with the
+                spacegroup.
+        """
         self.int_symbol = int_symbol
         self.int_number = int_number
         super().__init__(symmops)
@@ -1593,20 +1594,21 @@ class PointGroupOperations(list):
     Defines a point group, which is essentially a sequence of symmetry
     operations.
 
-    Args:
-        sch_symbol (str): Schoenflies symbol of the point group.
-        operations ([SymmOp]): Initial set of symmetry operations. It is
-            sufficient to provide only just enough operations to generate
-            the full set of symmetries.
-        tol (float): Tolerance to generate the full set of symmetry
-            operations.
-
     .. attribute:: sch_symbol
 
         Schoenflies symbol of the point group.
     """
 
     def __init__(self, sch_symbol, operations, tol=0.1):
+        """
+        Args:
+            sch_symbol (str): Schoenflies symbol of the point group.
+            operations ([SymmOp]): Initial set of symmetry operations. It is
+                sufficient to provide only just enough operations to generate
+                the full set of symmetries.
+            tol (float): Tolerance to generate the full set of symmetry
+                operations.
+        """
         self.sch_symbol = sch_symbol
         super().__init__(
             generate_full_symmops(operations, tol))
