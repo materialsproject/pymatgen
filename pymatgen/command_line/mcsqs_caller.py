@@ -1,9 +1,10 @@
+"""
+Missing module doc.
+"""
+
 import subprocess
 import os
 import numpy as np
-import time
-from threading import Timer
-from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io import atat
 
 
