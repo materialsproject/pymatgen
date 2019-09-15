@@ -2,8 +2,8 @@
 
 import unittest
 import numpy as np
-
-from pymatgen.symmetry.maggroups import *
+from pymatgen.core.lattice import Lattice
+from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 from pymatgen.symmetry.groups import SpaceGroup
 
 __author__ = "Matthew Horton"
