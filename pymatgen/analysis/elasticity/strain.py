@@ -14,7 +14,6 @@ import scipy
 import itertools
 
 import collections
-from monty.dev import deprecated
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.tensors import SquareTensor, symmetry_reduce
