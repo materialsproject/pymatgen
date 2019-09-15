@@ -12,7 +12,7 @@ All transformations should inherit the AbstractTransformation ABC.
 import logging
 
 from fractions import Fraction
-from numpy import around, array
+from numpy import around
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.structure_matcher import StructureMatcher

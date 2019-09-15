@@ -8,7 +8,7 @@ Defines an abstract base class contract for Transformation object.
 
 import abc
 
-from monty.json import MSONable, MontyDecoder
+from monty.json import MSONable
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
