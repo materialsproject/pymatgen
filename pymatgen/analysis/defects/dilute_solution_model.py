@@ -2,6 +2,15 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Evaluate the defect concentration based on composition, temperature,
+and defect energies using "Dilute Solution Model"
+Reference: Phys Rev B, 63, 094103, 2001,
+"Density of constitutional and thermal point defects in L12 Al3Sc",
+C. Woodward, M. Asta, G. Kresse and J. Hafner.
+Manual and citation for the code, DOI: 10.1016/j.cpc.2015.03.015
+"""
+
 import math
 import copy
 import numpy as np
@@ -11,14 +20,6 @@ from sympy import Symbol, nsolve, Integer, Float, Matrix, exp, solve, Eq
 
 from monty.dev import deprecated
 
-"""
-Evaluate the defect concentration based on composition, temperature,
-and defect energies using "Dilute Solution Model"
-Reference: Phys Rev B, 63, 094103, 2001,
-"Density of constitutional and thermal point defects in L12 Al3Sc",
-C. Woodward, M. Asta, G. Kresse and J. Hafner.
-Manual and citation for the code, DOI: 10.1016/j.cpc.2015.03.015
-"""
 
 __author__ = 'Bharat Medasani'
 __version__ = "0.2"
@@ -32,7 +33,7 @@ k_B = 8.6173324e-5  # eV/K
 
 
 # Check the inputs
-def check_input(def_list):
+def _check_input(def_list):
     flag = True
     for defect in def_list:
         if not defect:
@@ -76,9 +77,9 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
         potentials are returned.
     """
 
-    if not check_input(vac_defs):
+    if not _check_input(vac_defs):
         raise ValueError('Vacancy energy is not defined')
-    if not check_input(antisite_defs):
+    if not _check_input(antisite_defs):
         raise ValueError('Antisite energy is not defined')
 
     formation_energies = {}
@@ -339,10 +340,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
         if not trial_chem_pot:
             mu_vals = compute_mus_by_search()
         else:
-            try:
-                mu_vals = [trial_chem_pot[element] for element in specie_order]
-            except Exception:
-                mu_vals = compute_mus()
+            mu_vals = [trial_chem_pot[element] for element in specie_order]
 
         formation_energies = compute_def_formation_energies()
         mu_dict = dict(zip(specie_order, mu_vals))
@@ -784,9 +782,9 @@ def solute_site_preference_finder(structure,
         plot_data: The data for plotting the solute defect concentration.
     """
 
-    if not check_input(vac_defs):
+    if not _check_input(vac_defs):
         raise ValueError('Vacancy energy is not defined')
-    if not check_input(antisite_defs):
+    if not _check_input(antisite_defs):
         raise ValueError('Antisite energy is not defined')
 
     formation_energies = {}
