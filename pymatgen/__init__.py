@@ -14,16 +14,6 @@ import os
 import warnings
 import ruamel.yaml as yaml
 from fnmatch import fnmatch
-from .core.periodic_table import Element, Specie, DummySpecie
-from .core.composition import Composition
-from .core.structure import Structure, IStructure, Molecule, IMolecule
-from .core.lattice import Lattice
-from .core.sites import Site, PeriodicSite
-from .core.operations import SymmOp
-from .core.units import Unit, FloatWithUnit, ArrayWithUnit
-from .electronic_structure.core import Spin, Orbital
-from .ext.matproj import MPRester
-from monty.json import MontyEncoder, MontyDecoder, MSONable
 
 __author__ = "Pymatgen Development Team"
 __email__ = "pymatgen@googlegroups.com"
@@ -51,6 +41,18 @@ def _load_pmg_settings():
 
 
 SETTINGS = _load_pmg_settings()
+
+
+from .core.periodic_table import Element, Specie, DummySpecie
+from .core.composition import Composition
+from .core.structure import Structure, IStructure, Molecule, IMolecule
+from .core.lattice import Lattice
+from .core.sites import Site, PeriodicSite
+from .core.operations import SymmOp
+from .core.units import Unit, FloatWithUnit, ArrayWithUnit
+from .electronic_structure.core import Spin, Orbital
+from .ext.matproj import MPRester
+from monty.json import MontyEncoder, MontyDecoder, MSONable
 
 
 def get_structure_from_mp(formula):
