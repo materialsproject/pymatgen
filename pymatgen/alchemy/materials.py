@@ -362,7 +362,7 @@ class TransformedStructure(MSONable):
                              'url', 'http://pypi.python.org/pypi/pymatgen'),
                          'description': h})
         from pymatgen.util.provenance import StructureNL
-        return StructureNL(self.final_structure, authors, **kwargs)
+        return StructureNL(self.final_structure, authors, history=hist, **kwargs)
 
     @classmethod
     def from_snl(cls, snl):
