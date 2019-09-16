@@ -25,7 +25,7 @@ jobs:
         pip install -r requirements.txt
         pip install -r requirements-optional.txt
     - name: Install binary dependencies (Linux)
-      if: matrix.os == "ubuntu-latest"
+      if: matrix.os == 'ubuntu-latest'
       run: |
         export PATH=$PATH:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit:`pwd`/cmd_line/boltztrap/Linux_64bit
     - name: Test with pytest
