@@ -37,9 +37,9 @@ script:
   - echo "pycodestyle->mypy->pytest->pydocstyle... Note that this fails on the first command with error."
   - echo "It is highly recommended that you use the pre-commit hook provided in pymatgen (simply copy pre-commit to .git/hooks) to check before pushing your code."
   - travis_wait 28800 pycodestyle pymatgen && mypy pymatgen && pytest $EXCLUDE_TESTS pymatgen
-  # Docstyle checks are enforced for files that have been modified since the v2019.9.12 tagged release.
   - flake8 --count --show-source --statistics pymatgen
   - flake8 --count --exit-zero --max-complexity=10 --statistics pymatgen
+  # Docstyle checks are enforced for files that have been modified since the v2019.9.16 tagged release.
   - export MODIFIED_FILES=`git diff --diff-filter=ACMRTUXB --name-only HEAD v2019.9.16 | grep -E 'pymatgen.*\.(py)$' | sed '/test_/d' | sed 'post_processors_abc/d' | tr '\n' ' '`
   - pydocstyle --count pymatgen/core $MODIFIED_FILES
 

@@ -8,7 +8,7 @@ jobs:
       - checkout
       - run:
           command: |
-            pip install pycodestyle flake8 mypy pydocstyle
+            pip install --quiet pycodestyle flake8 mypy pydocstyle
             echo "Checks will be performed in the order of pycodestyle -> flake8 -> mypy -> pydocstyle "
             echo "It is highly recommended that you use the pre-commit hook provided in pymatgen."
             echo "Simply copy pre-commit to .git/hooks to check before pushing your code."
@@ -23,7 +23,7 @@ jobs:
             echo "mypy checks..."
             mypy pymatgen
             echo "--- Done ---"
-            # Docstyle checks are enforced for files that have been modified since the v2019.9.12 tagged release.
+            # Docstyle checks are enforced for files that have been modified since the v2019.9.16 tagged release.
             export MODIFIED_FILES=`git diff --diff-filter=ACMRTUXB --name-only HEAD v2019.9.16 | grep -E 'pymatgen.*\.(py)$' | sed '/test_/d' | sed 'post_processors_abc/d' | tr '\n' ' '`
             echo "pydocstyle checks for $MODIFIED_FILES..."
             pydocstyle --count pymatgen/core $MODIFIED_FILES
