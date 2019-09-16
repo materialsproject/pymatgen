@@ -1088,7 +1088,7 @@ class Specie(MSONable):
         """
         return (isinstance(other, Specie) and self.symbol == other.symbol
                 and self.oxi_state == other.oxi_state
-                and self.properties == other.properties)
+                and self._properties == other._properties)
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -1405,7 +1405,7 @@ class DummySpecie(Specie):
         return (isinstance(other, Specie) and
                 self.symbol == other.symbol and
                 self.oxi_state == other.oxi_state and
-                self.properties == other.properties)
+                self._properties == other._properties)
 
     def __ne__(self, other):
         return not self.__eq__(other)
