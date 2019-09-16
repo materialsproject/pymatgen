@@ -24,13 +24,10 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 class JahnTellerAnalyzer:
     def __init__(self):
         """Will attempt to classify if structure *may* be Jahn-Teller active.
-    
         Class currently uses datafile of hard-coded common Jahn-Teller
         active ions.
-    
         If structure is annotated with magnetic moments, will estimate
         if structure may be high-spin or low-spin.
-    
         Class aims for more false-positives than false-negatives.
         """
 
@@ -277,14 +274,18 @@ class JahnTellerAnalyzer:
             structure,
             calculate_valences=calculate_valences,
             guesstimate_spin=guesstimate_spin,
-            op_threshold=op_threshold
+            op_threshold=op_threshold,
         )[0]
 
-    def is_jahn_teller_active(self, structure: Structure, calculate_valences: bool=True,
-                              guesstimate_spin: bool=False, op_threshold: float=0.1) -> bool:
+    def is_jahn_teller_active(
+        self,
+        structure: Structure,
+        calculate_valences: bool = True,
+        guesstimate_spin: bool = False,
+        op_threshold: float = 0.1,
+    ) -> bool:
         """
         Convenience method, uses get_analysis_and_structure method.
-
         Check if a given structure and if it may be Jahn-Teller
         active or not. This is a heuristic, and may give false positives and
         false negatives (false positives are preferred).
@@ -308,8 +309,10 @@ class JahnTellerAnalyzer:
 
         try:
             analysis = self.get_analysis(
-                structure, calculate_valences=calculate_valences,
-                guesstimate_spin=guesstimate_spin, op_threshold=op_threshold
+                structure,
+                calculate_valences=calculate_valences,
+                guesstimate_spin=guesstimate_spin,
+                op_threshold=op_threshold,
             )
             active = analysis["active"]
         except Exception as e:
@@ -321,12 +324,15 @@ class JahnTellerAnalyzer:
 
         return active
 
-    def tag_structure(self, structure: Structure, calculate_valences: bool=True,
-                              guesstimate_spin: bool=False, op_threshold: float=0.1) -> Structure:
+    def tag_structure(
+        self,
+        structure: Structure,
+        calculate_valences: bool = True,
+        guesstimate_spin: bool = False,
+        op_threshold: float = 0.1,
+    ) -> Structure:
         """
-
         Convenience method, uses get_analysis_and_structure method.
-
         Add a "possible_jt_active" site property on Structure.
 
         Args:
@@ -345,10 +351,12 @@ class JahnTellerAnalyzer:
 
         """
         try:
-            analysis, structure = self.get_analysis_and_structure(structure,
-                                                                  calculate_valences=calculate_valences,
-                                                                  guesstimate_spin=guesstimate_spin,
-                                                                  op_threshold=op_threshold)
+            analysis, structure = self.get_analysis_and_structure(
+                structure,
+                calculate_valences=calculate_valences,
+                guesstimate_spin=guesstimate_spin,
+                op_threshold=op_threshold,
+            )
             jt_sites = [False] * len(structure)
             if analysis["active"]:
                 for site in analysis["sites"]:
@@ -395,7 +403,9 @@ class JahnTellerAnalyzer:
 
         return nelectrons
 
-    def get_magnitude_of_effect_from_species(self, species: Union[str, Specie], spin_state: str, motif: str) -> str:
+    def get_magnitude_of_effect_from_species(
+        self, species: Union[str, Specie], spin_state: str, motif: str
+    ) -> str:
         """
         Get magnitude of Jahn-Teller effect from provided species, spin state and motif.
 
@@ -430,7 +440,9 @@ class JahnTellerAnalyzer:
         return magnitude
 
     @staticmethod
-    def get_magnitude_of_effect_from_spin_config(motif: str, spin_config: Dict[str, float]) -> str:
+    def get_magnitude_of_effect_from_spin_config(
+        motif: str, spin_config: Dict[str, float]
+    ) -> str:
         """
         Roughly, the magnitude of Jahn-Teller distortion will be:
         * in octahedral environments, strong if e_g orbitals
@@ -461,7 +473,9 @@ class JahnTellerAnalyzer:
         return magnitude
 
     @staticmethod
-    def _estimate_spin_state(species: Union[str, Specie], motif: str, known_magmom: float) -> str:
+    def _estimate_spin_state(
+        species: Union[str, Specie], motif: str, known_magmom: float
+    ) -> str:
         """Simple heuristic to estimate spin state. If magnetic moment
         is sufficiently close to that predicted for a given spin state,
         we assign it that state. If we only have data for one spin
@@ -502,7 +516,9 @@ class JahnTellerAnalyzer:
                 return "unknown"
 
     @staticmethod
-    def mu_so(species: Union[str, Specie], motif: str, spin_state: str) -> Optional[float]:
+    def mu_so(
+        species: Union[str, Specie], motif: str, spin_state: str
+    ) -> Optional[float]:
         """Calculates the spin-only magnetic moment for a
         given species. Only supports transition metals.
 
