@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.ion &#8212; pymatgen 2019.5.1 documentation</title>
+    <title>pymatgen.core.ion &#8212; pymatgen 2019.9.16 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.5.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -49,7 +49,6 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
-
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Module containing class to create an ion</span>
 <span class="sd">&quot;&quot;&quot;</span>
@@ -64,6 +63,7 @@
 
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="k">import</span> <span class="n">Composition</span>
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
@@ -86,7 +86,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_charge</span> <span class="o">=</span> <span class="n">charge</span>
 
 <div class="viewcode-block" id="Ion.from_formula"><a class="viewcode-back" href="../../../pymatgen.core.ion.html#pymatgen.core.ion.Ion.from_formula">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_formula</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">formula</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_formula</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">formula</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Ion&#39;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates Ion from formula.</span>
+
+<span class="sd">        :param formula:</span>
+<span class="sd">        :return: Ion</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">charge</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="n">f</span> <span class="o">=</span> <span class="n">formula</span>
         <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\[([^\[\]]+)\]&quot;</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
@@ -202,8 +208,9 @@
 <span class="sd">            d:</span>
 <span class="sd">                {symbol: amount} dict.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">charge</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;charge&#39;</span><span class="p">)</span>
-        <span class="n">composition</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="nb">input</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="n">charge</span> <span class="o">=</span> <span class="nb">input</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;charge&#39;</span><span class="p">)</span>
+        <span class="n">composition</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Ion</span><span class="p">(</span><span class="n">composition</span><span class="p">,</span> <span class="n">charge</span><span class="p">)</span></div>
 
     <span class="nd">@property</span>
@@ -219,6 +226,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">composition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Composition of ion.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Composition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
@@ -268,10 +276,10 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -290,7 +298,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.5.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -298,7 +306,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

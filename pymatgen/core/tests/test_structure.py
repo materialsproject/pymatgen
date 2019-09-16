@@ -3,6 +3,7 @@
 # Distributed under the terms of the MIT License.
 
 from pathlib import Path
+from collections.abc import Iterable
 import warnings
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.periodic_table import Element, Specie
@@ -11,6 +12,7 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import IStructure, Structure, IMolecule, \
     StructureError, Molecule
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.sites import PeriodicSite
 from pymatgen.electronic_structure.core import Magmom
 import random
 import os
@@ -387,7 +389,6 @@ class IStructureTest(PymatgenTest):
                                       include_index=True, include_image=True)
         self.assertEqual(len(nn), 47)
         self.assertEqual(nn[0][-2], 0)
-
         r = random.uniform(3, 6)
         all_nn = s.get_all_neighbors(r, True, True)
         for i in range(len(s)):
@@ -404,10 +405,46 @@ class IStructureTest(PymatgenTest):
         s.make_supercell([2, 2, 2])
         self.assertEqual(sum(map(len, s.get_all_neighbors(3))), 976)
 
-        all_nn = s.get_all_neighbors(r, include_site=False)
-        for nn in all_nn:
-            self.assertEqual(1, len(nn[0]))
-            self.assertLessEqual(nn[0][0], r)
+        all_nn = s.get_all_neighbors(0.05)
+        self.assertEqual([len(nn) for nn in all_nn], [0] * len(s))
+
+    def test_get_all_neighbors_crosscheck_old(self):
+        warnings.simplefilter("ignore")
+        for i in range(100):
+            alpha, beta = np.random.rand(2) * 90
+            a, b, c = 3 + np.random.rand(3) * 5
+            species = ["H"] * 5
+            frac_coords = np.random.rand(5, 3)
+            try:
+                latt = Lattice.from_parameters(a, b, c, alpha, beta, 90)
+                s = Structure.from_spacegroup("P1", latt,
+                                              species, frac_coords)
+                for nn_new, nn_old in zip(s.get_all_neighbors(4),
+                                          s.get_all_neighbors_old(4)):
+                    sites1 = [i[0] for i in nn_new]
+                    sites2 = [i[0] for i in nn_old]
+                    self.assertEqual(set(sites1), set(sites2))
+                break
+            except Exception as ex:
+                pass
+        else:
+            raise ValueError("No valid structure tested.")
+
+        from pymatgen.electronic_structure.core import Spin
+        d = {'@module': 'pymatgen.core.structure', '@class': 'Structure', 'charge': None, 'lattice': {
+            'matrix': [[0.0, 0.0, 5.5333], [5.7461, 0.0, 3.518471486290303e-16],
+                       [-4.692662837312786e-16, 7.6637, 4.692662837312786e-16]], 'a': 5.5333, 'b': 5.7461, 'c': 7.6637,
+            'alpha': 90.0, 'beta': 90.0, 'gamma': 90.0, 'volume': 243.66653780778103}, 'sites': [
+            {'species': [{'element': 'Mn', 'oxidation_state': 0, 'properties': {'spin': Spin.down}, 'occu': 1}],
+             'abc': [0.0, 0.5, 0.5], 'xyz': [2.8730499999999997, 3.83185, 4.1055671618015446e-16], 'label': 'Mn0+,spin=-1',
+             'properties': {}},
+            {'species': [{'element': 'Mn', 'oxidation_state': None, 'occu': 1.0}], 'abc': [1.232595164407831e-32, 0.5, 0.5],
+             'xyz': [2.8730499999999997, 3.83185, 4.105567161801545e-16], 'label': 'Mn', 'properties': {}}]}
+        struct = Structure.from_dict(d)
+        self.assertEqual(set([i[0] for i in struct.get_neighbors(struct[0], 0.05)]),
+                         set([i[0] for i in struct.get_neighbors_old(struct[0], 0.05)]))
+
+        warnings.simplefilter("default")
 
     def test_get_all_neighbors_outside_cell(self):
         s = Structure(Lattice.cubic(2), ['Li', 'Li', 'Li', 'Si'],
@@ -419,6 +456,42 @@ class IStructureTest(PymatgenTest):
                 d = sum((site.coords - nn[0].coords) ** 2) ** 0.5
                 self.assertAlmostEqual(d, nn[1])
         self.assertEqual(list(map(len, all_nn)), [2, 2, 2, 0])
+
+    def test_get_all_neighbors_small_cutoff(self):
+        s = Structure(Lattice.cubic(2), ['Li', 'Li', 'Li', 'Si'],
+                      [[3.1] * 3, [0.11] * 3, [-1.91] * 3, [0.5] * 3])
+        all_nn = s.get_all_neighbors(1e-5, True)
+        self.assertEqual(len(all_nn), len(s))
+        self.assertEqual([], all_nn[0])
+
+        all_nn = s.get_all_neighbors(0, True)
+        self.assertEqual(len(all_nn), len(s))
+        self.assertEqual([], all_nn[0])
+
+    def test_coincide_sites(self):
+        s = Structure(Lattice.cubic(5), ['Li', 'Li', 'Li'],
+                      [[0.1, 0.1, 0.1], [0.1, 0.1, 0.1], [3, 3, 3]],
+                      coords_are_cartesian=True)
+        all_nn = s.get_all_neighbors(1e-5, True)
+        self.assertEqual([len(i) for i in all_nn], [0, 0, 0])
+
+    def test_get_all_neighbors_equal(self):
+        s = Structure(Lattice.cubic(2), ['Li', 'Li', 'Li', 'Si'],
+                      [[3.1] * 3, [0.11] * 3, [-1.91] * 3, [0.5] * 3])
+        nn_traditional = s.get_all_neighbors_old(4, include_index=True, include_image=True,
+                                                 include_site=True)
+        nn_cell_lists = s.get_all_neighbors(4, include_index=True, include_image=True)
+        nn_traditional = [sorted(i, key=lambda x: (x[1], x[2], x[3][0], x[3][1], x[3][2])) for i in nn_traditional]
+        nn_cell_lists = [sorted(i, key=lambda x: (x[1], x[2], x[3][0], x[3][1], x[3][2])) for i in nn_cell_lists]
+
+        def _is_equal(nn1, nn2):
+            if isinstance(nn1, Iterable):
+                return np.all([_is_equal(i, j) for i, j in zip(nn1, nn2)])
+            elif isinstance(nn1, PeriodicSite):
+                return np.linalg.norm(nn1.coords - nn2.coords) < 0.001
+            else:
+                return np.abs(nn1 - nn2) < 0.001
+        self.assertTrue(_is_equal(nn_traditional, nn_cell_lists))
 
     def test_get_dist_matrix(self):
         ans = [[0., 2.3516318],
@@ -544,10 +617,7 @@ class StructureTest(PymatgenTest):
         s.replace_species({"Ge": {"Ge": 0.5, "Si": 0.5}})
         self.assertEqual(s.formula, "Si0.75 Ge0.25 N1 O1")
 
-        # In this case, s.ntypesp is ambiguous.
-        # code should raise AttributeError.
-        with self.assertRaises(TypeError):
-            s.ntypesp
+        self.assertEqual(s.ntypesp, 4)
 
         s.replace_species({"Ge": "Si"})
         s.substitute(1, "hydroxyl")
@@ -591,6 +661,14 @@ class StructureTest(PymatgenTest):
         for i, x in enumerate(pre_perturbation_sites):
             self.assertAlmostEqual(x.distance(post_perturbation_sites[i]), d,
                                    3, "Bad perturbation distance")
+
+        structure2 = pre_perturbation_sites.copy()
+        structure2.perturb(distance=d, min_distance=0)
+        post_perturbation_sites2 = structure2.sites
+
+        for i, x in enumerate(pre_perturbation_sites):
+            self.assertLessEqual(x.distance(post_perturbation_sites2[i]), d)
+            self.assertGreaterEqual(x.distance(post_perturbation_sites2[i]), 0)
 
     def test_add_oxidation_states(self):
         oxidation_states = {"Si": -4}
@@ -1102,7 +1180,7 @@ class IMoleculeTest(PymatgenTest):
     def test_repr_str(self):
         ans = """Full Formula (H4 C1)
 Reduced Formula: H4C
-Charge = 0, Spin Mult = 1
+Charge = 0.0, Spin Mult = 1
 Sites (5)
 0 C     0.000000     0.000000     0.000000
 1 H     0.000000     0.000000     1.089000

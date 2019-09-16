@@ -2,6 +2,17 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+An interface to the excellent spglib library by Atsushi Togo
+(http://spglib.sourceforge.net/) for pymatgen.
+
+v1.0 - Now works with both ordered and disordered structure.
+v2.0 - Updated for spglib 1.6.
+v3.0 - pymatgen no longer ships with spglib. Instead, spglib (the python
+       version) is now a dependency and the SpacegroupAnalyzer merely serves
+       as an interface to spglib for pymatgen Structures.
+"""
+
 import itertools
 import logging
 from collections import defaultdict
@@ -23,17 +34,6 @@ from pymatgen.core.structure import PeriodicSite
 from pymatgen.core.operations import SymmOp
 from pymatgen.util.coord import find_in_coord_list, pbc_diff
 
-"""
-An interface to the excellent spglib library by Atsushi Togo
-(http://spglib.sourceforge.net/) for pymatgen.
-
-v1.0 - Now works with both ordered and disordered structure.
-v2.0 - Updated for spglib 1.6.
-v3.0 - pymatgen no longer ships with spglib. Instead, spglib (the python
-       version) is now a dependency and the SpacegroupAnalyzer merely serves
-       as an interface to spglib for pymatgen Structures.
-"""
-
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "3.0"
@@ -41,28 +41,28 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "May 14, 2016"
 
-
 logger = logging.getLogger(__name__)
 
 
 class SpacegroupAnalyzer:
     """
     Takes a pymatgen.core.structure.Structure object and a symprec.
-    Uses pyspglib to perform various symmetry finding operations.
-
-    Args:
-        structure (Structure/IStructure): Structure to find symmetry
-        symprec (float): Tolerance for symmetry finding. Defaults to 0.01,
-            which is fairly strict and works well for properly refined
-            structures with atoms in the proper symmetry coordinates. For
-            structures with slight deviations from their proper atomic
-            positions (e.g., structures relaxed with electronic structure
-            codes), a looser tolerance of 0.1 (the value used in Materials
-            Project) is often needed.
-        angle_tolerance (float): Angle tolerance for symmetry finding.
+    Uses spglib to perform various symmetry finding operations.
     """
 
     def __init__(self, structure, symprec=0.01, angle_tolerance=5):
+        """
+        Args:
+            structure (Structure/IStructure): Structure to find symmetry
+            symprec (float): Tolerance for symmetry finding. Defaults to 0.01,
+                which is fairly strict and works well for properly refined
+                structures with atoms in the proper symmetry coordinates. For
+                structures with slight deviations from their proper atomic
+                positions (e.g., structures relaxed with electronic structure
+                codes), a looser tolerance of 0.1 (the value used in Materials
+                Project) is often needed.
+            angle_tolerance (float): Angle tolerance for symmetry finding.
+        """
         self._symprec = symprec
         self._angle_tol = angle_tolerance
         self._structure = structure
@@ -126,24 +126,6 @@ class SpacegroupAnalyzer:
                                     self.get_space_group_number(),
                                     self.get_symmetry_operations())
 
-    def get_space_group_symbol(self):
-        """
-        Get the spacegroup symbol (e.g., Pnma) for structure.
-
-        Returns:
-            (str): Spacegroup symbol for structure.
-        """
-        return self._space_group_data["international"]
-
-    def get_space_group_number(self):
-        """
-        Get the international spacegroup number (e.g., 62) for structure.
-
-        Returns:
-            (int): International spacegroup number for structure.
-        """
-        return int(self._space_group_data["number"])
-
     def get_hall(self):
         """
         Returns Hall symbol for structure.
@@ -176,7 +158,8 @@ class SpacegroupAnalyzer:
         """
         n = self._space_group_data["number"]
 
-        f = lambda i, j: i <= n <= j
+        def f(i, j):
+            return i <= n <= j
         cs = {"triclinic": (1, 2), "monoclinic": (3, 15),
               "orthorhombic": (16, 74), "tetragonal": (75, 142),
               "trigonal": (143, 167), "hexagonal": (168, 194),
@@ -400,7 +383,7 @@ class SpacegroupAnalyzer:
             # check if the conventional representation is hexagonal or
             # rhombohedral
             lengths, angles = conv.lattice.lengths_and_angles
-            if abs(lengths[0]-lengths[2]) < 0.0001:
+            if abs(lengths[0] - lengths[2]) < 0.0001:
                 transf = np.eye
             else:
                 transf = np.array([[-1, 1, 1], [2, 1, 1], [-1, -2, 1]],
@@ -442,7 +425,7 @@ class SpacegroupAnalyzer:
         if "P" in self.get_space_group_symbol() or lattice == "hexagonal":
             return conv
 
-        transf = self.get_conventional_to_primitive_transformation_matrix(\
+        transf = self.get_conventional_to_primitive_transformation_matrix(
             international_monoclinic=international_monoclinic)
 
         new_sites = []
@@ -515,7 +498,8 @@ class SpacegroupAnalyzer:
                 for i in range(2):
                     transf[i][sorted_dic[i]['orig_index']] = 1
                 c = latt.abc[2]
-            elif self.get_space_group_symbol().startswith("A"): #change to C-centering to match Setyawan/Curtarolo convention
+            elif self.get_space_group_symbol().startswith(
+                    "A"):  # change to C-centering to match Setyawan/Curtarolo convention
                 transf[2] = [1, 0, 0]
                 a, b = sorted(latt.abc[1:])
                 sorted_dic = sorted([{'vec': latt.matrix[i],
@@ -617,7 +601,7 @@ class SpacegroupAnalyzer:
                     transf = np.zeros(shape=(3, 3))
                     for c in range(len(sorted_dic)):
                         transf[c][sorted_dic[c]['orig_index']] = 1
-            #if not C-setting
+            # if not C-setting
             else:
                 # try all permutations of the axis
                 # keep the ones with the non-90 angle=alpha
@@ -676,7 +660,7 @@ class SpacegroupAnalyzer:
             latt = Lattice(new_matrix)
 
         elif latt_type == "triclinic":
-            #we use a LLL Minkowski-like reduction for the triclinic cells
+            # we use a LLL Minkowski-like reduction for the triclinic cells
             struct = struct.get_reduced_structure("LLL")
 
             a, b, c = latt.lengths_and_angles[0]
@@ -684,14 +668,14 @@ class SpacegroupAnalyzer:
                                   for i in latt.lengths_and_angles[1]]
             new_matrix = None
             test_matrix = [[a, 0, 0],
-                          [b * cos(gamma), b * sin(gamma), 0.0],
-                          [c * cos(beta),
-                           c * (cos(alpha) - cos(beta) * cos(gamma)) /
-                           sin(gamma),
-                           c * math.sqrt(sin(gamma) ** 2 - cos(alpha) ** 2
-                                         - cos(beta) ** 2
-                                         + 2 * cos(alpha) * cos(beta)
-                                         * cos(gamma)) / sin(gamma)]]
+                           [b * cos(gamma), b * sin(gamma), 0.0],
+                           [c * cos(beta),
+                            c * (cos(alpha) - cos(beta) * cos(gamma)) /
+                            sin(gamma),
+                            c * math.sqrt(sin(gamma) ** 2 - cos(alpha) ** 2
+                                          - cos(beta) ** 2
+                                          + 2 * cos(alpha) * cos(beta)
+                                          * cos(gamma)) / sin(gamma)]]
 
             def is_all_acute_or_obtuse(m):
                 recp_angles = np.array(Lattice(m).reciprocal_lattice.angles)
@@ -779,12 +763,12 @@ class SpacegroupAnalyzer:
                 if not nonzero:
                     mesh.append(1)
                 else:
-                    m = np.abs(np.round(1/np.array(nonzero)))
+                    m = np.abs(np.round(1 / np.array(nonzero)))
                     mesh.append(int(max(m)))
                 shift.append(0)
             else:
                 # Monk
-                m = np.abs(np.round(0.5/np.array(nonzero)))
+                m = np.abs(np.round(0.5 / np.array(nonzero)))
                 mesh.append(int(max(m)))
                 shift.append(1)
 
@@ -804,7 +788,7 @@ class SpacegroupAnalyzer:
                 not all([v == 1 for v in mapped.values()])):
             raise ValueError("Unable to find 1:1 corresponding between input "
                              "kpoints and irreducible grid!")
-        return [w/sum(weights) for w in weights]
+        return [w / sum(weights) for w in weights]
 
     def is_laue(self):
 
@@ -1183,7 +1167,7 @@ class PointGroupAnalyzer:
                             self.rot_sym.append((test_axis, r))
                             break
             if rot_present[2] and rot_present[3] and (
-                        rot_present[4] or rot_present[5]):
+                    rot_present[4] or rot_present[5]):
                 break
 
     def get_pointgroup(self):
@@ -1330,7 +1314,6 @@ class PointGroupAnalyzer:
             return visited, ops
 
         eq_sets = copy.deepcopy(eq_sets)
-        new_eq_sets = {}
         ops = copy.deepcopy(operations)
         to_be_deleted = set()
         for i in eq_sets:
@@ -1550,15 +1533,16 @@ def generate_full_symmops(symmops, tol):
 class SpacegroupOperations(list):
     """
     Represents a space group, which is a collection of symmetry operations.
-
-    Args:
-        int_symbol (str): International symbol of the spacegroup.
-        int_number (int): International number of the spacegroup.
-        symmops ([SymmOp]): Symmetry operations associated with the
-            spacegroup.
     """
 
     def __init__(self, int_symbol, int_number, symmops):
+        """
+        Args:
+            int_symbol (str): International symbol of the spacegroup.
+            int_number (int): International number of the spacegroup.
+            symmops ([SymmOp]): Symmetry operations associated with the
+                spacegroup.
+        """
         self.int_symbol = int_symbol
         self.int_number = int_number
         super().__init__(symmops)
@@ -1583,6 +1567,7 @@ class SpacegroupOperations(list):
             (bool): Whether the two sets of sites are symmetrically
             equivalent.
         """
+
         def in_sites(site):
             for test_site in sites1:
                 if test_site.is_periodic_image(site, symm_prec, False):
@@ -1609,19 +1594,21 @@ class PointGroupOperations(list):
     Defines a point group, which is essentially a sequence of symmetry
     operations.
 
-    Args:
-        sch_symbol (str): Schoenflies symbol of the point group.
-        operations ([SymmOp]): Initial set of symmetry operations. It is
-            sufficient to provide only just enough operations to generate
-            the full set of symmetries.
-        tol (float): Tolerance to generate the full set of symmetry
-            operations.
-
     .. attribute:: sch_symbol
 
         Schoenflies symbol of the point group.
     """
+
     def __init__(self, sch_symbol, operations, tol=0.1):
+        """
+        Args:
+            sch_symbol (str): Schoenflies symbol of the point group.
+            operations ([SymmOp]): Initial set of symmetry operations. It is
+                sufficient to provide only just enough operations to generate
+                the full set of symmetries.
+            tol (float): Tolerance to generate the full set of symmetry
+                operations.
+        """
         self.sch_symbol = sch_symbol
         super().__init__(
             generate_full_symmops(operations, tol))

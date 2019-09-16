@@ -20,6 +20,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.analysis.diffraction
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

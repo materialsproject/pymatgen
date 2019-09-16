@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 """
 Module containing class to create an ion
 """
@@ -17,6 +16,7 @@ __date__ = "Dec 10, 2012"
 
 import re
 import numpy as np
+from copy import deepcopy
 
 from pymatgen.core.composition import Composition
 from monty.json import MSONable
@@ -39,7 +39,13 @@ class Ion(Composition, MSONable):
         self._charge = charge
 
     @classmethod
-    def from_formula(cls, formula):
+    def from_formula(cls, formula: str) -> 'Ion':
+        """
+        Creates Ion from formula.
+
+        :param formula:
+        :return: Ion
+        """
         charge = 0.0
         f = formula
         m = re.search(r"\[([^\[\]]+)\]", f)
@@ -155,8 +161,9 @@ class Ion(Composition, MSONable):
             d:
                 {symbol: amount} dict.
         """
-        charge = d.pop('charge')
-        composition = Composition(d)
+        input = deepcopy(d)
+        charge = input.pop('charge')
+        composition = Composition(input)
         return Ion(composition, charge)
 
     @property
@@ -172,6 +179,7 @@ class Ion(Composition, MSONable):
 
     @property
     def composition(self):
+        """Composition of ion."""
         return Composition(self._data)
 
     def __eq__(self, other):

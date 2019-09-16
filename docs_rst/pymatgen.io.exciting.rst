@@ -1,6 +1,12 @@
 pymatgen.io.exciting package
 ============================
 
+Subpackages
+-----------
+
+.. toctree::
+
+
 Submodules
 ----------
 
@@ -12,6 +18,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.io.exciting
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

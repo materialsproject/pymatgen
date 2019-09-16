@@ -7,14 +7,12 @@
 This module contains classes to wrap Python VTK to make nice molecular plots.
 """
 
-
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Nov 27, 2011"
-
 
 import os
 import itertools
@@ -23,6 +21,7 @@ import subprocess
 import time
 
 import numpy as np
+
 try:
     import vtk
     from vtk import vtkInteractorStyleTrackballCamera
@@ -38,7 +37,6 @@ from pymatgen.util.coord import in_coord_list
 from pymatgen.core.periodic_table import Specie
 from pymatgen.core.structure import Structure
 from pymatgen.core.sites import PeriodicSite
-
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 EL_COLORS = loadfn(os.path.join(module_dir, "ElementColorSchemes.yaml"))
@@ -247,7 +245,7 @@ class StructureVis:
             matrix = s.lattice.matrix
 
         if self.show_unit_cell and has_lattice:
-            #matrix = s.lattice.matrix
+            # matrix = s.lattice.matrix
             self.add_text([0, 0, 0], "o")
             for vec in matrix:
                 self.add_line((0, 0, 0), vec, colors[count])
@@ -274,18 +272,14 @@ class StructureVis:
                 max_radius = 0
                 color = np.array([0, 0, 0])
                 for sp, occu in site.species.items():
-                    if sp.symbol in self.excluded_bonding_elements \
-                            or sp == anion:
+                    if sp.symbol in self.excluded_bonding_elements or sp == anion:
                         exclude = True
                         break
                     max_radius = max(max_radius, sp.average_ionic_radius)
-                    color = color + \
-                            occu * np.array(self.el_color_mapping.get(sp.symbol,
-                                                                      [0, 0, 0]))
+                    color = color + occu * np.array(self.el_color_mapping.get(sp.symbol, [0, 0, 0]))
 
                 if not exclude:
-                    max_radius = (1 + self.poly_radii_tol_factor) * \
-                                 (max_radius + anion_radius)
+                    max_radius = (1 + self.poly_radii_tol_factor) * (max_radius + anion_radius)
                     nn = structure.get_neighbors(site, float(max_radius))
                     nn_sites = []
                     for nnsite, dist in nn:
@@ -309,10 +303,9 @@ class StructureVis:
         camera = self.ren.GetActiveCamera()
         if reset_camera:
             if has_lattice:
-                #Adjust the camera for best viewing
+                # Adjust the camera for best viewing
                 lengths = s.lattice.abc
-                pos = (matrix[1] + matrix[2]) * 0.5 + \
-                      matrix[0] * max(lengths) / lengths[0] * 3.5
+                pos = (matrix[1] + matrix[2]) * 0.5 + matrix[0] * max(lengths) / lengths[0] * 3.5
                 camera.SetPosition(pos)
                 camera.SetViewUp(matrix[2])
                 camera.SetFocalPoint((matrix[0] + matrix[1] + matrix[2]) * 0.5)
@@ -360,8 +353,7 @@ class StructureVis:
 
         for specie, occu in site.species.items():
             radius += occu * (specie.ionic_radius
-                              if isinstance(specie, Specie)
-                                 and specie.ionic_radius
+                              if isinstance(specie, Specie) and specie.ionic_radius
                               else specie.average_ionic_radius)
             total_occu += occu
 
@@ -378,7 +370,7 @@ class StructureVis:
             start_angle += 360 * occu
 
         if total_occu < 1:
-            mapper = self.add_partial_sphere(site.coords, vis_radius, (1,1,1),
+            mapper = self.add_partial_sphere(site.coords, vis_radius, (1, 1, 1),
                                              start_angle, start_angle + 360 * (1 - total_occu))
             self.mapper_map[mapper] = [site]
 
@@ -487,7 +479,7 @@ class StructureVis:
         else:
             dsm.SetInputData(grid)
         ac = vtk.vtkActor()
-        #ac.SetMapper(mapHull)
+        # ac.SetMapper(mapHull)
         ac.SetMapper(dsm)
         ac.GetProperty().SetOpacity(opacity)
         if color == 'element':
@@ -534,8 +526,8 @@ class StructureVis:
 
         # polydata object
         trianglePolyData = vtk.vtkPolyData()
-        trianglePolyData.SetPoints( points )
-        trianglePolyData.SetPolys( triangles )
+        trianglePolyData.SetPoints(points)
+        trianglePolyData.SetPolys(triangles)
 
         # mapper
         mapper = vtk.vtkPolyDataMapper()
@@ -626,7 +618,7 @@ class StructureVis:
                     points = vtk.vtkPoints()
                     triangle = vtk.vtkTriangle()
                     points.InsertNextPoint(face[ii][0], face[ii][1], face[ii][2])
-                    ii2 = np.mod(ii+1, len(face))
+                    ii2 = np.mod(ii + 1, len(face))
                     points.InsertNextPoint(face[ii2][0], face[ii2][1], face[ii2][2])
                     points.InsertNextPoint(center[0], center[1], center[2])
                     for ii in range(3):
@@ -654,11 +646,11 @@ class StructureVis:
         points = vtk.vtkPoints()
         lines = vtk.vtkCellArray()
         for iedge, edge in enumerate(edges):
-            points.InsertPoint(2*iedge, edge[0])
-            points.InsertPoint(2*iedge + 1, edge[1])
+            points.InsertPoint(2 * iedge, edge[0])
+            points.InsertPoint(2 * iedge + 1, edge[1])
             lines.InsertNextCell(2)
-            lines.InsertCellPoint(2*iedge)
-            lines.InsertCellPoint(2*iedge + 1)
+            lines.InsertCellPoint(2 * iedge)
+            lines.InsertCellPoint(2 * iedge + 1)
         polydata = vtk.vtkPolyData()
         polydata.SetPoints(points)
         polydata.SetLines(lines)
@@ -720,6 +712,7 @@ class StructureVis:
     def add_picker_fixed(self):
         # Create a cell picker.
         picker = vtk.vtkCellPicker()
+
         # Create a Python function to create the text for the text mapper used
         # to display the results of picking.
 
@@ -742,6 +735,7 @@ class StructureVis:
                     self.helptxt_actor.SetPosition(10, 10)
                     self.helptxt_actor.VisibilityOn()
                     self.show_help = False
+
         self.picker = picker
         picker.AddObserver("EndPickEvent", annotate_pick)
         self.iren.SetPicker(picker)
@@ -777,6 +771,7 @@ class StructureVis:
                     source.SetText("\n".join(output))
                     follower.SetPosition(pick_pos)
                     follower.VisibilityOn()
+
         picker.AddObserver("EndPickEvent", annotate_pick)
         self.picker = picker
         self.iren.SetPicker(picker)
@@ -900,7 +895,6 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20,
 
 
 class MultiStructuresVis(StructureVis):
-
     DEFAULT_ANIMATED_MOVIE_OPTIONS = {'time_between_frames': 0.1,
                                       'looping_type': 'restart',
                                       'number_of_loops': 1,
@@ -911,10 +905,10 @@ class MultiStructuresVis(StructureVis):
                  poly_radii_tol_factor=0.5, excluded_bonding_elements=None,
                  animated_movie_options=DEFAULT_ANIMATED_MOVIE_OPTIONS):
         super().__init__(element_color_mapping=element_color_mapping,
-                                                 show_unit_cell=show_unit_cell,
-                                                 show_bonds=show_bonds, show_polyhedron=show_polyhedron,
-                                                 poly_radii_tol_factor=poly_radii_tol_factor,
-                                                 excluded_bonding_elements=excluded_bonding_elements)
+                         show_unit_cell=show_unit_cell,
+                         show_bonds=show_bonds, show_polyhedron=show_polyhedron,
+                         poly_radii_tol_factor=poly_radii_tol_factor,
+                         excluded_bonding_elements=excluded_bonding_elements)
         self.warningtxt_actor = vtk.vtkActor2D()
         self.infotxt_actor = vtk.vtkActor2D()
         self.structures = None
@@ -938,8 +932,7 @@ class MultiStructuresVis(StructureVis):
                 radius = 0
                 for specie, occu in site.species.items():
                     radius += occu * (specie.ionic_radius
-                                      if isinstance(specie, Specie)
-                                         and specie.ionic_radius
+                                      if isinstance(specie, Specie) and specie.ionic_radius
                                       else specie.average_ionic_radius)
                     vis_radius = 0.2 + 0.002 * radius
                 struct_radii.append(radius)
@@ -950,7 +943,7 @@ class MultiStructuresVis(StructureVis):
 
     def set_structure(self, structure, reset_camera=True, to_unit_cell=False):
         super().set_structure(structure=structure, reset_camera=reset_camera,
-                                                      to_unit_cell=to_unit_cell)
+                              to_unit_cell=to_unit_cell)
         self.apply_tags()
 
     def apply_tags(self):
@@ -1048,7 +1041,7 @@ class MultiStructuresVis(StructureVis):
         self.ren.AddActor(self.warningtxt_actor)
         self.warningtxt_mapper.SetInput(self.warningtxt)
         winsize = self.ren_win.GetSize()
-        self.warningtxt_actor.SetPosition(winsize[0]-10, 10)
+        self.warningtxt_actor.SetPosition(winsize[0] - 10, 10)
         self.warningtxt_actor.VisibilityOn()
 
     def erase_warning(self):
@@ -1069,7 +1062,7 @@ class MultiStructuresVis(StructureVis):
         self.ren.AddActor(self.infotxt_actor)
         self.infotxt_mapper.SetInput(self.infotxt)
         winsize = self.ren_win.GetSize()
-        self.infotxt_actor.SetPosition(10, winsize[1]-10)
+        self.infotxt_actor.SetPosition(10, winsize[1] - 10)
         self.infotxt_actor.VisibilityOn()
 
     def erase_info(self):
@@ -1117,7 +1110,7 @@ class MultiStructuresInteractorStyle(StructureInteractorStyle):
             if parent.animated_movie_options['looping_type'] == 'restart':
                 loop_istructs = range(len(parent.structures))
             elif parent.animated_movie_options['looping_type'] == 'palindrome':
-                loop_istructs = range(len(parent.structures))+range(len(parent.structures)-2, -1, -1)
+                loop_istructs = range(len(parent.structures)) + range(len(parent.structures) - 2, -1, -1)
             else:
                 raise ValueError('"looping_type" should be "restart" or "palindrome"')
             for iloop in range(nloops):
@@ -1127,8 +1120,8 @@ class MultiStructuresInteractorStyle(StructureInteractorStyle):
                     parent.current_structure = parent.structures[parent.istruct]
                     parent.set_structure(parent.current_structure, reset_camera=False, to_unit_cell=False)
                     parent.display_info('Animated movie : structure {:d}/{:d} '
-                                           '(loop {:d}/{:d})'.format(istruct+1, len(parent.structures),
-                                                                     iloop+1, nloops))
+                                        '(loop {:d}/{:d})'.format(istruct + 1, len(parent.structures),
+                                                                  iloop + 1, nloops))
                     parent.ren_win.Render()
                 time.sleep(tloops)
             parent.erase_info()

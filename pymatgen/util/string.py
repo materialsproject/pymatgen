@@ -13,7 +13,7 @@ __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __status__ = "Production"
-__date__ = "$Sep 23, 2011M$"
+__date__ = "Sep 23, 2011"
 
 
 def str_delimited(results, header=None, delimiter="\t"):
@@ -121,6 +121,68 @@ def latexify_spacegroup(spacegroup_symbol):
     return re.sub(r"-(\d)", r"$\\overline{\1}$", sym)
 
 
+def unicodeify_spacegroup(spacegroup_symbol):
+    # TODO: move this to pymatgen
+
+    if not spacegroup_symbol:
+        return ""
+
+    subscript_unicode_map = {
+        0: "₀",
+        1: "₁",
+        2: "₂",
+        3: "₃",
+        4: "₄",
+        5: "₅",
+        6: "₆",
+        7: "₇",
+        8: "₈",
+        9: "₉",
+    }
+
+    symbol = latexify_spacegroup(spacegroup_symbol)
+
+    for number, unicode_number in subscript_unicode_map.items():
+        symbol = symbol.replace("$_{" + str(number) + "}$", unicode_number)
+        symbol = symbol.replace("_" + str(number), unicode_number)
+
+    overline = "\u0305"  # u"\u0304" (macron) is also an option
+
+    symbol = symbol.replace("$\\overline{", overline)
+    symbol = symbol.replace("$", "")
+    symbol = symbol.replace("{", "")
+    symbol = symbol.replace("}", "")
+
+    return symbol
+
+
+def unicodeify_species(specie_string):
+    # TODO: move this to pymatgen
+
+    if not specie_string:
+        return ""
+
+    superscript_unicode_map = {
+        "0": "⁰",
+        "1": "¹",
+        "2": "²",
+        "3": "³",
+        "4": "⁴",
+        "5": "⁵",
+        "6": "⁶",
+        "7": "⁷",
+        "8": "⁸",
+        "9": "⁹",
+        "+": "⁺",
+        "-": "⁻",
+    }
+
+    for character, unicode_character in superscript_unicode_map.items():
+        specie_string = specie_string.replace(character, unicode_character)
+
+    return specie_string
+
+
 def stream_has_colours(stream):
     """
     True if stream supports colours. Python cookbook, #475186
@@ -134,7 +196,7 @@ def stream_has_colours(stream):
         import curses
         curses.setupterm()
         return curses.tigetnum("colors") > 2
-    except:
+    except Exception:
         return False  # guess false in case of error
 
 
@@ -247,7 +309,7 @@ def disordered_formula(disordered_struct, symbols=('x', 'y', 'z'), fmt='plain'):
     for sp, occu in comp:
         sp = str(sp)
         if sp not in disordered_species:
-            disordered_comp.append((sp, formula_double_format(occu/factor)))
+            disordered_comp.append((sp, formula_double_format(occu / factor)))
         else:
             if len(symbols) > 0:
                 symbol = symbols.pop(0)
@@ -291,7 +353,7 @@ class StringColorizer:
                "green": "\x1b[01;32m",
                "red": "\x1b[01;31m",
                # lighting colours.
-               #"lred":    "\x1b[01;05;37;41m"
+               # "lred":    "\x1b[01;05;37;41m"
                }
 
     def __init__(self, stream):
@@ -310,4 +372,5 @@ class StringColorizer:
 
 if __name__ == "__main__":
     import doctest
+
     doctest.testmod()

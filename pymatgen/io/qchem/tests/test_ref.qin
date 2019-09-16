@@ -8,10 +8,14 @@ $end
 
 $rem
    job_type = opt
-   basis = 6-311++g*
+   basis = def2-tzvppd
    max_scf_cycles = 200
    gen_scfman = true
-   scf_algorithm = gdm
+   scf_algorithm = diis
    method = wb97xd
    geom_opt_max_cycles = 200
+   xc_grid = 3
+   symmetry = false
+   sym_ignore = true
+   resp_charges = true
 $end

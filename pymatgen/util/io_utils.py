@@ -146,6 +146,7 @@ class AtomicFile:
     If an ``encoding`` argument is specified, codecs.open will be called to open
     the file in the wanted encoding.
     """
+
     def __init__(self, name, mode="w+b", createmode=None, encoding=None):
         self.__name = name  # permanent name
         self._tempname = _maketemp(name, createmode=createmode)

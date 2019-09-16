@@ -76,9 +76,14 @@ bleeding edge developmental version. For people who are absolutely new to
 Python packages, it is highly recommended you do the installation using
 conda, which will make things a lot easier, especially on Windows. Visit
 `materials.sh <http://materials.sh>`_ for instructions on how to use the
-matsci channel to install pymatgen and other packages. In line with the 
-Scientific Python stack, pymatgen will now support only Py3.x from v2019.1.1. 
-Users who need Python 2.7 support should install v2018.x.
+matsci channel to install pymatgen and other packages.
+
+In line with the Scientific Python stack, pymatgen will now support only
+Py3.x from v2019.1.1. Specifically, we now only run testing on Py3.6+ so
+this is our officially  supported minimum Python version.
+
+Users who need Python 2.7 support should install v2018.x,
+you may also need to enforce an older version of numpy (`pip install numpy==1.16.4 `).
 
 The version at the `Python Package Index (PyPI) <https://pypi.org/project/pymatgen>`_
 is always the latest stable release that is relatively bug-free. The easiest 

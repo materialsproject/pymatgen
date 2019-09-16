@@ -22,14 +22,12 @@ from monty.json import MSONable
 This module define the various drones used to assimilate data.
 """
 
-
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 18, 2012"
-
 
 logger = logging.getLogger(__name__)
 
@@ -148,11 +146,11 @@ class VaspToComputedEntryDrone(AbstractDrone):
         if "relax1" in subdirs and "relax2" in subdirs:
             return [parent]
         if (not parent.endswith("/relax1")) and \
-           (not parent.endswith("/relax2")) and (
-               len(glob.glob(os.path.join(parent, "vasprun.xml*"))) > 0 or (
-               len(glob.glob(os.path.join(parent, "POSCAR*"))) > 0 and
-               len(glob.glob(os.path.join(parent, "OSZICAR*"))) > 0)
-           ):
+                (not parent.endswith("/relax2")) and (
+                len(glob.glob(os.path.join(parent, "vasprun.xml*"))) > 0 or (
+                len(glob.glob(os.path.join(parent, "POSCAR*"))) > 0 and
+                len(glob.glob(os.path.join(parent, "OSZICAR*"))) > 0)
+        ):
             return [parent]
         return []
 
@@ -203,14 +201,14 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                     files_to_parse[filename] = glob.glob(search_str)[-1]
             else:
                 for filename in (
-                    "INCAR", "POTCAR", "CONTCAR", "OSZICAR", "POSCAR", "DYNMAT"
+                        "INCAR", "POTCAR", "CONTCAR", "OSZICAR", "POSCAR", "DYNMAT"
                 ):
                     files = sorted(glob.glob(os.path.join(path, filename + "*")))
                     if len(files) < 1:
                         continue
                     if len(files) == 1 or filename == "INCAR" or \
-                       filename == "POTCAR" or filename == "DYNMAT":
-                        files_to_parse[filename] = files[-1]\
+                            filename == "POTCAR" or filename == "DYNMAT":
+                        files_to_parse[filename] = files[-1] \
                             if filename == "POTCAR" else files[0]
                     elif len(files) > 1:
                         # Since multiple files are ambiguous, we will always
@@ -225,7 +223,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                             "%d files found. %s is being parsed." %
                             (len(files), files_to_parse[filename]))
 
-            poscar, contcar, incar, potcar, oszicar, dynmat = [None]*6
+            poscar, contcar, incar, potcar, oszicar, dynmat = [None] * 6
             if 'POSCAR' in files_to_parse:
                 poscar = Poscar.from_file(files_to_parse["POSCAR"])
             if 'CONTCAR' in files_to_parse:
@@ -239,20 +237,17 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
             if 'DYNMAT' in files_to_parse:
                 dynmat = Dynmat(files_to_parse["DYNMAT"])
 
-            param = {"hubbards":{}}
+            param = {"hubbards": {}}
             if poscar is not None and incar is not None and "LDAUU" in incar:
                 param["hubbards"] = dict(zip(poscar.site_symbols,
                                              incar["LDAUU"]))
             param["is_hubbard"] = (
-                incar.get("LDAU", False) and sum(param["hubbards"].values()) > 0
+                    incar.get("LDAU", True) and sum(param["hubbards"].values()) > 0
             ) if incar is not None else False
             param["run_type"] = None
-            if incar is not None:
-                param["run_type"] = "GGA+U" if param["is_hubbard"] else "GGA"
-            # param["history"] = _get_transformation_history(path)
             param["potcar_spec"] = potcar.spec if potcar is not None else None
-            energy = oszicar.final_energy if oszicar is not None else 1e10
-            structure = contcar.structure if contcar is not None\
+            energy = oszicar.final_energy if oszicar is not None else Vasprun.final_energy
+            structure = contcar.structure if contcar is not None \
                 else poscar.structure
             initial_vol = poscar.structure.volume if poscar is not None else \
                 None
@@ -270,7 +265,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                 )
             else:
                 entry = ComputedEntry(
-                  structure.composition, energy, parameters=param, data=data
+                    structure.composition, energy, parameters=param, data=data
                 )
             return entry
 
@@ -359,7 +354,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         return entry
 
     def get_valid_paths(self, path):
-        (parent, subdirs, files) = path
+        parent, subdirs, files = path
         return [os.path.join(parent, f) for f in files
                 if os.path.splitext(f)[1] in self._file_extensions]
 
@@ -388,6 +383,6 @@ def _get_transformation_history(path):
         try:
             with zopen(trans_json[0]) as f:
                 return json.load(f)["history"]
-        except:
+        except Exception:
             return None
     return None

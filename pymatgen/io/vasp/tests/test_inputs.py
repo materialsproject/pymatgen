@@ -13,7 +13,7 @@ from pathlib import Path
 from monty.tempfile import ScratchDir
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.vasp.inputs import Incar, Poscar, Kpoints, Potcar, \
-    PotcarSingle, VaspInput
+    PotcarSingle, VaspInput, BadIncarWarning
 from pymatgen import Composition, Structure
 from pymatgen.electronic_structure.core import Magmom
 from monty.io import zopen
@@ -558,6 +558,41 @@ SIGMA = 0.1"""
 
     def test_proc_types(self):
         self.assertEqual(Incar.proc_val("HELLO", "-0.85 0.85"), "-0.85 0.85")
+
+    def test_check_params(self):
+        # Triggers warnings when running into nonsensical parameters
+        with self.assertWarns(BadIncarWarning) as cm:
+            incar = Incar({
+                'ADDGRID': True,
+                'ALGO': 'Normal',
+                'AMIN': 0.01,
+                'AMIX': 0.2,
+                'BMIX': 0.001,
+                'EDIFF': 5+1j, # EDIFF needs to be real
+                'EDIFFG': -0.01,
+                'ENCUT': 520,
+                'IBRION': 2,
+                'ICHARG': 1,
+                'ISIF': 3,
+                'ISMEAR': 1,
+                'ISPIN': 2,
+                'LASPH': 5, # Should be a bool
+                'LORBIT': 11,
+                'LREAL': 'Auto',
+                'LWAVE': False,
+                'MAGMOM': [1, 2, 4, 5],
+                'METAGGA': 'SCAM', # spelling mistake
+                'NELM': 200,
+                'NPAR': 4,
+                'NSW': 99,
+                'PREC': 'Accurate',
+                'SIGMA': 0.2,
+                'NBAND': 250, # spelling mistake
+                'PHON_TLIST': 'is_a_str', # this parameter should be a list
+                'LATTICE_CONSTRAINTS': [True, False, 'f'], # Should be a list of bools
+                'M_CONSTR': [True, 1, 'string'] # Should be a list of real numbers
+            })
+            incar.check_params()
 
 
 class KpointsTest(PymatgenTest):

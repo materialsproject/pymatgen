@@ -53,6 +53,9 @@ class VaspToComputedEntryDroneTest(unittest.TestCase):
             self.assertIsNotNone(entry.structure)
             # self.assertEqual(len(entry.parameters["history"]), 2)
 
+    def tearDown(self):
+        warnings.simplefilter("default")
+
     def test_to_from_dict(self):
         d = self.structure_drone.as_dict()
         drone = VaspToComputedEntryDrone.from_dict(d)
@@ -66,6 +69,10 @@ class SimpleVaspToComputedEntryDroneTest(unittest.TestCase):
                                      "..", "..", 'test_files')
         self.drone = SimpleVaspToComputedEntryDrone()
         self.structure_drone = SimpleVaspToComputedEntryDrone(True)
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.simplefilter("default")
 
     def test_get_valid_paths(self):
         for path in os.walk(self.test_dir):
@@ -85,6 +92,10 @@ class GaussianToComputedEntryDroneTest(unittest.TestCase):
                                      "..", "..", 'test_files', "molecules")
         self.drone = GaussianToComputedEntryDrone(data=["corrections"])
         self.structure_drone = GaussianToComputedEntryDrone(True)
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.simplefilter("default")
 
     def test_get_valid_paths(self):
         for path in os.walk(self.test_dir):

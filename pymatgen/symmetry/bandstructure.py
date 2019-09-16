@@ -19,6 +19,7 @@ Created on March 25, 2013
 @author: geoffroy
 """
 
+
 class HighSymmKpath:
     """
     This class looks for path along high symmetry lines in
@@ -48,16 +49,16 @@ class HighSymmKpath:
     def __init__(self, structure, symprec=0.01, angle_tolerance=5, atol=1e-8):
         self._structure = structure
         self._sym = SpacegroupAnalyzer(structure, symprec=symprec,
-                                   angle_tolerance=angle_tolerance)
-        self._prim = self._sym\
+                                       angle_tolerance=angle_tolerance)
+        self._prim = self._sym \
             .get_primitive_standard_structure(international_monoclinic=False)
         self._conv = self._sym.get_conventional_standard_structure(international_monoclinic=False)
         self._prim_rec = self._prim.lattice.reciprocal_lattice
         self._kpath = None
 
-        #Note: this warning will be issued for space groups 38-41, since the primitive cell must be 
-        #reformatted to match Setyawan/Curtarolo convention in order to work with the current k-path 
-        #generation scheme.
+        # Note: this warning will be issued for space groups 38-41, since the primitive cell must be
+        # reformatted to match Setyawan/Curtarolo convention in order to work with the current k-path
+        # generation scheme.
         if not np.allclose(self._structure.lattice.matrix, self._prim.lattice.matrix, atol=atol):
             warnings.warn("The input structure does not match the expected standard primitive! "
                           "The path can be incorrect. Use at your own risk.")
@@ -125,7 +126,7 @@ class HighSymmKpath:
         elif lattice_type == "monoclinic":
             a, b, c = self._conv.lattice.abc
             alpha = self._conv.lattice.lengths_and_angles[1][0]
-            #beta = self._conv.lattice.lengths_and_angles[1][1]
+            # beta = self._conv.lattice.lengths_and_angles[1][1]
 
             if "P" in spg_symbol:
                 self._kpath = self.mcl(b, c, alpha * pi / 180)
@@ -137,7 +138,7 @@ class HighSymmKpath:
                 if kgamma == 90:
                     self._kpath = self.mclc2(a, b, c, alpha * pi / 180)
                 if kgamma < 90:
-                    if b * cos(alpha * pi / 180) / c\
+                    if b * cos(alpha * pi / 180) / c \
                             + b ** 2 * sin(alpha * pi / 180) ** 2 / a ** 2 < 1:
                         self._kpath = self.mclc3(a, b, c, alpha * pi / 180)
                     if b * cos(alpha * pi / 180) / c \
@@ -502,7 +503,7 @@ class HighSymmKpath:
                    'F': np.array([1 - zeta, 1 - zeta, 1 - eta]),
                    'F_1': np.array([zeta, zeta, eta]),
                    'F_2': np.array([-zeta, -zeta, 1 - eta]),
-                   #'F_3': np.array([1 - zeta, -zeta, 1 - eta]),
+                   # 'F_3': np.array([1 - zeta, -zeta, 1 - eta]),
                    'I': np.array([phi, 1 - phi, 0.5]),
                    'I_1': np.array([1 - phi, phi - 1, 0.5]),
                    'L': np.array([0.5, 0.5, 0.5]),
@@ -548,8 +549,7 @@ class HighSymmKpath:
         self.name = "MCLC3"
         mu = (1 + b ** 2 / a ** 2) / 4.0
         delta = b * c * cos(alpha) / (2 * a ** 2)
-        zeta = mu - 0.25 + (1 - b * cos(alpha) / c)\
-            / (4 * sin(alpha) ** 2)
+        zeta = mu - 0.25 + (1 - b * cos(alpha) / c) / (4 * sin(alpha) ** 2)
         eta = 0.5 + 2 * zeta * c * cos(alpha) / b
         phi = 1 + zeta - 2 * mu
         psi = eta - 2 * delta
@@ -578,8 +578,7 @@ class HighSymmKpath:
         self.name = "MCLC4"
         mu = (1 + b ** 2 / a ** 2) / 4.0
         delta = b * c * cos(alpha) / (2 * a ** 2)
-        zeta = mu - 0.25 + (1 - b * cos(alpha) / c)\
-            / (4 * sin(alpha) ** 2)
+        zeta = mu - 0.25 + (1 - b * cos(alpha) / c) / (4 * sin(alpha) ** 2)
         eta = 0.5 + 2 * zeta * c * cos(alpha) / b
         phi = 1 + zeta - 2 * mu
         psi = eta - 2 * delta
@@ -609,12 +608,10 @@ class HighSymmKpath:
         zeta = (b ** 2 / a ** 2 + (1 - b * cos(alpha) / c)
                 / sin(alpha) ** 2) / 4
         eta = 0.5 + 2 * zeta * c * cos(alpha) / b
-        mu = eta / 2 + b ** 2 / (4 * a ** 2) \
-            - b * c * cos(alpha) / (2 * a ** 2)
+        mu = eta / 2 + b ** 2 / (4 * a ** 2) - b * c * cos(alpha) / (2 * a ** 2)
         nu = 2 * mu - zeta
         rho = 1 - zeta * a ** 2 / b ** 2
-        omega = (4 * nu - 1 - b ** 2 * sin(alpha) ** 2 / a ** 2)\
-            * c / (2 * b * cos(alpha))
+        omega = (4 * nu - 1 - b ** 2 * sin(alpha) ** 2 / a ** 2) * c / (2 * b * cos(alpha))
         delta = zeta * c * cos(alpha) / b + omega / 2 - 0.25
         kpoints = {'\\Gamma': np.array([0.0, 0.0, 0.0]),
                    'F': np.array([nu, nu, omega]),

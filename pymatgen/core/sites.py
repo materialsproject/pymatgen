@@ -2,22 +2,20 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module defines classes representing non-periodic and periodic sites.
+"""
 
 import collections
 import numpy as np
 
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element, Specie, DummySpecie,\
+from pymatgen.core.periodic_table import Element, Specie, DummySpecie, \
     get_el_sp
 from monty.json import MSONable
 from pymatgen.util.coord import pbc_diff
 from pymatgen.core.composition import Composition
 from monty.dev import deprecated
-
-"""
-This module defines classes representing non-periodic and periodic sites.
-"""
-
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -44,7 +42,7 @@ class Site(collections.abc.Hashable, MSONable):
 
         Args:
             atoms_n_occu: Species on the site. Can be:
-                i.  A Composition object (preferred)
+                i.  A Composition-type object (preferred)
                 ii. An  element / specie specified either as a string
                     symbols, e.g. "Li", "Fe2+", "P" or atomic numbers,
                     e.g., 3, 56, or actual Element or Specie objects.
@@ -79,7 +77,10 @@ class Site(collections.abc.Hashable, MSONable):
         raise AttributeError(a)
 
     @property
-    def species(self):
+    def species(self) -> Composition:
+        """
+        :return: The species on the site as a composition, e.g., Fe0.5Mn0.5.
+        """
         return self._species
 
     @species.setter
@@ -102,7 +103,7 @@ class Site(collections.abc.Hashable, MSONable):
         return self.coords[0]
 
     @x.setter
-    def x(self, x):
+    def x(self, x: float):
         self.coords[0] = x
 
     @property
@@ -113,7 +114,7 @@ class Site(collections.abc.Hashable, MSONable):
         return self.coords[1]
 
     @y.setter
-    def y(self, y):
+    def y(self, y: float):
         self.coords[1] = y
 
     @property
@@ -124,7 +125,7 @@ class Site(collections.abc.Hashable, MSONable):
         return self.coords[2]
 
     @z.setter
-    def z(self, z):
+    def z(self, z: float):
         self.coords[2] = z
 
     def distance(self, other):
@@ -163,7 +164,7 @@ class Site(collections.abc.Hashable, MSONable):
             return ", ".join(["{}:{:.3f}".format(sp, self.species[sp])
                               for sp in sorted_species])
 
-    @property
+    @property  # type: ignore
     @deprecated(message="Use site.species instead. This will be deprecated with effect from pymatgen 2020.")
     def species_and_occu(self):
         """
@@ -272,7 +273,7 @@ class Site(collections.abc.Hashable, MSONable):
         return d
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, d: dict):
         """
         Create Site from dict representation
         """
@@ -365,7 +366,7 @@ class PeriodicSite(Site, MSONable):
         return self._lattice
 
     @lattice.setter
-    def lattice(self, lattice):
+    def lattice(self, lattice: Lattice):
         """
         Sets Lattice associated with PeriodicSite
         """
@@ -375,14 +376,14 @@ class PeriodicSite(Site, MSONable):
     @property
     def coords(self):
         """
-        Fractional coordinates
+        Cartesian coordinates
         """
         return self._coords
 
     @coords.setter
     def coords(self, coords):
         """
-        Fractional a coordinate
+        Set Cartesian coordinates
         """
         self._coords = np.array(coords)
         self._frac_coords = self._lattice.get_fractional_coords(self._coords)
@@ -397,7 +398,7 @@ class PeriodicSite(Site, MSONable):
     @frac_coords.setter
     def frac_coords(self, frac_coords):
         """
-        Fractional a coordinate
+        Set fractional coordinates
         """
         self._frac_coords = np.array(frac_coords)
         self._coords = self._lattice.get_cartesian_coords(self._frac_coords)
