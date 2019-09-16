@@ -32,5 +32,6 @@ jobs:
       env:
         PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
       run: |
+        pip install pytest-xdist
         pip install -e .
-        pytest pymatgen
+        pytest -n 2 pymatgen
