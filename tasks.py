@@ -142,11 +142,6 @@ def submit_dash_pr(ctx):
 @task
 def update_doc(ctx):
     make_doc(ctx)
-    try:
-        contribute_dash(ctx)
-        ctx.run("mv pymatgen.tgz ..", warn=True)
-    except Exception:
-        pass
     ctx.run("cp docs_rst/conf-normal.py docs_rst/conf.py")
     make_doc(ctx)
     ctx.run("git add .")
