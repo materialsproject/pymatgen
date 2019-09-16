@@ -11,20 +11,17 @@ import collections
 import numbers
 import string
 from itertools import combinations_with_replacement, product
-
 import os
 import re
-
-from collections import defaultdict
 from typing import Tuple, List
-from monty.serialization import loadfn
-
 from functools import total_ordering
 
+from monty.serialization import loadfn
 from monty.fractions import gcd, gcd_float
+from monty.json import MSONable
+
 from pymatgen.core.periodic_table import get_el_sp, Element, Specie, DummySpecie
 from pymatgen.util.string import formula_double_format
-from monty.json import MSONable
 from pymatgen.core.units import Mass
 
 __author__ = "Shyue Ping Ong"
@@ -869,7 +866,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         el_amt = comp.get_el_amt_dict()
         els = el_amt.keys()
         el_sums = []  # matrix: dim1= el_idx, dim2=possible sums
-        el_sum_scores = defaultdict(set)  # dict of el_idx, sum -> score
+        el_sum_scores = collections.defaultdict(set)  # dict of el_idx, sum -> score
         el_best_oxid_combo = {}  # dict of el_idx, sum -> oxid combo with best score
         for idx, el in enumerate(els):
             el_sum_scores[idx] = {}
@@ -1189,7 +1186,6 @@ def reduce_formula(sym_amt, iupac_ordering=False):
 
 class CompositionError(Exception):
     """Exception class for composition errors"""
-    pass
 
 
 class ChemicalPotential(dict, MSONable):
@@ -1214,16 +1210,14 @@ class ChemicalPotential(dict, MSONable):
     def __mul__(self, other):
         if isinstance(other, numbers.Number):
             return ChemicalPotential({k: v * other for k, v in self.items()})
-        else:
-            return NotImplemented
+        raise NotImplementedError()
 
     __rmul__ = __mul__
 
     def __truediv__(self, other):
         if isinstance(other, numbers.Number):
             return ChemicalPotential({k: v / other for k, v in self.items()})
-        else:
-            return NotImplemented
+        raise NotImplementedError()
 
     __div__ = __truediv__
 
@@ -1232,16 +1226,14 @@ class ChemicalPotential(dict, MSONable):
             els = set(self.keys()).union(other.keys())
             return ChemicalPotential({e: self.get(e, 0) - other.get(e, 0)
                                       for e in els})
-        else:
-            return NotImplemented
+        raise NotImplementedError()
 
     def __add__(self, other):
         if isinstance(other, ChemicalPotential):
             els = set(self.keys()).union(other.keys())
             return ChemicalPotential({e: self.get(e, 0) + other.get(e, 0)
                                       for e in els})
-        else:
-            return NotImplemented
+        raise NotImplementedError()
 
     def get_energy(self, composition, strict=True):
         """

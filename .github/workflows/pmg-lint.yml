@@ -34,3 +34,9 @@ jobs:
         flake8 --count --show-source --statistics pymatgen
         # exit-zero treats all errors as warnings.
         flake8 --count --exit-zero --max-complexity=20 --statistics pymatgen
+    - name: Lint with pylint
+      run: |
+        pip install pylint
+        export MODIFIED_FILES=`git diff --diff-filter=ACMRTUXB --name-only HEAD v2019.9.16 | grep -E 'pymatgen.*\.(py)$' | sed '/test_/d' | tr '\n' ' '`
+        # stop the build if there are Python syntax errors or undefined names
+        pylint pymatgen/core $MODIFIED_FILES
