@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.entries.entry_tools module &#8212; pymatgen 2019.9.12 documentation</title>
+    <title>pymatgen.entries.entry_tools module &#8212; pymatgen 2019.9.16 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.9.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.9.16 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -60,13 +60,22 @@ subsets, dumping into files, etc.</p>
 <dl class="method">
 <dt id="pymatgen.entries.entry_tools.EntrySet.add">
 <code class="sig-name descname">add</code><span class="sig-paren">(</span><em class="sig-param">element</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/entries/entry_tools.html#EntrySet.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.EntrySet.add" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add an element.</p>
+<dd><p>Add an entry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>element</strong> – Entry</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.entries.entry_tools.EntrySet.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/entries/entry_tools.html#EntrySet.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.EntrySet.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A JSON serializable dict representation of an object.</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>MSONable dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -79,7 +88,12 @@ set representing the chemical system, e.g., {“Li”, “Fe”, “P”, “O�
 <dl class="method">
 <dt id="pymatgen.entries.entry_tools.EntrySet.discard">
 <code class="sig-name descname">discard</code><span class="sig-paren">(</span><em class="sig-param">element</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/entries/entry_tools.html#EntrySet.discard"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.EntrySet.discard" title="Permalink to this definition">¶</a></dt>
-<dd><p>Remove an element.  Do not raise an exception if absent.</p>
+<dd><p>Discard an entry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>element</strong> – Entry</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -211,7 +225,7 @@ fitting speed. Default of None means serial processing.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.9.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.9.16 documentation</a> &#187;</li> 
       </ul>
     </div>
 

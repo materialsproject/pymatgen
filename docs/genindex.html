@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Index &#8212; pymatgen 2019.9.12 documentation</title>
+    <title>Index &#8212; pymatgen 2019.9.16 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.9.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.9.16 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -889,7 +889,7 @@
 </li>
         <li><a href="pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaInput.as_dict">(FiestaInput method)</a>
 </li>
-        <li><a href="pymatgen.io.fiesta.html#pymatgen.io.fiesta.Fiesta_run.as_dict">(Fiesta_run method)</a>
+        <li><a href="pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaRun.as_dict">(FiestaRun method)</a>
 </li>
         <li><a href="pymatgen.io.abinit.flows.html#pymatgen.io.abinit.flows.Flow.as_dict">(Flow method)</a>
 </li>
@@ -1374,7 +1374,7 @@
       </ul></li>
       <li><a href="pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianOutput.basis_set">basis_set (GaussianOutput attribute)</a>
 </li>
-      <li><a href="pymatgen.io.fiesta.html#pymatgen.io.fiesta.Basis_set_reader">Basis_set_reader (class in pymatgen.io.fiesta)</a>
+      <li><a href="pymatgen.io.fiesta.html#pymatgen.io.fiesta.BasisSetReader">BasisSetReader (class in pymatgen.io.fiesta)</a>
 </li>
       <li><a href="pymatgen.io.abinit.flows.html#pymatgen.io.abinit.flows.Flow.batch">batch() (Flow method)</a>
 </li>
@@ -1400,8 +1400,6 @@
 </li>
       <li><a href="pymatgen.analysis.ewald.html#pymatgen.analysis.ewald.EwaldMinimizer.best_case">best_case() (EwaldMinimizer method)</a>
 </li>
-      <li><a href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.best_first_ordering">best_first_ordering() (PartialRemoveSitesTransformation method)</a>
-</li>
       <li><a href="pymatgen.analysis.ewald.html#pymatgen.analysis.ewald.EwaldMinimizer.best_m_list">best_m_list() (EwaldMinimizer property)</a>
 </li>
       <li><a href="pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice.beta">beta() (Lattice property)</a>
@@ -1410,10 +1408,10 @@
 </li>
       <li><a href="pymatgen.analysis.eos.html#pymatgen.analysis.eos.Birch">Birch (class in pymatgen.analysis.eos)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pymatgen.analysis.eos.html#pymatgen.analysis.eos.BirchMurnaghan">BirchMurnaghan (class in pymatgen.analysis.eos)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element.Bk">Bk (Element attribute)</a>
 </li>
       <li><a href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element.block">block (Element attribute)</a>
@@ -1478,7 +1476,7 @@
       </ul></li>
       <li><a href="pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BSDOSPlotter">BSDOSPlotter (class in pymatgen.electronic_structure.plotter)</a>
 </li>
-      <li><a href="pymatgen.io.fiesta.html#pymatgen.io.fiesta.Fiesta_run.bse_run">bse_run() (Fiesta_run method)</a>
+      <li><a href="pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaRun.bse_run">bse_run() (FiestaRun method)</a>
 </li>
       <li><a href="pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.BseMdfWork">BseMdfWork (class in pymatgen.io.abinit.works)</a>
 </li>
@@ -1687,8 +1685,6 @@
       <li><a href="pymatgen.io.qchem.outputs.html#pymatgen.io.qchem.outputs.check_for_structure_changes">check_for_structure_changes() (in module pymatgen.io.qchem.outputs)</a>
 </li>
       <li><a href="pymatgen.analysis.defects.defect_compatibility.html#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.check_freysoldt_delocalized">check_freysoldt_delocalized() (DefectCompatibility method)</a>
-</li>
-      <li><a href="pymatgen.analysis.defects.dilute_solution_model.html#pymatgen.analysis.defects.dilute_solution_model.check_input">check_input() (in module pymatgen.analysis.defects.dilute_solution_model)</a>
 </li>
       <li><a href="pymatgen.analysis.defects.defect_compatibility.html#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.check_kumagai_delocalized">check_kumagai_delocalized() (DefectCompatibility method)</a>
 </li>
@@ -1906,15 +1902,13 @@
 </li>
       <li><a href="pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.AbinitBuild.compare_version">compare_version() (AbinitBuild method)</a>
 </li>
-      <li><a href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Compatibility">Compatibility (class in pymatgen.entries.compatibility)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Compatibility">Compatibility (class in pymatgen.entries.compatibility)</a>
+</li>
       <li><a href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.CompatibilityError">CompatibilityError</a>
 </li>
       <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Vasprun.complete_dos">complete_dos() (Vasprun property)</a>
-</li>
-      <li><a href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.complete_ordering">complete_ordering() (PartialRemoveSitesTransformation method)</a>
 </li>
       <li><a href="pymatgen.electronic_structure.cohp.html#pymatgen.electronic_structure.cohp.CompleteCohp">CompleteCohp (class in pymatgen.electronic_structure.cohp)</a>
 </li>
@@ -2158,8 +2152,6 @@
         <li><a href="pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.DefectCorrection.correct_entry">(DefectCorrection method)</a>
 </li>
       </ul></li>
-      <li><a href="pymatgen.entries.post_processors_abc.html#pymatgen.entries.post_processors_abc.EntryPostProcessor.corrected_compound_formulas">corrected_compound_formulas() (EntryPostProcessor property)</a>
-</li>
       <li><a href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Correction">Correction (class in pymatgen.entries.compatibility)</a>
 
       <ul>
@@ -2495,8 +2487,6 @@
       <li><a href="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.html#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.diamond_functions">diamond_functions() (in module pymatgen.analysis.chemenv.utils.coordination_geometry_utils)</a>
 </li>
       <li><a href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.DictSet">DictSet (class in pymatgen.io.vasp.sets)</a>
-</li>
-      <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Vasprun.dielectric">dielectric (Vasprun attribute)</a>
 </li>
       <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Vasprun.dielectric">dielectric() (Vasprun property)</a>
 </li>
@@ -2874,8 +2864,6 @@
 </li>
       <li><a href="pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.entry_dict_from_list">entry_dict_from_list() (in module pymatgen.analysis.surface_analysis)</a>
 </li>
-      <li><a href="pymatgen.entries.post_processors_abc.html#pymatgen.entries.post_processors_abc.EntryPostProcessor">EntryPostProcessor (class in pymatgen.entries.post_processors_abc)</a>
-</li>
       <li><a href="pymatgen.entries.entry_tools.html#pymatgen.entries.entry_tools.EntrySet">EntrySet (class in pymatgen.entries.entry_tools)</a>
 </li>
       <li><a href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_possible_plane_cubic">enum_possible_plane_cubic() (GrainBoundaryGenerator static method)</a>
@@ -2888,13 +2876,11 @@
 </li>
       <li><a href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_rho">enum_sigma_rho() (GrainBoundaryGenerator static method)</a>
 </li>
-      <li><a href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_tet">enum_sigma_tet() (GrainBoundaryGenerator static method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.StructureMotifInterstitial.enumerate_defectsites">enumerate_defectsites() (StructureMotifInterstitial method)</a>
+      <li><a href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_tet">enum_sigma_tet() (GrainBoundaryGenerator static method)</a>
 </li>
-      <li><a href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.enumerate_ordering">enumerate_ordering() (PartialRemoveSitesTransformation method)</a>
+      <li><a href="pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.StructureMotifInterstitial.enumerate_defectsites">enumerate_defectsites() (StructureMotifInterstitial method)</a>
 </li>
       <li><a href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation">EnumerateStructureTransformation (class in pymatgen.transformations.advanced_transformations)</a>
 </li>
@@ -2910,15 +2896,9 @@
 </li>
       <li><a href="pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.EphTask">EphTask (class in pymatgen.io.abinit.tasks)</a>
 </li>
-      <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Vasprun.epsilon_ionic">epsilon_ionic (Vasprun attribute)</a>
-</li>
       <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Vasprun.epsilon_ionic">epsilon_ionic() (Vasprun property)</a>
 </li>
-      <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Vasprun.epsilon_static">epsilon_static (Vasprun attribute)</a>
-</li>
       <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Vasprun.epsilon_static">epsilon_static() (Vasprun property)</a>
-</li>
-      <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Vasprun.epsilon_static_wolfe">epsilon_static_wolfe (Vasprun attribute)</a>
 </li>
       <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Vasprun.epsilon_static_wolfe">epsilon_static_wolfe() (Vasprun property)</a>
 </li>
@@ -3128,8 +3108,6 @@
 </li>
       <li><a href="pymatgen.analysis.substrate_analyzer.html#pymatgen.analysis.substrate_analyzer.fast_norm">fast_norm() (in module pymatgen.analysis.substrate_analyzer)</a>
 </li>
-      <li><a href="pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.fast_ordering">fast_ordering() (PartialRemoveSitesTransformation method)</a>
-</li>
       <li><a href="pymatgen.io.lobster.html#pymatgen.io.lobster.Fatband">Fatband (class in pymatgen.io.lobster)</a>
 </li>
       <li><a href="pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath.fcc">fcc() (HighSymmKpath method)</a>
@@ -3148,11 +3126,11 @@
 </li>
       <li><a href="pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimerSection.FIELDS">FIELDS (AbinitTimerSection attribute)</a>
 </li>
-      <li><a href="pymatgen.io.fiesta.html#pymatgen.io.fiesta.Fiesta_run">Fiesta_run (class in pymatgen.io.fiesta)</a>
-</li>
       <li><a href="pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaInput">FiestaInput (class in pymatgen.io.fiesta)</a>
 </li>
       <li><a href="pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaOutput">FiestaOutput (class in pymatgen.io.fiesta)</a>
+</li>
+      <li><a href="pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaRun">FiestaRun (class in pymatgen.io.fiesta)</a>
 </li>
       <li><a href="pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.File">File (class in pymatgen.io.abinit.utils)</a>
 </li>
@@ -3581,7 +3559,7 @@
 </li>
         <li><a href="pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaInput.from_dict">(FiestaInput class method)</a>
 </li>
-        <li><a href="pymatgen.io.fiesta.html#pymatgen.io.fiesta.Fiesta_run.from_dict">(Fiesta_run class method)</a>
+        <li><a href="pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaRun.from_dict">(FiestaRun class method)</a>
 </li>
         <li><a href="pymatgen.io.abinit.flows.html#pymatgen.io.abinit.flows.Flow.from_dict">(Flow class method)</a>
 </li>
@@ -6238,8 +6216,6 @@
 </li>
       <li><a href="pymatgen.command_line.gulp_caller.html#pymatgen.command_line.gulp_caller.GulpIO">GulpIO (class in pymatgen.command_line.gulp_caller)</a>
 </li>
-      <li><a href="pymatgen.io.fiesta.html#pymatgen.io.fiesta.Fiesta_run.gw_run">gw_run() (Fiesta_run method)</a>
-</li>
       <li><a href="pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.SelfEnergy.gwcalctyp">gwcalctyp() (SelfEnergy property)</a>
 </li>
       <li><a href="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.gweight">gweight() (NormalizedAngleDistanceNbSetWeight method)</a>
@@ -6670,7 +6646,7 @@
       </ul></li>
       <li><a href="pymatgen.core.libxcfunc.html#pymatgen.core.libxcfunc.LibxcFunc.info_dict">info_dict() (LibxcFunc property)</a>
 </li>
-      <li><a href="pymatgen.io.fiesta.html#pymatgen.io.fiesta.Basis_set_reader.infos_on_basis_set">infos_on_basis_set() (Basis_set_reader method)</a>
+      <li><a href="pymatgen.io.fiesta.html#pymatgen.io.fiesta.BasisSetReader.infos_on_basis_set">infos_on_basis_set() (BasisSetReader method)</a>
 </li>
       <li><a href="pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaInput.infos_on_system">infos_on_system() (FiestaInput property)</a>
 </li>
@@ -6884,10 +6860,10 @@
 </li>
       <li><a href="pymatgen.core.bonds.html#pymatgen.core.bonds.CovalentBond.is_bonded">is_bonded() (CovalentBond static method)</a>
 </li>
-      <li><a href="pymatgen.core.libxcfunc.html#pymatgen.core.libxcfunc.LibxcFunc.is_c_kind">is_c_kind() (LibxcFunc property)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pymatgen.core.libxcfunc.html#pymatgen.core.libxcfunc.LibxcFunc.is_c_kind">is_c_kind() (LibxcFunc property)</a>
+</li>
       <li><a href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element.is_chalcogen">is_chalcogen() (Element property)</a>
 </li>
       <li><a href="pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments.is_close_to">is_close_to() (ChemicalEnvironments method)</a>
@@ -7089,8 +7065,6 @@
 </li>
       </ul></li>
       <li><a href="pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice.is_orthogonal">is_orthogonal() (Lattice property)</a>
-</li>
-      <li><a href="pymatgen.analysis.structure_prediction.volume_predictor.html#pymatgen.analysis.structure_prediction.volume_predictor.is_ox">is_ox() (in module pymatgen.analysis.structure_prediction.volume_predictor)</a>
 </li>
       <li><a href="pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianOutput.is_pcm">is_pcm (GaussianOutput attribute)</a>
 </li>
@@ -7405,8 +7379,6 @@
 </li>
         <li><a href="pymatgen.core.structure.html#pymatgen.core.structure.Structure.lattice">(Structure property)</a>
 </li>
-        <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Vasprun.lattice">(Vasprun property)</a>
-</li>
       </ul></li>
       <li><a href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.lattice_2_lmpbox">lattice_2_lmpbox() (in module pymatgen.io.lammps.data)</a>
 </li>
@@ -7415,8 +7387,6 @@
       <li><a href="pymatgen.util.coord.html#pymatgen.util.coord.lattice_points_in_supercell">lattice_points_in_supercell() (in module pymatgen.util.coord)</a>
 </li>
       <li><a href="pymatgen.electronic_structure.bandstructure.html#pymatgen.electronic_structure.bandstructure.BandStructure.lattice_rec">lattice_rec (BandStructure attribute)</a>
-</li>
-      <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Vasprun.lattice_rec">lattice_rec() (Vasprun property)</a>
 </li>
       <li><a href="pymatgen.io.pwscf.html#pymatgen.io.pwscf.PWOutput.lattice_type">lattice_type() (PWOutput property)</a>
 </li>
@@ -7484,10 +7454,10 @@
 </li>
       <li><a href="pymatgen.core.libxcfunc.html#pymatgen.core.libxcfunc.LibxcFunc.LDA_X_1D">LDA_X_1D (LibxcFunc attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pymatgen.core.libxcfunc.html#pymatgen.core.libxcfunc.LibxcFunc.LDA_X_2D">LDA_X_2D (LibxcFunc attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pymatgen.core.libxcfunc.html#pymatgen.core.libxcfunc.LibxcFunc.LDA_XC_KSDT">LDA_XC_KSDT (LibxcFunc attribute)</a>
 </li>
       <li><a href="pymatgen.core.libxcfunc.html#pymatgen.core.libxcfunc.LibxcFunc.LDA_XC_TETER93">LDA_XC_TETER93 (LibxcFunc attribute)</a>
@@ -8904,29 +8874,21 @@
       </ul></li>
       <li><a href="pymatgen.util.provenance.html#pymatgen.util.provenance.Author.parse_author">parse_author() (Author static method)</a>
 </li>
-      <li><a href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.parse_bool">parse_bool() (in module pymatgen.io.vasp.inputs)</a>
-</li>
       <li><a href="pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.parse_cond_and_hall">parse_cond_and_hall() (BoltztrapAnalyzer static method)</a>
 </li>
       <li><a href="pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.parse_criteria">parse_criteria() (MPRester static method)</a>
 </li>
       <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.VolumetricData.parse_file">parse_file() (VolumetricData static method)</a>
 </li>
-      <li><a href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.parse_float">parse_float() (in module pymatgen.io.vasp.inputs)</a>
-</li>
       <li><a href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.PotcarSingle.parse_functions">parse_functions (PotcarSingle attribute)</a>
 </li>
       <li><a href="pymatgen.util.provenance.html#pymatgen.util.provenance.HistoryNode.parse_history_node">parse_history_node() (HistoryNode static method)</a>
-</li>
-      <li><a href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.parse_int">parse_int() (in module pymatgen.io.vasp.inputs)</a>
 </li>
       <li><a href="pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.parse_intrans">parse_intrans() (BoltztrapAnalyzer static method)</a>
 </li>
       <li><a href="pymatgen.io.lammps.outputs.html#pymatgen.io.lammps.outputs.parse_lammps_dumps">parse_lammps_dumps() (in module pymatgen.io.lammps.outputs)</a>
 </li>
       <li><a href="pymatgen.io.lammps.outputs.html#pymatgen.io.lammps.outputs.parse_lammps_log">parse_lammps_log() (in module pymatgen.io.lammps.outputs)</a>
-</li>
-      <li><a href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.parse_list">parse_list() (in module pymatgen.io.vasp.inputs)</a>
 </li>
       <li><a href="pymatgen.io.cif.html#pymatgen.io.cif.CifParser.parse_magmoms">parse_magmoms() (CifParser method)</a>
 </li>
@@ -8937,8 +8899,6 @@
       <li><a href="pymatgen.analysis.structure_analyzer.html#pymatgen.analysis.structure_analyzer.OxideType.parse_oxide">parse_oxide() (OxideType method)</a>
 </li>
       <li><a href="pymatgen.io.abinit.scheduler_error_parsers.html#pymatgen.io.abinit.scheduler_error_parsers.AbstractErrorParser.parse_single">parse_single() (AbstractErrorParser method)</a>
-</li>
-      <li><a href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.parse_string">parse_string() (in module pymatgen.io.vasp.inputs)</a>
 </li>
       <li><a href="pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.parse_struct">parse_struct() (BoltztrapAnalyzer static method)</a>
 </li>
@@ -9523,17 +9483,11 @@
       <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Procar">Procar (class in pymatgen.io.vasp.outputs)</a>
 </li>
       <li><a href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Compatibility.process_entries">process_entries() (Compatibility method)</a>
-
-      <ul>
-        <li><a href="pymatgen.entries.post_processors_abc.html#pymatgen.entries.post_processors_abc.EntryPostProcessor.process_entries">(EntryPostProcessor method)</a>
 </li>
-      </ul></li>
       <li><a href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Compatibility.process_entry">process_entry() (Compatibility method)</a>
 
       <ul>
         <li><a href="pymatgen.analysis.defects.defect_compatibility.html#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.process_entry">(DefectCompatibility method)</a>
-</li>
-        <li><a href="pymatgen.entries.post_processors_abc.html#pymatgen.entries.post_processors_abc.EntryPostProcessor.process_entry">(EntryPostProcessor method)</a>
 </li>
       </ul></li>
       <li><a href="pymatgen.analysis.pourbaix_diagram.html#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.process_multientry">process_multientry() (PourbaixDiagram static method)</a>
@@ -9701,8 +9655,6 @@
       <li><a href="pymatgen.analysis.elasticity.strain.html#module-pymatgen.analysis.elasticity.strain">pymatgen.analysis.elasticity.strain (module)</a>
 </li>
       <li><a href="pymatgen.analysis.elasticity.stress.html#module-pymatgen.analysis.elasticity.stress">pymatgen.analysis.elasticity.stress (module)</a>
-</li>
-      <li><a href="pymatgen.analysis.elasticity.tensors.html#module-pymatgen.analysis.elasticity.tensors">pymatgen.analysis.elasticity.tensors (module)</a>
 </li>
       <li><a href="pymatgen.analysis.energy_models.html#module-pymatgen.analysis.energy_models">pymatgen.analysis.energy_models (module)</a>
 </li>
@@ -9917,8 +9869,6 @@
       <li><a href="pymatgen.entries.entry_tools.html#module-pymatgen.entries.entry_tools">pymatgen.entries.entry_tools (module)</a>
 </li>
       <li><a href="pymatgen.entries.exp_entries.html#module-pymatgen.entries.exp_entries">pymatgen.entries.exp_entries (module)</a>
-</li>
-      <li><a href="pymatgen.entries.post_processors_abc.html#module-pymatgen.entries.post_processors_abc">pymatgen.entries.post_processors_abc (module)</a>
 </li>
       <li><a href="pymatgen.ext.html#module-pymatgen.ext">pymatgen.ext (module)</a>
 </li>
@@ -10354,8 +10304,6 @@
 </li>
       <li><a href="pymatgen.analysis.ewald.html#pymatgen.analysis.ewald.EwaldSummation.real_space_energy_matrix">real_space_energy_matrix() (EwaldSummation property)</a>
 </li>
-      <li><a href="pymatgen.command_line.bader_caller.html#pymatgen.command_line.bader_caller.BaderAnalysis.rebuild_chgcar">rebuild_chgcar() (BaderAnalysis class method)</a>
-</li>
       <li><a href="pymatgen.io.abinit.qjobs.html#pymatgen.io.abinit.qjobs.QueueJob.received_signal">received_signal() (QueueJob method)</a>
 </li>
       <li><a href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Kpoints_supported_modes.Reciprocal">Reciprocal (Kpoints_supported_modes attribute)</a>
@@ -10661,7 +10609,7 @@
       <li><a href="pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.BoltztrapRunner.run">run() (BoltztrapRunner method)</a>
 
       <ul>
-        <li><a href="pymatgen.io.fiesta.html#pymatgen.io.fiesta.Fiesta_run.run">(Fiesta_run method)</a>
+        <li><a href="pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaRun.run">(FiestaRun method)</a>
 </li>
         <li><a href="pymatgen.command_line.gulp_caller.html#pymatgen.command_line.gulp_caller.GulpCaller.run">(GulpCaller method)</a>
 </li>
@@ -10924,7 +10872,7 @@
 </li>
       <li><a href="pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.set_mpi_procs">set_mpi_procs() (TaskManager method)</a>
 </li>
-      <li><a href="pymatgen.io.fiesta.html#pymatgen.io.fiesta.Basis_set_reader.set_n_nlmo">set_n_nlmo() (Basis_set_reader method)</a>
+      <li><a href="pymatgen.io.fiesta.html#pymatgen.io.fiesta.BasisSetReader.set_n_nlmo">set_n_nlmo() (BasisSetReader method)</a>
 </li>
       <li><a href="pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.Node.set_name">set_name() (Node method)</a>
 </li>
@@ -11604,8 +11552,6 @@
 
       <ul>
         <li><a href="pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianOutput.structures">(GaussianOutput attribute)</a>
-</li>
-        <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Vasprun.structures">(Vasprun attribute)</a>
 </li>
         <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Xdatcar.structures">(Xdatcar attribute)</a>
 </li>
@@ -12983,7 +12929,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.9.12 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.9.16 documentation</a> &#187;</li> 
       </ul>
     </div>
 

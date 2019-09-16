@@ -40,7 +40,7 @@ script:
   # Docstyle checks are enforced for files that have been modified since the v2019.9.12 tagged release.
   - flake8 --count --show-source --statistics pymatgen
   - flake8 --count --exit-zero --max-complexity=10 --statistics pymatgen
-  - export MODIFIED_FILES=`git diff --diff-filter=ACMRTUXB --name-only HEAD v2019.9.12 | grep -E 'pymatgen.*\.(py)$' | sed '/test_/d' | sed 'post_processors_abc/d' | tr '\n' ' '`
+  - export MODIFIED_FILES=`git diff --diff-filter=ACMRTUXB --name-only HEAD v2019.9.16 | grep -E 'pymatgen.*\.(py)$' | sed '/test_/d' | sed 'post_processors_abc/d' | tr '\n' ' '`
   - pydocstyle --count pymatgen/core $MODIFIED_FILES
 
 notifications:

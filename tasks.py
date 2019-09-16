@@ -119,7 +119,7 @@ def contribute_dash(ctx):
             data["version"] = NEW_VER
         with open("docset.json", "wt") as f:
             json.dump(data, f, indent=4)
-        ctx.run('git commit -a -m "Update to v%s"' % NEW_VER)
+        ctx.run('git commit --no-verify -a -m "Update to v%s"' % NEW_VER)
         ctx.run('git push')
     ctx.run("rm pymatgen.tgz")
 
