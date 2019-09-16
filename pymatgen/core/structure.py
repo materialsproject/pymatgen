@@ -20,15 +20,15 @@ import re
 import functools
 from typing import Dict, List, Tuple, Optional, Union, Iterator, Set, Sequence, Iterable
 
-from math import gcd
-
 import numpy as np
 
 from monty.dev import deprecated
+from monty.io import zopen
+from monty.json import MSONable
+
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, Specie, get_el_sp, DummySpecie
-from monty.json import MSONable
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
@@ -36,7 +36,6 @@ from pymatgen.util.coord import get_angle, all_distances, \
     lattice_points_in_supercell
 from pymatgen.core.units import Mass, Length
 
-from monty.io import zopen
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -66,7 +65,6 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         """
         Returns a tuple of sites.
         """
-        pass
 
     @abstractmethod
     def get_distance(self, i: int, j: int) -> float:
@@ -80,7 +78,6 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         Returns:
             Distance between sites at index i and index j.
         """
-        pass
 
     @property
     def distance_matrix(self) -> np.ndarray:
@@ -301,7 +298,6 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         Generates well-known string representations of SiteCollections (e.g.,
         molecules / structures). Should return a string type or write to a file.
         """
-        pass
 
     @classmethod
     @abstractmethod
@@ -309,7 +305,6 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         """
         Reads in SiteCollection from a string.
         """
-        pass
 
     @classmethod
     @abstractmethod
@@ -317,7 +312,6 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         """
         Reads in SiteCollection from a filename.
         """
-        pass
 
     def add_site_property(self, property_name: str, values: List):
         """
@@ -795,8 +789,8 @@ class IStructure(SiteCollection, MSONable):
 
         if 'magmom' not in site_properties:
             raise ValueError('Magnetic moments have to be defined.')
-        else:
-            magmoms = [Magmom(m) for m in site_properties['magmom']]
+
+        magmoms = [Magmom(m) for m in site_properties['magmom']]
 
         if not isinstance(msg, MagneticSpaceGroup):
             msg = MagneticSpaceGroup(msg)  # type: ignore
@@ -852,8 +846,7 @@ class IStructure(SiteCollection, MSONable):
         """
         if self._charge is None:
             return super().charge
-        else:
-            return self._charge
+        return self._charge
 
     @property
     def distance_matrix(self):
@@ -923,8 +916,7 @@ class IStructure(SiteCollection, MSONable):
         m = StructureMatcher(**kwargs)
         if not anonymous:
             return m.fit(self, other)
-        else:
-            return m.fit_anonymous(self, other)
+        return m.fit_anonymous(self, other)
 
     def __eq__(self, other):
         if other is self:
@@ -1690,7 +1682,7 @@ class IStructure(SiteCollection, MSONable):
             np.fill_diagonal(non_nbrs, True)
             grouped_non_nbrs.append(non_nbrs)
 
-        num_fu = functools.reduce(gcd, map(len, grouped_sites))
+        num_fu = functools.reduce(math.gcd, map(len, grouped_sites))
         for size, ms in get_hnf(num_fu):
             inv_ms = np.linalg.inv(ms)
 
@@ -2043,7 +2035,6 @@ class IStructure(SiteCollection, MSONable):
         from pymatgen.io.lmto import LMTOCtrl
         from pymatgen.io.vasp import Vasprun, Chgcar
         from pymatgen.io.exciting import ExcitingInput
-        from monty.io import zopen
         fname = os.path.basename(filename)
         with zopen(filename, "rt") as f:
             contents = f.read()
