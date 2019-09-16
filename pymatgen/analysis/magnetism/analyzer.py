@@ -2,6 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module provides some useful functions for dealing with magnetic Structures
+(e.g. Structures with associated magmom tags).
+"""
 
 import warnings
 import numpy as np
@@ -24,17 +28,10 @@ from pymatgen.transformations.advanced_transformations import (
     MagOrderingTransformation,
     MagOrderParameterConstraint,
 )
-from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.symmetry.groups import SpaceGroup
-from pymatgen.analysis.bond_valence import BVAnalyzer
 from monty.serialization import loadfn
 
-from typing import Union, List
-
-"""
-This module provides some useful functions for dealing with magnetic Structures
-(e.g. Structures with associated magmom tags).
-"""
+from typing import Union
 
 __author__ = "Matthew Horton"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -60,6 +57,9 @@ except Exception:
 
 @unique
 class Ordering(Enum):
+    """
+    Enum type of magnetic orderings.
+    """
     FM = "FM"  # Ferromagnetic
     AFM = "AFM"  # Antiferromagnetic
     FiM = "FiM"  # Ferrimagnetic
@@ -69,6 +69,9 @@ class Ordering(Enum):
 
 @unique
 class OverwriteMagmomMode(Enum):
+    """
+    Enum of modes of overwriting magmoms.
+    """
     none = "none"
     respect_sign = "respect_sign"
     respect_zero = "respect_zeros"
@@ -77,6 +80,10 @@ class OverwriteMagmomMode(Enum):
 
 
 class CollinearMagneticStructureAnalyzer:
+    """
+    A class which provides a few helpful methods to analyze
+    collinear magnetic structures.
+    """
     def __init__(
             self,
             structure: Structure,
@@ -89,10 +96,7 @@ class CollinearMagneticStructureAnalyzer:
             threshold: float = 0.00,
             threshold_nonmag: float = 0.1,
     ):
-        """
-        A class which provides a few helpful methods to analyze
-        collinear magnetic structures.
-
+        r"""
         If magnetic moments are not defined, moments will be
         taken either from default_magmoms.yaml (similar to the
         default magmoms in MPRelaxSet, with a few extra definitions)
@@ -154,7 +158,6 @@ class CollinearMagneticStructureAnalyzer:
 
         if detect_valences:
             trans = AutoOxiStateDecorationTransformation()
-            bva = BVAnalyzer()
             try:
                 structure = trans.apply_transformation(structure)
             except ValueError:
