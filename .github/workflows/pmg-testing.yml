@@ -8,8 +8,8 @@ jobs:
     strategy:
       max-parallel: 6
       matrix:
-        os: [ubuntu-latest, macOS-latest]
-        python-version: [3.6, 3.7]
+        os: [ubuntu-latest]
+        python-version: [3.6]
     
     runs-on: ${{ matrix.os }}
 
@@ -29,9 +29,6 @@ jobs:
       run: |
         export PATH=$PATH:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit:`pwd`/cmd_line/boltztrap/Linux_64bit
     - name: Test with pytest
-      env:
-        PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
       run: |
-        pip install pytest-xdist
         pip install -e .
-        pytest -n 2 pymatgen
+        pytest pymatgen
