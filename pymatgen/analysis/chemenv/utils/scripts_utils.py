@@ -7,9 +7,7 @@ from pymatgen.ext.matproj import MPRester
 from pymatgen.io.cif import CifParser
 
 try:
-    import vtk
     from pymatgen.vis.structure_vtk import StructureVis
-
     no_vis = False
 except ImportError:
     StructureVis = None  # type: ignore

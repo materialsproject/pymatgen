@@ -28,7 +28,6 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.core.sites import PeriodicSite
 import numpy as np
 from scipy.stats import gmean
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import UNCLEAR_ENVIRONMENT_SYMBOL
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import get_lower_and_upper_f
 from pymatgen.analysis.chemenv.utils.func_utils import CSMFiniteRatioFunction
 from pymatgen.analysis.chemenv.utils.func_utils import CSMInfiniteRatioFunction
