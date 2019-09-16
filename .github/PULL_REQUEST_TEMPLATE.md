@@ -30,7 +30,18 @@ in the pull request title.
 
 Before a pull request can be merged, the following items must be checked:
 
-- [ ] Code is in the [standard Python style](https://www.python.org/dev/peps/pep-0008/)
-- [ ] Docstrings have been added in the [Google docstring format](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html)
-- [ ] Tests have been added for any new functionality or bug fixes
-- [ ] All existing tests pass
+- [ ] Code is in the [standard Python style](https://www.python.org/dev/peps/pep-0008/). 
+      Run [pycodestyle](https://pycodestyle.readthedocs.io/en/latest/) and [flake8](http://flake8.pycqa.org/en/latest/)
+      on your local machine.
+- [ ] Docstrings have been added in the [Google docstring format](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html).
+      Run [pydocstyle](http://www.pydocstyle.org/en/2.1.1/index.html) on your code.
+- [ ] Type annotations are **highly** encouraged. Run [mypy](http://mypy-lang.org/) 
+      to type check your code.
+- [ ] Tests have been added for any new functionality or bug fixes.
+- [ ] All existing tests pass.
+
+Note that the CI system will run all the above checks. But it will be much more
+efficient if you already fix most errors prior to submitting the PR. It is
+highly recommended that you use the pre-commit hook provided in the pymatgen 
+repository. Simply `cp pre-commit .git/hooks` and a check will be run prior to
+allowing commits.
