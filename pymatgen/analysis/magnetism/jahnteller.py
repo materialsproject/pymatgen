@@ -16,7 +16,7 @@ from pymatgen.core.periodic_table import Specie, get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 import warnings
 
-from typing import Dict, Tuple, Union, Optional
+from typing import Dict, Tuple, Union, Optional, Any
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -228,7 +228,7 @@ class JahnTellerAnalyzer:
 
         # perform aggregation of all sites
         if jt_sites:
-            analysis = {"active": True}
+            analysis = {"active": True}  # type: Dict[str, Any]
             # if any site could exhibit 'strong' Jahn-Teller effect
             # then mark whole structure as strong
             strong_magnitudes = [site["strength"] == "strong" for site in jt_sites]
