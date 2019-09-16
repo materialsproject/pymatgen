@@ -76,17 +76,13 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
     7.0
     """
 
-    """
-    Tolerance in distinguishing different composition amounts.
-    1e-8 is fairly tight, but should cut out most floating point arithmetic
-    errors.
-    """
+    # Tolerance in distinguishing different composition amounts.
+    # 1e-8 is fairly tight, but should cut out most floating point arithmetic
+    # errors.
     amount_tolerance = 1e-8
 
-    """
-    Special formula handling for peroxides and certain elements. This is so
-    that formula output does not write LiO instead of Li2O2 for example.
-    """
+    # Special formula handling for peroxides and certain elements. This is so
+    # that formula output does not write LiO instead of Li2O2 for example.
     special_formulas = {"LiO": "Li2O2", "NaO": "Na2O2", "KO": "K2O2",
                         "HO": "H2O2", "CsO": "Cs2O2", "RbO": "Rb2O2",
                         "O": "O2", "N": "N2", "F": "F2", "Cl": "Cl2",
@@ -186,7 +182,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         for el in sorted(set(self.elements + other.elements)):
             if other[el] - self[el] >= Composition.amount_tolerance:
                 return False
-            elif self[el] - other[el] >= Composition.amount_tolerance:
+            if self[el] - other[el] >= Composition.amount_tolerance:
                 return True
         return True
 
@@ -546,8 +542,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
 
         if "block" in category:
             return any([category[0] in el.block for el in self.elements])
-        else:
-            return any([getattr(el, "is_{}".format(category)) for el in self.elements])
+        return any([getattr(el, "is_{}".format(category)) for el in self.elements])
 
     def _parse_formula(self, formula):
         """
@@ -771,7 +766,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
             all_oxi_states, max_sites, oxi_states_override, target_charge)
 
         # Special case: No charged compound is possible
-        if len(oxidation_states) == 0:
+        if not oxidation_states:
             return Composition(dict((Specie(e, 0), f) for e, f in self.items()))
 
         # Generate the species
@@ -933,7 +928,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
                     dict((e, el_best_oxid_combo[idx][v]) for idx, (e, v) in enumerate(zip(els, x))))
 
         # sort the solutions by highest to lowest score
-        if len(all_scores) > 0:
+        if all_scores:
             all_sols, all_oxid_combo = zip(*[(y, x) for (z, y, x) in sorted(zip(all_scores, all_sols, all_oxid_combo),
                                                                             key=lambda pair: pair[0],
                                                                             reverse=True)])
@@ -980,7 +975,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         return all_matches
 
     @staticmethod
-    def _comps_from_fuzzy_formula(fuzzy_formula, m_dict={}, m_points=0,
+    def _comps_from_fuzzy_formula(fuzzy_formula, m_dict=None, m_points=0,
                                   factor=1):
         """
         A recursive helper method for formula parsing that helps in
@@ -1002,6 +997,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
             the second element being the number of points awarded that
             Composition intepretation.
         """
+        m_dict = m_dict or {}
 
         def _parse_chomp_and_rank(m, f, m_dict, m_points):
             """
