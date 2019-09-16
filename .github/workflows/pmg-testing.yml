@@ -25,6 +25,8 @@ jobs:
         pip install -r requirements.txt
         pip install -r requirements-optional.txt
     - name: Test with pytest
+      env:
+        PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
       run: |
         pip install -e .
         export PATH=$PATH:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit:`pwd`/cmd_line/boltztrap/Linux_64bit
