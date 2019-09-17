@@ -10,7 +10,6 @@ import math
 import itertools
 import warnings
 from functools import reduce
-from math import gcd
 import collections
 
 from fractions import Fraction
@@ -1409,10 +1408,11 @@ def get_integer_index(miller_index: Sequence[float], round_dp: int = 4, verbose:
 
 
 def get_points_in_spheres(all_coords: np.ndarray, center_coords: np.ndarray, r: float,
-                          pbc: Union[bool, List[bool]]=True, numerical_tol=1e-8, lattice: Lattice=None
+                          pbc: Union[bool, List[bool]] = True, numerical_tol: float = 1e-8, lattice: Lattice = None
                           ) -> List[List[Tuple]]:
     """
-    For each point in `center_coords`, get all the neighboring points in `all_coords` that are within the cutoff radius `r`.
+    For each point in `center_coords`, get all the neighboring points in `all_coords` that are within the
+    cutoff radius `r`.
 
     Args:
         all_coords: (list of cartesian coordinates) all available points
@@ -1588,5 +1588,3 @@ def find_neighbors(label: np.ndarray, nx: int, ny: int, nz: int
         ind = (labels[:, 0] < nx) * (labels[:, 1] < ny) * (labels[:, 2] < nz) * np.all(labels > -1e-5, axis=1)
         filtered_labels.append(labels[ind])
     return filtered_labels
-
-

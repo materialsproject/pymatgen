@@ -1186,7 +1186,6 @@ class IStructure(SiteCollection, MSONable):
             neighbors.append(nns)
         return neighbors
 
-
     @deprecated(get_all_neighbors, "This is retained purely for checking purposes.")
     def get_all_neighbors_old(self, r, include_index=False, include_image=False,
                               include_site=True):
