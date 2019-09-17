@@ -1492,7 +1492,7 @@ def get_points_in_spheres(all_coords: np.ndarray, center_coords: np.ndarray, r: 
 
     # find all neighboring cubes for each atom in the lattice cell
     site_neighbors = find_neighbors(site_cube_index, nx, ny, nz)
-    neighbors = []  # type: List[List[Tuple]]
+    neighbors: List[List[Tuple]] = []  # type: List[List[Tuple]]
 
     for i, j in zip(center_coords, site_neighbors):
         l1 = np.array(_three_to_one(j, ny, nz), dtype=int).ravel()
@@ -1506,7 +1506,7 @@ def get_points_in_spheres(all_coords: np.ndarray, center_coords: np.ndarray, r: 
         nn_images = itertools.chain(*[cube_to_images[k] for k in ks])
         nn_indices = itertools.chain(*[cube_to_indices[k] for k in ks])
         dist = np.linalg.norm(nn_coords - i[None, :], axis=1)
-        nns = []
+        nns: List[Tuple] = []
         for coord, index, image, d in zip(nn_coords, nn_indices, nn_images, dist):
             # filtering out all sites that are beyond the cutoff
             # Here there is no filtering of overlapping sites

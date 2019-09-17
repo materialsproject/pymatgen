@@ -1169,20 +1169,20 @@ class IStructure(SiteCollection, MSONable):
         site_coords = np.array([site.coords for site in sites])
         point_neighbors = get_points_in_spheres(self.cart_coords, site_coords, r=r, pbc=True,
                                                 numerical_tol=numerical_tol, lattice=self.lattice)
-        neighbors = []
-        for nn, site in zip(point_neighbors, sites):
-            nns = []
-            if len(nn) < 1:
+        neighbors: List[List[Neighbor]] = []
+        for point_neighbor, site in zip(point_neighbors, sites):
+            nns: List[Neighbor] = []
+            if len(point_neighbor) < 1:
                 neighbors.append([])
                 continue
-            for n in nn:
+            for n in point_neighbor:
                 coord, d, index, image = n
                 if (d > numerical_tol) or (self[index] != site):
                     nn_site = PeriodicSite(self[index].species, coord, self.lattice,
                                            properties=self[index].properties,
                                            coords_are_cartesian=True)
-                    nn = Neighbor(site=nn_site, distance=d, index=index, image=tuple(image))
-                    nns.append(nn)
+                    neighbor = Neighbor(site=nn_site, distance=d, index=index, image=tuple(image))
+                    nns.append(neighbor)
             neighbors.append(nns)
         return neighbors
 
