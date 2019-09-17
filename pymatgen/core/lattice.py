@@ -1409,7 +1409,8 @@ def get_integer_index(miller_index: Sequence[float], round_dp: int = 4, verbose:
 
 
 def get_points_in_spheres(all_coords: np.ndarray, center_coords: np.ndarray, r: float,
-                          pbc: Union[bool, List[bool]]=True, numerical_tol=1e-8, lattice: Lattice=None) -> List[List[Tuple]]:
+                          pbc: Union[bool, List[bool]]=True, numerical_tol=1e-8, lattice: Lattice=None
+                          ) -> List[List[Tuple]]:
     """
     For each point in `center_coords`, get all the neighboring points in `all_coords` that are within the cutoff radius `r`.
 
@@ -1516,7 +1517,7 @@ def get_points_in_spheres(all_coords: np.ndarray, center_coords: np.ndarray, r: 
     return neighbors
 
 
-# The following internal methods are used in the get_all_neighbors method.
+# The following internal methods are used in the get_points_in_sphere method.
 def _compute_cube_index(coords: np.ndarray, global_min: float, radius: float
                         ) -> np.ndarray:
     """
