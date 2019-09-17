@@ -27,7 +27,7 @@ from monty.io import zopen
 from monty.json import MSONable
 
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.lattice import Lattice
+from pymatgen.core.lattice import Lattice, get_points_in_spheres
 from pymatgen.core.periodic_table import Element, Specie, get_el_sp, DummySpecie
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond, get_bond_length
@@ -1164,84 +1164,28 @@ class IStructure(SiteCollection, MSONable):
             (site, distance, index, image).
         """
 
-        latt = self.lattice
         if sites is None:
             sites = self.sites
         site_coords = np.array([site.coords for site in sites])
-        recp_len = np.array(latt.reciprocal_lattice.abc)
-        maxr = np.ceil((r + 0.15) * recp_len / (2 * math.pi))
-        frac_coords = latt.get_fractional_coords(site_coords)
-        nmin = np.floor(np.min(frac_coords, axis=0)) - maxr
-        nmax = np.ceil(np.max(frac_coords, axis=0)) + maxr
-        all_ranges = [np.arange(x, y) for x, y in zip(nmin, nmax)]
-        matrix = latt.matrix
-        all_fcoords = np.mod(self.frac_coords, 1)
-        coords_in_cell = np.dot(all_fcoords, matrix)
-        coords_min = np.min(site_coords, axis=0)
-        coords_max = np.max(site_coords, axis=0)
-        # The lower bound of all considered atom coords
-        global_min = coords_min - r - numerical_tol
-        global_max = coords_max + r + numerical_tol
-
-        # Filter out those beyond max range
-        valid_coords = []
-        valid_images = []
-        valid_indices = []
-        for image in itertools.product(*all_ranges):
-            coords = np.dot(image, matrix) + coords_in_cell
-            valid_index_bool = np.all(np.bitwise_and(coords > global_min[None, :], coords < global_max[None, :]),
-                                      axis=1)
-            ind = np.arange(len(self))
-            if np.any(valid_index_bool):
-                valid_coords.append(coords[valid_index_bool])
-                valid_images.extend([list(image)] * np.sum(valid_index_bool))
-                valid_indices.extend([k for k in ind if valid_index_bool[k]])
-        valid_coords = np.concatenate(valid_coords, axis=0)
-        # Divide the valid 3D space into cubes and compute the cube ids
-        all_cube_index = _compute_cube_index(valid_coords, global_min, r)
-        nx, ny, nz = _compute_cube_index(global_max, global_min, r) + 1
-        all_cube_index = _three_to_one(all_cube_index, ny, nz)
-        site_cube_index = _three_to_one(_compute_cube_index(site_coords, global_min, r), ny, nz)
-        # create cube index to coordinates, images, and indices map
-        cube_to_coords = collections.defaultdict(list)  # type: Dict[int, List]
-        cube_to_images = collections.defaultdict(list)  # type: Dict[int, List]
-        cube_to_indices = collections.defaultdict(list)  # type: Dict[int, List]
-        for i, j, k, l in zip(all_cube_index.ravel(), valid_coords,
-                              valid_images, valid_indices):
-            cube_to_coords[i].append(j)
-            cube_to_images[i].append(k)
-            cube_to_indices[i].append(l)
-
-        # find all neighboring cubes for each atom in the lattice cell
-        site_neighbors = find_neighbors(site_cube_index, nx, ny, nz)
-        neighbors = []  # type: List[List[Neighbor]]
-        for sp, i, j, site in zip(self.species_and_occu, site_coords, site_neighbors, sites):
-            l1 = np.array(_three_to_one(j, ny, nz), dtype=int).ravel()
-            # use the cube index map to find the all the neighboring
-            # coords, images, and indices
-            ks = [k for k in l1 if k in cube_to_coords]
-            if not ks:
+        point_neighbors = get_points_in_spheres(self.cart_coords, site_coords, r=r, pbc=True,
+                                                numerical_tol=numerical_tol, lattice=self.lattice)
+        neighbors = []
+        for nn, site in zip(point_neighbors, sites):
+            nns = []
+            if len(nn) < 1:
                 neighbors.append([])
                 continue
-            nn_coords = np.concatenate([cube_to_coords[k] for k in ks], axis=0)
-            nn_images = itertools.chain(*[cube_to_images[k] for k in ks])
-            nn_indices = itertools.chain(*[cube_to_indices[k] for k in ks])
-            dist = np.linalg.norm(nn_coords - i[None, :], axis=1)
-            nns = []
-            for coord, index, image, d in zip(nn_coords, nn_indices, nn_images, dist):
-                # filtering out all sites that are beyond the cutoff and
-                # those that are identical to center site
-                if d < r + numerical_tol and (d > numerical_tol or
-                                              self[index] != site):
-                    nnsite = PeriodicSite(self[index].species, coord, latt,
-                                          properties=self[index].properties,
-                                          coords_are_cartesian=True)
-                    nn = Neighbor(site=nnsite, distance=d,
-                                  index=index, image=tuple(image))
+            for n in nn:
+                coord, d, index, image = n
+                if (d > numerical_tol) or (self[index] != site):
+                    nn_site = PeriodicSite(self[index].species, coord, self.lattice,
+                                           properties=self[index].properties,
+                                           coords_are_cartesian=True)
+                    nn = Neighbor(site=nn_site, distance=d, index=index, image=tuple(image))
                     nns.append(nn)
-
             neighbors.append(nns)
         return neighbors
+
 
     @deprecated(get_all_neighbors, "This is retained purely for checking purposes.")
     def get_all_neighbors_old(self, r, include_index=False, include_image=False,
@@ -3674,69 +3618,6 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         del self[index]
         for site in func_grp[1:]:
             self._sites.append(site)
-
-
-# The following internal methods are used in the get_all_neighbors method.
-
-
-def _compute_cube_index(coords, global_min, radius):
-    """
-    Compute the cube index from coordinates
-
-    :param coords: (nx3 array) atom coordinates
-    :param global_min: (float) lower boundary of coordinates
-    :param radius: (float) cutoff radius
-    :return: (nx3 array) int indices
-    """
-    return np.array(np.floor((coords - global_min) / radius), dtype=int)
-
-
-def _one_to_three(label1d, ny, nz):
-    """
-    Convert a 1D index array to 3D index array
-
-    :param label1d: (array) 1D index array
-    :param ny: (int) number of cells in y direction
-    :param nz: (int) number of cells in z direction
-    :return: (nx3) int array of index
-    """
-    last = np.mod(label1d, nz)
-    second = np.mod((label1d - last) / nz, ny)
-    first = (label1d - last - second * nz) / (ny * nz)
-    return np.concatenate([first, second, last], axis=1)
-
-
-def _three_to_one(label3d, ny, nz):
-    """
-    The reverse of one_to_three
-    """
-    return np.array(label3d[:, 0] * ny * nz +
-                    label3d[:, 1] * nz + label3d[:, 2]).reshape((-1, 1))
-
-
-def find_neighbors(label, nx, ny, nz):
-    """
-    Given a cube index, find the neighbor cube indices
-    :param label: (array) (n,) or (n x 3) indice array
-    :param nx: (int) number of cells in y direction
-    :param ny: (int) number of cells in y direction
-    :param nz: (int) number of cells in z direction
-    :return: neighbor cell indices
-    """
-    array = [[-1, 0, 1]] * 3
-    neighbor_vectors = np.array(list(itertools.product(*array)),
-                                dtype=int)
-    if np.shape(label)[1] == 1:
-        label3d = _one_to_three(label, ny, nz)
-    else:
-        label3d = label
-    all_labels = label3d[:, None, :] - neighbor_vectors[None, :, :]
-    filtered_labels = []
-    # filter out out-of-bound labels i.e., label < 0
-    for labels in all_labels:
-        ind = (labels[:, 0] < nx) * (labels[:, 1] < ny) * (labels[:, 2] < nz) * np.all(labels > -1e-5, axis=1)
-        filtered_labels.append(labels[ind])
-    return filtered_labels
 
 
 class StructureError(Exception):
