@@ -658,7 +658,7 @@ class Tensor(np.ndarray, MSONable):
                 # in the guess in the guess
                 merge(guess, rot)
             if verbose:
-                print("Preconditioning for voigt symmetry".format(len(sops)))
+                print("Preconditioning for voigt symmetry")
             if vsym:
                 v = guess.voigt
                 perms = list(itertools.permutations(range(len(v.shape))))

@@ -524,7 +524,7 @@ class Slab(Structure):
         surf_sites_dict, properties = {"top": [], "bottom": []}, []
         for i, site in enumerate(self):
             # Determine if site is closer to the top or bottom of the slab
-            top = True if site.frac_coords[2] > self.center_of_mass[2] else False
+            top = site.frac_coords[2] > self.center_of_mass[2]
 
             try:
                 # A site is a surface site, if its environment does

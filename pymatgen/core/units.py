@@ -10,11 +10,12 @@ another, and additions and subtractions perform automatic conversion if
 units are detected. An ArrayWithUnit is also implemented, which is a subclass
 of numpy's ndarray with similar unit features.
 """
-import numpy as np
+
 import collections
-from numbers import Number
 import numbers
 from functools import partial
+
+import numpy as np
 
 import scipy.constants as const
 
@@ -273,7 +274,7 @@ class Unit(collections.abc.Mapping):
             for d in DERIVED_UNITS.values():
                 if k in d:
                     for k2, v2 in d[k].items():
-                        if isinstance(k2, Number):
+                        if isinstance(k2, numbers.Number):
                             factor *= k2 ** (v2 * v)
                         else:
                             b[k2] += v2 * v
@@ -426,14 +427,6 @@ class FloatWithUnit(float):
     def __pow__(self, i):
         return FloatWithUnit(float(self) ** i, unit_type=None,
                              unit=self._unit ** i)
-
-    def __div__(self, other):
-        val = super().__div__(other)
-        if not isinstance(other, FloatWithUnit):
-            return FloatWithUnit(val, unit_type=self._unit_type,
-                                 unit=self._unit)
-        return FloatWithUnit(val, unit_type=None,
-                             unit=self._unit / other._unit)
 
     def __truediv__(self, other):
         val = super().__truediv__(other)
@@ -640,39 +633,35 @@ class ArrayWithUnit(np.ndarray):
         if not hasattr(other, "unit_type"):
             return self.__class__(np.array(self).__mul__(np.array(other)),
                                   unit_type=self._unit_type, unit=self._unit)
-        else:
-            # Cannot use super since it returns an instance of self.__class__
-            # while here we want a bare numpy array.
-            return self.__class__(
-                np.array(self).__mul__(np.array(other)),
-                unit=self.unit * other.unit)
+        # Cannot use super since it returns an instance of self.__class__
+        # while here we want a bare numpy array.
+        return self.__class__(
+            np.array(self).__mul__(np.array(other)),
+            unit=self.unit * other.unit)
 
     def __rmul__(self, other):
         if not hasattr(other, "unit_type"):
             return self.__class__(np.array(self).__rmul__(np.array(other)),
                                   unit_type=self._unit_type, unit=self._unit)
-        else:
-            return self.__class__(
-                np.array(self).__rmul__(np.array(other)),
-                unit=self.unit * other.unit)
+        return self.__class__(
+            np.array(self).__rmul__(np.array(other)),
+            unit=self.unit * other.unit)
 
     def __div__(self, other):
         if not hasattr(other, "unit_type"):
             return self.__class__(np.array(self).__div__(np.array(other)),
                                   unit_type=self._unit_type, unit=self._unit)
-        else:
-            return self.__class__(
-                np.array(self).__div__(np.array(other)),
-                unit=self.unit / other.unit)
+        return self.__class__(
+            np.array(self).__div__(np.array(other)),
+            unit=self.unit / other.unit)
 
     def __truediv__(self, other):
         if not hasattr(other, "unit_type"):
             return self.__class__(np.array(self).__truediv__(np.array(other)),
                                   unit_type=self._unit_type, unit=self._unit)
-        else:
-            return self.__class__(
-                np.array(self).__truediv__(np.array(other)),
-                unit=self.unit / other.unit)
+        return self.__class__(
+            np.array(self).__truediv__(np.array(other)),
+            unit=self.unit / other.unit)
 
     def __neg__(self):
         return self.__class__(np.array(self).__neg__(),
@@ -825,10 +814,9 @@ def obj_with_unit(obj, unit):
 
     if isinstance(obj, numbers.Number):
         return FloatWithUnit(obj, unit=unit, unit_type=unit_type)
-    elif isinstance(obj, collections.Mapping):
+    if isinstance(obj, collections.Mapping):
         return {k: obj_with_unit(v, unit) for k, v in obj.items()}
-    else:
-        return ArrayWithUnit(obj, unit=unit, unit_type=unit_type)
+    return ArrayWithUnit(obj, unit=unit, unit_type=unit_type)
 
 
 def unitized(unit):
@@ -856,16 +844,16 @@ def unitized(unit):
             val = f(*args, **kwargs)
             unit_type = _UNAME2UTYPE[unit]
 
-            if isinstance(val, FloatWithUnit) or isinstance(val, ArrayWithUnit):
+            if isinstance(val, (FloatWithUnit, ArrayWithUnit)):
                 return val.to(unit)
 
-            elif isinstance(val, collections.abc.Sequence):
+            if isinstance(val, collections.abc.Sequence):
                 # TODO: why don't we return a ArrayWithUnit?
                 # This complicated way is to ensure the sequence type is
                 # preserved (list or tuple).
                 return val.__class__([FloatWithUnit(i, unit_type=unit_type,
                                                     unit=unit) for i in val])
-            elif isinstance(val, collections.abc.Mapping):
+            if isinstance(val, collections.abc.Mapping):
                 for k, v in val.items():
                     val[k] = FloatWithUnit(v, unit_type=unit_type, unit=unit)
             elif isinstance(val, numbers.Number):
