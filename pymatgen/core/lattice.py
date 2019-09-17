@@ -1492,7 +1492,7 @@ def get_points_in_spheres(all_coords: np.ndarray, center_coords: np.ndarray, r: 
 
     # find all neighboring cubes for each atom in the lattice cell
     site_neighbors = find_neighbors(site_cube_index, nx, ny, nz)
-    neighbors: List[List[Tuple]] = []  # type: List[List[Tuple]]
+    neighbors = []  # type: List[List[Tuple]]
 
     for i, j in zip(center_coords, site_neighbors):
         l1 = np.array(_three_to_one(j, ny, nz), dtype=int).ravel()
