@@ -10,13 +10,14 @@ import itertools
 import os
 import warnings
 from fnmatch import fnmatch
+from typing import List, Union, Sequence
 
 import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
 from pymatgen.core.structure import Structure, Lattice, Element, Specie, DummySpecie, Composition
 from pymatgen.io.vasp.outputs import Xdatcar, Vasprun
-from typing import List, Union, Sequence
+
 
 __author__ = "Eric Sivonxay, Shyam Dwaraknath"
 __version__ = "0.0"
@@ -118,7 +119,6 @@ class Trajectory(MSONable):
             positions = self.base_positions + cumulative_displacements
             self.frac_coords = positions
             self.coords_are_displacement = False
-        return
 
     def to_displacements(self):
         """
@@ -132,7 +132,6 @@ class Trajectory(MSONable):
 
             self.frac_coords = displacements
             self.coords_are_displacement = True
-        return
 
     def extend(self, trajectory):
         """
@@ -184,74 +183,71 @@ class Trajectory(MSONable):
                     raise ValueError('Selected frame exceeds trajectory length')
                 # For integer input, return the displacements at that timestep
                 return self.frac_coords[frames]
-            elif isinstance(frames, slice):
+            if isinstance(frames, slice):
                 # For slice input, return a list of the displacements
                 start, stop, step = frames.indices(len(self))
                 return [self.frac_coords[i] for i in range(start, stop, step)]
-            elif isinstance(frames, list) or isinstance(frames, np.ndarray):
+            if isinstance(frames, (list, np.ndarray)):
                 # For list input, return a list of the displacements
                 pruned_frames = [i for i in frames if i < len(self)]  # Get rid of frames that exceed trajectory length
                 if len(pruned_frames) < len(frames):
                     warnings.warn('Some or all selected frames exceed trajectory length')
                 return [self.frac_coords[i] for i in pruned_frames]
-            else:
-                raise Exception('Given accessor is not of type int, slice, list, or array')
+            raise Exception('Given accessor is not of type int, slice, list, or array')
 
         # If trajectory is in positions mode, return a structure for the given frame or trajectory for the given frames
-        elif not self.coords_are_displacement:
-            if isinstance(frames, int):
-                if frames >= np.shape(self.frac_coords)[0]:
-                    raise ValueError('Selected frame exceeds trajectory length')
-                # For integer input, return the structure at that timestep
-                lattice = self.lattice if self.constant_lattice else self.lattice[frames]
-                site_properties = self.site_properties[frames] if self.site_properties else None
-                site_properties = self.site_properties[frames] if self.site_properties else None
-                return Structure(Lattice(lattice), self.species, self.frac_coords[frames],
-                                 site_properties=site_properties,
-                                 to_unit_cell=True)
-            elif isinstance(frames, slice):
-                # For slice input, return a trajectory of the sliced time
-                start, stop, step = frames.indices(len(self))
-                pruned_frames = range(start, stop, step)
-                lattice = self.lattice if self.constant_lattice else [self.lattice[i] for i in pruned_frames]
-                frac_coords = [self.frac_coords[i] for i in pruned_frames]
-                if self.site_properties is not None:
-                    site_properties = [self.site_properties[i] for i in pruned_frames]
-                else:
-                    site_properties = None
-                if self.frame_properties is not None:
-                    frame_properties = {}
-                    for key, item in self.frame_properties.items():
-                        frame_properties[key] = [item[i] for i in pruned_frames]
-                else:
-                    frame_properties = None
-                return Trajectory(lattice, self.species, frac_coords, time_step=self.time_step,
-                                  site_properties=site_properties, frame_properties=frame_properties,
-                                  constant_lattice=self.constant_lattice, coords_are_displacement=False,
-                                  base_positions=self.base_positions)
-            elif isinstance(frames, list) or isinstance(frames, np.ndarray):
-                # For list input, return a trajectory of the specified times
-                pruned_frames = [i for i in frames if i < len(self)]  # Get rid of frames that exceed trajectory length
-                if len(pruned_frames) < len(frames):
-                    warnings.warn('Some or all selected frames exceed trajectory length')
-                lattice = self.lattice if self.constant_lattice else [self.lattice[i] for i in pruned_frames]
-                frac_coords = [self.frac_coords[i] for i in pruned_frames]
-                if self.site_properties is not None:
-                    site_properties = [self.site_properties[i] for i in pruned_frames]
-                else:
-                    site_properties = None
-                if self.frame_properties is not None:
-                    frame_properties = {}
-                    for key, item in self.frame_properties.items():
-                        frame_properties[key] = [item[i] for i in pruned_frames]
-                else:
-                    frame_properties = None
-                return Trajectory(lattice, self.species, frac_coords, time_step=self.time_step,
-                                  site_properties=site_properties, frame_properties=frame_properties,
-                                  constant_lattice=self.constant_lattice, coords_are_displacement=False,
-                                  base_positions=self.base_positions)
+        if isinstance(frames, int):
+            if frames >= np.shape(self.frac_coords)[0]:
+                raise ValueError('Selected frame exceeds trajectory length')
+            # For integer input, return the structure at that timestep
+            lattice = self.lattice if self.constant_lattice else self.lattice[frames]
+            site_properties = self.site_properties[frames] if self.site_properties else None
+            site_properties = self.site_properties[frames] if self.site_properties else None
+            return Structure(Lattice(lattice), self.species, self.frac_coords[frames],
+                             site_properties=site_properties,
+                             to_unit_cell=True)
+        if isinstance(frames, slice):
+            # For slice input, return a trajectory of the sliced time
+            start, stop, step = frames.indices(len(self))
+            pruned_frames = range(start, stop, step)
+            lattice = self.lattice if self.constant_lattice else [self.lattice[i] for i in pruned_frames]
+            frac_coords = [self.frac_coords[i] for i in pruned_frames]
+            if self.site_properties is not None:
+                site_properties = [self.site_properties[i] for i in pruned_frames]
             else:
-                raise Exception('Given accessor is not of type int, slice, tuple, list, or array')
+                site_properties = None
+            if self.frame_properties is not None:
+                frame_properties = {}
+                for key, item in self.frame_properties.items():
+                    frame_properties[key] = [item[i] for i in pruned_frames]
+            else:
+                frame_properties = None
+            return Trajectory(lattice, self.species, frac_coords, time_step=self.time_step,
+                              site_properties=site_properties, frame_properties=frame_properties,
+                              constant_lattice=self.constant_lattice, coords_are_displacement=False,
+                              base_positions=self.base_positions)
+        if isinstance(frames, (list, np.ndarray)):
+            # For list input, return a trajectory of the specified times
+            pruned_frames = [i for i in frames if i < len(self)]  # Get rid of frames that exceed trajectory length
+            if len(pruned_frames) < len(frames):
+                warnings.warn('Some or all selected frames exceed trajectory length')
+            lattice = self.lattice if self.constant_lattice else [self.lattice[i] for i in pruned_frames]
+            frac_coords = [self.frac_coords[i] for i in pruned_frames]
+            if self.site_properties is not None:
+                site_properties = [self.site_properties[i] for i in pruned_frames]
+            else:
+                site_properties = None
+            if self.frame_properties is not None:
+                frame_properties = {}
+                for key, item in self.frame_properties.items():
+                    frame_properties[key] = [item[i] for i in pruned_frames]
+            else:
+                frame_properties = None
+            return Trajectory(lattice, self.species, frac_coords, time_step=self.time_step,
+                              site_properties=site_properties, frame_properties=frame_properties,
+                              constant_lattice=self.constant_lattice, coords_are_displacement=False,
+                              base_positions=self.base_positions)
+        raise Exception('Given accessor is not of type int, slice, tuple, list, or array')
 
     def copy(self):
         """
@@ -338,8 +334,8 @@ class Trajectory(MSONable):
             attribute = np.concatenate((attr_1, attr_2), axis=0)
             attribute_constant = False
         else:
-            attribute = [attr_1.copy()] * len_1 if type(attr_1) != list else attr_1.copy()
-            attribute.extend([attr_2.copy()] * len_2 if type(attr_2 != list) else attr_2.copy())
+            attribute = [attr_1.copy()] * len_1 if isinstance(attr_1, list) else attr_1.copy()
+            attribute.extend([attr_2.copy()] * len_2 if isinstance(attr_2, list) else attr_2.copy())
             attribute_constant = False
         return attribute, attribute_constant
 
@@ -350,7 +346,7 @@ class Trajectory(MSONable):
         """
         if attr_1 is None and attr_2 is None:
             return None
-        elif attr_1 is None or attr_2 is None:
+        if attr_1 is None or attr_2 is None:
             new_site_properties = []
             if attr_1 is None:
                 new_site_properties.extend([None for i in range(len_1)])
@@ -367,35 +363,34 @@ class Trajectory(MSONable):
                 new_site_properties.extend(attr_2)
 
             return new_site_properties
-        elif len(attr_1) == 1 and len(attr_2) == 1:
+        if len(attr_1) == 1 and len(attr_2) == 1:
             # If both properties lists are do not change within their respective trajectory
             if attr_1 == attr_2:
                 # If both site_properties are the same, only store one
                 return attr_1
-            else:
-                new_site_properties = [attr_1[0] for i in range(len_1)]
-                new_site_properties.extend([attr_2[0] for i in range(len_2)])
-                return new_site_properties
-        elif len(attr_1) > 1 and len(attr_2) > 1:
+            new_site_properties = [attr_1[0] for i in range(len_1)]
+            new_site_properties.extend([attr_2[0] for i in range(len_2)])
+            return new_site_properties
+        if len(attr_1) > 1 and len(attr_2) > 1:
             # Both properties have site properties that change within the trajectory, concat both together
             return [*attr_1, *attr_2]
-        else:
-            new_site_properties = []
-            if attr_1 is None:
-                new_site_properties.extend([None for i in range(len_1)])
-            elif len(attr_1) == 1:
-                new_site_properties.extend([attr_1[0] for i in range(len_1)])
-            elif len(attr_1) > 1:
-                new_site_properties.extend(attr_1)
 
-            if attr_2 is None:
-                new_site_properties.extend([None for i in range(len_2)])
-            elif len(attr_2) == 1:
-                new_site_properties.extend([attr_2[0] for i in range(len_2)])
-            elif len(attr_2) > 1:
-                new_site_properties.extend(attr_2)
+        new_site_properties = []
+        if attr_1 is None:
+            new_site_properties.extend([None for i in range(len_1)])
+        elif len(attr_1) == 1:
+            new_site_properties.extend([attr_1[0] for i in range(len_1)])
+        elif len(attr_1) > 1:
+            new_site_properties.extend(attr_1)
 
-            return new_site_properties
+        if attr_2 is None:
+            new_site_properties.extend([None for i in range(len_2)])
+        elif len(attr_2) == 1:
+            new_site_properties.extend([attr_2[0] for i in range(len_2)])
+        elif len(attr_2) > 1:
+            new_site_properties.extend(attr_2)
+
+        return new_site_properties
 
     @staticmethod
     def _combine_frame_props(attr_1, attr_2, len_1, len_2):
