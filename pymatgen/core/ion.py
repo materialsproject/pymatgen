@@ -6,20 +6,14 @@
 Module containing class to create an ion
 """
 
-__author__ = "Sai Jayaraman"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.0"
-__maintainer__ = "Sai Jayaraman"
-__email__ = "sjayaram@mit.edu"
-__status__ = "Production"
-__date__ = "Dec 10, 2012"
-
 import re
-import numpy as np
 from copy import deepcopy
 
-from pymatgen.core.composition import Composition
+import numpy as np
+
 from monty.json import MSONable
+
+from pymatgen.core.composition import Composition
 from pymatgen.util.string import formula_double_format
 
 

@@ -429,7 +429,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             **kwargs: parameters to pass into oxi_state_guesses()
         """
         oxid_guess = self.composition.oxi_state_guesses(**kwargs)
-        oxid_guess = oxid_guess or [dict([(e.symbol, 0) for e in self.composition])]
+        oxid_guess = oxid_guess or [{e.symbol: 0 for e in self.composition}]
         self.add_oxidation_state_by_element(oxid_guess[0])
 
     def add_spin_by_element(self, spins: Dict[str, float]):
@@ -575,14 +575,14 @@ class IStructure(SiteCollection, MSONable):
             self._lattice = Lattice(lattice)
 
         sites = []
-        for i in range(len(species)):
+        for i, sp in enumerate(species):
             prop = None
             if site_properties:
                 prop = {k: v[i]
                         for k, v in site_properties.items()}
 
             sites.append(
-                PeriodicSite(species[i], coords[i], self._lattice,
+                PeriodicSite(sp, coords[i], self._lattice,
                              to_unit_cell,
                              coords_are_cartesian=coords_are_cartesian,
                              properties=prop))
@@ -1383,8 +1383,7 @@ class IStructure(SiteCollection, MSONable):
                 to_unit_cell=True,
                 site_properties=self.site_properties,
                 charge=self._charge)
-        else:
-            return self.copy()
+        return self.copy()
 
     def copy(self, site_properties=None, sanitize=False):
         """
@@ -1417,20 +1416,19 @@ class IStructure(SiteCollection, MSONable):
                                   self.frac_coords,
                                   charge=self._charge,
                                   site_properties=props)
-        else:
-            reduced_latt = self._lattice.get_lll_reduced_lattice()
-            new_sites = []
-            for i, site in enumerate(self):
-                frac_coords = reduced_latt.get_fractional_coords(site.coords)
-                site_props = {}
-                for p in props:
-                    site_props[p] = props[p][i]
-                new_sites.append(PeriodicSite(site.species,
-                                              frac_coords, reduced_latt,
-                                              to_unit_cell=True,
-                                              properties=site_props))
-            new_sites = sorted(new_sites)
-            return self.__class__.from_sites(new_sites, charge=self._charge)
+        reduced_latt = self._lattice.get_lll_reduced_lattice()
+        new_sites = []
+        for i, site in enumerate(self):
+            frac_coords = reduced_latt.get_fractional_coords(site.coords)
+            site_props = {}
+            for p in props:
+                site_props[p] = props[p][i]
+            new_sites.append(PeriodicSite(site.species,
+                                          frac_coords, reduced_latt,
+                                          to_unit_cell=True,
+                                          properties=site_props))
+        new_sites = sorted(new_sites)
+        return self.__class__.from_sites(new_sites, charge=self._charge)
 
     def interpolate(self, end_structure,
                     nimages: Union[int, Iterable] = 10,
@@ -1475,8 +1473,8 @@ class IStructure(SiteCollection, MSONable):
             images = nimages
 
         # Check that both structures have the same species
-        for i in range(len(self)):
-            if self[i].species != end_structure[i].species:
+        for i, site in enumerate(self):
+            if site.species != end_structure[i].species:
                 raise ValueError("Different species!\nStructure 1:\n" +
                                  str(self) + "\nStructure 2\n" +
                                  str(end_structure))
@@ -1599,11 +1597,10 @@ class IStructure(SiteCollection, MSONable):
         def site_label(site):
             if not use_site_props:
                 return site.species_string
-            else:
-                d = [site.species_string]
-                for k in sorted(site.properties.keys()):
-                    d.append(k + "=" + str(site.properties[k]))
-                return ", ".join(d)
+            d = [site.species_string]
+            for k in sorted(site.properties.keys()):
+                d.append(k + "=" + str(site.properties[k]))
+            return ", ".join(d)
 
         # group sites by species string
         sites = sorted(self._sites, key=site_label)
@@ -1939,14 +1936,13 @@ class IStructure(SiteCollection, MSONable):
             if filename:
                 with zopen(filename, "wt") as f:
                     yaml.safe_dump(self.as_dict(), f)
-                return
-            else:
-                return yaml.safe_dump(self.as_dict())
+                return None
+            return yaml.safe_dump(self.as_dict())
 
         if filename:
             writer.write_file(filename)
-        else:
-            return writer.__str__()
+            return None
+        return writer.__str__()
 
     @classmethod
     def from_str(cls, input_string, fmt, primitive=False, sort=False,
@@ -2042,7 +2038,7 @@ class IStructure(SiteCollection, MSONable):
             return cls.from_str(contents, fmt="cif",
                                 primitive=primitive, sort=sort,
                                 merge_tol=merge_tol)
-        elif fnmatch(fname, "*POSCAR*") or fnmatch(fname, "*CONTCAR*") or fnmatch(fname, "*.vasp"):
+        if fnmatch(fname, "*POSCAR*") or fnmatch(fname, "*CONTCAR*") or fnmatch(fname, "*.vasp"):
             s = cls.from_str(contents, fmt="poscar",
                              primitive=primitive, sort=sort,
                              merge_tol=merge_tol)
@@ -2134,11 +2130,11 @@ class IMolecule(SiteCollection, MSONable):
                                   "coordinates."))
 
         sites = []
-        for i in range(len(species)):
+        for i, sp in enumerate(species):
             prop = None
             if site_properties:
                 prop = {k: v[i] for k, v in site_properties.items()}
-            sites.append(Site(species[i], coords[i], properties=prop))
+            sites.append(Site(sp, coords[i], properties=prop))
 
         self._sites = tuple(sites)
         if validate_proximity and not self.is_valid():
@@ -2647,27 +2643,24 @@ class IMolecule(SiteCollection, MSONable):
         fname = filename.lower()
         if fnmatch(fname, "*.xyz*"):
             return cls.from_str(contents, fmt="xyz")
-        elif any([fnmatch(fname.lower(), "*.{}*".format(r))
-                  for r in ["gjf", "g03", "g09", "com", "inp"]]):
+        if any([fnmatch(fname.lower(), "*.{}*".format(r))
+                for r in ["gjf", "g03", "g09", "com", "inp"]]):
             return cls.from_str(contents, fmt="g09")
-        elif any([fnmatch(fname.lower(), "*.{}*".format(r))
-                  for r in ["out", "lis", "log"]]):
+        if any([fnmatch(fname.lower(), "*.{}*".format(r))
+                for r in ["out", "lis", "log"]]):
             return GaussianOutput(filename).final_structure
-        elif fnmatch(fname, "*.json*") or fnmatch(fname, "*.mson*"):
+        if fnmatch(fname, "*.json*") or fnmatch(fname, "*.mson*"):
             return cls.from_str(contents, fmt="json")
-        elif fnmatch(fname, "*.yaml*"):
+        if fnmatch(fname, "*.yaml*"):
             return cls.from_str(contents, fmt="yaml")
-        else:
-            from pymatgen.io.babel import BabelMolAdaptor
-            m = re.search(r"\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)",
-                          filename.lower())
-            if m:
-                new = BabelMolAdaptor.from_file(filename,
-                                                m.group(1)).pymatgen_mol
-                new.__class__ = cls
-                return new
-
-        raise ValueError("Unrecognized file extension!")
+        from pymatgen.io.babel import BabelMolAdaptor
+        m = re.search(r"\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)",
+                      filename.lower())
+        if m:
+            new = BabelMolAdaptor.from_file(filename,
+                                            m.group(1)).pymatgen_mol
+            new.__class__ = cls
+            return new
 
 
 class Structure(IStructure, collections.abc.MutableSequence):
@@ -2782,7 +2775,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 if site.lattice != self._lattice:
                     raise ValueError("PeriodicSite added must have same lattice "
                                      "as Structure!")
-                elif len(indices) != 1:
+                if len(indices) != 1:
                     raise ValueError("Site assignments makes sense only for "
                                      "single int indices!")
                 self._sites[ii] = site
@@ -2952,8 +2945,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             if func_grp not in FunctionalGroups:
                 raise RuntimeError("Can't find functional group in list. "
                                    "Provide explicit coordinate instead")
-            else:
-                func_grp = FunctionalGroups[func_grp]
+            func_grp = FunctionalGroups[func_grp]
 
         # If a bond length can be found, modify func_grp so that the X-group
         # bond length is equal to the bond length.
@@ -2989,9 +2981,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
         elif abs(abs(angle) - 180) < 1:
             # We have a 180 degree angle. Simply do an inversion about the
             # origin
-            for i in range(len(func_grp)):
-                func_grp[i] = (func_grp[i].species,
-                               origin - (func_grp[i].coords - origin))
+            for i, fg in enumerate(func_grp):
+                func_grp[i] = (fg.species, origin - (fg.coords - origin))
 
         # Remove the atom to be replaced, and add the rest of the functional
         # group.
@@ -3644,8 +3635,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             if func_grp not in FunctionalGroups:
                 raise RuntimeError("Can't find functional group in list. "
                                    "Provide explicit coordinate instead")
-            else:
-                func_grp = FunctionalGroups[func_grp]
+            func_grp = FunctionalGroups[func_grp]
 
         # If a bond length can be found, modify func_grp so that the X-group
         # bond length is equal to the bond length.
@@ -3676,9 +3666,8 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         elif abs(abs(angle) - 180) < 1:
             # We have a 180 degree angle. Simply do an inversion about the
             # origin
-            for i in range(len(func_grp)):
-                func_grp[i] = (func_grp[i].species,
-                               origin - (func_grp[i].coords - origin))
+            for i, fg in enumerate(func_grp):
+                func_grp[i] = (fg.species, origin - (fg.coords - origin))
 
         # Remove the atom to be replaced, and add the rest of the functional
         # group.

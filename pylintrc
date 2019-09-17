@@ -147,8 +147,12 @@ disable=print-statement,
         R0913,
         R0914,
         R0915,
-        W0231,
-        C1801
+        R0916,
+        R1702,
+        W,
+        C1801,
+        E0611,
+        R0901
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
@@ -176,7 +180,7 @@ evaluation=10.0 - ((float(5 * error + warning + refactor + convention) / stateme
 output-format=text
 
 # Tells whether to display a full report or only the messages.
-reports=yes
+reports=no
 
 # Activate the evaluation score.
 score=yes
@@ -361,7 +365,7 @@ ignore-comments=yes
 ignore-docstrings=yes
 
 # Ignore imports when computing similarities.
-ignore-imports=no
+ignore-imports=yes
 
 # Minimum lines number of a similarity.
 min-similarity-lines=4

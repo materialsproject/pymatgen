@@ -111,7 +111,7 @@ class CovalentBond:
                 if dist < (1 + tol) * v:
                     return True
             return False
-        elif default_bl:
+        if default_bl:
             return dist < (1 + tol) * default_bl
         raise ValueError("No bond data for elements {} - {}".format(*syms))
 
@@ -144,10 +144,9 @@ def obtain_all_bond_lengths(sp1, sp2, default_bl=None):
     syms = tuple(sorted([sp1, sp2]))
     if syms in bond_lengths:
         return bond_lengths[syms].copy()
-    elif default_bl is not None:
+    if default_bl is not None:
         return {1: default_bl}
-    else:
-        raise ValueError("No bond data for elements {} - {}".format(*syms))
+    raise ValueError("No bond data for elements {} - {}".format(*syms))
 
 
 def get_bond_order(sp1, sp2, dist, tol=0.2, default_bl=None):
@@ -181,10 +180,9 @@ def get_bond_order(sp1, sp2, dist, tol=0.2, default_bl=None):
         if lengths_list[trial_bond_order] < dist:
             if trial_bond_order == 0:
                 return trial_bond_order
-            else:
-                low_bl = lengths_list[trial_bond_order]
-                high_bl = lengths_list[trial_bond_order - 1]
-                return trial_bond_order - (dist - low_bl) / (high_bl - low_bl)
+            low_bl = lengths_list[trial_bond_order]
+            high_bl = lengths_list[trial_bond_order - 1]
+            return trial_bond_order - (dist - low_bl) / (high_bl - low_bl)
         trial_bond_order += 1
     # Distance shorter than the shortest bond length stored,
     # check if the distance is too short
