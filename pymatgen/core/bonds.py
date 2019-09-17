@@ -16,10 +16,8 @@ from pymatgen.core.periodic_table import Element
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
-__date__ = "Jul 26, 2012"
 
 
 def _load_bond_length_data():
