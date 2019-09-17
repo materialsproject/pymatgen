@@ -9,13 +9,15 @@ This module defines classes representing non-periodic and periodic sites.
 import collections
 import numpy as np
 
+from monty.json import MSONable
+from monty.dev import deprecated
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, Specie, DummySpecie, \
     get_el_sp
-from monty.json import MSONable
 from pymatgen.util.coord import pbc_diff
 from pymatgen.core.composition import Composition
-from monty.dev import deprecated
+
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -159,10 +161,9 @@ class Site(collections.abc.Hashable, MSONable):
         """
         if self.is_ordered:
             return list(self.species.keys())[0].__str__()
-        else:
-            sorted_species = sorted(self.species.keys())
-            return ", ".join(["{}:{:.3f}".format(sp, self.species[sp])
-                              for sp in sorted_species])
+        sorted_species = sorted(self.species.keys())
+        return ", ".join(["{}:{:.3f}".format(sp, self.species[sp])
+                          for sp in sorted_species])
 
     @property  # type: ignore
     @deprecated(message="Use site.species instead. This will be deprecated with effect from pymatgen 2020.")
@@ -482,9 +483,9 @@ class PeriodicSite(Site, MSONable):
         frac_coords = np.mod(self.frac_coords, 1)
         if in_place:
             self.frac_coords = frac_coords
-        else:
-            return PeriodicSite(self.species, frac_coords, self.lattice,
-                                properties=self.properties)
+            return None
+        return PeriodicSite(self.species, frac_coords, self.lattice,
+                            properties=self.properties)
 
     def is_periodic_image(self, other, tolerance=1e-8, check_lattice=True):
         """

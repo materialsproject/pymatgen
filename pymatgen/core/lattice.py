@@ -9,14 +9,12 @@ Defines the classes relating to 3D lattices.
 import math
 import itertools
 import warnings
-
 from functools import reduce
 from math import gcd
 import collections
-from fractions import Fraction
 
+from fractions import Fraction
 from typing import List, Union, Dict, Tuple, Iterator, Optional, Sequence
-from pymatgen.util.typing import Vector3Like
 
 import numpy as np
 from numpy.linalg import inv
@@ -24,16 +22,15 @@ from numpy import pi, dot, transpose
 
 from monty.json import MSONable
 from monty.dev import deprecated
+
 from pymatgen.util.coord import pbc_shortest_vectors
 from pymatgen.util.num import abs_cap
+from pymatgen.util.typing import Vector3Like
 
 __author__ = "Shyue Ping Ong, Michael Kocher"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
-__status__ = "Production"
-__date__ = "Sep 23, 2011"
 
 
 class Lattice(MSONable):
@@ -389,10 +386,8 @@ class Lattice(MSONable):
 
         if "matrix" in d:
             return cls(d["matrix"])
-        else:
-            return cls.from_parameters(
-                d["a"], d["b"], d["c"], d["alpha"], d["beta"], d["gamma"]
-            )
+        return cls.from_parameters(d["a"], d["b"], d["c"],
+                                   d["alpha"], d["beta"], d["gamma"])
 
     @property
     def a(self) -> float:
@@ -762,7 +757,7 @@ class Lattice(MSONable):
                 # Update the Gram-Schmidt coefficients
                 for s in range(k - 1, k + 1):
                     u[s - 1, 0: (s - 1)] = (
-                            dot(a[:, s - 1].T, b[:, 0: (s - 1)]) / m[0: (s - 1)]
+                        dot(a[:, s - 1].T, b[:, 0: (s - 1)]) / m[0: (s - 1)]
                     )
                     b[:, s - 1] = a[:, s - 1] - dot(
                         b[:, 0: (s - 1)], u[s - 1, 0: (s - 1)].T
@@ -930,8 +925,7 @@ class Lattice(MSONable):
         if mapped is not None:
             if np.linalg.det(mapped[0].matrix) > 0:
                 return mapped[0]
-            else:
-                return Lattice(-mapped[0].matrix)
+            return Lattice(-mapped[0].matrix)
 
         raise ValueError("can't find niggli")
 
@@ -1198,13 +1192,12 @@ class Lattice(MSONable):
                     images[within_r[1:]],
                 )
             )
-        else:
-            return (
-                shifted_coords[within_r],
-                np.sqrt(d_2[within_r]),
-                indices[within_r[0]],
-                images[within_r[1:]],
-            )
+        return (
+            shifted_coords[within_r],
+            np.sqrt(d_2[within_r]),
+            indices[within_r[0]],
+            images[within_r[1:]],
+        )
 
     def get_all_distances(
             self,
@@ -1245,10 +1238,9 @@ class Lattice(MSONable):
                       if abs(angles[i] - 60) < hex_angle_tol or abs(angles[i] - 120) < hex_angle_tol]
 
         return (
-                len(right_angles) == 2
-                and len(hex_angles) == 1
-                and abs(lengths[right_angles[0]] - lengths[right_angles[1]])
-                < hex_length_tol
+            len(right_angles) == 2 and
+            len(hex_angles) == 1 and
+            abs(lengths[right_angles[0]] - lengths[right_angles[1]]) < hex_length_tol
         )
 
     def get_distance_and_image(
@@ -1383,7 +1375,7 @@ def get_integer_index(miller_index: Sequence[float], round_dp: int = 4, verbose:
     md = [Fraction(n).limit_denominator(12).denominator for n in mi]
     mi *= reduce(lambda x, y: x * y, md)
     int_miller_index = np.int_(np.round(mi, 1))
-    mi /= np.abs(reduce(gcd, int_miller_index))
+    mi /= np.abs(reduce(math.gcd, int_miller_index))
 
     # round to a reasonable precision
     mi = np.array([round(h, round_dp) for h in mi])
