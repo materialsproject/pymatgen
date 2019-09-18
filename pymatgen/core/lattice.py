@@ -600,7 +600,7 @@ class Lattice(MSONable):
         frac, dist, _, _ = self.get_points_in_sphere(
             [[0, 0, 0]], [0, 0, 0], max(lengths) * (1 + ltol), zip_results=False
         )
-        frac = np.round(frac, 6)
+        frac = np.round(frac, 7)
         cart = self.get_cartesian_coords(frac)
         # this can't be broadcast because they're different lengths
         inds = [
@@ -1087,14 +1087,13 @@ class Lattice(MSONable):
         """
         cart_coords = self.get_cartesian_coords(frac_points)
         neighbors = get_points_in_spheres(all_coords=cart_coords, center_coords=np.array([center]), r=r, pbc=True,
-                                          numerical_tol=1e-8, lattice=self)[0]
-        unzipped = list(zip(*neighbors))
-        fcoords = self.get_fractional_coords(unzipped[0])
-        new_unzipped = (fcoords, np.array(unzipped[1]), np.array(unzipped[2]), np.array(unzipped[3]))
-        if not zip_results:
-            return new_unzipped
+                                          numerical_tol=1e-8, lattice=self, return_fcoords=True)[0]
+        if len(neighbors) < 1:
+            return [] if zip_results else ([], ) * 4
+        if zip_results:
+            return neighbors
         else:
-            return list(zip(*new_unzipped))
+            return tuple([np.array(i) for i in list(zip(*neighbors))])
 
     @deprecated(get_points_in_sphere, "This is retained purely for checking purposes.")
     def get_points_in_sphere_old(
@@ -1408,7 +1407,8 @@ def get_integer_index(miller_index: Sequence[float], round_dp: int = 4, verbose:
 
 
 def get_points_in_spheres(all_coords: np.ndarray, center_coords: np.ndarray, r: float,
-                          pbc: Union[bool, List[bool]] = True, numerical_tol: float = 1e-8, lattice: Lattice = None
+                          pbc: Union[bool, List[bool]] = True, numerical_tol: float = 1e-8,
+                          lattice: Lattice = None, return_fcoords=False,
                           ) -> List[List[Tuple]]:
     """
     For each point in `center_coords`, get all the neighboring points in `all_coords` that are within the
@@ -1421,13 +1421,14 @@ def get_points_in_spheres(all_coords: np.ndarray, center_coords: np.ndarray, r: 
         pbc: (bool or a list of bool) whether to set periodic boundaries
         numerical_tol: (float) numerical tolerance
         lattice: (Lattice) lattice to consider when PBC is enabled
-
+        return_fcoords: (bool) whether to return fractional coords when pbc is set.
     Returns:
         List[List[Tuple(coords, distance, index, image)]]
     """
     if isinstance(pbc, bool):
         pbc = [pbc] * 3
-
+    if return_fcoords and lattice is None:
+        raise ValueError("Lattice needs to be supplied to compute fractional coordinates")
     center_coords_min = np.min(center_coords, axis=0)
     center_coords_max = np.max(center_coords, axis=0)
     # The lower bound of all considered atom coords
@@ -1511,6 +1512,8 @@ def get_points_in_spheres(all_coords: np.ndarray, center_coords: np.ndarray, r: 
             # filtering out all sites that are beyond the cutoff
             # Here there is no filtering of overlapping sites
             if d < r + numerical_tol:
+                if return_fcoords:
+                    coord = np.round(lattice.get_fractional_coords(coord), 7)
                 nn = (coord, d, index, image)
                 nns.append(nn)
         neighbors.append(nns)
