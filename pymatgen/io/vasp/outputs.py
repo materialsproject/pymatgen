@@ -407,7 +407,7 @@ class Vasprun(MSONable):
                         self.tdos, self.idos, self.pdos = self._parse_dos(elem)
                         self.efermi = self.tdos.efermi
                         self.dos_has_errors = False
-                    except Exception as ex:
+                    except Exception:
                         self.dos_has_errors = True
                 elif parse_eigen and tag == "eigenvalues":
                     self.eigenvalues = self._parse_eigen(elem)
@@ -794,9 +794,6 @@ class Vasprun(MSONable):
         eigenvals = defaultdict(list)
 
         nkpts = len(kpoints)
-
-        neigenvalues = [len(v) for v in self.eigenvalues[Spin.up]]
-        min_eigenvalues = min(neigenvalues)
 
         for spin, v in self.eigenvalues.items():
             v = np.swapaxes(v, 0, 1)
@@ -3895,11 +3892,9 @@ class Xdatcar:
             ionicstep_end (int): Ending number of ionic step.
             significant_figures (int): Number of significant figures.
         """
-        from pymatgen.io.vasp import Poscar
-        if (ionicstep_start < 1):
+        if ionicstep_start < 1:
             raise Exception('Start ionic step cannot be less than 1')
-        if (ionicstep_end is not None and
-                ionicstep_start < 1):
+        if ionicstep_end is not None and ionicstep_end < 1:
             raise Exception('End ionic step cannot be less than 1')
         latt = self.structures[0].lattice
         if np.linalg.det(latt.matrix) < 0:
@@ -4530,7 +4525,6 @@ class Wavederf:
         """
         with zopen(filename, "rt") as f:
             header = f.readline().split()
-            ispin = int(header[0])
             nb_kpoints = int(header[1])
             nb_bands = int(header[2])
             data = np.zeros((nb_kpoints, nb_bands, nb_bands, 6))
@@ -4614,11 +4608,8 @@ class Waveder:
                 return np.frombuffer(data, dtype=dtype)
 
             nbands, nelect, nk, ispin = readData(np.int32)
-
-            nodes_in_dielectric_function = readData(np.float)
-
-            wplasmon = readData(np.float)
-
+            _ = readData(np.float)  # nodes_in_dielectric_function
+            _ = readData(np.float)  # wplasmon
             if gamma_only:
                 cder = readData(np.float)
             else:

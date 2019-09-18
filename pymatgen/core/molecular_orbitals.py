@@ -111,9 +111,4 @@ class MolecularOrbitals:
             except Exception:
                 lumo = None
 
-        if homo == lumo:
-            metal = True
-        else:
-            metal = False
-
-        return {'HOMO': homo, 'LUMO': lumo, 'metal': metal}
+        return {'HOMO': homo, 'LUMO': lumo, 'metal': homo == lumo}

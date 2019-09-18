@@ -7,9 +7,10 @@ This module defines classes to represent any type of spectrum, essentially any
 x y value pairs.
 """
 
-from monty.json import MSONable
 import numpy as np
 from scipy.ndimage.filters import gaussian_filter1d
+
+from monty.json import MSONable
 
 from pymatgen.util.coord import get_linear_interpolated_value
 
@@ -59,10 +60,9 @@ class Spectrum(MSONable):
     def __getattr__(self, item):
         if item == self.XLABEL.lower():
             return self.x
-        elif item == self.YLABEL.lower():
+        if item == self.YLABEL.lower():
             return self.y
-        else:
-            raise AttributeError("Invalid attribute name %s" % str(item))
+        raise AttributeError("Invalid attribute name %s" % str(item))
 
     def __len__(self):
         return self.ydim[0]
@@ -114,9 +114,8 @@ class Spectrum(MSONable):
         """
         if len(self.ydim) == 1:
             return get_linear_interpolated_value(self.x, self.y, x)
-        else:
-            return [get_linear_interpolated_value(self.x, self.y[:, k], x)
-                    for k in range(self.ydim[1])]
+        return [get_linear_interpolated_value(self.x, self.y[:, k], x)
+                for k in range(self.ydim[1])]
 
     def copy(self):
         """

@@ -8,13 +8,16 @@ basic tensor manipulation.  It also provides a class, SquareTensor,
 that provides basic methods for creating and manipulating rank 2 tensors
 """
 
-from scipy.linalg import polar
-import numpy as np
 import itertools
 import warnings
 import collections
 import string
 import os
+
+import numpy as np
+
+from scipy.linalg import polar
+
 from monty.json import MSONable
 from monty.serialization import loadfn
 
@@ -97,8 +100,7 @@ class Tensor(np.ndarray, MSONable):
 
         if len(obj.shape) == 0:
             return obj[()]
-        else:
-            return np.ndarray.__array_wrap__(self, obj)
+        return np.ndarray.__array_wrap__(self, obj)
 
     def __hash__(self):
         """
@@ -656,7 +658,7 @@ class Tensor(np.ndarray, MSONable):
                 # in the guess in the guess
                 merge(guess, rot)
             if verbose:
-                print("Preconditioning for voigt symmetry".format(len(sops)))
+                print("Preconditioning for voigt symmetry")
             if vsym:
                 v = guess.voigt
                 perms = list(itertools.permutations(range(len(v.shape))))
@@ -715,8 +717,7 @@ class Tensor(np.ndarray, MSONable):
         voigt = d.get('voigt')
         if voigt:
             return cls.from_voigt(d["input_array"])
-        else:
-            return cls(d["input_array"])
+        return cls(d["input_array"])
 
 
 class TensorCollection(collections.abc.Sequence, MSONable):
@@ -888,8 +889,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         voigt = d.get('voigt')
         if voigt:
             return cls.from_voigt(d["tensor_list"])
-        else:
-            return cls(d["tensor_list"])
+        return cls(d["tensor_list"])
 
 
 class SquareTensor(Tensor):
@@ -1126,6 +1126,6 @@ class TensorMapping(collections.abc.MutableMapping):
         indices = np.where(mask)[0]
         if len(indices) > 1:
             raise ValueError("Tensor key collision.")
-        elif len(indices) == 0:
+        if len(indices) == 0:
             return None
         return indices[0]

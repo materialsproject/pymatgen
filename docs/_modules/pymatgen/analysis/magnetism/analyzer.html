@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.magnetism.analyzer &#8212; pymatgen 2019.9.12 documentation</title>
+    <title>pymatgen.analysis.magnetism.analyzer &#8212; pymatgen 2019.9.16 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.9.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -49,6 +49,10 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides some useful functions for dealing with magnetic Structures</span>
+<span class="sd">(e.g. Structures with associated magmom tags).</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -71,17 +75,10 @@
     <span class="n">MagOrderingTransformation</span><span class="p">,</span>
     <span class="n">MagOrderParameterConstraint</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pymatgen.alchemy.materials</span> <span class="k">import</span> <span class="n">TransformedStructure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.groups</span> <span class="k">import</span> <span class="n">SpaceGroup</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.bond_valence</span> <span class="k">import</span> <span class="n">BVAnalyzer</span>
 <span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="k">import</span> <span class="n">loadfn</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span>
-
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This module provides some useful functions for dealing with magnetic Structures</span>
-<span class="sd">(e.g. Structures with associated magmom tags).</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Union</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Matthew Horton&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2017, The Materials Project&quot;</span>
@@ -107,6 +104,9 @@
 
 <div class="viewcode-block" id="Ordering"><a class="viewcode-back" href="../../../../pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.Ordering">[docs]</a><span class="nd">@unique</span>
 <span class="k">class</span> <span class="nc">Ordering</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enum type of magnetic orderings.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">FM</span> <span class="o">=</span> <span class="s2">&quot;FM&quot;</span>  <span class="c1"># Ferromagnetic</span>
     <span class="n">AFM</span> <span class="o">=</span> <span class="s2">&quot;AFM&quot;</span>  <span class="c1"># Antiferromagnetic</span>
     <span class="n">FiM</span> <span class="o">=</span> <span class="s2">&quot;FiM&quot;</span>  <span class="c1"># Ferrimagnetic</span>
@@ -116,6 +116,9 @@
 
 <div class="viewcode-block" id="OverwriteMagmomMode"><a class="viewcode-back" href="../../../../pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode">[docs]</a><span class="nd">@unique</span>
 <span class="k">class</span> <span class="nc">OverwriteMagmomMode</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enum of modes of overwriting magmoms.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">none</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span>
     <span class="n">respect_sign</span> <span class="o">=</span> <span class="s2">&quot;respect_sign&quot;</span>
     <span class="n">respect_zero</span> <span class="o">=</span> <span class="s2">&quot;respect_zeros&quot;</span>
@@ -124,6 +127,10 @@
 
 
 <div class="viewcode-block" id="CollinearMagneticStructureAnalyzer"><a class="viewcode-back" href="../../../../pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer">[docs]</a><span class="k">class</span> <span class="nc">CollinearMagneticStructureAnalyzer</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class which provides a few helpful methods to analyze</span>
+<span class="sd">    collinear magnetic structures.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">structure</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span>
@@ -136,10 +143,7 @@
             <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.00</span><span class="p">,</span>
             <span class="n">threshold_nonmag</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        A class which provides a few helpful methods to analyze</span>
-<span class="sd">        collinear magnetic structures.</span>
-
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        If magnetic moments are not defined, moments will be</span>
 <span class="sd">        taken either from default_magmoms.yaml (similar to the</span>
 <span class="sd">        default magmoms in MPRelaxSet, with a few extra definitions)</span>
@@ -201,7 +205,6 @@
 
         <span class="k">if</span> <span class="n">detect_valences</span><span class="p">:</span>
             <span class="n">trans</span> <span class="o">=</span> <span class="n">AutoOxiStateDecorationTransformation</span><span class="p">()</span>
-            <span class="n">bva</span> <span class="o">=</span> <span class="n">BVAnalyzer</span><span class="p">()</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">structure</span> <span class="o">=</span> <span class="n">trans</span><span class="o">.</span><span class="n">apply_transformation</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
@@ -1363,7 +1366,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.9.12 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

@@ -6,11 +6,12 @@
 This module provides classes that operate on points or vectors in 3D space.
 """
 
-import numpy as np
 import re
 from math import sin, cos, pi, sqrt
 import string
 import warnings
+
+import numpy as np
 
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.string import transformation_to_string
@@ -463,7 +464,7 @@ class MagSymmOp(SymmOp):
             tol (float): Tolerance for determining if matrices are equal.
         """
         SymmOp.__init__(self, affine_transformation_matrix, tol=tol)
-        if time_reversal != 1 and time_reversal != -1:
+        if time_reversal not in (-1, 1):
             raise Exception(
                 "Time reversal operator not well defined: {0}, {1}".format(time_reversal,
                                                                            type(time_reversal)))

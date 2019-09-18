@@ -131,19 +131,19 @@ class XcFunc(MSONable):
             return None
         if ixc > 0:
             return cls(**cls.abinitixc_to_libxc[ixc])
-        else:
-            # libxc notation employed in Abinit: a six-digit number in the form XXXCCC or CCCXXX
-            # ixc = str(ixc)
-            # assert len(ixc[1:]) == 6
-            # first, last = ixc[1:4], ixc[4:]
-            ixc = abs(ixc)
-            first = ixc // 1000
-            last = ixc - first * 1000
-            x, c = LibxcFunc(int(first)), LibxcFunc(int(last))
-            if not x.is_x_kind:
-                x, c = c, x  # Swap
-            assert x.is_x_kind and c.is_c_kind
-            return cls(x=x, c=c)
+
+        # libxc notation employed in Abinit: a six-digit number in the form XXXCCC or CCCXXX
+        # ixc = str(ixc)
+        # assert len(ixc[1:]) == 6
+        # first, last = ixc[1:4], ixc[4:]
+        ixc = abs(ixc)
+        first = ixc // 1000
+        last = ixc - first * 1000
+        x, c = LibxcFunc(int(first)), LibxcFunc(int(last))
+        if not x.is_x_kind:
+            x, c = c, x  # Swap
+        assert x.is_x_kind and c.is_c_kind
+        return cls(x=x, c=c)
 
     @classmethod
     def from_name(cls, name):
@@ -172,15 +172,9 @@ class XcFunc(MSONable):
             x, c = (s.strip() for s in name.split("+"))
             x, c = LibxcFunc[x], LibxcFunc[c]
             return cls(x=x, c=c)
-        else:
-            # if typ is not None: raise ValueError("typ: `%s` but name: `%s`" % (typ, name))
-            xc = LibxcFunc[name]
-            return cls(xc=xc)
-
-        if typ is None:
-            raise ValueError("Cannot find name=%s in defined_aliases" % name)
-        else:
-            raise ValueError("Cannot find type=%s, name=%s in defined_aliases" % (typ, name))
+        # if typ is not None: raise ValueError("typ: `%s` but name: `%s`" % (typ, name))
+        xc = LibxcFunc[name]
+        return cls(xc=xc)
 
     @classmethod
     def from_dict(cls, d):

@@ -2,6 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module provides classes to store, generate, and manipulate material interfaces.
+"""
+
 from pymatgen.core.surface import SlabGenerator
 from pymatgen import Lattice, Structure
 from pymatgen.core.surface import Slab
@@ -15,10 +19,6 @@ from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.analysis.substrate_analyzer import (SubstrateAnalyzer, reduce_vectors)
 import warnings
-
-"""
-This module provides classes to store, generate, and manipulate material interfaces.
-"""
 
 __author__ = "Eric Sivonxay, Shyam Dwaraknath, and Kyle Bystrom"
 __copyright__ = "Copyright 2019, The Materials Project"
@@ -283,6 +283,9 @@ class Interface(Structure):
         return struct_copy
 
     def as_dict(self):
+        """
+        :return: MSONable dict
+        """
         d = super().as_dict()
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
@@ -299,6 +302,10 @@ class Interface(Structure):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        :param d: Dict representation
+        :return: Interface
+        """
         lattice = Lattice.from_dict(d["lattice"])
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
         s = Structure.from_sites(sites)
@@ -600,13 +607,11 @@ class InterfaceBuilder:
             self.oriented_film.apply_operation(reflection, fractional=True)
 
         sub_scaling = np.diag(np.diag(sub_transformation))
-        sub_shearing = np.dot(np.linalg.inv(sub_scaling), sub_transformation)
 
         # Turn into 3x3 Arrays
         sub_scaling = np.diag(np.append(np.diag(sub_scaling), 1))
         temp_matrix = np.diag([1, 1, 1])
         temp_matrix[:2, :2] = sub_transformation
-        sub_shearing = temp_matrix
 
         for modified_substrate_structure in modified_substrate_structures:
             modified_substrate_structure = self.apply_transformation(modified_substrate_structure, temp_matrix)
@@ -615,13 +620,11 @@ class InterfaceBuilder:
         self.oriented_substrate = self.apply_transformation(self.oriented_substrate, temp_matrix)
 
         film_scaling = np.diag(np.diag(film_transformation))
-        film_shearing = np.dot(np.linalg.inv(film_scaling), film_transformation)
 
         # Turn into 3x3 Arrays
         film_scaling = np.diag(np.append(np.diag(film_scaling), 1))
         temp_matrix = np.diag([1, 1, 1])
         temp_matrix[:2, :2] = film_transformation
-        film_shearing = temp_matrix
 
         for modified_film_structure in modified_film_structures:
             modified_film_structure = self.apply_transformation(modified_film_structure, temp_matrix)
@@ -1068,7 +1071,6 @@ def get_shear_reduced_slab(slab):
         Slab object of identical structure to the input slab
         but rduced in-plane lattice vectors
     """
-    original_vectors = [slab.lattice.matrix[0], slab.lattice.matrix[1]]
     reduced_vectors = reduce_vectors(
         slab.lattice.matrix[0],
         slab.lattice.matrix[1])

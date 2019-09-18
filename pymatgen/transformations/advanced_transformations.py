@@ -799,8 +799,6 @@ class MagOrderingTransformation(AbstractTransformation):
             for symbol, constraint in zip(dummy_species_symbols, order_parameters)
         ]
 
-        sites_to_add = []
-
         for idx, site in enumerate(dummy_struct):
             satisfies_constraints = [
                 c.satisfies_constraint(site) for c in order_parameters

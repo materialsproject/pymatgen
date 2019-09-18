@@ -16,7 +16,6 @@ from monty.tempfile import ScratchDir
 
 import xml.etree.cElementTree as ET
 
-from pymatgen.core.periodic_table import Element
 from pymatgen.electronic_structure.core import OrbitalType
 from pymatgen.io.vasp.inputs import Kpoints, Poscar
 from pymatgen.io.vasp.outputs import Chgcar, Locpot, Oszicar, Outcar, \

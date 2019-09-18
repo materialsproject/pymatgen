@@ -326,8 +326,6 @@ class VampireCaller:
 
         structure = self.structure
         mat_name = self.mat_name
-        tol = self.tol
-        dists = self.dists
 
         abc = structure.lattice.abc
         ucx, ucy, ucz = abc[0], abc[1], abc[2]

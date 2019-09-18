@@ -1,6 +1,6 @@
 name: Pymatgen linting
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   build:
@@ -31,7 +31,13 @@ jobs:
       run: |
         pip install flake8
         # stop the build if there are Python syntax errors or undefined names
-        flake8 --count --select=E9,F63,F7,F82 --show-source --statistics pymatgen
-        flake8 --count --show-source --statistics pymatgen/core pymatgen/electronic_structure
+        flake8 --count --show-source --statistics pymatgen
         # exit-zero treats all errors as warnings.
-        flake8 --count --exit-zero --max-complexity=10 --statistics pymatgen
+        flake8 --count --exit-zero --max-complexity=20 --statistics pymatgen
+    - name: Lint with pylint
+      run: |
+        pip install pylint
+        export MODIFIED_FILES=`git diff --diff-filter=ACMRTUXB --name-only HEAD v2019.9.16 | grep -E 'pymatgen.*\.(py)$' | sed '/test_/d' | tr '\n' ' '`
+        echo "Linting $MODIFIED_FILES"
+        # stop the build if there are Python syntax errors or undefined names
+        pylint --exit-zero pymatgen/core/periodic_table.py $MODIFIED_FILES

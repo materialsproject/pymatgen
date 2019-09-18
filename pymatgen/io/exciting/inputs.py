@@ -233,7 +233,7 @@ class ExcitingInput(MSONable):
 
                 # write atomic positions
                 index = index + 1
-                atom = ET.SubElement(species, 'atom', coord=coord)
+                _ = ET.SubElement(species, 'atom', coord=coord)
         # write bandstructure if needed
         if bandstr and celltype == 'primitive':
             kpath = HighSymmKpath(new_struct, symprec=symprec, angle_tolerance=angle_tolerance)
@@ -250,7 +250,7 @@ class ExcitingInput(MSONable):
                                                       coords[2])
                     if symbol == '\\Gamma':
                         symbol = 'GAMMA'
-                    pt = ET.SubElement(path, 'point', coord=coord, label=symbol)
+                    _ = ET.SubElement(path, 'point', coord=coord, label=symbol)
         elif bandstr and celltype != 'primitive':
             raise ValueError("Bandstructure is only implemented for the \
                               standard primitive unit cell!")

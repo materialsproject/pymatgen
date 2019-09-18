@@ -9,7 +9,7 @@ and to find adsorption sites on slabs
 """
 
 import numpy as np
-from pymatgen import Structure, Lattice, vis
+from pymatgen import Structure, vis
 import itertools
 import os
 from monty.serialization import loadfn
@@ -493,7 +493,7 @@ class AdsorbateSiteFinder:
         for adslab in adslabs:
 
             # Find the adsorbate sites and indices in each slab
-            symmetric, adsorbates, indices = False, [], []
+            _, adsorbates, indices = False, [], []
             for i, site in enumerate(adslab.sites):
                 if site.surface_properties == "adsorbate":
                     adsorbates.append(site)

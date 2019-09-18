@@ -734,7 +734,6 @@ class GaussianOutput:
             r'(Sum of Mulliken )(.*)(charges)\s*=\s*(\D)')
         std_orientation_patt = re.compile(r"Standard orientation")
         input_orientation_patt = re.compile(r"Input orientation")
-        end_patt = re.compile(r"--+")
         orbital_patt = re.compile(r"(Alpha|Beta)\s*\S+\s*eigenvalues --(.*)")
         thermo_patt = re.compile(r"(Zero-point|Thermal) correction(.*)="
                                  r"\s+([\d\.-]+)")
@@ -746,7 +745,6 @@ class GaussianOutput:
 
         freq_on_patt = re.compile(
             r"Harmonic\sfrequencies\s+\(cm\*\*-1\),\sIR\sintensities.*Raman.*")
-        freq_patt = re.compile(r"Frequencies\s--\s+(.*)")
 
         normal_mode_patt = re.compile(
             r"\s+(\d+)\s+(\d+)\s+([0-9\.-]{4,5})\s+([0-9\.-]{4,5}).*")
@@ -778,7 +776,6 @@ class GaussianOutput:
         self.title = None
         self.bond_orders = {}
 
-        coord_txt = []
         read_coord = 0
         read_mulliken = False
         read_eigen = False
@@ -1082,12 +1079,10 @@ class GaussianOutput:
                         m = scf_patt.search(line)
                         self.energies.append(float(m.group(1)))
                     elif std_orientation_patt.search(line):
-                        coord_txt = []
                         standard_orientation = True
                         geom_orientation = "standard"
                         read_coord = True
                     elif input_orientation_patt.search(line):
-                        coord_txt = []
                         geom_orientation = "input"
                         read_coord = True
                     elif not read_eigen and orbital_patt.search(line):

@@ -45,7 +45,6 @@ from sympy import Symbol
 from sympy.solvers import linsolve, solve
 
 from pymatgen.core.composition import Composition
-from pymatgen import Structure
 from pymatgen.core.surface import get_slab_regions
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -1785,7 +1784,7 @@ class NanoscaleStability:
             gform_list.append(gform)
             r_list.append(r)
 
-        ru = "nm" if r_units == "nanometers" else "\AA"
+        ru = "nm" if r_units == "nanometers" else r"\AA"
         plt.xlabel(r"Particle radius ($%s$)" % (ru))
         eu = "$%s/%s^3$" % (e_units, ru)
         plt.ylabel(r"$G_{form}$ (%s)" % (eu))

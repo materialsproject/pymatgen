@@ -119,7 +119,7 @@ def contribute_dash(ctx):
             data["version"] = NEW_VER
         with open("docset.json", "wt") as f:
             json.dump(data, f, indent=4)
-        ctx.run('git commit -a -m "Update to v%s"' % NEW_VER)
+        ctx.run('git commit --no-verify -a -m "Update to v%s"' % NEW_VER)
         ctx.run('git push')
     ctx.run("rm pymatgen.tgz")
 
@@ -142,11 +142,6 @@ def submit_dash_pr(ctx):
 @task
 def update_doc(ctx):
     make_doc(ctx)
-    try:
-        contribute_dash(ctx)
-        ctx.run("mv pymatgen.tgz ..", warn=True)
-    except Exception:
-        pass
     ctx.run("cp docs_rst/conf-normal.py docs_rst/conf.py")
     make_doc(ctx)
     ctx.run("git add .")

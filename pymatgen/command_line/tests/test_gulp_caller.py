@@ -9,15 +9,17 @@ Created on Jan 22, 2013
 @author: Bharat Medasani
 """
 import unittest
-
-from pymatgen.command_line.gulp_caller import *
+import os
+from pymatgen.analysis.bond_valence import BVAnalyzer
+from pymatgen.command_line.gulp_caller import GulpIO, GulpCaller, \
+    BuckinghamPotential, GulpError, get_energy_relax_structure_buckingham, get_energy_buckingham, get_energy_tersoff
 from pymatgen.core.structure import Structure
 from monty.os.path import which
 from pymatgen.io.vasp.inputs import Poscar
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
-gulp_present = which('gulp')
+gulp_present = which('gulp') and os.environ.get("GULP_LIB")
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
