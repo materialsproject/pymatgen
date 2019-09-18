@@ -1051,9 +1051,7 @@ class Lattice(MSONable):
             zip_results=True,
     ) -> Union[
         List[Tuple[np.ndarray, float, int, np.ndarray]],
-        Tuple[List[np.ndarray], List[float], List[int], List[np.ndarray]],
-        List[Any],
-        Tuple[Any]
+        List[np.ndarray],
     ]:
         """
         Find all points within a sphere from the point taking into account
@@ -1090,11 +1088,11 @@ class Lattice(MSONable):
         neighbors = get_points_in_spheres(all_coords=cart_coords, center_coords=np.array([center]), r=r, pbc=True,
                                           numerical_tol=1e-8, lattice=self, return_fcoords=True)[0]
         if len(neighbors) < 1:
-            return [] if zip_results else ([], ) * 4
+            return [] if zip_results else [()] * 4
         if zip_results:
             return neighbors
         else:
-            return tuple([np.array(i) for i in list(zip(*neighbors))])
+            return [np.array(i) for i in list(zip(*neighbors))]
 
     @deprecated(get_points_in_sphere, "This is retained purely for checking purposes.")
     def get_points_in_sphere_old(
@@ -1494,7 +1492,7 @@ def get_points_in_spheres(all_coords: np.ndarray, center_coords: np.ndarray, r: 
 
     # find all neighboring cubes for each atom in the lattice cell
     site_neighbors = find_neighbors(site_cube_index, nx, ny, nz)
-    neighbors = []  # type: List[List[Tuple]]
+    neighbors = []  # type: List[List[Tuple[np.ndarray, float, int, np.ndarray]]]
 
     for i, j in zip(center_coords, site_neighbors):
         l1 = np.array(_three_to_one(j, ny, nz), dtype=int).ravel()
@@ -1508,14 +1506,14 @@ def get_points_in_spheres(all_coords: np.ndarray, center_coords: np.ndarray, r: 
         nn_images = itertools.chain(*[cube_to_images[k] for k in ks])
         nn_indices = itertools.chain(*[cube_to_indices[k] for k in ks])
         dist = np.linalg.norm(nn_coords - i[None, :], axis=1)
-        nns: List[Tuple] = []
+        nns: List[Tuple[np.ndarray, float, int, np.ndarray]] = []
         for coord, index, image, d in zip(nn_coords, nn_indices, nn_images, dist):
             # filtering out all sites that are beyond the cutoff
             # Here there is no filtering of overlapping sites
             if d < r + numerical_tol:
                 if return_fcoords and (lattice is not None):
                     coord = np.round(lattice.get_fractional_coords(coord), 10)
-                nn = (coord, d, index, image)
+                nn = (coord, float(d), int(index), image)
                 nns.append(nn)
         neighbors.append(nns)
     return neighbors
