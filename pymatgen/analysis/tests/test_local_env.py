@@ -815,7 +815,7 @@ class LocalStructOrderParamsTest(PymatgenTest):
         op_vals = ops_101.get_order_parameters(self.single_bond, 0)
         self.assertAlmostEqual(int(op_vals[13] * 1000), 1000)
         op_vals = ops_501.get_order_parameters(self.single_bond, 0)
-        self.assertAlmostEqual(int(op_vals[13] * 1000), 799)
+        self.assertAlmostEqual(int(op_vals[13] * 1000), 800)
         op_vals = ops_101.get_order_parameters(self.linear, 0)
         self.assertAlmostEqual(int(op_vals[13] * 1000), 0)
 

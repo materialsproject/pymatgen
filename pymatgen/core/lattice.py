@@ -600,7 +600,6 @@ class Lattice(MSONable):
         frac, dist, _, _ = self.get_points_in_sphere(
             [[0, 0, 0]], [0, 0, 0], max(lengths) * (1 + ltol), zip_results=False
         )
-        frac = np.round(frac, 7)
         cart = self.get_cartesian_coords(frac)
         # this can't be broadcast because they're different lengths
         inds = [
@@ -1513,7 +1512,7 @@ def get_points_in_spheres(all_coords: np.ndarray, center_coords: np.ndarray, r: 
             # Here there is no filtering of overlapping sites
             if d < r + numerical_tol:
                 if return_fcoords:
-                    coord = np.round(lattice.get_fractional_coords(coord), 7)
+                    coord = np.round(lattice.get_fractional_coords(coord), 10)
                 nn = (coord, d, index, image)
                 nns.append(nn)
         neighbors.append(nns)
