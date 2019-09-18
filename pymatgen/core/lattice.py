@@ -1504,7 +1504,7 @@ def get_points_in_spheres(all_coords: np.ndarray, center_coords: np.ndarray, r: 
         if not ks:
             neighbors.append([])
             continue
-        nn_coords= np.concatenate([cube_to_coords[k] for k in ks], axis=0)
+        nn_coords = np.concatenate([cube_to_coords[k] for k in ks], axis=0)
         nn_images = itertools.chain(*[cube_to_images[k] for k in ks])
         nn_indices = itertools.chain(*[cube_to_indices[k] for k in ks])
         dist = np.linalg.norm(nn_coords - i[None, :], axis=1)
