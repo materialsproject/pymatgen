@@ -13,7 +13,7 @@ from functools import reduce
 import collections
 
 from fractions import Fraction
-from typing import List, Union, Dict, Tuple, Iterator, Optional, Sequence, Any
+from typing import List, Union, Dict, Tuple, Iterator, Optional, Sequence
 
 import numpy as np
 from numpy.linalg import inv
