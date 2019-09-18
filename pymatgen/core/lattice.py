@@ -13,7 +13,7 @@ from functools import reduce
 import collections
 
 from fractions import Fraction
-from typing import List, Union, Dict, Tuple, Iterator, Optional, Sequence
+from typing import List, Union, Dict, Tuple, Iterator, Optional, Sequence, Any
 
 import numpy as np
 from numpy.linalg import inv
@@ -1052,6 +1052,8 @@ class Lattice(MSONable):
     ) -> Union[
         List[Tuple[np.ndarray, float, int, np.ndarray]],
         Tuple[List[np.ndarray], List[float], List[int], List[np.ndarray]],
+        List[Any],
+        Tuple[Any]
     ]:
         """
         Find all points within a sphere from the point taking into account
@@ -1407,8 +1409,8 @@ def get_integer_index(miller_index: Sequence[float], round_dp: int = 4, verbose:
 
 def get_points_in_spheres(all_coords: np.ndarray, center_coords: np.ndarray, r: float,
                           pbc: Union[bool, List[bool]] = True, numerical_tol: float = 1e-8,
-                          lattice: Lattice = None, return_fcoords=False,
-                          ) -> List[List[Tuple]]:
+                          lattice: Lattice = None, return_fcoords: bool = False,
+                          ) -> List[List[Tuple[np.ndarray, float, int, np.ndarray]]]:
     """
     For each point in `center_coords`, get all the neighboring points in `all_coords` that are within the
     cutoff radius `r`.
@@ -1422,7 +1424,7 @@ def get_points_in_spheres(all_coords: np.ndarray, center_coords: np.ndarray, r: 
         lattice: (Lattice) lattice to consider when PBC is enabled
         return_fcoords: (bool) whether to return fractional coords when pbc is set.
     Returns:
-        List[List[Tuple(coords, distance, index, image)]]
+        List[List[Tuple[coords, distance, index, image]]]
     """
     if isinstance(pbc, bool):
         pbc = [pbc] * 3
@@ -1502,7 +1504,7 @@ def get_points_in_spheres(all_coords: np.ndarray, center_coords: np.ndarray, r: 
         if not ks:
             neighbors.append([])
             continue
-        nn_coords = np.concatenate([cube_to_coords[k] for k in ks], axis=0)
+        nn_coords= np.concatenate([cube_to_coords[k] for k in ks], axis=0)
         nn_images = itertools.chain(*[cube_to_images[k] for k in ks])
         nn_indices = itertools.chain(*[cube_to_indices[k] for k in ks])
         dist = np.linalg.norm(nn_coords - i[None, :], axis=1)
@@ -1511,7 +1513,7 @@ def get_points_in_spheres(all_coords: np.ndarray, center_coords: np.ndarray, r: 
             # filtering out all sites that are beyond the cutoff
             # Here there is no filtering of overlapping sites
             if d < r + numerical_tol:
-                if return_fcoords:
+                if return_fcoords and (lattice is not None):
                     coord = np.round(lattice.get_fractional_coords(coord), 10)
                 nn = (coord, d, index, image)
                 nns.append(nn)
