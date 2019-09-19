@@ -332,8 +332,11 @@ class MagOrderingTransformationTest(PymatgenTest):
         trans = MagOrderingTransformation({"Ni": 5})
         alls = trans.apply_transformation(self.NiO.get_primitive_structure(),
                                           return_ranked_list=10)
-        self.assertEqual(self.NiO_AFM_111.lattice, alls[0]["structure"].lattice)
-        self.assertEqual(self.NiO_AFM_001.lattice, alls[1]["structure"].lattice)
+
+        self.assertArrayAlmostEqual(self.NiO_AFM_111.lattice.lengths_and_angles,
+                                    alls[0]["structure"].lattice.lengths_and_angles)
+        self.assertArrayAlmostEqual(self.NiO_AFM_001.lattice.lengths_and_angles,
+                                    alls[1]["structure"].lattice.lengths_and_angles)
 
     def test_ferrimagnetic(self):
         trans = MagOrderingTransformation({"Fe": 5}, order_parameter=0.75,
@@ -569,9 +572,9 @@ class SlabTransformationTest(PymatgenTest):
         gen = SlabGenerator(s, [0, 0, 1], 10, 10)
         slab_from_gen = gen.get_slab(0.25)
         slab_from_trans = trans.apply_transformation(s)
-        self.assertArrayAlmostEqual(slab_from_gen.lattice.matrix, 
+        self.assertArrayAlmostEqual(slab_from_gen.lattice.matrix,
                                     slab_from_trans.lattice.matrix)
-        self.assertArrayAlmostEqual(slab_from_gen.cart_coords, 
+        self.assertArrayAlmostEqual(slab_from_gen.cart_coords,
                                     slab_from_trans.cart_coords)
 
         fcc = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Fe"],
@@ -582,7 +585,7 @@ class SlabTransformationTest(PymatgenTest):
         slab_from_gen = gen.get_slab()
         self.assertArrayAlmostEqual(slab_from_gen.lattice.matrix,
                                     slab_from_trans.lattice.matrix)
-        self.assertArrayAlmostEqual(slab_from_gen.cart_coords, 
+        self.assertArrayAlmostEqual(slab_from_gen.cart_coords,
                                     slab_from_trans.cart_coords)
 
 
