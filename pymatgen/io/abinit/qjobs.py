@@ -15,6 +15,7 @@ from monty.collections import AttrDict
 from monty.inspect import all_subclasses
 
 import logging
+
 logger = logging.getLogger(__name__)
 
 
@@ -33,7 +34,7 @@ class JobStatus(int):
     CA  CANCELLED       Job was explicitly cancelled by the user or system administrator.
                         The job may or may not have been initiated.
     CD  COMPLETED       Job has terminated all processes on all nodes.
-    CF  CONFIGURING     Job has been allocated resources, but are waiting for them to become ready for use (e.g. booting).
+    CF  CONFIGURING     Job has been allocated resources, but are waiting for them to become ready for use (booting).
     CG  COMPLETING      Job is in the process of completing. Some processes on some  nodes may still be active.
     F   FAILED          Job terminated with non-zero exit code or other failure condition.
     NF  NODE_FAIL       Job terminated due to failure of one or more allocated nodes.
@@ -71,9 +72,10 @@ class JobStatus(int):
     def from_string(cls, s):
         """Return a :class:`JobStatus` instance from its string representation."""
         for num, text in cls._STATUS_TABLE.items():
-            if text == s: return cls(num)
+            if text == s:
+                return cls(num)
         else:
-            #raise ValueError("Wrong string %s" % s)
+            # raise ValueError("Wrong string %s" % s)
             logger.warning("Got unknown status: %s" % s)
             return cls.from_string("UNKNOWN")
 
@@ -86,18 +88,18 @@ class QueueJob:
     QTYPE = None
 
     # Used to handle other resource managers.
-    S_UNKNOWN   = JobStatus.from_string("UNKNOWN")
+    S_UNKNOWN = JobStatus.from_string("UNKNOWN")
     # Slurm status
-    S_PENDING   = JobStatus.from_string("PENDING")
-    S_RUNNING   = JobStatus.from_string("RUNNING")
-    S_RESIZING  = JobStatus.from_string("RESIZING")
+    S_PENDING = JobStatus.from_string("PENDING")
+    S_RUNNING = JobStatus.from_string("RUNNING")
+    S_RESIZING = JobStatus.from_string("RESIZING")
     S_SUSPENDED = JobStatus.from_string("SUSPENDED")
     S_COMPLETED = JobStatus.from_string("COMPLETED")
     S_CANCELLED = JobStatus.from_string("CANCELLED")
-    S_FAILED    = JobStatus.from_string("FAILED")
-    S_TIMEOUT   = JobStatus.from_string("TIMEOUT")
+    S_FAILED = JobStatus.from_string("FAILED")
+    S_TIMEOUT = JobStatus.from_string("TIMEOUT")
     S_PREEMPTED = JobStatus.from_string("PREEMPTED")
-    S_NODEFAIL  = JobStatus.from_string("NODEFAIL")
+    S_NODEFAIL = JobStatus.from_string("NODEFAIL")
 
     @staticmethod
     def from_qtype_and_id(qtype, queue_id, qname=None):
@@ -110,7 +112,8 @@ class QueueJob:
             qname: Name of the queue (optional).
         """
         for cls in all_subclasses(QueueJob):
-            if cls.QTYPE == qtype: break
+            if cls.QTYPE == qtype:
+                break
         else:
             logger.critical("Cannot find QueueJob subclass registered for qtype %s" % qtype)
             cls = QueueJob
@@ -137,9 +140,8 @@ class QueueJob:
 
     __nonzero__ = __bool__
 
-
-    #In many cases, we only need to know if job is terminated or not
-    #def is_terminated()
+    # In many cases, we only need to know if job is terminated or not
+    # def is_terminated()
 
     @property
     def is_completed(self):
@@ -210,11 +212,13 @@ class QueueJob:
         SIGXFSZ     25,25,31    Core    File size limit exceeded (4.2BSD)
         """
         for sig_name in ("SIGFPE",):
-            if self.received_signal(sig_name): return sig_name
+            if self.received_signal(sig_name):
+                return sig_name
         return False
 
     def received_signal(self, sig_name):
-        if self.signal is None: return False
+        if self.signal is None:
+            return False
         # Get the numeric value from signal and compare it with self.signal
         import signal
         try:
@@ -247,7 +251,7 @@ class SlurmJob(QueueJob):
     QTYPE = "slurm"
 
     def estimated_start_time(self):
-        #squeue  --start -j  116791
+        # squeue  --start -j  116791
         #  JOBID PARTITION     NAME     USER  ST           START_TIME  NODES NODELIST(REASON)
         # 116791      defq gs6q2wop username  PD  2014-11-04T09:27:15     16 (QOSResourceLimit)
         cmd = "squeue" "--start", "--job %d" % self.qid
@@ -259,39 +263,41 @@ class SlurmJob(QueueJob):
             return None
 
         lines = out.splitlines()
-        if len(lines) <= 2: return None
+        if len(lines) <= 2:
+            return None
 
         from datetime import datetime
         for line in lines:
             tokens = line.split()
             if int(tokens[0]) == self.qid:
                 date_string = tokens[5]
-                if date_string == "N/A": return None
+                if date_string == "N/A":
+                    return None
                 return datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%S")
 
         return None
 
     def get_info(self, **kwargs):
         # See https://computing.llnl.gov/linux/slurm/sacct.html
-        #If SLURM job ids are reset, some job numbers will
-        #probably appear more than once refering to different jobs.
-        #Without this option only the most recent jobs will be displayed.
+        # If SLURM job ids are reset, some job numbers will
+        # probably appear more than once refering to different jobs.
+        # Without this option only the most recent jobs will be displayed.
 
-        #state Displays the job status, or state.
-        #Output can be RUNNING, RESIZING, SUSPENDED, COMPLETED, CANCELLED, FAILED, TIMEOUT,
-        #PREEMPTED or NODE_FAIL. If more information is available on the job state than will fit
-        #into the current field width (for example, the uid that CANCELLED a job) the state will be followed by a "+".
+        # state Displays the job status, or state.
+        # Output can be RUNNING, RESIZING, SUSPENDED, COMPLETED, CANCELLED, FAILED, TIMEOUT,
+        # PREEMPTED or NODE_FAIL. If more information is available on the job state than will fit
+        # into the current field width (for example, the uid that CANCELLED a job) the state will be followed by a "+".
 
-        #gmatteo@master2:~
-        #sacct --job 112367 --format=jobid,exitcode,state --allocations --parsable2
-        #JobID|ExitCode|State
-        #112367|0:0|RUNNING
-        #scontrol show job 800197 --oneliner
+        # gmatteo@master2:~
+        # sacct --job 112367 --format=jobid,exitcode,state --allocations --parsable2
+        # JobID|ExitCode|State
+        # 112367|0:0|RUNNING
+        # scontrol show job 800197 --oneliner
 
         # For more info
-        #login1$ scontrol show job 1676354
+        # login1$ scontrol show job 1676354
 
-        #cmd = "sacct --job %i --format=jobid,exitcode,state --allocations --parsable2" % self.qid
+        # cmd = "sacct --job %i --format=jobid,exitcode,state --allocations --parsable2" % self.qid
         cmd = "scontrol show job %i --oneliner" % self.qid
         process = Popen(shlex.split(cmd), stdout=PIPE, stderr=PIPE)
         out, err = process.communicate()
@@ -303,10 +309,10 @@ class SlurmJob(QueueJob):
         tokens = out.splitlines()
         info = AttrDict()
         for line in tokens:
-            #print(line)
+            # print(line)
             k, v = line.split("=")
             info[k] = v
-            #print(info)
+            # print(info)
 
         qid = int(info.JobId)
         assert qid == self.qid
@@ -319,7 +325,8 @@ class SlurmJob(QueueJob):
             exitcode, signal = int(exitcode), None
 
         i = status.find("+")
-        if i != -1: status = status[:i]
+        if i != -1:
+            status = status[:i]
 
         self.set_status_exitcode_signal(JobStatus.from_string(status), exitcode, signal)
         return AttrDict(exitcode=exitcode, signal=signal, status=status)
@@ -336,7 +343,7 @@ class SlurmJob(QueueJob):
         lines = out.splitlines()
         keys = lines[0].strip().split("|")
         values = lines[1].strip().split("|")
-        #print("lines0", lines[0])
+        # print("lines0", lines[0])
         return dict(zip(keys, values))
 
 
@@ -375,9 +382,9 @@ class PbsProJob(QueueJob):
         # qstat -T - Shows the estimated start time for all jobs in the queue.
         #                                                                           Est
         #                                                            Req'd  Req'd   Start
-        #Job ID          Username Queue    Jobname    SessID NDS TSK Memory Time  S Time
-        #--------------- -------- -------- ---------- ------ --- --- ------ ----- - -----
-        #5669001.frontal username large    gs.Pt         --   96  96    --  03:00 Q    --
+        # Job ID          Username Queue    Jobname    SessID NDS TSK Memory Time  S Time
+        # --------------- -------- -------- ---------- ------ --- --- ------ ----- - -----
+        # 5669001.frontal username large    gs.Pt         --   96  96    --  03:00 Q    --
         cmd = "qstat %s -T" % self.qid
         process = Popen(shlex.split(cmd), stdout=PIPE, stderr=PIPE)
         out, err = process.communicate()
@@ -397,14 +404,14 @@ class PbsProJob(QueueJob):
     def get_info(self, **kwargs):
 
         # See also qstat -f
-        #http://sc.tamu.edu/help/origins/batch.shtml#qstat
+        # http://sc.tamu.edu/help/origins/batch.shtml#qstat
 
-        #$> qstat 5666289
-        #frontal1:
+        # $> qstat 5666289
+        # frontal1:
         #                                                            Req'd  Req'd   Elap
-        #Job ID          Username Queue    Jobname    SessID NDS TSK Memory Time  S Time
-        #--------------- -------- -------- ---------- ------ --- --- ------ ----- - -----
-        #5666289.frontal username main_ivy MorfeoTChk  57546   1   4    --  08:00 R 00:17
+        # Job ID          Username Queue    Jobname    SessID NDS TSK Memory Time  S Time
+        # --------------- -------- -------- ---------- ------ --- --- ------ ----- - -----
+        # 5666289.frontal username main_ivy MorfeoTChk  57546   1   4    --  08:00 R 00:17
 
         cmd = "qstat %d" % self.qid
         process = Popen(shlex.split(cmd), stdout=PIPE, stderr=PIPE)
@@ -425,10 +432,10 @@ class PbsProJob(QueueJob):
         # Job id            Name             User              Time Use S Queue
         # ----------------  ---------------- ----------------  -------- - -----
         # 5905011.frontal1  t0               gmatteo           01:37:08 F main_wes
-        #print(out)
+        # print(out)
 
         line = out.splitlines()[-1]
-        #print(line.split())
+        # print(line.split())
         status = self.PBSSTAT_TO_SLURM[line.split()[4]]
 
         # Exit code and signal are not available.

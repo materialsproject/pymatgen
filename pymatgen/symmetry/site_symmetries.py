@@ -1,9 +1,10 @@
-import pymatgen
+"""
+Provides analysis of site symmetries.
+"""
+
 import numpy as np
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer as sga
 from pymatgen.core.operations import SymmOp
-from pymatgen import Element
-from pymatgen.analysis.elasticity.tensors import Tensor
 
 
 def get_site_symmetries(struc, precision=0.1):
@@ -18,8 +19,6 @@ def get_site_symmetries(struc, precision=0.1):
     Return:
         list of lists of point operations for each atomic site
     """
-    numsites = len(struc.sites)
-    sgastruc = sga(struc)
 
     pointops = []
 

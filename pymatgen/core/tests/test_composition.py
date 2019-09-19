@@ -570,14 +570,14 @@ class ChemicalPotentialTest(unittest.TestCase):
         self.assertRaises(ValueError, fepot.get_energy, feo2)
 
         # test multiplication
-        self.assertRaises(TypeError, lambda: (pots * pots))
+        self.assertRaises(NotImplementedError, lambda: (pots * pots))
         self.assertDictEqual(pots * 2, potsx2)
         self.assertDictEqual(2 * pots, potsx2)
 
         # test division
         self.assertDictEqual(potsx2 / 2, pots)
-        self.assertRaises(TypeError, lambda: (pots / pots))
-        self.assertRaises(TypeError, lambda: (pots / feo2))
+        self.assertRaises(NotImplementedError, lambda: (pots / pots))
+        self.assertRaises(NotImplementedError, lambda: (pots / feo2))
 
         # test add/subtract
         self.assertDictEqual(pots + pots, potsx2)

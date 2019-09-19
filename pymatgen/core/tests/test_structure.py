@@ -388,7 +388,6 @@ class IStructureTest(PymatgenTest):
         nn = s.get_neighbors_in_shell(s[0].frac_coords, 2, 4,
                                       include_index=True, include_image=True)
         self.assertEqual(len(nn), 47)
-        self.assertEqual(nn[0][-2], 0)
         r = random.uniform(3, 6)
         all_nn = s.get_all_neighbors(r, True, True)
         for i in range(len(s)):
@@ -617,10 +616,7 @@ class StructureTest(PymatgenTest):
         s.replace_species({"Ge": {"Ge": 0.5, "Si": 0.5}})
         self.assertEqual(s.formula, "Si0.75 Ge0.25 N1 O1")
 
-        # In this case, s.ntypesp is ambiguous.
-        # code should raise AttributeError.
-        with self.assertRaises(TypeError):
-            s.ntypesp
+        self.assertEqual(s.ntypesp, 4)
 
         s.replace_species({"Ge": "Si"})
         s.substitute(1, "hydroxyl")
@@ -1183,7 +1179,7 @@ class IMoleculeTest(PymatgenTest):
     def test_repr_str(self):
         ans = """Full Formula (H4 C1)
 Reduced Formula: H4C
-Charge = 0, Spin Mult = 1
+Charge = 0.0, Spin Mult = 1
 Sites (5)
 0 C     0.000000     0.000000     0.000000
 1 H     0.000000     0.000000     1.089000

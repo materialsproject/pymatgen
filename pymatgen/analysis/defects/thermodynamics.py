@@ -604,7 +604,7 @@ class DefectPhaseDiagram(MSONable):
 
         plt.figure()
         plt.clf()
-        width, height = 12, 8
+        width = 12
         # plot formation energy lines
         for_legend = []
         for cnt, defnom in enumerate(xy.keys()):

@@ -61,7 +61,7 @@ class AdsorbateSiteFinderTest(PymatgenTest):
         # Subsurface site finding
         asf = AdsorbateSiteFinder.from_bulk_and_miller(self.structure, (1, 1, 1))
         sites = asf.find_adsorption_sites(positions=["ontop", "subsurface", "bridge"])
-        self.assertEqual(len(sites['all']), 4)
+        self.assertEqual(len(sites['all']), 5)
         self.assertEqual(len(sites['subsurface']), 3)
 
     def test_find_adsorption_sites(self):
@@ -94,7 +94,7 @@ class AdsorbateSiteFinderTest(PymatgenTest):
             generate_adsorption_structures(co, find_args=find_args)
         self.assertEqual(len(structures_hollow), len(sites['hollow']))
         for n, structure in enumerate(structures_hollow):
-            self.assertTrue(in_coord_list(sites['hollow'], structure[-2].coords))
+            self.assertTrue(in_coord_list(sites['hollow'], structure[-2].coords, 1e-4))
         # Check molecule not changed after rotation when added to surface
         co = Molecule("CO", [[1.0, -0.5, 3], [0.8, 0.46, 3.75]])
         structures = self.asf_211.generate_adsorption_structures(co)

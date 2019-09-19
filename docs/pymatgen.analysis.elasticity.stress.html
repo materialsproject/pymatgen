@@ -1,0 +1,181 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.elasticity.stress module &#8212; pymatgen 2019.9.16 documentation</title>
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.9.16 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pymatgen.analysis.elasticity.stress">
+<span id="pymatgen-analysis-elasticity-stress-module"></span><h1>pymatgen.analysis.elasticity.stress module<a class="headerlink" href="#module-pymatgen.analysis.elasticity.stress" title="Permalink to this headline">¶</a></h1>
+<p>This module provides the Stress class used to create, manipulate, and
+calculate relevant properties of the stress tensor.</p>
+<dl class="class">
+<dt id="pymatgen.analysis.elasticity.stress.Stress">
+<em class="property">class </em><code class="sig-name descname">Stress</code><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/stress.html#Stress"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.core.tensors.html#pymatgen.core.tensors.SquareTensor" title="pymatgen.core.tensors.SquareTensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.tensors.SquareTensor</span></code></a></p>
+<p>This class extends SquareTensor as a representation of the
+stress</p>
+<p>Create a Stress object.  Note that the constructor uses __new__
+rather than __init__ according to the standard method of
+subclassing numpy ndarrays.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>stress_matrix</strong> (<em>3x3 array-like</em>) – the 3x3 array-like
+representing the stress</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.analysis.elasticity.stress.Stress.dev_principal_invariants">
+<em class="property">property </em><code class="sig-name descname">dev_principal_invariants</code><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.dev_principal_invariants" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the principal invariants of the deviatoric stress tensor,
+which is calculated by finding the coefficients of the characteristic
+polynomial of the stress tensor minus the identity times the mean
+stress</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.elasticity.stress.Stress.deviator_stress">
+<em class="property">property </em><code class="sig-name descname">deviator_stress</code><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.deviator_stress" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the deviatoric component of the stress</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.elasticity.stress.Stress.mean_stress">
+<em class="property">property </em><code class="sig-name descname">mean_stress</code><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.mean_stress" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the mean stress</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.elasticity.stress.Stress.piola_kirchoff_1">
+<code class="sig-name descname">piola_kirchoff_1</code><span class="sig-paren">(</span><em class="sig-param">def_grad</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/stress.html#Stress.piola_kirchoff_1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.piola_kirchoff_1" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculates the first Piola-Kirchoff stress</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>def_grad</strong> (<em>3x3 array-like</em>) – deformation gradient tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.elasticity.stress.Stress.piola_kirchoff_2">
+<code class="sig-name descname">piola_kirchoff_2</code><span class="sig-paren">(</span><em class="sig-param">def_grad</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/stress.html#Stress.piola_kirchoff_2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.piola_kirchoff_2" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculates the second Piola-Kirchoff stress</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>def_grad</strong> (<em>3x3 array-like</em>) – rate of deformation tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.elasticity.stress.Stress.symbol">
+<code class="sig-name descname">symbol</code><em class="property"> = 's'</em><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.symbol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.elasticity.stress.Stress.von_mises">
+<em class="property">property </em><code class="sig-name descname">von_mises</code><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.von_mises" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the von mises stress</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pymatgen.analysis.elasticity.stress.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.9.16 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

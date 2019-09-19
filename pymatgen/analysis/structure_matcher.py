@@ -17,8 +17,8 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.composition import Composition
 
 from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.optimization.linear_assignment import LinearAssignment
-from pymatgen.util.coord_cython import pbc_shortest_vectors, is_coord_subset_pbc
+from pymatgen.optimization.linear_assignment import LinearAssignment  # type: ignore
+from pymatgen.util.coord_cython import pbc_shortest_vectors, is_coord_subset_pbc  # type: ignore
 from pymatgen.util.coord import lattice_points_in_supercell
 from pymatgen.analysis.defects.core import Interstitial, \
     Defect, Vacancy, Substitution

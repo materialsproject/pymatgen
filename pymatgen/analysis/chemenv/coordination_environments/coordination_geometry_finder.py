@@ -1391,7 +1391,7 @@ class LocalGeometryFinder:
                                   local_plane=local_plane,
                                   points_perfect=points_perfect,
                                   separation_indices=npsep)
-                csm, perm, algo, cgsm_stop_search = cgsm[0], cgsm[1], cgsm[2], cgsm[3]
+                csm, perm, algo, _ = cgsm[0], cgsm[1], cgsm[2], cgsm[3]
                 permutations_symmetry_measures.extend(csm)
                 permutations.extend(perm)
                 for thisperm in perm:
@@ -1470,7 +1470,7 @@ class LocalGeometryFinder:
                                       local_plane=plane,
                                       points_perfect=points_perfect,
                                       separation_indices=separation_indices)
-                    csm, perm, algo, cgsm_stop_search = cgsm[0], cgsm[1], cgsm[2], cgsm[3]
+                    csm, perm, algo, _ = cgsm[0], cgsm[1], cgsm[2], cgsm[3]
                     permutations_symmetry_measures.extend(csm)
                     permutations.extend(perm)
                     for thisperm in perm:
