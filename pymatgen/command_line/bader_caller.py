@@ -106,7 +106,8 @@ class BaderAnalysis:
               " Please download the library at http://theory.cm.utexas"
               ".edu/vasp/bader/ and compile the executable.")
     def __init__(self, chgcar_filename, potcar_filename=None,
-                 chgref_filename=None, parse_atomic_densities=False):
+                 chgref_filename=None, parse_atomic_densities=False,
+                 vacuum_mode="auto"):
         """
         Initializes the Bader caller.
 
@@ -118,9 +119,11 @@ class BaderAnalysis:
             chgref_filename (str): Optional. The filename of the reference
                 CHGCAR, which calculated by AECCAR0 + AECCAR2. (See
                 http://theory.cm.utexas.edu/henkelman/code/bader/ for details.)
-            parse_atomic_densities (bool): Optional. turns on atomic partition of the charge density
-                charge densities are atom centered
-
+            parse_atomic_densities (bool): Optional. Turns on atomic partition of
+                the charge density where charge densities are atom centered.
+            vacuum_mode ("off", "auto", float): Will discount regions of low charge
+                density which is useful for systems with significant vacuum, auto
+                is 1E-3 e/Ang^3 as of bader v1.03
         """
         if not BADEREXE:
             raise RuntimeError(
@@ -147,6 +150,7 @@ class BaderAnalysis:
                 args += ['-ref', 'CHGCAR_ref']
             if parse_atomic_densities:
                 args += ['-p', 'all_atom']
+            args += ['-vac', str(vacuum_mode)]
             rs = subprocess.Popen(args,
                                   stdout=subprocess.PIPE,
                                   stdin=subprocess.PIPE, close_fds=True)
