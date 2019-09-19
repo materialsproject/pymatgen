@@ -1091,8 +1091,7 @@ class Lattice(MSONable):
             return [] if zip_results else [()] * 4
         if zip_results:
             return neighbors
-        else:
-            return [np.array(i) for i in list(zip(*neighbors))]
+        return [np.array(i) for i in list(zip(*neighbors))]
 
     @deprecated(get_points_in_sphere, "This is retained purely for checking purposes.")
     def get_points_in_sphere_old(

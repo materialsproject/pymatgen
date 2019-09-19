@@ -28,6 +28,9 @@ jobs:
             echo "pydocstyle checks for $MODIFIED_FILES..."
             pydocstyle --count pymatgen/core $MODIFIED_FILES
             echo "--- Done ---"
+            echo "pylint checks..."
+            pylint --exit-zero pymatgen
+            echo "--- Done ---"
   py3test:
     working_directory: ~/pymatgen
     docker:
