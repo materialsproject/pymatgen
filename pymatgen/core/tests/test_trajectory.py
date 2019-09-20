@@ -1,4 +1,3 @@
-
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.vasp.outputs import Xdatcar
 from pymatgen.io.vasp.inputs import Poscar
@@ -344,6 +343,7 @@ class TrajectoryTest(PymatgenTest):
 
     def test_xdatcar_write(self):
         self.traj.write_Xdatcar(filename="traj_test_XDATCAR")
+        os.remove("traj_test_XDATCAR")
 
         # Load trajectory from written xdatcar and compare to original
 

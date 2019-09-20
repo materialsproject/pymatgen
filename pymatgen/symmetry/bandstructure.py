@@ -126,7 +126,6 @@ class HighSymmKpath:
         elif lattice_type == "monoclinic":
             a, b, c = self._conv.lattice.abc
             alpha = self._conv.lattice.angles[0]
-            # beta = self._conv.lattice.lengths_and_angles[1][1]
 
             if "P" in spg_symbol:
                 self._kpath = self.mcl(b, c, alpha * pi / 180)
