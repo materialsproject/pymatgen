@@ -82,7 +82,7 @@ class CorrectionCalculator:
             str, (float, float)
         ] = {}  # {'species': (value, error)}
 
-        # these three lists are just to help the graph_residual_error_per_species() method differentiate between oxygen containing compounds
+        # to help the graph_residual_error_per_species() method differentiate between oxygen containing compounds
         self.oxides: List[str] = []
         self.peroxides: List[str] = []
         self.superoxides: List[str] = []
