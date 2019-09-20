@@ -8,7 +8,6 @@ from typing import List, Dict, Tuple
 from monty.serialization import loadfn
 
 from pymatgen import Composition
-from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.analysis.reaction_calculator import ComputedReaction
 
 """
@@ -194,7 +193,6 @@ class CorrectionCalculator:
         if len(self.corrections) == 0:
             self.compute_corrections()
 
-        indices = [i for i in range(len(self.diffs))]
         abs_errors = [
             abs(i) for i in (self.diffs - np.dot(self.coeff_mat, self.corrections))
         ]
