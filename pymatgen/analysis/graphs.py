@@ -374,7 +374,7 @@ class StructureGraph(MSONable):
                                                                 include_index=True)
             for site, dist, to_index in equiv_sites:
                 to_jimage = np.subtract(site.frac_coords, self.structure[from_index].frac_coords)
-                to_jimage = to_jimage.astype(int)
+                to_jimage = np.round(to_jimage).astype(int)
                 self.add_edge(from_index=from_index, from_jimage=(0, 0, 0),
                               to_jimage=to_jimage, to_index=to_index)
             return

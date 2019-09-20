@@ -8,7 +8,7 @@ jobs:
       - checkout
       - run:
           command: |
-            pip install --quiet pycodestyle flake8 mypy pydocstyle
+            pip install --quiet pycodestyle flake8 mypy pydocstyle pylint
             echo "Checks will be performed in the order of pycodestyle -> flake8 -> mypy -> pydocstyle "
             echo "It is highly recommended that you use the pre-commit hook provided in pymatgen."
             echo "Simply copy pre-commit to .git/hooks to check before pushing your code."
@@ -27,6 +27,9 @@ jobs:
             export MODIFIED_FILES=`git diff --diff-filter=ACMRTUXB --name-only HEAD v2019.9.16 | grep -E 'pymatgen.*\.(py)$' | sed '/test_/d' | tr '\n' ' '`
             echo "pydocstyle checks for $MODIFIED_FILES..."
             pydocstyle --count pymatgen/core $MODIFIED_FILES
+            echo "--- Done ---"
+            echo "pylint checks..."
+            pylint --exit-zero pymatgen
             echo "--- Done ---"
   py3test:
     working_directory: ~/pymatgen

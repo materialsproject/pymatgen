@@ -388,7 +388,6 @@ class IStructureTest(PymatgenTest):
         nn = s.get_neighbors_in_shell(s[0].frac_coords, 2, 4,
                                       include_index=True, include_image=True)
         self.assertEqual(len(nn), 47)
-        self.assertEqual(nn[0][-2], 0)
         r = random.uniform(3, 6)
         all_nn = s.get_all_neighbors(r, True, True)
         for i in range(len(s)):
