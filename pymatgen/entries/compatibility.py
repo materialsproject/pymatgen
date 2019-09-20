@@ -13,7 +13,7 @@ import warnings
 from collections import defaultdict
 from math import sqrt
 
-from typing import Sequence
+from typing import Sequence, Tuple
 from monty.design_patterns import cached_class
 from monty.serialization import loadfn
 from monty.json import MSONable
@@ -131,7 +131,7 @@ class PotcarCorrection(Correction):
         self.input_set = input_set
         self.check_hash = check_hash
 
-    def get_correction(self, entry) -> (float, float):
+    def get_correction(self, entry) -> Tuple[float, float]:
         """
         :param entry: A ComputedEntry/ComputedStructureEntry
         :return: Correction, Error.
@@ -200,7 +200,7 @@ class GasCorrection(Correction):
         else:
             self.cpd_errors = defaultdict(float)
 
-    def get_correction(self, entry) -> (float, float):
+    def get_correction(self, entry) -> Tuple[float, float]:
         """
         :param entry: A ComputedEntry/ComputedStructureEntry
         :return: Correction, Error.
@@ -248,7 +248,7 @@ class AnionCorrection(Correction):
         else:
             self.anion_errors = defaultdict(float)
 
-    def get_correction(self, entry) -> (float, float):
+    def get_correction(self, entry) -> Tuple[float, float]:
         """
         :param entry: A ComputedEntry/ComputedStructureEntry
         :return: Correction, Error.
@@ -366,7 +366,7 @@ class AqueousCorrection(Correction):
         else:
             self.cpd_errors = defaultdict(float)
 
-    def get_correction(self, entry) -> (float, float):
+    def get_correction(self, entry) -> Tuple[float, float]:
         """
         :param entry: A ComputedEntry/ComputedStructureEntry
         :return: Correction, Error.
@@ -472,7 +472,7 @@ class UCorrection(Correction):
         else:
             self.u_errors = {}
 
-    def get_correction(self, entry) -> (float, float):
+    def get_correction(self, entry) -> Tuple[float, float]:
         """
         :param entry: A ComputedEntry/ComputedStructureEntry
         :return: Correction, Error.

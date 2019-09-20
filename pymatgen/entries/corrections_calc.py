@@ -4,6 +4,7 @@ import plotly.graph_objects as go
 from scipy.optimize import curve_fit
 import ruamel.yaml
 
+from typing import List, Dict
 from monty.serialization import loadfn
 
 from pymatgen import Composition
@@ -324,7 +325,7 @@ class CorrectionCalculator:
         aqueous["H2"] = -3.6018845
         aqueous["H2O"] = -4.972
 
-        compatibility: OrderedDict[str, OrderedDict] = OrderedDict()
+        compatibility: OrderedDict = OrderedDict()
         anion_corr: OrderedDict[str, float] = OrderedDict()
         advanced: OrderedDict[str, OrderedDict] = OrderedDict()
         gas_corr: OrderedDict[str, float] = OrderedDict()
@@ -332,7 +333,7 @@ class CorrectionCalculator:
         o: OrderedDict[str, float] = OrderedDict()
         f: OrderedDict[str, float] = OrderedDict()
 
-        compatibility_error: OrderedDict[str, OrderedDict] = OrderedDict()
+        compatibility_error: OrderedDict = OrderedDict()
         anion_corr_error: OrderedDict[str, float] = OrderedDict()
         advanced_error: OrderedDict[str, OrderedDict] = OrderedDict()
         gas_corr_error: OrderedDict[str, float] = OrderedDict()
