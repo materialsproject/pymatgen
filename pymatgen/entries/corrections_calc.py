@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 from scipy.optimize import curve_fit
 import ruamel.yaml
 
-from typing import List, Dict
+from typing import List, Dict, Tuple
 from monty.serialization import loadfn
 
 from pymatgen import Composition
@@ -80,7 +80,7 @@ class CorrectionCalculator:
         self.corrections: List[float] = []
         self.corrections_std_error: List[float] = []
         self.corrections_dict: Dict[
-            str, (float, float)
+            str, Tuple[float, float]
         ] = {}  # {'species': (value, error)}
 
         # to help the graph_residual_error_per_species() method differentiate between oxygen containing compounds
