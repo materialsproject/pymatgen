@@ -453,9 +453,9 @@ class Lattice(MSONable):
         """
         return (*self.lengths, *self.angles)
 
-    @property
+    @property  # type: ignore
     @deprecated(message="Use Lattice.parameters instead. This will be removed in v2020.*")
-    def lengths_and_angles(self) -> Tuple[Tuple[float, float, float], Tuple[float, float, float]]:  # type: ignore
+    def lengths_and_angles(self) -> Tuple[Tuple[float, float, float], Tuple[float, float, float]]:
         """
         Returns (lattice lengths, lattice angles).
         """
