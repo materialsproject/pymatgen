@@ -33,18 +33,18 @@ class IRDielectricTensor(MSONable):
     The implementation is adapted from Abipy
     See the definitions Eq.(53-54) in :cite:`Gonze1997` PRB55, 10355 (1997).
     """
-    def __init__(self, oscillator_strength, phfreqs_gamma, epsilon_infinity, structure):
+    def __init__(self, oscillator_strength, ph_freqs_gamma, epsilon_infinity, structure):
         """
         Args:
             oscillatator_strength: IR oscillator strengths as defined
                                    in Eq. 54 in :cite:`Gonze1997` PRB55, 10355 (1997).
-            phfreqs_gamma: Phonon frequencies at the Gamma point
+            ph_freqs_gamma: Phonon frequencies at the Gamma point
             epsilon_infinity: electronic susceptibility as defined in Eq. 29.
             structure: A Structure object corresponding to the structure used for the calculation.
         """
         self.structure = structure
         self.oscillator_strength = np.array(oscillator_strength).real
-        self.phfreqs_gamma = np.array(phfreqs_gamma)
+        self.ph_freqs_gamma = np.array(ph_freqs_gamma)
         self.epsilon_infinity = np.array(epsilon_infinity)
 
     @classmethod
@@ -54,14 +54,14 @@ class IRDielectricTensor(MSONable):
         """
         structure = Structure.from_dict(d['structure'])
         oscillator_strength = d['oscillator_strength']
-        phfreqs_gamma = d['phfreqs_gamma']
+        ph_freqs_gamma = d['ph_freqs_gamma']
         epsilon_infinity = d['epsilon_infinity']
-        return cls(oscillator_strength, phfreqs_gamma, epsilon_infinity, structure)
+        return cls(oscillator_strength, ph_freqs_gamma, epsilon_infinity, structure)
 
     @property
-    def max_phfreq(self): return max(self.phfreqs_gamma)
+    def max_phfreq(self): return max(self.ph_freqs_gamma)
     @property
-    def nphfreqs(self): return len(self.phfreqs_gamma)
+    def nph_freqs(self): return len(self.ph_freqs_gamma)
 
     def as_dict(self):
         """
@@ -70,7 +70,7 @@ class IRDielectricTensor(MSONable):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "oscillator_strength": self.oscillator_strength.tolist(),
-                "phfreqs_gamma": self.phfreqs_gamma.tolist(),
+                "ph_freqs_gamma": self.ph_freqs_gamma.tolist(),
                 "structure": self.structure.as_dict(),
                 "epsilon_infinity": self.epsilon_infinity.tolist()}
 
@@ -98,8 +98,8 @@ class IRDielectricTensor(MSONable):
                          for the range of frequencies
         """
         if isinstance(broad, float):
-            broad = [broad]*self.nphfreqs
-        if isinstance(broad, list) and len(broad) != self.nphfreqs:
+            broad = [broad]*self.nph_freqs
+        if isinstance(broad, list) and len(broad) != self.nph_freqs:
             raise ValueError('The number of elements in the broad_list '
                              'is not the same as the number of frequencies')
 
@@ -109,10 +109,10 @@ class IRDielectricTensor(MSONable):
 
         na = np.newaxis
         dielectric_tensor = np.zeros((divs, 3, 3), dtype=complex)
-        for i in range(3, len(self.phfreqs_gamma)):
-            g = broad[i] * self.phfreqs_gamma[i]
+        for i in range(3, len(self.ph_freqs_gamma)):
+            g = broad[i] * self.ph_freqs_gamma[i]
             num = self.oscillator_strength[i, :, :]
-            den = (self.phfreqs_gamma[i]**2 - frequencies[:, na, na]**2 - 1j*g)
+            den = (self.ph_freqs_gamma[i]**2 - frequencies[:, na, na]**2 - 1j*g)
             dielectric_tensor += num / den
         dielectric_tensor += self.epsilon_infinity[na, :, :]
 
@@ -133,8 +133,8 @@ class IRDielectricTensor(MSONable):
         plt = plotter.get_plot(xlim=xlim, ylim=ylim)
 
         if show_phonon_frequencies:
-            phfreqs_gamma = self.phfreqs_gamma[3:]
-            plt.scatter(phfreqs_gamma*1000, np.zeros_like(phfreqs_gamma))
+            ph_freqs_gamma = self.ph_freqs_gamma[3:]
+            plt.scatter(ph_freqs_gamma*1000, np.zeros_like(ph_freqs_gamma))
         plt.xlabel(r'$\epsilon(\omega)$')
         plt.xlabel(r'Frequency (meV)')
         return plt
