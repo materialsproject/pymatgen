@@ -12,3 +12,4 @@ spglib==1.14.1.post0
 pandas==0.25.1
 networkx==2.3
 dataclasses>=0.6; python_version < '3.7'
+plotly==4.1.1

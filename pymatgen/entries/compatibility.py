@@ -131,10 +131,10 @@ class PotcarCorrection(Correction):
         self.input_set = input_set
         self.check_hash = check_hash
 
-    def get_correction(self, entry) -> float:
+    def get_correction(self, entry) -> (float, float):
         """
         :param entry: A ComputedEntry/ComputedStructureEntry
-        :return: Correction.
+        :return: Correction, Error.
         """
         if self.check_hash:
             if entry.parameters.get("potcar_spec"):
@@ -165,7 +165,7 @@ class PotcarCorrection(Correction):
             self.valid_potcars.get(str(el)) for el in entry.composition.elements
         } != psp_settings:
             raise CompatibilityError("Incompatible potcar")
-        return 0, 0
+        return 0.0, 0.0
 
     def __str__(self):
         return "{} Potcar Correction".format(self.input_set.__name__)
@@ -200,12 +200,15 @@ class GasCorrection(Correction):
         else:
             self.cpd_errors = defaultdict(float)
 
-    def get_correction(self, entry) -> float:
+    def get_correction(self, entry) -> (float, float):
         """
         :param entry: A ComputedEntry/ComputedStructureEntry
-        :return: Correction.
+        :return: Correction, Error.
         """
         comp = entry.composition
+
+        correction = 0.0
+        error = 0.0
 
         rform = entry.composition.reduced_formula
         if rform in self.cpd_energies:
@@ -213,8 +216,8 @@ class GasCorrection(Correction):
                 self.cpd_energies[rform] * comp.num_atoms - entry.uncorrected_energy
             )
             error = self.cpd_errors[rform] * comp.num_atoms
-            return correction, error
-        return 0, 0
+
+        return correction, error
 
     def __str__(self):
         return "{} Gas Correction".format(self.name)
@@ -245,17 +248,17 @@ class AnionCorrection(Correction):
         else:
             self.anion_errors = defaultdict(float)
 
-    def get_correction(self, entry) -> float:
+    def get_correction(self, entry) -> (float, float):
         """
         :param entry: A ComputedEntry/ComputedStructureEntry
-        :return: Correction.
+        :return: Correction, Error.
         """
         comp = entry.composition
         if len(comp) == 1:  # Skip element entry
-            return 0, 0
+            return 0.0, 0.0
 
-        correction = 0
-        error = 0
+        correction = 0.0
+        error = 0.0
         # Check for sulfide corrections
         if Element("S") in comp:
             sf_type = "sulfide"
@@ -363,16 +366,16 @@ class AqueousCorrection(Correction):
         else:
             self.cpd_errors = defaultdict(float)
 
-    def get_correction(self, entry) -> float:
+    def get_correction(self, entry) -> (float, float):
         """
         :param entry: A ComputedEntry/ComputedStructureEntry
-        :return: Correction.
+        :return: Correction, Error.
         """
         comp = entry.composition
         rform = comp.reduced_formula
         cpdenergies = self.cpd_energies
-        correction = 0
-        error = 0
+        correction = 0.0
+        error = 0.0
         if rform in cpdenergies:
             if rform in ["H2", "H2O"]:
                 correction = (
@@ -469,10 +472,10 @@ class UCorrection(Correction):
         else:
             self.u_errors = {}
 
-    def get_correction(self, entry) -> float:
+    def get_correction(self, entry) -> (float, float):
         """
         :param entry: A ComputedEntry/ComputedStructureEntry
-        :return: Correction.
+        :return: Correction, Error.
         """
         if entry.parameters.get("run_type", "GGA") == "HF":
             raise CompatibilityError("Invalid run type")
@@ -485,8 +488,8 @@ class UCorrection(Correction):
             [el for el in comp.elements if comp[el] > 0], key=lambda el: el.X
         )
         most_electroneg = elements[-1].symbol
-        correction = 0
-        error = 0
+        correction = 0.0
+        error = 0.0
         ucorr = self.u_corrections.get(most_electroneg, {})
         usettings = self.u_settings.get(most_electroneg, {})
         uerrors = self.u_errors.get(most_electroneg, defaultdict(float))
