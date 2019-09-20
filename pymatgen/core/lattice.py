@@ -116,7 +116,7 @@ class Lattice(MSONable):
         elif fmt_spec.endswith("p"):
             fmt = "{{{}, {}, {}, {}, {}, {}}}"
             fmt_spec = fmt_spec[:-1]
-            m = self.lengths_and_angles
+            m = (self.lengths, self.angles)
         else:
             fmt = "{} {} {}\n{} {} {}\n{} {} {}"
         return fmt.format(*[format(c, fmt_spec) for row in m for c in row])
@@ -189,7 +189,7 @@ class Lattice(MSONable):
         Returns:
             Lattice coordinates.
         """
-        return self.lengths_and_angles[0] * self.get_fractional_coords(cart_coords)
+        return self.lengths * self.get_fractional_coords(cart_coords)
 
     def d_hkl(self, miller_index: Vector3Like) -> float:
         """
@@ -295,6 +295,7 @@ class Lattice(MSONable):
         return Lattice.from_parameters(a, a, a, alpha, alpha, alpha)
 
     @staticmethod
+    @deprecated(message="Use Lattice.from_parameters instead. This will be removed in v2020.*")
     def from_lengths_and_angles(abc: Sequence[float], ang: Sequence[float]):
         """
         Create a Lattice using unit cell lengths and angles (in degrees).
@@ -446,6 +447,14 @@ class Lattice(MSONable):
         return float(abs(dot(np.cross(m[0], m[1]), m[2])))
 
     @property
+    def parameters(self) -> Tuple[float, float, float, float, float, float]:
+        """
+        Returns: (a, b, c, alpha, beta, gamma).
+        """
+        return (*self.lengths, *self.angles)
+
+    @property
+    @deprecated(message="Use Lattice.parameters instead. This will be removed in v2020.*")
     def lengths_and_angles(self) -> Tuple[Tuple[float, float, float], Tuple[float, float, float]]:
         """
         Returns (lattice lengths, lattice angles).
@@ -544,7 +553,7 @@ class Lattice(MSONable):
             "@class": self.__class__.__name__,
             "matrix": self._matrix.tolist(),
         }
-        (a, b, c), (alpha, beta, gamma) = self.lengths_and_angles
+        a, b, c, alpha, beta, gamma = self.parameters
         if verbosity > 0:
             d.update(
                 {
@@ -594,8 +603,8 @@ class Lattice(MSONable):
 
             None is returned if no matches are found.
         """
-        (lengths, angles) = other_lattice.lengths_and_angles
-        (alpha, beta, gamma) = angles
+        lengths = other_lattice.lengths
+        (alpha, beta, gamma) = other_lattice.angles
 
         frac, dist, _, _ = self.get_points_in_sphere(
             [[0, 0, 0]], [0, 0, 0], max(lengths) * (1 + ltol), zip_results=False
@@ -1228,7 +1237,8 @@ class Lattice(MSONable):
         :param hex_length_tol: Length tolerance
         :return: Whether lattice corresponds to hexagonal lattice.
         """
-        lengths, angles = self.lengths_and_angles
+        lengths = self.lengths
+        angles = self.angles
         right_angles = [i for i in range(3) if abs(angles[i] - 90) < hex_angle_tol]
         hex_angles = [i for i in range(3)
                       if abs(angles[i] - 60) < hex_angle_tol or abs(angles[i] - 120) < hex_angle_tol]

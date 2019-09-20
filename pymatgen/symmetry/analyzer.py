@@ -160,6 +160,7 @@ class SpacegroupAnalyzer:
 
         def f(i, j):
             return i <= n <= j
+
         cs = {"triclinic": (1, 2), "monoclinic": (3, 15),
               "orthorhombic": (16, 74), "tetragonal": (75, 142),
               "trigonal": (143, 167), "hexagonal": (168, 194),
@@ -382,7 +383,7 @@ class SpacegroupAnalyzer:
         if lattice == "rhombohedral":
             # check if the conventional representation is hexagonal or
             # rhombohedral
-            lengths, angles = conv.lattice.lengths_and_angles
+            lengths = conv.lattice.lengths
             if abs(lengths[0] - lengths[2]) < 0.0001:
                 transf = np.eye
             else:
@@ -440,7 +441,8 @@ class SpacegroupAnalyzer:
 
         if lattice == "rhombohedral":
             prim = Structure.from_sites(new_sites)
-            lengths, angles = prim.lattice.lengths_and_angles
+            lengths = prim.lattice.lengths
+            angles = prim.lattice.angles
             a = lengths[0]
             alpha = math.pi * angles[0] / 180
             new_matrix = [
@@ -563,31 +565,31 @@ class SpacegroupAnalyzer:
                 new_matrix = None
                 for t in itertools.permutations(list(range(2)), 2):
                     m = latt.matrix
-                    landang = Lattice(
-                        [m[t[0]], m[t[1]], m[2]]).lengths_and_angles
-                    if landang[1][0] > 90:
+                    latt2 = Lattice([m[t[0]], m[t[1]], m[2]])
+                    lengths = latt2.lengths
+                    angles = latt2.angles
+                    if angles[0] > 90:
                         # if the angle is > 90 we invert a and b to get
                         # an angle < 90
-                        landang = Lattice(
-                            [-m[t[0]], -m[t[1]], m[2]]).lengths_and_angles
+                        a, b, c, alpha, beta, gamma = Lattice(
+                            [-m[t[0]], -m[t[1]], m[2]]).parameters
                         transf = np.zeros(shape=(3, 3))
                         transf[0][t[0]] = -1
                         transf[1][t[1]] = -1
                         transf[2][2] = 1
-                        a, b, c = landang[0]
-                        alpha = math.pi * landang[1][0] / 180
+                        alpha = math.pi * alpha / 180
                         new_matrix = [[a, 0, 0],
                                       [0, b, 0],
                                       [0, c * cos(alpha), c * sin(alpha)]]
                         continue
 
-                    elif landang[1][0] < 90:
+                    elif angles[0] < 90:
                         transf = np.zeros(shape=(3, 3))
                         transf[0][t[0]] = 1
                         transf[1][t[1]] = 1
                         transf[2][2] = 1
-                        a, b, c = landang[0]
-                        alpha = math.pi * landang[1][0] / 180
+                        a, b, c = lengths
+                        alpha = math.pi * angles[0] / 180
                         new_matrix = [[a, 0, 0],
                                       [0, b, 0],
                                       [0, c * cos(alpha), c * sin(alpha)]]
@@ -609,28 +611,26 @@ class SpacegroupAnalyzer:
                 new_matrix = None
                 for t in itertools.permutations(list(range(3)), 3):
                     m = latt.matrix
-                    landang = Lattice(
-                        [m[t[0]], m[t[1]], m[t[2]]]).lengths_and_angles
-                    if landang[1][0] > 90 and landang[0][1] < landang[0][2]:
-                        landang = Lattice(
-                            [-m[t[0]], -m[t[1]], m[t[2]]]).lengths_and_angles
+                    a, b, c, alpha, beta, gamma = Lattice(
+                        [m[t[0]], m[t[1]], m[t[2]]]).parameters
+                    if alpha > 90 and b < c:
+                        a, b, c, alpha, beta, gamma = Lattice(
+                            [-m[t[0]], -m[t[1]], m[t[2]]]).parameters
                         transf = np.zeros(shape=(3, 3))
                         transf[0][t[0]] = -1
                         transf[1][t[1]] = -1
                         transf[2][t[2]] = 1
-                        a, b, c = landang[0]
-                        alpha = math.pi * landang[1][0] / 180
+                        alpha = math.pi * alpha / 180
                         new_matrix = [[a, 0, 0],
                                       [0, b, 0],
                                       [0, c * cos(alpha), c * sin(alpha)]]
                         continue
-                    elif landang[1][0] < 90 and landang[0][1] < landang[0][2]:
+                    elif alpha < 90 and b < c:
                         transf = np.zeros(shape=(3, 3))
                         transf[0][t[0]] = 1
                         transf[1][t[1]] = 1
                         transf[2][t[2]] = 1
-                        a, b, c = landang[0]
-                        alpha = math.pi * landang[1][0] / 180
+                        alpha = math.pi * alpha / 180
                         new_matrix = [[a, 0, 0],
                                       [0, b, 0],
                                       [0, c * cos(alpha), c * sin(alpha)]]
@@ -663,9 +663,8 @@ class SpacegroupAnalyzer:
             # we use a LLL Minkowski-like reduction for the triclinic cells
             struct = struct.get_reduced_structure("LLL")
 
-            a, b, c = latt.lengths_and_angles[0]
-            alpha, beta, gamma = [math.pi * i / 180
-                                  for i in latt.lengths_and_angles[1]]
+            a, b, c = latt.lengths
+            alpha, beta, gamma = [math.pi * i / 180 for i in latt.angles]
             new_matrix = None
             test_matrix = [[a, 0, 0],
                            [b * cos(gamma), b * sin(gamma), 0.0],

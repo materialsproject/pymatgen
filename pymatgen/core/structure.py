@@ -701,8 +701,7 @@ class IStructure(SiteCollection, MSONable):
         if not sgp.is_compatible(latt):
             raise ValueError(
                 "Supplied lattice with parameters %s is incompatible with "
-                "supplied spacegroup %s!" % (latt.lengths_and_angles,
-                                             sgp.symbol)
+                "supplied spacegroup %s!" % (latt.parameters, sgp.symbol)
             )
 
         if len(species) != len(coords):
@@ -711,8 +710,7 @@ class IStructure(SiteCollection, MSONable):
                 "different!" % (len(species), len(coords))
             )
 
-        frac_coords = np.array(coords, dtype=np.float) \
-            if not coords_are_cartesian else \
+        frac_coords = np.array(coords, dtype=np.float) if not coords_are_cartesian else \
             latt.get_fractional_coords(coords)
 
         props = {} if site_properties is None else site_properties
@@ -803,8 +801,7 @@ class IStructure(SiteCollection, MSONable):
         if not msg.is_compatible(latt):
             raise ValueError(
                 "Supplied lattice with parameters %s is incompatible with "
-                "supplied spacegroup %s!" % (latt.lengths_and_angles,
-                                             msg.sg_symbol)
+                "supplied spacegroup %s!" % (latt.parameters, msg.sg_symbol)
             )
 
         if len(species) != len(coords):

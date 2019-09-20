@@ -274,7 +274,7 @@ class IStructureTest(PymatgenTest):
         coords2 = list()
         coords2.append([0, 0, 0])
         coords2.append([0.5, 0.5, 0.5])
-        l2 = Lattice.from_lengths_and_angles([3, 4, 4], [100, 100, 70])
+        l2 = Lattice.from_parameters(3, 4, 4, 100, 100, 70)
         struct2 = IStructure(l2, ["Si"] * 2, coords2)
         int_s = struct.interpolate(struct2, 2, interpolate_lattices=True)
         self.assertArrayAlmostEqual(struct.lattice.abc,
@@ -503,8 +503,7 @@ class IStructureTest(PymatgenTest):
             self.assertIsNotNone(s)
             ss = IStructure.from_str(s, fmt=fmt)
             self.assertArrayAlmostEqual(
-                ss.lattice.lengths_and_angles,
-                self.struct.lattice.lengths_and_angles, decimal=5)
+                ss.lattice.parameters, self.struct.lattice.parameters, decimal=5)
             self.assertArrayAlmostEqual(ss.frac_coords, self.struct.frac_coords)
             self.assertIsInstance(ss, IStructure)
 
@@ -863,8 +862,8 @@ class StructureTest(PymatgenTest):
             self.assertIsNotNone(s)
             ss = Structure.from_str(s, fmt=fmt)
             self.assertArrayAlmostEqual(
-                ss.lattice.lengths_and_angles,
-                self.structure.lattice.lengths_and_angles, decimal=5)
+                ss.lattice.parameters,
+                self.structure.lattice.parameters, decimal=5)
             self.assertArrayAlmostEqual(ss.frac_coords,
                                         self.structure.frac_coords)
             self.assertIsInstance(ss, Structure)
@@ -954,8 +953,7 @@ class StructureTest(PymatgenTest):
         self.assertArrayAlmostEqual(s[1].frac_coords, [.5, .5, .5005])
 
         # Test for TaS2 with spacegroup 166 in 160 setting.
-        l = Lattice.from_lengths_and_angles([3.374351, 3.374351, 20.308941],
-                                            [90.000000, 90.000000, 120.000000])
+        l = Lattice.hexagonal(3.374351, 20.308941)
         species = ["Ta", "S", "S"]
         coords = [[0.000000, 0.000000, 0.944333],
                   [0.333333, 0.666667, 0.353424],
@@ -965,8 +963,7 @@ class StructureTest(PymatgenTest):
         tas2.merge_sites(mode="d")
         assert len(tas2) == 9
 
-        l = Lattice.from_lengths_and_angles([3.587776, 3.587776, 19.622793],
-                                            [90.000000, 90.000000, 120.000000])
+        l = Lattice.hexagonal(3.587776, 19.622793)
         species = ["Na", "V", "S", "S"]
         coords = [[0.333333, 0.666667, 0.165000],
                   [0.000000, 0.000000, 0.998333],
@@ -978,8 +975,7 @@ class StructureTest(PymatgenTest):
         assert len(navs2) == 12
 
         # Test that we can average the site properties that are floats
-        l = Lattice.from_lengths_and_angles([3.587776, 3.587776, 19.622793],
-                                            [90.000000, 90.000000, 120.000000])
+        l = Lattice.hexagonal(3.587776, 19.622793)
         species = ["Na", "V", "S", "S"]
         coords = [[0.333333, 0.666667, 0.165000], [0.000000, 0.000000, 0.998333],
                   [0.333333, 0.666667, 0.399394], [0.666667, 0.333333, 0.597273]]
