@@ -343,12 +343,10 @@ class TrajectoryTest(PymatgenTest):
 
     def test_xdatcar_write(self):
         self.traj.write_Xdatcar(filename="traj_test_XDATCAR")
-        os.remove("traj_test_XDATCAR")
-
         # Load trajectory from written xdatcar and compare to original
-
-        written_traj = Trajectory.from_file(os.path.join("./", "traj_test_XDATCAR"))
+        written_traj = Trajectory.from_file("traj_test_XDATCAR")
         self._check_traj_equality(self.traj, written_traj)
+        os.remove("traj_test_XDATCAR")
 
 
 if __name__ == '__main__':
