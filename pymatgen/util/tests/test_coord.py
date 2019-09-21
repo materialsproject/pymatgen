@@ -197,8 +197,7 @@ class CoordUtilsTest(PymatgenTest):
                             [0.9, 0.9, 0.8],
                             [0.1, 0.0, 0.5],
                             [0.9, 0.7, 0.0]])
-        lattice = Lattice.from_lengths_and_angles([8, 8, 4],
-                                                  [90, 76, 58])
+        lattice = Lattice.from_parameters(8, 8, 4, 90, 76, 58)
         expected = np.array([[0.000, 3.015, 4.072, 3.519, 3.245],
                              [3.015, 0.000, 3.207, 1.131, 4.453],
                              [4.072, 3.207, 0.000, 2.251, 1.788],

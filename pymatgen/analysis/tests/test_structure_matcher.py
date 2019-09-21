@@ -352,15 +352,15 @@ class StructureMatcherTest(PymatgenTest):
         sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5,
                               primitive_cell=True, scale=True,
                               attempt_supercell=False)
-        l1 = Lattice.from_lengths_and_angles([1, 2.1, 1.9], [90, 89, 91])
-        l2 = Lattice.from_lengths_and_angles([1.1, 2, 2], [89, 91, 90])
+        l1 = Lattice.from_parameters(1, 2.1, 1.9, 90, 89, 91)
+        l2 = Lattice.from_parameters(1.1, 2, 2, 89, 91, 90)
         s1 = Structure(l1, [], [])
         s2 = Structure(l2, [], [])
 
         lattices = list(sm._get_lattices(s=s1, target_lattice=s2.lattice))
         self.assertEqual(len(lattices), 16)
 
-        l3 = Lattice.from_lengths_and_angles([1.1, 2, 20], [89, 91, 90])
+        l3 = Lattice.from_parameters(1.1, 2, 20, 89, 91, 90)
         s3 = Structure(l3, [], [])
 
         lattices = list(sm._get_lattices(s=s1, target_lattice=s3.lattice))

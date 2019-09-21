@@ -633,7 +633,7 @@ class CifParser:
             angles = [str2float(data["_cell_angle_" + i])
                       for i in angle_strings]
             if not lattice_type:
-                return Lattice.from_lengths_and_angles(lengths, angles)
+                return Lattice.from_parameters(*lengths, *angles)
 
             else:
                 return getattr(Lattice, lattice_type)(*(lengths + angles))

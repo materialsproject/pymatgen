@@ -375,7 +375,8 @@ class MagneticSpaceGroup(SymmetryGroup):
                 in degrees.
         """
         # function from pymatgen.symmetry.groups.SpaceGroup
-        abc, angles = lattice.lengths_and_angles
+        abc = lattice.lengths
+        angles = lattice.angles
         crys_system = self.crystal_system
 
         def check(param, ref, tolerance):

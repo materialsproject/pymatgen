@@ -2,6 +2,12 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Defines SymmetryGroup parent class and PointGroup and SpaceGroup classes.
+Shyue Ping Ong thanks Marc De Graef for his generous sharing of his
+SpaceGroup data as published in his textbook "Structure of Materials".
+"""
+
 import os
 from itertools import product
 from fractions import Fraction
@@ -15,23 +21,13 @@ from monty.serialization import loadfn
 from pymatgen.core.operations import SymmOp
 from monty.design_patterns import cached_class
 
-"""
-Defines SymmetryGroup parent class and PointGroup and SpaceGroup classes.
-Shyue Ping Ong thanks Marc De Graef for his generous sharing of his
-SpaceGroup data as published in his textbook "Structure of Materials".
-"""
-
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2013, The Materials Virtual Lab"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "ongsp@ucsd.edu"
-__date__ = "4/4/14"
 
 SYMM_DATA = None
 
 
-def get_symm_data(name):
+def _get_symm_data(name):
     global SYMM_DATA
     if SYMM_DATA is None:
         SYMM_DATA = loadfn(os.path.join(os.path.dirname(__file__),
@@ -39,12 +35,17 @@ def get_symm_data(name):
     return SYMM_DATA[name]
 
 
-class SymmetryGroup(Sequence):
-    __metaclass__ = ABCMeta
+class SymmetryGroup(Sequence, metaclass=ABCMeta):
+    """
+    Abstract class representation a symmetry group.
+    """
 
     @property
     @abstractmethod
     def symmetry_ops(self):
+        """
+        :return: List of symmetry operations
+        """
         pass
 
     def __contains__(self, item):
@@ -117,14 +118,17 @@ class PointGroup(SymmetryGroup):
             int_symbol (str): International or Hermann-Mauguin Symbol.
         """
         self.symbol = int_symbol
-        self.generators = [get_symm_data("generator_matrices")[c]
-                           for c in get_symm_data("point_group_encoding")[int_symbol]]
+        self.generators = [_get_symm_data("generator_matrices")[c]
+                           for c in _get_symm_data("point_group_encoding")[int_symbol]]
         self._symmetry_ops = set([SymmOp.from_rotation_and_translation(m)
                                   for m in self._generate_full_symmetry_ops()])
         self.order = len(self._symmetry_ops)
 
     @property
     def symmetry_ops(self):
+        """
+        :return: List of symmetry operations for SpaceGroup
+        """
         return self._symmetry_ops
 
     def _generate_full_symmetry_ops(self):
@@ -185,22 +189,22 @@ class SpaceGroup(SymmetryGroup):
     """
     SYMM_OPS = loadfn(os.path.join(os.path.dirname(__file__),
                                    "symm_ops.json"))
-    SG_SYMBOLS = set(get_symm_data("space_group_encoding").keys())
+    SG_SYMBOLS = set(_get_symm_data("space_group_encoding").keys())
     for op in SYMM_OPS:
         op["hermann_mauguin"] = re.sub(r" ", "", op["hermann_mauguin"])
         op["universal_h_m"] = re.sub(r" ", "", op["universal_h_m"])
         SG_SYMBOLS.add(op["hermann_mauguin"])
         SG_SYMBOLS.add(op["universal_h_m"])
 
-    gen_matrices = get_symm_data("generator_matrices")
+    gen_matrices = _get_symm_data("generator_matrices")
     # POINT_GROUP_ENC = SYMM_DATA["point_group_encoding"]
-    sgencoding = get_symm_data("space_group_encoding")
-    abbrev_sg_mapping = get_symm_data("abbreviated_spacegroup_symbols")
-    translations = {k: Fraction(v) for k, v in get_symm_data(
+    sgencoding = _get_symm_data("space_group_encoding")
+    abbrev_sg_mapping = _get_symm_data("abbreviated_spacegroup_symbols")
+    translations = {k: Fraction(v) for k, v in _get_symm_data(
         "translations").items()}
     full_sg_mapping = {
         v["full_symbol"]: k
-        for k, v in get_symm_data("space_group_encoding").items()}
+        for k, v in _get_symm_data("space_group_encoding").items()}
 
     def __init__(self, int_symbol):
         """
@@ -368,7 +372,8 @@ class SpaceGroup(SymmetryGroup):
             angle_tol (float): The tolerance to check for equality of angles
                 in degrees.
         """
-        abc, angles = lattice.lengths_and_angles
+        abc = lattice.lengths
+        angles = lattice.angles
         crys_system = self.crystal_system
 
         def check(param, ref, tolerance):
@@ -401,6 +406,9 @@ class SpaceGroup(SymmetryGroup):
 
     @property
     def crystal_system(self):
+        """
+        :return: Crystal system for space group.
+        """
         i = self.int_number
         if i <= 2:
             return "triclinic"
@@ -433,7 +441,7 @@ class SpaceGroup(SymmetryGroup):
         groups = [[supergroup.int_number]]
         all_groups = [supergroup.int_number]
         max_subgroups = {int(k): v
-                         for k, v in get_symm_data("maximal_subgroups").items()}
+                         for k, v in _get_symm_data("maximal_subgroups").items()}
         while True:
             new_sub_groups = set()
             for i in groups[-1]:
@@ -494,7 +502,7 @@ def sg_symbol_from_int_number(int_number, hexagonal=True):
         (str) Spacegroup symbol
     """
     syms = []
-    for n, v in get_symm_data("space_group_encoding").items():
+    for n, v in _get_symm_data("space_group_encoding").items():
         if v["int_number"] == int_number:
             syms.append(n)
     if len(syms) == 0:
