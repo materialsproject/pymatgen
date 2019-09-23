@@ -9,7 +9,7 @@ import numpy as np
 from pymatgen.core.structure import Structure
 from pymatgen.core.spectrum import Spectrum
 from pymatgen.vis.plotters import SpectrumPlotter
-from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig_plt
+from pymatgen.util.plotting import add_fig_kwargs
 from monty.json import MSONable
 
 """
