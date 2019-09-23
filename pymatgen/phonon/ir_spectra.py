@@ -59,9 +59,14 @@ class IRDielectricTensor(MSONable):
         return cls(oscillator_strength, ph_freqs_gamma, epsilon_infinity, structure)
 
     @property
-    def max_phfreq(self): return max(self.ph_freqs_gamma)
+    def max_phfreq(self):
+        """Maximum phonon frequency"""
+        return max(self.ph_freqs_gamma)
+
     @property
-    def nph_freqs(self): return len(self.ph_freqs_gamma)
+    def nph_freqs(self):
+        """Number of phonon frequencies"""
+        return len(self.ph_freqs_gamma)
 
     def as_dict(self):
         """
