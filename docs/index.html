@@ -191,24 +191,6 @@ upgrade pymatgen to the latest version, use the following command:</p>
 </div>
 <div class="section" id="via-pip">
 <h2>Via pip<a class="headerlink" href="#via-pip" title="Permalink to this headline">¶</a></h2>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Preparation</p>
-<p>Before installing pymatgen, you may need to first install a few critical
-dependencies manually.</p>
-<ol class="arabic simple">
-<li><p>It is highly recommended that you use Python&gt;=2.7.9 or latest 3.x. In
-fact, unless you are very sure you have dependencies that require Python
-2, it is highly recommended that you use latest Python 3.x.</p></li>
-<li><p>Installation has been tested to be most successful with gcc. Use gcc
-where possible and do “export CC=gcc” prior to installation.</p></li>
-<li><p>Numpy’s distutils is needed to compile the spglib and pyhull
-dependencies. Numpy should be the first thing you install.</p></li>
-<li><p>One of the best things you can do is to use conda to manage all this.
-The instructions for <a class="reference internal" href="#shared-cluster-installation">Shared cluster installation</a> pretty much
-applies to any machine as well.</p></li>
-</ol>
-</div>
 <p>The version at the Python Package Index (PyPI) is always the latest stable
 release that is relatively bug-free. The easiest way to install pymatgen on
 any system is to use pip:</p>
@@ -274,9 +256,7 @@ interface usage, setup for developers, etc.are given on this
 <p>If you are installing pymatgen on shared computing clusters, e.g., the XSEDE
 or NERSC resources in the US, the best way is to use conda to perform a local
 install. This guarantees the right version of python and all dependencies:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># Here, Python 3.6+ is assumed.
-# You can change the following to Miniconda2 if you prefer Python 2.7
-wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
 bash Miniconda3-latest-Linux-x86_64.sh -b
 
 # Reload bash profile.
