@@ -50,7 +50,7 @@ If you would like to have an offline version of the docs for reference, there
 are two options:
 
 1. Clone the Github repo and the latest html docs are in the "docs" folder.
-2. In `Dash <http://kapeli.com/dash>`_ or `Zeal <http://zealdocs.org/>`_, go to 
+2. In `Dash <http://kapeli.com/dash>`_ or `Zeal <http://zealdocs.org/>`_, go to
    "User Contributed Docsets", search for pymatgen and install.
 
 Development News
@@ -142,14 +142,11 @@ Via conda (recommended)
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 If you are absolutely new to Python and/or are using Windows, the easiest
-installation process is using `conda <http://conda.pydata.org>`_. The
-`Materials Virtual Lab`_ has started `materials.sh <http://materials.sh>`_,
-a community initiative to build a comprehensive collection of materials science
-software, where pymatgen is available. If you already have conda installed,
-pymatgen can be installed from the `matsci channel on Anaconda cloud
-<https://anaconda.org/matsci>`_ using the following one line command::
+installation process is using `conda <http://conda.pydata.org>`_. If you
+already have conda installed, pymatgen can be installed from the `conda-forge
+channel <https://anaconda.org/conda-forge>`_ using the following command::
 
-   conda install --channel matsci pymatgen
+   conda install --channel conda-forge pymatgen
 
 Pymatgen is under active development, and new features are added regularly. To
 upgrade pymatgen to the latest version, use the following command::
