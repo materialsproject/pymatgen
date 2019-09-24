@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -1051,6 +1050,11 @@ can return a list of list of neighbors</p>
 parameters for the definition of neighbors in the Voronoi approach, with a bias for a given list of target
 environments. This can be useful in the case of, e.g. connectivity search of some given environment.
 The coordination environment is then given as the one with the lowest continuous symmetry measure</p>
+<p>Constructor for the SimpleAbundanceChemenvStrategy.
+:param structure_environments: StructureEnvironments object containing all the information on the</p>
+<blockquote>
+<div><p>coordination of the sites in a structure</p>
+</div></blockquote>
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargettedPenaltiedAbundanceChemenvStrategy.DEFAULT_TARGET_ENVIRONMENTS">
 <code class="sig-name descname">DEFAULT_TARGET_ENVIRONMENTS</code><em class="property"> = ['O:6']</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargettedPenaltiedAbundanceChemenvStrategy.DEFAULT_TARGET_ENVIRONMENTS" title="Permalink to this definition">¶</a></dt>
@@ -1244,7 +1248,7 @@ can return a list of list of neighbors</p>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

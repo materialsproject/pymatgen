@@ -13,10 +13,9 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-
+ 
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -33,17 +32,20 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.9.16 documentation</a> &#187;</li> 
       </ul>
-    </div>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
           <div class="body" role="main">
-
+            
   <div class="section" id="module-pymatgen.symmetry.groups">
 <span id="pymatgen-symmetry-groups-module"></span><h1>pymatgen.symmetry.groups module<a class="headerlink" href="#module-pymatgen.symmetry.groups" title="Permalink to this headline">¶</a></h1>
+<p>Defines SymmetryGroup parent class and PointGroup and SpaceGroup classes.
+Shyue Ping Ong thanks Marc De Graef for his generous sharing of his
+SpaceGroup data as published in his textbook “Structure of Materials”.</p>
 <dl class="class">
 <dt id="pymatgen.symmetry.groups.PointGroup">
 <em class="property">class </em><code class="sig-name descname">PointGroup</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/groups.html#PointGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups.PointGroup" title="Permalink to this definition">¶</a></dt>
@@ -106,6 +108,7 @@ Groups.</p>
 <dt id="pymatgen.symmetry.groups.SymmetryGroup">
 <em class="property">class </em><code class="sig-name descname">SymmetryGroup</code><a class="reference internal" href="_modules/pymatgen/symmetry/groups.html#SymmetryGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SymmetryGroup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.Sequence</span></code></p>
+<p>Abstract class representation a symmetry group.</p>
 <dl class="method">
 <dt id="pymatgen.symmetry.groups.SymmetryGroup.is_subgroup">
 <code class="sig-name descname">is_subgroup</code><span class="sig-paren">(</span><em class="sig-param">supergroup</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/groups.html#SymmetryGroup.is_subgroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SymmetryGroup.is_subgroup" title="Permalink to this definition">¶</a></dt>
@@ -137,14 +140,15 @@ Groups.</p>
 <dl class="method">
 <dt id="pymatgen.symmetry.groups.SymmetryGroup.symmetry_ops">
 <em class="property">abstract property </em><code class="sig-name descname">symmetry_ops</code><a class="headerlink" href="#pymatgen.symmetry.groups.SymmetryGroup.symmetry_ops" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<dd><p>List of symmetry operations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
-<dt id="pymatgen.symmetry.groups._get_symm_data">
-<code class="sig-name descname">_get_symm_data</code><span class="sig-paren">(</span><em class="sig-param">name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/groups.html#_get_symm_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups._get_symm_data" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.symmetry.groups.in_array_list">
@@ -223,13 +227,13 @@ hexagonal setting (default) or rhombohedral setting.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.9.16 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
