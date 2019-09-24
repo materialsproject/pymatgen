@@ -124,7 +124,7 @@ class NEBPathfinder:
 
     @staticmethod
     def string_relax(start, end, V, n_images=25, dr=None, h=3.0, k=0.17,
-                     min_iter=100, max_iter=10000, max_tol=5e-6):
+                        min_iter=100, max_iter=10000, max_tol=5e-6):
         """
         Implements path relaxation via the elastic band method. In general, the
         method is to define a path by a set of points (images) connected with
