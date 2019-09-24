@@ -159,22 +159,6 @@ Step-by-step instructions for all platforms are available at the
 Via pip
 ~~~~~~~
 
-.. note:: Preparation
-
-    Before installing pymatgen, you may need to first install a few critical
-    dependencies manually.
-
-    1. It is highly recommended that you use Python>=2.7.9 or latest 3.x. In
-       fact, unless you are very sure you have dependencies that require Python
-       2, it is highly recommended that you use latest Python 3.x.
-    2. Installation has been tested to be most successful with gcc. Use gcc
-       where possible and do "export CC=gcc" prior to installation.
-    3. Numpy's distutils is needed to compile the spglib and pyhull
-       dependencies. Numpy should be the first thing you install.
-    4. One of the best things you can do is to use conda to manage all this.
-       The instructions for `Shared cluster installation`_ pretty much
-       applies to any machine as well.
-
 The version at the Python Package Index (PyPI) is always the latest stable
 release that is relatively bug-free. The easiest way to install pymatgen on
 any system is to use pip::
@@ -222,8 +206,6 @@ If you are installing pymatgen on shared computing clusters, e.g., the XSEDE
 or NERSC resources in the US, the best way is to use conda to perform a local
 install. This guarantees the right version of python and all dependencies::
 
-    # Here, Python 3.6+ is assumed.
-    # You can change the following to Miniconda2 if you prefer Python 2.7
     wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
     bash Miniconda3-latest-Linux-x86_64.sh -b
 
