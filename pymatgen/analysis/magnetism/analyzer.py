@@ -31,7 +31,7 @@ from pymatgen.transformations.advanced_transformations import (
 from pymatgen.symmetry.groups import SpaceGroup
 from monty.serialization import loadfn
 
-from typing import Union, List, Dict, Tuple, Optional
+from typing import Union, List, Dict, Tuple, Optional, Any, Iterator
 from pymatgen.util.typing import Vector3Like
 
 """
@@ -476,9 +476,9 @@ class CollinearMagneticStructureAnalyzer:
             return []
 
     @property
-    def magnetic_species_and_magmoms(self) -> Dict:
+    def magnetic_species_and_magmoms(self) -> Dict[str, Any]:
         """Returns a dict of magnetic species and the magnitude of
-        their associated magmoms. Will return a set if there are
+        their associated magmoms. Will return a list if there are
         multiple magmoms per species.
 
         Returns: dict of magnetic species and magmoms
@@ -486,7 +486,7 @@ class CollinearMagneticStructureAnalyzer:
 
         structure = self.get_ferromagnetic_structure()
 
-        magtypes = {
+        magtypes: Dict = {
             str(site.specie): set()
             for site in structure
             if site.properties["magmom"] != 0
@@ -691,7 +691,7 @@ class MagneticStructureEnumerator:
         self,
         structure: Structure,
         default_magmoms: Optional[Dict[str, float]] = None,
-        strategies: List[str] = ("ferromagnetic", "antiferromagnetic"),
+        strategies: Iterator[str] = ("ferromagnetic", "antiferromagnetic"),
         automatic: bool = True,
         truncate_by_symmetry: bool = True,
         transformation_kwargs: Optional[Dict] = None,
@@ -755,7 +755,8 @@ class MagneticStructureEnumerator:
         # is be a list of strings in ("fm", "afm",
         # "ferrimagnetic_by_species", "ferrimagnetic_by_motif",
         # "afm_by_motif", "input_structure")
-        self.ordered_structures, self.ordered_structure_origins = [], []
+        self.ordered_structures: List[Structure] = []
+        self.ordered_structure_origins: List[str] = []
 
         formula = structure.composition.reduced_formula
 
@@ -842,7 +843,7 @@ class MagneticStructureEnumerator:
         """
 
         formula = structure.composition.reduced_formula
-        transformations = {}
+        transformations: Dict[str, MagOrderingTransformation] = {}
 
         # analyzer is used to obtain information on sanitized input
         analyzer = CollinearMagneticStructureAnalyzer(
@@ -953,7 +954,7 @@ class MagneticStructureEnumerator:
 
         # we store constraint(s) for each strategy first,
         # and then use each to perform a transformation later
-        all_constraints = {}
+        all_constraints: Dict[str, Union[float, MagOrderParameterConstraint]] = {}
 
         # ...to which we can add simple AFM cases first...
         if "antiferromagnetic" in self.strategies:
@@ -1112,7 +1113,7 @@ class MagneticStructureEnumerator:
 
         # in case we've introduced duplicates, let's remove them
         self.logger.info("Pruning duplicate structures.")
-        structures_to_remove = []
+        structures_to_remove: List[int] = []
         for idx, ordered_structure in enumerate(ordered_structures):
             if idx not in structures_to_remove:
                 duplicate_checker = CollinearMagneticStructureAnalyzer(
