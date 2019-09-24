@@ -31,7 +31,7 @@ __date__ = "March 17, 2015"
 
 
 class NEBPathfinder:
-    def __init__(self, start_struct, end_struct, relax_sites, v, n_images=20):
+    def __init__(self, start_struct, end_struct, relax_sites, v, n_images=20, mid_struct=None):
         """
         General pathfinder for interpolating between two structures, where the
         interpolating path is calculated with the elastic band method with
@@ -44,9 +44,11 @@ class NEBPathfinder:
                 be relaxed
             v: Static potential field to use for the elastic band relaxation
             n_images: Number of interpolation images to generate
+            mid_struct: (optional) additional structure between the start and end structures to help
         """
         self.__s1 = start_struct
         self.__s2 = end_struct
+        self.__mid = mid_struct or None
         self.__relax_sites = relax_sites
         self.__v = v
         self.__n_images = n_images
@@ -61,7 +63,17 @@ class NEBPathfinder:
         in relax_sites, the path is relaxed by the elastic band method within
         the static potential V.
         """
-        images = self.__s1.interpolate(self.__s2, nimages=self.__n_images,
+        if self.__mid != None:
+            # to make arithmatic easier we will do the interpolation in two parts with n images each
+            # then just take every other image at the end, this results in exactly n images
+            images_0 = self.__s1.interpolate(self.__mid, nimages=self.__n_images,
+                                        interpolate_lattices=False)[:-1]
+            images_1 = self.__mid.interpolate(self.__s2, nimages=self.__n_images,
+                                        interpolate_lattices=False)
+            images = images_0 + images_1
+            images = images[::2]
+        else:
+            images = self.__s1.interpolate(self.__s2, nimages=self.__n_images,
                                        interpolate_lattices=False)
         for site_i in self.__relax_sites:
             start_f = images[0].sites[site_i].frac_coords
