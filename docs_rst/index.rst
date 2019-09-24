@@ -10,7 +10,7 @@ Introduction
 
 .. image:: https://ci.appveyor.com/api/projects/status/akdyke5jxg6gps45?svg=true
 
-.. image:: https://anaconda.org/matsci/pymatgen/badges/downloads.svg
+.. image:: https://anaconda.org/conda-forge/pymatgen/badges/downloads.svg
 
 .. image:: https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master
 
@@ -233,7 +233,7 @@ install. This guarantees the right version of python and all dependencies::
 
     # Install numpy and other pydata stack packages via conda.
     conda install --yes numpy scipy pandas
-    conda install --yes --channel matsci pymatgen
+    conda install --yes --channel conda-forge pymatgen
 
 Usage
 =====

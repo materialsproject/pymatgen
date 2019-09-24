@@ -5,7 +5,7 @@
 
 .. image:: https://ci.appveyor.com/api/projects/status/akdyke5jxg6gps45?svg=true
 
-.. image:: https://anaconda.org/matsci/pymatgen/badges/downloads.svg
+.. image:: https://anaconda.org/conda-forge/pymatgen/badges/downloads.svg
 
 .. image:: https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master
 
