@@ -176,7 +176,6 @@ class IRDielectricTensor(MSONable):
         """
 
         directions_map = {'x': 0, 'y': 1, 'z': 2, 0: 0, 1: 1, 2: 2}
-        functions_map = {'re': lambda x: x.real, 'im': lambda x: x.imag}
         reim_label = {'re': 'Re', 'im': 'Im'}
 
         plotter = SpectrumPlotter()
