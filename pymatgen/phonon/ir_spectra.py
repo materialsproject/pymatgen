@@ -94,12 +94,12 @@ class IRDielectricTensor(MSONable):
         Args:
             broad: a list of broadenings or a single broadening for the phonon peaks
             emin, emax: minimum and maximum energy in which to obtain the spectra
-            ndivs: number of frequency samples between emin and emax
+            divs: number of frequency samples between emin and emax
 
         Returns:
-            frequencies: ndivs array with the frequencies at which the
+            frequencies: divs array with the frequencies at which the
                          dielectric tensor is calculated
-            dielectric_tensor: ndivsx3x3 numpy array with the dielectric tensor
+            dielectric_tensor: divsx3x3 numpy array with the dielectric tensor
                          for the range of frequencies
         """
         if isinstance(broad, float):
@@ -144,7 +144,26 @@ class IRDielectricTensor(MSONable):
         plt.xlabel(r'Frequency (meV)')
         return plt
 
-    def get_plotter(self, components=('xx',), reim="reim", **kwargs):
+    def get_spectrum(self, component, reim, broad=0.00005, emin=0, emax=None, divs=500, label=None):
+        """
+            component: either two indexes or a string like 'xx' to plot the (0,0) component
+            reim: only "re" or "im"
+            broad: a list of broadenings or a single broadening for the phonon peaks
+        """
+        # some check on component and reim value? but not really necessary maybe
+
+        directions_map = {'x': 0, 'y': 1, 'z': 2, 0: 0, 1: 1, 2: 2}
+        functions_map = {'re': lambda x: x.real, 'im': lambda x: x.imag}
+        reim_label = {'re': 'Re', 'im': 'Im'}
+        i, j = [directions_map[direction] for direction in component]
+        label = r"%s{$\epsilon_{%s%s}$}" % (reim_label[reim], 'xyz'[i], 'xyz'[j])
+
+        frequencies, dielectric_tensor = self.get_ir_spectra(broad=broad, emin=emin, emax=emax, divs=divs)
+        y = functions_map[reim](dielectric_tensor[:, i, j])
+
+        return Spectrum(frequencies*1000, y, label=label)
+
+    def get_plotter(self, components=('xx',), reim="reim", broad=0.00005, emin=0, emax=None, divs=500, **kwargs):
         """
         Return an instance of the Spectrum plotter containing the different requested components
 
@@ -152,24 +171,23 @@ class IRDielectricTensor(MSONable):
             components: A list with the components of the dielectric tensor to plot.
                         Can be either two indexes or a string like 'xx' to plot the (0,0) component
             reim: If 're' (im) is present in the string plots the real (imaginary) part of the dielectric tensor
+            emin, emax: minimum and maximum energy in which to obtain the spectra
+            divs: number of frequency samples between emin and emax
         """
+
         directions_map = {'x': 0, 'y': 1, 'z': 2, 0: 0, 1: 1, 2: 2}
         functions_map = {'re': lambda x: x.real, 'im': lambda x: x.imag}
         reim_label = {'re': 'Re', 'im': 'Im'}
 
-        frequencies, dielectric_tensor = self.get_ir_spectra()
-
         plotter = SpectrumPlotter()
         for component in components:
-            if not all([direction in directions_map.keys() for direction in component]) or len(component) != 2:
-                raise ValueError('Invalid value found in components: {}'.format(component))
             i, j = [directions_map[direction] for direction in component]
-            for fstr in functions_map:
+            for fstr in ("re", "im"):
                 if fstr in reim:
-                    f = functions_map[fstr]
                     label = r"%s{$\epsilon_{%s%s}$}" % (reim_label[fstr], 'xyz'[i], 'xyz'[j])
-                    y = f(dielectric_tensor[:, i, j])
-                    spectrum = Spectrum(frequencies*1000, y, label=label, **kwargs)
+                    spectrum = self.get_spectrum(component, fstr, broad=broad, emin=emin, emax=emax, divs=divs)
+                    spectrum.XLABEL = r'Frequency (meV)'
+                    spectrum.YLABEL = r'$\epsilon(\omega)$'
                     plotter.add_spectrum(label, spectrum)
 
         return plotter
