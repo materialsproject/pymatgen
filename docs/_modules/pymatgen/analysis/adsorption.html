@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -327,7 +326,6 @@
                     <span class="k">if</span> <span class="s1">&#39;hollow&#39;</span> <span class="ow">in</span> <span class="n">positions</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">obtuse</span><span class="p">:</span>
                         <span class="n">ads_sites</span><span class="p">[</span><span class="s1">&#39;hollow&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">ensemble_center</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
-        <span class="n">ads_sites</span><span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">ads_sites</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="p">[])</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">sites</span> <span class="ow">in</span> <span class="n">ads_sites</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="c1"># Pare off outer sites for bridge/hollow</span>
             <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;bridge&#39;</span><span class="p">,</span> <span class="s1">&#39;hollow&#39;</span><span class="p">]:</span>
@@ -348,6 +346,7 @@
             <span class="n">sites</span> <span class="o">=</span> <span class="p">[</span><span class="n">site</span> <span class="o">+</span> <span class="n">distance</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">mvec</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">]</span>
 
             <span class="n">ads_sites</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">sites</span>
+        <span class="n">ads_sites</span><span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">ads_sites</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="p">[])</span>
         <span class="k">return</span> <span class="n">ads_sites</span></div>
 
 <div class="viewcode-block" id="AdsorbateSiteFinder.symm_reduce"><a class="viewcode-back" href="../../../pymatgen.analysis.adsorption.html#pymatgen.analysis.adsorption.AdsorbateSiteFinder.symm_reduce">[docs]</a>    <span class="k">def</span> <span class="nf">symm_reduce</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coords_set</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">):</span>
@@ -787,7 +786,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

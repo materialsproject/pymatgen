@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -190,6 +189,7 @@ unit cell volume is too large.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.events.ErrorHandler</span></code></p>
 <p>Handle DilatmxError. Abinit produces a netcdf file with the last structure before aborting
 The handler changes the structure in the input with the last configuration and modify the value of dilatmx.</p>
+<p>Simple init for compatibility with introspection in as_dict/from_dict</p>
 <dl class="method">
 <dt id="pymatgen.io.abinit.events.DilatmxErrorHandler.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/events.html#DilatmxErrorHandler.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.events.DilatmxErrorHandler.as_dict" title="Permalink to this definition">¶</a></dt>
@@ -281,7 +281,7 @@ The handler changes the structure in the input with the last configuration and m
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

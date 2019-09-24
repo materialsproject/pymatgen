@@ -13,10 +13,9 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-
+ 
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -35,19 +34,25 @@
              >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
-    </div>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
           <div class="body" role="main">
-
+            
   <h1>Source code for pymatgen.symmetry.groups</h1><div class="highlight"><pre>
 <span></span><span class="c1"># coding: utf-8</span>
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Defines SymmetryGroup parent class and PointGroup and SpaceGroup classes.</span>
+<span class="sd">Shyue Ping Ong thanks Marc De Graef for his generous sharing of his</span>
+<span class="sd">SpaceGroup data as published in his textbook &quot;Structure of Materials&quot;.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">product</span>
@@ -62,36 +67,31 @@
 <span class="kn">from</span> <span class="nn">pymatgen.core.operations</span> <span class="k">import</span> <span class="n">SymmOp</span>
 <span class="kn">from</span> <span class="nn">monty.design_patterns</span> <span class="k">import</span> <span class="n">cached_class</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Defines SymmetryGroup parent class and PointGroup and SpaceGroup classes.</span>
-<span class="sd">Shyue Ping Ong thanks Marc De Graef for his generous sharing of his</span>
-<span class="sd">SpaceGroup data as published in his textbook &quot;Structure of Materials&quot;.</span>
-<span class="sd">&quot;&quot;&quot;</span>
-
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2013, The Materials Virtual Lab&quot;</span>
-<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
-<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
-<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;ongsp@ucsd.edu&quot;</span>
-<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;4/4/14&quot;</span>
 
 <span class="n">SYMM_DATA</span> <span class="o">=</span> <span class="kc">None</span>
 
 
-<div class="viewcode-block" id="_get_symm_data"><a class="viewcode-back" href="../../../pymatgen.symmetry.groups.html#pymatgen.symmetry.groups._get_symm_data">[docs]</a><span class="k">def</span> <span class="nf">_get_symm_data</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_get_symm_data</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">SYMM_DATA</span>
     <span class="k">if</span> <span class="n">SYMM_DATA</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">SYMM_DATA</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span>
                                         <span class="s2">&quot;symm_data.json&quot;</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">SYMM_DATA</span><span class="p">[</span><span class="n">name</span><span class="p">]</span></div>
+    <span class="k">return</span> <span class="n">SYMM_DATA</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="SymmetryGroup"><a class="viewcode-back" href="../../../pymatgen.symmetry.groups.html#pymatgen.symmetry.groups.SymmetryGroup">[docs]</a><span class="k">class</span> <span class="nc">SymmetryGroup</span><span class="p">(</span><span class="n">Sequence</span><span class="p">):</span>
-    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">ABCMeta</span>
+<div class="viewcode-block" id="SymmetryGroup"><a class="viewcode-back" href="../../../pymatgen.symmetry.groups.html#pymatgen.symmetry.groups.SymmetryGroup">[docs]</a><span class="k">class</span> <span class="nc">SymmetryGroup</span><span class="p">(</span><span class="n">Sequence</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract class representation a symmetry group.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">symmetry_ops</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: List of symmetry operations</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span>
 
     <span class="k">def</span> <span class="nf">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
@@ -172,6 +172,9 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">symmetry_ops</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: List of symmetry operations for SpaceGroup</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_symmetry_ops</span>
 
     <span class="k">def</span> <span class="nf">_generate_full_symmetry_ops</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -415,7 +418,8 @@
 <span class="sd">            angle_tol (float): The tolerance to check for equality of angles</span>
 <span class="sd">                in degrees.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">abc</span><span class="p">,</span> <span class="n">angles</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">lengths_and_angles</span>
+        <span class="n">abc</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">lengths</span>
+        <span class="n">angles</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">angles</span>
         <span class="n">crys_system</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">crystal_system</span>
 
         <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">ref</span><span class="p">,</span> <span class="n">tolerance</span><span class="p">):</span>
@@ -448,6 +452,9 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">crystal_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Crystal system for space group.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">int_number</span>
         <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
             <span class="k">return</span> <span class="s2">&quot;triclinic&quot;</span>
@@ -608,13 +615,13 @@
              >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
