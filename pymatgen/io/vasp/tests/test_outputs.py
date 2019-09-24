@@ -16,7 +16,6 @@ from monty.tempfile import ScratchDir
 
 import xml.etree.cElementTree as ET
 
-from pymatgen.core.periodic_table import Element
 from pymatgen.electronic_structure.core import OrbitalType
 from pymatgen.io.vasp.inputs import Kpoints, Poscar
 from pymatgen.io.vasp.outputs import Chgcar, Locpot, Oszicar, Outcar, \
@@ -126,8 +125,6 @@ class VasprunTest(PymatgenTest):
                             for i in vasprun.ionic_steps])
         self.assertEqual(29, len(vasprun.ionic_steps))
         self.assertEqual(len(vasprun.structures), len(vasprun.ionic_steps))
-        self.assertEqual(vasprun.lattice,
-                         vasprun.lattice_rec.reciprocal_lattice)
 
         for i, step in enumerate(vasprun.ionic_steps):
             self.assertEqual(vasprun.structures[i], step["structure"])
@@ -631,6 +628,40 @@ class OutcarTest(PymatgenTest):
                 toten += outcar.final_energy_contribs[k]
             self.assertAlmostEqual(toten, outcar.final_energy, 6)
 
+    def test_stopped_old(self):
+        filepath = self.TEST_FILES_DIR / 'OUTCAR.stopped'
+        outcar = Outcar(filepath)
+        self.assertTrue(outcar.is_stopped)
+        for f in ['OUTCAR.lepsilon_old_born', 'OUTCAR.lepsilon_old_born.gz']:
+            filepath = self.TEST_FILES_DIR / f
+            outcar = Outcar(filepath)
+
+            self.assertTrue(outcar.lepsilon)
+            self.assertAlmostEqual(outcar.dielectric_tensor[0][0], 3.716432)
+            self.assertAlmostEqual(outcar.dielectric_tensor[0][1], -0.20464)
+            self.assertAlmostEqual(outcar.dielectric_tensor[1][2], -0.20464)
+            self.assertAlmostEqual(outcar.dielectric_ionic_tensor[0][0],
+                                   0.001419)
+            self.assertAlmostEqual(outcar.dielectric_ionic_tensor[0][2],
+                                   0.001419)
+            self.assertAlmostEqual(outcar.dielectric_ionic_tensor[2][2],
+                                   0.001419)
+            self.assertAlmostEqual(outcar.piezo_tensor[0][0], 0.52799)
+            self.assertAlmostEqual(outcar.piezo_tensor[1][3], 0.35998)
+            self.assertAlmostEqual(outcar.piezo_tensor[2][5], 0.35997)
+            self.assertAlmostEqual(outcar.piezo_ionic_tensor[0][0], 0.05868)
+            self.assertAlmostEqual(outcar.piezo_ionic_tensor[1][3], 0.06241)
+            self.assertAlmostEqual(outcar.piezo_ionic_tensor[2][5], 0.06242)
+            self.assertAlmostEqual(outcar.born[0][1][2], -0.385)
+            self.assertAlmostEqual(outcar.born[1][2][0], 0.36465)
+            self.assertAlmostEqual(outcar.internal_strain_tensor[0][0][0], -572.5437, places=4)
+            self.assertAlmostEqual(outcar.internal_strain_tensor[0][1][0], 683.2985, places=4)
+            self.assertAlmostEqual(outcar.internal_strain_tensor[0][1][3], 73.07059, places=4)
+            self.assertAlmostEqual(outcar.internal_strain_tensor[1][0][0], 570.98927, places=4)
+            self.assertAlmostEqual(outcar.internal_strain_tensor[1][1][0], -683.68519, places=4)
+            self.assertAlmostEqual(outcar.internal_strain_tensor[1][2][2], 570.98927, places=4)
+
+
     def test_stopped(self):
         filepath = self.TEST_FILES_DIR / 'OUTCAR.stopped'
         outcar = Outcar(filepath)
@@ -1010,32 +1041,40 @@ class LocpotTest(PymatgenTest):
 
 
 class ChgcarTest(PymatgenTest):
-    _multiprocess_shared_ = True
+
+    @classmethod
+    def setUpClass(cls):
+        filepath = cls.TEST_FILES_DIR / 'CHGCAR.nospin'
+        cls.chgcar_no_spin = Chgcar.from_file(filepath)
+
+        filepath = cls.TEST_FILES_DIR / 'CHGCAR.spin'
+        cls.chgcar_spin = Chgcar.from_file(filepath)
+
+        filepath = cls.TEST_FILES_DIR / 'CHGCAR.Fe3O4'
+        cls.chgcar_fe3o4 = Chgcar.from_file(filepath)
+
+        filepath = cls.TEST_FILES_DIR / "CHGCAR.NiO_SOC.gz"
+        cls.chgcar_NiO_SOC = Chgcar.from_file(filepath)
 
     def test_init(self):
-        filepath = self.TEST_FILES_DIR / 'CHGCAR.nospin'
-        chg = Chgcar.from_file(filepath)
-        self.assertAlmostEqual(chg.get_integrated_diff(0, 2)[0, 1], 0)
-        filepath = self.TEST_FILES_DIR / 'CHGCAR.spin'
-        chg = Chgcar.from_file(filepath)
-        self.assertAlmostEqual(chg.get_integrated_diff(0, 1)[0, 1],
+        self.assertAlmostEqual(self.chgcar_no_spin.get_integrated_diff(0, 2)[0, 1], 0)
+        self.assertAlmostEqual(self.chgcar_spin.get_integrated_diff(0, 1)[0, 1],
                                -0.0043896932237534022)
         # test sum
-        chg += chg
-        self.assertAlmostEqual(chg.get_integrated_diff(0, 1)[0, 1],
+        chgcar = self.chgcar_spin + self.chgcar_spin
+        self.assertAlmostEqual(chgcar.get_integrated_diff(0, 1)[0, 1],
                                -0.0043896932237534022 * 2)
 
-        filepath = self.TEST_FILES_DIR / 'CHGCAR.Fe3O4'
-        chg = Chgcar.from_file(filepath)
+        chgcar = self.chgcar_spin - self.chgcar_spin
+        self.assertAlmostEqual(chgcar.get_integrated_diff(0, 1)[0, 1], 0)
+
         ans = [1.56472768, 3.25985108, 3.49205728, 3.66275028, 3.8045896,
                5.10813352]
-        myans = chg.get_integrated_diff(0, 3, 6)
+        myans = self.chgcar_fe3o4.get_integrated_diff(0, 3, 6)
         self.assertTrue(np.allclose(myans[:, 1], ans))
 
     def test_write(self):
-        filepath = self.TEST_FILES_DIR / 'CHGCAR.spin'
-        chg = Chgcar.from_file(filepath)
-        chg.write_file("CHGCAR_pmg")
+        self.chgcar_spin.write_file("CHGCAR_pmg")
         with open("CHGCAR_pmg") as f:
             for i, line in enumerate(f):
                 if i == 22130:
@@ -1045,62 +1084,62 @@ class ChgcarTest(PymatgenTest):
         os.remove("CHGCAR_pmg")
 
     def test_soc_chgcar(self):
-
-        filepath = self.TEST_FILES_DIR / "CHGCAR.NiO_SOC.gz"
-        chg = Chgcar.from_file(filepath)
-        self.assertEqual(set(chg.data.keys()),
+        self.assertEqual(set(self.chgcar_NiO_SOC.data.keys()),
                          {'total', 'diff_x', 'diff_y', 'diff_z', 'diff'})
-        self.assertTrue(chg.is_soc)
-        self.assertEqual(chg.data['diff'].shape, chg.data['diff_y'].shape)
+        self.assertTrue(self.chgcar_NiO_SOC.is_soc)
+        self.assertEqual(self.chgcar_NiO_SOC.data['diff'].shape, self.chgcar_NiO_SOC.data['diff_y'].shape)
 
         # check our construction of chg.data['diff'] makes sense
         # this has been checked visually too and seems reasonable
-        self.assertEqual(abs(chg.data['diff'][0][0][0]),
-                         np.linalg.norm([chg.data['diff_x'][0][0][0],
-                                         chg.data['diff_y'][0][0][0],
-                                         chg.data['diff_z'][0][0][0]]))
+        self.assertEqual(abs(self.chgcar_NiO_SOC.data['diff'][0][0][0]),
+                         np.linalg.norm([self.chgcar_NiO_SOC.data['diff_x'][0][0][0],
+                                         self.chgcar_NiO_SOC.data['diff_y'][0][0][0],
+                                         self.chgcar_NiO_SOC.data['diff_z'][0][0][0]]))
 
         # and that the net magnetization is about zero
         # note: we get ~ 0.08 here, seems a little high compared to
         # vasp output, but might be due to chgcar limitations?
-        self.assertAlmostEqual(chg.net_magnetization, 0.0, places=0)
+        self.assertAlmostEqual(self.chgcar_NiO_SOC.net_magnetization, 0.0, places=0)
 
-        chg.write_file("CHGCAR_pmg_soc")
+        self.chgcar_NiO_SOC.write_file("CHGCAR_pmg_soc")
         chg_from_file = Chgcar.from_file("CHGCAR_pmg_soc")
         self.assertTrue(chg_from_file.is_soc)
         os.remove("CHGCAR_pmg_soc")
 
-    def test_hdf5(self):
-        chgcar = Chgcar.from_file(self.TEST_FILES_DIR / "CHGCAR.NiO_SOC.gz")
-        chgcar.to_hdf5("chgcar_test.hdf5")
-        import h5py
-        with h5py.File("chgcar_test.hdf5", "r") as f:
-            self.assertArrayAlmostEqual(np.array(f["vdata"]["total"]),
-                                        chgcar.data["total"])
-            self.assertArrayAlmostEqual(np.array(f["vdata"]["diff"]),
-                                        chgcar.data["diff"])
-            self.assertArrayAlmostEqual(np.array(f["lattice"]),
-                                        chgcar.structure.lattice.matrix)
-            self.assertArrayAlmostEqual(np.array(f["fcoords"]),
-                                        chgcar.structure.frac_coords)
-            for z in f["Z"]:
-                self.assertIn(z, [Element.Ni.Z, Element.O.Z])
+    # def test_hdf5(self):
+    #     chgcar = Chgcar.from_file(self.TEST_FILES_DIR / "CHGCAR.NiO_SOC.gz")
+    #     chgcar.to_hdf5("chgcar_test.hdf5")
+    #     import h5py
+    #     with h5py.File("chgcar_test.hdf5", "r") as f:
+    #         self.assertArrayAlmostEqual(np.array(f["vdata"]["total"]),
+    #                                     chgcar.data["total"])
+    #         self.assertArrayAlmostEqual(np.array(f["vdata"]["diff"]),
+    #                                     chgcar.data["diff"])
+    #         self.assertArrayAlmostEqual(np.array(f["lattice"]),
+    #                                     chgcar.structure.lattice.matrix)
+    #         self.assertArrayAlmostEqual(np.array(f["fcoords"]),
+    #                                     chgcar.structure.frac_coords)
+    #         for z in f["Z"]:
+    #             self.assertIn(z, [Element.Ni.Z, Element.O.Z])
+    #
+    #         for sp in f["species"]:
+    #             self.assertIn(sp, ["Ni", "O"])
+    #
+    #     chgcar2 = Chgcar.from_hdf5("chgcar_test.hdf5")
+    #     self.assertArrayAlmostEqual(chgcar2.data["total"],
+    #                                 chgcar.data["total"])
+    #     os.remove("chgcar_test.hdf5")
 
-            for sp in f["species"]:
-                self.assertIn(sp, ["Ni", "O"])
-
-        chgcar2 = Chgcar.from_hdf5("chgcar_test.hdf5")
-        self.assertArrayAlmostEqual(chgcar2.data["total"],
-                                    chgcar.data["total"])
-
-        os.remove("chgcar_test.hdf5")
+    def test_spin_data(self):
+        d = self.chgcar_spin.spin_data
+        for k, v in d.items():
+            self.assertEqual(v.shape, (48, 48, 48))
 
     def test_as_dict_and_from_dict(self):
-        chgcar = Chgcar.from_file(self.TEST_FILES_DIR / "CHGCAR.NiO_SOC.gz")
-        d = chgcar.as_dict()
+        d = self.chgcar_NiO_SOC.as_dict()
         chgcar_from_dict = Chgcar.from_dict(d)
-        self.assertArrayAlmostEqual(chgcar.data['total'], chgcar_from_dict.data['total'])
-        self.assertArrayAlmostEqual(chgcar.structure.lattice.matrix,
+        self.assertArrayAlmostEqual(self.chgcar_NiO_SOC.data['total'], chgcar_from_dict.data['total'])
+        self.assertArrayAlmostEqual(self.chgcar_NiO_SOC.structure.lattice.matrix,
                                     chgcar_from_dict.structure.lattice.matrix)
 
 
@@ -1403,7 +1442,7 @@ class WavederTest(PymatgenTest):
             self.assertAlmostEqual(wder.cder_data[0,i,0,0,1].real, wderf[i,8], places = 10)
             self.assertAlmostEqual(wder.cder_data[0,i,0,0,1].imag, wderf[i,9], places = 10)
             self.assertAlmostEqual(wder.cder_data[0,i,0,0,2].real, wderf[i,10], places = 10)
-            self.assertAlmostEqual(wder.cder_data[0,i,0,0,2].imag, wderf[i,11], places = 10)            
+            self.assertAlmostEqual(wder.cder_data[0,i,0,0,2].imag, wderf[i,11], places = 10)
 
 
 if __name__ == "__main__":

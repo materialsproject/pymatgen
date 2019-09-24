@@ -46,6 +46,7 @@ Submodules
    pymatgen.analysis.path_finder
    pymatgen.analysis.phase_diagram
    pymatgen.analysis.piezo
+   pymatgen.analysis.piezo_sensitivity
    pymatgen.analysis.pourbaix_diagram
    pymatgen.analysis.quasiharmonic
    pymatgen.analysis.reaction_calculator

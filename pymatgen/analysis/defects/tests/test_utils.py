@@ -138,8 +138,7 @@ class DefectsUtilsTest(PymatgenTest):
 class StructureMotifInterstitialTest(PymatgenTest):
     def setUp(self):
         self.silicon = Structure(
-            Lattice.from_lengths_and_angles([5.47, 5.47, 5.47],
-                                            [90.0, 90.0, 90.0]),
+            Lattice.cubic(5.47),
             ["Si", "Si", "Si", "Si", "Si", "Si", "Si", "Si"],
             [[0.000000, 0.000000, 0.500000], [0.750000, 0.750000, 0.750000],
              [0.000000, 0.500000, 1.000000],

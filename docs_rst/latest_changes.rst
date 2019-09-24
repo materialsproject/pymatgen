@@ -1,9 +1,7 @@
 Change log
 ==========
 
-v2019.7.30
+v2019.9.16
 ----------
-* Bug fixes (@shyuep, @mfherbst)
-* More type hint annotations (@shyuep)
-* Improvements to BabelMolAdaptor (@smheidrich)
-* Convenience Transformations for AdsorbateSiteFinder (@mkhorton)
+* Updates to annotation, docstrings, etc. Linting service now provided on Github
+  Actions as well as CircleCI.

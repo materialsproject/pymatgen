@@ -9,7 +9,8 @@ import warnings
 import numpy as np
 import tempfile
 from pymatgen import Structure
-from pymatgen.io.lobster import Cohpcar, Icohplist, Doscar, Charge, Lobsterout, Fatband, Lobsterin, Bandoverlaps
+from pymatgen.io.lobster import Cohpcar, Icohplist, Doscar, Charge, Lobsterout, Fatband, Lobsterin, Bandoverlaps, \
+    Grosspop
 from pymatgen.io.vasp import Vasprun
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.util.testing import PymatgenTest
@@ -326,12 +327,12 @@ class DoscarTest(unittest.TestCase):
     def setUp(self):
         # first for spin polarized version
         doscar = os.path.join(test_dir_doscar, "DOSCAR.lobster.spin")
-        vasprun = os.path.join(test_dir_doscar, "vasprun.xml.lobster.spin")
+        poscar = os.path.join(test_dir_doscar, "POSCAR.lobster.spin_DOS")
+        # not spin polarized
         doscar2 = os.path.join(test_dir_doscar, "DOSCAR.lobster.nonspin")
-        vasprun2 = os.path.join(test_dir_doscar, "vasprun.xml.lobster.nonspin")
-
-        self.DOSCAR_spin_pol = Doscar(doscar=doscar, vasprun=vasprun)
-        self.DOSCAR_nonspin_pol = Doscar(doscar=doscar2, vasprun=vasprun2)
+        poscar2 = os.path.join(test_dir_doscar, "POSCAR.lobster.nonspin_DOS")
+        self.DOSCAR_spin_pol = Doscar(doscar=doscar, structure_file=poscar)
+        self.DOSCAR_nonspin_pol = Doscar(doscar=doscar2, structure_file=poscar2)
 
         with open(os.path.join(test_dir_doscar, 'structure_KF.json'), 'r') as f:
             data = json.load(f)
@@ -1001,48 +1002,48 @@ class FatbandTest(PymatgenTest):
         self.assertAlmostEqual(bs_p.kpoints[50].cart_coords[1], self.bs_symmline2.kpoints[50].cart_coords[1])
         self.assertAlmostEqual(bs_p.kpoints[50].cart_coords[2], self.bs_symmline2.kpoints[50].cart_coords[2])
         self.assertAlmostEqual(bs_p.get_band_gap()["energy"], self.bs_symmline2.get_band_gap()["energy"], places=2)
-        self.assertAlmostEqual(bs_p.get_projection_on_elements()[Spin.up][0][0]["Si"], 3 * (0.001 + 0.064))
-        self.assertAlmostEqual(bs_p.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.up][0][0]["Si"]["3p"],
+        self.assertAlmostEqual(bs_p.get_projection_on_elements()[Spin.up][0][0]["Si0+"], 3 * (0.001 + 0.064))
+        self.assertAlmostEqual(bs_p.get_projections_on_elements_and_orbitals({"Si0+": ["3p"]})[Spin.up][0][0]["Si0+"]["3p"],
                                0.003)
-        self.assertAlmostEqual(bs_p.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.up][0][0]["O"]["2p"],
+        self.assertAlmostEqual(bs_p.get_projections_on_elements_and_orbitals({"O0+": ["2p"]})[Spin.up][0][0]["O0+"]["2p"],
                                0.002 * 3 + 0.003 * 3)
-        dict_here = bs_p.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.up][0][
+        dict_here = bs_p.get_projections_on_elements_and_orbitals({"Si0+": ["3s", "3p"], "O0+": ["2s", "2p"]})[Spin.up][0][
             0]
-        self.assertAlmostEqual(dict_here["Si"]["3s"], 0.192)
-        self.assertAlmostEqual(dict_here["Si"]["3p"], 0.003)
-        self.assertAlmostEqual(dict_here["O"]["2s"], 0.792)
-        self.assertAlmostEqual(dict_here["O"]["2p"], 0.015)
+        self.assertAlmostEqual(dict_here["Si0+"]["3s"], 0.192)
+        self.assertAlmostEqual(dict_here["Si0+"]["3p"], 0.003)
+        self.assertAlmostEqual(dict_here["O0+"]["2s"], 0.792)
+        self.assertAlmostEqual(dict_here["O0+"]["2p"], 0.015)
 
         bs_spin = self.fatband_SiO2_spin.get_bandstructure()
-        self.assertAlmostEqual(bs_spin.get_projection_on_elements()[Spin.up][0][0]["Si"], 3 * (0.001 + 0.064))
+        self.assertAlmostEqual(bs_spin.get_projection_on_elements()[Spin.up][0][0]["Si0+"], 3 * (0.001 + 0.064))
         self.assertAlmostEqual(
-            bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.up][0][0]["Si"]["3p"],
+            bs_spin.get_projections_on_elements_and_orbitals({"Si0+": ["3p"]})[Spin.up][0][0]["Si0+"]["3p"],
             0.003)
         self.assertAlmostEqual(
-            bs_spin.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.up][0][0]["O"]["2p"],
+            bs_spin.get_projections_on_elements_and_orbitals({"O0+": ["2p"]})[Spin.up][0][0]["O0+"]["2p"],
             0.002 * 3 + 0.003 * 3)
         dict_here = \
-            bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.up][0][0]
-        self.assertAlmostEqual(dict_here["Si"]["3s"], 0.192)
-        self.assertAlmostEqual(dict_here["Si"]["3p"], 0.003)
-        self.assertAlmostEqual(dict_here["O"]["2s"], 0.792)
-        self.assertAlmostEqual(dict_here["O"]["2p"], 0.015)
+            bs_spin.get_projections_on_elements_and_orbitals({"Si0+": ["3s", "3p"], "O0+": ["2s", "2p"]})[Spin.up][0][0]
+        self.assertAlmostEqual(dict_here["Si0+"]["3s"], 0.192)
+        self.assertAlmostEqual(dict_here["Si0+"]["3p"], 0.003)
+        self.assertAlmostEqual(dict_here["O0+"]["2s"], 0.792)
+        self.assertAlmostEqual(dict_here["O0+"]["2p"], 0.015)
 
-        self.assertAlmostEqual(bs_spin.get_projection_on_elements()[Spin.up][0][0]["Si"], 3 * (0.001 + 0.064))
+        self.assertAlmostEqual(bs_spin.get_projection_on_elements()[Spin.up][0][0]["Si0+"], 3 * (0.001 + 0.064))
         self.assertAlmostEqual(
-            bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.down][0][0]["Si"]["3p"],
+            bs_spin.get_projections_on_elements_and_orbitals({"Si0+": ["3p"]})[Spin.down][0][0]["Si0+"]["3p"],
             0.003)
         self.assertAlmostEqual(
-            bs_spin.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.down][0][0]["O"]["2p"],
+            bs_spin.get_projections_on_elements_and_orbitals({"O0+": ["2p"]})[Spin.down][0][0]["O0+"]["2p"],
             0.002 * 3 + 0.003 * 3)
         dict_here = \
-            bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.down][0][0]
-        self.assertAlmostEqual(dict_here["Si"]["3s"], 0.192)
-        self.assertAlmostEqual(dict_here["Si"]["3p"], 0.003)
-        self.assertAlmostEqual(dict_here["O"]["2s"], 0.792)
-        self.assertAlmostEqual(dict_here["O"]["2p"], 0.015)
+            bs_spin.get_projections_on_elements_and_orbitals({"Si0+": ["3s", "3p"], "O0+": ["2s", "2p"]})[Spin.down][0][0]
+        self.assertAlmostEqual(dict_here["Si0+"]["3s"], 0.192)
+        self.assertAlmostEqual(dict_here["Si0+"]["3p"], 0.003)
+        self.assertAlmostEqual(dict_here["O0+"]["2s"], 0.792)
+        self.assertAlmostEqual(dict_here["O0+"]["2p"], 0.015)
         bs_p_x = self.fatband_SiO2_p_x.get_bandstructure()
-        self.assertAlmostEqual(bs_p_x.get_projection_on_elements()[Spin.up][0][0]["Si"], 3 * (0.001 + 0.064), 2)
+        self.assertAlmostEqual(bs_p_x.get_projection_on_elements()[Spin.up][0][0]["Si0+"], 3 * (0.001 + 0.064), 2)
 
 
 class LobsterinTest(unittest.TestCase):
@@ -1338,11 +1339,11 @@ class BandoverlapsTest(unittest.TestCase):
             self.bandoverlaps1.bandoverlapsdict[Spin.down]["0.0261194 0.0261194 0.473881"]["matrix"][0][-1], 4.0066e-07)
 
         # maxDeviation
-        self.assertAlmostEqual(self.bandoverlaps1.maxDeviation[0], 0.000278953)
-        self.assertAlmostEqual(self.bandoverlaps1.maxDeviation[-1], 4.31567e-05)
+        self.assertAlmostEqual(self.bandoverlaps1.max_deviation[0], 0.000278953)
+        self.assertAlmostEqual(self.bandoverlaps1.max_deviation[-1], 4.31567e-05)
 
-        self.assertAlmostEqual(self.bandoverlaps2.maxDeviation[0], 0.000473319)
-        self.assertAlmostEqual(self.bandoverlaps2.maxDeviation[-1], 1.48451e-05)
+        self.assertAlmostEqual(self.bandoverlaps2.max_deviation[0], 0.000473319)
+        self.assertAlmostEqual(self.bandoverlaps2.max_deviation[-1], 1.48451e-05)
 
     def test_has_good_quality(self):
         self.assertFalse(self.bandoverlaps1.has_good_quality_maxDeviation(limit_maxDeviation=0.1))
@@ -1386,6 +1387,30 @@ class BandoverlapsTest(unittest.TestCase):
 
         self.assertTrue(
             self.bandoverlaps2.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=1, limit_deviation=0.1))
+
+
+class GrosspopTest(unittest.TestCase):
+    def setUp(self):
+        self.grosspop1 = Grosspop(os.path.join(test_dir, "GROSSPOP.lobster"))
+
+    def testattributes(self):
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["3s"], 0.52)
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["3p_y"], 0.38)
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["3p_z"], 0.37)
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["3p_x"], 0.37)
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["total"], 1.64)
+        self.assertEqual(self.grosspop1.list_dict_grosspop[0]["element"], 'Si')
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Loewdin GP"]["3s"], 0.61)
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Loewdin GP"]["3p_y"], 0.52)
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Loewdin GP"]["3p_z"], 0.52)
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Loewdin GP"]["3p_x"], 0.52)
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Loewdin GP"]["total"], 2.16)
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[5]["Mulliken GP"]["2s"], 1.80)
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[5]["Loewdin GP"]["2s"], 1.60)
+        self.assertEqual(self.grosspop1.list_dict_grosspop[5]["element"], 'O')
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[8]["Mulliken GP"]["2s"], 1.80)
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[8]["Loewdin GP"]["2s"], 1.60)
+        self.assertEqual(self.grosspop1.list_dict_grosspop[8]["element"], 'O')
 
 
 if __name__ == "__main__":

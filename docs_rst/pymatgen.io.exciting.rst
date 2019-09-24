@@ -1,6 +1,12 @@
 pymatgen.io.exciting package
 ============================
 
+Subpackages
+-----------
+
+.. toctree::
+
+
 Submodules
 ----------
 

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.diffusion_analyzer &#8212; pymatgen 2019.7.30 documentation</title>
+    <title>pymatgen.analysis.diffusion_analyzer &#8212; pymatgen 2019.9.16 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -298,8 +298,7 @@
                     <span class="n">dcomponents</span> <span class="o">=</span> <span class="n">dc</span><span class="p">[:,</span> <span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
                 <span class="k">elif</span> <span class="n">smoothed</span> <span class="o">==</span> <span class="s2">&quot;constant&quot;</span><span class="p">:</span>
                     <span class="n">dx</span> <span class="o">=</span> <span class="n">dc</span><span class="p">[:,</span> <span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="n">avg_nsteps</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">dc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="n">avg_nsteps</span><span class="p">,</span> <span class="p">:]</span>
-                    <span class="n">dcomponents</span> <span class="o">=</span> <span class="n">dc</span><span class="p">[:,</span> <span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="n">avg_nsteps</span><span class="p">,</span> <span class="p">:]</span> \
-                        <span class="o">-</span> <span class="n">dc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="n">avg_nsteps</span><span class="p">,</span> <span class="p">:]</span>
+                    <span class="n">dcomponents</span> <span class="o">=</span> <span class="n">dc</span><span class="p">[:,</span> <span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="n">avg_nsteps</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">dc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="n">avg_nsteps</span><span class="p">,</span> <span class="p">:]</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">dx</span> <span class="o">=</span> <span class="n">dc</span><span class="p">[:,</span> <span class="n">n</span><span class="p">:,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">dc</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="n">n</span><span class="p">,</span> <span class="p">:]</span>
                     <span class="n">dcomponents</span> <span class="o">=</span> <span class="n">dc</span><span class="p">[:,</span> <span class="n">n</span><span class="p">:,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">dc</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="n">n</span><span class="p">,</span> <span class="p">:]</span>
@@ -361,7 +360,7 @@
             <span class="c1"># We divide dt by 1000 to avoid overflow errors in some systems (</span>
             <span class="c1"># e.g., win). This is subsequently corrected where denom is used.</span>
             <span class="n">denom</span> <span class="o">=</span> <span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">dt</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dt</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span>
-                <span class="n">n</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span>
+                    <span class="n">n</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">diffusivity_std_dev</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">denom</span><span class="p">)</span> <span class="o">/</span> <span class="mi">60</span> <span class="o">/</span> <span class="mi">1000</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">chg_diffusivity_std_dev</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="n">res_chg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">denom</span><span class="p">)</span> <span class="o">/</span> <span class="mi">60</span> <span class="o">/</span> <span class="mi">1000</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">conductivity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">diffusivity</span> <span class="o">*</span> <span class="n">conv_factor</span>
@@ -371,10 +370,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">diffusivity_components</span> <span class="o">=</span> <span class="n">m_components</span> <span class="o">/</span> <span class="mi">20</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">diffusivity_components_std_dev</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
                 <span class="n">n</span> <span class="o">*</span> <span class="n">m_components_res</span> <span class="o">/</span> <span class="n">denom</span><span class="p">)</span> <span class="o">/</span> <span class="mi">20</span> <span class="o">/</span> <span class="mi">1000</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">conductivity_components</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">diffusivity_components</span> <span class="o">*</span> \
-                <span class="n">conv_factor</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">conductivity_components_std_dev</span> <span class="o">=</span> \
-                <span class="bp">self</span><span class="o">.</span><span class="n">diffusivity_components_std_dev</span> <span class="o">*</span> <span class="n">conv_factor</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">conductivity_components</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">diffusivity_components</span> <span class="o">*</span> <span class="n">conv_factor</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">conductivity_components_std_dev</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">diffusivity_components_std_dev</span> <span class="o">*</span> <span class="n">conv_factor</span>
 
             <span class="c1"># Drift and displacement information.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">drift</span> <span class="o">=</span> <span class="n">drift</span>
@@ -464,7 +461,7 @@
 <span class="sd">        but doesn&#39;t constitute melting).</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            plt (matplotlib.pyplot): If plt is supplied, changes will be made </span>
+<span class="sd">            plt (matplotlib.pyplot): If plt is supplied, changes will be made</span>
 <span class="sd">                to an existing plot. Otherwise, a new plot will be created.</span>
 <span class="sd">            granularity (int): Number of structures to match</span>
 <span class="sd">            matching_s (Structure): Optionally match to a disordered structure</span>
@@ -628,7 +625,7 @@
 <span class="sd">                typically need to supply both variables. This stipulates the</span>
 <span class="sd">                initial structure from which the current set of displacements</span>
 <span class="sd">                are computed.</span>
-<span class="sd">            \\*\\*kwargs: kwargs supported by the :class:`DiffusionAnalyzer`_. </span>
+<span class="sd">            \\*\\*kwargs: kwargs supported by the :class:`DiffusionAnalyzer`_.</span>
 <span class="sd">                Examples include smoothed, min_obs, avg_nsteps.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">p</span><span class="p">,</span> <span class="n">l</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
@@ -650,7 +647,7 @@
         <span class="n">f_disp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">dp</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">c_disp</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">f_disp</span><span class="p">:</span>
-            <span class="n">c_disp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="p">[</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="p">]</span> <span class="p">)</span>
+            <span class="n">c_disp</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">:])])</span>
         <span class="n">disp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">c_disp</span><span class="p">)</span>
 
         <span class="c1"># If is NVT-AIMD, clear lattice data.</span>
@@ -687,7 +684,7 @@
 <span class="sd">                typically need to supply both variables. This stipulates the</span>
 <span class="sd">                initial stricture from which the current set of displacements</span>
 <span class="sd">                are computed.</span>
-<span class="sd">            \\*\\*kwargs: kwargs supported by the :class:`DiffusionAnalyzer`_. </span>
+<span class="sd">            \\*\\*kwargs: kwargs supported by the :class:`DiffusionAnalyzer`_.</span>
 <span class="sd">                Examples include smoothed, min_obs, avg_nsteps.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -755,7 +752,7 @@
 <span class="sd">                typically need to supply both variables. This stipulates the</span>
 <span class="sd">                initial structure from which the current set of displacements</span>
 <span class="sd">                are computed.</span>
-<span class="sd">            \\*\\*kwargs: kwargs supported by the :class:`DiffusionAnalyzer`_. </span>
+<span class="sd">            \\*\\*kwargs: kwargs supported by the :class:`DiffusionAnalyzer`_.</span>
 <span class="sd">                Examples include smoothed, min_obs, avg_nsteps.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">ncores</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">filepaths</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
@@ -838,8 +835,7 @@
     <span class="n">n</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">species</span><span class="p">]</span>
 
     <span class="n">vol</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">volume</span> <span class="o">*</span> <span class="mf">1e-24</span>  <span class="c1"># units cm^3</span>
-    <span class="k">return</span> <span class="mi">1000</span> <span class="o">*</span> <span class="n">n</span> <span class="o">/</span> <span class="p">(</span><span class="n">vol</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">N_A</span><span class="p">)</span> <span class="o">*</span> <span class="n">z</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">N_A</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">e</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> \
-        <span class="o">/</span> <span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">R</span> <span class="o">*</span> <span class="n">temperature</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="mi">1000</span> <span class="o">*</span> <span class="n">n</span> <span class="o">/</span> <span class="p">(</span><span class="n">vol</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">N_A</span><span class="p">)</span> <span class="o">*</span> <span class="n">z</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">N_A</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">e</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">R</span> <span class="o">*</span> <span class="n">temperature</span><span class="p">)</span></div>
 
 
 <span class="k">def</span> <span class="nf">_get_vasprun</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
@@ -869,7 +865,7 @@
     <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">temps</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
         <span class="n">std_Ea</span> <span class="o">=</span> <span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span>
-        <span class="n">n</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">t_1</span><span class="p">)))</span> <span class="o">**</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">k</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">e</span>
+                <span class="n">n</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">t_1</span><span class="p">)))</span> <span class="o">**</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">k</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">e</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">std_Ea</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">return</span> <span class="o">-</span><span class="n">w</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">k</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">e</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">std_Ea</span></div>
@@ -983,7 +979,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

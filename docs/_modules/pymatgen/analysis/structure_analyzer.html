@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.structure_analyzer &#8212; pymatgen 2019.7.30 documentation</title>
+    <title>pymatgen.analysis.structure_analyzer &#8212; pymatgen 2019.9.16 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -49,23 +49,12 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
-
-<span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">import</span> <span class="nn">ruamel.yaml</span> <span class="k">as</span> <span class="nn">yaml</span>
-<span class="kn">import</span> <span class="nn">os</span>
-
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module provides classes to perform topological analyses of structures.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong, Geoffroy Hautier, Sai Jayaraman&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2011, The Materials Project&quot;</span>
-<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
-<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
-<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyuep@gmail.com&quot;</span>
-<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Production&quot;</span>
-<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Sep 23, 2011&quot;</span>
-
 
 <span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">pi</span><span class="p">,</span> <span class="n">acos</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -89,9 +78,11 @@
 <span class="sd">    Calculates the ensemble averaged Voronoi coordination numbers</span>
 <span class="sd">    of a list of Structures using VoronoiNN.</span>
 <span class="sd">    Typically used for analyzing the output of a Molecular Dynamics run.</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        structures (list): list of Structures.</span>
 <span class="sd">        freq (int): sampling frequency of coordination number [every freq steps].</span>
+
 <span class="sd">    Returns:</span>
 <span class="sd">        Dictionary of elements as keys and average coordination numbers as values.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -127,14 +118,15 @@
 <span class="sd">    See ref: Microstructure and its relaxation in Fe-B amorphous system</span>
 <span class="sd">    simulated by molecular dynamics,</span>
 <span class="sd">        Stepanyuk et al., J. Non-cryst. Solids (1993), 159, 80-87.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        cutoff (float): cutoff distance to search for neighbors of a given atom</span>
-<span class="sd">            (default = 5.0)</span>
-<span class="sd">        qhull_options (str): options to pass to qhull (optional)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">qhull_options</span><span class="o">=</span><span class="s2">&quot;Qbb Qc Qz&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            cutoff (float): cutoff distance to search for neighbors of a given atom</span>
+<span class="sd">                (default = 5.0)</span>
+<span class="sd">            qhull_options (str): options to pass to qhull (optional)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span> <span class="o">=</span> <span class="n">cutoff</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">qhull_options</span> <span class="o">=</span> <span class="n">qhull_options</span>
 
@@ -210,6 +202,12 @@
 
 <div class="viewcode-block" id="VoronoiAnalyzer.plot_vor_analysis"><a class="viewcode-back" href="../../../pymatgen.analysis.structure_analyzer.html#pymatgen.analysis.structure_analyzer.VoronoiAnalyzer.plot_vor_analysis">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">plot_vor_analysis</span><span class="p">(</span><span class="n">voronoi_ensemble</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot the Voronoi analysis.</span>
+
+<span class="sd">        :param voronoi_ensemble:</span>
+<span class="sd">        :return: matplotlib.pyplot</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">t</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">voronoi_ensemble</span><span class="p">)</span>
         <span class="n">labels</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">val</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
@@ -306,15 +304,13 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the solid angles swept out by the shared face of the voronoi</span>
 <span class="sd">    polyhedron between two sites.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        structure (Structure): Input structure</span>
-<span class="sd">        cutoff (float) Cutoff distance.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="c1"># Radius in Angstrom cutoff to look for coordinating atoms</span>
-
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): Input structure</span>
+<span class="sd">            cutoff (float) Cutoff distance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span> <span class="o">=</span> <span class="n">cutoff</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">s</span> <span class="o">=</span> <span class="n">structure</span>
         <span class="n">recp_len</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">reciprocal_lattice</span><span class="o">.</span><span class="n">abc</span><span class="p">)</span>
@@ -440,15 +436,15 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Provides max bond length estimates for a structure based on the JMol</span>
 <span class="sd">    table and algorithms.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        structure: (structure)</span>
 <span class="sd">        el_radius_updates: (dict) symbol-&gt;float to update atomic radii</span>
-<span class="sd">    </span>
-<span class="sd">    Returns: (dict) - (Element1, Element2) -&gt; float. The two elements are </span>
+
+<span class="sd">    Returns: (dict) - (Element1, Element2) -&gt; float. The two elements are</span>
 <span class="sd">        ordered by Z.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1">#jmc = JMolCoordFinder(el_radius_updates)</span>
+    <span class="c1"># jmc = JMolCoordFinder(el_radius_updates)</span>
     <span class="n">jmnn</span> <span class="o">=</span> <span class="n">JmolNN</span><span class="p">(</span><span class="n">el_radius_updates</span><span class="o">=</span><span class="n">el_radius_updates</span><span class="p">)</span>
 
     <span class="n">bonds_lens</span> <span class="o">=</span> <span class="p">{}</span>
@@ -546,16 +542,17 @@
 <div class="viewcode-block" id="OxideType"><a class="viewcode-back" href="../../../pymatgen.analysis.structure_analyzer.html#pymatgen.analysis.structure_analyzer.OxideType">[docs]</a><span class="k">class</span> <span class="nc">OxideType</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Separate class for determining oxide type.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        structure: Input structure.</span>
-<span class="sd">        relative_cutoff: Relative_cutoff * act. cutoff stipulates the max.</span>
-<span class="sd">            distance two O atoms must be from each other. Default value is</span>
-<span class="sd">            1.1. At most 1.1 is recommended, nothing larger, otherwise the</span>
-<span class="sd">            script cannot distinguish between superoxides and peroxides.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">relative_cutoff</span><span class="o">=</span><span class="mf">1.1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure: Input structure.</span>
+<span class="sd">            relative_cutoff: Relative_cutoff * act. cutoff stipulates the max.</span>
+<span class="sd">                distance two O atoms must be from each other. Default value is</span>
+<span class="sd">                1.1. At most 1.1 is recommended, nothing larger, otherwise the</span>
+<span class="sd">                script cannot distinguish between superoxides and peroxides.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">relative_cutoff</span> <span class="o">=</span> <span class="n">relative_cutoff</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">oxide_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nbonds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_oxide</span><span class="p">()</span>
@@ -682,7 +679,7 @@
         <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">neighbors</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">neighbors</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">search_radius</span><span class="p">)</span>
             <span class="n">search_radius</span> <span class="o">*=</span> <span class="mi">2</span>
-            <span class="k">if</span> <span class="n">search_radius</span> <span class="o">&gt;</span> <span class="nb">max</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">abc</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">search_radius</span> <span class="o">&gt;</span> <span class="nb">max</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">abc</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span><span class="p">:</span>
                 <span class="k">break</span>
 
         <span class="n">neighbors</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">neighbors</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">n</span><span class="p">:</span> <span class="n">n</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
@@ -704,8 +701,6 @@
         <span class="k">return</span> <span class="s2">&quot;polysulfide&quot;</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;sulfide&quot;</span></div>
-
-
 </pre></div>
 
           </div>
@@ -736,7 +731,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

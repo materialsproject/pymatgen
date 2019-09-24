@@ -274,7 +274,7 @@ class IStructureTest(PymatgenTest):
         coords2 = list()
         coords2.append([0, 0, 0])
         coords2.append([0.5, 0.5, 0.5])
-        l2 = Lattice.from_lengths_and_angles([3, 4, 4], [100, 100, 70])
+        l2 = Lattice.from_parameters(3, 4, 4, 100, 100, 70)
         struct2 = IStructure(l2, ["Si"] * 2, coords2)
         int_s = struct.interpolate(struct2, 2, interpolate_lattices=True)
         self.assertArrayAlmostEqual(struct.lattice.abc,
@@ -388,7 +388,6 @@ class IStructureTest(PymatgenTest):
         nn = s.get_neighbors_in_shell(s[0].frac_coords, 2, 4,
                                       include_index=True, include_image=True)
         self.assertEqual(len(nn), 47)
-        self.assertEqual(nn[0][-2], 0)
         r = random.uniform(3, 6)
         all_nn = s.get_all_neighbors(r, True, True)
         for i in range(len(s)):
@@ -409,6 +408,7 @@ class IStructureTest(PymatgenTest):
         self.assertEqual([len(nn) for nn in all_nn], [0] * len(s))
 
     def test_get_all_neighbors_crosscheck_old(self):
+        warnings.simplefilter("ignore")
         for i in range(100):
             alpha, beta = np.random.rand(2) * 90
             a, b, c = 3 + np.random.rand(3) * 5
@@ -443,6 +443,8 @@ class IStructureTest(PymatgenTest):
         self.assertEqual(set([i[0] for i in struct.get_neighbors(struct[0], 0.05)]),
                          set([i[0] for i in struct.get_neighbors_old(struct[0], 0.05)]))
 
+        warnings.simplefilter("default")
+
     def test_get_all_neighbors_outside_cell(self):
         s = Structure(Lattice.cubic(2), ['Li', 'Li', 'Li', 'Si'],
                       [[3.1] * 3, [0.11] * 3, [-1.91] * 3, [0.5] * 3])
@@ -471,41 +473,6 @@ class IStructureTest(PymatgenTest):
                       coords_are_cartesian=True)
         all_nn = s.get_all_neighbors(1e-5, True)
         self.assertEqual([len(i) for i in all_nn], [0, 0, 0])
-
-    def test_get_all_neighbors_old(self):
-        s = self.struct
-
-        r = random.uniform(3, 6)
-        all_nn = s.get_all_neighbors_old(r, True, True)
-        for i in range(len(s)):
-            self.assertEqual(4, len(all_nn[i][0]))
-            self.assertEqual(len(all_nn[i]), len(s.get_neighbors_old(s[i], r)))
-
-        for site, nns in zip(s, all_nn):
-            for nn in nns:
-                self.assertTrue(nn[0].is_periodic_image(s[nn[2]]))
-                d = sum((site.coords - nn[0].coords) ** 2) ** 0.5
-                self.assertAlmostEqual(d, nn[1])
-
-        s = Structure(Lattice.cubic(1), ['Li'], [[0, 0, 0]])
-        s.make_supercell([2, 2, 2])
-        self.assertEqual(sum(map(len, s.get_all_neighbors_old(3))), 976)
-
-        all_nn = s.get_all_neighbors_old(r, include_site=False)
-        for nn in all_nn:
-            self.assertEqual(1, len(nn[0]))
-            self.assertLessEqual(nn[0][0], r)
-
-    def test_get_all_neighbors_old_outside_cell(self):
-        s = Structure(Lattice.cubic(2), ['Li', 'Li', 'Li', 'Si'],
-                      [[3.1] * 3, [0.11] * 3, [-1.91] * 3, [0.5] * 3])
-        all_nn = s.get_all_neighbors_old(0.2, True)
-        for site, nns in zip(s, all_nn):
-            for nn in nns:
-                self.assertTrue(nn[0].is_periodic_image(s[nn[2]]))
-                d = sum((site.coords - nn[0].coords) ** 2) ** 0.5
-                self.assertAlmostEqual(d, nn[1])
-        self.assertEqual(list(map(len, all_nn)), [2, 2, 2, 0])
 
     def test_get_all_neighbors_equal(self):
         s = Structure(Lattice.cubic(2), ['Li', 'Li', 'Li', 'Si'],
@@ -536,8 +503,7 @@ class IStructureTest(PymatgenTest):
             self.assertIsNotNone(s)
             ss = IStructure.from_str(s, fmt=fmt)
             self.assertArrayAlmostEqual(
-                ss.lattice.lengths_and_angles,
-                self.struct.lattice.lengths_and_angles, decimal=5)
+                ss.lattice.parameters, self.struct.lattice.parameters, decimal=5)
             self.assertArrayAlmostEqual(ss.frac_coords, self.struct.frac_coords)
             self.assertIsInstance(ss, IStructure)
 
@@ -649,10 +615,7 @@ class StructureTest(PymatgenTest):
         s.replace_species({"Ge": {"Ge": 0.5, "Si": 0.5}})
         self.assertEqual(s.formula, "Si0.75 Ge0.25 N1 O1")
 
-        # In this case, s.ntypesp is ambiguous.
-        # code should raise AttributeError.
-        with self.assertRaises(TypeError):
-            s.ntypesp
+        self.assertEqual(s.ntypesp, 4)
 
         s.replace_species({"Ge": "Si"})
         s.substitute(1, "hydroxyl")
@@ -899,8 +862,8 @@ class StructureTest(PymatgenTest):
             self.assertIsNotNone(s)
             ss = Structure.from_str(s, fmt=fmt)
             self.assertArrayAlmostEqual(
-                ss.lattice.lengths_and_angles,
-                self.structure.lattice.lengths_and_angles, decimal=5)
+                ss.lattice.parameters,
+                self.structure.lattice.parameters, decimal=5)
             self.assertArrayAlmostEqual(ss.frac_coords,
                                         self.structure.frac_coords)
             self.assertIsInstance(ss, Structure)
@@ -990,8 +953,7 @@ class StructureTest(PymatgenTest):
         self.assertArrayAlmostEqual(s[1].frac_coords, [.5, .5, .5005])
 
         # Test for TaS2 with spacegroup 166 in 160 setting.
-        l = Lattice.from_lengths_and_angles([3.374351, 3.374351, 20.308941],
-                                            [90.000000, 90.000000, 120.000000])
+        l = Lattice.hexagonal(3.374351, 20.308941)
         species = ["Ta", "S", "S"]
         coords = [[0.000000, 0.000000, 0.944333],
                   [0.333333, 0.666667, 0.353424],
@@ -1001,8 +963,7 @@ class StructureTest(PymatgenTest):
         tas2.merge_sites(mode="d")
         assert len(tas2) == 9
 
-        l = Lattice.from_lengths_and_angles([3.587776, 3.587776, 19.622793],
-                                            [90.000000, 90.000000, 120.000000])
+        l = Lattice.hexagonal(3.587776, 19.622793)
         species = ["Na", "V", "S", "S"]
         coords = [[0.333333, 0.666667, 0.165000],
                   [0.000000, 0.000000, 0.998333],
@@ -1014,8 +975,7 @@ class StructureTest(PymatgenTest):
         assert len(navs2) == 12
 
         # Test that we can average the site properties that are floats
-        l = Lattice.from_lengths_and_angles([3.587776, 3.587776, 19.622793],
-                                            [90.000000, 90.000000, 120.000000])
+        l = Lattice.hexagonal(3.587776, 19.622793)
         species = ["Na", "V", "S", "S"]
         coords = [[0.333333, 0.666667, 0.165000], [0.000000, 0.000000, 0.998333],
                   [0.333333, 0.666667, 0.399394], [0.666667, 0.333333, 0.597273]]
@@ -1215,7 +1175,7 @@ class IMoleculeTest(PymatgenTest):
     def test_repr_str(self):
         ans = """Full Formula (H4 C1)
 Reduced Formula: H4C
-Charge = 0, Spin Mult = 1
+Charge = 0.0, Spin Mult = 1
 Sites (5)
 0 C     0.000000     0.000000     0.000000
 1 H     0.000000     0.000000     1.089000

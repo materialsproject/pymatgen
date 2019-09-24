@@ -33,26 +33,28 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
 @unittest.skipIf(not x_trans, "No x_trans.")
 class BoltztrapAnalyzerTest(unittest.TestCase):
 
-    def setUp(self):
-        self.bz = BoltztrapAnalyzer.from_files(
+    @classmethod
+    def setUpClass(cls):
+        cls.bz = BoltztrapAnalyzer.from_files(
             os.path.join(test_dir, "boltztrap/transp/"))
-        self.bz_bands = BoltztrapAnalyzer.from_files(
+        cls.bz_bands = BoltztrapAnalyzer.from_files(
             os.path.join(test_dir, "boltztrap/bands/"))
-        self.bz_up = BoltztrapAnalyzer.from_files(
+        cls.bz_up = BoltztrapAnalyzer.from_files(
             os.path.join(test_dir, "boltztrap/dos_up/"), dos_spin=1)
-        self.bz_dw = BoltztrapAnalyzer.from_files(
+        cls.bz_dw = BoltztrapAnalyzer.from_files(
             os.path.join(test_dir, "boltztrap/dos_dw/"), dos_spin=-1)
-        self.bz_fermi = BoltztrapAnalyzer.from_files(
+        cls.bz_fermi = BoltztrapAnalyzer.from_files(
             os.path.join(test_dir, "boltztrap/fermi/"))
 
         with open(os.path.join(test_dir, "Cu2O_361_bandstructure.json"),
                   "rt") as f:
             d = json.load(f)
-            self.bs = BandStructure.from_dict(d)
-            self.btr = BoltztrapRunner(self.bs, 1)
+            cls.bs = BandStructure.from_dict(d)
+            cls.btr = BoltztrapRunner(cls.bs, 1)
         warnings.simplefilter("ignore")
 
-    def tearDown(self):
+    @classmethod
+    def tearDownClass(cls):
         warnings.simplefilter("default")
 
     def test_properties(self):

@@ -11,6 +11,7 @@ from pymatgen.core.periodic_table import Specie
 from pymatgen.core.structure import Site
 
 import numpy as np
+
 """
 A module for NMR analysis
 """
@@ -35,9 +36,9 @@ class ChemicalShielding(SquareTensor):
     Authors: Shyam Dwaraknath, Xiaohui Qu
     """
 
-    HaeberlenNotation = namedtuple(typename="HaeberlenNotion", field_names="sigma_iso, delta_sigma_iso, zeta, eta")
-    MehringNotation = namedtuple(typename="MehringNotation", field_names="sigma_iso, sigma_11, sigma_22, sigma_33")
-    MarylandNotation = namedtuple(typename="MarylandNotation", field_names="sigma_iso, omega, kappa")
+    HaeberlenNotation = namedtuple("HaeberlenNotion", "sigma_iso, delta_sigma_iso, zeta, eta")
+    MehringNotation = namedtuple("MehringNotation", "sigma_iso, sigma_11, sigma_22, sigma_33")
+    MarylandNotation = namedtuple("MarylandNotation", "sigma_iso, omega, kappa")
 
     def __new__(cls, cs_matrix, vscale=None):
         """
@@ -56,7 +57,7 @@ class ChemicalShielding(SquareTensor):
         """
         t_array = np.array(cs_matrix)
 
-        if t_array.shape == (3, ):
+        if t_array.shape == (3,):
             return super().__new__(cls, np.diag(cs_matrix), vscale)
         elif t_array.shape == (3, 3):
             return super().__new__(cls, cs_matrix, vscale)
@@ -74,14 +75,14 @@ class ChemicalShielding(SquareTensor):
         """
         Returns: the Chemical shielding tensor in Haeberlen Notation
         """
-        pas=self.principal_axis_system
-        sigma_iso=pas.trace() / 3
-        sigmas=np.diag(pas)
-        sigmas=sorted(sigmas, key=lambda x: np.abs(x - sigma_iso))
-        sigma_yy, sigma_xx, sigma_zz=sigmas
-        delta_sigma=sigma_zz - 0.5 * (sigma_xx + sigma_yy)
-        zeta=sigma_zz - sigma_iso
-        eta=(sigma_yy - sigma_xx) / zeta
+        pas = self.principal_axis_system
+        sigma_iso = pas.trace() / 3
+        sigmas = np.diag(pas)
+        sigmas = sorted(sigmas, key=lambda x: np.abs(x - sigma_iso))
+        sigma_yy, sigma_xx, sigma_zz = sigmas
+        delta_sigma = sigma_zz - 0.5 * (sigma_xx + sigma_yy)
+        zeta = sigma_zz - sigma_iso
+        eta = (sigma_yy - sigma_xx) / zeta
         return self.HaeberlenNotation(sigma_iso, delta_sigma, zeta, eta)
 
     @property
@@ -89,9 +90,9 @@ class ChemicalShielding(SquareTensor):
         """
         Returns: the Chemical shielding tensor in Mehring Notation
         """
-        pas=self.principal_axis_system
-        sigma_iso=pas.trace() / 3
-        sigma_11, sigma_22, sigma_33=np.diag(pas)
+        pas = self.principal_axis_system
+        sigma_iso = pas.trace() / 3
+        sigma_11, sigma_22, sigma_33 = np.diag(pas)
         return self.MehringNotation(sigma_iso, sigma_11, sigma_22, sigma_33)
 
     @property
@@ -99,19 +100,19 @@ class ChemicalShielding(SquareTensor):
         """
         Returns: the Chemical shielding tensor in Maryland Notation
         """
-        pas=self.principal_axis_system
-        sigma_iso=pas.trace() / 3
-        omega=np.diag(pas)[2] - np.diag(pas)[0]
+        pas = self.principal_axis_system
+        sigma_iso = pas.trace() / 3
+        omega = np.diag(pas)[2] - np.diag(pas)[0]
         # There is a typo in equation 20 from Magn. Reson. Chem. 2008, 46, 582–598, the sign is wrong.
         # There correct order is presented in Solid State Nucl. Magn. Reson. 1993, 2, 285-288.
-        kappa=3.0 * (np.diag(pas)[1] - sigma_iso) / omega
+        kappa = 3.0 * (np.diag(pas)[1] - sigma_iso) / omega
         return self.MarylandNotation(sigma_iso, omega, kappa)
 
     @classmethod
     def from_maryland_notation(cls, sigma_iso, omega, kappa):
-        sigma_22=sigma_iso + kappa * omega / 3.0
-        sigma_11=(3.0 * sigma_iso - omega - sigma_22) / 2.0
-        sigma_33=3.0 * sigma_iso - sigma_22 - sigma_11
+        sigma_22 = sigma_iso + kappa * omega / 3.0
+        sigma_11 = (3.0 * sigma_iso - omega - sigma_22) / 2.0
+        sigma_33 = 3.0 * sigma_iso - sigma_22 - sigma_11
         return cls(np.diag([sigma_11, sigma_22, sigma_33]))
 
 
@@ -138,9 +139,9 @@ class ElectricFieldGradient(SquareTensor):
             vscale (6x1 array-like): 6x1 array-like scaling the
                 voigt-notation vector with the tensor entries
         """
-        t_array=np.array(efg_matrix)
+        t_array = np.array(efg_matrix)
 
-        if t_array.shape == (3, ):
+        if t_array.shape == (3,):
             return super().__new__(cls, np.diag(efg_matrix), vscale)
         elif t_array.shape == (3, 3):
             return super().__new__(cls, efg_matrix, vscale)
@@ -148,23 +149,24 @@ class ElectricFieldGradient(SquareTensor):
     @property
     def principal_axis_system(self):
         """
-        Returns a electric field gradient tensor aligned to the principle axis system so that only the 3 diagnol components are non-zero
+        Returns a electric field gradient tensor aligned to the principle axis system so that only the 3 diagnol
+        components are non-zero
         """
         return ElectricFieldGradient(np.diag(np.sort(np.linalg.eigvals(self))))
 
     @property
     def V_xx(self):
-        diags=np.diag(self.principal_axis_system)
+        diags = np.diag(self.principal_axis_system)
         return sorted(diags, key=np.abs)[0]
 
     @property
     def V_yy(self):
-        diags=np.diag(self.principal_axis_system)
+        diags = np.diag(self.principal_axis_system)
         return sorted(diags, key=np.abs)[1]
 
     @property
     def V_zz(self):
-        diags=np.diag(self.principal_axis_system)
+        diags = np.diag(self.principal_axis_system)
         return sorted(diags, key=np.abs)[2]
 
     @property
@@ -173,8 +175,8 @@ class ElectricFieldGradient(SquareTensor):
         Asymmetry of the electric field tensor defined as:
             (V_yy - V_xx)/V_zz
         """
-        diags=np.diag(self.principal_axis_system)
-        V=sorted(diags, key=np.abs)
+        diags = np.diag(self.principal_axis_system)
+        V = sorted(diags, key=np.abs)
         return np.abs((V[1] - V[0]) / V[2])
 
     def coupling_constant(self, specie):
@@ -198,25 +200,25 @@ class ElectricFieldGradient(SquareTensor):
 
             the coupling constant as a FloatWithUnit in MHz
         """
-        planks_constant=FloatWithUnit(6.62607004E-34, "m^2 kg s^-1")
-        Vzz=FloatWithUnit(self.V_zz, "V ang^-2")
-        e=FloatWithUnit(-1.60217662E-19, "C")
+        planks_constant = FloatWithUnit(6.62607004E-34, "m^2 kg s^-1")
+        Vzz = FloatWithUnit(self.V_zz, "V ang^-2")
+        e = FloatWithUnit(-1.60217662E-19, "C")
 
         # Convert from string to Specie object
         if isinstance(specie, str):
             # isotope was provided in string format
             if len(specie.split("-")) > 1:
-                isotope=str(specie)
-                specie=Specie(specie.split("-")[0])
-                Q=specie.get_nmr_quadrupole_moment(isotope)
+                isotope = str(specie)
+                specie = Specie(specie.split("-")[0])
+                Q = specie.get_nmr_quadrupole_moment(isotope)
             else:
-                specie=Specie(specie)
-                Q=specie.get_nmr_quadrupole_moment()
+                specie = Specie(specie)
+                Q = specie.get_nmr_quadrupole_moment()
         elif isinstance(specie, Site):
-            specie=specie.specie
-            Q=specie.get_nmr_quadrupole_moment()
+            specie = specie.specie
+            Q = specie.get_nmr_quadrupole_moment()
         elif isinstance(specie, Specie):
-            Q=specie.get_nmr_quadrupole_moment()
+            Q = specie.get_nmr_quadrupole_moment()
         else:
             raise ValueError("Invalid speciie provided for quadrupolar coupling constant calcuations")
 

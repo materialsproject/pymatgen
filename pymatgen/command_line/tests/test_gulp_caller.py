@@ -9,15 +9,17 @@ Created on Jan 22, 2013
 @author: Bharat Medasani
 """
 import unittest
-
-from pymatgen.command_line.gulp_caller import *
+import os
+from pymatgen.analysis.bond_valence import BVAnalyzer
+from pymatgen.command_line.gulp_caller import GulpIO, GulpCaller, \
+    BuckinghamPotential, GulpError, get_energy_relax_structure_buckingham, get_energy_buckingham, get_energy_tersoff
 from pymatgen.core.structure import Structure
 from monty.os.path import which
 from pymatgen.io.vasp.inputs import Poscar
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
-gulp_present = which('gulp')
+gulp_present = which('gulp') and os.environ.get("GULP_LIB")
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
@@ -25,14 +27,14 @@ class GulpCallerTest(unittest.TestCase):
 
     def test_run(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
-        mgo_specie = ["Mg"]*4 + ["O"]*4
-        mgo_frac_cord = [[0,0,0], [0.5,0.5,0], [0.5,0,0.5], [0,0.5,0.5],
-                         [0.5,0,0], [0,0.5,0], [0,0,0.5], [0.5,0.5,0.5]]
+        mgo_specie = ["Mg"] * 4 + ["O"] * 4
+        mgo_frac_cord = [[0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5], [0, 0.5, 0.5],
+                         [0.5, 0, 0], [0, 0.5, 0], [0, 0, 0.5], [0.5, 0.5, 0.5]]
         mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
         gio = GulpIO()
         gin = gio.keyword_line('optimise', 'conp')
         gin += gio.structure_lines(mgo_uc, symm_flg=False)
-        #gin += self.gc.gulp_lib('catlow.lib')
+        # gin += self.gc.gulp_lib('catlow.lib')
         gin += "species\nMg    core  2.00000\nO core  0.86902\nO shel -2.86902\n"
         gin += "buck\n"
         gin += "Mg core O shel   946.627 0.31813  0.00000 0.0 10.0\n"
@@ -103,8 +105,8 @@ class GulpIOTest(unittest.TestCase):
 
     def test_structure_lines_no_frac_coords(self):
         inp_str = self.gio.structure_lines(
-                self.structure, cell_flg=False, frac_flg=False
-                )
+            self.structure, cell_flg=False, frac_flg=False
+        )
         self.assertNotIn('cell', inp_str)
         self.assertIn('cart', inp_str)
 
@@ -115,8 +117,8 @@ class GulpIOTest(unittest.TestCase):
     @unittest.expectedFailure
     def test_library_line_explicit_path(self):
         gin = self.gio.library_line(
-                '/Users/mbkumar/Research/Defects/GulpExe/Libraries/catlow.lib'
-                )
+            '/Users/mbkumar/Research/Defects/GulpExe/Libraries/catlow.lib'
+        )
         self.assertIn('lib', gin)
 
     def test_library_line_wrong_file(self):
@@ -125,9 +127,9 @@ class GulpIOTest(unittest.TestCase):
 
     def test_buckingham_potential(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
-        mgo_specie = ["Mg", 'O']*4
-        mgo_frac_cord = [[0,0,0], [0.5,0,0], [0.5,0.5,0], [0,0.5,0],
-                         [0.5,0,0.5], [0,0,0.5], [0,0.5,0.5], [0.5,0.5,0.5]]
+        mgo_specie = ["Mg", 'O'] * 4
+        mgo_frac_cord = [[0, 0, 0], [0.5, 0, 0], [0.5, 0.5, 0], [0, 0.5, 0],
+                         [0.5, 0, 0.5], [0, 0, 0.5], [0, 0.5, 0.5], [0.5, 0.5, 0.5]]
         mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
         gin = self.gio.buckingham_potential(mgo_uc)
         self.assertIn('specie', gin)
@@ -144,9 +146,9 @@ class GulpIOTest(unittest.TestCase):
 
     def test_buckingham_input(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
-        mgo_specie = ["Mg",'O']*4
-        mgo_frac_cord = [[0,0,0], [0.5,0,0], [0.5,0.5,0], [0,0.5,0],
-                         [0.5,0,0.5], [0,0,0.5], [0,0.5,0.5], [0.5,0.5,0.5]]
+        mgo_specie = ["Mg", 'O'] * 4
+        mgo_frac_cord = [[0, 0, 0], [0.5, 0, 0], [0.5, 0.5, 0], [0, 0.5, 0],
+                         [0.5, 0, 0.5], [0, 0, 0.5], [0, 0.5, 0.5], [0.5, 0.5, 0.5]]
         mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
         gin = self.gio.buckingham_input(mgo_uc, keywords=('optimise', 'conp'))
         self.assertIn('optimise', gin)
@@ -161,16 +163,16 @@ class GulpIOTest(unittest.TestCase):
     # Improve the test
     def test_tersoff_potential(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
-        mgo_specie = ["Mg",'O']*4
-        mgo_frac_cord = [[0,0,0], [0.5,0,0], [0.5,0.5,0], [0,0.5,0],
-                         [0.5,0,0.5], [0,0,0.5], [0,0.5,0.5], [0.5,0.5,0.5]]
+        mgo_specie = ["Mg", 'O'] * 4
+        mgo_frac_cord = [[0, 0, 0], [0.5, 0, 0], [0.5, 0.5, 0], [0, 0.5, 0],
+                         [0.5, 0, 0.5], [0, 0, 0.5], [0, 0.5, 0.5], [0.5, 0.5, 0.5]]
         mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
         gin = self.gio.tersoff_potential(mgo_uc)
         self.assertIn('specie', gin)
         self.assertIn('Mg core', gin)
 
     def test_get_energy(self):
-        #Output string obtained from running GULP on a terminal
+        # Output string obtained from running GULP on a terminal
         out_str = """  Components of energy :
 --------------------------------------------------------------------------------
   Interatomic potentials     =           5.61135426 eV
@@ -206,9 +208,9 @@ class GulpIOTest(unittest.TestCase):
         self.assertEqual(energy, -169.06277218)
 
     def test_get_relaxed_structure(self):
-        #Output string obtained from running GULP on a terminal
+        # Output string obtained from running GULP on a terminal
 
-        with open(os.path.join(test_dir, 'example21.gout'),'r') as fp:
+        with open(os.path.join(test_dir, 'example21.gout'), 'r') as fp:
             out_str = fp.read()
         struct = self.gio.get_relaxed_structure(out_str)
         self.assertIsInstance(struct, Structure)
@@ -218,7 +220,7 @@ class GulpIOTest(unittest.TestCase):
 
     @unittest.skip("Test later")
     def test_tersoff_inpt(self):
-        gin =  self.gio.tersoff_input(self.structure)
+        gin = self.gio.tersoff_input(self.structure)
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
@@ -226,9 +228,9 @@ class GlobalFunctionsTest(unittest.TestCase):
 
     def setUp(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
-        mgo_specie = ["Mg",'O']*4
-        mgo_frac_cord = [[0,0,0], [0.5,0,0], [0.5,0.5,0], [0,0.5,0],
-                         [0.5,0,0.5], [0,0,0.5], [0,0.5,0.5], [0.5,0.5,0.5]]
+        mgo_specie = ["Mg", 'O'] * 4
+        mgo_frac_cord = [[0, 0, 0], [0.5, 0, 0], [0.5, 0.5, 0], [0, 0.5, 0],
+                         [0.5, 0, 0.5], [0, 0, 0.5], [0, 0.5, 0.5], [0.5, 0.5, 0.5]]
         self.mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
         bv = BVAnalyzer()
         val = bv.get_valences(self.mgo_uc)
@@ -245,10 +247,10 @@ class GlobalFunctionsTest(unittest.TestCase):
     def test_get_energy_buckingham(self):
         enrgy = get_energy_buckingham(self.mgo_uc)
         self.assertIsInstance(enrgy, float)
-        #test with vacancy structure
+        # test with vacancy structure
         del self.mgo_uc[0]
         energy = get_energy_buckingham(self.mgo_uc,
-                keywords=('qok','optimise','conp'), valence_dict=self.val_dict)
+                                       keywords=('qok', 'optimise', 'conp'), valence_dict=self.val_dict)
         self.assertIsInstance(energy, float)
 
     def test_get_energy_relax_structure_buckingham(self):

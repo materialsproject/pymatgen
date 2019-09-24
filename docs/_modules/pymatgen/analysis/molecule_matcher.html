@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.molecule_matcher &#8212; pymatgen 2019.7.30 documentation</title>
+    <title>pymatgen.analysis.molecule_matcher &#8212; pymatgen 2019.9.16 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -144,6 +144,7 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Pair atoms by isomorphism permutations in the OpenBabel::OBAlign class</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="IsomorphismMolAtomMapper.uniform_labels"><a class="viewcode-back" href="../../../pymatgen.analysis.molecule_matcher.html#pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.uniform_labels">[docs]</a>    <span class="k">def</span> <span class="nf">uniform_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol1</span><span class="p">,</span> <span class="n">mol2</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Pair the geometrically equivalent atoms of the molecules.</span>
@@ -294,7 +295,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">c1x</span><span class="p">,</span> <span class="n">c1y</span><span class="p">,</span> <span class="n">c1z</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">group_atoms</span><span class="p">:</span>
-            <span class="n">orig_idx</span> <span class="o">=</span> <span class="n">ilabels</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">orig_idx</span> <span class="o">=</span> <span class="n">ilabels</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
             <span class="n">oa1</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetAtom</span><span class="p">(</span><span class="n">orig_idx</span><span class="p">)</span>
             <span class="n">c1x</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span><span class="n">oa1</span><span class="o">.</span><span class="n">x</span><span class="p">())</span>
             <span class="n">c1y</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span><span class="n">oa1</span><span class="o">.</span><span class="n">y</span><span class="p">())</span>
@@ -326,23 +327,23 @@
         <span class="n">all_atoms</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">ilabels</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
         <span class="n">unique_atom_labels</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">all_atoms</span> <span class="o">-</span> <span class="n">non_unique_atoms</span><span class="p">)</span>
 
-        <span class="c1">#try to align molecules using unique atoms</span>
+        <span class="c1"># try to align molecules using unique atoms</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">unique_atom_labels</span><span class="p">:</span>
-            <span class="n">orig_idx</span> <span class="o">=</span> <span class="n">ilabels</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">orig_idx</span> <span class="o">=</span> <span class="n">ilabels</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
             <span class="n">oa1</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetAtom</span><span class="p">(</span><span class="n">orig_idx</span><span class="p">)</span>
             <span class="n">a1</span> <span class="o">=</span> <span class="n">vmol</span><span class="o">.</span><span class="n">NewAtom</span><span class="p">()</span>
             <span class="n">a1</span><span class="o">.</span><span class="n">SetAtomicNum</span><span class="p">(</span><span class="n">oa1</span><span class="o">.</span><span class="n">GetAtomicNum</span><span class="p">())</span>
             <span class="n">a1</span><span class="o">.</span><span class="n">SetVector</span><span class="p">(</span><span class="n">oa1</span><span class="o">.</span><span class="n">GetVector</span><span class="p">())</span>
 
-        <span class="c1">#try to align using centroids of the equivalent atoms</span>
+        <span class="c1"># try to align using centroids of the equivalent atoms</span>
         <span class="k">if</span> <span class="n">vmol</span><span class="o">.</span><span class="n">NumAtoms</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">symm</span> <span class="ow">in</span> <span class="n">eq_atoms</span><span class="p">:</span>
                 <span class="n">c1x</span><span class="p">,</span> <span class="n">c1y</span><span class="p">,</span> <span class="n">c1z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group_centroid</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">ilabels</span><span class="p">,</span> <span class="n">symm</span><span class="p">)</span>
                 <span class="n">min_distance</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">vmol</span><span class="o">.</span><span class="n">NumAtoms</span><span class="p">()</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">vmol</span><span class="o">.</span><span class="n">NumAtoms</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
                     <span class="n">va</span> <span class="o">=</span> <span class="n">vmol</span><span class="o">.</span><span class="n">GetAtom</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-                    <span class="n">distance</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">c1x</span> <span class="o">-</span> <span class="n">va</span><span class="o">.</span><span class="n">x</span><span class="p">())</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">c1y</span> <span class="o">-</span> <span class="n">va</span><span class="o">.</span><span class="n">y</span><span class="p">())</span><span class="o">**</span><span class="mi">2</span>
-                                         <span class="o">+</span> <span class="p">(</span><span class="n">c1z</span> <span class="o">-</span> <span class="n">va</span><span class="o">.</span><span class="n">z</span><span class="p">())</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                    <span class="n">distance</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">c1x</span> <span class="o">-</span> <span class="n">va</span><span class="o">.</span><span class="n">x</span><span class="p">())</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">c1y</span> <span class="o">-</span> <span class="n">va</span><span class="o">.</span><span class="n">y</span><span class="p">())</span> <span class="o">**</span> <span class="mi">2</span>
+                                         <span class="o">+</span> <span class="p">(</span><span class="n">c1z</span> <span class="o">-</span> <span class="n">va</span><span class="o">.</span><span class="n">z</span><span class="p">())</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">distance</span> <span class="o">&lt;</span> <span class="n">min_distance</span><span class="p">:</span>
                         <span class="n">min_distance</span> <span class="o">=</span> <span class="n">distance</span>
                 <span class="k">if</span> <span class="n">min_distance</span> <span class="o">&gt;</span> <span class="mf">0.2</span><span class="p">:</span>
@@ -408,10 +409,10 @@
             <span class="n">a2</span><span class="o">.</span><span class="n">SetAtomicNum</span><span class="p">(</span><span class="n">oa2</span><span class="o">.</span><span class="n">GetAtomicNum</span><span class="p">())</span>
             <span class="n">a2</span><span class="o">.</span><span class="n">SetVector</span><span class="p">(</span><span class="n">oa2</span><span class="o">.</span><span class="n">GetVector</span><span class="p">())</span>
 
-        <span class="n">canon_label2</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nheavy</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">canon_label2</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nheavy</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">symm</span> <span class="ow">in</span> <span class="n">eq_atoms</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">symm</span><span class="p">:</span>
-                <span class="n">canon_label2</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+                <span class="n">canon_label2</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
         <span class="k">for</span> <span class="n">symm</span> <span class="ow">in</span> <span class="n">eq_atoms</span><span class="p">:</span>
             <span class="n">candidates1</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">symm</span><span class="p">)</span>
             <span class="n">candidates2</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">symm</span><span class="p">)</span>
@@ -425,7 +426,7 @@
                     <span class="k">if</span> <span class="n">d</span> <span class="o">&lt;</span> <span class="n">distance</span><span class="p">:</span>
                         <span class="n">distance</span> <span class="o">=</span> <span class="n">d</span>
                         <span class="n">canon_idx</span> <span class="o">=</span> <span class="n">c1</span>
-                <span class="n">canon_label2</span><span class="p">[</span><span class="n">c2</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">canon_idx</span>
+                <span class="n">canon_label2</span><span class="p">[</span><span class="n">c2</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">canon_idx</span>
                 <span class="n">candidates1</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">canon_idx</span><span class="p">)</span>
 
         <span class="n">canon_inchi_orig_map2</span> <span class="o">=</span> <span class="p">[(</span><span class="n">canon</span><span class="p">,</span> <span class="n">inchi</span><span class="p">,</span> <span class="n">orig</span><span class="p">)</span>
@@ -453,7 +454,7 @@
 <span class="sd">            corrected label map of all atoms of the second molecule</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">num_atoms</span> <span class="o">=</span> <span class="n">mol2</span><span class="o">.</span><span class="n">NumAtoms</span><span class="p">()</span>
-        <span class="n">all_atom</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_atoms</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">all_atom</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_atoms</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
         <span class="n">hydrogen_atoms1</span> <span class="o">=</span> <span class="n">all_atom</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">heavy_indices1</span><span class="p">)</span>
         <span class="n">hydrogen_atoms2</span> <span class="o">=</span> <span class="n">all_atom</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">heavy_indices2</span><span class="p">)</span>
         <span class="n">label1</span> <span class="o">=</span> <span class="n">heavy_indices1</span> <span class="o">+</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">hydrogen_atoms1</span><span class="p">)</span>
@@ -534,7 +535,7 @@
             <span class="k">return</span> <span class="kc">True</span>
         <span class="n">a1</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetAtom</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">a2</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetAtom</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">NumAtoms</span><span class="p">()</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">NumAtoms</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
             <span class="n">angle</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">GetAtom</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">GetAngle</span><span class="p">(</span><span class="n">a2</span><span class="p">,</span> <span class="n">a1</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">angle</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
                 <span class="n">angle</span> <span class="o">=</span> <span class="o">-</span><span class="n">angle</span>
@@ -602,6 +603,7 @@
 <span class="sd">        mapper: MolAtomMapper object that is able to map the atoms of two</span>
 <span class="sd">            molecule to uniform order</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="nd">@requires</span><span class="p">(</span><span class="n">ob</span><span class="p">,</span>
               <span class="s2">&quot;BabelMolAdaptor requires openbabel to be installed with &quot;</span>
               <span class="s2">&quot;Python bindings. Please get it at http://openbabel.org.&quot;</span><span class="p">)</span>
@@ -691,7 +693,7 @@
                     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mol_list</span><span class="p">)]</span>
         <span class="n">mol_hash</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
-        <span class="c1">#Use molecular hash to pre-group molecules.</span>
+        <span class="c1"># Use molecular hash to pre-group molecules.</span>
         <span class="n">raw_groups</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">tuple</span><span class="p">([</span><span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">g</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">g</span>
                             <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">mol_hash</span><span class="p">,</span>
                                                  <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])])</span>
@@ -764,7 +766,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

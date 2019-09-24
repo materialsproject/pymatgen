@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.defects.defect_compatibility module &#8212; pymatgen 2019.7.30 documentation</title>
+    <title>pymatgen.analysis.defects.defect_compatibility module &#8212; pymatgen 2019.9.16 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.9.16 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -131,13 +131,14 @@ sufficient metadata is supplied to perform BandEdgeShiftingCorrection).</p></li>
 <dl class="method">
 <dt id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.delocalization_analysis">
 <code class="sig-name descname">delocalization_analysis</code><span class="sig-paren">(</span><em class="sig-param">defect_entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/defect_compatibility.html#DefectCompatibility.delocalization_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.delocalization_analysis" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
+<dd><dl>
 <dt>Do delocalization analysis. To do this, one considers:</dt><dd><ol class="lowerroman simple">
 <li><p>sampling region of planar averaged electrostatic potential (freysoldt approach)</p></li>
 <li><p>sampling region of atomic site averaged potentials (kumagai approach)</p></li>
-<li><p>structural relaxation amount outside of radius considered in kumagai approach (default is wigner seitz radius)</p></li>
-<li><p>if defect is not a vacancy type -&gt; track to see how much the defect has moved</p></li>
 </ol>
+<p>iii) structural relaxation amount outside of radius considered in kumagai approach (default is wigner seitz
+radius)
+iv) if defect is not a vacancy type -&gt; track to see how much the defect has moved</p>
 </dd>
 </dl>
 <p>calculations that fail delocalization get “is_compatibile” set to False in parameters
@@ -243,7 +244,7 @@ given initialization of class. If delocalized, flag entry as delocalized
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.9.16 documentation</a> &#187;</li> 
       </ul>
     </div>
 

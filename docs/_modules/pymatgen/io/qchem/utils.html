@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.qchem.utils &#8212; pymatgen 2019.7.30 documentation</title>
+    <title>pymatgen.io.qchem.utils &#8212; pymatgen 2019.9.16 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -169,7 +169,7 @@
 <span class="sd">        to_return (dict): An identical dictionary but with all keys made</span>
 <span class="sd">            lower case and no identical keys present.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">dict_to_check</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">dict_to_check</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">to_return</span> <span class="o">=</span> <span class="p">{}</span>
@@ -178,8 +178,9 @@
             <span class="k">if</span> <span class="n">new_key</span> <span class="o">==</span> <span class="s2">&quot;jobtype&quot;</span><span class="p">:</span>
                 <span class="n">new_key</span> <span class="o">=</span> <span class="s2">&quot;job_type&quot;</span>
             <span class="k">if</span> <span class="n">new_key</span> <span class="ow">in</span> <span class="n">to_return</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
-                    <span class="s2">&quot;Multiple instances of key &quot;</span> <span class="o">+</span> <span class="n">new_key</span> <span class="o">+</span> <span class="s2">&quot; found!&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">to_return</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">!=</span> <span class="n">to_return</span><span class="p">[</span><span class="n">new_key</span><span class="p">]:</span>
+                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                        <span class="s2">&quot;Multiple instances of key &quot;</span> <span class="o">+</span> <span class="n">new_key</span> <span class="o">+</span> <span class="s2">&quot; found with different values! Exiting...&quot;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">to_return</span><span class="p">[</span><span class="n">new_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">dict_to_check</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
@@ -228,7 +229,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.substrate_analyzer &#8212; pymatgen 2019.7.30 documentation</title>
+    <title>pymatgen.analysis.substrate_analyzer &#8212; pymatgen 2019.9.16 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -49,18 +49,16 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides classes to identify optimal substrates for film growth</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">product</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.elasticity.strain</span> <span class="k">import</span> <span class="n">Deformation</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.surface</span> <span class="k">import</span> <span class="p">(</span><span class="n">SlabGenerator</span><span class="p">,</span>
                                    <span class="n">get_symmetrically_distinct_miller_indices</span><span class="p">)</span>
-
-<span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">gcd</span>
-
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This module provides classes to identify optimal substrates for film growth</span>
-<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyam Dwaraknath&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2016, The Materials Project&quot;</span>
@@ -121,10 +119,10 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">max_length_tol</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">elif</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">absolute</span><span class="p">(</span><span class="n">rel_strain</span><span class="p">(</span><span class="n">vec_set1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">vec_set2</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> <span class="o">&gt;</span>
-                  <span class="bp">self</span><span class="o">.</span><span class="n">max_length_tol</span><span class="p">):</span>
+              <span class="bp">self</span><span class="o">.</span><span class="n">max_length_tol</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">elif</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">absolute</span><span class="p">(</span><span class="n">rel_angle</span><span class="p">(</span><span class="n">vec_set1</span><span class="p">,</span> <span class="n">vec_set2</span><span class="p">))</span> <span class="o">&gt;</span>
-                  <span class="bp">self</span><span class="o">.</span><span class="n">max_angle_tol</span><span class="p">):</span>
+              <span class="bp">self</span><span class="o">.</span><span class="n">max_angle_tol</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">True</span></div>
@@ -205,7 +203,7 @@
                                                     <span class="n">film_vectors</span><span class="p">,</span>
                                                     <span class="n">substrate_vectors</span><span class="p">):</span>
             <span class="c1"># Yield the match area, the miller indicies,</span>
-            <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">match_as_dict</span><span class="p">(</span><span class="n">match</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">match</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">film_vectors</span><span class="p">,</span> <span class="n">substrate_vectors</span><span class="p">,</span> <span class="n">vec_area</span><span class="p">(</span><span class="o">*</span><span class="n">match</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> \
+            <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">match_as_dict</span><span class="p">(</span><span class="n">match</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">match</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">film_vectors</span><span class="p">,</span> <span class="n">substrate_vectors</span><span class="p">,</span> <span class="n">vec_area</span><span class="p">(</span><span class="o">*</span><span class="n">match</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
                                      <span class="n">match</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">match</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
 
             <span class="c1"># Just want lowest match per direction</span>
@@ -328,12 +326,12 @@
             <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">zsl</span><span class="p">(</span><span class="n">film_vectors</span><span class="p">,</span> <span class="n">substrate_vectors</span><span class="p">,</span> <span class="n">lowest</span><span class="p">):</span>
                 <span class="n">match</span><span class="p">[</span><span class="s1">&#39;film_miller&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">film_miller</span>
                 <span class="n">match</span><span class="p">[</span><span class="s1">&#39;sub_miller&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">substrate_miller</span>
-                <span class="k">if</span> <span class="p">(</span><span class="n">elasticity_tensor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">elasticity_tensor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">energy</span><span class="p">,</span> <span class="n">strain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_3D_elastic_energy</span><span class="p">(</span>
                         <span class="n">film</span><span class="p">,</span> <span class="n">match</span><span class="p">,</span> <span class="n">elasticity_tensor</span><span class="p">,</span> <span class="n">include_strain</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                     <span class="n">match</span><span class="p">[</span><span class="s2">&quot;elastic_energy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">energy</span>
                     <span class="n">match</span><span class="p">[</span><span class="s2">&quot;strain&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">strain</span>
-                <span class="k">if</span> <span class="p">(</span><span class="n">ground_state_energy</span> <span class="ow">is</span> <span class="ow">not</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">ground_state_energy</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">match</span><span class="p">[</span><span class="s1">&#39;total_energy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;elastic_energy&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">ground_state_energy</span>
 
                 <span class="k">yield</span> <span class="n">match</span></div>
@@ -509,7 +507,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

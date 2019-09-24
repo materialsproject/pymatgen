@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.magnetism.analyzer &#8212; pymatgen 2019.7.30 documentation</title>
+    <title>pymatgen.analysis.magnetism.analyzer &#8212; pymatgen 2019.9.16 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -49,6 +49,10 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides some useful functions for dealing with magnetic Structures</span>
+<span class="sd">(e.g. Structures with associated magmom tags).</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -71,17 +75,10 @@
     <span class="n">MagOrderingTransformation</span><span class="p">,</span>
     <span class="n">MagOrderParameterConstraint</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pymatgen.alchemy.materials</span> <span class="k">import</span> <span class="n">TransformedStructure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.groups</span> <span class="k">import</span> <span class="n">SpaceGroup</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.bond_valence</span> <span class="k">import</span> <span class="n">BVAnalyzer</span>
 <span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="k">import</span> <span class="n">loadfn</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span>
-
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This module provides some useful functions for dealing with magnetic Structures</span>
-<span class="sd">(e.g. Structures with associated magmom tags).</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Union</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Matthew Horton&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2017, The Materials Project&quot;</span>
@@ -95,7 +92,7 @@
 
 <span class="k">try</span><span class="p">:</span>
     <span class="n">DEFAULT_MAGMOMS</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s2">&quot;default_magmoms.yaml&quot;</span><span class="p">))</span>
-<span class="k">except</span><span class="p">:</span>
+<span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
     <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
         <span class="s2">&quot;Could not load default_magmoms.yaml, falling back to VASPIncarBase.yaml&quot;</span>
     <span class="p">)</span>
@@ -107,6 +104,9 @@
 
 <div class="viewcode-block" id="Ordering"><a class="viewcode-back" href="../../../../pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.Ordering">[docs]</a><span class="nd">@unique</span>
 <span class="k">class</span> <span class="nc">Ordering</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enum type of magnetic orderings.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">FM</span> <span class="o">=</span> <span class="s2">&quot;FM&quot;</span>  <span class="c1"># Ferromagnetic</span>
     <span class="n">AFM</span> <span class="o">=</span> <span class="s2">&quot;AFM&quot;</span>  <span class="c1"># Antiferromagnetic</span>
     <span class="n">FiM</span> <span class="o">=</span> <span class="s2">&quot;FiM&quot;</span>  <span class="c1"># Ferrimagnetic</span>
@@ -116,6 +116,9 @@
 
 <div class="viewcode-block" id="OverwriteMagmomMode"><a class="viewcode-back" href="../../../../pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode">[docs]</a><span class="nd">@unique</span>
 <span class="k">class</span> <span class="nc">OverwriteMagmomMode</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enum of modes of overwriting magmoms.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">none</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span>
     <span class="n">respect_sign</span> <span class="o">=</span> <span class="s2">&quot;respect_sign&quot;</span>
     <span class="n">respect_zero</span> <span class="o">=</span> <span class="s2">&quot;respect_zeros&quot;</span>
@@ -124,22 +127,23 @@
 
 
 <div class="viewcode-block" id="CollinearMagneticStructureAnalyzer"><a class="viewcode-back" href="../../../../pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer">[docs]</a><span class="k">class</span> <span class="nc">CollinearMagneticStructureAnalyzer</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class which provides a few helpful methods to analyze</span>
+<span class="sd">    collinear magnetic structures.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">structure</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span>
-        <span class="n">overwrite_magmom_mode</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">OverwriteMagmomMode</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span>
-        <span class="n">round_magmoms</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">detect_valences</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">make_primitive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">default_magmoms</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">set_net_positive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.00</span><span class="p">,</span>
-        <span class="n">threshold_nonmag</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">structure</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span>
+            <span class="n">overwrite_magmom_mode</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">OverwriteMagmomMode</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span>
+            <span class="n">round_magmoms</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">detect_valences</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">make_primitive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">default_magmoms</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">set_net_positive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.00</span><span class="p">,</span>
+            <span class="n">threshold_nonmag</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        A class which provides a few helpful methods to analyze</span>
-<span class="sd">        collinear magnetic structures.</span>
-
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        If magnetic moments are not defined, moments will be</span>
 <span class="sd">        taken either from default_magmoms.yaml (similar to the</span>
 <span class="sd">        default magmoms in MPRelaxSet, with a few extra definitions)</span>
@@ -167,22 +171,22 @@
 <span class="sd">        :param structure: Structure object</span>
 <span class="sd">        :param overwrite_magmom_mode (str): default &quot;none&quot;</span>
 <span class="sd">        :param round_magmoms (int or bool): will round input magmoms to</span>
-<span class="sd">        specified number of decimal places if integer is supplied, if set</span>
-<span class="sd">        to a float will try and group magmoms together using a kernel density</span>
-<span class="sd">        estimator of provided width, and extracting peaks of the estimator</span>
+<span class="sd">            specified number of decimal places if integer is supplied, if set</span>
+<span class="sd">            to a float will try and group magmoms together using a kernel density</span>
+<span class="sd">            estimator of provided width, and extracting peaks of the estimator</span>
 <span class="sd">        :param detect_valences (bool): if True, will attempt to assign valences</span>
-<span class="sd">        to input structure</span>
+<span class="sd">            to input structure</span>
 <span class="sd">        :param make_primitive (bool): if True, will transform to primitive</span>
-<span class="sd">        magnetic cell</span>
+<span class="sd">            magnetic cell</span>
 <span class="sd">        :param default_magmoms (dict): (optional) dict specifying default magmoms</span>
 <span class="sd">        :param set_net_positive (bool): if True, will change sign of magnetic</span>
-<span class="sd">        moments such that the net magnetization is positive. Argument will be</span>
-<span class="sd">        ignored if mode &quot;respect_sign&quot; is used.</span>
+<span class="sd">            moments such that the net magnetization is positive. Argument will be</span>
+<span class="sd">            ignored if mode &quot;respect_sign&quot; is used.</span>
 <span class="sd">        :param threshold (float): number (in Bohr magnetons) below which magmoms</span>
-<span class="sd">        will be rounded to zero,</span>
-<span class="sd">        :param threshold_nonmag (float): number (in Bohr magneton) </span>
-<span class="sd">        below which nonmagnetic ions (with no magmom specified </span>
-<span class="sd">        in default_magmoms) will be rounded to zero</span>
+<span class="sd">            will be rounded to zero,</span>
+<span class="sd">        :param threshold_nonmag (float): number (in Bohr magneton)</span>
+<span class="sd">            below which nonmagnetic ions (with no magmom specified</span>
+<span class="sd">            in default_magmoms) will be rounded to zero</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">default_magmoms</span><span class="p">:</span>
@@ -201,7 +205,6 @@
 
         <span class="k">if</span> <span class="n">detect_valences</span><span class="p">:</span>
             <span class="n">trans</span> <span class="o">=</span> <span class="n">AutoOxiStateDecorationTransformation</span><span class="p">()</span>
-            <span class="n">bva</span> <span class="o">=</span> <span class="n">BVAnalyzer</span><span class="p">()</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">structure</span> <span class="o">=</span> <span class="n">trans</span><span class="o">.</span><span class="n">apply_transformation</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
@@ -277,23 +280,19 @@
         <span class="c1"># round magmoms on magnetic ions below threshold to zero</span>
         <span class="c1"># and on non magnetic ions below threshold_nonmag</span>
         <span class="n">magmoms</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">m</span>
-            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">threshold</span> <span class="ow">and</span> <span class="n">a</span><span class="o">.</span><span class="n">species_string</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_magmoms</span>
-            <span class="k">else</span> <span class="n">m</span>
-            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">threshold_nonmag</span>
-            <span class="ow">and</span> <span class="n">a</span><span class="o">.</span><span class="n">species_string</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_magmoms</span>
-            <span class="k">else</span> <span class="mi">0</span>
+            <span class="n">m</span> <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">threshold</span> <span class="ow">and</span> <span class="n">a</span><span class="o">.</span><span class="n">species_string</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_magmoms</span> <span class="k">else</span> <span class="n">m</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">threshold_nonmag</span> <span class="ow">and</span> <span class="n">a</span><span class="o">.</span><span class="n">species_string</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_magmoms</span> <span class="k">else</span> <span class="mi">0</span>
             <span class="k">for</span> <span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">magmoms</span><span class="p">,</span> <span class="n">structure</span><span class="o">.</span><span class="n">sites</span><span class="p">)</span>
         <span class="p">]</span>
 
         <span class="c1"># overwrite existing magmoms with default_magmoms</span>
         <span class="k">if</span> <span class="n">overwrite_magmom_mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span>
-            <span class="s2">&quot;none&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;respect_sign&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;respect_zeros&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;replace_all&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;replace_all_if_undefined&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;normalize&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;none&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;respect_sign&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;respect_zeros&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;replace_all&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;replace_all_if_undefined&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;normalize&quot;</span><span class="p">,</span>
         <span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported mode.&quot;</span><span class="p">)</span>
 
@@ -303,8 +302,8 @@
                 <span class="c1"># look for species first, e.g. Fe2+</span>
                 <span class="n">default_magmom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_magmoms</span><span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">species_string</span><span class="p">]</span>
             <span class="k">elif</span> <span class="p">(</span>
-                <span class="nb">isinstance</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">Specie</span><span class="p">)</span>
-                <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">element</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_magmoms</span>
+                    <span class="nb">isinstance</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">Specie</span><span class="p">)</span>
+                    <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">element</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_magmoms</span>
             <span class="p">):</span>
                 <span class="c1"># look for element, e.g. Fe</span>
                 <span class="n">default_magmom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_magmoms</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">element</span><span class="p">)]</span>
@@ -405,7 +404,7 @@
                     <span class="s2">&quot;Failed to round magmoms intelligently, &quot;</span>
                     <span class="s2">&quot;falling back to simple rounding.&quot;</span>
                 <span class="p">)</span>
-                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
 
             <span class="c1"># and finally round roughly to the number of significant figures in our kde width</span>
             <span class="n">num_decimals</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">round_magmoms_mode</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span>
@@ -449,7 +448,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a Structure without magnetic moments defined.</span>
 <span class="sd">        :param make_primitive (bool): Return a primitive</span>
-<span class="sd">        structure, defaults to True.</span>
+<span class="sd">            structure, defaults to True.</span>
 <span class="sd">        :return: Structure</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -466,7 +465,7 @@
 <span class="sd">        Returns a Structure with all magnetic moments positive</span>
 <span class="sd">        or zero.</span>
 <span class="sd">        :param make_primitive (bool): Return a primitive</span>
-<span class="sd">        structure, defaults to True.</span>
+<span class="sd">            structure, defaults to True.</span>
 <span class="sd">        :return: Structure</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -551,7 +550,7 @@
 <span class="sd">        :param symprec (float): same as in SpacegroupAnalyzer</span>
 <span class="sd">        :param angle_tolerance (float): same as in SpacegroupAnalyzer</span>
 <span class="sd">        :return (int): Number of symmetrically-distinct magnetic sites present</span>
-<span class="sd">        in structure.</span>
+<span class="sd">            in structure.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_nonmagnetic_structure</span><span class="p">()</span>
@@ -664,7 +663,7 @@
         <span class="n">b_negative</span> <span class="o">=</span> <span class="n">b_negative</span><span class="o">.</span><span class="n">get_structure_with_spin</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">matches</span><span class="p">(</span><span class="n">b_positive</span><span class="p">)</span> <span class="ow">or</span> <span class="n">a</span><span class="o">.</span><span class="n">matches</span><span class="p">(</span>
-            <span class="n">b_negative</span>
+                <span class="n">b_negative</span>
         <span class="p">):</span>  <span class="c1"># sometimes returns None (bug?)</span>
             <span class="k">return</span> <span class="kc">True</span>
         <span class="k">else</span><span class="p">:</span>
@@ -718,13 +717,13 @@
     <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">structure</span><span class="p">,</span>
-        <span class="n">default_magmoms</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">strategies</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;ferromagnetic&quot;</span><span class="p">,</span> <span class="s2">&quot;antiferromagnetic&quot;</span><span class="p">),</span>
-        <span class="n">automatic</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">truncate_by_symmetry</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">transformation_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">structure</span><span class="p">,</span>
+            <span class="n">default_magmoms</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">strategies</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;ferromagnetic&quot;</span><span class="p">,</span> <span class="s2">&quot;antiferromagnetic&quot;</span><span class="p">),</span>
+            <span class="n">automatic</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">truncate_by_symmetry</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">transformation_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This class will try generated different collinear</span>
@@ -942,7 +941,7 @@
         <span class="n">structure_sym</span> <span class="o">=</span> <span class="n">sga</span><span class="o">.</span><span class="n">get_symmetrized_structure</span><span class="p">()</span>
         <span class="n">wyckoff</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;n/a&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">indices</span><span class="p">,</span> <span class="n">symbol</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
-            <span class="n">structure_sym</span><span class="o">.</span><span class="n">equivalent_indices</span><span class="p">,</span> <span class="n">structure_sym</span><span class="o">.</span><span class="n">wyckoff_symbols</span>
+                <span class="n">structure_sym</span><span class="o">.</span><span class="n">equivalent_indices</span><span class="p">,</span> <span class="n">structure_sym</span><span class="o">.</span><span class="n">wyckoff_symbols</span>
         <span class="p">):</span>
             <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">:</span>
                 <span class="n">wyckoff</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">symbol</span>
@@ -963,28 +962,27 @@
         <span class="c1"># we apply a heuristic as to whether to attempt them or not</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">automatic</span><span class="p">:</span>
             <span class="k">if</span> <span class="p">(</span>
-                <span class="s2">&quot;ferrimagnetic_by_motif&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategies</span>
-                <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">wyckoff_symbols</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
-                <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">types_mag_species</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+                    <span class="s2">&quot;ferrimagnetic_by_motif&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategies</span>
+                    <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">wyckoff_symbols</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
+                    <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">types_mag_species</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
             <span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">strategies</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">&quot;ferrimagnetic_by_motif&quot;</span><span class="p">,)</span>
 
             <span class="k">if</span> <span class="p">(</span>
-                <span class="s2">&quot;antiferromagnetic_by_motif&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategies</span>
-                <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">wyckoff_symbols</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
-                <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">types_mag_species</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+                    <span class="s2">&quot;antiferromagnetic_by_motif&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategies</span>
+                    <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">wyckoff_symbols</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
+                    <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">types_mag_species</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
             <span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">strategies</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">&quot;antiferromagnetic_by_motif&quot;</span><span class="p">,)</span>
 
             <span class="k">if</span> <span class="p">(</span>
-                <span class="s2">&quot;ferrimagnetic_by_species&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategies</span>
-                <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">types_mag_species</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
+                    <span class="s2">&quot;ferrimagnetic_by_species&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategies</span>
+                    <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">types_mag_species</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
             <span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">strategies</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">&quot;ferrimagnetic_by_species&quot;</span><span class="p">,)</span>
 
         <span class="c1"># we start with a ferromagnetic ordering</span>
         <span class="k">if</span> <span class="s2">&quot;ferromagnetic&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategies</span><span class="p">:</span>
-
             <span class="c1"># TODO: remove 0 spins !</span>
 
             <span class="n">fm_structure</span> <span class="o">=</span> <span class="n">analyzer</span><span class="o">.</span><span class="n">get_ferromagnetic_structure</span><span class="p">()</span>
@@ -1008,7 +1006,7 @@
 
             <span class="n">constraint</span> <span class="o">=</span> <span class="n">MagOrderParameterConstraint</span><span class="p">(</span>
                 <span class="mf">0.5</span><span class="p">,</span>
-                <span class="c1"># TODO: update MagOrderParameterConstraint in </span>
+                <span class="c1"># TODO: update MagOrderParameterConstraint in</span>
                 <span class="c1"># pymatgen to take types_mag_species directly</span>
                 <span class="n">species_constraints</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">types_mag_species</span><span class="p">)),</span>
             <span class="p">)</span>
@@ -1017,7 +1015,6 @@
             <span class="c1"># allows for non-magnetic sublattices</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">types_mag_species</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">types_mag_species</span><span class="p">:</span>
-
                     <span class="n">constraints</span> <span class="o">=</span> <span class="p">[</span>
                         <span class="n">MagOrderParameterConstraint</span><span class="p">(</span>
                             <span class="mf">0.5</span><span class="p">,</span> <span class="n">species_constraints</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span>
@@ -1029,13 +1026,12 @@
         <span class="c1"># ...and then we also try ferrimagnetic orderings by motif if a</span>
         <span class="c1"># single magnetic species is present...</span>
         <span class="k">if</span> <span class="p">(</span>
-            <span class="s2">&quot;ferrimagnetic_by_motif&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategies</span>
-            <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">wyckoff_symbols</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
+                <span class="s2">&quot;ferrimagnetic_by_motif&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategies</span>
+                <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">wyckoff_symbols</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
         <span class="p">):</span>
 
             <span class="c1"># these orderings are AFM on one local environment, and FM on the rest</span>
             <span class="k">for</span> <span class="n">symbol</span> <span class="ow">in</span> <span class="n">wyckoff_symbols</span><span class="p">:</span>
-
                 <span class="n">constraints</span> <span class="o">=</span> <span class="p">[</span>
                     <span class="n">MagOrderParameterConstraint</span><span class="p">(</span>
                         <span class="mf">0.5</span><span class="p">,</span>
@@ -1061,10 +1057,9 @@
             <span class="n">total_mag_sites</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">num_sp</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 
             <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">types_mag_species</span><span class="p">:</span>
-
                 <span class="c1"># attempt via a global order parameter</span>
                 <span class="n">all_constraints</span><span class="p">[</span><span class="s2">&quot;ferri_by_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="n">num_sp</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span> <span class="o">/</span> <span class="n">total_mag_sites</span>
+                        <span class="n">num_sp</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span> <span class="o">/</span> <span class="n">total_mag_sites</span>
                 <span class="p">)</span>
 
                 <span class="c1"># attempt via afm on sp, fm on remaining species</span>
@@ -1089,7 +1084,6 @@
         <span class="k">if</span> <span class="s2">&quot;antiferromagnetic_by_motif&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategies</span><span class="p">:</span>
 
             <span class="k">for</span> <span class="n">symbol</span> <span class="ow">in</span> <span class="n">wyckoff_symbols</span><span class="p">:</span>
-
                 <span class="n">constraints</span> <span class="o">=</span> <span class="p">[</span>
                     <span class="n">MagOrderParameterConstraint</span><span class="p">(</span>
                         <span class="mf">0.5</span><span class="p">,</span>
@@ -1103,7 +1097,6 @@
         <span class="c1"># and now construct all our transformations for each strategy</span>
         <span class="n">transformations</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">constraints</span> <span class="ow">in</span> <span class="n">all_constraints</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-
             <span class="n">trans</span> <span class="o">=</span> <span class="n">MagOrderingTransformation</span><span class="p">(</span>
                 <span class="n">mag_species_spin</span><span class="p">,</span>
                 <span class="n">order_parameter</span><span class="o">=</span><span class="n">constraints</span><span class="p">,</span>
@@ -1115,7 +1108,7 @@
         <span class="k">return</span> <span class="n">transformations</span>
 
     <span class="k">def</span> <span class="nf">_generate_ordered_structures</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">sanitized_input_structure</span><span class="p">,</span> <span class="n">transformations</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">sanitized_input_structure</span><span class="p">,</span> <span class="n">transformations</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Apply our input structure to our list of transformations and output a list</span>
@@ -1139,10 +1132,10 @@
 
         <span class="c1"># utility function to combine outputs from several transformations</span>
         <span class="k">def</span> <span class="nf">_add_structures</span><span class="p">(</span>
-            <span class="n">ordered_structures</span><span class="p">,</span>
-            <span class="n">ordered_structures_origins</span><span class="p">,</span>
-            <span class="n">structures_to_add</span><span class="p">,</span>
-            <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="n">ordered_structures</span><span class="p">,</span>
+                <span class="n">ordered_structures_origins</span><span class="p">,</span>
+                <span class="n">structures_to_add</span><span class="p">,</span>
+                <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
         <span class="p">):</span>
             <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Transformations with return_ranked_list can return either</span>
@@ -1189,11 +1182,11 @@
                     <span class="n">ordered_structure</span><span class="p">,</span> <span class="n">overwrite_magmom_mode</span><span class="o">=</span><span class="s2">&quot;none&quot;</span>
                 <span class="p">)</span>
                 <span class="k">for</span> <span class="n">check_idx</span><span class="p">,</span> <span class="n">check_structure</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
-                    <span class="n">ordered_structures</span>
+                        <span class="n">ordered_structures</span>
                 <span class="p">):</span>
                     <span class="k">if</span> <span class="p">(</span>
-                        <span class="n">check_idx</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">structures_to_remove</span>
-                        <span class="ow">and</span> <span class="n">check_idx</span> <span class="o">!=</span> <span class="n">idx</span>
+                            <span class="n">check_idx</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">structures_to_remove</span>
+                            <span class="ow">and</span> <span class="n">check_idx</span> <span class="o">!=</span> <span class="n">idx</span>
                     <span class="p">):</span>
                         <span class="k">if</span> <span class="n">duplicate_checker</span><span class="o">.</span><span class="n">matches_ordering</span><span class="p">(</span><span class="n">check_structure</span><span class="p">):</span>
                             <span class="n">structures_to_remove</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">check_idx</span><span class="p">)</span>
@@ -1337,7 +1330,7 @@
     <span class="n">eta</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
     <span class="n">w</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">eta</span><span class="p">)</span>
     <span class="n">deformation</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="mi">100</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">w</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">w</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="mi">100</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">w</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">w</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
     <span class="p">)</span>
 
     <span class="n">MagneticDeformation</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;MagneticDeformation&quot;</span><span class="p">,</span> <span class="s2">&quot;type deformation&quot;</span><span class="p">)</span>
@@ -1373,7 +1366,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

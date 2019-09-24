@@ -17,6 +17,7 @@ Submodules
    pymatgen.symmetry.groups
    pymatgen.symmetry.maggroups
    pymatgen.symmetry.settings
+   pymatgen.symmetry.site_symmetries
    pymatgen.symmetry.structure
 
 Module contents

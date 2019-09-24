@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.structure_prediction.substitutor &#8212; pymatgen 2019.7.30 documentation</title>
+    <title>pymatgen.analysis.structure_prediction.substitutor &#8212; pymatgen 2019.9.16 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -164,12 +164,8 @@
                 <span class="c1"># check if: species are in the domain,</span>
                 <span class="c1"># and the probability of subst. is above the threshold</span>
                 <span class="n">els</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="s1">&#39;structure&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">elements</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">els</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">permut</span><span class="p">)</span> <span class="ow">and</span> \
-                                <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">els</span><span class="p">)</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span>
-                                    <span class="bp">self</span><span class="o">.</span><span class="n">get_allowed_species</span><span class="p">())))</span> <span class="o">==</span> \
-                                <span class="nb">len</span><span class="p">(</span><span class="n">els</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sp</span><span class="o">.</span><span class="n">cond_prob_list</span><span class="p">(</span><span class="n">permut</span><span class="p">,</span>
-                                                                     <span class="n">els</span><span class="p">)</span> <span class="o">&gt;</span> \
-                        <span class="bp">self</span><span class="o">.</span><span class="n">_threshold</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">els</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">permut</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">els</span><span class="p">)</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_allowed_species</span><span class="p">())))</span> <span class="o">==</span> \
+                        <span class="nb">len</span><span class="p">(</span><span class="n">els</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sp</span><span class="o">.</span><span class="n">cond_prob_list</span><span class="p">(</span><span class="n">permut</span><span class="p">,</span> <span class="n">els</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_threshold</span><span class="p">:</span>
 
                     <span class="n">clean_subst</span> <span class="o">=</span> <span class="p">{</span><span class="n">els</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span> <span class="n">permut</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
                                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">els</span><span class="p">))</span>
@@ -226,7 +222,7 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">chemsys</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">chemical_system</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">chemsys</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">chemical_system</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">el</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">chemical_system</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="kc">True</span>
 
@@ -345,7 +341,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
