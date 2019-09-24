@@ -51,7 +51,7 @@ class NEBPathfinder:
         """
         self.__s1 = start_struct
         self.__s2 = end_struct
-        self.__mid = mid_struct or None
+        self.__mid = mid_struct
         self.__relax_sites = relax_sites
         self.__v = v
         self.__n_images = n_images
@@ -66,7 +66,7 @@ class NEBPathfinder:
         in relax_sites, the path is relaxed by the elastic band method within
         the static potential V.
         """
-        if self.__mid != None:
+        if self.__mid is not None:
             # to make arithmatic easier we will do the interpolation in two parts with n images each
             # then just take every other image at the end, this results in exactly n images
             images_0 = self.__s1.interpolate(self.__mid, nimages=self.__n_images,
