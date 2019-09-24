@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -105,6 +104,25 @@ structures</p></li>
 structures.</p></li>
 <li><p><strong>extend_collection</strong> – Whether to use more than one output structure
 from one-to-many transformations.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Initializes a transmuter from an initial list of
+<a class="reference internal" href="pymatgen.alchemy.materials.html#pymatgen.alchemy.materials.TransformedStructure" title="pymatgen.alchemy.materials.TransformedStructure"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.alchemy.materials.TransformedStructure</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>transformed_structures</strong> (<em>[</em><a class="reference internal" href="pymatgen.alchemy.materials.html#pymatgen.alchemy.materials.TransformedStructure" title="pymatgen.alchemy.materials.TransformedStructure"><em>TransformedStructure</em></a><em>]</em>) – Input transformed
+structures</p></li>
+<li><p><strong>transformations</strong> (<em>[</em><em>Transformations</em><em>]</em>) – New transformations to be
+applied to all structures.</p></li>
+<li><p><strong>extend_collection</strong> (<em>int</em>) – Whether to use more than one output
+structure from one-to-many transformations. extend_collection
+can be an int, which determines the maximum branching for each
+transformation.</p></li>
+<li><p><strong>ncores</strong> (<em>int</em>) – Number of cores to use for applying transformations.
+Uses multiprocessing.Pool. Default is None, which implies
+serial.</p></li>
 </ul>
 </dd>
 </dl>
@@ -372,7 +390,7 @@ programs.</p></li>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

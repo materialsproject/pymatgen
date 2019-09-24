@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Requirements" href="installation.html" />
@@ -51,7 +50,7 @@
 <h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
 <img alt="https://circleci.com/gh/materialsproject/pymatgen.svg?style=shield&amp;circle-token=:circle-token" src="https://circleci.com/gh/materialsproject/pymatgen.svg?style=shield&amp;circle-token=:circle-token" />
 <img alt="https://ci.appveyor.com/api/projects/status/akdyke5jxg6gps45?svg=true" src="https://ci.appveyor.com/api/projects/status/akdyke5jxg6gps45?svg=true" />
-<img alt="https://anaconda.org/matsci/pymatgen/badges/downloads.svg" src="https://anaconda.org/matsci/pymatgen/badges/downloads.svg" /><img alt="https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master" src="https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master" />
+<img alt="https://anaconda.org/conda-forge/pymatgen/badges/downloads.svg" src="https://anaconda.org/conda-forge/pymatgen/badges/downloads.svg" /><img alt="https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master" src="https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master" />
 <p>Pymatgen (Python Materials Genomics) is a robust, open-source Python library
 for materials analysis. These are some of the main features:</p>
 <ol class="arabic simple">
@@ -176,12 +175,10 @@ Actions as well as CircleCI.</p></li>
 <div class="section" id="via-conda-recommended">
 <h2>Via conda (recommended)<a class="headerlink" href="#via-conda-recommended" title="Permalink to this headline">¶</a></h2>
 <p>If you are absolutely new to Python and/or are using Windows, the easiest
-installation process is using <a class="reference external" href="http://conda.pydata.org">conda</a>. The
-<a class="reference external" href="http://www.materialsvirtuallab.org">Materials Virtual Lab</a> has started <a class="reference external" href="http://materials.sh">materials.sh</a>,
-a community initiative to build a comprehensive collection of materials science
-software, where pymatgen is available. If you already have conda installed,
-pymatgen can be installed from the <a class="reference external" href="https://anaconda.org/matsci">matsci channel on Anaconda cloud</a> using the following one line command:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">--</span><span class="n">channel</span> <span class="n">matsci</span> <span class="n">pymatgen</span>
+installation process is using <a class="reference external" href="http://conda.pydata.org">conda</a>. If you
+already have conda installed, pymatgen can be installed from the <a class="reference external" href="https://anaconda.org/conda-forge">conda-forge
+channel</a> using the following command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">--</span><span class="n">channel</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span> <span class="n">pymatgen</span>
 </pre></div>
 </div>
 <p>Pymatgen is under active development, and new features are added regularly. To
@@ -288,7 +285,7 @@ source $HOME/.bash_profile
 
 # Install numpy and other pydata stack packages via conda.
 conda install --yes numpy scipy pandas
-conda install --yes --channel matsci pymatgen
+conda install --yes --channel conda-forge pymatgen
 </pre></div>
 </div>
 </div>
@@ -733,7 +730,7 @@ to indicate the copyright and license terms:</p>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
