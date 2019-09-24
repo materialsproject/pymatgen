@@ -31,7 +31,7 @@ from pymatgen.transformations.advanced_transformations import (
 from pymatgen.symmetry.groups import SpaceGroup
 from monty.serialization import loadfn
 
-from typing import Union, List, Dict, Tuple, Optional, Any, Iterator
+from typing import Union, List, Dict, Tuple, Optional, Any
 from pymatgen.util.typing import Vector3Like
 
 """
@@ -691,7 +691,7 @@ class MagneticStructureEnumerator:
         self,
         structure: Structure,
         default_magmoms: Optional[Dict[str, float]] = None,
-        strategies: Iterator[str] = ("ferromagnetic", "antiferromagnetic"),
+        strategies: Union[List[str], Tuple[str, ...]] = ("ferromagnetic", "antiferromagnetic"),
         automatic: bool = True,
         truncate_by_symmetry: bool = True,
         transformation_kwargs: Optional[Dict] = None,
@@ -954,7 +954,7 @@ class MagneticStructureEnumerator:
 
         # we store constraint(s) for each strategy first,
         # and then use each to perform a transformation later
-        all_constraints: Dict[str, Union[float, MagOrderParameterConstraint]] = {}
+        all_constraints: Dict[str, List[Union[float, MagOrderParameterConstraint]]] = {}
 
         # ...to which we can add simple AFM cases first...
         if "antiferromagnetic" in self.strategies:
