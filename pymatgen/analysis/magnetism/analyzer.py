@@ -731,7 +731,7 @@ class MagneticStructureEnumerator:
         self.default_magmoms = default_magmoms
 
         # different strategies to attempt, default is usually reasonable
-        self.strategies = strategies
+        self.strategies = list(strategies)
         # and whether to automatically add strategies that may be appropriate
         self.automatic = automatic
 
@@ -915,7 +915,7 @@ class MagneticStructureEnumerator:
         structure.add_site_property("wyckoff", wyckoff)
         wyckoff_symbols = set(wyckoff) - {"n/a"}
 
-        # if user doesn't specifically request ferrimagnetic_Cr2NiO4 orderings,
+        # if user doesn't specifically request ferrimagnetic orderings,
         # we apply a heuristic as to whether to attempt them or not
         if self.automatic:
             if (
@@ -923,20 +923,20 @@ class MagneticStructureEnumerator:
                 and len(wyckoff_symbols) > 1
                 and len(types_mag_species) == 1
             ):
-                self.strategies += ("ferrimagnetic_by_motif",)
+                self.strategies += ["ferrimagnetic_by_motif"]
 
             if (
                 "antiferromagnetic_by_motif" not in self.strategies
                 and len(wyckoff_symbols) > 1
                 and len(types_mag_species) == 1
             ):
-                self.strategies += ("antiferromagnetic_by_motif",)
+                self.strategies += ["antiferromagnetic_by_motif"]
 
             if (
                 "ferrimagnetic_by_species" not in self.strategies
                 and len(types_mag_species) > 1
             ):
-                self.strategies += ("ferrimagnetic_by_species",)
+                self.strategies += ["ferrimagnetic_by_species"]
 
         # we start with a ferromagnetic ordering
         if "ferromagnetic" in self.strategies:
@@ -954,7 +954,7 @@ class MagneticStructureEnumerator:
 
         # we store constraint(s) for each strategy first,
         # and then use each to perform a transformation later
-        all_constraints: Dict[str, List[Union[float, MagOrderParameterConstraint]]] = {}
+        all_constraints: Dict[str, List[Any]] = {}
 
         # ...to which we can add simple AFM cases first...
         if "antiferromagnetic" in self.strategies:
