@@ -308,6 +308,10 @@ class StaticPotential(metaclass=ABCMeta):
     """
 
     def __init__(self, struct, pot):
+        """
+        :param struct: atomic structure of the potential
+        :param pot: volumentric data to be used as a potential
+        """
         self.__v = pot
         self.__s = struct
 
