@@ -954,7 +954,7 @@ class MagneticStructureEnumerator:
 
         # we store constraint(s) for each strategy first,
         # and then use each to perform a transformation later
-        all_constraints: Dict[str, Union[float, List[Any]]] = {}
+        all_constraints: Dict[str, Any] = {}
 
         # ...to which we can add simple AFM cases first...
         if "antiferromagnetic" in self.strategies:
