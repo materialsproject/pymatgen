@@ -211,7 +211,7 @@ class ExcitingInput(MSONable):
                                                       basis[i][2])
         # write atomic positions for each species
         index = 0
-        for i in new_struct.types_of_specie:
+        for i in sorted(new_struct.types_of_specie, key=lambda el: el.X):
             species = ET.SubElement(structure, 'species', speciesfile=i.symbol + '.xml')
             sites = new_struct.indices_from_symbol(i.symbol)
 
