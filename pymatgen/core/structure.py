@@ -61,7 +61,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
     @property
     @abstractmethod
-    def sites(self) -> List[Union[Site, PeriodicSite]]:
+    def sites(self) -> Tuple[Union[Site, PeriodicSite]]:
         """
         Returns a tuple of sites.
         """
@@ -112,7 +112,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         return len(self.types_of_specie)
 
     @property
-    def types_of_specie(self) -> List[Union[Element, Specie, DummySpecie]]:
+    def types_of_specie(self) -> Tuple[Union[Element, Specie, DummySpecie]]:
         """
         List of types of specie.
         """
@@ -120,9 +120,9 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         types = []  # type: List[Union[Element, Specie, DummySpecie]]
         for site in self:
             for sp, v in site.species.items():
-                if sp not in types and v != 0:
+                if v != 0:
                     types.append(sp)
-        return types
+        return tuple(set(types))  # type: ignore
 
     def group_by_types(self) -> Iterator[Union[Site, PeriodicSite]]:
         """Iterate over species grouped by type"""
@@ -140,17 +140,17 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                       if specie.symbol == symbol))
 
     @property
-    def symbol_set(self) -> Tuple[str, ...]:
+    def symbol_set(self) -> Tuple[str]:
         """
         Tuple with the set of chemical symbols.
         Note that len(symbol_set) == len(types_of_specie)
         """
-        return tuple((specie.symbol for specie in self.types_of_specie))
+        return tuple(sorted(specie.symbol for specie in self.types_of_specie))  # type: ignore
 
-    @property
-    def atomic_numbers(self) -> List[int]:
+    @property  # type: ignore
+    def atomic_numbers(self) -> Tuple[int]:
         """List of atomic numbers."""
-        return [site.specie.number for site in self]
+        return tuple(site.specie.Z for site in self)  # type: ignore
 
     @property
     def site_properties(self) -> Dict[str, List]:
@@ -2037,7 +2037,7 @@ class IMolecule(SiteCollection, MSONable):
     """
 
     def __init__(self,
-                 species: List[Union[str, Element, Specie, DummySpecie, Composition]],
+                 species: Sequence[Union[str, Element, Specie, DummySpecie, Composition]],
                  coords: Sequence[Sequence[float]],
                  charge: float = 0.0,
                  spin_multiplicity: float = None,
@@ -3242,7 +3242,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
     __hash__ = None  # type: ignore
 
     def __init__(self,
-                 species: List[Union[str, Element, Specie, DummySpecie, Composition]],
+                 species: Sequence[Union[str, Element, Specie, DummySpecie, Composition]],
                  coords: Sequence[Sequence[float]],
                  charge: float = 0.0,
                  spin_multiplicity: float = None,

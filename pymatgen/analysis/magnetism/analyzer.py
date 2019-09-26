@@ -462,7 +462,7 @@ class CollinearMagneticStructureAnalyzer:
         return np.array(self.structure.site_properties["magmom"])
 
     @property
-    def types_of_magnetic_specie(self) -> List[Union[Element, Specie, DummySpecie]]:
+    def types_of_magnetic_specie(self) -> Tuple[Union[Element, Specie, DummySpecie]]:
         """Equivalent to Structure.types_of_specie but only returns
         magnetic species.
 
@@ -473,7 +473,7 @@ class CollinearMagneticStructureAnalyzer:
             structure = self.get_structure_with_only_magnetic_atoms()
             return structure.types_of_specie
         else:
-            return []
+            return tuple([])  # type: ignore
 
     @property
     def magnetic_species_and_magmoms(self) -> Dict[str, Any]:
