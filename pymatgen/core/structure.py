@@ -522,7 +522,7 @@ class IStructure(SiteCollection, MSONable):
 
     def __init__(self,
                  lattice: Union[List, np.ndarray, Lattice],
-                 species: List[Union[str, Element, Specie, DummySpecie, Composition]],
+                 species: Sequence[Union[str, Element, Specie, DummySpecie, Composition]],
                  coords: Sequence[Sequence[float]],
                  charge: float = None,
                  validate_proximity: bool = False,
@@ -2611,7 +2611,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
     def __init__(self,
                  lattice: Union[List, np.ndarray, Lattice],
-                 species: List[Union[str, Element, Specie, DummySpecie, Composition]],
+                 species: Sequence[Union[str, Element, Specie, DummySpecie, Composition]],
                  coords: Sequence[Sequence[float]],
                  charge: float = None,
                  validate_proximity: bool = False,
