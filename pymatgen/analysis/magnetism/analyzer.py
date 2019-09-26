@@ -471,7 +471,7 @@ class CollinearMagneticStructureAnalyzer:
         """
         if self.number_of_magnetic_sites > 0:
             structure = self.get_structure_with_only_magnetic_atoms()
-            return structure.types_of_specie
+            return tuple(sorted(structure.types_of_specie))
         else:
             return tuple([])  # type: ignore
 

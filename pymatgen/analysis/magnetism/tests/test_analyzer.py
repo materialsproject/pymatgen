@@ -282,6 +282,7 @@ class MagneticStructureEnumeratorTest(unittest.TestCase):
         structure = Structure.from_file(
             os.path.join(test_dir, "magnetic_orderings/Cr2NiO4.json"))
         enumerator = MagneticStructureEnumerator(structure)
+        print(enumerator.input_origin)
         self.assertEqual(enumerator.input_origin, "ferri_by_Cr")
 
         # antiferromagnetic on single magnetic site
