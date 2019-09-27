@@ -71,6 +71,9 @@ class NEBPathfinder:
         pymatgen.core.structure.interpolate), and for the site indices given
         in relax_sites, the path is relaxed by the elastic band method within
         the static potential V.
+
+        If a mid point is defined we will interpolate from s1--> mid -->s2
+        The final number of images will still be n_images.
         """
         if self.__mid is not None:
             # to make arithmatic easier we will do the interpolation in two parts with n images each
