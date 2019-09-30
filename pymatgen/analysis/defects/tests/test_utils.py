@@ -107,7 +107,7 @@ class DefectsUtilsTest(PymatgenTest):
         pos = struct.sites[4].coords
         bsite, dsite = closestsites(struct, dstruct, pos)
         self.assertEqual(bsite[2], 4)  # test against index
-        self.assertEqual(dsite[2], 1)
+        self.assertTrue(dsite[2] in [1, 3]) # index 1 and index 3 are the same distance
 
     def test_converges(self):
         self.assertAlmostEqual(converge(np.sqrt, 0.1, 0.1, 1.0),
