@@ -23,7 +23,7 @@ from monty.json import MSONable
 from monty.dev import deprecated
 
 from pymatgen.util.coord import pbc_shortest_vectors
-from pymatgen.util.neighbors import find_points_in_spheres
+from pymatgen.optimization.neighbors import find_points_in_spheres
 from pymatgen.util.num import abs_cap
 from pymatgen.util.typing import Vector3Like
 
@@ -1100,8 +1100,10 @@ class Lattice(MSONable):
         lattice_matrix = np.array(self.matrix)
         lattice_matrix = np.ascontiguousarray(lattice_matrix)
         cart_coords = self.get_cartesian_coords(frac_points)
-        _, indices, images, distances = find_points_in_spheres(all_coords=cart_coords, center_coords=np.ascontiguousarray([center], dtype=float), r=r, pbc=np.array([1, 1, 1]),
-                                                              lattice=lattice_matrix, tol=1e-8)
+        _, indices, images, distances = \
+            find_points_in_spheres(all_coords=cart_coords,
+                                   center_coords=np.ascontiguousarray([center], dtype=float),
+                                   r=r, pbc=np.array([1, 1, 1]), lattice=lattice_matrix, tol=1e-8)
         if len(indices) < 1:
             return [] if zip_results else [()] * 4
         fcoords = frac_points[indices] + images
@@ -1482,6 +1484,7 @@ def get_integer_index(miller_index: Sequence[float], round_dp: int = 4, verbose:
         mi *= -1
 
     return tuple(mi)  # type: ignore
+
 
 def get_points_in_spheres(all_coords: np.ndarray, center_coords: np.ndarray, r: float,
                           pbc: Union[bool, List[bool]] = True, numerical_tol: float = 1e-8,

@@ -30,6 +30,10 @@ extra_link_args = []
 if sys.platform.startswith('win') and platform.machine().endswith('64'):
     extra_link_args.append('-Wl,--allow-multiple-definition')
 
+cpp_extra_compile_args = ["-Wno-cpp", "-Wno-unused-function", "-O2", "-march=native", '-std=c++11']
+if sys.platform.startswith('darwin'):
+    cpp_extra_compile_args.append("-stdlib=libc++")
+
 long_desc = """
 Official docs: [http://pymatgen.org](http://pymatgen.org/)
 
@@ -163,11 +167,10 @@ setup(
                  Extension("pymatgen.util.coord_cython",
                            ["pymatgen/util/coord_cython.c"],
                            extra_link_args=extra_link_args),
-                 Extension("pymatgen.util.neighbors",
-                           ["pymatgen/util/neighbors.cpp"],
-                           extra_compile_args=["-Wno-cpp", "-Wno-unused-function", "-O2",
-                                               "-march=native", '-stdlib=libc++', '-std=c++11'],
-                           extra_link_args=["-O2", "-march=native", '-stdlib=libc++'],
+                 Extension("pymatgen.optimization.neighbors",
+                           ["pymatgen/optimization/neighbors.cpp"],
+                           extra_compile_args=cpp_extra_compile_args,
+                           extra_link_args=extra_link_args,
                            language='c++')],
     entry_points={
           'console_scripts': [

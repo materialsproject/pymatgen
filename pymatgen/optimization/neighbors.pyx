@@ -87,7 +87,8 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
             for k in range(min_bounds[2], max_bounds[2]):
                 for l in range(n_total):
                     for m in range(3):
-                        coord_temp[m] = i * lattice[0, m] + <double>j * lattice[1, m] + k * lattice[2, m] + coords_in_cell[l, m]
+                        coord_temp[m] = i * lattice[0, m] + <double>j * lattice[1, m] + \
+                            k * lattice[2, m] + coords_in_cell[l, m]
                     if (coord_temp[0] > valid_min[0]) & (coord_temp[0] < valid_max[0]) & \
                         (coord_temp[1] > valid_min[1]) & (coord_temp[1] < valid_max[1]) & \
                         (coord_temp[2] > valid_min[2]) & (coord_temp[2] < valid_max[2]):
@@ -109,7 +110,8 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
         free(offsets_p_temp)
         free(expanded_coords_p_temp)
         free(indices_p_temp)
-        return np.array([], dtype=int), np.array([], dtype=int), np.array([[], [], []], dtype=float).T, np.array([], dtype=float)
+        return (np.array([], dtype=int), np.array([], dtype=int),
+            np.array([[], [], []], dtype=float).T, np.array([], dtype=float))
 
     # Delete those beyond (min_center_coords - r, max_center_coords + r)
     cdef double *offsets_p = <double*> realloc(offsets_p_temp, count * 3 * sizeof(double))
@@ -290,8 +292,8 @@ cdef map[long, vector[long]] get_cube_neighbors(long [:] ncube):
     return neighbor_map
 
 cdef void get_bounds(double[:, ::1] frac_coords, double[::1] maxr, long[:] pbc, long[:] max_bounds, long[:] min_bounds):
-    """Given the fractional coordinates and the number of repeation needed in each direction, maxr, compute the translational
-    bounds in each dimension
+    """Given the fractional coordinates and the number of repeation needed in each direction, maxr,
+    compute the translational bounds in each dimension
     """
     cdef double max_fcoords[3]
     cdef double min_fcoords[3]

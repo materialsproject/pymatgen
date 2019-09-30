@@ -34,7 +34,7 @@ from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
 from pymatgen.util.coord import get_angle, all_distances, \
     lattice_points_in_supercell
-from pymatgen.util.neighbors import find_points_in_spheres
+from pymatgen.optimization.neighbors import find_points_in_spheres
 from pymatgen.core.units import Mass, Length
 
 
@@ -1190,10 +1190,10 @@ class IStructure(SiteCollection, MSONable):
 
     @deprecated(get_all_neighbors, "Deprecated, favoring cython implementation")
     def get_all_neighbors_py(self, r: float,
-                          include_index: bool = False,
-                          include_image: bool = False,
-                          sites: List[PeriodicSite] = None,
-                          numerical_tol: float = 1e-8) \
+                             include_index: bool = False,
+                             include_image: bool = False,
+                             sites: List[PeriodicSite] = None,
+                             numerical_tol: float = 1e-8) \
             -> List[List[Neighbor]]:
 
         """
