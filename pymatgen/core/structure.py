@@ -34,6 +34,7 @@ from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
 from pymatgen.util.coord import get_angle, all_distances, \
     lattice_points_in_supercell
+from pymatgen.util.neighbors import find_points_in_spheres
 from pymatgen.core.units import Mass, Length
 
 
@@ -1116,6 +1117,79 @@ class IStructure(SiteCollection, MSONable):
         return [d for d in nn if site != d[0]]
 
     def get_all_neighbors(self, r: float,
+                          include_index: bool = False,
+                          include_image: bool = False,
+                          sites: List[PeriodicSite] = None,
+                          numerical_tol: float = 1e-8) \
+            -> List[List[Neighbor]]:
+
+        """
+        Get neighbors for each atom in the unit cell, out to a distance r
+        Returns a list of list of neighbors for each site in structure.
+        Use this method if you are planning on looping over all sites in the
+        crystal. If you only want neighbors for a particular site, use the
+        method get_neighbors as it may not have to build such a large supercell
+        However if you are looping over all sites in the crystal, this method
+        is more efficient since it only performs one pass over a large enough
+        supercell to contain all possible atoms out to a distance r.
+        The return type is a [(site, dist) ...] since most of the time,
+        subsequent processing requires the distance.
+
+        A note about periodic images: Before computing the neighbors, this
+        operation translates all atoms to within the unit cell (having
+        fractional coordinates within [0,1)). This means that the "image" of a
+        site does not correspond to how much it has been translates from its
+        current position, but which image of the unit cell it resides.
+
+        Args:
+            r (float): Radius of sphere.
+            include_index (bool): Deprecated. Now, the non-supercell site index
+                is always included in the returned data.
+            include_image (bool): Deprecated. Now the supercell image
+                is always included in the returned data.
+            sites (list of Sites or None): sites for getting all neighbors,
+                default is None, which means neighbors will be obtained for all
+                sites. This is useful in the situation where you are interested
+                only in one subspecies type, and makes it a lot faster.
+            numerical_tol (float): This is a numerical tolerance for distances.
+                Sites which are < numerical_tol are determined to be conincident
+                with the site. Sites which are r + numerical_tol away is deemed
+                to be within r from the site. The default of 1e-8 should be
+                ok in most instances.
+
+        Returns:
+            [Neighbor] where Neighbor is a namedtuple containing
+            (site, distance, index, image).
+        """
+
+        if sites is None:
+            sites = self.sites
+        site_coords = np.array([site.coords for site in sites], dtype=float)
+        cart_coords = np.ascontiguousarray(np.array(self.cart_coords), dtype=float)
+        lattice_matrix = np.ascontiguousarray(np.array(self.lattice.matrix), dtype=float)
+        r = float(r)
+        center_indices, points_indices, images, distances = \
+            find_points_in_spheres(cart_coords, site_coords, r=r,
+                                   pbc=np.array([1, 1, 1], dtype=int),
+                                   lattice=lattice_matrix, tol=numerical_tol)
+        if len(points_indices) < 1:
+            return [[]] * len(sites)
+        f_coords = self.frac_coords[points_indices] + images
+        neighbor_dict = collections.defaultdict(list)
+        for cindex, pindex, image, f_coord, d in zip(center_indices, points_indices, images, f_coords, distances):
+            if d > numerical_tol or (self[pindex] != sites[cindex]):
+                nn_site = PeriodicSite(self[pindex].species, f_coord,
+                                       self.lattice, properties=self[pindex].properties)
+                neighbor_dict[cindex].append(Neighbor(site=nn_site, distance=d, index=pindex, image=tuple(image)))
+
+        neighbors: List[List[Neighbor]] = []
+
+        for i in range(len(sites)):
+            neighbors.append(neighbor_dict[i])
+        return neighbors
+
+    @deprecated(get_all_neighbors, "Deprecated, favoring cython implementation")
+    def get_all_neighbors_py(self, r: float,
                           include_index: bool = False,
                           include_image: bool = False,
                           sites: List[PeriodicSite] = None,

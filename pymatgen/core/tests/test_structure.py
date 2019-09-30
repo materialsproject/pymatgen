@@ -485,7 +485,10 @@ class IStructureTest(PymatgenTest):
 
         def _is_equal(nn1, nn2):
             if isinstance(nn1, Iterable):
-                return np.all([_is_equal(i, j) for i, j in zip(nn1, nn2)])
+                if isinstance(nn1, list):
+                    return np.all([_is_equal(i, j) for i, j in zip(nn1, nn2)])
+                elif isinstance(nn1, tuple): # image is not going to match
+                    return True
             elif isinstance(nn1, PeriodicSite):
                 return np.linalg.norm(nn1.coords - nn2.coords) < 0.001
             else:

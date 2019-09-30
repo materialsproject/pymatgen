@@ -23,8 +23,10 @@ from monty.json import MSONable
 from monty.dev import deprecated
 
 from pymatgen.util.coord import pbc_shortest_vectors
+from pymatgen.util.neighbors import find_points_in_spheres
 from pymatgen.util.num import abs_cap
 from pymatgen.util.typing import Vector3Like
+
 
 __author__ = "Shyue Ping Ong, Michael Kocher"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -1093,6 +1095,74 @@ class Lattice(MSONable):
             else:
                 fcoords, dists, inds, image
         """
+        frac_points = np.ascontiguousarray(frac_points, dtype=float)
+        r = float(r)
+        lattice_matrix = np.array(self.matrix)
+        lattice_matrix = np.ascontiguousarray(lattice_matrix)
+        cart_coords = self.get_cartesian_coords(frac_points)
+        _, indices, images, distances = find_points_in_spheres(all_coords=cart_coords, center_coords=np.ascontiguousarray([center], dtype=float), r=r, pbc=np.array([1, 1, 1]),
+                                                              lattice=lattice_matrix, tol=1e-8)
+        if len(indices) < 1:
+            return [] if zip_results else [()] * 4
+        fcoords = frac_points[indices] + images
+        if zip_results:
+            return list(
+                zip(
+                    fcoords,
+                    distances,
+                    indices,
+                    images,
+                )
+            )
+        return [
+            fcoords,
+            distances,
+            indices,
+            images,
+        ]
+
+    @deprecated(get_points_in_sphere, "Deprecated, favoring new algorithm using cython")
+    def get_points_in_sphere_py(
+            self,
+            frac_points: List[Vector3Like],
+            center: Vector3Like,
+            r: float,
+            zip_results=True,
+    ) -> Union[
+        List[Tuple[np.ndarray, float, int, np.ndarray]],
+        List[np.ndarray],
+    ]:
+        """
+        Find all points within a sphere from the point taking into account
+        periodic boundary conditions. This includes sites in other periodic
+        images.
+
+        Algorithm:
+
+        1. place sphere of radius r in crystal and determine minimum supercell
+           (parallelpiped) which would contain a sphere of radius r. for this
+           we need the projection of a_1 on a unit vector perpendicular
+           to a_2 & a_3 (i.e. the unit vector in the direction b_1) to
+           determine how many a_1"s it will take to contain the sphere.
+
+           Nxmax = r * length_of_b_1 / (2 Pi)
+
+        2. keep points falling within r.
+
+        Args:
+            frac_points: All points in the lattice in fractional coordinates.
+            center: Cartesian coordinates of center of sphere.
+            r: radius of sphere.
+            zip_results (bool): Whether to zip the results together to group by
+                 point, or return the raw fcoord, dist, index arrays
+
+        Returns:
+            if zip_results:
+                [(fcoord, dist, index, supercell_image) ...] since most of the time, subsequent
+                processing requires the distance, index number of the atom, or index of the image
+            else:
+                fcoords, dists, inds, image
+        """
         cart_coords = self.get_cartesian_coords(frac_points)
         neighbors = get_points_in_spheres(all_coords=cart_coords, center_coords=np.array([center]), r=r, pbc=True,
                                           numerical_tol=1e-8, lattice=self, return_fcoords=True)[0]
@@ -1412,7 +1482,6 @@ def get_integer_index(miller_index: Sequence[float], round_dp: int = 4, verbose:
         mi *= -1
 
     return tuple(mi)  # type: ignore
-
 
 def get_points_in_spheres(all_coords: np.ndarray, center_coords: np.ndarray, r: float,
                           pbc: Union[bool, List[bool]] = True, numerical_tol: float = 1e-8,
