@@ -13,7 +13,7 @@ h5py==2.10.0
 #BoltzTraP2==18.9.1
 f90nml==1.1.2
 pycodestyle==2.5.0
-mypy==0.720
+mypy==0.730
 pydocstyle==4.0.1
 flake8==3.7.8
-pylint==2.4.0
+pylint==2.4.1

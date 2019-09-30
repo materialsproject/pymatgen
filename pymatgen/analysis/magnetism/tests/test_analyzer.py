@@ -223,7 +223,7 @@ class CollinearMagneticStructureAnalyzerTest(unittest.TestCase):
                                                  overwrite_magmom_mode="replace_all_if_undefined")
         self.assertEqual(msa.number_of_magnetic_sites, 4)
         self.assertEqual(msa.number_of_unique_magnetic_sites(), 1)
-        self.assertEqual(msa.types_of_magnetic_specie, [Element('Ni')])
+        self.assertEqual(msa.types_of_magnetic_specie, (Element.Ni,))
         self.assertEqual(msa.get_exchange_group_info(), ('Fm-3m', 225))
 
     def test_str(self):
@@ -271,7 +271,7 @@ class MagneticStructureEnumeratorTest(unittest.TestCase):
 
     @unittest.skipIf(not enumlib_present, "enumlib not present")
     def test_ordering_enumeration(self):
-        
+
         # simple afm
         structure = Structure.from_file(
             os.path.join(test_dir, "magnetic_orderings/LaMnO3.json"))
@@ -282,6 +282,7 @@ class MagneticStructureEnumeratorTest(unittest.TestCase):
         structure = Structure.from_file(
             os.path.join(test_dir, "magnetic_orderings/Cr2NiO4.json"))
         enumerator = MagneticStructureEnumerator(structure)
+        print(enumerator.input_origin)
         self.assertEqual(enumerator.input_origin, "ferri_by_Cr")
 
         # antiferromagnetic on single magnetic site

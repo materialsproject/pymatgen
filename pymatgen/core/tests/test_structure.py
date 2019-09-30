@@ -588,7 +588,7 @@ class StructureTest(PymatgenTest):
         s.insert(1, "O", [0.5, 0.5, 0.5])
         self.assertEqual(s.formula, "Si2 O1")
         self.assertTrue(s.ntypesp == 2)
-        self.assertTrue(s.symbol_set == ("Si", "O"))
+        self.assertTrue(s.symbol_set == ('O', 'Si'))
         self.assertTrue(s.indices_from_symbol("Si") == (0, 2))
         self.assertTrue(s.indices_from_symbol("O") == (1,))
         del s[2]
@@ -598,13 +598,13 @@ class StructureTest(PymatgenTest):
         s.append("N", [0.25, 0.25, 0.25])
         self.assertEqual(s.formula, "Si1 N1 O1")
         self.assertTrue(s.ntypesp == 3)
-        self.assertTrue(s.symbol_set == ("Si", "O", "N"))
+        self.assertTrue(s.symbol_set == ('N', 'O', 'Si'))
         self.assertTrue(s.indices_from_symbol("Si") == (0,))
         self.assertTrue(s.indices_from_symbol("O") == (1,))
         self.assertTrue(s.indices_from_symbol("N") == (2,))
         s[0] = "Ge"
         self.assertEqual(s.formula, "Ge1 N1 O1")
-        self.assertTrue(s.symbol_set == ("Ge", "O", "N"))
+        self.assertTrue(s.symbol_set == ("Ge", "N", "O"))
         s.replace_species({"Ge": "Si"})
         self.assertEqual(s.formula, "Si1 N1 O1")
         self.assertTrue(s.ntypesp == 3)
@@ -620,7 +620,7 @@ class StructureTest(PymatgenTest):
         s.replace_species({"Ge": "Si"})
         s.substitute(1, "hydroxyl")
         self.assertEqual(s.formula, "Si1 H1 N1 O1")
-        self.assertTrue(s.symbol_set == ("Si", "N", "O", "H"))
+        self.assertTrue(s.symbol_set == ("H", "N", "O", "Si"))
         # Distance between O and H
         self.assertAlmostEqual(s.get_distance(2, 3), 0.96)
         # Distance between Si and H
