@@ -480,15 +480,17 @@ class IStructureTest(PymatgenTest):
         nn_traditional = s.get_all_neighbors_old(4, include_index=True, include_image=True,
                                                  include_site=True)
         nn_cell_lists = s.get_all_neighbors(4, include_index=True, include_image=True)
+
         nn_traditional = [sorted(i, key=lambda x: (x[1], x[2], x[3][0], x[3][1], x[3][2])) for i in nn_traditional]
         nn_cell_lists = [sorted(i, key=lambda x: (x[1], x[2], x[3][0], x[3][1], x[3][2])) for i in nn_cell_lists]
 
+        # Removing image vector i[3] since it is not expected to be equal
+        nn_traditional = [[[i[0], i[1], i[2]] for i in j] for j in nn_traditional]
+        nn_cell_lists = [[[i[0], i[1], i[2]] for i in j] for j in nn_cell_lists]
+
         def _is_equal(nn1, nn2):
             if isinstance(nn1, Iterable):
-                if isinstance(nn1, list):
-                    return np.all([_is_equal(i, j) for i, j in zip(nn1, nn2)])
-                elif isinstance(nn1, tuple): # image is not going to match
-                    return True
+                return np.all([_is_equal(i, j) for i, j in zip(nn1, nn2)])
             elif isinstance(nn1, PeriodicSite):
                 return np.linalg.norm(nn1.coords - nn2.coords) < 0.001
             else:
