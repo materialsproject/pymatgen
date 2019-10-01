@@ -481,21 +481,10 @@ class IStructureTest(PymatgenTest):
                                                  include_site=True)
         nn_cell_lists = s.get_all_neighbors(4, include_index=True, include_image=True)
 
-        nn_traditional = [sorted(i, key=lambda x: (x[1], x[2], x[3][0], x[3][1], x[3][2])) for i in nn_traditional]
-        nn_cell_lists = [sorted(i, key=lambda x: (x[1], x[2], x[3][0], x[3][1], x[3][2])) for i in nn_cell_lists]
-
-        # Removing image vector i[3] since it is not expected to be equal
-        nn_traditional = [[[i[0], i[1], i[2]] for i in j] for j in nn_traditional]
-        nn_cell_lists = [[[i[0], i[1], i[2]] for i in j] for j in nn_cell_lists]
-
-        def _is_equal(nn1, nn2):
-            if isinstance(nn1, Iterable):
-                return np.all([_is_equal(i, j) for i, j in zip(nn1, nn2)])
-            elif isinstance(nn1, PeriodicSite):
-                return np.linalg.norm(nn1.coords - nn2.coords) < 0.001
-            else:
-                return np.abs(nn1 - nn2) < 0.001
-        self.assertTrue(_is_equal(nn_traditional, nn_cell_lists))
+        for i in range(4):
+            self.assertEqual(len(nn_traditional[i]), len(nn_cell_lists[i]))
+            self.assertTrue(np.linalg.norm(np.array(sorted([j[1] for j in nn_traditional[i]])) -
+                            np.array(sorted([j[1] for j in nn_cell_lists[i]]))) < 1e-3)
 
     def test_get_dist_matrix(self):
         ans = [[0., 2.3516318],
