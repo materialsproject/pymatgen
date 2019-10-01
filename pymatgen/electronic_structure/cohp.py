@@ -416,6 +416,9 @@ class CompleteCohp(Cohp):
         Returns:
             Returns a COHP object including a summed COHP
         """
+        # check length of label_list and orbital_list:
+        if not len(label_list) == len(orbital_list):
+            raise ValueError("label_list and orbital_list don't have the same length!")
         # check if cohps are spinpolarized or not
         first_cohpobject = self.get_orbital_resolved_cohp(label_list[0], orbital_list[0])
         summed_cohp = first_cohpobject.cohp.copy()
