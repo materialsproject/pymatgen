@@ -1871,13 +1871,15 @@ class IStructure(SiteCollection, MSONable):
             from pymatgen.io.prismatic import Prismatic
             s = Prismatic(self).to_string()
             return s
-        else:
+        elif fmt == "yaml" or fnmatch(fname, "*.yaml*") or fnmatch(fname, "*.yml*"):
             import ruamel.yaml as yaml
             if filename:
                 with zopen(filename, "wt") as f:
                     yaml.safe_dump(self.as_dict(), f)
                 return None
             return yaml.safe_dump(self.as_dict())
+        else:
+            raise ValueError("Invalid format.")
 
         if filename:
             writer.write_file(filename)

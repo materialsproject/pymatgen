@@ -518,6 +518,9 @@ class IStructureTest(PymatgenTest):
         s = Structure.from_file("Si_testing.yaml")
         self.assertEqual(s, self.struct)
 
+        self.assertRaises(ValueError, self.struct.to, filename="whatever")
+        self.assertRaises(ValueError, self.struct.to, fmt="badformat")
+
         # Test Path support.
         s = Structure.from_file(Path("Si_testing.yaml"))
         self.assertEqual(s, self.struct)
