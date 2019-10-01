@@ -34,6 +34,10 @@ cpp_extra_compile_args = ["-Wno-cpp", "-Wno-unused-function", "-O2", "-march=nat
 if sys.platform.startswith('darwin'):
     cpp_extra_compile_args.append("-stdlib=libc++")
 
+# https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options-listed-alphabetically?view=vs-2017
+if sys.platform.startswith('win'):
+    cpp_extra_compile_args = ['/w', '/O2', '/std:c++11']
+
 long_desc = """
 Official docs: [http://pymatgen.org](http://pymatgen.org/)
 
