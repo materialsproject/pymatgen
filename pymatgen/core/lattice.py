@@ -23,7 +23,6 @@ from monty.json import MSONable
 from monty.dev import deprecated
 
 from pymatgen.util.coord import pbc_shortest_vectors
-from pymatgen.optimization.neighbors import find_points_in_spheres
 from pymatgen.util.num import abs_cap
 from pymatgen.util.typing import Vector3Like
 
@@ -1095,35 +1094,39 @@ class Lattice(MSONable):
             else:
                 fcoords, dists, inds, image
         """
-        frac_points = np.ascontiguousarray(frac_points, dtype=float)
-        r = float(r)
-        lattice_matrix = np.array(self.matrix)
-        lattice_matrix = np.ascontiguousarray(lattice_matrix)
-        cart_coords = self.get_cartesian_coords(frac_points)
-        _, indices, images, distances = \
-            find_points_in_spheres(all_coords=cart_coords,
-                                   center_coords=np.ascontiguousarray([center], dtype=float),
-                                   r=r, pbc=np.array([1, 1, 1]), lattice=lattice_matrix, tol=1e-8)
-        if len(indices) < 1:
-            return [] if zip_results else [()] * 4
-        fcoords = frac_points[indices] + images
-        if zip_results:
-            return list(
-                zip(
-                    fcoords,
-                    distances,
-                    indices,
-                    images,
+        try:
+            from pymatgen.optimization.neighbors import find_points_in_spheres  # type: ignore
+            frac_points = np.ascontiguousarray(frac_points, dtype=float)
+            r = float(r)
+            lattice_matrix = np.array(self.matrix)
+            lattice_matrix = np.ascontiguousarray(lattice_matrix)
+            cart_coords = self.get_cartesian_coords(frac_points)
+            _, indices, images, distances = \
+                find_points_in_spheres(all_coords=cart_coords,
+                                       center_coords=np.ascontiguousarray([center], dtype=float),
+                                       r=r, pbc=np.array([1, 1, 1]), lattice=lattice_matrix, tol=1e-8)
+            if len(indices) < 1:
+                return [] if zip_results else [()] * 4
+            fcoords = frac_points[indices] + images
+            if zip_results:
+                return list(
+                    zip(
+                        fcoords,
+                        distances,
+                        indices,
+                        images,
+                    )
                 )
-            )
-        return [
-            fcoords,
-            distances,
-            indices,
-            images,
-        ]
+            return [
+                fcoords,
+                distances,
+                indices,
+                images,
+            ]
 
-    @deprecated(get_points_in_sphere, "Deprecated, favoring new algorithm using cython")
+        except ImportError:
+            return self.get_points_in_sphere_py(frac_points=frac_points, center=center, r=r, zip_results=zip_results)
+
     def get_points_in_sphere_py(
             self,
             frac_points: List[Vector3Like],

@@ -3,7 +3,6 @@
 # Distributed under the terms of the MIT License.
 
 from pathlib import Path
-from collections.abc import Iterable
 import warnings
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.periodic_table import Element, Specie
@@ -12,7 +11,6 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import IStructure, Structure, IMolecule, \
     StructureError, Molecule
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.sites import PeriodicSite
 from pymatgen.electronic_structure.core import Magmom
 import random
 import os
