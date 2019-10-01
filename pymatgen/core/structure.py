@@ -1162,6 +1162,10 @@ class IStructure(SiteCollection, MSONable):
         """
         try:
             from pymatgen.optimization.neighbors import find_points_in_spheres  # type: ignore
+        except ImportError:
+            return self.get_all_neighbors_py(r=r, include_index=include_index, include_image=include_image,
+                                             sites=sites, numerical_tol=numerical_tol)
+        else:
             if sites is None:
                 sites = self.sites
             site_coords = np.array([site.coords for site in sites], dtype=float)
@@ -1187,9 +1191,6 @@ class IStructure(SiteCollection, MSONable):
             for i in range(len(sites)):
                 neighbors.append(neighbor_dict[i])
             return neighbors
-        except ImportError:
-            return self.get_all_neighbors_py(r=r, include_index=include_index, include_image=include_image,
-                                             sites=sites, numerical_tol=numerical_tol)
 
     def get_all_neighbors_py(self, r: float,
                              include_index: bool = False,

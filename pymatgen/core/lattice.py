@@ -1096,6 +1096,9 @@ class Lattice(MSONable):
         """
         try:
             from pymatgen.optimization.neighbors import find_points_in_spheres  # type: ignore
+        except ImportError:
+            return self.get_points_in_sphere_py(frac_points=frac_points, center=center, r=r, zip_results=zip_results)
+        else:
             frac_points = np.ascontiguousarray(frac_points, dtype=float)
             r = float(r)
             lattice_matrix = np.array(self.matrix)
@@ -1123,9 +1126,6 @@ class Lattice(MSONable):
                 indices,
                 images,
             ]
-
-        except ImportError:
-            return self.get_points_in_sphere_py(frac_points=frac_points, center=center, r=r, zip_results=zip_results)
 
     def get_points_in_sphere_py(
             self,
@@ -1532,8 +1532,9 @@ def get_points_in_spheres(all_coords: np.ndarray, center_coords: np.ndarray, r: 
         nmax[pbc] = nmax_temp[pbc]
         all_ranges = [np.arange(x, y, dtype='int64') for x, y in zip(nmin, nmax)]
         matrix = lattice.matrix
-
-        all_fcoords = np.mod(lattice.get_fractional_coords(all_coords), 1)
+        image_offsets = lattice.get_fractional_coords(all_coords)
+        all_fcoords = np.mod(image_offsets, 1)
+        image_offsets = image_offsets - all_fcoords
         coords_in_cell = np.dot(all_fcoords, matrix)
 
         # Filter out those beyond max range
@@ -1547,7 +1548,7 @@ def get_points_in_spheres(all_coords: np.ndarray, center_coords: np.ndarray, r: 
             ind = np.arange(len(all_coords))
             if np.any(valid_index_bool):
                 valid_coords.append(coords[valid_index_bool])
-                valid_images.append(np.tile(image, [np.sum(valid_index_bool), 1]))
+                valid_images.append(np.tile(image, [np.sum(valid_index_bool), 1]) - image_offsets[valid_index_bool])
                 valid_indices.extend([k for k in ind if valid_index_bool[k]])
         if len(valid_coords) < 1:
             return [[]] * len(center_coords)
