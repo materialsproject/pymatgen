@@ -20,11 +20,11 @@ Advanced:
       Cu: 0.08
       Mo: -3.057
 GasCorrections:
+AnionCorrections:
   F2: -1.4305099049999999
   Cl2: -1.255486175
   N2: -7.986917910000001
   H2: -3.23973666138
-AnionCorrections:
   oxide: -0.731
   peroxide: -0.476
   superoxide: -0.162
@@ -36,7 +36,7 @@ AnionCorrections:
   Si: 0.243
   Sb: -0.188
   Te: -0.417
-AqueuousCompoundEnergies:
+AqueousCompoundEnergies:
   O2: -0.316731
   N2: -0.295729
   F2: -0.313025
