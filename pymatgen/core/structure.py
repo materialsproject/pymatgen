@@ -55,13 +55,12 @@ class PeriodicNeighbor(PeriodicSite, collections.abc.Sequence):
     Simple PeriodicSite subclass to contain a neighboring atom that skips all the
     unnecessary checks for speed. Can possibly replace with dataclassfrom
     Py3.7. But now a simple class is used to retain simplicity. Can be
-    used as a fixed-length tuple of size 4. Somewhat like a namedtuple but with
-    lazy site construction since it is not always that you need the actual
-    site.
+    used as a fixed-length tuple of size 4 to retain backwards compatibility
+    with past use cases indexing is used.
 
         (site, distance, index, image).
 
-    Better use would be to call attributes, e.g., PeriodicNeighbor.index,
+    In future, usage should be to call attributes, e.g., PeriodicNeighbor.index,
     PeriodicNeighbor.distance, etc.
     """
 
