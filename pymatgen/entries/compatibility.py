@@ -344,6 +344,12 @@ class AnionCorrection(Correction):
             if Element(anion) in comp and anion in self.anion_correction:
                 correction += self.anion_correction[anion] * comp[anion]
                 error = sqrt(error ** 2 + (self.anion_errors[anion] * comp[anion]) ** 2)
+        
+        if self.name != 'MIT': # the MIT compatibility set still uses MITGasCorrection
+            for gas in ["H", "N", "F", "Cl"]:
+                if Element(gas) in comp and gas in self.anion_correction:     
+                    correction += self.anion_correction[gas] * comp[gas]
+                    error = sqrt(error ** 2 + (self.anion_errors[gas] * comp[gas]) ** 2)
 
         return correction, error
 
