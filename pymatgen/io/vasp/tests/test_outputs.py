@@ -1135,6 +1135,22 @@ class ChgcarTest(PymatgenTest):
         for k, v in d.items():
             self.assertEqual(v.shape, (48, 48, 48))
 
+    def test_add(self):
+        chgcar_sum = self.chgcar_spin + self.chgcar_spin
+        self.assertArrayAlmostEqual(chgcar_sum.data['total'], self.chgcar_spin.data['total'] * 2)
+        chgcar_copy = self.chgcar_spin.copy()
+        chgcar_copy.structure = self.get_structure("Li2O")
+        with warnings.catch_warnings(record=True) as w:
+            # Cause all warnings to always be triggered.
+            warnings.simplefilter("always")
+            # Trigger a warning.
+            chgcar_sum = chgcar_copy + self.chgcar_spin
+            # Verify some things
+            assert len(w) == 1
+            assert "Structures are different. Make sure you know what you are doing..." in str(w[-1].message)
+        self.assertRaises(ValueError, self.chgcar_spin.__add__, self.chgcar_fe3o4)
+        self.assertRaises(ValueError, self.chgcar_spin.__add__, self.chgcar_no_spin)
+
     def test_as_dict_and_from_dict(self):
         d = self.chgcar_NiO_SOC.as_dict()
         chgcar_from_dict = Chgcar.from_dict(d)
