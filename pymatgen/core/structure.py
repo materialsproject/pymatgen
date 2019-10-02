@@ -1298,8 +1298,9 @@ class IStructure(SiteCollection, MSONable):
             neighbor_dict: Dict[int, List] = collections.defaultdict(list)
             lattice = self.lattice
             atol = Site.position_atol
+            all_sites = self.sites
             for cindex, pindex, image, f_coord, d in zip(center_indices, points_indices, images, f_coords, distances):
-                psite = self[pindex]
+                psite = all_sites[pindex]
                 csite = sites[cindex]
                 if (d > numerical_tol or
                         # This simply compares the psite and csite. The reason why manual comparison is done is
