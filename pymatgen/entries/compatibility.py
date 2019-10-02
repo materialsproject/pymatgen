@@ -242,15 +242,9 @@ class AnionCorrection(Correction):
         correction = 0
         error = 0
 
-        # Check for diatomic gas corrections and skip other single elements
-        if len(comp) == 1:
-            if self.name != 'MIT': # the MIT compatibility set still uses MITGasCorrection
-                for gas in ["H", "N", "F", "Cl"]:
-                    if Element(gas) in comp and gas in self.anion_correction:     
-                        correction += self.anion_correction[gas] * comp[gas]
-                        error = sqrt(error ** 2 + (self.anion_errors[gas] * comp[gas]) ** 2)
-            else:       
-                return 0, 0
+        # Skip single elements
+        if len(comp) == 1:   
+            return 0, 0
 
         # Check for sulfide corrections
         if Element("S") in comp:
@@ -330,6 +324,12 @@ class AnionCorrection(Correction):
             if Element(anion) in comp and anion in self.anion_correction:
                 correction += self.anion_correction[anion] * comp[anion]
                 error = sqrt(error ** 2 + (self.anion_errors[anion] * comp[anion]) ** 2)
+        
+        if self.name != 'MIT': # the MIT compatibility set still uses MITGasCorrection
+            for gas in ["H", "N", "F", "Cl"]:
+                if Element(gas) in comp and gas in self.anion_correction:     
+                    correction += self.anion_correction[gas] * comp[gas]
+                    error = sqrt(error ** 2 + (self.anion_errors[gas] * comp[gas]) ** 2)
 
         return correction, error
 
