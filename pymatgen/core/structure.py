@@ -46,14 +46,64 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 
-# Non-periodic version of neighbor.
-Neighbor = collections.namedtuple('Neighbor', 'site distance index')
+class Neighbor(Site, collections.abc.Sequence):
+    """
+    Simple Site subclass to contain a neighboring atom that skips all the
+    unnecessary checks for speed. Can possibly replace with dataclass from
+    Py3.7. But now a simple class is used to retain simplicity. Can be
+    used as a fixed-length tuple of size 4 to retain backwards compatibility
+    with past use cases indexing is used.
+
+        (site, nn_distance, index, image).
+
+    In future, usage should be to call attributes, e.g., Neighbor.index,
+    Neighbor.distance, etc.
+    """
+
+    def __init__(self, atoms_n_occu, coords, properties=None,
+                 nn_distance=0, index=0):
+        """
+        :param atoms_n_occu: Same as Site
+        :param coords: Same as Site, but must be fractional.
+        :param properties: Same as Site
+        :param nn_distance: Distance to some other Site.
+        :param index: Index within structure.
+        """
+        self.coords = coords
+        self._species = atoms_n_occu
+        self.properties = properties or {}
+        self.nn_distance = nn_distance
+        self.index = index
+
+    @property
+    def site(self):
+        """
+        Maintained for backwards compatibility.
+
+        :return: Neighbor itself
+        """
+        return self
+
+    def __len__(self):
+        """
+        Make neighbor Tuple-like to retain backwards compatibility.
+        """
+        return 3
+
+    def __getitem__(self, i: int):
+        """
+        Make neighbor Tuple-like to retain backwards compatibility.
+
+        :param i:
+        :return:
+        """
+        return (self, self.nn_distance, self.index)[i]
 
 
 class PeriodicNeighbor(PeriodicSite, collections.abc.Sequence):
     """
     Simple PeriodicSite subclass to contain a neighboring atom that skips all the
-    unnecessary checks for speed. Can possibly replace with dataclassfrom
+    unnecessary checks for speed. Can possibly replace with dataclass from
     Py3.7. But now a simple class is used to retain simplicity. Can be
     used as a fixed-length tuple of size 4 to retain backwards compatibility
     with past use cases indexing is used.
@@ -65,31 +115,38 @@ class PeriodicNeighbor(PeriodicSite, collections.abc.Sequence):
     """
 
     def __init__(self, atoms_n_occu, coords, lattice, properties=None,
-                 distance=0, index=0, image=(0, 0, 0)):
+                 nn_distance=0, index=0, image=(0, 0, 0)):
         """
         :param atoms_n_occu: Same as PeriodicSite
         :param coords: Same as PeriodicSite, but must be fractional.
         :param lattice: Same as PeriodicSite
         :param properties: Same as PeriodicSite
-        :param distance: Distance to some other Site.
+        :param nn_distance: Distance to some other Site.
         :param index: Index within structure.
         :param image: PeriodicImage
         """
-        self._site = None
         self._lattice = lattice
         self._frac_coords = coords
-        self.species = atoms_n_occu
+        self._species = atoms_n_occu
         self.properties = properties or {}
-        self.distance = distance
+        self.nn_distance = nn_distance
         self.index = index
         self.image = image
 
     @property
     def coords(self):
+        """
+        :return: Cartesian coords.
+        """
         return self._lattice.get_cartesian_coords(self._frac_coords)
 
     @property
     def site(self):
+        """
+        Maintained for backwards compatibility.
+
+        :return: PeriodicNeighbor itself
+        """
         return self
 
     def __len__(self):
@@ -105,7 +162,7 @@ class PeriodicNeighbor(PeriodicSite, collections.abc.Sequence):
         :param i:
         :return:
         """
-        return (self, self.distance, self.index, self.image)[i]
+        return (self, self.nn_distance, self.index, self.image)[i]
 
 
 class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
@@ -1247,7 +1304,7 @@ class IStructure(SiteCollection, MSONable):
                         coords=f_coord,
                         lattice=self.lattice,
                         properties=self[pindex].properties,
-                        distance=d,
+                        nn_distance=d,
                         index=pindex,
                         image=tuple(image)))
 
@@ -1322,7 +1379,7 @@ class IStructure(SiteCollection, MSONable):
                         coords=coord,
                         lattice=self.lattice,
                         properties=self[index].properties,
-                        distance=d,
+                        nn_distance=d,
                         index=index,
                         image=tuple(image)
                     )
@@ -2476,7 +2533,8 @@ class IMolecule(SiteCollection, MSONable):
         for i, site in enumerate(self._sites):
             dist = site.distance_from_point(pt)
             if dist <= r:
-                neighbors.append(Neighbor(site, dist, i))
+                neighbors.append(Neighbor(site.species, site.coords,
+                                          site.properties, dist, i))
         return neighbors
 
     def get_neighbors(self, site, r):
@@ -2493,7 +2551,7 @@ class IMolecule(SiteCollection, MSONable):
             requires the distance.
         """
         nns = self.get_sites_in_sphere(site.coords, r)
-        return [nn for nn in nns if nn.site != site]
+        return [nn for nn in nns if nn != site]
 
     def get_neighbors_in_shell(self, origin, r, dr):
         """
@@ -2511,7 +2569,7 @@ class IMolecule(SiteCollection, MSONable):
         """
         outer = self.get_sites_in_sphere(origin, r + dr)
         inner = r - dr
-        return [nn for nn in outer if nn.distance > inner]
+        return [nn for nn in outer if nn.nn_distance > inner]
 
     def get_boxed_structure(self, a, b, c, images=(1, 1, 1),
                             random_rotation=False, min_dist=1, cls=None,
@@ -3699,9 +3757,9 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         for nn in self.get_neighbors(self[index], 3):
             # Check that the nn has neighbors within a sensible distance but
             # is not the site being substituted.
-            for nn2 in self.get_neighbors(nn.site, 3):
+            for nn2 in self.get_neighbors(nn, 3):
                 if nn2.site != self[index] and \
-                        nn2.distance < 1.2 * get_bond_length(nn.site.specie, nn2.site.specie):
+                        nn2.nn_distance < 1.2 * get_bond_length(nn.specie, nn2.specie):
                     all_non_terminal_nn.append(nn)
                     break
 
@@ -3709,7 +3767,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             raise RuntimeError("Can't find a non-terminal neighbor to attach"
                                " functional group to.")
 
-        non_terminal_nn = min(all_non_terminal_nn, key=lambda nn: nn.distance).site
+        non_terminal_nn = min(all_non_terminal_nn, key=lambda nn: nn.nn_distance).site
 
         # Set the origin point to be the coordinates of the nearest
         # non-terminal neighbor.
