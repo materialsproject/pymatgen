@@ -90,7 +90,7 @@ class Neighbor(Site, collections.abc.Sequence):
         """
         return 3
 
-    def __getitem__(self, i: int):
+    def __getitem__(self, i: int):  # type: ignore
         """
         Make neighbor Tuple-like to retain backwards compatibility.
 
@@ -133,7 +133,7 @@ class PeriodicNeighbor(PeriodicSite, collections.abc.Sequence):
         self.index = index
         self.image = image
 
-    @property
+    @property  # type: ignore
     def coords(self):
         """
         :return: Cartesian coords.
@@ -155,7 +155,7 @@ class PeriodicNeighbor(PeriodicSite, collections.abc.Sequence):
         """
         return 4
 
-    def __getitem__(self, i: int):
+    def __getitem__(self, i: int):  # type: ignore
         """
         Make neighbor Tuple-like to retain backwards compatibility.
 
