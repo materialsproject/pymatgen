@@ -1297,13 +1297,22 @@ class IStructure(SiteCollection, MSONable):
             f_coords = self.frac_coords[points_indices] + images
             neighbor_dict: Dict[int, List] = collections.defaultdict(list)
             lattice = self.lattice
+            atol = Site.position_atol
             for cindex, pindex, image, f_coord, d in zip(center_indices, points_indices, images, f_coords, distances):
-                if d > numerical_tol or (self[pindex] != sites[cindex]):
+                psite = self[pindex]
+                csite = sites[cindex]
+                if (d > numerical_tol or
+                        # This simply compares the psite and csite. The reason why manual comparison is done is
+                        # for speed. This does not check the lattice since they are always equal. Also, the or construct
+                        # returns True immediately once one of the conditions are satisfied.
+                        psite.species != csite.species or
+                        (not np.allclose(psite.coords, csite.coords, atol=atol)) or
+                        (not psite.properties == csite.properties)):
                     neighbor_dict[cindex].append(PeriodicNeighbor(
-                        atoms_n_occu=self[pindex].species,
+                        atoms_n_occu=psite.species,
                         coords=f_coord,
                         lattice=lattice,
-                        properties=self[pindex].properties,
+                        properties=psite.properties,
                         nn_distance=d,
                         index=pindex,
                         image=tuple(image)))
