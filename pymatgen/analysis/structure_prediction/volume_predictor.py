@@ -218,15 +218,15 @@ class DLSVolumePredictor:
                                                         self.cutoff)
 
             for nn in neighbors:
-                sp2 = nn.site.specie
+                sp2 = nn.specie
 
                 if sp1 in bp_dict and sp2 in bp_dict:
                     expected_dist = bp_dict[sp1] + bp_dict[sp2]
                 else:
                     expected_dist = sp1.atomic_radius + sp2.atomic_radius
 
-                if not smallest_ratio or nn.distance / expected_dist < smallest_ratio:
-                    smallest_ratio = nn.distance / expected_dist
+                if not smallest_ratio or nn.nn_distance / expected_dist < smallest_ratio:
+                    smallest_ratio = nn.nn_distance / expected_dist
 
         if not smallest_ratio:
             raise ValueError("Could not find any bonds within the given cutoff "
