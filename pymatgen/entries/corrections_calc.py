@@ -3,6 +3,7 @@ import numpy as np
 import plotly.graph_objects as go
 from scipy.optimize import curve_fit
 import ruamel.yaml
+import warnings as w
 
 from typing import List, Dict, Tuple
 from monty.serialization import loadfn
@@ -126,7 +127,6 @@ class CorrectionCalculator:
                 warnings.pop("unstable", None)
 
             if name in self.calc_compounds and not warnings:
-
                 comp = Composition(name)
                 elems = list(comp.as_dict())
 
@@ -164,17 +164,29 @@ class CorrectionCalculator:
         # for any exp entries with no uncertainty value, assign average uncertainty value
         sigma = np.array(self.exp_uncer)
         sigma[sigma == 0] = np.nan
+
+        w.filterwarnings('ignore', lineno=169) #numpy raises warning if the entire array is nan values
         mean_uncer = np.nanmean(sigma)
+
         sigma = np.where(np.isnan(sigma), mean_uncer, sigma)
 
-        popt, pcov = curve_fit(
-            func,
-            self.coeff_mat,
-            self.diffs,
-            p0=np.ones(21),
-            sigma=sigma,
-            absolute_sigma=True,
-        )
+        if np.isnan(mean_uncer):
+            #no uncertainty values for any compounds, don't try to weight
+            popt, pcov = curve_fit(
+                func,
+                self.coeff_mat,
+                self.diffs,
+                p0=np.ones(len(self.species)),
+            )
+        else:
+            popt, pcov = curve_fit(
+                func,
+                self.coeff_mat,
+                self.diffs,
+                p0=np.ones(len(self.species)),
+                sigma=sigma,
+                absolute_sigma=True,
+            )
         self.corrections = popt.tolist()
         self.corrections_std_error = np.sqrt(np.diag(pcov)).tolist()
         for i in range(len(self.species)):
