@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.lattice &#8212; pymatgen 2019.9.16 documentation</title>
+    <title>pymatgen.core.lattice &#8212; pymatgen 2019.10.2 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -71,6 +71,7 @@
 <span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="k">import</span> <span class="n">pbc_shortest_vectors</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.num</span> <span class="k">import</span> <span class="n">abs_cap</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.typing</span> <span class="k">import</span> <span class="n">Vector3Like</span>
+
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong, Michael Kocher&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2011, The Materials Project&quot;</span>
@@ -1139,6 +1140,80 @@
 <span class="sd">            else:</span>
 <span class="sd">                fcoords, dists, inds, image</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">pymatgen.optimization.neighbors</span> <span class="k">import</span> <span class="n">find_points_in_spheres</span>  <span class="c1"># type: ignore</span>
+        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_points_in_sphere_py</span><span class="p">(</span><span class="n">frac_points</span><span class="o">=</span><span class="n">frac_points</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="n">center</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">zip_results</span><span class="o">=</span><span class="n">zip_results</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">frac_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span><span class="n">frac_points</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+            <span class="n">lattice_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="p">)</span>
+            <span class="n">lattice_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span><span class="n">lattice_matrix</span><span class="p">)</span>
+            <span class="n">cart_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">frac_points</span><span class="p">)</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">images</span><span class="p">,</span> <span class="n">distances</span> <span class="o">=</span> \
+                <span class="n">find_points_in_spheres</span><span class="p">(</span><span class="n">all_coords</span><span class="o">=</span><span class="n">cart_coords</span><span class="p">,</span>
+                                       <span class="n">center_coords</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">([</span><span class="n">center</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
+                                       <span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">pbc</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]),</span> <span class="n">lattice</span><span class="o">=</span><span class="n">lattice_matrix</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">zip_results</span> <span class="k">else</span> <span class="p">[()]</span> <span class="o">*</span> <span class="mi">4</span>
+            <span class="n">fcoords</span> <span class="o">=</span> <span class="n">frac_points</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span> <span class="o">+</span> <span class="n">images</span>
+            <span class="k">if</span> <span class="n">zip_results</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">list</span><span class="p">(</span>
+                    <span class="nb">zip</span><span class="p">(</span>
+                        <span class="n">fcoords</span><span class="p">,</span>
+                        <span class="n">distances</span><span class="p">,</span>
+                        <span class="n">indices</span><span class="p">,</span>
+                        <span class="n">images</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="p">[</span>
+                <span class="n">fcoords</span><span class="p">,</span>
+                <span class="n">distances</span><span class="p">,</span>
+                <span class="n">indices</span><span class="p">,</span>
+                <span class="n">images</span><span class="p">,</span>
+            <span class="p">]</span></div>
+
+<div class="viewcode-block" id="Lattice.get_points_in_sphere_py"><a class="viewcode-back" href="../../../pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice.get_points_in_sphere_py">[docs]</a>    <span class="k">def</span> <span class="nf">get_points_in_sphere_py</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">frac_points</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Vector3Like</span><span class="p">],</span>
+            <span class="n">center</span><span class="p">:</span> <span class="n">Vector3Like</span><span class="p">,</span>
+            <span class="n">r</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="n">zip_results</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span>
+        <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]],</span>
+        <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find all points within a sphere from the point taking into account</span>
+<span class="sd">        periodic boundary conditions. This includes sites in other periodic</span>
+<span class="sd">        images.</span>
+
+<span class="sd">        Algorithm:</span>
+
+<span class="sd">        1. place sphere of radius r in crystal and determine minimum supercell</span>
+<span class="sd">           (parallelpiped) which would contain a sphere of radius r. for this</span>
+<span class="sd">           we need the projection of a_1 on a unit vector perpendicular</span>
+<span class="sd">           to a_2 &amp; a_3 (i.e. the unit vector in the direction b_1) to</span>
+<span class="sd">           determine how many a_1&quot;s it will take to contain the sphere.</span>
+
+<span class="sd">           Nxmax = r * length_of_b_1 / (2 Pi)</span>
+
+<span class="sd">        2. keep points falling within r.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            frac_points: All points in the lattice in fractional coordinates.</span>
+<span class="sd">            center: Cartesian coordinates of center of sphere.</span>
+<span class="sd">            r: radius of sphere.</span>
+<span class="sd">            zip_results (bool): Whether to zip the results together to group by</span>
+<span class="sd">                 point, or return the raw fcoord, dist, index arrays</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            if zip_results:</span>
+<span class="sd">                [(fcoord, dist, index, supercell_image) ...] since most of the time, subsequent</span>
+<span class="sd">                processing requires the distance, index number of the atom, or index of the image</span>
+<span class="sd">            else:</span>
+<span class="sd">                fcoords, dists, inds, image</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cart_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">frac_points</span><span class="p">)</span>
         <span class="n">neighbors</span> <span class="o">=</span> <span class="n">get_points_in_spheres</span><span class="p">(</span><span class="n">all_coords</span><span class="o">=</span><span class="n">cart_coords</span><span class="p">,</span> <span class="n">center_coords</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">center</span><span class="p">]),</span> <span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">pbc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                                           <span class="n">numerical_tol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">lattice</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">return_fcoords</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
@@ -1503,8 +1578,9 @@
         <span class="n">nmax</span><span class="p">[</span><span class="n">pbc</span><span class="p">]</span> <span class="o">=</span> <span class="n">nmax_temp</span><span class="p">[</span><span class="n">pbc</span><span class="p">]</span>
         <span class="n">all_ranges</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int64&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">nmin</span><span class="p">,</span> <span class="n">nmax</span><span class="p">)]</span>
         <span class="n">matrix</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span>
-
-        <span class="n">all_fcoords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_fractional_coords</span><span class="p">(</span><span class="n">all_coords</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">image_offsets</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_fractional_coords</span><span class="p">(</span><span class="n">all_coords</span><span class="p">)</span>
+        <span class="n">all_fcoords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">image_offsets</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">image_offsets</span> <span class="o">=</span> <span class="n">image_offsets</span> <span class="o">-</span> <span class="n">all_fcoords</span>
         <span class="n">coords_in_cell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">all_fcoords</span><span class="p">,</span> <span class="n">matrix</span><span class="p">)</span>
 
         <span class="c1"># Filter out those beyond max range</span>
@@ -1518,7 +1594,7 @@
             <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">all_coords</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">valid_index_bool</span><span class="p">):</span>
                 <span class="n">valid_coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coords</span><span class="p">[</span><span class="n">valid_index_bool</span><span class="p">])</span>
-                <span class="n">valid_images</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">valid_index_bool</span><span class="p">),</span> <span class="mi">1</span><span class="p">]))</span>
+                <span class="n">valid_images</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">valid_index_bool</span><span class="p">),</span> <span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="n">image_offsets</span><span class="p">[</span><span class="n">valid_index_bool</span><span class="p">])</span>
                 <span class="n">valid_indices</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ind</span> <span class="k">if</span> <span class="n">valid_index_bool</span><span class="p">[</span><span class="n">k</span><span class="p">]])</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">valid_coords</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[[]]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">center_coords</span><span class="p">)</span>
@@ -1675,7 +1751,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

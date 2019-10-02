@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.lattice module &#8212; pymatgen 2019.9.16 documentation</title>
+    <title>pymatgen.core.lattice module &#8212; pymatgen 2019.10.2 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.9.16 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.2 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -510,6 +510,48 @@ point, or return the raw fcoord, dist, index arrays</p></li>
 <dd></dd></dl>
 
 <dl class="method">
+<dt id="pymatgen.core.lattice.Lattice.get_points_in_sphere_py">
+<code class="sig-name descname">get_points_in_sphere_py</code><span class="sig-paren">(</span><em class="sig-param">frac_points: List[Union[List[float], numpy.ndarray]], center: Union[List[float], numpy.ndarray], r: float, zip_results=True</em><span class="sig-paren">)</span> &#x2192; Union[List[Tuple[numpy.ndarray, float, int, numpy.ndarray]], List[numpy.ndarray]]<a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.get_points_in_sphere_py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_points_in_sphere_py" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find all points within a sphere from the point taking into account
+periodic boundary conditions. This includes sites in other periodic
+images.</p>
+<p>Algorithm:</p>
+<ol class="arabic">
+<li><p>place sphere of radius r in crystal and determine minimum supercell
+(parallelpiped) which would contain a sphere of radius r. for this
+we need the projection of a_1 on a unit vector perpendicular
+to a_2 &amp; a_3 (i.e. the unit vector in the direction b_1) to
+determine how many a_1”s it will take to contain the sphere.</p>
+<p>Nxmax = r * length_of_b_1 / (2 Pi)</p>
+</li>
+<li><p>keep points falling within r.</p></li>
+</ol>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frac_points</strong> – All points in the lattice in fractional coordinates.</p></li>
+<li><p><strong>center</strong> – Cartesian coordinates of center of sphere.</p></li>
+<li><p><strong>r</strong> – radius of sphere.</p></li>
+<li><p><strong>zip_results</strong> (<em>bool</em>) – Whether to zip the results together to group by
+point, or return the raw fcoord, dist, index arrays</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>[(fcoord, dist, index, supercell_image) …] since most of the time, subsequent</dt><dd><p>processing requires the distance, index number of the atom, or index of the image</p>
+</dd>
+<dt>else:</dt><dd><p>fcoords, dists, inds, image</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>if zip_results</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.get_recp_symmetry_operation">
 <code class="sig-name descname">get_recp_symmetry_operation</code><span class="sig-paren">(</span><em class="sig-param">symprec: float = 0.01</em><span class="sig-paren">)</span> &#x2192; List<a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.get_recp_symmetry_operation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_recp_symmetry_operation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find the symmetric operations of the reciprocal lattice,
@@ -906,7 +948,7 @@ cutoff radius <cite>r</cite>.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.9.16 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.2 documentation</a> &#187;</li> 
       </ul>
     </div>
 

@@ -1,6 +1,13 @@
 Change log
 ==========
 
+v2019.10.2
+----------
+* IRSpectra class (@henriquemiranda)
+* Much faster get_neighbors written in Cython (@chc273).
+* VolumetricData allows for sum or substraction of data with different
+  structures, with warnings.
+
 v2019.9.16
 ----------
 * Updates to annotation, docstrings, etc. Linting service now provided on Github
