@@ -23,8 +23,8 @@ jobs:
             echo "mypy checks..."
             mypy pymatgen
             echo "--- Done ---"
-            # Docstyle checks are enforced for files that have been modified since the v2019.9.16 tagged release.
-            export MODIFIED_FILES=`git diff --diff-filter=ACMRTUXB --name-only HEAD v2019.9.16 | grep -E 'pymatgen.*\.(py)$' | sed '/test_/d' | tr '\n' ' '`
+            # Docstyle checks are enforced for files that have been modified since the v2019.10.2 tagged release.
+            export MODIFIED_FILES=`git diff --diff-filter=ACMRTUXB --name-only HEAD v2019.10.2 | grep -E 'pymatgen.*\.(py)$' | sed '/test_/d' | tr '\n' ' '`
             echo "pydocstyle checks for $MODIFIED_FILES..."
             pydocstyle --count pymatgen/core $MODIFIED_FILES
             echo "--- Done ---"
