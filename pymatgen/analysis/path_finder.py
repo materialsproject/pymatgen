@@ -34,6 +34,13 @@ logger = logging.getLogger(__name__)
 
 
 class NEBPathfinder:
+    """
+    General pathfinder for interpolating between two structures, where the
+    interpolating path is calculated with the elastic band method with
+    respect to the given static potential for sites whose indices are given
+    in relax_sites, and is linear otherwise.
+    """
+
     def __init__(self,
                  start_struct,
                  end_struct,
@@ -42,11 +49,6 @@ class NEBPathfinder:
                  n_images=20,
                  mid_struct=None):
         """
-        General pathfinder for interpolating between two structures, where the
-        interpolating path is calculated with the elastic band method with
-        respect to the given static potential for sites whose indices are given
-        in relax_sites, and is linear otherwise.
-
         Args:
             start_struct, end_struct: Endpoint structures to interpolate
             relax_sites: List of site indices whose interpolation paths should

@@ -2,6 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Support for reading XCrysDen files.
+"""
+
 from pymatgen.core.periodic_table import Element
 
 __author__ = "Matteo Giantomassi"
@@ -16,6 +20,9 @@ class XSF:
     """
 
     def __init__(self, structure):
+        """
+        :param structure: Structure object.
+        """
         self.structure = structure
 
     def to_string(self):
