@@ -40,7 +40,7 @@ PRIMCOORD
 H     -0.71644986    -0.41364333     1.19898200     0.00181803     0.00084718     0.00804832
 """
         structure = XSF.from_string(test_string).structure
-        self.assertTrue(str(structure.species[0]) == 'H')
+        self.assertEqual(str(structure.species[0]), 'H')
         test_string2 = """
 CRYSTAL
 PRIMVEC
@@ -53,7 +53,7 @@ PRIMCOORD
 """
 
         structure2 = XSF.from_string(test_string2).structure
-        self.assertTrue(structure == structure2)
+        self.assertEqual(structure, structure2)
 
 if __name__ == "__main__":
     import unittest
