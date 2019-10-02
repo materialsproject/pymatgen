@@ -45,7 +45,68 @@ __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
-Neighbor = collections.namedtuple('Neighbor', 'site distance index image')
+
+# Non-periodic version of neighbor.
+Neighbor = collections.namedtuple('Neighbor', 'site distance index')
+
+
+class PeriodicNeighbor(PeriodicSite, collections.abc.Sequence):
+    """
+    Simple PeriodicSite subclass to contain a neighboring atom that skips all the
+    unnecessary checks for speed. Can possibly replace with dataclassfrom
+    Py3.7. But now a simple class is used to retain simplicity. Can be
+    used as a fixed-length tuple of size 4. Somewhat like a namedtuple but with
+    lazy site construction since it is not always that you need the actual
+    site.
+
+        (site, distance, index, image).
+
+    Better use would be to call attributes, e.g., PeriodicNeighbor.index,
+    PeriodicNeighbor.distance, etc.
+    """
+
+    def __init__(self, atoms_n_occu, coords, lattice, properties=None,
+                 distance=0, index=0, image=(0, 0, 0)):
+        """
+        :param atoms_n_occu: Same as PeriodicSite
+        :param coords: Same as PeriodicSite, but must be fractional.
+        :param lattice: Same as PeriodicSite
+        :param properties: Same as PeriodicSite
+        :param distance: Distance to some other Site.
+        :param index: Index within structure.
+        :param image: PeriodicImage
+        """
+        self._site = None
+        self._lattice = lattice
+        self._frac_coords = coords
+        self.species = atoms_n_occu
+        self.properties = properties or {}
+        self.distance = distance
+        self.index = index
+        self.image = image
+
+    @property
+    def coords(self):
+        return self._lattice.get_cartesian_coords(self._frac_coords)
+
+    @property
+    def site(self):
+        return self
+
+    def __len__(self):
+        """
+        Make neighbor Tuple-like to retain backwards compatibility.
+        """
+        return 4
+
+    def __getitem__(self, i: int):
+        """
+        Make neighbor Tuple-like to retain backwards compatibility.
+
+        :param i:
+        :return:
+        """
+        return (self, self.distance, self.index, self.image)[i]
 
 
 class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
@@ -1071,7 +1132,7 @@ class IStructure(SiteCollection, MSONable):
 
     def get_neighbors(self, site: PeriodicSite, r: float,
                       include_index: bool = False, include_image: bool = False) \
-            -> List[Neighbor]:
+            -> List[PeriodicNeighbor]:
         """
         Get all neighbors to a site within a sphere of radius r.  Excludes the
         site itself.
@@ -1085,7 +1146,7 @@ class IStructure(SiteCollection, MSONable):
                 is always included in the returned data.
 
         Returns:
-            [Neighbor] where Neighbor is a namedtuple containing
+            [PeriodicNeighbor] where PeriodicNeighbor is a namedtuple containing
             (site, distance, index, image).
         """
         return self.get_all_neighbors(r, include_index=include_index,
@@ -1107,7 +1168,7 @@ class IStructure(SiteCollection, MSONable):
                 is included in the returned data
 
         Returns:
-            [Neighbor] where Neighbor is a namedtuple containing
+            [PeriodicNeighbor] where PeriodicNeighbor is a namedtuple containing
             (site, distance, index, image).
         """
         nn = self.get_sites_in_sphere(site.coords, r,
@@ -1119,8 +1180,7 @@ class IStructure(SiteCollection, MSONable):
                           include_index: bool = False,
                           include_image: bool = False,
                           sites: List[PeriodicSite] = None,
-                          numerical_tol: float = 1e-8) \
-            -> List[List[Neighbor]]:
+                          numerical_tol: float = 1e-8) -> List[List[PeriodicNeighbor]]:
 
         """
         Get neighbors for each atom in the unit cell, out to a distance r
@@ -1157,7 +1217,7 @@ class IStructure(SiteCollection, MSONable):
                 ok in most instances.
 
         Returns:
-            [Neighbor] where Neighbor is a namedtuple containing
+            [PeriodicNeighbor] where PeriodicNeighbor is a namedtuple containing
             (site, distance, index, image).
         """
         try:
@@ -1182,11 +1242,17 @@ class IStructure(SiteCollection, MSONable):
             neighbor_dict: Dict[int, List] = collections.defaultdict(list)
             for cindex, pindex, image, f_coord, d in zip(center_indices, points_indices, images, f_coords, distances):
                 if d > numerical_tol or (self[pindex] != sites[cindex]):
-                    nn_site = PeriodicSite(self[pindex].species, f_coord,
-                                           self.lattice, properties=self[pindex].properties)
-                    neighbor_dict[cindex].append(Neighbor(site=nn_site, distance=d, index=pindex, image=tuple(image)))
+                    # nn_site = PeriodicSite()
+                    neighbor_dict[cindex].append(PeriodicNeighbor(
+                        atoms_n_occu=self[pindex].species,
+                        coords=f_coord,
+                        lattice=self.lattice,
+                        properties=self[pindex].properties,
+                        distance=d,
+                        index=pindex,
+                        image=tuple(image)))
 
-            neighbors: List[List[Neighbor]] = []
+            neighbors: List[List[PeriodicNeighbor]] = []
 
             for i in range(len(sites)):
                 neighbors.append(neighbor_dict[i])
@@ -1197,7 +1263,7 @@ class IStructure(SiteCollection, MSONable):
                              include_image: bool = False,
                              sites: List[PeriodicSite] = None,
                              numerical_tol: float = 1e-8) \
-            -> List[List[Neighbor]]:
+            -> List[List[PeriodicNeighbor]]:
 
         """
         Get neighbors for each atom in the unit cell, out to a distance r
@@ -1234,7 +1300,7 @@ class IStructure(SiteCollection, MSONable):
                 ok in most instances.
 
         Returns:
-            [Neighbor] where Neighbor is a namedtuple containing
+            [PeriodicNeighbor] where PeriodicNeighbor is a namedtuple containing
             (site, distance, index, image).
         """
 
@@ -1243,19 +1309,26 @@ class IStructure(SiteCollection, MSONable):
         site_coords = np.array([site.coords for site in sites])
         point_neighbors = get_points_in_spheres(self.cart_coords, site_coords, r=r, pbc=True,
                                                 numerical_tol=numerical_tol, lattice=self.lattice)
-        neighbors: List[List[Neighbor]] = []
+        neighbors: List[List[PeriodicNeighbor]] = []
         for point_neighbor, site in zip(point_neighbors, sites):
-            nns: List[Neighbor] = []
+            nns: List[PeriodicNeighbor] = []
             if len(point_neighbor) < 1:
                 neighbors.append([])
                 continue
             for n in point_neighbor:
                 coord, d, index, image = n
                 if (d > numerical_tol) or (self[index] != site):
-                    nn_site = PeriodicSite(self[index].species, coord, self.lattice,
-                                           properties=self[index].properties,
-                                           coords_are_cartesian=True)
-                    neighbor = Neighbor(site=nn_site, distance=d, index=index, image=tuple(image))
+                    neighbor = PeriodicNeighbor(
+                        site_dict={
+                            "atoms_n_occu": self[index].species,
+                            "coords": coord,
+                            "lattice": self.lattice,
+                            "properties": self[index].properties
+                        },
+                        distance=d,
+                        index=index,
+                        image=tuple(image)
+                    )
                     nns.append(neighbor)
             neighbors.append(nns)
         return neighbors
@@ -2406,7 +2479,7 @@ class IMolecule(SiteCollection, MSONable):
         for i, site in enumerate(self._sites):
             dist = site.distance_from_point(pt)
             if dist <= r:
-                neighbors.append(Neighbor(site, dist, i, None))
+                neighbors.append(Neighbor(site, dist, i))
         return neighbors
 
     def get_neighbors(self, site, r):
