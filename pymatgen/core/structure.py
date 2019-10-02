@@ -19,7 +19,6 @@ from fnmatch import fnmatch
 import re
 import functools
 from typing import Dict, List, Tuple, Optional, Union, Iterator, Set, Sequence, Iterable
-
 import numpy as np
 
 from monty.dev import deprecated
@@ -46,43 +45,37 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 
-class Neighbor(Site, collections.abc.Sequence):
+class Neighbor(Site):
     """
     Simple Site subclass to contain a neighboring atom that skips all the
-    unnecessary checks for speed. Can possibly replace with dataclass from
-    Py3.7. But now a simple class is used to retain simplicity. Can be
-    used as a fixed-length tuple of size 4 to retain backwards compatibility
-    with past use cases indexing is used.
+    unnecessary checks for speed. Can be
+    used as a fixed-length tuple of size 3 to retain backwards compatibility
+    with past use cases.
 
-        (site, nn_distance, index, image).
+        (site, nn_distance, index).
 
     In future, usage should be to call attributes, e.g., Neighbor.index,
     Neighbor.distance, etc.
     """
 
-    def __init__(self, atoms_n_occu, coords, properties=None,
-                 nn_distance=0, index=0):
+    def __init__(self,
+                 species: Composition,
+                 coords: np.ndarray,
+                 properties: dict = None,
+                 nn_distance: float = 0.0,
+                 index: int = 0):
         """
-        :param atoms_n_occu: Same as Site
+        :param species: Same as Site
         :param coords: Same as Site, but must be fractional.
         :param properties: Same as Site
         :param nn_distance: Distance to some other Site.
         :param index: Index within structure.
         """
         self.coords = coords
-        self._species = atoms_n_occu
+        self._species = species
         self.properties = properties or {}
         self.nn_distance = nn_distance
         self.index = index
-
-    @property
-    def site(self):
-        """
-        Maintained for backwards compatibility.
-
-        :return: Neighbor itself
-        """
-        return self
 
     def __len__(self):
         """
@@ -100,13 +93,11 @@ class Neighbor(Site, collections.abc.Sequence):
         return (self, self.nn_distance, self.index)[i]
 
 
-class PeriodicNeighbor(PeriodicSite, collections.abc.Sequence):
+class PeriodicNeighbor(PeriodicSite):
     """
-    Simple PeriodicSite subclass to contain a neighboring atom that skips all the
-    unnecessary checks for speed. Can possibly replace with dataclass from
-    Py3.7. But now a simple class is used to retain simplicity. Can be
-    used as a fixed-length tuple of size 4 to retain backwards compatibility
-    with past use cases indexing is used.
+    Simple PeriodicSite subclass to contain a neighboring atom that skips all
+    the unnecessary checks for speed. Can be used as a fixed-length tuple of
+    size 4 to retain backwards compatibility with past use cases.
 
         (site, distance, index, image).
 
@@ -114,10 +105,16 @@ class PeriodicNeighbor(PeriodicSite, collections.abc.Sequence):
     PeriodicNeighbor.distance, etc.
     """
 
-    def __init__(self, atoms_n_occu, coords, lattice, properties=None,
-                 nn_distance=0, index=0, image=(0, 0, 0)):
+    def __init__(self,
+                 species: Composition,
+                 coords: np.ndarray,
+                 lattice: Lattice,
+                 properties: dict = None,
+                 nn_distance: float = 0.0,
+                 index: int = 0,
+                 image: tuple = (0, 0, 0)):
         """
-        :param atoms_n_occu: Same as PeriodicSite
+        :param species: Same as PeriodicSite
         :param coords: Same as PeriodicSite, but must be fractional.
         :param lattice: Same as PeriodicSite
         :param properties: Same as PeriodicSite
@@ -127,7 +124,7 @@ class PeriodicNeighbor(PeriodicSite, collections.abc.Sequence):
         """
         self._lattice = lattice
         self._frac_coords = coords
-        self._species = atoms_n_occu
+        self._species = species
         self.properties = properties or {}
         self.nn_distance = nn_distance
         self.index = index
@@ -139,15 +136,6 @@ class PeriodicNeighbor(PeriodicSite, collections.abc.Sequence):
         :return: Cartesian coords.
         """
         return self._lattice.get_cartesian_coords(self._frac_coords)
-
-    @property
-    def site(self):
-        """
-        Maintained for backwards compatibility.
-
-        :return: PeriodicNeighbor itself
-        """
-        return self
 
     def __len__(self):
         """
@@ -1310,7 +1298,7 @@ class IStructure(SiteCollection, MSONable):
                         (not np.allclose(psite.coords, csite.coords, atol=atol)) or
                         (not psite.properties == csite.properties)):
                     neighbor_dict[cindex].append(PeriodicNeighbor(
-                        atoms_n_occu=psite.species,
+                        species=psite.species,
                         coords=f_coord,
                         lattice=lattice,
                         properties=psite.properties,
@@ -1385,7 +1373,7 @@ class IStructure(SiteCollection, MSONable):
                 coord, d, index, image = n
                 if (d > numerical_tol) or (self[index] != site):
                     neighbor = PeriodicNeighbor(
-                        atoms_n_occu=self[index].species,
+                        species=self[index].species,
                         coords=coord,
                         lattice=self.lattice,
                         properties=self[index].properties,
@@ -3768,8 +3756,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             # Check that the nn has neighbors within a sensible distance but
             # is not the site being substituted.
             for nn2 in self.get_neighbors(nn, 3):
-                if nn2.site != self[index] and \
-                        nn2.nn_distance < 1.2 * get_bond_length(nn.specie, nn2.specie):
+                if nn2 != self[index] and nn2.nn_distance < 1.2 * get_bond_length(nn.specie, nn2.specie):
                     all_non_terminal_nn.append(nn)
                     break
 
@@ -3777,7 +3764,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             raise RuntimeError("Can't find a non-terminal neighbor to attach"
                                " functional group to.")
 
-        non_terminal_nn = min(all_non_terminal_nn, key=lambda nn: nn.nn_distance).site
+        non_terminal_nn = min(all_non_terminal_nn, key=lambda nn: nn.nn_distance)
 
         # Set the origin point to be the coordinates of the nearest
         # non-terminal neighbor.

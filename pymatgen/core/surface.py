@@ -1167,7 +1167,7 @@ class SlabGenerator:
                 if site.species_string == element1:
                     poly_coord = 0
                     for neighbor in slab.get_neighbors(site, blength):
-                        poly_coord += 1 if neighbor.site.species_string == element2 else 0
+                        poly_coord += 1 if neighbor.species_string == element2 else 0
 
                     # suppose we find an undercoordinated reference atom
                     if poly_coord not in cn_dict[element1]:
