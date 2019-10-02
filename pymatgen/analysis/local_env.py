@@ -3044,7 +3044,7 @@ class BrunnerNN_relative(NearNeighbors):
         """
         site = structure[n]
         neighs_dists = structure.get_neighbors(site, self.cutoff)
-        ds = [i.distance for i in neighs_dists]
+        ds = [i.nn_distance for i in neighs_dists]
         ds.sort()
 
         ns = [ds[i] / ds[i + 1] for i in range(len(ds) - 1)]
@@ -3099,7 +3099,7 @@ class BrunnerNN_real(NearNeighbors):
         """
         site = structure[n]
         neighs_dists = structure.get_neighbors(site, self.cutoff)
-        ds = [i.distance for i in neighs_dists]
+        ds = [i.nn_distance for i in neighs_dists]
         ds.sort()
 
         ns = [ds[i] - ds[i + 1] for i in range(len(ds) - 1)]
@@ -3158,7 +3158,7 @@ class EconNN(NearNeighbors):
         """
         site = structure[n]
         neighs_dists = structure.get_neighbors(site, self.cutoff)
-        all_bond_lengths = [i.distance for i in neighs_dists]
+        all_bond_lengths = [i.nn_distance for i in neighs_dists]
         weighted_avg = calculate_weighted_avg(all_bond_lengths)
 
         siw = []
