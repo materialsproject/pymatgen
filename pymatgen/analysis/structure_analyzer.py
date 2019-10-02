@@ -635,8 +635,8 @@ def sulfide_type(structure):
             if search_radius > max(structure.lattice.abc) * 2:
                 break
 
-        neighbors = sorted(neighbors, key=lambda n: n.distance)
-        dist = neighbors[0].distance
+        neighbors = sorted(neighbors, key=lambda n: n.nn_distance)
+        dist = neighbors[0].nn_distance
         coord_elements = [nn.specie for nn in neighbors
                           if nn.nn_distance < dist + 0.4][:4]
         avg_electroneg = np.mean([e.X for e in coord_elements])

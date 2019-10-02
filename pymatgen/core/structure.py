@@ -1296,13 +1296,13 @@ class IStructure(SiteCollection, MSONable):
                 return [[]] * len(sites)
             f_coords = self.frac_coords[points_indices] + images
             neighbor_dict: Dict[int, List] = collections.defaultdict(list)
+            lattice = self.lattice
             for cindex, pindex, image, f_coord, d in zip(center_indices, points_indices, images, f_coords, distances):
                 if d > numerical_tol or (self[pindex] != sites[cindex]):
-                    # nn_site = PeriodicSite()
                     neighbor_dict[cindex].append(PeriodicNeighbor(
                         atoms_n_occu=self[pindex].species,
                         coords=f_coord,
-                        lattice=self.lattice,
+                        lattice=lattice,
                         properties=self[pindex].properties,
                         nn_distance=d,
                         index=pindex,
