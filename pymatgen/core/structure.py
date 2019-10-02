@@ -1319,12 +1319,10 @@ class IStructure(SiteCollection, MSONable):
                 coord, d, index, image = n
                 if (d > numerical_tol) or (self[index] != site):
                     neighbor = PeriodicNeighbor(
-                        site_dict={
-                            "atoms_n_occu": self[index].species,
-                            "coords": coord,
-                            "lattice": self.lattice,
-                            "properties": self[index].properties
-                        },
+                        atoms_n_occu=self[index].species,
+                        coords=coord,
+                        lattice=self.lattice,
+                        properties=self[index].properties,
                         distance=d,
                         index=index,
                         image=tuple(image)
