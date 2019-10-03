@@ -1029,10 +1029,9 @@ class SlabGenerator:
             for site in self.oriented_unit_cell:
                 if sp1 in site.species:
                     for nn in self.oriented_unit_cell.get_neighbors(site, bond_dist):
-                        nnsite = nn.site
-                        if sp2 in nnsite.species:
+                        if sp2 in nn.species:
                             c_range = tuple(sorted([site.frac_coords[2],
-                                                    nnsite.frac_coords[2]]))
+                                                    nn.frac_coords[2]]))
                             if c_range[1] > 1:
                                 # Takes care of PBC when c coordinate of site
                                 # goes beyond the upper boundary of the cell
@@ -1168,7 +1167,7 @@ class SlabGenerator:
                 if site.species_string == element1:
                     poly_coord = 0
                     for neighbor in slab.get_neighbors(site, blength):
-                        poly_coord += 1 if neighbor.site.species_string == element2 else 0
+                        poly_coord += 1 if neighbor.species_string == element2 else 0
 
                     # suppose we find an undercoordinated reference atom
                     if poly_coord not in cn_dict[element1]:

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Change log &#8212; pymatgen 2019.10.2 documentation</title>
+    <title>Change log &#8212; pymatgen 2019.10.3 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.3 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -43,13 +43,14 @@
             
   <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="v2019-10-2">
-<h2>v2019.10.2<a class="headerlink" href="#v2019-10-2" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="v2019-10-3">
+<h2>v2019.10.3<a class="headerlink" href="#v2019-10-3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p>IRSpectra class (&#64;henriquemiranda)</p></li>
-<li><p>Much faster get_neighbors written in Cython (&#64;chc273).</p></li>
-<li><p>VolumetricData allows for sum or substraction of data with different
-structures, with warnings.</p></li>
+<li><p>Faster get_all_neighbors based on &#64;chc273’s improvements. get_all_neighbors
+now returns a Site-like object with nn_distance, image and index attrbutes.
+Much easier to use.</p></li>
+<li><p>Bug fix for XCrySDen parser (&#64;stevetorr)</p></li>
+<li><p>Added optional mid_struct to direct interpolation (&#64;jmmshn)</p></li>
 </ul>
 </div>
 </div>
@@ -63,7 +64,7 @@ structures, with warnings.</p></li>
   <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Change log</a><ul>
-<li><a class="reference internal" href="#v2019-10-2">v2019.10.2</a></li>
+<li><a class="reference internal" href="#v2019-10-3">v2019.10.3</a></li>
 </ul>
 </li>
 </ul>
@@ -98,7 +99,7 @@ structures, with warnings.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.3 documentation</a> &#187;</li> 
       </ul>
     </div>
 

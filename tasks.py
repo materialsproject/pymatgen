@@ -187,6 +187,7 @@ def update_coverage(ctx):
 
 @task
 def merge_stable(ctx):
+    ctx.run("git commit -a -m \"v%s release\"" % (NEW_VER, ))
     ctx.run("git tag -a v%s -m \"v%s release\"" % (NEW_VER, NEW_VER))
     ctx.run("git push --tags")
     ctx.run("git checkout stable")

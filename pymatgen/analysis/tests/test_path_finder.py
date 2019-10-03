@@ -7,7 +7,7 @@ import unittest
 from pymatgen.analysis.path_finder import NEBPathfinder, ChgcarPotential
 from pymatgen.io.vasp import Poscar, Chgcar
 from pymatgen.core.periodic_table import Element
-
+from numpy import mean
 __author__ = 'Ziqin (Shaun) Rong'
 __version__ = '0.1'
 __maintainer__ = 'Ziqin (Shaun) Rong'
@@ -24,6 +24,8 @@ class PathFinderTest(unittest.TestCase):
                                      "path_finder")
         start_s = Poscar.from_file(os.path.join(test_file_dir, 'LFP_POSCAR_s')).structure
         end_s = Poscar.from_file(os.path.join(test_file_dir, 'LFP_POSCAR_e')).structure
+        mid_s = start_s.interpolate(end_s, nimages=2,
+                                       interpolate_lattices=False)[1]
         chg = Chgcar.from_file(os.path.join(test_file_dir, 'LFP_CHGCAR.gz'))
         moving_cation_specie = Element('Li')
         relax_sites = []
@@ -38,6 +40,13 @@ class PathFinderTest(unittest.TestCase):
                 images.append(image)
         self.assertEqual(len(images), 9)
 
+        pf_mid = NEBPathfinder(start_s, end_s, relax_sites=relax_sites,
+                           v=ChgcarPotential(chg).get_v(), n_images=10, mid_struct=mid_s)
+        moving_site = relax_sites[0]
+        dists = [s1.sites[moving_site].distance(s2.sites[moving_site]) 
+            for s1, s2 in zip(pf.images[:-1], pf.images[1:])]
+        # check that all the small distances are about equal
+        self.assertTrue(abs(min(dists)-max(dists))/mean(dists) < 0.02)
 
 if __name__ == '__main__':
     unittest.main()

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.structure_prediction.volume_predictor &#8212; pymatgen 2019.10.2 documentation</title>
+    <title>pymatgen.analysis.structure_prediction.volume_predictor &#8212; pymatgen 2019.10.3 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -264,15 +264,15 @@
                                                         <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="p">:</span>
-                <span class="n">sp2</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span>
+                <span class="n">sp2</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">specie</span>
 
                 <span class="k">if</span> <span class="n">sp1</span> <span class="ow">in</span> <span class="n">bp_dict</span> <span class="ow">and</span> <span class="n">sp2</span> <span class="ow">in</span> <span class="n">bp_dict</span><span class="p">:</span>
                     <span class="n">expected_dist</span> <span class="o">=</span> <span class="n">bp_dict</span><span class="p">[</span><span class="n">sp1</span><span class="p">]</span> <span class="o">+</span> <span class="n">bp_dict</span><span class="p">[</span><span class="n">sp2</span><span class="p">]</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">expected_dist</span> <span class="o">=</span> <span class="n">sp1</span><span class="o">.</span><span class="n">atomic_radius</span> <span class="o">+</span> <span class="n">sp2</span><span class="o">.</span><span class="n">atomic_radius</span>
 
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">smallest_ratio</span> <span class="ow">or</span> <span class="n">nn</span><span class="o">.</span><span class="n">distance</span> <span class="o">/</span> <span class="n">expected_dist</span> <span class="o">&lt;</span> <span class="n">smallest_ratio</span><span class="p">:</span>
-                    <span class="n">smallest_ratio</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">distance</span> <span class="o">/</span> <span class="n">expected_dist</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">smallest_ratio</span> <span class="ow">or</span> <span class="n">nn</span><span class="o">.</span><span class="n">nn_distance</span> <span class="o">/</span> <span class="n">expected_dist</span> <span class="o">&lt;</span> <span class="n">smallest_ratio</span><span class="p">:</span>
+                    <span class="n">smallest_ratio</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">nn_distance</span> <span class="o">/</span> <span class="n">expected_dist</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">smallest_ratio</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Could not find any bonds within the given cutoff &quot;</span>
@@ -334,7 +334,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
