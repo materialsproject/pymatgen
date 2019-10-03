@@ -605,7 +605,7 @@ class Compatibility(MSONable):
             "Corrected_energy": float,
             "Correction_error:" float,
             "Corrections": [{"Name of Correction": {
-            "Value": float, "Explanation": "string"}]}
+            "Value": float, "Explanation": "string", "Error": float}]}
         """
         centry = self.process_entry(entry)
         if centry is None:
@@ -656,6 +656,10 @@ class Compatibility(MSONable):
         for c in d["corrections"]:
             print("%s correction: %s\n" % (c["name"], c["description"]))
             print("For the entry, this correction has the value %f eV." % c["value"])
+            if c["error"]:
+                print("This correction has an uncertainty value of %f eV." % c["error"])
+            else:
+                print("This correction does not have uncertainty data available")
             print("-" * 30)
 
         print("The final energy after corrections is %f" % d["corrected_energy"])
