@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.structure module &#8212; pymatgen 2019.10.2 documentation</title>
+    <title>pymatgen.core.structure module &#8212; pymatgen 2019.10.3 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.3 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -685,7 +685,7 @@ are within merge_tol from each other will be merged. Usually
 
 <dl class="method">
 <dt id="pymatgen.core.structure.IStructure.get_all_neighbors">
-<code class="sig-name descname">get_all_neighbors</code><span class="sig-paren">(</span><em class="sig-param">r: float</em>, <em class="sig-param">include_index: bool = False</em>, <em class="sig-param">include_image: bool = False</em>, <em class="sig-param">sites: List[pymatgen.core.sites.PeriodicSite] = None</em>, <em class="sig-param">numerical_tol: float = 1e-08</em><span class="sig-paren">)</span> &#x2192; List[List[pymatgen.core.structure.Neighbor]]<a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.get_all_neighbors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_all_neighbors" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_all_neighbors</code><span class="sig-paren">(</span><em class="sig-param">r: float</em>, <em class="sig-param">include_index: bool = False</em>, <em class="sig-param">include_image: bool = False</em>, <em class="sig-param">sites: List[pymatgen.core.sites.PeriodicSite] = None</em>, <em class="sig-param">numerical_tol: float = 1e-08</em><span class="sig-paren">)</span> &#x2192; List[List[pymatgen.core.structure.PeriodicNeighbor]]<a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.get_all_neighbors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_all_neighbors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get neighbors for each atom in the unit cell, out to a distance r
 Returns a list of list of neighbors for each site in structure.
 Use this method if you are planning on looping over all sites in the
@@ -721,7 +721,7 @@ ok in most instances.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>[Neighbor] where Neighbor is a namedtuple containing
+<dd class="field-even"><p>[PeriodicNeighbor] where PeriodicNeighbor is a namedtuple containing
 (site, distance, index, image).</p>
 </dd>
 </dl>
@@ -734,7 +734,7 @@ ok in most instances.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.core.structure.IStructure.get_all_neighbors_py">
-<code class="sig-name descname">get_all_neighbors_py</code><span class="sig-paren">(</span><em class="sig-param">r: float</em>, <em class="sig-param">include_index: bool = False</em>, <em class="sig-param">include_image: bool = False</em>, <em class="sig-param">sites: List[pymatgen.core.sites.PeriodicSite] = None</em>, <em class="sig-param">numerical_tol: float = 1e-08</em><span class="sig-paren">)</span> &#x2192; List[List[pymatgen.core.structure.Neighbor]]<a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.get_all_neighbors_py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_all_neighbors_py" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_all_neighbors_py</code><span class="sig-paren">(</span><em class="sig-param">r: float</em>, <em class="sig-param">include_index: bool = False</em>, <em class="sig-param">include_image: bool = False</em>, <em class="sig-param">sites: List[pymatgen.core.sites.PeriodicSite] = None</em>, <em class="sig-param">numerical_tol: float = 1e-08</em><span class="sig-paren">)</span> &#x2192; List[List[pymatgen.core.structure.PeriodicNeighbor]]<a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.get_all_neighbors_py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_all_neighbors_py" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get neighbors for each atom in the unit cell, out to a distance r
 Returns a list of list of neighbors for each site in structure.
 Use this method if you are planning on looping over all sites in the
@@ -770,7 +770,7 @@ ok in most instances.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>[Neighbor] where Neighbor is a namedtuple containing
+<dd class="field-even"><p>[PeriodicNeighbor] where PeriodicNeighbor is a namedtuple containing
 (site, distance, index, image).</p>
 </dd>
 </dl>
@@ -830,7 +830,7 @@ miller index to.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.core.structure.IStructure.get_neighbors">
-<code class="sig-name descname">get_neighbors</code><span class="sig-paren">(</span><em class="sig-param">site: pymatgen.core.sites.PeriodicSite</em>, <em class="sig-param">r: float</em>, <em class="sig-param">include_index: bool = False</em>, <em class="sig-param">include_image: bool = False</em><span class="sig-paren">)</span> &#x2192; List[pymatgen.core.structure.Neighbor]<a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.get_neighbors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_neighbors" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_neighbors</code><span class="sig-paren">(</span><em class="sig-param">site: pymatgen.core.sites.PeriodicSite</em>, <em class="sig-param">r: float</em>, <em class="sig-param">include_index: bool = False</em>, <em class="sig-param">include_image: bool = False</em><span class="sig-paren">)</span> &#x2192; List[pymatgen.core.structure.PeriodicNeighbor]<a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.get_neighbors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_neighbors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all neighbors to a site within a sphere of radius r.  Excludes the
 site itself.</p>
 <dl class="field-list simple">
@@ -845,7 +845,7 @@ is always included in the returned data.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>[Neighbor] where Neighbor is a namedtuple containing
+<dd class="field-even"><p>[PeriodicNeighbor] where PeriodicNeighbor is a namedtuple containing
 (site, distance, index, image).</p>
 </dd>
 </dl>
@@ -1303,31 +1303,64 @@ translation.</p></li>
 
 <dl class="class">
 <dt id="pymatgen.core.structure.Neighbor">
-<em class="property">class </em><code class="sig-name descname">Neighbor</code><span class="sig-paren">(</span><em class="sig-param">site</em>, <em class="sig-param">distance</em>, <em class="sig-param">index</em>, <em class="sig-param">image</em><span class="sig-paren">)</span><a class="headerlink" href="#pymatgen.core.structure.Neighbor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
-<p>Create new instance of Neighbor(site, distance, index, image)</p>
-<dl class="method">
-<dt id="pymatgen.core.structure.Neighbor.distance">
-<em class="property">property </em><code class="sig-name descname">distance</code><a class="headerlink" href="#pymatgen.core.structure.Neighbor.distance" title="Permalink to this definition">¶</a></dt>
-<dd><p>Alias for field number 1</p>
+<em class="property">class </em><code class="sig-name descname">Neighbor</code><span class="sig-paren">(</span><em class="sig-param">species: pymatgen.core.composition.Composition</em>, <em class="sig-param">coords: numpy.ndarray</em>, <em class="sig-param">properties: dict = None</em>, <em class="sig-param">nn_distance: float = 0.0</em>, <em class="sig-param">index: int = 0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#Neighbor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Neighbor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.sites.Site</span></code></a></p>
+<p>Simple Site subclass to contain a neighboring atom that skips all the
+unnecessary checks for speed. Can be
+used as a fixed-length tuple of size 3 to retain backwards compatibility
+with past use cases.</p>
+<blockquote>
+<div><p>(site, nn_distance, index).</p>
+</div></blockquote>
+<p>In future, usage should be to call attributes, e.g., Neighbor.index,
+Neighbor.distance, etc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>species</strong> – Same as Site</p></li>
+<li><p><strong>coords</strong> – Same as Site, but must be fractional.</p></li>
+<li><p><strong>properties</strong> – Same as Site</p></li>
+<li><p><strong>nn_distance</strong> – Distance to some other Site.</p></li>
+<li><p><strong>index</strong> – Index within structure.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
+<dl class="class">
+<dt id="pymatgen.core.structure.PeriodicNeighbor">
+<em class="property">class </em><code class="sig-name descname">PeriodicNeighbor</code><span class="sig-paren">(</span><em class="sig-param">species: pymatgen.core.composition.Composition</em>, <em class="sig-param">coords: numpy.ndarray</em>, <em class="sig-param">lattice: pymatgen.core.lattice.Lattice</em>, <em class="sig-param">properties: dict = None</em>, <em class="sig-param">nn_distance: float = 0.0</em>, <em class="sig-param">index: int = 0</em>, <em class="sig-param">image: tuple = (0</em>, <em class="sig-param">0</em>, <em class="sig-param">0)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#PeriodicNeighbor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.PeriodicNeighbor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.PeriodicSite" title="pymatgen.core.sites.PeriodicSite"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.sites.PeriodicSite</span></code></a></p>
+<p>Simple PeriodicSite subclass to contain a neighboring atom that skips all
+the unnecessary checks for speed. Can be used as a fixed-length tuple of
+size 4 to retain backwards compatibility with past use cases.</p>
+<blockquote>
+<div><p>(site, distance, index, image).</p>
+</div></blockquote>
+<p>In future, usage should be to call attributes, e.g., PeriodicNeighbor.index,
+PeriodicNeighbor.distance, etc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>species</strong> – Same as PeriodicSite</p></li>
+<li><p><strong>coords</strong> – Same as PeriodicSite, but must be fractional.</p></li>
+<li><p><strong>lattice</strong> – Same as PeriodicSite</p></li>
+<li><p><strong>properties</strong> – Same as PeriodicSite</p></li>
+<li><p><strong>nn_distance</strong> – Distance to some other Site.</p></li>
+<li><p><strong>index</strong> – Index within structure.</p></li>
+<li><p><strong>image</strong> – PeriodicImage</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
-<dt id="pymatgen.core.structure.Neighbor.image">
-<em class="property">property </em><code class="sig-name descname">image</code><a class="headerlink" href="#pymatgen.core.structure.Neighbor.image" title="Permalink to this definition">¶</a></dt>
-<dd><p>Alias for field number 3</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.core.structure.Neighbor.index">
-<em class="property">property </em><code class="sig-name descname">index</code><a class="headerlink" href="#pymatgen.core.structure.Neighbor.index" title="Permalink to this definition">¶</a></dt>
-<dd><p>Alias for field number 2</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.core.structure.Neighbor.site">
-<em class="property">property </em><code class="sig-name descname">site</code><a class="headerlink" href="#pymatgen.core.structure.Neighbor.site" title="Permalink to this definition">¶</a></dt>
-<dd><p>Alias for field number 0</p>
+<dt id="pymatgen.core.structure.PeriodicNeighbor.coords">
+<em class="property">property </em><code class="sig-name descname">coords</code><a class="headerlink" href="#pymatgen.core.structure.PeriodicNeighbor.coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cartesian coords.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -2093,7 +2126,7 @@ Raised when the structure has problems, e.g., atoms that are too close.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.3 documentation</a> &#187;</li> 
       </ul>
     </div>
 
