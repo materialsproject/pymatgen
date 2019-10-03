@@ -305,7 +305,8 @@ class ETSF_Reader(NetcdfReader):
                 raise ValueError("Cannot find `%s` in `%s`" % (ncname, self.path))
             # Convert scalars to (well) scalars.
             if hasattr(d[hvar.name], "shape") and not d[hvar.name].shape:
-                d[hvar.name] = np.asscalar(d[hvar.name])
+                #d[hvar.name] = np.asscalar(d[hvar.name])
+                d[hvar.name] = np.asarray(d[hvar.name]).item()
             if hvar.name in ("title", "md5_pseudos", "codvsn"):
                 # Convert array of numpy bytes to list of strings
                 if hvar.name == "codvsn":
