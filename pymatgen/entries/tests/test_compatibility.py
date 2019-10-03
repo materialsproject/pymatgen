@@ -1256,6 +1256,89 @@ class OxideTypeCorrectionNoPeroxideCorrTest(unittest.TestCase):
         self.assertAlmostEqual(lio3_entry_corrected.energy, -3.0 - 3 * 0.66975)
 
 
+class TestMPAqueousCorrection(unittest.TestCase):
+    def setUp(self):
+        module_dir = os.path.dirname(os.path.abspath(__file__))
+        fp = os.path.join(module_dir, os.path.pardir, "MPCompatibility.yaml")
+        self.corr = AqueousCorrection(fp)
+
+        self.compat = MaterialsProjectCompatibility(check_potcar_hash=False)
+        self.aqcompat = MaterialsProjectAqueousCompatibility(check_potcar_hash=False)
+        self.aqcorr = AqueousCorrection(fp)
+
+    def test_compound_energy(self):
+
+        O2_entry = self.corr.correct_entry(
+            ComputedEntry(Composition("O2"), -4.9355 * 2)
+        )
+        H2_entry = self.corr.correct_entry(ComputedEntry(Composition("H2"), 3))
+        H2O_entry = self.corr.correct_entry(ComputedEntry(Composition("H2O"), 3))
+        H2O_formation_energy = H2O_entry.energy - (
+            H2_entry.energy + O2_entry.energy / 2.0
+        )
+        self.assertAlmostEqual(H2O_formation_energy, -2.46, 2)
+
+        entry = ComputedEntry(Composition("H2O"), -16)
+        entry = self.corr.correct_entry(entry)
+        self.assertAlmostEqual(entry.energy, -14.916, 4)
+
+        entry = ComputedEntry(Composition("H2O"), -24)
+        entry = self.corr.correct_entry(entry)
+        self.assertAlmostEqual(entry.energy, -14.916, 4)
+
+        entry = ComputedEntry(Composition("Cl"), -24)
+        entry = self.corr.correct_entry(entry)
+        self.assertAlmostEqual(entry.energy, -24.344373, 4)
+
+    def test_aqueous_compat(self):
+
+        el_li = Element("Li")
+        el_o = Element("O")
+        el_h = Element("H")
+        latt = Lattice.from_parameters(
+            3.565276, 3.565276, 4.384277, 90.000000, 90.000000, 90.000000
+        )
+        elts = [el_h, el_h, el_li, el_li, el_o, el_o]
+        coords = [
+            [0.000000, 0.500000, 0.413969],
+            [0.500000, 0.000000, 0.586031],
+            [0.000000, 0.000000, 0.000000],
+            [0.500000, 0.500000, 0.000000],
+            [0.000000, 0.500000, 0.192672],
+            [0.500000, 0.000000, 0.807328],
+        ]
+        struct = Structure(latt, elts, coords)
+        lioh_entry = ComputedStructureEntry(
+            struct,
+            -3,
+            parameters={
+                "is_hubbard": False,
+                "hubbards": None,
+                "run_type": "GGA",
+                "potcar_spec": [
+                    {
+                        "titel": "PAW_PBE Li_sv 17Jan2003",  # date/hash from mit potcar_spec
+                        "hash": "65e83282d1707ec078c1012afbd05be8",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
+                    {
+                        "titel": "PAW_PBE H 15Jun2001",
+                        "hash": "bb43c666e3d36577264afe07669e9582",
+                    },
+                ],
+            },
+        )
+        lioh_entry_compat = self.compat.process_entry(lioh_entry)
+        lioh_entry_compat_aqcorr = self.aqcorr.correct_entry(lioh_entry_compat)
+        lioh_entry_aqcompat = self.aqcompat.process_entry(lioh_entry)
+        self.assertAlmostEqual(
+            lioh_entry_compat_aqcorr.energy, lioh_entry_aqcompat.energy, 4
+        )
+
+
 class AqueousCorrectionTest(unittest.TestCase):
     def setUp(self):
         module_dir = os.path.dirname(os.path.abspath(__file__))

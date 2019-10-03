@@ -36,7 +36,7 @@ AnionCorrections:
   Si: 0.243
   Sb: -0.188
   Te: -0.417
-AqueuousCompoundEnergies:
+AqueousCompoundEnergies:
   O2: -0.316731
   N2: -0.295729
   F2: -0.313025

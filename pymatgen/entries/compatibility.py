@@ -542,7 +542,8 @@ class Compatibility(MSONable):
         """
         try:
             corrections, errors = self.get_corrections_dict(entry)
-        except CompatibilityError:
+        except CompatibilityError as e:
+            print("CompatibilityError: " + str(e))
             return None
         entry.correction = sum(corrections.values())
         tot_error = 0

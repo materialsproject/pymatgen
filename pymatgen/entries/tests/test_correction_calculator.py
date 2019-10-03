@@ -120,7 +120,7 @@ class CorrectionCalculatorTest(unittest.TestCase):
 
     def test_no_uncertainties(self):
         """
-		Test that corrections can be calculated with no corrections.
+		Test that corrections can be calculated with no uncertainties.
 		"""
 
         exp_path = os.path.join(self.test_dir, "exp_no_error_compounds.gz")
