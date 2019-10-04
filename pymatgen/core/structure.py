@@ -542,8 +542,8 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         Add spin states to a structure.
 
         Args:
-            spisn (dict): Dict of spins associated with
-            elements or species, e.g. {"Ni":+5} or {"Ni2+":5}
+            spins (dict): Dict of spins associated with elements or species,
+                e.g. {"Ni":+5} or {"Ni2+":5}
         """
         for site in self.sites:
             new_sp = {}
