@@ -30,13 +30,16 @@ extra_link_args = []
 if sys.platform.startswith('win') and platform.machine().endswith('64'):
     extra_link_args.append('-Wl,--allow-multiple-definition')
 
+cpp_extra_link_args = extra_link_args
 cpp_extra_compile_args = ["-Wno-cpp", "-Wno-unused-function", "-O2", "-march=native", '-std=c++11']
 if sys.platform.startswith('darwin'):
     cpp_extra_compile_args.append("-stdlib=libc++")
+    cpp_extra_link_args = ["-O2", "-march=native", '-stdlib=libc++']
 
 # https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options-listed-alphabetically?view=vs-2017
 if sys.platform.startswith('win'):
     cpp_extra_compile_args = ['/w', '/O2', '/std:c++14']
+    cpp_extra_link_args = extra_link_args 
 
 long_desc = """
 Official docs: [http://pymatgen.org](http://pymatgen.org/)
@@ -174,7 +177,7 @@ setup(
                  Extension("pymatgen.optimization.neighbors",
                            ["pymatgen/optimization/neighbors.cpp"],
                            extra_compile_args=cpp_extra_compile_args,
-                           extra_link_args=extra_link_args,
+                           extra_link_args=cpp_extra_link_args,
                            language='c++')],
     entry_points={
           'console_scripts': [
