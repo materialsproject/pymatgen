@@ -1,6 +1,10 @@
 Change log
 ==========
 
+v2019.10.4
+----------
+1. Fix compile args.
+
 v2019.10.3
 ----------
 * Faster get_all_neighbors based on @chc273's improvements. get_all_neighbors
