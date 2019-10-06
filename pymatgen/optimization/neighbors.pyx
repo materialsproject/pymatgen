@@ -59,20 +59,24 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
     cdef double[:, ::1] all_fcoords = <double[:n_total, :3]> malloc(n_total * 3 * sizeof(double))
     cdef double[:, ::1] coords_in_cell = <double[:n_total, :3]> malloc(n_total * 3 * sizeof(double))
     cdef double[:, ::1] offset_correction = <double[:n_total, :3]> malloc(n_total * 3 * sizeof(double))
+
     get_frac_coords(lattice, all_coords, offset_correction)
     for i in range(n_total):
         for j in range(3):
-            all_fcoords[i, j] = offset_correction[i, j] % 1
-            offset_correction[i, j] = offset_correction[i, j] - all_fcoords[i, j]
-
+            if pbc[j]:
+                # only wrap atoms when this dimension is PBC
+                all_fcoords[i, j] = offset_correction[i, j] % 1
+                offset_correction[i, j] = offset_correction[i, j] - all_fcoords[i, j]
+            else:
+                all_fcoords[i, j] = offset_correction[i, j]
+                offset_correction[i, j] = 0
+    get_max_r(lattice, maxr, r)
+    # Get fractional coordinates of center points
+    get_frac_coords(lattice, center_coords, frac_coords)
+    get_bounds(frac_coords, maxr, pbc, max_bounds, min_bounds)
+    for i in range(3):
+        nlattice *= (max_bounds[i] - min_bounds[i])
     matmul(all_fcoords, lattice, coords_in_cell)
-    if (pbc[0] | pbc[1] | pbc[2]):
-        get_max_r(lattice, maxr, r)
-        # Get fractional coordinates of center points
-        get_frac_coords(lattice, center_coords, frac_coords)
-        get_bounds(frac_coords, maxr, pbc, max_bounds, min_bounds)
-        for i in range(3):
-            nlattice *= (max_bounds[i] - min_bounds[i])
 
     # Get translated images, coordinates and indices
     cdef long natoms = nlattice * n_total
