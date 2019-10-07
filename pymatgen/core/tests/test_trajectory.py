@@ -122,11 +122,11 @@ class TrajectoryTest(PymatgenTest):
         # Case of incompatible trajectories
         traj = self.traj.copy()
         incompatible_traj = Trajectory.from_file(os.path.join(test_dir, "Traj_Combine_Test_XDATCAR_2"))
-        incompatible_test_success=False
+        incompatible_test_success = False
         try:
             traj.extend(incompatible_traj)
-        except:
-            incompatible_test_success=True
+        except Exception:
+            incompatible_test_success = True
 
         self.assertTrue(compatible_success and incompatible_test_success)
 
@@ -155,11 +155,11 @@ class TrajectoryTest(PymatgenTest):
 
         # Trajectories with constant site properties
         site_properties_1 = [{'selective_dynamics': [[True, True, True], [False, False, False]],
-                            'magmom': [5, 5]}]
+                              'magmom': [5, 5]}]
         traj_1 = Trajectory(lattice, species, frac_coords, site_properties=site_properties_1)
 
         site_properties_2 = [{'selective_dynamics': [[True, True, True], [False, False, False]],
-                            'magmom': [5, 5]}]
+                              'magmom': [5, 5]}]
         traj_2 = Trajectory(lattice, species, frac_coords, site_properties=site_properties_2)
 
         # Test combining two trajectories with similar site_properties
@@ -189,7 +189,7 @@ class TrajectoryTest(PymatgenTest):
         expected_site_props = [{'selective_dynamics': [[False, False, False], [False, False, False]], 'magmom': [5, 5]},
                                {'selective_dynamics': [[False, False, False], [False, False, False]], 'magmom': [5, 5]},
                                {'selective_dynamics': [[False, False, False], [False, False, False]], 'magmom': [5, 5]},
-                               {'selective_dynamics': [[True, True, True], [False, False, False]],'magmom': [5, 5]},
+                               {'selective_dynamics': [[True, True, True], [False, False, False]], 'magmom': [5, 5]},
                                {'selective_dynamics': [[True, True, True], [False, False, False]], 'magmom': [5, 5]},
                                {'selective_dynamics': [[True, True, True], [False, False, False]], 'magmom': [5, 5]}]
         self.assertEqual(traj_combined.site_properties, expected_site_props)
@@ -198,9 +198,9 @@ class TrajectoryTest(PymatgenTest):
         site_properties_1 = [{'selective_dynamics': [[True, False, False], [False, False, False]], 'magmom': [5, 5]}]
         traj_1 = Trajectory(lattice, species, frac_coords, site_properties=site_properties_1)
 
-        site_properties_2 = [{'selective_dynamics': [[False, True, True], [False, False, False]],'magmom': [5, 5]},
-                               {'selective_dynamics': [[True, False, True], [False, False, False]], 'magmom': [5, 5]},
-                               {'selective_dynamics': [[True, True, False], [False, False, False]], 'magmom': [5, 5]}]
+        site_properties_2 = [{'selective_dynamics': [[False, True, True], [False, False, False]], 'magmom': [5, 5]},
+                             {'selective_dynamics': [[True, False, True], [False, False, False]], 'magmom': [5, 5]},
+                             {'selective_dynamics': [[True, True, False], [False, False, False]], 'magmom': [5, 5]}]
         traj_2 = Trajectory(lattice, species, frac_coords, site_properties=site_properties_2)
 
         # Test combining two trajectories with similar site_properties
@@ -209,15 +209,15 @@ class TrajectoryTest(PymatgenTest):
         expected_site_props = [{'selective_dynamics': [[True, False, False], [False, False, False]], 'magmom': [5, 5]},
                                {'selective_dynamics': [[True, False, False], [False, False, False]], 'magmom': [5, 5]},
                                {'selective_dynamics': [[True, False, False], [False, False, False]], 'magmom': [5, 5]},
-                               {'selective_dynamics': [[False, True, True], [False, False, False]],'magmom': [5, 5]},
+                               {'selective_dynamics': [[False, True, True], [False, False, False]], 'magmom': [5, 5]},
                                {'selective_dynamics': [[True, False, True], [False, False, False]], 'magmom': [5, 5]},
                                {'selective_dynamics': [[True, True, False], [False, False, False]], 'magmom': [5, 5]}]
         self.assertEqual(traj_combined.site_properties, expected_site_props)
 
-        ## The other way around
+        # The other way around
         traj_combined = traj_2.copy()
         traj_combined.extend(traj_1)
-        expected_site_props = [{'selective_dynamics': [[False, True, True], [False, False, False]],'magmom': [5, 5]},
+        expected_site_props = [{'selective_dynamics': [[False, True, True], [False, False, False]], 'magmom': [5, 5]},
                                {'selective_dynamics': [[True, False, True], [False, False, False]], 'magmom': [5, 5]},
                                {'selective_dynamics': [[True, True, False], [False, False, False]], 'magmom': [5, 5]},
                                {'selective_dynamics': [[True, False, False], [False, False, False]], 'magmom': [5, 5]},
@@ -229,9 +229,9 @@ class TrajectoryTest(PymatgenTest):
         site_properties_1 = None
         traj_1 = Trajectory(lattice, species, frac_coords, site_properties=site_properties_1)
 
-        site_properties_2 = [{'selective_dynamics': [[False, True, True], [False, False, False]],'magmom': [5, 5]},
-                               {'selective_dynamics': [[True, False, True], [False, False, False]], 'magmom': [5, 5]},
-                               {'selective_dynamics': [[True, True, False], [False, False, False]], 'magmom': [5, 5]}]
+        site_properties_2 = [{'selective_dynamics': [[False, True, True], [False, False, False]], 'magmom': [5, 5]},
+                             {'selective_dynamics': [[True, False, True], [False, False, False]], 'magmom': [5, 5]},
+                             {'selective_dynamics': [[True, True, False], [False, False, False]], 'magmom': [5, 5]}]
         traj_2 = Trajectory(lattice, species, frac_coords, site_properties=site_properties_2)
 
         # Test combining two trajectories with similar site_properties
@@ -240,15 +240,15 @@ class TrajectoryTest(PymatgenTest):
         expected_site_props = [None,
                                None,
                                None,
-                               {'selective_dynamics': [[False, True, True], [False, False, False]],'magmom': [5, 5]},
+                               {'selective_dynamics': [[False, True, True], [False, False, False]], 'magmom': [5, 5]},
                                {'selective_dynamics': [[True, False, True], [False, False, False]], 'magmom': [5, 5]},
                                {'selective_dynamics': [[True, True, False], [False, False, False]], 'magmom': [5, 5]}]
         self.assertEqual(traj_combined.site_properties, expected_site_props)
 
-        ## The other way around
+        # The other way around
         traj_combined = traj_2.copy()
         traj_combined.extend(traj_1)
-        expected_site_props = [{'selective_dynamics': [[False, True, True], [False, False, False]],'magmom': [5, 5]},
+        expected_site_props = [{'selective_dynamics': [[False, True, True], [False, False, False]], 'magmom': [5, 5]},
                                {'selective_dynamics': [[True, False, True], [False, False, False]], 'magmom': [5, 5]},
                                {'selective_dynamics': [[True, True, False], [False, False, False]], 'magmom': [5, 5]},
                                None,
@@ -293,7 +293,7 @@ class TrajectoryTest(PymatgenTest):
         self.assertEqual(traj_combined.frame_properties, expected_frame_properties)
 
         # Mismatched frame propertied
-        frame_properties_3 = {'energy': [-4.2, -4.25, -4.3], 'pressure':[2, 2.5, 2.5]}
+        frame_properties_3 = {'energy': [-4.2, -4.25, -4.3], 'pressure': [2, 2.5, 2.5]}
         traj_3 = Trajectory(lattice, species, frac_coords, frame_properties=frame_properties_3)
         traj_combined = traj_1.copy()
         traj_combined.extend(traj_3)
@@ -312,7 +312,7 @@ class TrajectoryTest(PymatgenTest):
             displacement = np.random.random_sample(np.shape(structures[-1].frac_coords)) / 20
             new_coords = displacement + structures[-1].frac_coords
             structures.append(Structure(structures[-1].lattice, structures[-1].species, new_coords))
-            displacements[i+1, :, :] = displacement
+            displacements[i + 1, :, :] = displacement
 
         traj = Trajectory.from_structures(structures, constant_lattice=True)
         traj.to_displacements()
@@ -325,7 +325,7 @@ class TrajectoryTest(PymatgenTest):
         # Generate structures with different lattices
         structures = []
         for i in range(10):
-            new_lattice = np.dot(structure.lattice.matrix, np.diag(1 + np.random.random_sample(3)/20))
+            new_lattice = np.dot(structure.lattice.matrix, np.diag(1 + np.random.random_sample(3) / 20))
             temp_struct = structure.copy()
             temp_struct.lattice = Lattice(new_lattice)
             structures.append(temp_struct)
@@ -351,4 +351,5 @@ class TrajectoryTest(PymatgenTest):
 
 if __name__ == '__main__':
     import unittest
+
     unittest.main()
