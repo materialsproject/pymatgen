@@ -33,33 +33,33 @@ class YamlTokenizerTest(PymatgenTest):
     def test_base(self):
         string = \
             """---
-            none: [~, null]
-            bool: [true, false, on, off]
-            int: 42
-            float: 3.14159
-            list: [LITE, RES_ACID, SUS_DEXT]
-            dict: {hp: 13, sp: 5}
-            ...
-            
-            this is not a YAML document!
-            and the tokenizer will ignore it
-            
-            --- !Monster
-            name: Cave spider
-            hp: [2,6]    # 2d6
-            ac: 16
-            attacks: [BITE, HURT]
-            ...
-            
-            This is not a proper document since it does not start with ---
-            the end tag below is ignored
-            ...
-            --- !Monster
-            name: Dragon
-            hp: [2,6]    # 2d6
-            ac: 32
-            attacks: [BITE, HURT]
-            ...
+none: [~, null]
+bool: [true, false, on, off]
+int: 42
+float: 3.14159
+list: [LITE, RES_ACID, SUS_DEXT]
+dict: {hp: 13, sp: 5}
+...
+
+this is not a YAML document!
+and the tokenizer will ignore it
+
+--- !Monster
+name: Cave spider
+hp: [2,6]    # 2d6
+ac: 16
+attacks: [BITE, HURT]
+...
+
+This is not a proper document since it does not start with ---
+the end tag below is ignored
+...
+--- !Monster
+name: Dragon
+hp: [2,6]    # 2d6
+ac: 32
+attacks: [BITE, HURT]
+...
             """
         # for i, line in enumerate(string.splitlines()): print(i, line)
         fd, filename = tempfile.mkstemp(text=True)

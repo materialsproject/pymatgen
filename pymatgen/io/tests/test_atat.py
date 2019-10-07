@@ -10,10 +10,10 @@ from pymatgen.io.atat import Mcsqs
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files', "atat")
 
+
 class McsqsTest(PymatgenTest):
 
     def test_mcsqs_import(self):
-
         test_string = """1.000000 0.000000 0.000000
 0.000000 1.000000 0.000000
 0.000000 0.000000 1.000000
@@ -70,9 +70,8 @@ class McsqsTest(PymatgenTest):
         self.assertAlmostEqual(s.lattice.c, 1.73205080757)
 
     def test_mcsqs_export(self):
-
         s = self.get_structure('SrTiO3')
-        s.replace_species({'Sr2+': {'Sr2+':0.5, 'Ca2+':0.5}})
+        s.replace_species({'Sr2+': {'Sr2+': 0.5, 'Ca2+': 0.5}})
 
         ref_string = """3.905000 0.000000 0.000000
 -0.000000 3.905000 0.000000

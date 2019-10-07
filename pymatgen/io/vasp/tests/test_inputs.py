@@ -297,8 +297,7 @@ direct
         for x in np.sum(v, axis=0):
             self.assertAlmostEqual(x, 0, 7)
 
-        temperature = struct[0].specie.atomic_mass.to("kg") * \
-                      np.sum(v ** 2) / (3 * const.k) * 1e10
+        temperature = struct[0].specie.atomic_mass.to("kg") * np.sum(v ** 2) / (3 * const.k) * 1e10
         self.assertAlmostEqual(temperature, 900, 4,
                                'Temperature instantiated incorrectly')
 
@@ -308,8 +307,7 @@ direct
             self.assertAlmostEqual(
                 x, 0, 7, 'Velocities initialized with a net momentum')
 
-        temperature = struct[0].specie.atomic_mass.to("kg") * \
-                      np.sum(v ** 2) / (3 * const.k) * 1e10
+        temperature = struct[0].specie.atomic_mass.to("kg") * np.sum(v ** 2) / (3 * const.k) * 1e10
         self.assertAlmostEqual(temperature, 700, 4,
                                'Temperature instantiated incorrectly')
 
@@ -372,7 +370,8 @@ class IncarTest(PymatgenTest):
                 'NPAR': {'INCAR1': 8, 'INCAR2': 1},
                 'SYSTEM': {
                     'INCAR1': 'Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]',
-                    'INCAR2': 'Id=[91090] dblock_code=[20070929235612linio-59.53134651-vasp] formula=[li3 ni3 o6] sg_name=[r-3m]'},
+                    'INCAR2': 'Id=[91090] dblock_code=[20070929235612linio-59.53134651-vasp] formula=[li3 ni3 o6] '
+                              'sg_name=[r-3m]'},
                 'ALGO': {'INCAR1': 'Damped', 'INCAR2': 'Fast'},
                 'LHFCALC': {'INCAR1': True, 'INCAR2': None},
                 'TIME': {'INCAR1': 0.4, 'INCAR2': None}},
@@ -409,7 +408,8 @@ class IncarTest(PymatgenTest):
                 'NPAR': {'INCAR1': 8, 'INCAR2': 1},
                 'SYSTEM': {
                     'INCAR1': 'Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]',
-                    'INCAR2': 'Id=[91090] dblock_code=[20070929235612linio-59.53134651-vasp] formula=[li3 ni3 o6] sg_name=[r-3m]'},
+                    'INCAR2': 'Id=[91090] dblock_code=[20070929235612linio-59.53134651-vasp] formula=[li3 ni3 o6] '
+                              'sg_name=[r-3m]'},
                 'ALGO': {'INCAR1': 'Damped', 'INCAR2': 'Fast'},
                 'LHFCALC': {'INCAR1': True, 'INCAR2': None},
                 'TIME': {'INCAR1': 0.4, 'INCAR2': None}},
@@ -657,7 +657,7 @@ Cartesian
         kpoints = Kpoints.automatic_density(s, 500)
         self.assertEqual(kpoints.kpts, [[1, 1, 1]])
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
-        kpoints = Kpoints.from_string("""k-point mesh 
+        kpoints = Kpoints.from_string("""k-point mesh
 0
 G
 10 10 10

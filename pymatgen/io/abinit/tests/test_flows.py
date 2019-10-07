@@ -43,7 +43,8 @@ class FakeAbinitInput:
 
     def get(self, key, default=None):
         """The real AbinitInput is a dict-like object."""
-        if default is not None: return default
+        if default is not None:
+            return default
         return key
 
 

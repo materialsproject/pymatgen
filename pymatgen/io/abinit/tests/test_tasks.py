@@ -42,13 +42,13 @@ qadapters:
             LD_LIBRARY_PATH: /home/user/NAPS/intel13/lib:$LD_LIBRARY_PATH
         mpi_runner: mpirun
 
-# Connection to the MongoDb database (optional) 
+# Connection to the MongoDb database (optional)
 db_connector:
     enabled: no
     database: abinit
     collection: test
-    #host: 0.0.0.0 
-    #port: 8080 
+    #host: 0.0.0.0
+    #port: 8080
     #user: gmatteo
     #password: helloworld
 """

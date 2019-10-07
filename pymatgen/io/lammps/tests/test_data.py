@@ -733,8 +733,7 @@ class FuncTest(unittest.TestCase):
         np.testing.assert_array_almost_equal(init_latt.abc, boxed_latt.abc)
         np.testing.assert_array_almost_equal(init_latt.angles,
                                              boxed_latt.angles)
-        cart_coords = symmop.operate_multi(init_structure.cart_coords) \
-                      - origin
+        cart_coords = symmop.operate_multi(init_structure.cart_coords) - origin
         boxed_structure = Structure(boxed_latt, ["H"] * 10, cart_coords,
                                     coords_are_cartesian=True)
         np.testing.assert_array_almost_equal(boxed_structure.frac_coords,
@@ -755,8 +754,7 @@ class FuncTest(unittest.TestCase):
 
     @unittest.skip("The function is deprecated")
     def test_structure_2_lmpdata(self):
-        matrix = np.diag(np.random.randint(5, 14, size=(3,))) \
-                 + np.random.rand(3, 3) * 0.2 - 0.1
+        matrix = np.diag(np.random.randint(5, 14, size=(3,))) + np.random.rand(3, 3) * 0.2 - 0.1
         latt = Lattice(matrix)
         frac_coords = np.random.rand(10, 3)
         structure = Structure(latt, ["H"] * 10, frac_coords)

@@ -101,8 +101,8 @@ class TestPackmolOutput(unittest.TestCase):
         self.assertEqual(len(self.cocktail),
                          sum([len(mol) * self.packmol_config[i]["number"]
                               for i, mol in enumerate(self.mols)]))
-        atoms = self.ethanol_atoms * self.packmol_config[0]["number"] + \
-                self.water_atoms * self.packmol_config[1]["number"]
+        atoms = (self.ethanol_atoms * self.packmol_config[0]["number"] +
+                 self.water_atoms * self.packmol_config[1]["number"])
         atoms_ans = [str(site.specie) for site in self.cocktail]
         self.assertEqual(atoms, atoms_ans)
 
