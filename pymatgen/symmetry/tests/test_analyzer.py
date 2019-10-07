@@ -174,6 +174,9 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertEqual(symm_struct.wyckoff_symbols[0], '16h')
         # self.assertEqual(symm_struct[0].wyckoff, "16h")
 
+        # Check copying
+        self.assertEqual(symm_struct.copy(), symm_struct)
+
     def test_find_primitive(self):
         """
         F m -3 m Li2O testing of converting to primitive cell
