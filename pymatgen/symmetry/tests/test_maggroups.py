@@ -5,6 +5,7 @@ import numpy as np
 from pymatgen.core.lattice import Lattice
 from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 from pymatgen.symmetry.groups import SpaceGroup
+from pymatgen.util.testing import PymatgenTest
 
 __author__ = "Matthew Horton"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -15,7 +16,7 @@ __status__ = "Beta"
 __date__ = "Feb 2017"
 
 
-class MagneticSpaceGroupTest(unittest.TestCase):
+class MagneticSpaceGroupTest(PymatgenTest):
 
     def setUp(self):
         self.msg_1 = MagneticSpaceGroup([70, 530])
@@ -117,7 +118,7 @@ x+1/2, -y+1/2, -z+1/2, -1
 -x+1/2, -y, z+1/2, -1
 -x+1/2, y+1/2, z+1/2, -1
 x+1/2, y, -z+1/2, -1"""
-        self.assertEqual(msg_2_symmops, msg_2_symmops_ref)
+        self.assertStrContentEqual(msg_2_symmops, msg_2_symmops_ref)
 
         msg_3_symmops = "\n".join([str(op) for op in self.msg_3.symmetry_ops])
         msg_3_symmops_ref = """x, y, z, +1
@@ -194,8 +195,8 @@ Wyckoff Positions (OG): (1,0,0)+ (0,2,0)+ (0,0,1)+
 2b  (0,y,1/2;mx,0,mz) (0,y+1,-1/2;-mx,0,-mz)
 2a  (0,y,0;mx,0,mz) (0,y+1,0;-mx,0,-mz)"""
 
-        self.assertEqual(str(msg), ref_string)
-        self.assertEqual(msg.data_str(), ref_string_all)
+        self.assertStrContentEqual(str(msg), ref_string)
+        self.assertStrContentEqual(msg.data_str(), ref_string_all)
 
 
 if __name__ == '__main__':
