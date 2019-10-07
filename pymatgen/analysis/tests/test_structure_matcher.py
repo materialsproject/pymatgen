@@ -815,7 +815,8 @@ class PointDefectComparatorTest(PymatgenTest):
         ))
 
         # test symmorphic interstitial matching
-        # (using set generated from Voronoi generator, with same sublattice given by saturatated_interstitial_structure function)
+        # (using set generated from Voronoi generator, with same sublattice given by saturatated_
+        # interstitial_structure function)
         inter_H_sublattice1_set1 = PeriodicSite('H', [0., 0.75, 0.25],
                                                 s_struc.lattice)
         inter_H_sublattice1_set2 = PeriodicSite('H', [0., 0.75, 0.75],
@@ -854,7 +855,8 @@ class PointDefectComparatorTest(PymatgenTest):
             ))
 
         # test non-symmorphic interstitial matching
-        # (using set generated from Voronoi generator, with same sublattice given by saturatated_interstitial_structure function)
+        # (using set generated from Voronoi generator, with same sublattice given by
+        # saturatated_interstitial_structure function)
         ns_struc = Structure.from_file(os.path.join(test_dir, "CuCl.cif"))
         ns_inter_H_sublattice1_set1 = PeriodicSite('H', [0.06924513, 0.06308959,
                                                          0.86766528],

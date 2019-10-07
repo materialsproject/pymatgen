@@ -14,7 +14,6 @@ from pymatgen.transformations.standard_transformations import \
 from pymatgen.transformations.advanced_transformations import \
     SuperTransformation
 
-
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
@@ -63,9 +62,7 @@ class PoscarTransmuterTest(unittest.TestCase):
         tsc.append_transformation(RemoveSpeciesTransformation('O'))
         self.assertEqual(len(tsc[0].final_structure), 8)
 
-        tsc.append_transformation(SubstitutionTransformation({"Fe":
-                                                                  {"Fe2+": 0.25,
-                                                                   "Mn3+": .75},
+        tsc.append_transformation(SubstitutionTransformation({"Fe": {"Fe2+": 0.25, "Mn3+": .75},
                                                               "P": "P5+"}))
         tsc.append_transformation(OrderDisorderedStructureTransformation(),
                                   extend_collection=50)
@@ -77,8 +74,9 @@ class PoscarTransmuterTest(unittest.TestCase):
         tsc.append_transformation(t, extend_collection=True)
         self.assertEqual(len(tsc), 12)
         for x in tsc:
+            # should be 4 trans + starting structure
             self.assertEqual(len(x), 5,
-                             'something might be wrong with the number of transformations in the history')  # should be 4 trans + starting structure
+                             'something might be wrong with the number of transformations in the history')
 
         # test the filter
         tsc.apply_filter(ContainsSpecieFilter(['Zn2+', 'Be2+', 'Mn4+'],

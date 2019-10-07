@@ -35,7 +35,7 @@ class SubstitutionProbabilityTest(unittest.TestCase):
         This test tests specific values in the data folder. If the
         json is updated, these tests will have to be as well
         """
-        sp = SubstitutionProbability(alpha= -5.)
+        sp = SubstitutionProbability(alpha=-5.)
         sp1 = Specie('Fe', 4)
         sp3 = Specie('Mn', 3)
         prob1 = sp.prob(sp1, sp3)
@@ -54,7 +54,7 @@ class SubstitutionProbabilityTest(unittest.TestCase):
                                , "probability isn't correct")
 
     def test_mini_lambda_table(self):
-        sp = SubstitutionProbability(lambda_table=get_table(), alpha= -5.)
+        sp = SubstitutionProbability(lambda_table=get_table(), alpha=-5.)
         o2 = Specie('O', -2)
         s2 = Specie('S', -2)
         li1 = Specie('Li', 1)
@@ -71,27 +71,27 @@ class SubstitutionProbabilityTest(unittest.TestCase):
 class SubstitutionPredictorTest(unittest.TestCase):
 
     def test_prediction(self):
-        sp = SubstitutionPredictor(threshold = 8e-3)
-        result = sp.list_prediction(['Na+', 'Cl-'], to_this_composition = True)[5]
+        sp = SubstitutionPredictor(threshold=8e-3)
+        result = sp.list_prediction(['Na+', 'Cl-'], to_this_composition=True)[5]
         cprob = sp.p.cond_prob_list(result['substitutions'].keys(),
                                     result['substitutions'].values())
         self.assertAlmostEqual(result['probability'], cprob)
         self.assertEqual(set(result['substitutions'].values()), set(['Na+', 'Cl-']))
 
-        result = sp.list_prediction(['Na+', 'Cl-'], to_this_composition = False)[5]
+        result = sp.list_prediction(['Na+', 'Cl-'], to_this_composition=False)[5]
         cprob = sp.p.cond_prob_list(result['substitutions'].keys(),
                                     result['substitutions'].values())
         self.assertAlmostEqual(result['probability'], cprob)
         self.assertNotEqual(set(result['substitutions'].values()),
                             set(['Na+', 'Cl-']))
 
-        c = Composition({'Ag2+' : 1, 'Cl-' : 2})
-        result = sp.composition_prediction(c, to_this_composition = True)[2]
+        c = Composition({'Ag2+': 1, 'Cl-': 2})
+        result = sp.composition_prediction(c, to_this_composition=True)[2]
         self.assertEqual(set(result['substitutions'].values()), set(c.elements))
-        result = sp.composition_prediction(c, to_this_composition = False)[2]
+        result = sp.composition_prediction(c, to_this_composition=False)[2]
         self.assertEqual(set(result['substitutions'].keys()), set(c.elements))
 
 
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
+    # import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

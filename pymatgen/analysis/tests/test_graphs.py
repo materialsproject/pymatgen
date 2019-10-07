@@ -233,8 +233,8 @@ class StructureGraphTest(unittest.TestCase):
 
         # Test that StructureGraph.graph is correctly updated
         square_copy.insert_node(1, "H", [0.5, 0.5, 0.75], edges=[{"from_index": 1,
-                                                                 "to_index": 2,
-                                                                 "to_jimage": (0, 0, 0)}])
+                                                                  "to_index": 2,
+                                                                  "to_jimage": (0, 0, 0)}])
         square_copy.remove_nodes([1])
         self.assertEqual(square_copy.graph.number_of_nodes(), 2)
         self.assertEqual(square_copy.graph.number_of_edges(), 5)
@@ -287,7 +287,7 @@ class StructureGraphTest(unittest.TestCase):
             (0, 0, {"to_jimage": (-1, -1, 0)}),
             (0, 0, {"to_jimage": (-1, 0, 0)}),
             (0, 0, {"to_jimage": (0, -1, 0)}),
-            (0, 0, {"to_jimage": (0, 1, 0)}),  
+            (0, 0, {"to_jimage": (0, 1, 0)}),
             (0, 0, {"to_jimage": (1, 0, 0)}),
         ]
         self.assertEqual(len(list(sg.graph.edges(data=True))), 6)

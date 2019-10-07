@@ -31,7 +31,7 @@ class SubstitutorTest(PymatgenTest):
 
     def setUp(self):
         self.s = Substitutor(threshold=1e-3, lambda_table=get_table(),
-                             alpha= -5.)
+                             alpha=-5.)
 
     def test_substitutor(self):
         s_list = [Specie('O', -2), Specie('Li', 1)]
