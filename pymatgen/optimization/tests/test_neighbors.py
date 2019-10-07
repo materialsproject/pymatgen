@@ -1,4 +1,4 @@
-from pymatgen.optimization.neighbors import find_points_in_spheres # type: ignore
+from pymatgen.optimization.neighbors import find_points_in_spheres  # type: ignore
 from pymatgen.core.lattice import Lattice
 import numpy as np
 from pymatgen.util.testing import PymatgenTest

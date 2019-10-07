@@ -3,11 +3,6 @@
 # Distributed under the terms of the MIT License.
 
 import warnings
-
-"""
-Created on Mar 19, 2012
-"""
-
 import os
 import unittest
 
