@@ -9,8 +9,8 @@
             "-Wno-unused-function",
             "-O2",
             "-march=native",
-            "-stdlib=libc++",
-            "-std=c++11"
+            "-std=c++11",
+            "-stdlib=libc++"
         ],
         "extra_link_args": [
             "-O2",
@@ -18,12 +18,12 @@
             "-stdlib=libc++"
         ],
         "language": "c++",
-        "name": "pymatgen.util.neighbors",
+        "name": "pymatgen.optimization.neighbors",
         "sources": [
-            "pymatgen/util/neighbors.pyx"
+            "pymatgen/optimization/neighbors.pyx"
         ]
     },
-    "module_name": "pymatgen.util.neighbors"
+    "module_name": "pymatgen.optimization.neighbors"
 }
 END: Cython Metadata */
 
@@ -631,8 +631,8 @@ static CYTHON_INLINE float __PYX_NAN() {
   #endif
 #endif
 
-#define __PYX_HAVE__pymatgen__util__neighbors
-#define __PYX_HAVE_API__pymatgen__util__neighbors
+#define __PYX_HAVE__pymatgen__optimization__neighbors
+#define __PYX_HAVE_API__pymatgen__optimization__neighbors
 /* Early includes */
 #include <string.h>
 #include <stdio.h>
@@ -879,7 +879,7 @@ static const char *__pyx_filename;
 
 
 static const char *__pyx_f[] = {
-  "pymatgen/util/neighbors.pyx",
+  "pymatgen/optimization/neighbors.pyx",
   "__init__.pxd",
   "stringsource",
   "type.pxd",
@@ -2452,7 +2452,7 @@ static struct __pyx_array_obj *__pyx_array_new(PyObject *, Py_ssize_t, char *, c
 
 /* Module declarations from 'libcpp.map' */
 
-/* Module declarations from 'pymatgen.util.neighbors' */
+/* Module declarations from 'pymatgen.optimization.neighbors' */
 static PyTypeObject *__pyx_array_type = 0;
 static PyTypeObject *__pyx_MemviewEnum_type = 0;
 static PyTypeObject *__pyx_memoryview_type = 0;
@@ -2464,24 +2464,24 @@ static PyObject *contiguous = 0;
 static PyObject *indirect_contiguous = 0;
 static int __pyx_memoryview_thread_locks_used;
 static PyThread_type_lock __pyx_memoryview_thread_locks[8];
-static double __pyx_f_8pymatgen_4util_9neighbors_distance2(__Pyx_memviewslice, __Pyx_memviewslice, long, long, long); /*proto*/
-static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get_cube_neighbors(__Pyx_memviewslice); /*proto*/
-static void __pyx_f_8pymatgen_4util_9neighbors_get_bounds(__Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice); /*proto*/
-static void __pyx_f_8pymatgen_4util_9neighbors_get_frac_coords(__Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice); /*proto*/
-static void __pyx_f_8pymatgen_4util_9neighbors_matmul(__Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice); /*proto*/
-static void __pyx_f_8pymatgen_4util_9neighbors_matrix_inv(__Pyx_memviewslice, __Pyx_memviewslice); /*proto*/
-static double __pyx_f_8pymatgen_4util_9neighbors_matrix_det(__Pyx_memviewslice); /*proto*/
-static void __pyx_f_8pymatgen_4util_9neighbors_get_max_r(__Pyx_memviewslice, __Pyx_memviewslice, double); /*proto*/
-static void __pyx_f_8pymatgen_4util_9neighbors_get_reciprocal_lattice(__Pyx_memviewslice, __Pyx_memviewslice); /*proto*/
-static void __pyx_f_8pymatgen_4util_9neighbors_recip_component(__Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice); /*proto*/
-static double __pyx_f_8pymatgen_4util_9neighbors_inner(__Pyx_memviewslice, __Pyx_memviewslice); /*proto*/
-static void __pyx_f_8pymatgen_4util_9neighbors_cross(__Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice); /*proto*/
-static double __pyx_f_8pymatgen_4util_9neighbors_norm(__Pyx_memviewslice); /*proto*/
-static PyObject *__pyx_f_8pymatgen_4util_9neighbors_max_and_min(__Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice); /*proto*/
-static void __pyx_f_8pymatgen_4util_9neighbors_compute_cube_index(__Pyx_memviewslice, __Pyx_memviewslice, double, __Pyx_memviewslice); /*proto*/
-static void __pyx_f_8pymatgen_4util_9neighbors_three_to_one(__Pyx_memviewslice, long, long, __Pyx_memviewslice); /*proto*/
-static int __pyx_f_8pymatgen_4util_9neighbors_distance_vertices(double (*)[3], double (*)[3], double); /*proto*/
-static void __pyx_f_8pymatgen_4util_9neighbors_offset_cube(double (*)[3], long, long, long, double (*)[3]); /*proto*/
+static double __pyx_f_8pymatgen_12optimization_9neighbors_distance2(__Pyx_memviewslice, __Pyx_memviewslice, long, long, long); /*proto*/
+static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_12optimization_9neighbors_get_cube_neighbors(__Pyx_memviewslice); /*proto*/
+static void __pyx_f_8pymatgen_12optimization_9neighbors_get_bounds(__Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice); /*proto*/
+static void __pyx_f_8pymatgen_12optimization_9neighbors_get_frac_coords(__Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice); /*proto*/
+static void __pyx_f_8pymatgen_12optimization_9neighbors_matmul(__Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice); /*proto*/
+static void __pyx_f_8pymatgen_12optimization_9neighbors_matrix_inv(__Pyx_memviewslice, __Pyx_memviewslice); /*proto*/
+static double __pyx_f_8pymatgen_12optimization_9neighbors_matrix_det(__Pyx_memviewslice); /*proto*/
+static void __pyx_f_8pymatgen_12optimization_9neighbors_get_max_r(__Pyx_memviewslice, __Pyx_memviewslice, double); /*proto*/
+static void __pyx_f_8pymatgen_12optimization_9neighbors_get_reciprocal_lattice(__Pyx_memviewslice, __Pyx_memviewslice); /*proto*/
+static void __pyx_f_8pymatgen_12optimization_9neighbors_recip_component(__Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice); /*proto*/
+static double __pyx_f_8pymatgen_12optimization_9neighbors_inner(__Pyx_memviewslice, __Pyx_memviewslice); /*proto*/
+static void __pyx_f_8pymatgen_12optimization_9neighbors_cross(__Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice); /*proto*/
+static double __pyx_f_8pymatgen_12optimization_9neighbors_norm(__Pyx_memviewslice); /*proto*/
+static PyObject *__pyx_f_8pymatgen_12optimization_9neighbors_max_and_min(__Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice); /*proto*/
+static void __pyx_f_8pymatgen_12optimization_9neighbors_compute_cube_index(__Pyx_memviewslice, __Pyx_memviewslice, double, __Pyx_memviewslice); /*proto*/
+static void __pyx_f_8pymatgen_12optimization_9neighbors_three_to_one(__Pyx_memviewslice, long, long, __Pyx_memviewslice); /*proto*/
+static int __pyx_f_8pymatgen_12optimization_9neighbors_distance_vertices(double (*)[3], double (*)[3], double); /*proto*/
+static void __pyx_f_8pymatgen_12optimization_9neighbors_offset_cube(double (*)[3], long, long, long, double (*)[3]); /*proto*/
 static struct __pyx_array_obj *__pyx_array_new(PyObject *, Py_ssize_t, char *, char *, char *); /*proto*/
 static void *__pyx_align_pointer(void *, size_t); /*proto*/
 static PyObject *__pyx_memoryview_new(PyObject *, int, int, __Pyx_TypeInfo *); /*proto*/
@@ -2518,11 +2518,11 @@ static PyObject *__pyx_unpickle_Enum__set_state(struct __pyx_MemviewEnum_obj *, 
 static PyObject *__pyx_format_from_typeinfo(__Pyx_TypeInfo *); /*proto*/
 static __Pyx_TypeInfo __Pyx_TypeInfo_double = { "double", NULL, sizeof(double), { 0 }, 0, 'R', 0, 0 };
 static __Pyx_TypeInfo __Pyx_TypeInfo_long = { "long", NULL, sizeof(long), { 0 }, 0, IS_UNSIGNED(long) ? 'U' : 'I', IS_UNSIGNED(long), 0 };
-#define __Pyx_MODULE_NAME "pymatgen.util.neighbors"
-extern int __pyx_module_is_main_pymatgen__util__neighbors;
-int __pyx_module_is_main_pymatgen__util__neighbors = 0;
+#define __Pyx_MODULE_NAME "pymatgen.optimization.neighbors"
+extern int __pyx_module_is_main_pymatgen__optimization__neighbors;
+int __pyx_module_is_main_pymatgen__optimization__neighbors = 0;
 
-/* Implementation of 'pymatgen.util.neighbors' */
+/* Implementation of 'pymatgen.optimization.neighbors' */
 static PyObject *__pyx_builtin_range;
 static PyObject *__pyx_builtin_ValueError;
 static PyObject *__pyx_builtin_RuntimeError;
@@ -2686,15 +2686,14 @@ static const char __pyx_k_expanded_coords_p_temp[] = "expanded_coords_p_temp";
 static const char __pyx_k_find_points_in_spheres[] = "find_points_in_spheres";
 static const char __pyx_k_MemoryView_of_r_at_0x_x[] = "<MemoryView of %r at 0x%x>";
 static const char __pyx_k_contiguous_and_indirect[] = "<contiguous and indirect>";
-static const char __pyx_k_pymatgen_util_neighbors[] = "pymatgen.util.neighbors";
 static const char __pyx_k_Cannot_index_with_type_s[] = "Cannot index with type '%s'";
 static const char __pyx_k_Invalid_shape_in_axis_d_d[] = "Invalid shape in axis %d: %d.";
 static const char __pyx_k_itemsize_0_for_cython_array[] = "itemsize <= 0 for cython.array";
 static const char __pyx_k_ndarray_is_not_C_contiguous[] = "ndarray is not C contiguous";
-static const char __pyx_k_pymatgen_util_neighbors_pyx[] = "pymatgen/util/neighbors.pyx";
 static const char __pyx_k_unable_to_allocate_array_data[] = "unable to allocate array data.";
 static const char __pyx_k_strided_and_direct_or_indirect[] = "<strided and direct or indirect>";
 static const char __pyx_k_numpy_core_multiarray_failed_to[] = "numpy.core.multiarray failed to import";
+static const char __pyx_k_pymatgen_optimization_neighbors[] = "pymatgen/optimization/neighbors.pyx";
 static const char __pyx_k_unknown_dtype_code_in_numpy_pxd[] = "unknown dtype code in numpy.pxd (%d)";
 static const char __pyx_k_Buffer_view_does_not_expose_stri[] = "Buffer view does not expose strides";
 static const char __pyx_k_Can_only_create_a_buffer_that_is[] = "Can only create a buffer that is contiguous in memory.";
@@ -2713,6 +2712,7 @@ static const char __pyx_k_ndarray_is_not_Fortran_contiguou[] = "ndarray is not F
 static const char __pyx_k_no_default___reduce___due_to_non[] = "no default __reduce__ due to non-trivial __cinit__";
 static const char __pyx_k_numpy_core_umath_failed_to_impor[] = "numpy.core.umath failed to import";
 static const char __pyx_k_unable_to_allocate_shape_and_str[] = "unable to allocate shape and strides.";
+static const char __pyx_k_pymatgen_optimization_neighbors_2[] = "pymatgen.optimization.neighbors";
 static const char __pyx_k_Format_string_allocated_too_shor_2[] = "Format string allocated too short.";
 static PyObject *__pyx_n_s_ASCII;
 static PyObject *__pyx_kp_s_Buffer_view_does_not_expose_stri;
@@ -2858,8 +2858,8 @@ static PyObject *__pyx_n_s_py_distances;
 static PyObject *__pyx_n_s_py_index_1;
 static PyObject *__pyx_n_s_py_index_2;
 static PyObject *__pyx_n_s_py_offsets;
-static PyObject *__pyx_n_s_pymatgen_util_neighbors;
-static PyObject *__pyx_kp_s_pymatgen_util_neighbors_pyx;
+static PyObject *__pyx_kp_s_pymatgen_optimization_neighbors;
+static PyObject *__pyx_n_s_pymatgen_optimization_neighbors_2;
 static PyObject *__pyx_n_s_pyx_PickleError;
 static PyObject *__pyx_n_s_pyx_checksum;
 static PyObject *__pyx_n_s_pyx_getbuffer;
@@ -2897,8 +2897,8 @@ static PyObject *__pyx_n_s_update;
 static PyObject *__pyx_n_s_v;
 static PyObject *__pyx_n_s_valid_max;
 static PyObject *__pyx_n_s_valid_min;
-static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_all_coords, __Pyx_memviewslice __pyx_v_center_coords, float __pyx_v_r, __Pyx_memviewslice __pyx_v_pbc, __Pyx_memviewslice __pyx_v_lattice, double __pyx_v_tol); /* proto */
-static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_2compute_offset_vectors(CYTHON_UNUSED PyObject *__pyx_self, long __pyx_v_n); /* proto */
+static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_spheres(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_all_coords, __Pyx_memviewslice __pyx_v_center_coords, float __pyx_v_r, __Pyx_memviewslice __pyx_v_pbc, __Pyx_memviewslice __pyx_v_lattice, double __pyx_v_tol); /* proto */
+static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_2compute_offset_vectors(CYTHON_UNUSED PyObject *__pyx_self, long __pyx_v_n); /* proto */
 static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info, int __pyx_v_flags); /* proto */
 static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info); /* proto */
 static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array___cinit__(struct __pyx_array_obj *__pyx_v_self, PyObject *__pyx_v_shape, Py_ssize_t __pyx_v_itemsize, PyObject *__pyx_v_format, PyObject *__pyx_v_mode, int __pyx_v_allocate_buffer); /* proto */
@@ -2993,7 +2993,7 @@ static PyObject *__pyx_codeobj__5;
 static PyObject *__pyx_codeobj__31;
 /* Late includes */
 
-/* "pymatgen/util/neighbors.pyx":19
+/* "pymatgen/optimization/neighbors.pyx":19
  * 
  * 
  * def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coords, float r, long[:] pbc, double[:, ::1] lattice, double tol=1e-8):             # <<<<<<<<<<<<<<
@@ -3002,10 +3002,10 @@ static PyObject *__pyx_codeobj__31;
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_8pymatgen_4util_9neighbors_1find_points_in_spheres(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_8pymatgen_4util_9neighbors_find_points_in_spheres[] = "\n    For each point in `center_coords`, get all the neighboring points in `all_coords` that are within the\n    cutoff radius `r`. All the coordinates should be in cartesian.\n\n    Args:\n        all_coords: (np.ndarray[double, dim=2]) all available points. When periodic boundary is considered,\n            this is all the points in the lattice.\n        center_coords: (np.ndarray[double, dim=2]) all centering points\n        r: (float) cutoff radius\n        pbc: (list of bool) whether to set periodic boundaries\n        lattice: (np.ndarray[double, dim=2]) 3x3 lattice matrix\n        numerical_tol: (float) numerical tolerance\n    Returns:\n        index1 (n, ), index2 (n, ), offset_vectors (n, 3), distances (n, ). index1 of center_coords, and index2 of all_coords that form the neighbor pair\n            offset_vectors are the periodic image offsets for the all_coords.\n    ";
-static PyMethodDef __pyx_mdef_8pymatgen_4util_9neighbors_1find_points_in_spheres = {"find_points_in_spheres", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_8pymatgen_4util_9neighbors_1find_points_in_spheres, METH_VARARGS|METH_KEYWORDS, __pyx_doc_8pymatgen_4util_9neighbors_find_points_in_spheres};
-static PyObject *__pyx_pw_8pymatgen_4util_9neighbors_1find_points_in_spheres(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_8pymatgen_12optimization_9neighbors_1find_points_in_spheres(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_8pymatgen_12optimization_9neighbors_find_points_in_spheres[] = "\n    For each point in `center_coords`, get all the neighboring points in `all_coords` that are within the\n    cutoff radius `r`. All the coordinates should be in cartesian. \n\n    Args:\n        all_coords: (np.ndarray[double, dim=2]) all available points. When periodic boundary is considered,\n            this is all the points in the lattice.\n        center_coords: (np.ndarray[double, dim=2]) all centering points\n        r: (float) cutoff radius\n        pbc: (list of bool) whether to set periodic boundaries\n        lattice: (np.ndarray[double, dim=2]) 3x3 lattice matrix\n        numerical_tol: (float) numerical tolerance\n    Returns:\n        index1 (n, ), index2 (n, ), offset_vectors (n, 3), distances (n, ). index1 of center_coords, and index2 of all_coords that form the neighbor pair\n            offset_vectors are the periodic image offsets for the all_coords.\n    ";
+static PyMethodDef __pyx_mdef_8pymatgen_12optimization_9neighbors_1find_points_in_spheres = {"find_points_in_spheres", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_8pymatgen_12optimization_9neighbors_1find_points_in_spheres, METH_VARARGS|METH_KEYWORDS, __pyx_doc_8pymatgen_12optimization_9neighbors_find_points_in_spheres};
+static PyObject *__pyx_pw_8pymatgen_12optimization_9neighbors_1find_points_in_spheres(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   __Pyx_memviewslice __pyx_v_all_coords = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_memviewslice __pyx_v_center_coords = { 0, 0, { 0 }, { 0 }, { 0 } };
   float __pyx_v_r;
@@ -3104,18 +3104,18 @@ static PyObject *__pyx_pw_8pymatgen_4util_9neighbors_1find_points_in_spheres(PyO
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("find_points_in_spheres", 0, 5, 6, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 19, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pymatgen.util.neighbors.find_points_in_spheres", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("pymatgen.optimization.neighbors.find_points_in_spheres", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(__pyx_self, __pyx_v_all_coords, __pyx_v_center_coords, __pyx_v_r, __pyx_v_pbc, __pyx_v_lattice, __pyx_v_tol);
+  __pyx_r = __pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_spheres(__pyx_self, __pyx_v_all_coords, __pyx_v_center_coords, __pyx_v_r, __pyx_v_pbc, __pyx_v_lattice, __pyx_v_tol);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_all_coords, __Pyx_memviewslice __pyx_v_center_coords, float __pyx_v_r, __Pyx_memviewslice __pyx_v_pbc, __Pyx_memviewslice __pyx_v_lattice, double __pyx_v_tol) {
+static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_spheres(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_all_coords, __Pyx_memviewslice __pyx_v_center_coords, float __pyx_v_r, __Pyx_memviewslice __pyx_v_pbc, __Pyx_memviewslice __pyx_v_lattice, double __pyx_v_tol) {
   int __pyx_v_i;
   int __pyx_v_j;
   int __pyx_v_k;
@@ -3200,21 +3200,21 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
   Py_ssize_t __pyx_t_25;
   Py_ssize_t __pyx_t_26;
   Py_ssize_t __pyx_t_27;
-  __Pyx_memviewslice __pyx_t_28 = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_t_29 = { 0, 0, { 0 }, { 0 }, { 0 } };
-  long __pyx_t_30;
-  long __pyx_t_31;
-  long __pyx_t_32;
-  long __pyx_t_33;
+  Py_ssize_t __pyx_t_28;
+  Py_ssize_t __pyx_t_29;
+  Py_ssize_t __pyx_t_30;
+  Py_ssize_t __pyx_t_31;
+  __Pyx_memviewslice __pyx_t_32 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_t_33 = { 0, 0, { 0 }, { 0 }, { 0 } };
   long __pyx_t_34;
   long __pyx_t_35;
-  int __pyx_t_36;
-  int __pyx_t_37;
-  int __pyx_t_38;
-  Py_ssize_t __pyx_t_39;
-  Py_ssize_t __pyx_t_40;
-  Py_ssize_t __pyx_t_41;
-  Py_ssize_t __pyx_t_42;
+  long __pyx_t_36;
+  long __pyx_t_37;
+  long __pyx_t_38;
+  long __pyx_t_39;
+  int __pyx_t_40;
+  int __pyx_t_41;
+  int __pyx_t_42;
   Py_ssize_t __pyx_t_43;
   Py_ssize_t __pyx_t_44;
   Py_ssize_t __pyx_t_45;
@@ -3227,18 +3227,18 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
   Py_ssize_t __pyx_t_52;
   Py_ssize_t __pyx_t_53;
   Py_ssize_t __pyx_t_54;
-  PyObject *__pyx_t_55 = NULL;
-  PyObject *__pyx_t_56 = NULL;
-  PyObject *__pyx_t_57 = NULL;
-  PyObject *__pyx_t_58 = NULL;
+  Py_ssize_t __pyx_t_55;
+  Py_ssize_t __pyx_t_56;
+  Py_ssize_t __pyx_t_57;
+  Py_ssize_t __pyx_t_58;
   PyObject *__pyx_t_59 = NULL;
-  __Pyx_memviewslice __pyx_t_60 = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_t_61 = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_t_62 = { 0, 0, { 0 }, { 0 }, { 0 } };
-  Py_ssize_t __pyx_t_63;
-  Py_ssize_t __pyx_t_64;
-  Py_ssize_t __pyx_t_65;
-  Py_ssize_t __pyx_t_66;
+  PyObject *__pyx_t_60 = NULL;
+  PyObject *__pyx_t_61 = NULL;
+  PyObject *__pyx_t_62 = NULL;
+  PyObject *__pyx_t_63 = NULL;
+  __Pyx_memviewslice __pyx_t_64 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_t_65 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_t_66 = { 0, 0, { 0 }, { 0 }, { 0 } };
   Py_ssize_t __pyx_t_67;
   Py_ssize_t __pyx_t_68;
   Py_ssize_t __pyx_t_69;
@@ -3279,11 +3279,15 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
   Py_ssize_t __pyx_t_104;
   Py_ssize_t __pyx_t_105;
   Py_ssize_t __pyx_t_106;
+  Py_ssize_t __pyx_t_107;
+  Py_ssize_t __pyx_t_108;
+  Py_ssize_t __pyx_t_109;
+  Py_ssize_t __pyx_t_110;
   __Pyx_TraceFrameInit(__pyx_codeobj_)
   __Pyx_RefNannySetupContext("find_points_in_spheres", 0);
   __Pyx_TraceCall("find_points_in_spheres", __pyx_f[0], 19, 0, __PYX_ERR(0, 19, __pyx_L1_error));
 
-  /* "pymatgen/util/neighbors.pyx":42
+  /* "pymatgen/optimization/neighbors.pyx":42
  *     cdef double valid_max[3]
  *     cdef double ledge
  *     if r < 0.1:             # <<<<<<<<<<<<<<
@@ -3293,7 +3297,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
   __pyx_t_1 = ((__pyx_v_r < 0.1) != 0);
   if (__pyx_t_1) {
 
-    /* "pymatgen/util/neighbors.pyx":43
+    /* "pymatgen/optimization/neighbors.pyx":43
  *     cdef double ledge
  *     if r < 0.1:
  *         ledge = 0.1             # <<<<<<<<<<<<<<
@@ -3302,7 +3306,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
     __pyx_v_ledge = 0.1;
 
-    /* "pymatgen/util/neighbors.pyx":42
+    /* "pymatgen/optimization/neighbors.pyx":42
  *     cdef double valid_max[3]
  *     cdef double ledge
  *     if r < 0.1:             # <<<<<<<<<<<<<<
@@ -3312,7 +3316,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
     goto __pyx_L3;
   }
 
-  /* "pymatgen/util/neighbors.pyx":45
+  /* "pymatgen/optimization/neighbors.pyx":45
  *         ledge = 0.1
  *     else:
  *         ledge = r             # <<<<<<<<<<<<<<
@@ -3324,7 +3328,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
   }
   __pyx_L3:;
 
-  /* "pymatgen/util/neighbors.pyx":46
+  /* "pymatgen/optimization/neighbors.pyx":46
  *     else:
  *         ledge = r
  *     max_and_min(center_coords, valid_max, valid_min)             # <<<<<<<<<<<<<<
@@ -3355,7 +3359,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 46, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
-  __pyx_t_3 = __pyx_f_8pymatgen_4util_9neighbors_max_and_min(__pyx_v_center_coords, __pyx_t_5, __pyx_t_6); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 46, __pyx_L1_error)
+  __pyx_t_3 = __pyx_f_8pymatgen_12optimization_9neighbors_max_and_min(__pyx_v_center_coords, __pyx_t_5, __pyx_t_6); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 46, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __PYX_XDEC_MEMVIEW(&__pyx_t_5, 1);
   __pyx_t_5.memview = NULL;
@@ -3365,7 +3369,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
   __pyx_t_6.data = NULL;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "pymatgen/util/neighbors.pyx":47
+  /* "pymatgen/optimization/neighbors.pyx":47
  *         ledge = r
  *     max_and_min(center_coords, valid_max, valid_min)
  *     for i in range(3):             # <<<<<<<<<<<<<<
@@ -3375,7 +3379,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
   for (__pyx_t_7 = 0; __pyx_t_7 < 3; __pyx_t_7+=1) {
     __pyx_v_i = __pyx_t_7;
 
-    /* "pymatgen/util/neighbors.pyx":48
+    /* "pymatgen/optimization/neighbors.pyx":48
  *     max_and_min(center_coords, valid_max, valid_min)
  *     for i in range(3):
  *         valid_max[i] = valid_max[i] + r + tol             # <<<<<<<<<<<<<<
@@ -3384,7 +3388,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
     (__pyx_v_valid_max[__pyx_v_i]) = (((__pyx_v_valid_max[__pyx_v_i]) + __pyx_v_r) + __pyx_v_tol);
 
-    /* "pymatgen/util/neighbors.pyx":49
+    /* "pymatgen/optimization/neighbors.pyx":49
  *     for i in range(3):
  *         valid_max[i] = valid_max[i] + r + tol
  *         valid_min[i] = valid_min[i] - r - tol             # <<<<<<<<<<<<<<
@@ -3394,7 +3398,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
     (__pyx_v_valid_min[__pyx_v_i]) = (((__pyx_v_valid_min[__pyx_v_i]) - __pyx_v_r) - __pyx_v_tol);
   }
 
-  /* "pymatgen/util/neighbors.pyx":52
+  /* "pymatgen/optimization/neighbors.pyx":52
  * 
  *     # Process pbc
  *     cdef int n_center = center_coords.shape[0]             # <<<<<<<<<<<<<<
@@ -3403,7 +3407,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   __pyx_v_n_center = (__pyx_v_center_coords.shape[0]);
 
-  /* "pymatgen/util/neighbors.pyx":53
+  /* "pymatgen/optimization/neighbors.pyx":53
  *     # Process pbc
  *     cdef int n_center = center_coords.shape[0]
  *     cdef int n_total = all_coords.shape[0]             # <<<<<<<<<<<<<<
@@ -3412,7 +3416,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   __pyx_v_n_total = (__pyx_v_all_coords.shape[0]);
 
-  /* "pymatgen/util/neighbors.pyx":54
+  /* "pymatgen/optimization/neighbors.pyx":54
  *     cdef int n_center = center_coords.shape[0]
  *     cdef int n_total = all_coords.shape[0]
  *     cdef double [:, ::1] frac_coords =  <double[:n_center, :3]> malloc(n_center * 3 * sizeof(double))             # <<<<<<<<<<<<<<
@@ -3440,7 +3444,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
   __pyx_t_9.memview = NULL;
   __pyx_t_9.data = NULL;
 
-  /* "pymatgen/util/neighbors.pyx":55
+  /* "pymatgen/optimization/neighbors.pyx":55
  *     cdef int n_total = all_coords.shape[0]
  *     cdef double [:, ::1] frac_coords =  <double[:n_center, :3]> malloc(n_center * 3 * sizeof(double))
  *     cdef long[3] max_bounds = [1, 1, 1]             # <<<<<<<<<<<<<<
@@ -3452,7 +3456,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
   __pyx_t_10[2] = 1;
   memcpy(&(__pyx_v_max_bounds[0]), __pyx_t_10, sizeof(__pyx_v_max_bounds[0]) * (3));
 
-  /* "pymatgen/util/neighbors.pyx":56
+  /* "pymatgen/optimization/neighbors.pyx":56
  *     cdef double [:, ::1] frac_coords =  <double[:n_center, :3]> malloc(n_center * 3 * sizeof(double))
  *     cdef long[3] max_bounds = [1, 1, 1]
  *     cdef long[3] min_bounds = [0, 0, 0]             # <<<<<<<<<<<<<<
@@ -3464,7 +3468,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
   __pyx_t_11[2] = 0;
   memcpy(&(__pyx_v_min_bounds[0]), __pyx_t_11, sizeof(__pyx_v_min_bounds[0]) * (3));
 
-  /* "pymatgen/util/neighbors.pyx":57
+  /* "pymatgen/optimization/neighbors.pyx":57
  *     cdef long[3] max_bounds = [1, 1, 1]
  *     cdef long[3] min_bounds = [0, 0, 0]
  *     cdef long nlattice = 1             # <<<<<<<<<<<<<<
@@ -3473,7 +3477,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   __pyx_v_nlattice = 1;
 
-  /* "pymatgen/util/neighbors.pyx":58
+  /* "pymatgen/optimization/neighbors.pyx":58
  *     cdef long[3] min_bounds = [0, 0, 0]
  *     cdef long nlattice = 1
  *     cdef long count = 0             # <<<<<<<<<<<<<<
@@ -3482,7 +3486,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   __pyx_v_count = 0;
 
-  /* "pymatgen/util/neighbors.pyx":59
+  /* "pymatgen/optimization/neighbors.pyx":59
  *     cdef long nlattice = 1
  *     cdef long count = 0
  *     cdef double[:, ::1] all_fcoords = <double[:n_total, :3]> malloc(n_total * 3 * sizeof(double))             # <<<<<<<<<<<<<<
@@ -3510,12 +3514,12 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
   __pyx_t_9.memview = NULL;
   __pyx_t_9.data = NULL;
 
-  /* "pymatgen/util/neighbors.pyx":60
+  /* "pymatgen/optimization/neighbors.pyx":60
  *     cdef long count = 0
  *     cdef double[:, ::1] all_fcoords = <double[:n_total, :3]> malloc(n_total * 3 * sizeof(double))
  *     cdef double[:, ::1] coords_in_cell = <double[:n_total, :3]> malloc(n_total * 3 * sizeof(double))             # <<<<<<<<<<<<<<
  *     cdef double[:, ::1] offset_correction = <double[:n_total, :3]> malloc(n_total * 3 * sizeof(double))
- *     get_frac_coords(lattice, all_coords, offset_correction)
+ * 
  */
   __pyx_t_8 = malloc(((__pyx_v_n_total * 3) * (sizeof(double))));
   if (!__pyx_t_8) {
@@ -3538,12 +3542,12 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
   __pyx_t_9.memview = NULL;
   __pyx_t_9.data = NULL;
 
-  /* "pymatgen/util/neighbors.pyx":61
+  /* "pymatgen/optimization/neighbors.pyx":61
  *     cdef double[:, ::1] all_fcoords = <double[:n_total, :3]> malloc(n_total * 3 * sizeof(double))
  *     cdef double[:, ::1] coords_in_cell = <double[:n_total, :3]> malloc(n_total * 3 * sizeof(double))
  *     cdef double[:, ::1] offset_correction = <double[:n_total, :3]> malloc(n_total * 3 * sizeof(double))             # <<<<<<<<<<<<<<
+ * 
  *     get_frac_coords(lattice, all_coords, offset_correction)
- *     for i in range(n_total):
  */
   __pyx_t_8 = malloc(((__pyx_v_n_total * 3) * (sizeof(double))));
   if (!__pyx_t_8) {
@@ -3566,206 +3570,232 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
   __pyx_t_9.memview = NULL;
   __pyx_t_9.data = NULL;
 
-  /* "pymatgen/util/neighbors.pyx":62
- *     cdef double[:, ::1] coords_in_cell = <double[:n_total, :3]> malloc(n_total * 3 * sizeof(double))
+  /* "pymatgen/optimization/neighbors.pyx":63
  *     cdef double[:, ::1] offset_correction = <double[:n_total, :3]> malloc(n_total * 3 * sizeof(double))
+ * 
  *     get_frac_coords(lattice, all_coords, offset_correction)             # <<<<<<<<<<<<<<
  *     for i in range(n_total):
  *         for j in range(3):
  */
-  __pyx_f_8pymatgen_4util_9neighbors_get_frac_coords(__pyx_v_lattice, __pyx_v_all_coords, __pyx_v_offset_correction);
+  __pyx_f_8pymatgen_12optimization_9neighbors_get_frac_coords(__pyx_v_lattice, __pyx_v_all_coords, __pyx_v_offset_correction);
 
-  /* "pymatgen/util/neighbors.pyx":63
- *     cdef double[:, ::1] offset_correction = <double[:n_total, :3]> malloc(n_total * 3 * sizeof(double))
+  /* "pymatgen/optimization/neighbors.pyx":64
+ * 
  *     get_frac_coords(lattice, all_coords, offset_correction)
  *     for i in range(n_total):             # <<<<<<<<<<<<<<
  *         for j in range(3):
- *             all_fcoords[i, j] = offset_correction[i, j] % 1
+ *             if pbc[j]:
  */
   __pyx_t_7 = __pyx_v_n_total;
   __pyx_t_12 = __pyx_t_7;
   for (__pyx_t_13 = 0; __pyx_t_13 < __pyx_t_12; __pyx_t_13+=1) {
     __pyx_v_i = __pyx_t_13;
 
-    /* "pymatgen/util/neighbors.pyx":64
+    /* "pymatgen/optimization/neighbors.pyx":65
  *     get_frac_coords(lattice, all_coords, offset_correction)
  *     for i in range(n_total):
  *         for j in range(3):             # <<<<<<<<<<<<<<
- *             all_fcoords[i, j] = offset_correction[i, j] % 1
- *             offset_correction[i, j] = offset_correction[i, j] - all_fcoords[i, j]
+ *             if pbc[j]:
+ *                 # only wrap atoms when this dimension is PBC
  */
     for (__pyx_t_14 = 0; __pyx_t_14 < 3; __pyx_t_14+=1) {
       __pyx_v_j = __pyx_t_14;
 
-      /* "pymatgen/util/neighbors.pyx":65
+      /* "pymatgen/optimization/neighbors.pyx":66
  *     for i in range(n_total):
  *         for j in range(3):
- *             all_fcoords[i, j] = offset_correction[i, j] % 1             # <<<<<<<<<<<<<<
- *             offset_correction[i, j] = offset_correction[i, j] - all_fcoords[i, j]
- * 
+ *             if pbc[j]:             # <<<<<<<<<<<<<<
+ *                 # only wrap atoms when this dimension is PBC
+ *                 all_fcoords[i, j] = offset_correction[i, j] % 1
  */
-      __pyx_t_15 = __pyx_v_i;
-      __pyx_t_16 = __pyx_v_j;
-      __pyx_t_17 = __pyx_v_i;
-      __pyx_t_18 = __pyx_v_j;
-      *((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_all_fcoords.data + __pyx_t_17 * __pyx_v_all_fcoords.strides[0]) )) + __pyx_t_18)) )) = fmod((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offset_correction.data + __pyx_t_15 * __pyx_v_offset_correction.strides[0]) )) + __pyx_t_16)) ))), 1.0);
+      __pyx_t_15 = __pyx_v_j;
+      __pyx_t_1 = ((*((long *) ( /* dim=0 */ (__pyx_v_pbc.data + __pyx_t_15 * __pyx_v_pbc.strides[0]) ))) != 0);
+      if (__pyx_t_1) {
 
-      /* "pymatgen/util/neighbors.pyx":66
- *         for j in range(3):
- *             all_fcoords[i, j] = offset_correction[i, j] % 1
- *             offset_correction[i, j] = offset_correction[i, j] - all_fcoords[i, j]             # <<<<<<<<<<<<<<
- * 
- *     matmul(all_fcoords, lattice, coords_in_cell)
+        /* "pymatgen/optimization/neighbors.pyx":68
+ *             if pbc[j]:
+ *                 # only wrap atoms when this dimension is PBC
+ *                 all_fcoords[i, j] = offset_correction[i, j] % 1             # <<<<<<<<<<<<<<
+ *                 offset_correction[i, j] = offset_correction[i, j] - all_fcoords[i, j]
+ *             else:
  */
-      __pyx_t_19 = __pyx_v_i;
-      __pyx_t_20 = __pyx_v_j;
-      __pyx_t_21 = __pyx_v_i;
-      __pyx_t_22 = __pyx_v_j;
-      __pyx_t_23 = __pyx_v_i;
-      __pyx_t_24 = __pyx_v_j;
-      *((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offset_correction.data + __pyx_t_23 * __pyx_v_offset_correction.strides[0]) )) + __pyx_t_24)) )) = ((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offset_correction.data + __pyx_t_19 * __pyx_v_offset_correction.strides[0]) )) + __pyx_t_20)) ))) - (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_all_fcoords.data + __pyx_t_21 * __pyx_v_all_fcoords.strides[0]) )) + __pyx_t_22)) ))));
+        __pyx_t_16 = __pyx_v_i;
+        __pyx_t_17 = __pyx_v_j;
+        __pyx_t_18 = __pyx_v_i;
+        __pyx_t_19 = __pyx_v_j;
+        *((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_all_fcoords.data + __pyx_t_18 * __pyx_v_all_fcoords.strides[0]) )) + __pyx_t_19)) )) = fmod((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offset_correction.data + __pyx_t_16 * __pyx_v_offset_correction.strides[0]) )) + __pyx_t_17)) ))), 1.0);
+
+        /* "pymatgen/optimization/neighbors.pyx":69
+ *                 # only wrap atoms when this dimension is PBC
+ *                 all_fcoords[i, j] = offset_correction[i, j] % 1
+ *                 offset_correction[i, j] = offset_correction[i, j] - all_fcoords[i, j]             # <<<<<<<<<<<<<<
+ *             else:
+ *                 all_fcoords[i, j] = offset_correction[i, j]
+ */
+        __pyx_t_20 = __pyx_v_i;
+        __pyx_t_21 = __pyx_v_j;
+        __pyx_t_22 = __pyx_v_i;
+        __pyx_t_23 = __pyx_v_j;
+        __pyx_t_24 = __pyx_v_i;
+        __pyx_t_25 = __pyx_v_j;
+        *((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offset_correction.data + __pyx_t_24 * __pyx_v_offset_correction.strides[0]) )) + __pyx_t_25)) )) = ((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offset_correction.data + __pyx_t_20 * __pyx_v_offset_correction.strides[0]) )) + __pyx_t_21)) ))) - (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_all_fcoords.data + __pyx_t_22 * __pyx_v_all_fcoords.strides[0]) )) + __pyx_t_23)) ))));
+
+        /* "pymatgen/optimization/neighbors.pyx":66
+ *     for i in range(n_total):
+ *         for j in range(3):
+ *             if pbc[j]:             # <<<<<<<<<<<<<<
+ *                 # only wrap atoms when this dimension is PBC
+ *                 all_fcoords[i, j] = offset_correction[i, j] % 1
+ */
+        goto __pyx_L10;
+      }
+
+      /* "pymatgen/optimization/neighbors.pyx":71
+ *                 offset_correction[i, j] = offset_correction[i, j] - all_fcoords[i, j]
+ *             else:
+ *                 all_fcoords[i, j] = offset_correction[i, j]             # <<<<<<<<<<<<<<
+ *                 offset_correction[i, j] = 0
+ *     get_max_r(lattice, maxr, r)
+ */
+      /*else*/ {
+        __pyx_t_26 = __pyx_v_i;
+        __pyx_t_27 = __pyx_v_j;
+        __pyx_t_28 = __pyx_v_i;
+        __pyx_t_29 = __pyx_v_j;
+        *((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_all_fcoords.data + __pyx_t_28 * __pyx_v_all_fcoords.strides[0]) )) + __pyx_t_29)) )) = (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offset_correction.data + __pyx_t_26 * __pyx_v_offset_correction.strides[0]) )) + __pyx_t_27)) )));
+
+        /* "pymatgen/optimization/neighbors.pyx":72
+ *             else:
+ *                 all_fcoords[i, j] = offset_correction[i, j]
+ *                 offset_correction[i, j] = 0             # <<<<<<<<<<<<<<
+ *     get_max_r(lattice, maxr, r)
+ *     # Get fractional coordinates of center points
+ */
+        __pyx_t_30 = __pyx_v_i;
+        __pyx_t_31 = __pyx_v_j;
+        *((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offset_correction.data + __pyx_t_30 * __pyx_v_offset_correction.strides[0]) )) + __pyx_t_31)) )) = 0.0;
+      }
+      __pyx_L10:;
     }
   }
 
-  /* "pymatgen/util/neighbors.pyx":68
- *             offset_correction[i, j] = offset_correction[i, j] - all_fcoords[i, j]
+  /* "pymatgen/optimization/neighbors.pyx":73
+ *                 all_fcoords[i, j] = offset_correction[i, j]
+ *                 offset_correction[i, j] = 0
+ *     get_max_r(lattice, maxr, r)             # <<<<<<<<<<<<<<
+ *     # Get fractional coordinates of center points
+ *     get_frac_coords(lattice, center_coords, frac_coords)
+ */
+  __pyx_t_4 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
+  __pyx_t_3 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)3));
+  if (unlikely(!__pyx_t_4 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_4))) __PYX_ERR(0, 73, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_2 = __pyx_array_new(__pyx_t_3, sizeof(double), PyBytes_AS_STRING(__pyx_t_4), (char *) "fortran", (char *) __pyx_v_maxr);
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 73, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 73, __pyx_L1_error)
+  __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
+  __pyx_f_8pymatgen_12optimization_9neighbors_get_max_r(__pyx_v_lattice, __pyx_t_6, __pyx_v_r);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_6, 1);
+  __pyx_t_6.memview = NULL;
+  __pyx_t_6.data = NULL;
+
+  /* "pymatgen/optimization/neighbors.pyx":75
+ *     get_max_r(lattice, maxr, r)
+ *     # Get fractional coordinates of center points
+ *     get_frac_coords(lattice, center_coords, frac_coords)             # <<<<<<<<<<<<<<
+ *     get_bounds(frac_coords, maxr, pbc, max_bounds, min_bounds)
+ *     for i in range(3):
+ */
+  __pyx_f_8pymatgen_12optimization_9neighbors_get_frac_coords(__pyx_v_lattice, __pyx_v_center_coords, __pyx_v_frac_coords);
+
+  /* "pymatgen/optimization/neighbors.pyx":76
+ *     # Get fractional coordinates of center points
+ *     get_frac_coords(lattice, center_coords, frac_coords)
+ *     get_bounds(frac_coords, maxr, pbc, max_bounds, min_bounds)             # <<<<<<<<<<<<<<
+ *     for i in range(3):
+ *         nlattice *= (max_bounds[i] - min_bounds[i])
+ */
+  __pyx_t_3 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
+  __pyx_t_4 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)3));
+  if (unlikely(!__pyx_t_3 || !__pyx_t_4 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 76, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_2 = __pyx_array_new(__pyx_t_4, sizeof(double), PyBytes_AS_STRING(__pyx_t_3), (char *) "fortran", (char *) __pyx_v_maxr);
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 76, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 76, __pyx_L1_error)
+  __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
+  __pyx_t_4 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
+  __pyx_t_3 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)3));
+  if (unlikely(!__pyx_t_4 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_4))) __PYX_ERR(0, 76, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_2 = __pyx_array_new(__pyx_t_3, sizeof(long), PyBytes_AS_STRING(__pyx_t_4), (char *) "fortran", (char *) __pyx_v_max_bounds);
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 76, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __pyx_t_32 = __Pyx_PyObject_to_MemoryviewSlice_ds_long(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_32.memview)) __PYX_ERR(0, 76, __pyx_L1_error)
+  __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
+  __pyx_t_3 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
+  __pyx_t_4 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)3));
+  if (unlikely(!__pyx_t_3 || !__pyx_t_4 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 76, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_2 = __pyx_array_new(__pyx_t_4, sizeof(long), PyBytes_AS_STRING(__pyx_t_3), (char *) "fortran", (char *) __pyx_v_min_bounds);
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 76, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_33 = __Pyx_PyObject_to_MemoryviewSlice_ds_long(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_33.memview)) __PYX_ERR(0, 76, __pyx_L1_error)
+  __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
+  __pyx_f_8pymatgen_12optimization_9neighbors_get_bounds(__pyx_v_frac_coords, __pyx_t_6, __pyx_v_pbc, __pyx_t_32, __pyx_t_33);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_6, 1);
+  __pyx_t_6.memview = NULL;
+  __pyx_t_6.data = NULL;
+  __PYX_XDEC_MEMVIEW(&__pyx_t_32, 1);
+  __pyx_t_32.memview = NULL;
+  __pyx_t_32.data = NULL;
+  __PYX_XDEC_MEMVIEW(&__pyx_t_33, 1);
+  __pyx_t_33.memview = NULL;
+  __pyx_t_33.data = NULL;
+
+  /* "pymatgen/optimization/neighbors.pyx":77
+ *     get_frac_coords(lattice, center_coords, frac_coords)
+ *     get_bounds(frac_coords, maxr, pbc, max_bounds, min_bounds)
+ *     for i in range(3):             # <<<<<<<<<<<<<<
+ *         nlattice *= (max_bounds[i] - min_bounds[i])
+ *     matmul(all_fcoords, lattice, coords_in_cell)
+ */
+  for (__pyx_t_7 = 0; __pyx_t_7 < 3; __pyx_t_7+=1) {
+    __pyx_v_i = __pyx_t_7;
+
+    /* "pymatgen/optimization/neighbors.pyx":78
+ *     get_bounds(frac_coords, maxr, pbc, max_bounds, min_bounds)
+ *     for i in range(3):
+ *         nlattice *= (max_bounds[i] - min_bounds[i])             # <<<<<<<<<<<<<<
+ *     matmul(all_fcoords, lattice, coords_in_cell)
  * 
+ */
+    __pyx_v_nlattice = (__pyx_v_nlattice * ((__pyx_v_max_bounds[__pyx_v_i]) - (__pyx_v_min_bounds[__pyx_v_i])));
+  }
+
+  /* "pymatgen/optimization/neighbors.pyx":79
+ *     for i in range(3):
+ *         nlattice *= (max_bounds[i] - min_bounds[i])
  *     matmul(all_fcoords, lattice, coords_in_cell)             # <<<<<<<<<<<<<<
- *     if (pbc[0] | pbc[1] | pbc[2]):
- *         get_max_r(lattice, maxr, r)
- */
-  __pyx_f_8pymatgen_4util_9neighbors_matmul(__pyx_v_all_fcoords, __pyx_v_lattice, __pyx_v_coords_in_cell);
-
-  /* "pymatgen/util/neighbors.pyx":69
- * 
- *     matmul(all_fcoords, lattice, coords_in_cell)
- *     if (pbc[0] | pbc[1] | pbc[2]):             # <<<<<<<<<<<<<<
- *         get_max_r(lattice, maxr, r)
- *         # Get fractional coordinates of center points
- */
-  __pyx_t_25 = 0;
-  __pyx_t_26 = 1;
-  __pyx_t_27 = 2;
-  __pyx_t_1 = ((((*((long *) ( /* dim=0 */ (__pyx_v_pbc.data + __pyx_t_25 * __pyx_v_pbc.strides[0]) ))) | (*((long *) ( /* dim=0 */ (__pyx_v_pbc.data + __pyx_t_26 * __pyx_v_pbc.strides[0]) )))) | (*((long *) ( /* dim=0 */ (__pyx_v_pbc.data + __pyx_t_27 * __pyx_v_pbc.strides[0]) )))) != 0);
-  if (__pyx_t_1) {
-
-    /* "pymatgen/util/neighbors.pyx":70
- *     matmul(all_fcoords, lattice, coords_in_cell)
- *     if (pbc[0] | pbc[1] | pbc[2]):
- *         get_max_r(lattice, maxr, r)             # <<<<<<<<<<<<<<
- *         # Get fractional coordinates of center points
- *         get_frac_coords(lattice, center_coords, frac_coords)
- */
-    __pyx_t_4 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
-    __pyx_t_3 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)3));
-    if (unlikely(!__pyx_t_4 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_4))) __PYX_ERR(0, 70, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_2 = __pyx_array_new(__pyx_t_3, sizeof(double), PyBytes_AS_STRING(__pyx_t_4), (char *) "fortran", (char *) __pyx_v_maxr);
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 70, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 70, __pyx_L1_error)
-    __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
-    __pyx_f_8pymatgen_4util_9neighbors_get_max_r(__pyx_v_lattice, __pyx_t_6, __pyx_v_r);
-    __PYX_XDEC_MEMVIEW(&__pyx_t_6, 1);
-    __pyx_t_6.memview = NULL;
-    __pyx_t_6.data = NULL;
-
-    /* "pymatgen/util/neighbors.pyx":72
- *         get_max_r(lattice, maxr, r)
- *         # Get fractional coordinates of center points
- *         get_frac_coords(lattice, center_coords, frac_coords)             # <<<<<<<<<<<<<<
- *         get_bounds(frac_coords, maxr, pbc, max_bounds, min_bounds)
- *         for i in range(3):
- */
-    __pyx_f_8pymatgen_4util_9neighbors_get_frac_coords(__pyx_v_lattice, __pyx_v_center_coords, __pyx_v_frac_coords);
-
-    /* "pymatgen/util/neighbors.pyx":73
- *         # Get fractional coordinates of center points
- *         get_frac_coords(lattice, center_coords, frac_coords)
- *         get_bounds(frac_coords, maxr, pbc, max_bounds, min_bounds)             # <<<<<<<<<<<<<<
- *         for i in range(3):
- *             nlattice *= (max_bounds[i] - min_bounds[i])
- */
-    __pyx_t_3 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
-    __pyx_t_4 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)3));
-    if (unlikely(!__pyx_t_3 || !__pyx_t_4 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 73, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
-    __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_2 = __pyx_array_new(__pyx_t_4, sizeof(double), PyBytes_AS_STRING(__pyx_t_3), (char *) "fortran", (char *) __pyx_v_maxr);
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 73, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 73, __pyx_L1_error)
-    __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
-    __pyx_t_4 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
-    __pyx_t_3 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)3));
-    if (unlikely(!__pyx_t_4 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_4))) __PYX_ERR(0, 73, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_2 = __pyx_array_new(__pyx_t_3, sizeof(long), PyBytes_AS_STRING(__pyx_t_4), (char *) "fortran", (char *) __pyx_v_max_bounds);
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 73, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_28 = __Pyx_PyObject_to_MemoryviewSlice_ds_long(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_28.memview)) __PYX_ERR(0, 73, __pyx_L1_error)
-    __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
-    __pyx_t_3 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
-    __pyx_t_4 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)3));
-    if (unlikely(!__pyx_t_3 || !__pyx_t_4 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 73, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
-    __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_2 = __pyx_array_new(__pyx_t_4, sizeof(long), PyBytes_AS_STRING(__pyx_t_3), (char *) "fortran", (char *) __pyx_v_min_bounds);
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 73, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_29 = __Pyx_PyObject_to_MemoryviewSlice_ds_long(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_29.memview)) __PYX_ERR(0, 73, __pyx_L1_error)
-    __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
-    __pyx_f_8pymatgen_4util_9neighbors_get_bounds(__pyx_v_frac_coords, __pyx_t_6, __pyx_v_pbc, __pyx_t_28, __pyx_t_29);
-    __PYX_XDEC_MEMVIEW(&__pyx_t_6, 1);
-    __pyx_t_6.memview = NULL;
-    __pyx_t_6.data = NULL;
-    __PYX_XDEC_MEMVIEW(&__pyx_t_28, 1);
-    __pyx_t_28.memview = NULL;
-    __pyx_t_28.data = NULL;
-    __PYX_XDEC_MEMVIEW(&__pyx_t_29, 1);
-    __pyx_t_29.memview = NULL;
-    __pyx_t_29.data = NULL;
-
-    /* "pymatgen/util/neighbors.pyx":74
- *         get_frac_coords(lattice, center_coords, frac_coords)
- *         get_bounds(frac_coords, maxr, pbc, max_bounds, min_bounds)
- *         for i in range(3):             # <<<<<<<<<<<<<<
- *             nlattice *= (max_bounds[i] - min_bounds[i])
- * 
- */
-    for (__pyx_t_7 = 0; __pyx_t_7 < 3; __pyx_t_7+=1) {
-      __pyx_v_i = __pyx_t_7;
-
-      /* "pymatgen/util/neighbors.pyx":75
- *         get_bounds(frac_coords, maxr, pbc, max_bounds, min_bounds)
- *         for i in range(3):
- *             nlattice *= (max_bounds[i] - min_bounds[i])             # <<<<<<<<<<<<<<
  * 
  *     # Get translated images, coordinates and indices
  */
-      __pyx_v_nlattice = (__pyx_v_nlattice * ((__pyx_v_max_bounds[__pyx_v_i]) - (__pyx_v_min_bounds[__pyx_v_i])));
-    }
+  __pyx_f_8pymatgen_12optimization_9neighbors_matmul(__pyx_v_all_fcoords, __pyx_v_lattice, __pyx_v_coords_in_cell);
 
-    /* "pymatgen/util/neighbors.pyx":69
- * 
- *     matmul(all_fcoords, lattice, coords_in_cell)
- *     if (pbc[0] | pbc[1] | pbc[2]):             # <<<<<<<<<<<<<<
- *         get_max_r(lattice, maxr, r)
- *         # Get fractional coordinates of center points
- */
-  }
-
-  /* "pymatgen/util/neighbors.pyx":78
+  /* "pymatgen/optimization/neighbors.pyx":82
  * 
  *     # Get translated images, coordinates and indices
  *     cdef long natoms = nlattice * n_total             # <<<<<<<<<<<<<<
@@ -3774,7 +3804,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   __pyx_v_natoms = (__pyx_v_nlattice * __pyx_v_n_total);
 
-  /* "pymatgen/util/neighbors.pyx":79
+  /* "pymatgen/optimization/neighbors.pyx":83
  *     # Get translated images, coordinates and indices
  *     cdef long natoms = nlattice * n_total
  *     cdef double *offsets_p_temp = <double*> malloc(natoms * 3 * sizeof(double))             # <<<<<<<<<<<<<<
@@ -3783,7 +3813,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   __pyx_v_offsets_p_temp = ((double *)malloc(((__pyx_v_natoms * 3) * (sizeof(double)))));
 
-  /* "pymatgen/util/neighbors.pyx":80
+  /* "pymatgen/optimization/neighbors.pyx":84
  *     cdef long natoms = nlattice * n_total
  *     cdef double *offsets_p_temp = <double*> malloc(natoms * 3 * sizeof(double))
  *     cdef double *expanded_coords_p_temp = <double *> malloc(natoms * 3 * sizeof(double))             # <<<<<<<<<<<<<<
@@ -3792,7 +3822,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   __pyx_v_expanded_coords_p_temp = ((double *)malloc(((__pyx_v_natoms * 3) * (sizeof(double)))));
 
-  /* "pymatgen/util/neighbors.pyx":81
+  /* "pymatgen/optimization/neighbors.pyx":85
  *     cdef double *offsets_p_temp = <double*> malloc(natoms * 3 * sizeof(double))
  *     cdef double *expanded_coords_p_temp = <double *> malloc(natoms * 3 * sizeof(double))
  *     cdef long *indices_p_temp = <long*> malloc(natoms * sizeof(long))             # <<<<<<<<<<<<<<
@@ -3801,7 +3831,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   __pyx_v_indices_p_temp = ((long *)malloc((__pyx_v_natoms * (sizeof(long)))));
 
-  /* "pymatgen/util/neighbors.pyx":84
+  /* "pymatgen/optimization/neighbors.pyx":88
  *     cdef double coord_temp[3]
  * 
  *     count = 0             # <<<<<<<<<<<<<<
@@ -3810,83 +3840,107 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   __pyx_v_count = 0;
 
-  /* "pymatgen/util/neighbors.pyx":85
+  /* "pymatgen/optimization/neighbors.pyx":89
  * 
  *     count = 0
  *     for i in range(min_bounds[0], max_bounds[0]):             # <<<<<<<<<<<<<<
  *         for j in range(min_bounds[1], max_bounds[1]):
  *             for k in range(min_bounds[2], max_bounds[2]):
  */
-  __pyx_t_30 = (__pyx_v_max_bounds[0]);
-  __pyx_t_31 = __pyx_t_30;
-  for (__pyx_t_7 = (__pyx_v_min_bounds[0]); __pyx_t_7 < __pyx_t_31; __pyx_t_7+=1) {
+  __pyx_t_34 = (__pyx_v_max_bounds[0]);
+  __pyx_t_35 = __pyx_t_34;
+  for (__pyx_t_7 = (__pyx_v_min_bounds[0]); __pyx_t_7 < __pyx_t_35; __pyx_t_7+=1) {
     __pyx_v_i = __pyx_t_7;
 
-    /* "pymatgen/util/neighbors.pyx":86
+    /* "pymatgen/optimization/neighbors.pyx":90
  *     count = 0
  *     for i in range(min_bounds[0], max_bounds[0]):
  *         for j in range(min_bounds[1], max_bounds[1]):             # <<<<<<<<<<<<<<
  *             for k in range(min_bounds[2], max_bounds[2]):
  *                 for l in range(n_total):
  */
-    __pyx_t_32 = (__pyx_v_max_bounds[1]);
-    __pyx_t_33 = __pyx_t_32;
-    for (__pyx_t_12 = (__pyx_v_min_bounds[1]); __pyx_t_12 < __pyx_t_33; __pyx_t_12+=1) {
+    __pyx_t_36 = (__pyx_v_max_bounds[1]);
+    __pyx_t_37 = __pyx_t_36;
+    for (__pyx_t_12 = (__pyx_v_min_bounds[1]); __pyx_t_12 < __pyx_t_37; __pyx_t_12+=1) {
       __pyx_v_j = __pyx_t_12;
 
-      /* "pymatgen/util/neighbors.pyx":87
+      /* "pymatgen/optimization/neighbors.pyx":91
  *     for i in range(min_bounds[0], max_bounds[0]):
  *         for j in range(min_bounds[1], max_bounds[1]):
  *             for k in range(min_bounds[2], max_bounds[2]):             # <<<<<<<<<<<<<<
  *                 for l in range(n_total):
  *                     for m in range(3):
  */
-      __pyx_t_34 = (__pyx_v_max_bounds[2]);
-      __pyx_t_35 = __pyx_t_34;
-      for (__pyx_t_13 = (__pyx_v_min_bounds[2]); __pyx_t_13 < __pyx_t_35; __pyx_t_13+=1) {
+      __pyx_t_38 = (__pyx_v_max_bounds[2]);
+      __pyx_t_39 = __pyx_t_38;
+      for (__pyx_t_13 = (__pyx_v_min_bounds[2]); __pyx_t_13 < __pyx_t_39; __pyx_t_13+=1) {
         __pyx_v_k = __pyx_t_13;
 
-        /* "pymatgen/util/neighbors.pyx":88
+        /* "pymatgen/optimization/neighbors.pyx":92
  *         for j in range(min_bounds[1], max_bounds[1]):
  *             for k in range(min_bounds[2], max_bounds[2]):
  *                 for l in range(n_total):             # <<<<<<<<<<<<<<
  *                     for m in range(3):
- *                         coord_temp[m] = i * lattice[0, m] + <double>j * lattice[1, m] + k * lattice[2, m] + coords_in_cell[l, m]
+ *                         coord_temp[m] = i * lattice[0, m] + <double>j * lattice[1, m] + \
  */
         __pyx_t_14 = __pyx_v_n_total;
-        __pyx_t_36 = __pyx_t_14;
-        for (__pyx_t_37 = 0; __pyx_t_37 < __pyx_t_36; __pyx_t_37+=1) {
-          __pyx_v_l = __pyx_t_37;
+        __pyx_t_40 = __pyx_t_14;
+        for (__pyx_t_41 = 0; __pyx_t_41 < __pyx_t_40; __pyx_t_41+=1) {
+          __pyx_v_l = __pyx_t_41;
 
-          /* "pymatgen/util/neighbors.pyx":89
+          /* "pymatgen/optimization/neighbors.pyx":93
  *             for k in range(min_bounds[2], max_bounds[2]):
  *                 for l in range(n_total):
  *                     for m in range(3):             # <<<<<<<<<<<<<<
- *                         coord_temp[m] = i * lattice[0, m] + <double>j * lattice[1, m] + k * lattice[2, m] + coords_in_cell[l, m]
- *                     if (coord_temp[0] > valid_min[0]) & (coord_temp[0] < valid_max[0]) & \
+ *                         coord_temp[m] = i * lattice[0, m] + <double>j * lattice[1, m] + \
+ *                             k * lattice[2, m] + coords_in_cell[l, m]
  */
-          for (__pyx_t_38 = 0; __pyx_t_38 < 3; __pyx_t_38+=1) {
-            __pyx_v_m = __pyx_t_38;
+          for (__pyx_t_42 = 0; __pyx_t_42 < 3; __pyx_t_42+=1) {
+            __pyx_v_m = __pyx_t_42;
 
-            /* "pymatgen/util/neighbors.pyx":90
+            /* "pymatgen/optimization/neighbors.pyx":94
  *                 for l in range(n_total):
  *                     for m in range(3):
- *                         coord_temp[m] = i * lattice[0, m] + <double>j * lattice[1, m] + k * lattice[2, m] + coords_in_cell[l, m]             # <<<<<<<<<<<<<<
+ *                         coord_temp[m] = i * lattice[0, m] + <double>j * lattice[1, m] + \             # <<<<<<<<<<<<<<
+ *                             k * lattice[2, m] + coords_in_cell[l, m]
+ *                     if (coord_temp[0] > valid_min[0]) & (coord_temp[0] < valid_max[0]) & \
+ */
+            __pyx_t_43 = 0;
+            __pyx_t_44 = __pyx_v_m;
+            __pyx_t_45 = 1;
+            __pyx_t_46 = __pyx_v_m;
+
+            /* "pymatgen/optimization/neighbors.pyx":95
+ *                     for m in range(3):
+ *                         coord_temp[m] = i * lattice[0, m] + <double>j * lattice[1, m] + \
+ *                             k * lattice[2, m] + coords_in_cell[l, m]             # <<<<<<<<<<<<<<
  *                     if (coord_temp[0] > valid_min[0]) & (coord_temp[0] < valid_max[0]) & \
  *                         (coord_temp[1] > valid_min[1]) & (coord_temp[1] < valid_max[1]) & \
  */
-            __pyx_t_39 = 0;
-            __pyx_t_40 = __pyx_v_m;
-            __pyx_t_41 = 1;
-            __pyx_t_42 = __pyx_v_m;
-            __pyx_t_43 = 2;
-            __pyx_t_44 = __pyx_v_m;
-            __pyx_t_45 = __pyx_v_l;
-            __pyx_t_46 = __pyx_v_m;
-            (__pyx_v_coord_temp[__pyx_v_m]) = ((((__pyx_v_i * (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_lattice.data + __pyx_t_39 * __pyx_v_lattice.strides[0]) )) + __pyx_t_40)) )))) + (((double)__pyx_v_j) * (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_lattice.data + __pyx_t_41 * __pyx_v_lattice.strides[0]) )) + __pyx_t_42)) ))))) + (__pyx_v_k * (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_lattice.data + __pyx_t_43 * __pyx_v_lattice.strides[0]) )) + __pyx_t_44)) ))))) + (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_coords_in_cell.data + __pyx_t_45 * __pyx_v_coords_in_cell.strides[0]) )) + __pyx_t_46)) ))));
+            __pyx_t_47 = 2;
+            __pyx_t_48 = __pyx_v_m;
+
+            /* "pymatgen/optimization/neighbors.pyx":94
+ *                 for l in range(n_total):
+ *                     for m in range(3):
+ *                         coord_temp[m] = i * lattice[0, m] + <double>j * lattice[1, m] + \             # <<<<<<<<<<<<<<
+ *                             k * lattice[2, m] + coords_in_cell[l, m]
+ *                     if (coord_temp[0] > valid_min[0]) & (coord_temp[0] < valid_max[0]) & \
+ */
+            __pyx_t_49 = __pyx_v_l;
+            __pyx_t_50 = __pyx_v_m;
+
+            /* "pymatgen/optimization/neighbors.pyx":95
+ *                     for m in range(3):
+ *                         coord_temp[m] = i * lattice[0, m] + <double>j * lattice[1, m] + \
+ *                             k * lattice[2, m] + coords_in_cell[l, m]             # <<<<<<<<<<<<<<
+ *                     if (coord_temp[0] > valid_min[0]) & (coord_temp[0] < valid_max[0]) & \
+ *                         (coord_temp[1] > valid_min[1]) & (coord_temp[1] < valid_max[1]) & \
+ */
+            (__pyx_v_coord_temp[__pyx_v_m]) = ((((__pyx_v_i * (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_lattice.data + __pyx_t_43 * __pyx_v_lattice.strides[0]) )) + __pyx_t_44)) )))) + (((double)__pyx_v_j) * (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_lattice.data + __pyx_t_45 * __pyx_v_lattice.strides[0]) )) + __pyx_t_46)) ))))) + (__pyx_v_k * (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_lattice.data + __pyx_t_47 * __pyx_v_lattice.strides[0]) )) + __pyx_t_48)) ))))) + (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_coords_in_cell.data + __pyx_t_49 * __pyx_v_coords_in_cell.strides[0]) )) + __pyx_t_50)) ))));
           }
 
-          /* "pymatgen/util/neighbors.pyx":93
+          /* "pymatgen/optimization/neighbors.pyx":98
  *                     if (coord_temp[0] > valid_min[0]) & (coord_temp[0] < valid_max[0]) & \
  *                         (coord_temp[1] > valid_min[1]) & (coord_temp[1] < valid_max[1]) & \
  *                         (coord_temp[2] > valid_min[2]) & (coord_temp[2] < valid_max[2]):             # <<<<<<<<<<<<<<
@@ -3895,16 +3949,16 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
           __pyx_t_1 = ((((((((__pyx_v_coord_temp[0]) > (__pyx_v_valid_min[0])) & ((__pyx_v_coord_temp[0]) < (__pyx_v_valid_max[0]))) & ((__pyx_v_coord_temp[1]) > (__pyx_v_valid_min[1]))) & ((__pyx_v_coord_temp[1]) < (__pyx_v_valid_max[1]))) & ((__pyx_v_coord_temp[2]) > (__pyx_v_valid_min[2]))) & ((__pyx_v_coord_temp[2]) < (__pyx_v_valid_max[2]))) != 0);
 
-          /* "pymatgen/util/neighbors.pyx":91
- *                     for m in range(3):
- *                         coord_temp[m] = i * lattice[0, m] + <double>j * lattice[1, m] + k * lattice[2, m] + coords_in_cell[l, m]
+          /* "pymatgen/optimization/neighbors.pyx":96
+ *                         coord_temp[m] = i * lattice[0, m] + <double>j * lattice[1, m] + \
+ *                             k * lattice[2, m] + coords_in_cell[l, m]
  *                     if (coord_temp[0] > valid_min[0]) & (coord_temp[0] < valid_max[0]) & \             # <<<<<<<<<<<<<<
  *                         (coord_temp[1] > valid_min[1]) & (coord_temp[1] < valid_max[1]) & \
  *                         (coord_temp[2] > valid_min[2]) & (coord_temp[2] < valid_max[2]):
  */
           if (__pyx_t_1) {
 
-            /* "pymatgen/util/neighbors.pyx":94
+            /* "pymatgen/optimization/neighbors.pyx":99
  *                         (coord_temp[1] > valid_min[1]) & (coord_temp[1] < valid_max[1]) & \
  *                         (coord_temp[2] > valid_min[2]) & (coord_temp[2] < valid_max[2]):
  *                         offsets_p_temp[3*count] = i             # <<<<<<<<<<<<<<
@@ -3913,7 +3967,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
             (__pyx_v_offsets_p_temp[(3 * __pyx_v_count)]) = __pyx_v_i;
 
-            /* "pymatgen/util/neighbors.pyx":95
+            /* "pymatgen/optimization/neighbors.pyx":100
  *                         (coord_temp[2] > valid_min[2]) & (coord_temp[2] < valid_max[2]):
  *                         offsets_p_temp[3*count] = i
  *                         offsets_p_temp[3*count+1] = j             # <<<<<<<<<<<<<<
@@ -3922,7 +3976,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
             (__pyx_v_offsets_p_temp[((3 * __pyx_v_count) + 1)]) = __pyx_v_j;
 
-            /* "pymatgen/util/neighbors.pyx":96
+            /* "pymatgen/optimization/neighbors.pyx":101
  *                         offsets_p_temp[3*count] = i
  *                         offsets_p_temp[3*count+1] = j
  *                         offsets_p_temp[3*count+2] = k             # <<<<<<<<<<<<<<
@@ -3931,7 +3985,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
             (__pyx_v_offsets_p_temp[((3 * __pyx_v_count) + 2)]) = __pyx_v_k;
 
-            /* "pymatgen/util/neighbors.pyx":97
+            /* "pymatgen/optimization/neighbors.pyx":102
  *                         offsets_p_temp[3*count+1] = j
  *                         offsets_p_temp[3*count+2] = k
  *                         indices_p_temp[count] = l             # <<<<<<<<<<<<<<
@@ -3940,7 +3994,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
             (__pyx_v_indices_p_temp[__pyx_v_count]) = __pyx_v_l;
 
-            /* "pymatgen/util/neighbors.pyx":98
+            /* "pymatgen/optimization/neighbors.pyx":103
  *                         offsets_p_temp[3*count+2] = k
  *                         indices_p_temp[count] = l
  *                         expanded_coords_p_temp[3*count] = coord_temp[0]             # <<<<<<<<<<<<<<
@@ -3949,7 +4003,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
             (__pyx_v_expanded_coords_p_temp[(3 * __pyx_v_count)]) = (__pyx_v_coord_temp[0]);
 
-            /* "pymatgen/util/neighbors.pyx":99
+            /* "pymatgen/optimization/neighbors.pyx":104
  *                         indices_p_temp[count] = l
  *                         expanded_coords_p_temp[3*count] = coord_temp[0]
  *                         expanded_coords_p_temp[3*count+1] = coord_temp[1]             # <<<<<<<<<<<<<<
@@ -3958,7 +4012,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
             (__pyx_v_expanded_coords_p_temp[((3 * __pyx_v_count) + 1)]) = (__pyx_v_coord_temp[1]);
 
-            /* "pymatgen/util/neighbors.pyx":100
+            /* "pymatgen/optimization/neighbors.pyx":105
  *                         expanded_coords_p_temp[3*count] = coord_temp[0]
  *                         expanded_coords_p_temp[3*count+1] = coord_temp[1]
  *                         expanded_coords_p_temp[3*count+2] = coord_temp[2]             # <<<<<<<<<<<<<<
@@ -3967,7 +4021,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
             (__pyx_v_expanded_coords_p_temp[((3 * __pyx_v_count) + 2)]) = (__pyx_v_coord_temp[2]);
 
-            /* "pymatgen/util/neighbors.pyx":101
+            /* "pymatgen/optimization/neighbors.pyx":106
  *                         expanded_coords_p_temp[3*count+1] = coord_temp[1]
  *                         expanded_coords_p_temp[3*count+2] = coord_temp[2]
  *                         count += 1             # <<<<<<<<<<<<<<
@@ -3976,9 +4030,9 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
             __pyx_v_count = (__pyx_v_count + 1);
 
-            /* "pymatgen/util/neighbors.pyx":91
- *                     for m in range(3):
- *                         coord_temp[m] = i * lattice[0, m] + <double>j * lattice[1, m] + k * lattice[2, m] + coords_in_cell[l, m]
+            /* "pymatgen/optimization/neighbors.pyx":96
+ *                         coord_temp[m] = i * lattice[0, m] + <double>j * lattice[1, m] + \
+ *                             k * lattice[2, m] + coords_in_cell[l, m]
  *                     if (coord_temp[0] > valid_min[0]) & (coord_temp[0] < valid_max[0]) & \             # <<<<<<<<<<<<<<
  *                         (coord_temp[1] > valid_min[1]) & (coord_temp[1] < valid_max[1]) & \
  *                         (coord_temp[2] > valid_min[2]) & (coord_temp[2] < valid_max[2]):
@@ -3989,7 +4043,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
     }
   }
 
-  /* "pymatgen/util/neighbors.pyx":104
+  /* "pymatgen/optimization/neighbors.pyx":109
  * 
  *     # if no valid neighbors were found return empty
  *     if count == 0:             # <<<<<<<<<<<<<<
@@ -3999,51 +4053,51 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
   __pyx_t_1 = ((__pyx_v_count == 0) != 0);
   if (__pyx_t_1) {
 
-    /* "pymatgen/util/neighbors.pyx":105
+    /* "pymatgen/optimization/neighbors.pyx":110
  *     # if no valid neighbors were found return empty
  *     if count == 0:
  *         free(&frac_coords[0, 0])             # <<<<<<<<<<<<<<
  *         free(&all_fcoords[0, 0])
  *         free(&coords_in_cell[0, 0])
  */
-    __pyx_t_47 = 0;
-    __pyx_t_48 = 0;
-    free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_frac_coords.data + __pyx_t_47 * __pyx_v_frac_coords.strides[0]) )) + __pyx_t_48)) )))));
+    __pyx_t_51 = 0;
+    __pyx_t_52 = 0;
+    free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_frac_coords.data + __pyx_t_51 * __pyx_v_frac_coords.strides[0]) )) + __pyx_t_52)) )))));
 
-    /* "pymatgen/util/neighbors.pyx":106
+    /* "pymatgen/optimization/neighbors.pyx":111
  *     if count == 0:
  *         free(&frac_coords[0, 0])
  *         free(&all_fcoords[0, 0])             # <<<<<<<<<<<<<<
  *         free(&coords_in_cell[0, 0])
  *         free(&offset_correction[0, 0])
  */
-    __pyx_t_49 = 0;
-    __pyx_t_50 = 0;
-    free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_all_fcoords.data + __pyx_t_49 * __pyx_v_all_fcoords.strides[0]) )) + __pyx_t_50)) )))));
+    __pyx_t_53 = 0;
+    __pyx_t_54 = 0;
+    free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_all_fcoords.data + __pyx_t_53 * __pyx_v_all_fcoords.strides[0]) )) + __pyx_t_54)) )))));
 
-    /* "pymatgen/util/neighbors.pyx":107
+    /* "pymatgen/optimization/neighbors.pyx":112
  *         free(&frac_coords[0, 0])
  *         free(&all_fcoords[0, 0])
  *         free(&coords_in_cell[0, 0])             # <<<<<<<<<<<<<<
  *         free(&offset_correction[0, 0])
  *         free(offsets_p_temp)
  */
-    __pyx_t_51 = 0;
-    __pyx_t_52 = 0;
-    free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_coords_in_cell.data + __pyx_t_51 * __pyx_v_coords_in_cell.strides[0]) )) + __pyx_t_52)) )))));
+    __pyx_t_55 = 0;
+    __pyx_t_56 = 0;
+    free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_coords_in_cell.data + __pyx_t_55 * __pyx_v_coords_in_cell.strides[0]) )) + __pyx_t_56)) )))));
 
-    /* "pymatgen/util/neighbors.pyx":108
+    /* "pymatgen/optimization/neighbors.pyx":113
  *         free(&all_fcoords[0, 0])
  *         free(&coords_in_cell[0, 0])
  *         free(&offset_correction[0, 0])             # <<<<<<<<<<<<<<
  *         free(offsets_p_temp)
  *         free(expanded_coords_p_temp)
  */
-    __pyx_t_53 = 0;
-    __pyx_t_54 = 0;
-    free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offset_correction.data + __pyx_t_53 * __pyx_v_offset_correction.strides[0]) )) + __pyx_t_54)) )))));
+    __pyx_t_57 = 0;
+    __pyx_t_58 = 0;
+    free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offset_correction.data + __pyx_t_57 * __pyx_v_offset_correction.strides[0]) )) + __pyx_t_58)) )))));
 
-    /* "pymatgen/util/neighbors.pyx":109
+    /* "pymatgen/optimization/neighbors.pyx":114
  *         free(&coords_in_cell[0, 0])
  *         free(&offset_correction[0, 0])
  *         free(offsets_p_temp)             # <<<<<<<<<<<<<<
@@ -4052,149 +4106,165 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
     free(__pyx_v_offsets_p_temp);
 
-    /* "pymatgen/util/neighbors.pyx":110
+    /* "pymatgen/optimization/neighbors.pyx":115
  *         free(&offset_correction[0, 0])
  *         free(offsets_p_temp)
  *         free(expanded_coords_p_temp)             # <<<<<<<<<<<<<<
  *         free(indices_p_temp)
- *         return np.array([], dtype=int), np.array([], dtype=int), np.array([[], [], []], dtype=float).T, np.array([], dtype=float)
+ *         return (np.array([], dtype=int), np.array([], dtype=int),
  */
     free(__pyx_v_expanded_coords_p_temp);
 
-    /* "pymatgen/util/neighbors.pyx":111
+    /* "pymatgen/optimization/neighbors.pyx":116
  *         free(offsets_p_temp)
  *         free(expanded_coords_p_temp)
  *         free(indices_p_temp)             # <<<<<<<<<<<<<<
- *         return np.array([], dtype=int), np.array([], dtype=int), np.array([[], [], []], dtype=float).T, np.array([], dtype=float)
- * 
+ *         return (np.array([], dtype=int), np.array([], dtype=int),
+ *             np.array([[], [], []], dtype=float).T, np.array([], dtype=float))
  */
     free(__pyx_v_indices_p_temp);
 
-    /* "pymatgen/util/neighbors.pyx":112
+    /* "pymatgen/optimization/neighbors.pyx":117
  *         free(expanded_coords_p_temp)
  *         free(indices_p_temp)
- *         return np.array([], dtype=int), np.array([], dtype=int), np.array([[], [], []], dtype=float).T, np.array([], dtype=float)             # <<<<<<<<<<<<<<
+ *         return (np.array([], dtype=int), np.array([], dtype=int),             # <<<<<<<<<<<<<<
+ *             np.array([[], [], []], dtype=float).T, np.array([], dtype=float))
  * 
- *     # Delete those beyond (min_center_coords - r, max_center_coords + r)
  */
     __Pyx_XDECREF(__pyx_r);
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 112, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 117, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_array); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 112, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_array); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 117, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = PyList_New(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 112, __pyx_L1_error)
+    __pyx_t_3 = PyList_New(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 117, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_55 = PyTuple_New(1); if (unlikely(!__pyx_t_55)) __PYX_ERR(0, 112, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_55);
+    __pyx_t_59 = PyTuple_New(1); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 117, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_59);
     __Pyx_GIVEREF(__pyx_t_3);
-    PyTuple_SET_ITEM(__pyx_t_55, 0, __pyx_t_3);
+    PyTuple_SET_ITEM(__pyx_t_59, 0, __pyx_t_3);
     __pyx_t_3 = 0;
-    __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 112, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 117, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, ((PyObject *)(&PyInt_Type))) < 0) __PYX_ERR(0, 112, __pyx_L1_error)
-    __pyx_t_56 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_55, __pyx_t_3); if (unlikely(!__pyx_t_56)) __PYX_ERR(0, 112, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_56);
+    if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, ((PyObject *)(&PyInt_Type))) < 0) __PYX_ERR(0, 117, __pyx_L1_error)
+    __pyx_t_60 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_59, __pyx_t_3); if (unlikely(!__pyx_t_60)) __PYX_ERR(0, 117, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_60);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __Pyx_DECREF(__pyx_t_55); __pyx_t_55 = 0;
+    __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 112, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 117, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_55 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_array); if (unlikely(!__pyx_t_55)) __PYX_ERR(0, 112, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_55);
+    __pyx_t_59 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_array); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 117, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_59);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = PyList_New(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 112, __pyx_L1_error)
+    __pyx_t_3 = PyList_New(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 117, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 112, __pyx_L1_error)
+    __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 117, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_GIVEREF(__pyx_t_3);
     PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_3);
     __pyx_t_3 = 0;
-    __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 112, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 117, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, ((PyObject *)(&PyInt_Type))) < 0) __PYX_ERR(0, 112, __pyx_L1_error)
-    __pyx_t_57 = __Pyx_PyObject_Call(__pyx_t_55, __pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_57)) __PYX_ERR(0, 112, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_57);
-    __Pyx_DECREF(__pyx_t_55); __pyx_t_55 = 0;
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 112, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_array); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 112, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = PyList_New(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 112, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_55 = PyList_New(0); if (unlikely(!__pyx_t_55)) __PYX_ERR(0, 112, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_55);
-    __pyx_t_58 = PyList_New(0); if (unlikely(!__pyx_t_58)) __PYX_ERR(0, 112, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_58);
-    __pyx_t_59 = PyList_New(3); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 112, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_59);
-    __Pyx_GIVEREF(__pyx_t_3);
-    PyList_SET_ITEM(__pyx_t_59, 0, __pyx_t_3);
-    __Pyx_GIVEREF(__pyx_t_55);
-    PyList_SET_ITEM(__pyx_t_59, 1, __pyx_t_55);
-    __Pyx_GIVEREF(__pyx_t_58);
-    PyList_SET_ITEM(__pyx_t_59, 2, __pyx_t_58);
-    __pyx_t_3 = 0;
-    __pyx_t_55 = 0;
-    __pyx_t_58 = 0;
-    __pyx_t_58 = PyTuple_New(1); if (unlikely(!__pyx_t_58)) __PYX_ERR(0, 112, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_58);
-    __Pyx_GIVEREF(__pyx_t_59);
-    PyTuple_SET_ITEM(__pyx_t_58, 0, __pyx_t_59);
-    __pyx_t_59 = 0;
-    __pyx_t_59 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 112, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_59);
-    if (PyDict_SetItem(__pyx_t_59, __pyx_n_s_dtype, ((PyObject *)(&PyFloat_Type))) < 0) __PYX_ERR(0, 112, __pyx_L1_error)
-    __pyx_t_55 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_58, __pyx_t_59); if (unlikely(!__pyx_t_55)) __PYX_ERR(0, 112, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_55);
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __Pyx_DECREF(__pyx_t_58); __pyx_t_58 = 0;
+    if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, ((PyObject *)(&PyInt_Type))) < 0) __PYX_ERR(0, 117, __pyx_L1_error)
+    __pyx_t_61 = __Pyx_PyObject_Call(__pyx_t_59, __pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_61)) __PYX_ERR(0, 117, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_61);
     __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
-    __pyx_t_59 = __Pyx_PyObject_GetAttrStr(__pyx_t_55, __pyx_n_s_T); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 112, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_59);
-    __Pyx_DECREF(__pyx_t_55); __pyx_t_55 = 0;
-    __Pyx_GetModuleGlobalName(__pyx_t_55, __pyx_n_s_np); if (unlikely(!__pyx_t_55)) __PYX_ERR(0, 112, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_55);
-    __pyx_t_58 = __Pyx_PyObject_GetAttrStr(__pyx_t_55, __pyx_n_s_array); if (unlikely(!__pyx_t_58)) __PYX_ERR(0, 112, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_58);
-    __Pyx_DECREF(__pyx_t_55); __pyx_t_55 = 0;
-    __pyx_t_55 = PyList_New(0); if (unlikely(!__pyx_t_55)) __PYX_ERR(0, 112, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_55);
-    __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 112, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    __Pyx_GIVEREF(__pyx_t_55);
-    PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_55);
-    __pyx_t_55 = 0;
-    __pyx_t_55 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_55)) __PYX_ERR(0, 112, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_55);
-    if (PyDict_SetItem(__pyx_t_55, __pyx_n_s_dtype, ((PyObject *)(&PyFloat_Type))) < 0) __PYX_ERR(0, 112, __pyx_L1_error)
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_58, __pyx_t_4, __pyx_t_55); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 112, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
-    __Pyx_DECREF(__pyx_t_58); __pyx_t_58 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __Pyx_DECREF(__pyx_t_55); __pyx_t_55 = 0;
-    __pyx_t_55 = PyTuple_New(4); if (unlikely(!__pyx_t_55)) __PYX_ERR(0, 112, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_55);
-    __Pyx_GIVEREF(__pyx_t_56);
-    PyTuple_SET_ITEM(__pyx_t_55, 0, __pyx_t_56);
-    __Pyx_GIVEREF(__pyx_t_57);
-    PyTuple_SET_ITEM(__pyx_t_55, 1, __pyx_t_57);
-    __Pyx_GIVEREF(__pyx_t_59);
-    PyTuple_SET_ITEM(__pyx_t_55, 2, __pyx_t_59);
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+
+    /* "pymatgen/optimization/neighbors.pyx":118
+ *         free(indices_p_temp)
+ *         return (np.array([], dtype=int), np.array([], dtype=int),
+ *             np.array([[], [], []], dtype=float).T, np.array([], dtype=float))             # <<<<<<<<<<<<<<
+ * 
+ *     # Delete those beyond (min_center_coords - r, max_center_coords + r)
+ */
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 118, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_array); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 118, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __pyx_t_3 = PyList_New(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 118, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_59 = PyList_New(0); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 118, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_59);
+    __pyx_t_62 = PyList_New(0); if (unlikely(!__pyx_t_62)) __PYX_ERR(0, 118, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_62);
+    __pyx_t_63 = PyList_New(3); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 118, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_63);
     __Pyx_GIVEREF(__pyx_t_3);
-    PyTuple_SET_ITEM(__pyx_t_55, 3, __pyx_t_3);
-    __pyx_t_56 = 0;
-    __pyx_t_57 = 0;
-    __pyx_t_59 = 0;
+    PyList_SET_ITEM(__pyx_t_63, 0, __pyx_t_3);
+    __Pyx_GIVEREF(__pyx_t_59);
+    PyList_SET_ITEM(__pyx_t_63, 1, __pyx_t_59);
+    __Pyx_GIVEREF(__pyx_t_62);
+    PyList_SET_ITEM(__pyx_t_63, 2, __pyx_t_62);
     __pyx_t_3 = 0;
-    __pyx_r = __pyx_t_55;
-    __pyx_t_55 = 0;
+    __pyx_t_59 = 0;
+    __pyx_t_62 = 0;
+    __pyx_t_62 = PyTuple_New(1); if (unlikely(!__pyx_t_62)) __PYX_ERR(0, 118, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_62);
+    __Pyx_GIVEREF(__pyx_t_63);
+    PyTuple_SET_ITEM(__pyx_t_62, 0, __pyx_t_63);
+    __pyx_t_63 = 0;
+    __pyx_t_63 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 118, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_63);
+    if (PyDict_SetItem(__pyx_t_63, __pyx_n_s_dtype, ((PyObject *)(&PyFloat_Type))) < 0) __PYX_ERR(0, 118, __pyx_L1_error)
+    __pyx_t_59 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_62, __pyx_t_63); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 118, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_59);
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_DECREF(__pyx_t_62); __pyx_t_62 = 0;
+    __Pyx_DECREF(__pyx_t_63); __pyx_t_63 = 0;
+    __pyx_t_63 = __Pyx_PyObject_GetAttrStr(__pyx_t_59, __pyx_n_s_T); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 118, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_63);
+    __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
+    __Pyx_GetModuleGlobalName(__pyx_t_59, __pyx_n_s_np); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 118, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_59);
+    __pyx_t_62 = __Pyx_PyObject_GetAttrStr(__pyx_t_59, __pyx_n_s_array); if (unlikely(!__pyx_t_62)) __PYX_ERR(0, 118, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_62);
+    __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
+    __pyx_t_59 = PyList_New(0); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 118, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_59);
+    __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 118, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __Pyx_GIVEREF(__pyx_t_59);
+    PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_59);
+    __pyx_t_59 = 0;
+    __pyx_t_59 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 118, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_59);
+    if (PyDict_SetItem(__pyx_t_59, __pyx_n_s_dtype, ((PyObject *)(&PyFloat_Type))) < 0) __PYX_ERR(0, 118, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_62, __pyx_t_4, __pyx_t_59); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 118, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __Pyx_DECREF(__pyx_t_62); __pyx_t_62 = 0;
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
+
+    /* "pymatgen/optimization/neighbors.pyx":117
+ *         free(expanded_coords_p_temp)
+ *         free(indices_p_temp)
+ *         return (np.array([], dtype=int), np.array([], dtype=int),             # <<<<<<<<<<<<<<
+ *             np.array([[], [], []], dtype=float).T, np.array([], dtype=float))
+ * 
+ */
+    __pyx_t_59 = PyTuple_New(4); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 117, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_59);
+    __Pyx_GIVEREF(__pyx_t_60);
+    PyTuple_SET_ITEM(__pyx_t_59, 0, __pyx_t_60);
+    __Pyx_GIVEREF(__pyx_t_61);
+    PyTuple_SET_ITEM(__pyx_t_59, 1, __pyx_t_61);
+    __Pyx_GIVEREF(__pyx_t_63);
+    PyTuple_SET_ITEM(__pyx_t_59, 2, __pyx_t_63);
+    __Pyx_GIVEREF(__pyx_t_3);
+    PyTuple_SET_ITEM(__pyx_t_59, 3, __pyx_t_3);
+    __pyx_t_60 = 0;
+    __pyx_t_61 = 0;
+    __pyx_t_63 = 0;
+    __pyx_t_3 = 0;
+    __pyx_r = __pyx_t_59;
+    __pyx_t_59 = 0;
     goto __pyx_L0;
 
-    /* "pymatgen/util/neighbors.pyx":104
+    /* "pymatgen/optimization/neighbors.pyx":109
  * 
  *     # if no valid neighbors were found return empty
  *     if count == 0:             # <<<<<<<<<<<<<<
@@ -4203,7 +4273,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   }
 
-  /* "pymatgen/util/neighbors.pyx":115
+  /* "pymatgen/optimization/neighbors.pyx":121
  * 
  *     # Delete those beyond (min_center_coords - r, max_center_coords + r)
  *     cdef double *offsets_p = <double*> realloc(offsets_p_temp, count * 3 * sizeof(double))             # <<<<<<<<<<<<<<
@@ -4212,7 +4282,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   __pyx_v_offsets_p = ((double *)realloc(__pyx_v_offsets_p_temp, ((__pyx_v_count * 3) * (sizeof(double)))));
 
-  /* "pymatgen/util/neighbors.pyx":116
+  /* "pymatgen/optimization/neighbors.pyx":122
  *     # Delete those beyond (min_center_coords - r, max_center_coords + r)
  *     cdef double *offsets_p = <double*> realloc(offsets_p_temp, count * 3 * sizeof(double))
  *     cdef double *expanded_coords_p = <double*> realloc(expanded_coords_p_temp, count * 3 * sizeof(double))             # <<<<<<<<<<<<<<
@@ -4221,7 +4291,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   __pyx_v_expanded_coords_p = ((double *)realloc(__pyx_v_expanded_coords_p_temp, ((__pyx_v_count * 3) * (sizeof(double)))));
 
-  /* "pymatgen/util/neighbors.pyx":117
+  /* "pymatgen/optimization/neighbors.pyx":123
  *     cdef double *offsets_p = <double*> realloc(offsets_p_temp, count * 3 * sizeof(double))
  *     cdef double *expanded_coords_p = <double*> realloc(expanded_coords_p_temp, count * 3 * sizeof(double))
  *     cdef long *indices_p = <long*> realloc(indices_p_temp, count * sizeof(long))             # <<<<<<<<<<<<<<
@@ -4230,7 +4300,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   __pyx_v_indices_p = ((long *)realloc(__pyx_v_indices_p_temp, (__pyx_v_count * (sizeof(long)))));
 
-  /* "pymatgen/util/neighbors.pyx":119
+  /* "pymatgen/optimization/neighbors.pyx":125
  *     cdef long *indices_p = <long*> realloc(indices_p_temp, count * sizeof(long))
  * 
  *     cdef double[:, ::1] offsets = <double[:count, :3]> offsets_p             # <<<<<<<<<<<<<<
@@ -4239,25 +4309,25 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   if (!__pyx_v_offsets_p) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 119, __pyx_L1_error)
+    __PYX_ERR(0, 125, __pyx_L1_error)
   }
   __pyx_t_3 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
-  __pyx_t_55 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_count), ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_3 || !__pyx_t_55 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 119, __pyx_L1_error)
+  __pyx_t_59 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_count), ((Py_ssize_t)3));
+  if (unlikely(!__pyx_t_3 || !__pyx_t_59 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 125, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_GOTREF(__pyx_t_55);
-  __pyx_t_2 = __pyx_array_new(__pyx_t_55, sizeof(double), PyBytes_AS_STRING(__pyx_t_3), (char *) "c", (char *) __pyx_v_offsets_p);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 119, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_59);
+  __pyx_t_2 = __pyx_array_new(__pyx_t_59, sizeof(double), PyBytes_AS_STRING(__pyx_t_3), (char *) "c", (char *) __pyx_v_offsets_p);
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 125, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_55); __pyx_t_55 = 0;
+  __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 119, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 125, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
   __pyx_v_offsets = __pyx_t_9;
   __pyx_t_9.memview = NULL;
   __pyx_t_9.data = NULL;
 
-  /* "pymatgen/util/neighbors.pyx":120
+  /* "pymatgen/optimization/neighbors.pyx":126
  * 
  *     cdef double[:, ::1] offsets = <double[:count, :3]> offsets_p
  *     cdef double[:, ::1] expanded_coords = <double[:count, :3]> expanded_coords_p             # <<<<<<<<<<<<<<
@@ -4266,25 +4336,25 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   if (!__pyx_v_expanded_coords_p) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 120, __pyx_L1_error)
+    __PYX_ERR(0, 126, __pyx_L1_error)
   }
-  __pyx_t_55 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
+  __pyx_t_59 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
   __pyx_t_3 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_count), ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_55 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_55))) __PYX_ERR(0, 120, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_55);
+  if (unlikely(!__pyx_t_59 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_59))) __PYX_ERR(0, 126, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_59);
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = __pyx_array_new(__pyx_t_3, sizeof(double), PyBytes_AS_STRING(__pyx_t_55), (char *) "c", (char *) __pyx_v_expanded_coords_p);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 120, __pyx_L1_error)
+  __pyx_t_2 = __pyx_array_new(__pyx_t_3, sizeof(double), PyBytes_AS_STRING(__pyx_t_59), (char *) "c", (char *) __pyx_v_expanded_coords_p);
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 126, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __Pyx_DECREF(__pyx_t_55); __pyx_t_55 = 0;
-  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 120, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
+  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 126, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
   __pyx_v_expanded_coords = __pyx_t_9;
   __pyx_t_9.memview = NULL;
   __pyx_t_9.data = NULL;
 
-  /* "pymatgen/util/neighbors.pyx":121
+  /* "pymatgen/optimization/neighbors.pyx":127
  *     cdef double[:, ::1] offsets = <double[:count, :3]> offsets_p
  *     cdef double[:, ::1] expanded_coords = <double[:count, :3]> expanded_coords_p
  *     cdef long[::1] indices = <long[:count]> indices_p             # <<<<<<<<<<<<<<
@@ -4293,25 +4363,25 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   if (!__pyx_v_indices_p) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 121, __pyx_L1_error)
+    __PYX_ERR(0, 127, __pyx_L1_error)
   }
   __pyx_t_3 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
-  __pyx_t_55 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_count));
-  if (unlikely(!__pyx_t_3 || !__pyx_t_55 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 121, __pyx_L1_error)
+  __pyx_t_59 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_count));
+  if (unlikely(!__pyx_t_3 || !__pyx_t_59 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_GOTREF(__pyx_t_55);
-  __pyx_t_2 = __pyx_array_new(__pyx_t_55, sizeof(long), PyBytes_AS_STRING(__pyx_t_3), (char *) "c", (char *) __pyx_v_indices_p);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 121, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_59);
+  __pyx_t_2 = __pyx_array_new(__pyx_t_59, sizeof(long), PyBytes_AS_STRING(__pyx_t_3), (char *) "c", (char *) __pyx_v_indices_p);
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_55); __pyx_t_55 = 0;
+  __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_60 = __Pyx_PyObject_to_MemoryviewSlice_dc_long(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_60.memview)) __PYX_ERR(0, 121, __pyx_L1_error)
+  __pyx_t_64 = __Pyx_PyObject_to_MemoryviewSlice_dc_long(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_64.memview)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
-  __pyx_v_indices = __pyx_t_60;
-  __pyx_t_60.memview = NULL;
-  __pyx_t_60.data = NULL;
+  __pyx_v_indices = __pyx_t_64;
+  __pyx_t_64.memview = NULL;
+  __pyx_t_64.data = NULL;
 
-  /* "pymatgen/util/neighbors.pyx":124
+  /* "pymatgen/optimization/neighbors.pyx":130
  * 
  *     # Construct linked cell list
  *     natoms = count             # <<<<<<<<<<<<<<
@@ -4320,7 +4390,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   __pyx_v_natoms = __pyx_v_count;
 
-  /* "pymatgen/util/neighbors.pyx":126
+  /* "pymatgen/optimization/neighbors.pyx":132
  *     natoms = count
  *     cdef long ncube[3]
  *     cdef long[:, ::1] all_indices3 = <long[:natoms, :3]> malloc(natoms * 3 * sizeof(long))             # <<<<<<<<<<<<<<
@@ -4330,25 +4400,25 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
   __pyx_t_8 = malloc(((__pyx_v_natoms * 3) * (sizeof(long))));
   if (!__pyx_t_8) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 126, __pyx_L1_error)
+    __PYX_ERR(0, 132, __pyx_L1_error)
   }
-  __pyx_t_55 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
+  __pyx_t_59 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
   __pyx_t_3 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_natoms), ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_55 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_55))) __PYX_ERR(0, 126, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_55);
+  if (unlikely(!__pyx_t_59 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_59))) __PYX_ERR(0, 132, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_59);
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = __pyx_array_new(__pyx_t_3, sizeof(long), PyBytes_AS_STRING(__pyx_t_55), (char *) "c", (char *) __pyx_t_8);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 126, __pyx_L1_error)
+  __pyx_t_2 = __pyx_array_new(__pyx_t_3, sizeof(long), PyBytes_AS_STRING(__pyx_t_59), (char *) "c", (char *) __pyx_t_8);
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 132, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __Pyx_DECREF(__pyx_t_55); __pyx_t_55 = 0;
-  __pyx_t_61 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_long(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_61.memview)) __PYX_ERR(0, 126, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
+  __pyx_t_65 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_long(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_65.memview)) __PYX_ERR(0, 132, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
-  __pyx_v_all_indices3 = __pyx_t_61;
-  __pyx_t_61.memview = NULL;
-  __pyx_t_61.data = NULL;
+  __pyx_v_all_indices3 = __pyx_t_65;
+  __pyx_t_65.memview = NULL;
+  __pyx_t_65.data = NULL;
 
-  /* "pymatgen/util/neighbors.pyx":127
+  /* "pymatgen/optimization/neighbors.pyx":133
  *     cdef long ncube[3]
  *     cdef long[:, ::1] all_indices3 = <long[:natoms, :3]> malloc(natoms * 3 * sizeof(long))
  *     cdef long[::1] all_indices1 = <long[:natoms]> malloc(natoms * sizeof(long))             # <<<<<<<<<<<<<<
@@ -4358,25 +4428,25 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
   __pyx_t_8 = malloc((__pyx_v_natoms * (sizeof(long))));
   if (!__pyx_t_8) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 127, __pyx_L1_error)
+    __PYX_ERR(0, 133, __pyx_L1_error)
   }
   __pyx_t_3 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
-  __pyx_t_55 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_natoms));
-  if (unlikely(!__pyx_t_3 || !__pyx_t_55 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 127, __pyx_L1_error)
+  __pyx_t_59 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_natoms));
+  if (unlikely(!__pyx_t_3 || !__pyx_t_59 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 133, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_GOTREF(__pyx_t_55);
-  __pyx_t_2 = __pyx_array_new(__pyx_t_55, sizeof(long), PyBytes_AS_STRING(__pyx_t_3), (char *) "c", (char *) __pyx_t_8);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 127, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_59);
+  __pyx_t_2 = __pyx_array_new(__pyx_t_59, sizeof(long), PyBytes_AS_STRING(__pyx_t_3), (char *) "c", (char *) __pyx_t_8);
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 133, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_55); __pyx_t_55 = 0;
+  __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_60 = __Pyx_PyObject_to_MemoryviewSlice_dc_long(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_60.memview)) __PYX_ERR(0, 127, __pyx_L1_error)
+  __pyx_t_64 = __Pyx_PyObject_to_MemoryviewSlice_dc_long(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_64.memview)) __PYX_ERR(0, 133, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
-  __pyx_v_all_indices1 = __pyx_t_60;
-  __pyx_t_60.memview = NULL;
-  __pyx_t_60.data = NULL;
+  __pyx_v_all_indices1 = __pyx_t_64;
+  __pyx_t_64.memview = NULL;
+  __pyx_t_64.data = NULL;
 
-  /* "pymatgen/util/neighbors.pyx":129
+  /* "pymatgen/optimization/neighbors.pyx":135
  *     cdef long[::1] all_indices1 = <long[:natoms]> malloc(natoms * sizeof(long))
  * 
  *     for i in range(3):             # <<<<<<<<<<<<<<
@@ -4386,7 +4456,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
   for (__pyx_t_7 = 0; __pyx_t_7 < 3; __pyx_t_7+=1) {
     __pyx_v_i = __pyx_t_7;
 
-    /* "pymatgen/util/neighbors.pyx":130
+    /* "pymatgen/optimization/neighbors.pyx":136
  * 
  *     for i in range(3):
  *         ncube[i] = <long>(ceil((valid_max[i] - valid_min[i]) / ledge))             # <<<<<<<<<<<<<<
@@ -4396,40 +4466,40 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
     (__pyx_v_ncube[__pyx_v_i]) = ((long)ceil((((__pyx_v_valid_max[__pyx_v_i]) - (__pyx_v_valid_min[__pyx_v_i])) / __pyx_v_ledge)));
   }
 
-  /* "pymatgen/util/neighbors.pyx":132
+  /* "pymatgen/optimization/neighbors.pyx":138
  *         ncube[i] = <long>(ceil((valid_max[i] - valid_min[i]) / ledge))
  * 
  *     compute_cube_index(expanded_coords, valid_min, ledge, all_indices3)             # <<<<<<<<<<<<<<
  *     three_to_one(all_indices3, ncube[1], ncube[2], all_indices1)
  * 
  */
-  __pyx_t_55 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
+  __pyx_t_59 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
   __pyx_t_3 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_55 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_55))) __PYX_ERR(0, 132, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_55);
+  if (unlikely(!__pyx_t_59 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_59))) __PYX_ERR(0, 138, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_59);
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = __pyx_array_new(__pyx_t_3, sizeof(double), PyBytes_AS_STRING(__pyx_t_55), (char *) "fortran", (char *) __pyx_v_valid_min);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 132, __pyx_L1_error)
+  __pyx_t_2 = __pyx_array_new(__pyx_t_3, sizeof(double), PyBytes_AS_STRING(__pyx_t_59), (char *) "fortran", (char *) __pyx_v_valid_min);
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 138, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __Pyx_DECREF(__pyx_t_55); __pyx_t_55 = 0;
-  __pyx_t_62 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_62.memview)) __PYX_ERR(0, 132, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
+  __pyx_t_66 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_66.memview)) __PYX_ERR(0, 138, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
-  __pyx_f_8pymatgen_4util_9neighbors_compute_cube_index(__pyx_v_expanded_coords, __pyx_t_62, __pyx_v_ledge, __pyx_v_all_indices3);
-  __PYX_XDEC_MEMVIEW(&__pyx_t_62, 1);
-  __pyx_t_62.memview = NULL;
-  __pyx_t_62.data = NULL;
+  __pyx_f_8pymatgen_12optimization_9neighbors_compute_cube_index(__pyx_v_expanded_coords, __pyx_t_66, __pyx_v_ledge, __pyx_v_all_indices3);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_66, 1);
+  __pyx_t_66.memview = NULL;
+  __pyx_t_66.data = NULL;
 
-  /* "pymatgen/util/neighbors.pyx":133
+  /* "pymatgen/optimization/neighbors.pyx":139
  * 
  *     compute_cube_index(expanded_coords, valid_min, ledge, all_indices3)
  *     three_to_one(all_indices3, ncube[1], ncube[2], all_indices1)             # <<<<<<<<<<<<<<
  * 
  *     cdef long nb_cubes = ncube[0] * ncube[1] * ncube[2]
  */
-  __pyx_f_8pymatgen_4util_9neighbors_three_to_one(__pyx_v_all_indices3, (__pyx_v_ncube[1]), (__pyx_v_ncube[2]), __pyx_v_all_indices1);
+  __pyx_f_8pymatgen_12optimization_9neighbors_three_to_one(__pyx_v_all_indices3, (__pyx_v_ncube[1]), (__pyx_v_ncube[2]), __pyx_v_all_indices1);
 
-  /* "pymatgen/util/neighbors.pyx":135
+  /* "pymatgen/optimization/neighbors.pyx":141
  *     three_to_one(all_indices3, ncube[1], ncube[2], all_indices1)
  * 
  *     cdef long nb_cubes = ncube[0] * ncube[1] * ncube[2]             # <<<<<<<<<<<<<<
@@ -4438,7 +4508,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   __pyx_v_nb_cubes = (((__pyx_v_ncube[0]) * (__pyx_v_ncube[1])) * (__pyx_v_ncube[2]));
 
-  /* "pymatgen/util/neighbors.pyx":136
+  /* "pymatgen/optimization/neighbors.pyx":142
  * 
  *     cdef long nb_cubes = ncube[0] * ncube[1] * ncube[2]
  *     cdef long *head = <long*> malloc(nb_cubes*sizeof(long))             # <<<<<<<<<<<<<<
@@ -4447,7 +4517,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   __pyx_v_head = ((long *)malloc((__pyx_v_nb_cubes * (sizeof(long)))));
 
-  /* "pymatgen/util/neighbors.pyx":137
+  /* "pymatgen/optimization/neighbors.pyx":143
  *     cdef long nb_cubes = ncube[0] * ncube[1] * ncube[2]
  *     cdef long *head = <long*> malloc(nb_cubes*sizeof(long))
  *     cdef long *atom_indices = <long*> malloc(natoms*sizeof(long))             # <<<<<<<<<<<<<<
@@ -4456,7 +4526,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   __pyx_v_atom_indices = ((long *)malloc((__pyx_v_natoms * (sizeof(long)))));
 
-  /* "pymatgen/util/neighbors.pyx":138
+  /* "pymatgen/optimization/neighbors.pyx":144
  *     cdef long *head = <long*> malloc(nb_cubes*sizeof(long))
  *     cdef long *atom_indices = <long*> malloc(natoms*sizeof(long))
  *     memset(<void*>head, -1, nb_cubes*sizeof(long))             # <<<<<<<<<<<<<<
@@ -4465,7 +4535,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   (void)(memset(((void *)__pyx_v_head), -1, (__pyx_v_nb_cubes * (sizeof(long)))));
 
-  /* "pymatgen/util/neighbors.pyx":139
+  /* "pymatgen/optimization/neighbors.pyx":145
  *     cdef long *atom_indices = <long*> malloc(natoms*sizeof(long))
  *     memset(<void*>head, -1, nb_cubes*sizeof(long))
  *     memset(<void*>atom_indices, -1, natoms*sizeof(long))             # <<<<<<<<<<<<<<
@@ -4474,7 +4544,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   (void)(memset(((void *)__pyx_v_atom_indices), -1, (__pyx_v_natoms * (sizeof(long)))));
 
-  /* "pymatgen/util/neighbors.pyx":140
+  /* "pymatgen/optimization/neighbors.pyx":146
  *     memset(<void*>head, -1, nb_cubes*sizeof(long))
  *     memset(<void*>atom_indices, -1, natoms*sizeof(long))
  *     cdef map[long, vector[long]] neighbor_map = get_cube_neighbors(ncube)             # <<<<<<<<<<<<<<
@@ -4482,56 +4552,56 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  *         atom_indices[i] = head[all_indices1[i]]
  */
   __pyx_t_3 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
-  __pyx_t_55 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_3 || !__pyx_t_55 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 140, __pyx_L1_error)
+  __pyx_t_59 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)3));
+  if (unlikely(!__pyx_t_3 || !__pyx_t_59 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 146, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_GOTREF(__pyx_t_55);
-  __pyx_t_2 = __pyx_array_new(__pyx_t_55, sizeof(long), PyBytes_AS_STRING(__pyx_t_3), (char *) "fortran", (char *) __pyx_v_ncube);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 140, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_59);
+  __pyx_t_2 = __pyx_array_new(__pyx_t_59, sizeof(long), PyBytes_AS_STRING(__pyx_t_3), (char *) "fortran", (char *) __pyx_v_ncube);
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 146, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_55); __pyx_t_55 = 0;
+  __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_29 = __Pyx_PyObject_to_MemoryviewSlice_ds_long(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_29.memview)) __PYX_ERR(0, 140, __pyx_L1_error)
+  __pyx_t_33 = __Pyx_PyObject_to_MemoryviewSlice_ds_long(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_33.memview)) __PYX_ERR(0, 146, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
-  __pyx_v_neighbor_map = __pyx_f_8pymatgen_4util_9neighbors_get_cube_neighbors(__pyx_t_29);
-  __PYX_XDEC_MEMVIEW(&__pyx_t_29, 1);
-  __pyx_t_29.memview = NULL;
-  __pyx_t_29.data = NULL;
+  __pyx_v_neighbor_map = __pyx_f_8pymatgen_12optimization_9neighbors_get_cube_neighbors(__pyx_t_33);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_33, 1);
+  __pyx_t_33.memview = NULL;
+  __pyx_t_33.data = NULL;
 
-  /* "pymatgen/util/neighbors.pyx":141
+  /* "pymatgen/optimization/neighbors.pyx":147
  *     memset(<void*>atom_indices, -1, natoms*sizeof(long))
  *     cdef map[long, vector[long]] neighbor_map = get_cube_neighbors(ncube)
  *     for i in range(natoms):             # <<<<<<<<<<<<<<
  *         atom_indices[i] = head[all_indices1[i]]
  *         head[all_indices1[i]] = i
  */
-  __pyx_t_30 = __pyx_v_natoms;
-  __pyx_t_31 = __pyx_t_30;
-  for (__pyx_t_7 = 0; __pyx_t_7 < __pyx_t_31; __pyx_t_7+=1) {
+  __pyx_t_34 = __pyx_v_natoms;
+  __pyx_t_35 = __pyx_t_34;
+  for (__pyx_t_7 = 0; __pyx_t_7 < __pyx_t_35; __pyx_t_7+=1) {
     __pyx_v_i = __pyx_t_7;
 
-    /* "pymatgen/util/neighbors.pyx":142
+    /* "pymatgen/optimization/neighbors.pyx":148
  *     cdef map[long, vector[long]] neighbor_map = get_cube_neighbors(ncube)
  *     for i in range(natoms):
  *         atom_indices[i] = head[all_indices1[i]]             # <<<<<<<<<<<<<<
  *         head[all_indices1[i]] = i
  * 
  */
-    __pyx_t_63 = __pyx_v_i;
-    (__pyx_v_atom_indices[__pyx_v_i]) = (__pyx_v_head[(*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_all_indices1.data) + __pyx_t_63)) )))]);
+    __pyx_t_67 = __pyx_v_i;
+    (__pyx_v_atom_indices[__pyx_v_i]) = (__pyx_v_head[(*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_all_indices1.data) + __pyx_t_67)) )))]);
 
-    /* "pymatgen/util/neighbors.pyx":143
+    /* "pymatgen/optimization/neighbors.pyx":149
  *     for i in range(natoms):
  *         atom_indices[i] = head[all_indices1[i]]
  *         head[all_indices1[i]] = i             # <<<<<<<<<<<<<<
  * 
  *     # Get center atoms' cube indices
  */
-    __pyx_t_64 = __pyx_v_i;
-    (__pyx_v_head[(*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_all_indices1.data) + __pyx_t_64)) )))]) = __pyx_v_i;
+    __pyx_t_68 = __pyx_v_i;
+    (__pyx_v_head[(*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_all_indices1.data) + __pyx_t_68)) )))]) = __pyx_v_i;
   }
 
-  /* "pymatgen/util/neighbors.pyx":146
+  /* "pymatgen/optimization/neighbors.pyx":152
  * 
  *     # Get center atoms' cube indices
  *     cdef long[:, ::1] center_indices3 = <long[:n_center, :3]> malloc(n_center*3*sizeof(long))             # <<<<<<<<<<<<<<
@@ -4541,25 +4611,25 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
   __pyx_t_8 = malloc(((__pyx_v_n_center * 3) * (sizeof(long))));
   if (!__pyx_t_8) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 146, __pyx_L1_error)
+    __PYX_ERR(0, 152, __pyx_L1_error)
   }
-  __pyx_t_55 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
+  __pyx_t_59 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
   __pyx_t_3 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_n_center), ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_55 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_55))) __PYX_ERR(0, 146, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_55);
+  if (unlikely(!__pyx_t_59 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_59))) __PYX_ERR(0, 152, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_59);
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = __pyx_array_new(__pyx_t_3, sizeof(long), PyBytes_AS_STRING(__pyx_t_55), (char *) "c", (char *) __pyx_t_8);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 146, __pyx_L1_error)
+  __pyx_t_2 = __pyx_array_new(__pyx_t_3, sizeof(long), PyBytes_AS_STRING(__pyx_t_59), (char *) "c", (char *) __pyx_t_8);
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 152, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __Pyx_DECREF(__pyx_t_55); __pyx_t_55 = 0;
-  __pyx_t_61 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_long(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_61.memview)) __PYX_ERR(0, 146, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
+  __pyx_t_65 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_long(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_65.memview)) __PYX_ERR(0, 152, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
-  __pyx_v_center_indices3 = __pyx_t_61;
-  __pyx_t_61.memview = NULL;
-  __pyx_t_61.data = NULL;
+  __pyx_v_center_indices3 = __pyx_t_65;
+  __pyx_t_65.memview = NULL;
+  __pyx_t_65.data = NULL;
 
-  /* "pymatgen/util/neighbors.pyx":147
+  /* "pymatgen/optimization/neighbors.pyx":153
  *     # Get center atoms' cube indices
  *     cdef long[:, ::1] center_indices3 = <long[:n_center, :3]> malloc(n_center*3*sizeof(long))
  *     cdef long *center_indices1 = <long*> malloc(n_center*sizeof(long))             # <<<<<<<<<<<<<<
@@ -4568,7 +4638,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   __pyx_v_center_indices1 = ((long *)malloc((__pyx_v_n_center * (sizeof(long)))));
 
-  /* "pymatgen/util/neighbors.pyx":148
+  /* "pymatgen/optimization/neighbors.pyx":154
  *     cdef long[:, ::1] center_indices3 = <long[:n_center, :3]> malloc(n_center*3*sizeof(long))
  *     cdef long *center_indices1 = <long*> malloc(n_center*sizeof(long))
  *     compute_cube_index(center_coords, valid_min, ledge, center_indices3)             # <<<<<<<<<<<<<<
@@ -4576,23 +4646,23 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  * 
  */
   __pyx_t_3 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
-  __pyx_t_55 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_3 || !__pyx_t_55 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 148, __pyx_L1_error)
+  __pyx_t_59 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)3));
+  if (unlikely(!__pyx_t_3 || !__pyx_t_59 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 154, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_GOTREF(__pyx_t_55);
-  __pyx_t_2 = __pyx_array_new(__pyx_t_55, sizeof(double), PyBytes_AS_STRING(__pyx_t_3), (char *) "fortran", (char *) __pyx_v_valid_min);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 148, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_59);
+  __pyx_t_2 = __pyx_array_new(__pyx_t_59, sizeof(double), PyBytes_AS_STRING(__pyx_t_3), (char *) "fortran", (char *) __pyx_v_valid_min);
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 154, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_55); __pyx_t_55 = 0;
+  __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_62 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_62.memview)) __PYX_ERR(0, 148, __pyx_L1_error)
+  __pyx_t_66 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_66.memview)) __PYX_ERR(0, 154, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
-  __pyx_f_8pymatgen_4util_9neighbors_compute_cube_index(__pyx_v_center_coords, __pyx_t_62, __pyx_v_ledge, __pyx_v_center_indices3);
-  __PYX_XDEC_MEMVIEW(&__pyx_t_62, 1);
-  __pyx_t_62.memview = NULL;
-  __pyx_t_62.data = NULL;
+  __pyx_f_8pymatgen_12optimization_9neighbors_compute_cube_index(__pyx_v_center_coords, __pyx_t_66, __pyx_v_ledge, __pyx_v_center_indices3);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_66, 1);
+  __pyx_t_66.memview = NULL;
+  __pyx_t_66.data = NULL;
 
-  /* "pymatgen/util/neighbors.pyx":149
+  /* "pymatgen/optimization/neighbors.pyx":155
  *     cdef long *center_indices1 = <long*> malloc(n_center*sizeof(long))
  *     compute_cube_index(center_coords, valid_min, ledge, center_indices3)
  *     three_to_one(center_indices3, ncube[1], ncube[2], <long[:n_center]>center_indices1)             # <<<<<<<<<<<<<<
@@ -4601,26 +4671,26 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   if (!__pyx_v_center_indices1) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 149, __pyx_L1_error)
+    __PYX_ERR(0, 155, __pyx_L1_error)
   }
-  __pyx_t_55 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
+  __pyx_t_59 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
   __pyx_t_3 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_n_center));
-  if (unlikely(!__pyx_t_55 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_55))) __PYX_ERR(0, 149, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_55);
+  if (unlikely(!__pyx_t_59 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_59))) __PYX_ERR(0, 155, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_59);
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = __pyx_array_new(__pyx_t_3, sizeof(long), PyBytes_AS_STRING(__pyx_t_55), (char *) "c", (char *) __pyx_v_center_indices1);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 149, __pyx_L1_error)
+  __pyx_t_2 = __pyx_array_new(__pyx_t_3, sizeof(long), PyBytes_AS_STRING(__pyx_t_59), (char *) "c", (char *) __pyx_v_center_indices1);
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 155, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __Pyx_DECREF(__pyx_t_55); __pyx_t_55 = 0;
-  __pyx_t_60 = __Pyx_PyObject_to_MemoryviewSlice_dc_long(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_60.memview)) __PYX_ERR(0, 149, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
+  __pyx_t_64 = __Pyx_PyObject_to_MemoryviewSlice_dc_long(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_64.memview)) __PYX_ERR(0, 155, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
-  __pyx_f_8pymatgen_4util_9neighbors_three_to_one(__pyx_v_center_indices3, (__pyx_v_ncube[1]), (__pyx_v_ncube[2]), __pyx_t_60);
-  __PYX_XDEC_MEMVIEW(&__pyx_t_60, 1);
-  __pyx_t_60.memview = NULL;
-  __pyx_t_60.data = NULL;
+  __pyx_f_8pymatgen_12optimization_9neighbors_three_to_one(__pyx_v_center_indices3, (__pyx_v_ncube[1]), (__pyx_v_ncube[2]), __pyx_t_64);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_64, 1);
+  __pyx_t_64.memview = NULL;
+  __pyx_t_64.data = NULL;
 
-  /* "pymatgen/util/neighbors.pyx":153
+  /* "pymatgen/optimization/neighbors.pyx":159
  *     # it works by allocate incrementally n more memory locations, I found it 3x faster to do so
  *     # compared to using vectors in cpp
  *     n = 10000             # <<<<<<<<<<<<<<
@@ -4629,7 +4699,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   __pyx_v_n = 0x2710;
 
-  /* "pymatgen/util/neighbors.pyx":154
+  /* "pymatgen/optimization/neighbors.pyx":160
  *     # compared to using vectors in cpp
  *     n = 10000
  *     cdef long *index_1 = <long*> malloc(n*sizeof(long))             # <<<<<<<<<<<<<<
@@ -4638,7 +4708,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   __pyx_v_index_1 = ((long *)malloc((__pyx_v_n * (sizeof(long)))));
 
-  /* "pymatgen/util/neighbors.pyx":155
+  /* "pymatgen/optimization/neighbors.pyx":161
  *     n = 10000
  *     cdef long *index_1 = <long*> malloc(n*sizeof(long))
  *     cdef long *index_2 = <long*> malloc(n*sizeof(long))             # <<<<<<<<<<<<<<
@@ -4647,7 +4717,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   __pyx_v_index_2 = ((long *)malloc((__pyx_v_n * (sizeof(long)))));
 
-  /* "pymatgen/util/neighbors.pyx":156
+  /* "pymatgen/optimization/neighbors.pyx":162
  *     cdef long *index_1 = <long*> malloc(n*sizeof(long))
  *     cdef long *index_2 = <long*> malloc(n*sizeof(long))
  *     cdef double *offset_final = <double*> malloc(3*n*sizeof(double))             # <<<<<<<<<<<<<<
@@ -4656,7 +4726,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   __pyx_v_offset_final = ((double *)malloc(((3 * __pyx_v_n) * (sizeof(double)))));
 
-  /* "pymatgen/util/neighbors.pyx":157
+  /* "pymatgen/optimization/neighbors.pyx":163
  *     cdef long *index_2 = <long*> malloc(n*sizeof(long))
  *     cdef double *offset_final = <double*> malloc(3*n*sizeof(double))
  *     cdef double *distances = <double*> malloc(n*sizeof(double))             # <<<<<<<<<<<<<<
@@ -4665,7 +4735,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   __pyx_v_distances = ((double *)malloc((__pyx_v_n * (sizeof(double)))));
 
-  /* "pymatgen/util/neighbors.pyx":163
+  /* "pymatgen/optimization/neighbors.pyx":169
  *     cdef long link_index
  *     cdef double d_temp2
  *     cdef double r2 = r * r             # <<<<<<<<<<<<<<
@@ -4674,7 +4744,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   __pyx_v_r2 = (__pyx_v_r * __pyx_v_r);
 
-  /* "pymatgen/util/neighbors.pyx":165
+  /* "pymatgen/optimization/neighbors.pyx":171
  *     cdef double r2 = r * r
  * 
  *     count = 0             # <<<<<<<<<<<<<<
@@ -4683,7 +4753,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   __pyx_v_count = 0;
 
-  /* "pymatgen/util/neighbors.pyx":166
+  /* "pymatgen/optimization/neighbors.pyx":172
  * 
  *     count = 0
  *     for i in range(n_center):             # <<<<<<<<<<<<<<
@@ -4695,7 +4765,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
   for (__pyx_t_13 = 0; __pyx_t_13 < __pyx_t_12; __pyx_t_13+=1) {
     __pyx_v_i = __pyx_t_13;
 
-    /* "pymatgen/util/neighbors.pyx":167
+    /* "pymatgen/optimization/neighbors.pyx":173
  *     count = 0
  *     for i in range(n_center):
  *         ncube_indices_temp = neighbor_map[center_indices1[i]]             # <<<<<<<<<<<<<<
@@ -4704,7 +4774,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
     __pyx_v_ncube_indices_temp = (__pyx_v_neighbor_map[(__pyx_v_center_indices1[__pyx_v_i])]);
 
-    /* "pymatgen/util/neighbors.pyx":168
+    /* "pymatgen/optimization/neighbors.pyx":174
  *     for i in range(n_center):
  *         ncube_indices_temp = neighbor_map[center_indices1[i]]
  *         it = ncube_indices_temp.begin()             # <<<<<<<<<<<<<<
@@ -4713,7 +4783,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
     __pyx_v_it = __pyx_v_ncube_indices_temp.begin();
 
-    /* "pymatgen/util/neighbors.pyx":169
+    /* "pymatgen/optimization/neighbors.pyx":175
  *         ncube_indices_temp = neighbor_map[center_indices1[i]]
  *         it = ncube_indices_temp.begin()
  *         while (it != ncube_indices_temp.end()):             # <<<<<<<<<<<<<<
@@ -4724,7 +4794,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
       __pyx_t_1 = ((__pyx_v_it != __pyx_v_ncube_indices_temp.end()) != 0);
       if (!__pyx_t_1) break;
 
-      /* "pymatgen/util/neighbors.pyx":170
+      /* "pymatgen/optimization/neighbors.pyx":176
  *         it = ncube_indices_temp.begin()
  *         while (it != ncube_indices_temp.end()):
  *             cube_index_temp = dereference(it)             # <<<<<<<<<<<<<<
@@ -4733,7 +4803,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
       __pyx_v_cube_index_temp = (*__pyx_v_it);
 
-      /* "pymatgen/util/neighbors.pyx":171
+      /* "pymatgen/optimization/neighbors.pyx":177
  *         while (it != ncube_indices_temp.end()):
  *             cube_index_temp = dereference(it)
  *             link_index = head[cube_index_temp]             # <<<<<<<<<<<<<<
@@ -4742,7 +4812,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
       __pyx_v_link_index = (__pyx_v_head[__pyx_v_cube_index_temp]);
 
-      /* "pymatgen/util/neighbors.pyx":172
+      /* "pymatgen/optimization/neighbors.pyx":178
  *             cube_index_temp = dereference(it)
  *             link_index = head[cube_index_temp]
  *             while (link_index != -1):             # <<<<<<<<<<<<<<
@@ -4753,16 +4823,16 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
         __pyx_t_1 = ((__pyx_v_link_index != -1L) != 0);
         if (!__pyx_t_1) break;
 
-        /* "pymatgen/util/neighbors.pyx":173
+        /* "pymatgen/optimization/neighbors.pyx":179
  *             link_index = head[cube_index_temp]
  *             while (link_index != -1):
  *                 d_temp2 = distance2(expanded_coords, center_coords, link_index, i, 3)             # <<<<<<<<<<<<<<
  *                 if d_temp2 < r2 + tol:
  *                     index_1[count] = i
  */
-        __pyx_v_d_temp2 = __pyx_f_8pymatgen_4util_9neighbors_distance2(__pyx_v_expanded_coords, __pyx_v_center_coords, __pyx_v_link_index, __pyx_v_i, 3);
+        __pyx_v_d_temp2 = __pyx_f_8pymatgen_12optimization_9neighbors_distance2(__pyx_v_expanded_coords, __pyx_v_center_coords, __pyx_v_link_index, __pyx_v_i, 3);
 
-        /* "pymatgen/util/neighbors.pyx":174
+        /* "pymatgen/optimization/neighbors.pyx":180
  *             while (link_index != -1):
  *                 d_temp2 = distance2(expanded_coords, center_coords, link_index, i, 3)
  *                 if d_temp2 < r2 + tol:             # <<<<<<<<<<<<<<
@@ -4772,7 +4842,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
         __pyx_t_1 = ((__pyx_v_d_temp2 < (__pyx_v_r2 + __pyx_v_tol)) != 0);
         if (__pyx_t_1) {
 
-          /* "pymatgen/util/neighbors.pyx":175
+          /* "pymatgen/optimization/neighbors.pyx":181
  *                 d_temp2 = distance2(expanded_coords, center_coords, link_index, i, 3)
  *                 if d_temp2 < r2 + tol:
  *                     index_1[count] = i             # <<<<<<<<<<<<<<
@@ -4781,59 +4851,59 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
           (__pyx_v_index_1[__pyx_v_count]) = __pyx_v_i;
 
-          /* "pymatgen/util/neighbors.pyx":176
+          /* "pymatgen/optimization/neighbors.pyx":182
  *                 if d_temp2 < r2 + tol:
  *                     index_1[count] = i
  *                     index_2[count] = indices[link_index]             # <<<<<<<<<<<<<<
  *                     offset_final[3*count] = offsets[link_index, 0] - offset_correction[indices[link_index], 0]
  *                     offset_final[3*count + 1] = offsets[link_index, 1] - offset_correction[indices[link_index], 1]
  */
-          __pyx_t_65 = __pyx_v_link_index;
-          (__pyx_v_index_2[__pyx_v_count]) = (*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_indices.data) + __pyx_t_65)) )));
+          __pyx_t_69 = __pyx_v_link_index;
+          (__pyx_v_index_2[__pyx_v_count]) = (*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_indices.data) + __pyx_t_69)) )));
 
-          /* "pymatgen/util/neighbors.pyx":177
+          /* "pymatgen/optimization/neighbors.pyx":183
  *                     index_1[count] = i
  *                     index_2[count] = indices[link_index]
  *                     offset_final[3*count] = offsets[link_index, 0] - offset_correction[indices[link_index], 0]             # <<<<<<<<<<<<<<
  *                     offset_final[3*count + 1] = offsets[link_index, 1] - offset_correction[indices[link_index], 1]
  *                     offset_final[3*count + 2] = offsets[link_index, 2] - offset_correction[indices[link_index], 2]
  */
-          __pyx_t_66 = __pyx_v_link_index;
-          __pyx_t_67 = 0;
-          __pyx_t_68 = __pyx_v_link_index;
-          __pyx_t_69 = (*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_indices.data) + __pyx_t_68)) )));
-          __pyx_t_70 = 0;
-          (__pyx_v_offset_final[(3 * __pyx_v_count)]) = ((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offsets.data + __pyx_t_66 * __pyx_v_offsets.strides[0]) )) + __pyx_t_67)) ))) - (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offset_correction.data + __pyx_t_69 * __pyx_v_offset_correction.strides[0]) )) + __pyx_t_70)) ))));
+          __pyx_t_70 = __pyx_v_link_index;
+          __pyx_t_71 = 0;
+          __pyx_t_72 = __pyx_v_link_index;
+          __pyx_t_73 = (*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_indices.data) + __pyx_t_72)) )));
+          __pyx_t_74 = 0;
+          (__pyx_v_offset_final[(3 * __pyx_v_count)]) = ((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offsets.data + __pyx_t_70 * __pyx_v_offsets.strides[0]) )) + __pyx_t_71)) ))) - (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offset_correction.data + __pyx_t_73 * __pyx_v_offset_correction.strides[0]) )) + __pyx_t_74)) ))));
 
-          /* "pymatgen/util/neighbors.pyx":178
+          /* "pymatgen/optimization/neighbors.pyx":184
  *                     index_2[count] = indices[link_index]
  *                     offset_final[3*count] = offsets[link_index, 0] - offset_correction[indices[link_index], 0]
  *                     offset_final[3*count + 1] = offsets[link_index, 1] - offset_correction[indices[link_index], 1]             # <<<<<<<<<<<<<<
  *                     offset_final[3*count + 2] = offsets[link_index, 2] - offset_correction[indices[link_index], 2]
  *                     distances[count] = sqrt(d_temp2)
  */
-          __pyx_t_71 = __pyx_v_link_index;
-          __pyx_t_72 = 1;
-          __pyx_t_73 = __pyx_v_link_index;
-          __pyx_t_74 = (*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_indices.data) + __pyx_t_73)) )));
-          __pyx_t_75 = 1;
-          (__pyx_v_offset_final[((3 * __pyx_v_count) + 1)]) = ((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offsets.data + __pyx_t_71 * __pyx_v_offsets.strides[0]) )) + __pyx_t_72)) ))) - (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offset_correction.data + __pyx_t_74 * __pyx_v_offset_correction.strides[0]) )) + __pyx_t_75)) ))));
+          __pyx_t_75 = __pyx_v_link_index;
+          __pyx_t_76 = 1;
+          __pyx_t_77 = __pyx_v_link_index;
+          __pyx_t_78 = (*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_indices.data) + __pyx_t_77)) )));
+          __pyx_t_79 = 1;
+          (__pyx_v_offset_final[((3 * __pyx_v_count) + 1)]) = ((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offsets.data + __pyx_t_75 * __pyx_v_offsets.strides[0]) )) + __pyx_t_76)) ))) - (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offset_correction.data + __pyx_t_78 * __pyx_v_offset_correction.strides[0]) )) + __pyx_t_79)) ))));
 
-          /* "pymatgen/util/neighbors.pyx":179
+          /* "pymatgen/optimization/neighbors.pyx":185
  *                     offset_final[3*count] = offsets[link_index, 0] - offset_correction[indices[link_index], 0]
  *                     offset_final[3*count + 1] = offsets[link_index, 1] - offset_correction[indices[link_index], 1]
  *                     offset_final[3*count + 2] = offsets[link_index, 2] - offset_correction[indices[link_index], 2]             # <<<<<<<<<<<<<<
  *                     distances[count] = sqrt(d_temp2)
  * 
  */
-          __pyx_t_76 = __pyx_v_link_index;
-          __pyx_t_77 = 2;
-          __pyx_t_78 = __pyx_v_link_index;
-          __pyx_t_79 = (*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_indices.data) + __pyx_t_78)) )));
-          __pyx_t_80 = 2;
-          (__pyx_v_offset_final[((3 * __pyx_v_count) + 2)]) = ((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offsets.data + __pyx_t_76 * __pyx_v_offsets.strides[0]) )) + __pyx_t_77)) ))) - (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offset_correction.data + __pyx_t_79 * __pyx_v_offset_correction.strides[0]) )) + __pyx_t_80)) ))));
+          __pyx_t_80 = __pyx_v_link_index;
+          __pyx_t_81 = 2;
+          __pyx_t_82 = __pyx_v_link_index;
+          __pyx_t_83 = (*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_indices.data) + __pyx_t_82)) )));
+          __pyx_t_84 = 2;
+          (__pyx_v_offset_final[((3 * __pyx_v_count) + 2)]) = ((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offsets.data + __pyx_t_80 * __pyx_v_offsets.strides[0]) )) + __pyx_t_81)) ))) - (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offset_correction.data + __pyx_t_83 * __pyx_v_offset_correction.strides[0]) )) + __pyx_t_84)) ))));
 
-          /* "pymatgen/util/neighbors.pyx":180
+          /* "pymatgen/optimization/neighbors.pyx":186
  *                     offset_final[3*count + 1] = offsets[link_index, 1] - offset_correction[indices[link_index], 1]
  *                     offset_final[3*count + 2] = offsets[link_index, 2] - offset_correction[indices[link_index], 2]
  *                     distances[count] = sqrt(d_temp2)             # <<<<<<<<<<<<<<
@@ -4842,7 +4912,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
           (__pyx_v_distances[__pyx_v_count]) = sqrt(__pyx_v_d_temp2);
 
-          /* "pymatgen/util/neighbors.pyx":182
+          /* "pymatgen/optimization/neighbors.pyx":188
  *                     distances[count] = sqrt(d_temp2)
  * 
  *                     count += 1             # <<<<<<<<<<<<<<
@@ -4851,7 +4921,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
           __pyx_v_count = (__pyx_v_count + 1);
 
-          /* "pymatgen/util/neighbors.pyx":184
+          /* "pymatgen/optimization/neighbors.pyx":190
  *                     count += 1
  *                     # increasing the memory size
  *                     if count >= n:             # <<<<<<<<<<<<<<
@@ -4861,7 +4931,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
           __pyx_t_1 = ((__pyx_v_count >= __pyx_v_n) != 0);
           if (__pyx_t_1) {
 
-            /* "pymatgen/util/neighbors.pyx":185
+            /* "pymatgen/optimization/neighbors.pyx":191
  *                     # increasing the memory size
  *                     if count >= n:
  *                         n += 10000             # <<<<<<<<<<<<<<
@@ -4870,7 +4940,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
             __pyx_v_n = (__pyx_v_n + 0x2710);
 
-            /* "pymatgen/util/neighbors.pyx":187
+            /* "pymatgen/optimization/neighbors.pyx":193
  *                         n += 10000
  *                         # may not be safe to assign so, but if realloc fails the program fails
  *                         index_1 = <long*>realloc(index_1, n * sizeof(long))             # <<<<<<<<<<<<<<
@@ -4879,7 +4949,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
             __pyx_v_index_1 = ((long *)realloc(__pyx_v_index_1, (__pyx_v_n * (sizeof(long)))));
 
-            /* "pymatgen/util/neighbors.pyx":188
+            /* "pymatgen/optimization/neighbors.pyx":194
  *                         # may not be safe to assign so, but if realloc fails the program fails
  *                         index_1 = <long*>realloc(index_1, n * sizeof(long))
  *                         index_2 = <long*>realloc(index_2, n*sizeof(long))             # <<<<<<<<<<<<<<
@@ -4888,7 +4958,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
             __pyx_v_index_2 = ((long *)realloc(__pyx_v_index_2, (__pyx_v_n * (sizeof(long)))));
 
-            /* "pymatgen/util/neighbors.pyx":189
+            /* "pymatgen/optimization/neighbors.pyx":195
  *                         index_1 = <long*>realloc(index_1, n * sizeof(long))
  *                         index_2 = <long*>realloc(index_2, n*sizeof(long))
  *                         offset_final = <double*> realloc(offset_final, 3*n*sizeof(double))             # <<<<<<<<<<<<<<
@@ -4897,7 +4967,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
             __pyx_v_offset_final = ((double *)realloc(__pyx_v_offset_final, ((3 * __pyx_v_n) * (sizeof(double)))));
 
-            /* "pymatgen/util/neighbors.pyx":190
+            /* "pymatgen/optimization/neighbors.pyx":196
  *                         index_2 = <long*>realloc(index_2, n*sizeof(long))
  *                         offset_final = <double*> realloc(offset_final, 3*n*sizeof(double))
  *                         distances = <double*> realloc(distances, n*sizeof(double))             # <<<<<<<<<<<<<<
@@ -4906,7 +4976,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
             __pyx_v_distances = ((double *)realloc(__pyx_v_distances, (__pyx_v_n * (sizeof(double)))));
 
-            /* "pymatgen/util/neighbors.pyx":184
+            /* "pymatgen/optimization/neighbors.pyx":190
  *                     count += 1
  *                     # increasing the memory size
  *                     if count >= n:             # <<<<<<<<<<<<<<
@@ -4915,7 +4985,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
           }
 
-          /* "pymatgen/util/neighbors.pyx":174
+          /* "pymatgen/optimization/neighbors.pyx":180
  *             while (link_index != -1):
  *                 d_temp2 = distance2(expanded_coords, center_coords, link_index, i, 3)
  *                 if d_temp2 < r2 + tol:             # <<<<<<<<<<<<<<
@@ -4924,7 +4994,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
         }
 
-        /* "pymatgen/util/neighbors.pyx":191
+        /* "pymatgen/optimization/neighbors.pyx":197
  *                         offset_final = <double*> realloc(offset_final, 3*n*sizeof(double))
  *                         distances = <double*> realloc(distances, n*sizeof(double))
  *                 link_index = atom_indices[link_index]             # <<<<<<<<<<<<<<
@@ -4934,7 +5004,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
         __pyx_v_link_index = (__pyx_v_atom_indices[__pyx_v_link_index]);
       }
 
-      /* "pymatgen/util/neighbors.pyx":192
+      /* "pymatgen/optimization/neighbors.pyx":198
  *                         distances = <double*> realloc(distances, n*sizeof(double))
  *                 link_index = atom_indices[link_index]
  *             postincrement(it)             # <<<<<<<<<<<<<<
@@ -4945,7 +5015,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
     }
   }
 
-  /* "pymatgen/util/neighbors.pyx":194
+  /* "pymatgen/optimization/neighbors.pyx":200
  *             postincrement(it)
  * 
  *     if count == 0:             # <<<<<<<<<<<<<<
@@ -4955,7 +5025,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
   __pyx_t_1 = ((__pyx_v_count == 0) != 0);
   if (__pyx_t_1) {
 
-    /* "pymatgen/util/neighbors.pyx":195
+    /* "pymatgen/optimization/neighbors.pyx":201
  * 
  *     if count == 0:
  *         free(index_1)             # <<<<<<<<<<<<<<
@@ -4964,7 +5034,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
     free(__pyx_v_index_1);
 
-    /* "pymatgen/util/neighbors.pyx":196
+    /* "pymatgen/optimization/neighbors.pyx":202
  *     if count == 0:
  *         free(index_1)
  *         free(index_2)             # <<<<<<<<<<<<<<
@@ -4973,7 +5043,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
     free(__pyx_v_index_2);
 
-    /* "pymatgen/util/neighbors.pyx":197
+    /* "pymatgen/optimization/neighbors.pyx":203
  *         free(index_1)
  *         free(index_2)
  *         free(offset_final)             # <<<<<<<<<<<<<<
@@ -4982,7 +5052,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
     free(__pyx_v_offset_final);
 
-    /* "pymatgen/util/neighbors.pyx":198
+    /* "pymatgen/optimization/neighbors.pyx":204
  *         free(index_2)
  *         free(offset_final)
  *         free(distances)             # <<<<<<<<<<<<<<
@@ -4991,62 +5061,62 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
     free(__pyx_v_distances);
 
-    /* "pymatgen/util/neighbors.pyx":199
+    /* "pymatgen/optimization/neighbors.pyx":205
  *         free(offset_final)
  *         free(distances)
  *         free(&offset_correction[0, 0])             # <<<<<<<<<<<<<<
  *         free(&frac_coords[0, 0])
  *         free(&all_fcoords[0, 0])
  */
-    __pyx_t_81 = 0;
-    __pyx_t_82 = 0;
-    free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offset_correction.data + __pyx_t_81 * __pyx_v_offset_correction.strides[0]) )) + __pyx_t_82)) )))));
+    __pyx_t_85 = 0;
+    __pyx_t_86 = 0;
+    free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offset_correction.data + __pyx_t_85 * __pyx_v_offset_correction.strides[0]) )) + __pyx_t_86)) )))));
 
-    /* "pymatgen/util/neighbors.pyx":200
+    /* "pymatgen/optimization/neighbors.pyx":206
  *         free(distances)
  *         free(&offset_correction[0, 0])
  *         free(&frac_coords[0, 0])             # <<<<<<<<<<<<<<
  *         free(&all_fcoords[0, 0])
  *         free(&coords_in_cell[0, 0])
  */
-    __pyx_t_83 = 0;
-    __pyx_t_84 = 0;
-    free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_frac_coords.data + __pyx_t_83 * __pyx_v_frac_coords.strides[0]) )) + __pyx_t_84)) )))));
+    __pyx_t_87 = 0;
+    __pyx_t_88 = 0;
+    free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_frac_coords.data + __pyx_t_87 * __pyx_v_frac_coords.strides[0]) )) + __pyx_t_88)) )))));
 
-    /* "pymatgen/util/neighbors.pyx":201
+    /* "pymatgen/optimization/neighbors.pyx":207
  *         free(&offset_correction[0, 0])
  *         free(&frac_coords[0, 0])
  *         free(&all_fcoords[0, 0])             # <<<<<<<<<<<<<<
  *         free(&coords_in_cell[0, 0])
  *         free(&center_indices3[0, 0])
  */
-    __pyx_t_85 = 0;
-    __pyx_t_86 = 0;
-    free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_all_fcoords.data + __pyx_t_85 * __pyx_v_all_fcoords.strides[0]) )) + __pyx_t_86)) )))));
+    __pyx_t_89 = 0;
+    __pyx_t_90 = 0;
+    free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_all_fcoords.data + __pyx_t_89 * __pyx_v_all_fcoords.strides[0]) )) + __pyx_t_90)) )))));
 
-    /* "pymatgen/util/neighbors.pyx":202
+    /* "pymatgen/optimization/neighbors.pyx":208
  *         free(&frac_coords[0, 0])
  *         free(&all_fcoords[0, 0])
  *         free(&coords_in_cell[0, 0])             # <<<<<<<<<<<<<<
  *         free(&center_indices3[0, 0])
  *         free(offsets_p)
  */
-    __pyx_t_87 = 0;
-    __pyx_t_88 = 0;
-    free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_coords_in_cell.data + __pyx_t_87 * __pyx_v_coords_in_cell.strides[0]) )) + __pyx_t_88)) )))));
+    __pyx_t_91 = 0;
+    __pyx_t_92 = 0;
+    free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_coords_in_cell.data + __pyx_t_91 * __pyx_v_coords_in_cell.strides[0]) )) + __pyx_t_92)) )))));
 
-    /* "pymatgen/util/neighbors.pyx":203
+    /* "pymatgen/optimization/neighbors.pyx":209
  *         free(&all_fcoords[0, 0])
  *         free(&coords_in_cell[0, 0])
  *         free(&center_indices3[0, 0])             # <<<<<<<<<<<<<<
  *         free(offsets_p)
  *         free(expanded_coords_p)
  */
-    __pyx_t_89 = 0;
-    __pyx_t_90 = 0;
-    free((&(*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_center_indices3.data + __pyx_t_89 * __pyx_v_center_indices3.strides[0]) )) + __pyx_t_90)) )))));
+    __pyx_t_93 = 0;
+    __pyx_t_94 = 0;
+    free((&(*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_center_indices3.data + __pyx_t_93 * __pyx_v_center_indices3.strides[0]) )) + __pyx_t_94)) )))));
 
-    /* "pymatgen/util/neighbors.pyx":204
+    /* "pymatgen/optimization/neighbors.pyx":210
  *         free(&coords_in_cell[0, 0])
  *         free(&center_indices3[0, 0])
  *         free(offsets_p)             # <<<<<<<<<<<<<<
@@ -5055,7 +5125,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
     free(__pyx_v_offsets_p);
 
-    /* "pymatgen/util/neighbors.pyx":205
+    /* "pymatgen/optimization/neighbors.pyx":211
  *         free(&center_indices3[0, 0])
  *         free(offsets_p)
  *         free(expanded_coords_p)             # <<<<<<<<<<<<<<
@@ -5064,7 +5134,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
     free(__pyx_v_expanded_coords_p);
 
-    /* "pymatgen/util/neighbors.pyx":206
+    /* "pymatgen/optimization/neighbors.pyx":212
  *         free(offsets_p)
  *         free(expanded_coords_p)
  *         free(indices_p)             # <<<<<<<<<<<<<<
@@ -5073,28 +5143,28 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
     free(__pyx_v_indices_p);
 
-    /* "pymatgen/util/neighbors.pyx":207
+    /* "pymatgen/optimization/neighbors.pyx":213
  *         free(expanded_coords_p)
  *         free(indices_p)
  *         free(&all_indices3[0, 0])             # <<<<<<<<<<<<<<
  *         free(&all_indices1[0])
  *         free(center_indices1)
  */
-    __pyx_t_91 = 0;
-    __pyx_t_92 = 0;
-    free((&(*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_all_indices3.data + __pyx_t_91 * __pyx_v_all_indices3.strides[0]) )) + __pyx_t_92)) )))));
+    __pyx_t_95 = 0;
+    __pyx_t_96 = 0;
+    free((&(*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_all_indices3.data + __pyx_t_95 * __pyx_v_all_indices3.strides[0]) )) + __pyx_t_96)) )))));
 
-    /* "pymatgen/util/neighbors.pyx":208
+    /* "pymatgen/optimization/neighbors.pyx":214
  *         free(indices_p)
  *         free(&all_indices3[0, 0])
  *         free(&all_indices1[0])             # <<<<<<<<<<<<<<
  *         free(center_indices1)
  *         free(head)
  */
-    __pyx_t_93 = 0;
-    free((&(*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_all_indices1.data) + __pyx_t_93)) )))));
+    __pyx_t_97 = 0;
+    free((&(*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_all_indices1.data) + __pyx_t_97)) )))));
 
-    /* "pymatgen/util/neighbors.pyx":209
+    /* "pymatgen/optimization/neighbors.pyx":215
  *         free(&all_indices3[0, 0])
  *         free(&all_indices1[0])
  *         free(center_indices1)             # <<<<<<<<<<<<<<
@@ -5103,7 +5173,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
     free(__pyx_v_center_indices1);
 
-    /* "pymatgen/util/neighbors.pyx":210
+    /* "pymatgen/optimization/neighbors.pyx":216
  *         free(&all_indices1[0])
  *         free(center_indices1)
  *         free(head)             # <<<<<<<<<<<<<<
@@ -5112,7 +5182,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
     free(__pyx_v_head);
 
-    /* "pymatgen/util/neighbors.pyx":211
+    /* "pymatgen/optimization/neighbors.pyx":217
  *         free(center_indices1)
  *         free(head)
  *         free(atom_indices)             # <<<<<<<<<<<<<<
@@ -5121,7 +5191,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
     free(__pyx_v_atom_indices);
 
-    /* "pymatgen/util/neighbors.pyx":212
+    /* "pymatgen/optimization/neighbors.pyx":218
  *         free(head)
  *         free(atom_indices)
  *         return np.array([], dtype=int), np.array([], dtype=int), np.array([[], [], []], dtype=float).T, np.array([], dtype=float)             # <<<<<<<<<<<<<<
@@ -5129,123 +5199,123 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  *     index_1 = <long*>realloc(index_1, count * sizeof(long))
  */
     __Pyx_XDECREF(__pyx_r);
-    __Pyx_GetModuleGlobalName(__pyx_t_55, __pyx_n_s_np); if (unlikely(!__pyx_t_55)) __PYX_ERR(0, 212, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_55);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_55, __pyx_n_s_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 212, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
-    __Pyx_DECREF(__pyx_t_55); __pyx_t_55 = 0;
-    __pyx_t_55 = PyList_New(0); if (unlikely(!__pyx_t_55)) __PYX_ERR(0, 212, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_55);
-    __pyx_t_59 = PyTuple_New(1); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 212, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_59, __pyx_n_s_np); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 218, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_59);
-    __Pyx_GIVEREF(__pyx_t_55);
-    PyTuple_SET_ITEM(__pyx_t_59, 0, __pyx_t_55);
-    __pyx_t_55 = 0;
-    __pyx_t_55 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_55)) __PYX_ERR(0, 212, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_55);
-    if (PyDict_SetItem(__pyx_t_55, __pyx_n_s_dtype, ((PyObject *)(&PyInt_Type))) < 0) __PYX_ERR(0, 212, __pyx_L1_error)
-    __pyx_t_57 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_59, __pyx_t_55); if (unlikely(!__pyx_t_57)) __PYX_ERR(0, 212, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_57);
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_59, __pyx_n_s_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
-    __Pyx_DECREF(__pyx_t_55); __pyx_t_55 = 0;
-    __Pyx_GetModuleGlobalName(__pyx_t_55, __pyx_n_s_np); if (unlikely(!__pyx_t_55)) __PYX_ERR(0, 212, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_55);
-    __pyx_t_59 = __Pyx_PyObject_GetAttrStr(__pyx_t_55, __pyx_n_s_array); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 212, __pyx_L1_error)
+    __pyx_t_59 = PyList_New(0); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 218, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_59);
-    __Pyx_DECREF(__pyx_t_55); __pyx_t_55 = 0;
-    __pyx_t_55 = PyList_New(0); if (unlikely(!__pyx_t_55)) __PYX_ERR(0, 212, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_55);
-    __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 212, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
-    __Pyx_GIVEREF(__pyx_t_55);
-    PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_55);
-    __pyx_t_55 = 0;
-    __pyx_t_55 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_55)) __PYX_ERR(0, 212, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_55);
-    if (PyDict_SetItem(__pyx_t_55, __pyx_n_s_dtype, ((PyObject *)(&PyInt_Type))) < 0) __PYX_ERR(0, 212, __pyx_L1_error)
-    __pyx_t_56 = __Pyx_PyObject_Call(__pyx_t_59, __pyx_t_3, __pyx_t_55); if (unlikely(!__pyx_t_56)) __PYX_ERR(0, 212, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_56);
-    __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __Pyx_DECREF(__pyx_t_55); __pyx_t_55 = 0;
-    __Pyx_GetModuleGlobalName(__pyx_t_55, __pyx_n_s_np); if (unlikely(!__pyx_t_55)) __PYX_ERR(0, 212, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_55);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_55, __pyx_n_s_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 212, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
-    __Pyx_DECREF(__pyx_t_55); __pyx_t_55 = 0;
-    __pyx_t_55 = PyList_New(0); if (unlikely(!__pyx_t_55)) __PYX_ERR(0, 212, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_55);
-    __pyx_t_59 = PyList_New(0); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 212, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_59);
-    __pyx_t_4 = PyList_New(0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 212, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_58 = PyList_New(3); if (unlikely(!__pyx_t_58)) __PYX_ERR(0, 212, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_58);
-    __Pyx_GIVEREF(__pyx_t_55);
-    PyList_SET_ITEM(__pyx_t_58, 0, __pyx_t_55);
+    __pyx_t_63 = PyTuple_New(1); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_63);
     __Pyx_GIVEREF(__pyx_t_59);
-    PyList_SET_ITEM(__pyx_t_58, 1, __pyx_t_59);
-    __Pyx_GIVEREF(__pyx_t_4);
-    PyList_SET_ITEM(__pyx_t_58, 2, __pyx_t_4);
-    __pyx_t_55 = 0;
+    PyTuple_SET_ITEM(__pyx_t_63, 0, __pyx_t_59);
     __pyx_t_59 = 0;
-    __pyx_t_4 = 0;
-    __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 212, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    __Pyx_GIVEREF(__pyx_t_58);
-    PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_58);
-    __pyx_t_58 = 0;
-    __pyx_t_58 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_58)) __PYX_ERR(0, 212, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_58);
-    if (PyDict_SetItem(__pyx_t_58, __pyx_n_s_dtype, ((PyObject *)(&PyFloat_Type))) < 0) __PYX_ERR(0, 212, __pyx_L1_error)
-    __pyx_t_59 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_4, __pyx_t_58); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 212, __pyx_L1_error)
+    __pyx_t_59 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 218, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_59);
+    if (PyDict_SetItem(__pyx_t_59, __pyx_n_s_dtype, ((PyObject *)(&PyInt_Type))) < 0) __PYX_ERR(0, 218, __pyx_L1_error)
+    __pyx_t_61 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_63, __pyx_t_59); if (unlikely(!__pyx_t_61)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_61);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __Pyx_DECREF(__pyx_t_58); __pyx_t_58 = 0;
-    __pyx_t_58 = __Pyx_PyObject_GetAttrStr(__pyx_t_59, __pyx_n_s_T); if (unlikely(!__pyx_t_58)) __PYX_ERR(0, 212, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_58);
+    __Pyx_DECREF(__pyx_t_63); __pyx_t_63 = 0;
     __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
-    __Pyx_GetModuleGlobalName(__pyx_t_59, __pyx_n_s_np); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 212, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_59, __pyx_n_s_np); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 218, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_59);
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_59, __pyx_n_s_array); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 212, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_63 = __Pyx_PyObject_GetAttrStr(__pyx_t_59, __pyx_n_s_array); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_63);
     __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
-    __pyx_t_59 = PyList_New(0); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 212, __pyx_L1_error)
+    __pyx_t_59 = PyList_New(0); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 218, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_59);
-    __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 212, __pyx_L1_error)
+    __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 218, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_GIVEREF(__pyx_t_59);
     PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_59);
     __pyx_t_59 = 0;
-    __pyx_t_59 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 212, __pyx_L1_error)
+    __pyx_t_59 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 218, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_59);
-    if (PyDict_SetItem(__pyx_t_59, __pyx_n_s_dtype, ((PyObject *)(&PyFloat_Type))) < 0) __PYX_ERR(0, 212, __pyx_L1_error)
-    __pyx_t_55 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_3, __pyx_t_59); if (unlikely(!__pyx_t_55)) __PYX_ERR(0, 212, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_55);
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    if (PyDict_SetItem(__pyx_t_59, __pyx_n_s_dtype, ((PyObject *)(&PyInt_Type))) < 0) __PYX_ERR(0, 218, __pyx_L1_error)
+    __pyx_t_60 = __Pyx_PyObject_Call(__pyx_t_63, __pyx_t_3, __pyx_t_59); if (unlikely(!__pyx_t_60)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_60);
+    __Pyx_DECREF(__pyx_t_63); __pyx_t_63 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
-    __pyx_t_59 = PyTuple_New(4); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 212, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_59, __pyx_n_s_np); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 218, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_59);
-    __Pyx_GIVEREF(__pyx_t_57);
-    PyTuple_SET_ITEM(__pyx_t_59, 0, __pyx_t_57);
-    __Pyx_GIVEREF(__pyx_t_56);
-    PyTuple_SET_ITEM(__pyx_t_59, 1, __pyx_t_56);
-    __Pyx_GIVEREF(__pyx_t_58);
-    PyTuple_SET_ITEM(__pyx_t_59, 2, __pyx_t_58);
-    __Pyx_GIVEREF(__pyx_t_55);
-    PyTuple_SET_ITEM(__pyx_t_59, 3, __pyx_t_55);
-    __pyx_t_57 = 0;
-    __pyx_t_56 = 0;
-    __pyx_t_58 = 0;
-    __pyx_t_55 = 0;
-    __pyx_r = __pyx_t_59;
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_59, __pyx_n_s_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
+    __pyx_t_59 = PyList_New(0); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_59);
+    __pyx_t_63 = PyList_New(0); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_63);
+    __pyx_t_4 = PyList_New(0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_62 = PyList_New(3); if (unlikely(!__pyx_t_62)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_62);
+    __Pyx_GIVEREF(__pyx_t_59);
+    PyList_SET_ITEM(__pyx_t_62, 0, __pyx_t_59);
+    __Pyx_GIVEREF(__pyx_t_63);
+    PyList_SET_ITEM(__pyx_t_62, 1, __pyx_t_63);
+    __Pyx_GIVEREF(__pyx_t_4);
+    PyList_SET_ITEM(__pyx_t_62, 2, __pyx_t_4);
     __pyx_t_59 = 0;
+    __pyx_t_63 = 0;
+    __pyx_t_4 = 0;
+    __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __Pyx_GIVEREF(__pyx_t_62);
+    PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_62);
+    __pyx_t_62 = 0;
+    __pyx_t_62 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_62)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_62);
+    if (PyDict_SetItem(__pyx_t_62, __pyx_n_s_dtype, ((PyObject *)(&PyFloat_Type))) < 0) __PYX_ERR(0, 218, __pyx_L1_error)
+    __pyx_t_63 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_4, __pyx_t_62); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_63);
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_DECREF(__pyx_t_62); __pyx_t_62 = 0;
+    __pyx_t_62 = __Pyx_PyObject_GetAttrStr(__pyx_t_63, __pyx_n_s_T); if (unlikely(!__pyx_t_62)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_62);
+    __Pyx_DECREF(__pyx_t_63); __pyx_t_63 = 0;
+    __Pyx_GetModuleGlobalName(__pyx_t_63, __pyx_n_s_np); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_63);
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_63, __pyx_n_s_array); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __Pyx_DECREF(__pyx_t_63); __pyx_t_63 = 0;
+    __pyx_t_63 = PyList_New(0); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_63);
+    __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __Pyx_GIVEREF(__pyx_t_63);
+    PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_63);
+    __pyx_t_63 = 0;
+    __pyx_t_63 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_63);
+    if (PyDict_SetItem(__pyx_t_63, __pyx_n_s_dtype, ((PyObject *)(&PyFloat_Type))) < 0) __PYX_ERR(0, 218, __pyx_L1_error)
+    __pyx_t_59 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_3, __pyx_t_63); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_59);
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __Pyx_DECREF(__pyx_t_63); __pyx_t_63 = 0;
+    __pyx_t_63 = PyTuple_New(4); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_63);
+    __Pyx_GIVEREF(__pyx_t_61);
+    PyTuple_SET_ITEM(__pyx_t_63, 0, __pyx_t_61);
+    __Pyx_GIVEREF(__pyx_t_60);
+    PyTuple_SET_ITEM(__pyx_t_63, 1, __pyx_t_60);
+    __Pyx_GIVEREF(__pyx_t_62);
+    PyTuple_SET_ITEM(__pyx_t_63, 2, __pyx_t_62);
+    __Pyx_GIVEREF(__pyx_t_59);
+    PyTuple_SET_ITEM(__pyx_t_63, 3, __pyx_t_59);
+    __pyx_t_61 = 0;
+    __pyx_t_60 = 0;
+    __pyx_t_62 = 0;
+    __pyx_t_59 = 0;
+    __pyx_r = __pyx_t_63;
+    __pyx_t_63 = 0;
     goto __pyx_L0;
 
-    /* "pymatgen/util/neighbors.pyx":194
+    /* "pymatgen/optimization/neighbors.pyx":200
  *             postincrement(it)
  * 
  *     if count == 0:             # <<<<<<<<<<<<<<
@@ -5254,7 +5324,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   }
 
-  /* "pymatgen/util/neighbors.pyx":214
+  /* "pymatgen/optimization/neighbors.pyx":220
  *         return np.array([], dtype=int), np.array([], dtype=int), np.array([[], [], []], dtype=float).T, np.array([], dtype=float)
  * 
  *     index_1 = <long*>realloc(index_1, count * sizeof(long))             # <<<<<<<<<<<<<<
@@ -5263,7 +5333,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   __pyx_v_index_1 = ((long *)realloc(__pyx_v_index_1, (__pyx_v_count * (sizeof(long)))));
 
-  /* "pymatgen/util/neighbors.pyx":215
+  /* "pymatgen/optimization/neighbors.pyx":221
  * 
  *     index_1 = <long*>realloc(index_1, count * sizeof(long))
  *     index_2 = <long*>realloc(index_2, count*sizeof(long))             # <<<<<<<<<<<<<<
@@ -5272,7 +5342,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   __pyx_v_index_2 = ((long *)realloc(__pyx_v_index_2, (__pyx_v_count * (sizeof(long)))));
 
-  /* "pymatgen/util/neighbors.pyx":216
+  /* "pymatgen/optimization/neighbors.pyx":222
  *     index_1 = <long*>realloc(index_1, count * sizeof(long))
  *     index_2 = <long*>realloc(index_2, count*sizeof(long))
  *     offset_final = <double*> realloc(offset_final, 3*count*sizeof(double))             # <<<<<<<<<<<<<<
@@ -5281,7 +5351,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   __pyx_v_offset_final = ((double *)realloc(__pyx_v_offset_final, ((3 * __pyx_v_count) * (sizeof(double)))));
 
-  /* "pymatgen/util/neighbors.pyx":217
+  /* "pymatgen/optimization/neighbors.pyx":223
  *     index_2 = <long*>realloc(index_2, count*sizeof(long))
  *     offset_final = <double*> realloc(offset_final, 3*count*sizeof(double))
  *     distances = <double*> realloc(distances, count*sizeof(double))             # <<<<<<<<<<<<<<
@@ -5290,187 +5360,187 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   __pyx_v_distances = ((double *)realloc(__pyx_v_distances, (__pyx_v_count * (sizeof(double)))));
 
-  /* "pymatgen/util/neighbors.pyx":220
+  /* "pymatgen/optimization/neighbors.pyx":226
  * 
  *     # convert to python objects
  *     py_index_1 = np.array(<long[:count]>index_1)             # <<<<<<<<<<<<<<
  *     py_index_2 = np.array(<long[:count]>index_2)
  *     py_offsets = np.array(<double[:count, :3]>offset_final)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_55, __pyx_n_s_np); if (unlikely(!__pyx_t_55)) __PYX_ERR(0, 220, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_55);
-  __pyx_t_58 = __Pyx_PyObject_GetAttrStr(__pyx_t_55, __pyx_n_s_array); if (unlikely(!__pyx_t_58)) __PYX_ERR(0, 220, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_58);
-  __Pyx_DECREF(__pyx_t_55); __pyx_t_55 = 0;
+  __Pyx_GetModuleGlobalName(__pyx_t_59, __pyx_n_s_np); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 226, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_59);
+  __pyx_t_62 = __Pyx_PyObject_GetAttrStr(__pyx_t_59, __pyx_n_s_array); if (unlikely(!__pyx_t_62)) __PYX_ERR(0, 226, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_62);
+  __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
   if (!__pyx_v_index_1) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 220, __pyx_L1_error)
+    __PYX_ERR(0, 226, __pyx_L1_error)
   }
-  __pyx_t_56 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
-  __pyx_t_55 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_count));
-  if (unlikely(!__pyx_t_56 || !__pyx_t_55 || !PyBytes_AsString(__pyx_t_56))) __PYX_ERR(0, 220, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_56);
-  __Pyx_GOTREF(__pyx_t_55);
-  __pyx_t_2 = __pyx_array_new(__pyx_t_55, sizeof(long), PyBytes_AS_STRING(__pyx_t_56), (char *) "c", (char *) __pyx_v_index_1);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 220, __pyx_L1_error)
+  __pyx_t_60 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
+  __pyx_t_59 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_count));
+  if (unlikely(!__pyx_t_60 || !__pyx_t_59 || !PyBytes_AsString(__pyx_t_60))) __PYX_ERR(0, 226, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_60);
+  __Pyx_GOTREF(__pyx_t_59);
+  __pyx_t_2 = __pyx_array_new(__pyx_t_59, sizeof(long), PyBytes_AS_STRING(__pyx_t_60), (char *) "c", (char *) __pyx_v_index_1);
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 226, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_55); __pyx_t_55 = 0;
-  __Pyx_DECREF(__pyx_t_56); __pyx_t_56 = 0;
-  __pyx_t_56 = NULL;
-  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_58))) {
-    __pyx_t_56 = PyMethod_GET_SELF(__pyx_t_58);
-    if (likely(__pyx_t_56)) {
-      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_58);
-      __Pyx_INCREF(__pyx_t_56);
+  __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
+  __Pyx_DECREF(__pyx_t_60); __pyx_t_60 = 0;
+  __pyx_t_60 = NULL;
+  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_62))) {
+    __pyx_t_60 = PyMethod_GET_SELF(__pyx_t_62);
+    if (likely(__pyx_t_60)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_62);
+      __Pyx_INCREF(__pyx_t_60);
       __Pyx_INCREF(function);
-      __Pyx_DECREF_SET(__pyx_t_58, function);
+      __Pyx_DECREF_SET(__pyx_t_62, function);
     }
   }
-  __pyx_t_59 = (__pyx_t_56) ? __Pyx_PyObject_Call2Args(__pyx_t_58, __pyx_t_56, ((PyObject *)__pyx_t_2)) : __Pyx_PyObject_CallOneArg(__pyx_t_58, ((PyObject *)__pyx_t_2));
-  __Pyx_XDECREF(__pyx_t_56); __pyx_t_56 = 0;
+  __pyx_t_63 = (__pyx_t_60) ? __Pyx_PyObject_Call2Args(__pyx_t_62, __pyx_t_60, ((PyObject *)__pyx_t_2)) : __Pyx_PyObject_CallOneArg(__pyx_t_62, ((PyObject *)__pyx_t_2));
+  __Pyx_XDECREF(__pyx_t_60); __pyx_t_60 = 0;
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 220, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_59);
-  __Pyx_DECREF(__pyx_t_58); __pyx_t_58 = 0;
-  __pyx_v_py_index_1 = __pyx_t_59;
-  __pyx_t_59 = 0;
+  if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 226, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_63);
+  __Pyx_DECREF(__pyx_t_62); __pyx_t_62 = 0;
+  __pyx_v_py_index_1 = __pyx_t_63;
+  __pyx_t_63 = 0;
 
-  /* "pymatgen/util/neighbors.pyx":221
+  /* "pymatgen/optimization/neighbors.pyx":227
  *     # convert to python objects
  *     py_index_1 = np.array(<long[:count]>index_1)
  *     py_index_2 = np.array(<long[:count]>index_2)             # <<<<<<<<<<<<<<
  *     py_offsets = np.array(<double[:count, :3]>offset_final)
  *     py_distances = np.array(<double[:count]>distances)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_58, __pyx_n_s_np); if (unlikely(!__pyx_t_58)) __PYX_ERR(0, 221, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_58);
-  __pyx_t_56 = __Pyx_PyObject_GetAttrStr(__pyx_t_58, __pyx_n_s_array); if (unlikely(!__pyx_t_56)) __PYX_ERR(0, 221, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_56);
-  __Pyx_DECREF(__pyx_t_58); __pyx_t_58 = 0;
+  __Pyx_GetModuleGlobalName(__pyx_t_62, __pyx_n_s_np); if (unlikely(!__pyx_t_62)) __PYX_ERR(0, 227, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_62);
+  __pyx_t_60 = __Pyx_PyObject_GetAttrStr(__pyx_t_62, __pyx_n_s_array); if (unlikely(!__pyx_t_60)) __PYX_ERR(0, 227, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_60);
+  __Pyx_DECREF(__pyx_t_62); __pyx_t_62 = 0;
   if (!__pyx_v_index_2) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 221, __pyx_L1_error)
+    __PYX_ERR(0, 227, __pyx_L1_error)
   }
-  __pyx_t_55 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
-  __pyx_t_58 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_count));
-  if (unlikely(!__pyx_t_55 || !__pyx_t_58 || !PyBytes_AsString(__pyx_t_55))) __PYX_ERR(0, 221, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_55);
-  __Pyx_GOTREF(__pyx_t_58);
-  __pyx_t_2 = __pyx_array_new(__pyx_t_58, sizeof(long), PyBytes_AS_STRING(__pyx_t_55), (char *) "c", (char *) __pyx_v_index_2);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 221, __pyx_L1_error)
+  __pyx_t_59 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
+  __pyx_t_62 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_count));
+  if (unlikely(!__pyx_t_59 || !__pyx_t_62 || !PyBytes_AsString(__pyx_t_59))) __PYX_ERR(0, 227, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_59);
+  __Pyx_GOTREF(__pyx_t_62);
+  __pyx_t_2 = __pyx_array_new(__pyx_t_62, sizeof(long), PyBytes_AS_STRING(__pyx_t_59), (char *) "c", (char *) __pyx_v_index_2);
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 227, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_58); __pyx_t_58 = 0;
-  __Pyx_DECREF(__pyx_t_55); __pyx_t_55 = 0;
-  __pyx_t_55 = NULL;
-  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_56))) {
-    __pyx_t_55 = PyMethod_GET_SELF(__pyx_t_56);
-    if (likely(__pyx_t_55)) {
-      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_56);
-      __Pyx_INCREF(__pyx_t_55);
+  __Pyx_DECREF(__pyx_t_62); __pyx_t_62 = 0;
+  __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
+  __pyx_t_59 = NULL;
+  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_60))) {
+    __pyx_t_59 = PyMethod_GET_SELF(__pyx_t_60);
+    if (likely(__pyx_t_59)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_60);
+      __Pyx_INCREF(__pyx_t_59);
       __Pyx_INCREF(function);
-      __Pyx_DECREF_SET(__pyx_t_56, function);
+      __Pyx_DECREF_SET(__pyx_t_60, function);
     }
   }
-  __pyx_t_59 = (__pyx_t_55) ? __Pyx_PyObject_Call2Args(__pyx_t_56, __pyx_t_55, ((PyObject *)__pyx_t_2)) : __Pyx_PyObject_CallOneArg(__pyx_t_56, ((PyObject *)__pyx_t_2));
-  __Pyx_XDECREF(__pyx_t_55); __pyx_t_55 = 0;
+  __pyx_t_63 = (__pyx_t_59) ? __Pyx_PyObject_Call2Args(__pyx_t_60, __pyx_t_59, ((PyObject *)__pyx_t_2)) : __Pyx_PyObject_CallOneArg(__pyx_t_60, ((PyObject *)__pyx_t_2));
+  __Pyx_XDECREF(__pyx_t_59); __pyx_t_59 = 0;
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 221, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_59);
-  __Pyx_DECREF(__pyx_t_56); __pyx_t_56 = 0;
-  __pyx_v_py_index_2 = __pyx_t_59;
-  __pyx_t_59 = 0;
+  if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 227, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_63);
+  __Pyx_DECREF(__pyx_t_60); __pyx_t_60 = 0;
+  __pyx_v_py_index_2 = __pyx_t_63;
+  __pyx_t_63 = 0;
 
-  /* "pymatgen/util/neighbors.pyx":222
+  /* "pymatgen/optimization/neighbors.pyx":228
  *     py_index_1 = np.array(<long[:count]>index_1)
  *     py_index_2 = np.array(<long[:count]>index_2)
  *     py_offsets = np.array(<double[:count, :3]>offset_final)             # <<<<<<<<<<<<<<
  *     py_distances = np.array(<double[:count]>distances)
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_56, __pyx_n_s_np); if (unlikely(!__pyx_t_56)) __PYX_ERR(0, 222, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_56);
-  __pyx_t_55 = __Pyx_PyObject_GetAttrStr(__pyx_t_56, __pyx_n_s_array); if (unlikely(!__pyx_t_55)) __PYX_ERR(0, 222, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_55);
-  __Pyx_DECREF(__pyx_t_56); __pyx_t_56 = 0;
+  __Pyx_GetModuleGlobalName(__pyx_t_60, __pyx_n_s_np); if (unlikely(!__pyx_t_60)) __PYX_ERR(0, 228, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_60);
+  __pyx_t_59 = __Pyx_PyObject_GetAttrStr(__pyx_t_60, __pyx_n_s_array); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 228, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_59);
+  __Pyx_DECREF(__pyx_t_60); __pyx_t_60 = 0;
   if (!__pyx_v_offset_final) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 222, __pyx_L1_error)
+    __PYX_ERR(0, 228, __pyx_L1_error)
   }
-  __pyx_t_58 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
-  __pyx_t_56 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_count), ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_58 || !__pyx_t_56 || !PyBytes_AsString(__pyx_t_58))) __PYX_ERR(0, 222, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_58);
-  __Pyx_GOTREF(__pyx_t_56);
-  __pyx_t_2 = __pyx_array_new(__pyx_t_56, sizeof(double), PyBytes_AS_STRING(__pyx_t_58), (char *) "c", (char *) __pyx_v_offset_final);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 222, __pyx_L1_error)
+  __pyx_t_62 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
+  __pyx_t_60 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_count), ((Py_ssize_t)3));
+  if (unlikely(!__pyx_t_62 || !__pyx_t_60 || !PyBytes_AsString(__pyx_t_62))) __PYX_ERR(0, 228, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_62);
+  __Pyx_GOTREF(__pyx_t_60);
+  __pyx_t_2 = __pyx_array_new(__pyx_t_60, sizeof(double), PyBytes_AS_STRING(__pyx_t_62), (char *) "c", (char *) __pyx_v_offset_final);
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 228, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_56); __pyx_t_56 = 0;
-  __Pyx_DECREF(__pyx_t_58); __pyx_t_58 = 0;
-  __pyx_t_58 = NULL;
-  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_55))) {
-    __pyx_t_58 = PyMethod_GET_SELF(__pyx_t_55);
-    if (likely(__pyx_t_58)) {
-      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_55);
-      __Pyx_INCREF(__pyx_t_58);
+  __Pyx_DECREF(__pyx_t_60); __pyx_t_60 = 0;
+  __Pyx_DECREF(__pyx_t_62); __pyx_t_62 = 0;
+  __pyx_t_62 = NULL;
+  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_59))) {
+    __pyx_t_62 = PyMethod_GET_SELF(__pyx_t_59);
+    if (likely(__pyx_t_62)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_59);
+      __Pyx_INCREF(__pyx_t_62);
       __Pyx_INCREF(function);
-      __Pyx_DECREF_SET(__pyx_t_55, function);
+      __Pyx_DECREF_SET(__pyx_t_59, function);
     }
   }
-  __pyx_t_59 = (__pyx_t_58) ? __Pyx_PyObject_Call2Args(__pyx_t_55, __pyx_t_58, ((PyObject *)__pyx_t_2)) : __Pyx_PyObject_CallOneArg(__pyx_t_55, ((PyObject *)__pyx_t_2));
-  __Pyx_XDECREF(__pyx_t_58); __pyx_t_58 = 0;
+  __pyx_t_63 = (__pyx_t_62) ? __Pyx_PyObject_Call2Args(__pyx_t_59, __pyx_t_62, ((PyObject *)__pyx_t_2)) : __Pyx_PyObject_CallOneArg(__pyx_t_59, ((PyObject *)__pyx_t_2));
+  __Pyx_XDECREF(__pyx_t_62); __pyx_t_62 = 0;
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 222, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_59);
-  __Pyx_DECREF(__pyx_t_55); __pyx_t_55 = 0;
-  __pyx_v_py_offsets = __pyx_t_59;
-  __pyx_t_59 = 0;
+  if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 228, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_63);
+  __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
+  __pyx_v_py_offsets = __pyx_t_63;
+  __pyx_t_63 = 0;
 
-  /* "pymatgen/util/neighbors.pyx":223
+  /* "pymatgen/optimization/neighbors.pyx":229
  *     py_index_2 = np.array(<long[:count]>index_2)
  *     py_offsets = np.array(<double[:count, :3]>offset_final)
  *     py_distances = np.array(<double[:count]>distances)             # <<<<<<<<<<<<<<
  * 
  *     # free allocated memories
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_55, __pyx_n_s_np); if (unlikely(!__pyx_t_55)) __PYX_ERR(0, 223, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_55);
-  __pyx_t_58 = __Pyx_PyObject_GetAttrStr(__pyx_t_55, __pyx_n_s_array); if (unlikely(!__pyx_t_58)) __PYX_ERR(0, 223, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_58);
-  __Pyx_DECREF(__pyx_t_55); __pyx_t_55 = 0;
+  __Pyx_GetModuleGlobalName(__pyx_t_59, __pyx_n_s_np); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 229, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_59);
+  __pyx_t_62 = __Pyx_PyObject_GetAttrStr(__pyx_t_59, __pyx_n_s_array); if (unlikely(!__pyx_t_62)) __PYX_ERR(0, 229, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_62);
+  __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
   if (!__pyx_v_distances) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 223, __pyx_L1_error)
+    __PYX_ERR(0, 229, __pyx_L1_error)
   }
-  __pyx_t_56 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
-  __pyx_t_55 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_count));
-  if (unlikely(!__pyx_t_56 || !__pyx_t_55 || !PyBytes_AsString(__pyx_t_56))) __PYX_ERR(0, 223, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_56);
-  __Pyx_GOTREF(__pyx_t_55);
-  __pyx_t_2 = __pyx_array_new(__pyx_t_55, sizeof(double), PyBytes_AS_STRING(__pyx_t_56), (char *) "c", (char *) __pyx_v_distances);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 223, __pyx_L1_error)
+  __pyx_t_60 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
+  __pyx_t_59 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_count));
+  if (unlikely(!__pyx_t_60 || !__pyx_t_59 || !PyBytes_AsString(__pyx_t_60))) __PYX_ERR(0, 229, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_60);
+  __Pyx_GOTREF(__pyx_t_59);
+  __pyx_t_2 = __pyx_array_new(__pyx_t_59, sizeof(double), PyBytes_AS_STRING(__pyx_t_60), (char *) "c", (char *) __pyx_v_distances);
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 229, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_55); __pyx_t_55 = 0;
-  __Pyx_DECREF(__pyx_t_56); __pyx_t_56 = 0;
-  __pyx_t_56 = NULL;
-  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_58))) {
-    __pyx_t_56 = PyMethod_GET_SELF(__pyx_t_58);
-    if (likely(__pyx_t_56)) {
-      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_58);
-      __Pyx_INCREF(__pyx_t_56);
+  __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
+  __Pyx_DECREF(__pyx_t_60); __pyx_t_60 = 0;
+  __pyx_t_60 = NULL;
+  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_62))) {
+    __pyx_t_60 = PyMethod_GET_SELF(__pyx_t_62);
+    if (likely(__pyx_t_60)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_62);
+      __Pyx_INCREF(__pyx_t_60);
       __Pyx_INCREF(function);
-      __Pyx_DECREF_SET(__pyx_t_58, function);
+      __Pyx_DECREF_SET(__pyx_t_62, function);
     }
   }
-  __pyx_t_59 = (__pyx_t_56) ? __Pyx_PyObject_Call2Args(__pyx_t_58, __pyx_t_56, ((PyObject *)__pyx_t_2)) : __Pyx_PyObject_CallOneArg(__pyx_t_58, ((PyObject *)__pyx_t_2));
-  __Pyx_XDECREF(__pyx_t_56); __pyx_t_56 = 0;
+  __pyx_t_63 = (__pyx_t_60) ? __Pyx_PyObject_Call2Args(__pyx_t_62, __pyx_t_60, ((PyObject *)__pyx_t_2)) : __Pyx_PyObject_CallOneArg(__pyx_t_62, ((PyObject *)__pyx_t_2));
+  __Pyx_XDECREF(__pyx_t_60); __pyx_t_60 = 0;
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 223, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_59);
-  __Pyx_DECREF(__pyx_t_58); __pyx_t_58 = 0;
-  __pyx_v_py_distances = __pyx_t_59;
-  __pyx_t_59 = 0;
+  if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 229, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_63);
+  __Pyx_DECREF(__pyx_t_62); __pyx_t_62 = 0;
+  __pyx_v_py_distances = __pyx_t_63;
+  __pyx_t_63 = 0;
 
-  /* "pymatgen/util/neighbors.pyx":226
+  /* "pymatgen/optimization/neighbors.pyx":232
  * 
  *     # free allocated memories
  *     free(index_1)             # <<<<<<<<<<<<<<
@@ -5479,7 +5549,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   free(__pyx_v_index_1);
 
-  /* "pymatgen/util/neighbors.pyx":227
+  /* "pymatgen/optimization/neighbors.pyx":233
  *     # free allocated memories
  *     free(index_1)
  *     free(index_2)             # <<<<<<<<<<<<<<
@@ -5488,7 +5558,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   free(__pyx_v_index_2);
 
-  /* "pymatgen/util/neighbors.pyx":228
+  /* "pymatgen/optimization/neighbors.pyx":234
  *     free(index_1)
  *     free(index_2)
  *     free(offset_final)             # <<<<<<<<<<<<<<
@@ -5497,7 +5567,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   free(__pyx_v_offset_final);
 
-  /* "pymatgen/util/neighbors.pyx":229
+  /* "pymatgen/optimization/neighbors.pyx":235
  *     free(index_2)
  *     free(offset_final)
  *     free(distances)             # <<<<<<<<<<<<<<
@@ -5506,62 +5576,62 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   free(__pyx_v_distances);
 
-  /* "pymatgen/util/neighbors.pyx":230
+  /* "pymatgen/optimization/neighbors.pyx":236
  *     free(offset_final)
  *     free(distances)
  *     free(&offset_correction[0, 0])             # <<<<<<<<<<<<<<
  *     free(&frac_coords[0, 0])
  *     free(&all_fcoords[0, 0])
  */
-  __pyx_t_94 = 0;
-  __pyx_t_95 = 0;
-  free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offset_correction.data + __pyx_t_94 * __pyx_v_offset_correction.strides[0]) )) + __pyx_t_95)) )))));
+  __pyx_t_98 = 0;
+  __pyx_t_99 = 0;
+  free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offset_correction.data + __pyx_t_98 * __pyx_v_offset_correction.strides[0]) )) + __pyx_t_99)) )))));
 
-  /* "pymatgen/util/neighbors.pyx":231
+  /* "pymatgen/optimization/neighbors.pyx":237
  *     free(distances)
  *     free(&offset_correction[0, 0])
  *     free(&frac_coords[0, 0])             # <<<<<<<<<<<<<<
  *     free(&all_fcoords[0, 0])
  *     free(&coords_in_cell[0, 0])
  */
-  __pyx_t_96 = 0;
-  __pyx_t_97 = 0;
-  free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_frac_coords.data + __pyx_t_96 * __pyx_v_frac_coords.strides[0]) )) + __pyx_t_97)) )))));
+  __pyx_t_100 = 0;
+  __pyx_t_101 = 0;
+  free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_frac_coords.data + __pyx_t_100 * __pyx_v_frac_coords.strides[0]) )) + __pyx_t_101)) )))));
 
-  /* "pymatgen/util/neighbors.pyx":232
+  /* "pymatgen/optimization/neighbors.pyx":238
  *     free(&offset_correction[0, 0])
  *     free(&frac_coords[0, 0])
  *     free(&all_fcoords[0, 0])             # <<<<<<<<<<<<<<
  *     free(&coords_in_cell[0, 0])
  *     free(&center_indices3[0, 0])
  */
-  __pyx_t_98 = 0;
-  __pyx_t_99 = 0;
-  free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_all_fcoords.data + __pyx_t_98 * __pyx_v_all_fcoords.strides[0]) )) + __pyx_t_99)) )))));
+  __pyx_t_102 = 0;
+  __pyx_t_103 = 0;
+  free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_all_fcoords.data + __pyx_t_102 * __pyx_v_all_fcoords.strides[0]) )) + __pyx_t_103)) )))));
 
-  /* "pymatgen/util/neighbors.pyx":233
+  /* "pymatgen/optimization/neighbors.pyx":239
  *     free(&frac_coords[0, 0])
  *     free(&all_fcoords[0, 0])
  *     free(&coords_in_cell[0, 0])             # <<<<<<<<<<<<<<
  *     free(&center_indices3[0, 0])
  *     free(offsets_p)
  */
-  __pyx_t_100 = 0;
-  __pyx_t_101 = 0;
-  free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_coords_in_cell.data + __pyx_t_100 * __pyx_v_coords_in_cell.strides[0]) )) + __pyx_t_101)) )))));
+  __pyx_t_104 = 0;
+  __pyx_t_105 = 0;
+  free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_coords_in_cell.data + __pyx_t_104 * __pyx_v_coords_in_cell.strides[0]) )) + __pyx_t_105)) )))));
 
-  /* "pymatgen/util/neighbors.pyx":234
+  /* "pymatgen/optimization/neighbors.pyx":240
  *     free(&all_fcoords[0, 0])
  *     free(&coords_in_cell[0, 0])
  *     free(&center_indices3[0, 0])             # <<<<<<<<<<<<<<
  *     free(offsets_p)
  *     free(expanded_coords_p)
  */
-  __pyx_t_102 = 0;
-  __pyx_t_103 = 0;
-  free((&(*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_center_indices3.data + __pyx_t_102 * __pyx_v_center_indices3.strides[0]) )) + __pyx_t_103)) )))));
+  __pyx_t_106 = 0;
+  __pyx_t_107 = 0;
+  free((&(*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_center_indices3.data + __pyx_t_106 * __pyx_v_center_indices3.strides[0]) )) + __pyx_t_107)) )))));
 
-  /* "pymatgen/util/neighbors.pyx":235
+  /* "pymatgen/optimization/neighbors.pyx":241
  *     free(&coords_in_cell[0, 0])
  *     free(&center_indices3[0, 0])
  *     free(offsets_p)             # <<<<<<<<<<<<<<
@@ -5570,7 +5640,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   free(__pyx_v_offsets_p);
 
-  /* "pymatgen/util/neighbors.pyx":236
+  /* "pymatgen/optimization/neighbors.pyx":242
  *     free(&center_indices3[0, 0])
  *     free(offsets_p)
  *     free(expanded_coords_p)             # <<<<<<<<<<<<<<
@@ -5579,7 +5649,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   free(__pyx_v_expanded_coords_p);
 
-  /* "pymatgen/util/neighbors.pyx":237
+  /* "pymatgen/optimization/neighbors.pyx":243
  *     free(offsets_p)
  *     free(expanded_coords_p)
  *     free(indices_p)             # <<<<<<<<<<<<<<
@@ -5588,28 +5658,28 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   free(__pyx_v_indices_p);
 
-  /* "pymatgen/util/neighbors.pyx":238
+  /* "pymatgen/optimization/neighbors.pyx":244
  *     free(expanded_coords_p)
  *     free(indices_p)
  *     free(&all_indices3[0, 0])             # <<<<<<<<<<<<<<
  *     free(&all_indices1[0])
  *     free(center_indices1)
  */
-  __pyx_t_104 = 0;
-  __pyx_t_105 = 0;
-  free((&(*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_all_indices3.data + __pyx_t_104 * __pyx_v_all_indices3.strides[0]) )) + __pyx_t_105)) )))));
+  __pyx_t_108 = 0;
+  __pyx_t_109 = 0;
+  free((&(*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_all_indices3.data + __pyx_t_108 * __pyx_v_all_indices3.strides[0]) )) + __pyx_t_109)) )))));
 
-  /* "pymatgen/util/neighbors.pyx":239
+  /* "pymatgen/optimization/neighbors.pyx":245
  *     free(indices_p)
  *     free(&all_indices3[0, 0])
  *     free(&all_indices1[0])             # <<<<<<<<<<<<<<
  *     free(center_indices1)
  *     free(head)
  */
-  __pyx_t_106 = 0;
-  free((&(*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_all_indices1.data) + __pyx_t_106)) )))));
+  __pyx_t_110 = 0;
+  free((&(*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_all_indices1.data) + __pyx_t_110)) )))));
 
-  /* "pymatgen/util/neighbors.pyx":240
+  /* "pymatgen/optimization/neighbors.pyx":246
  *     free(&all_indices3[0, 0])
  *     free(&all_indices1[0])
  *     free(center_indices1)             # <<<<<<<<<<<<<<
@@ -5618,7 +5688,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   free(__pyx_v_center_indices1);
 
-  /* "pymatgen/util/neighbors.pyx":241
+  /* "pymatgen/optimization/neighbors.pyx":247
  *     free(&all_indices1[0])
  *     free(center_indices1)
  *     free(head)             # <<<<<<<<<<<<<<
@@ -5627,7 +5697,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   free(__pyx_v_head);
 
-  /* "pymatgen/util/neighbors.pyx":242
+  /* "pymatgen/optimization/neighbors.pyx":248
  *     free(center_indices1)
  *     free(head)
  *     free(atom_indices)             # <<<<<<<<<<<<<<
@@ -5636,7 +5706,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  */
   free(__pyx_v_atom_indices);
 
-  /* "pymatgen/util/neighbors.pyx":243
+  /* "pymatgen/optimization/neighbors.pyx":249
  *     free(head)
  *     free(atom_indices)
  *     return py_index_1, py_index_2, py_offsets, py_distances             # <<<<<<<<<<<<<<
@@ -5644,25 +5714,25 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  * cdef double distance2(double[:, ::1] m1, double[:, ::1] m2, long index1, long index2, long size):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_59 = PyTuple_New(4); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 243, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_59);
+  __pyx_t_63 = PyTuple_New(4); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 249, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_63);
   __Pyx_INCREF(__pyx_v_py_index_1);
   __Pyx_GIVEREF(__pyx_v_py_index_1);
-  PyTuple_SET_ITEM(__pyx_t_59, 0, __pyx_v_py_index_1);
+  PyTuple_SET_ITEM(__pyx_t_63, 0, __pyx_v_py_index_1);
   __Pyx_INCREF(__pyx_v_py_index_2);
   __Pyx_GIVEREF(__pyx_v_py_index_2);
-  PyTuple_SET_ITEM(__pyx_t_59, 1, __pyx_v_py_index_2);
+  PyTuple_SET_ITEM(__pyx_t_63, 1, __pyx_v_py_index_2);
   __Pyx_INCREF(__pyx_v_py_offsets);
   __Pyx_GIVEREF(__pyx_v_py_offsets);
-  PyTuple_SET_ITEM(__pyx_t_59, 2, __pyx_v_py_offsets);
+  PyTuple_SET_ITEM(__pyx_t_63, 2, __pyx_v_py_offsets);
   __Pyx_INCREF(__pyx_v_py_distances);
   __Pyx_GIVEREF(__pyx_v_py_distances);
-  PyTuple_SET_ITEM(__pyx_t_59, 3, __pyx_v_py_distances);
-  __pyx_r = __pyx_t_59;
-  __pyx_t_59 = 0;
+  PyTuple_SET_ITEM(__pyx_t_63, 3, __pyx_v_py_distances);
+  __pyx_r = __pyx_t_63;
+  __pyx_t_63 = 0;
   goto __pyx_L0;
 
-  /* "pymatgen/util/neighbors.pyx":19
+  /* "pymatgen/optimization/neighbors.pyx":19
  * 
  * 
  * def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coords, float r, long[:] pbc, double[:, ::1] lattice, double tol=1e-8):             # <<<<<<<<<<<<<<
@@ -5678,17 +5748,17 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
   __PYX_XDEC_MEMVIEW(&__pyx_t_5, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_t_6, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_t_9, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_t_28, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_t_29, 1);
-  __Pyx_XDECREF(__pyx_t_55);
-  __Pyx_XDECREF(__pyx_t_56);
-  __Pyx_XDECREF(__pyx_t_57);
-  __Pyx_XDECREF(__pyx_t_58);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_32, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_33, 1);
   __Pyx_XDECREF(__pyx_t_59);
-  __PYX_XDEC_MEMVIEW(&__pyx_t_60, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_t_61, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_t_62, 1);
-  __Pyx_AddTraceback("pymatgen.util.neighbors.find_points_in_spheres", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_XDECREF(__pyx_t_60);
+  __Pyx_XDECREF(__pyx_t_61);
+  __Pyx_XDECREF(__pyx_t_62);
+  __Pyx_XDECREF(__pyx_t_63);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_64, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_65, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_66, 1);
+  __Pyx_AddTraceback("pymatgen.optimization.neighbors.find_points_in_spheres", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __PYX_XDEC_MEMVIEW(&__pyx_v_frac_coords, 1);
@@ -5715,7 +5785,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
   return __pyx_r;
 }
 
-/* "pymatgen/util/neighbors.pyx":245
+/* "pymatgen/optimization/neighbors.pyx":251
  *     return py_index_1, py_index_2, py_offsets, py_distances
  * 
  * cdef double distance2(double[:, ::1] m1, double[:, ::1] m2, long index1, long index2, long size):             # <<<<<<<<<<<<<<
@@ -5723,7 +5793,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_find_points_in_spheres(CYTH
  *     Faster way to compute the distance squared by not using slice but providing indices in each matrix
  */
 
-static double __pyx_f_8pymatgen_4util_9neighbors_distance2(__Pyx_memviewslice __pyx_v_m1, __Pyx_memviewslice __pyx_v_m2, long __pyx_v_index1, long __pyx_v_index2, long __pyx_v_size) {
+static double __pyx_f_8pymatgen_12optimization_9neighbors_distance2(__Pyx_memviewslice __pyx_v_m1, __Pyx_memviewslice __pyx_v_m2, long __pyx_v_index1, long __pyx_v_index2, long __pyx_v_size) {
   double __pyx_v_s;
   long __pyx_v_i;
   double __pyx_r;
@@ -5741,9 +5811,9 @@ static double __pyx_f_8pymatgen_4util_9neighbors_distance2(__Pyx_memviewslice __
   Py_ssize_t __pyx_t_10;
   Py_ssize_t __pyx_t_11;
   __Pyx_RefNannySetupContext("distance2", 0);
-  __Pyx_TraceCall("distance2", __pyx_f[0], 245, 0, __PYX_ERR(0, 245, __pyx_L1_error));
+  __Pyx_TraceCall("distance2", __pyx_f[0], 251, 0, __PYX_ERR(0, 251, __pyx_L1_error));
 
-  /* "pymatgen/util/neighbors.pyx":250
+  /* "pymatgen/optimization/neighbors.pyx":256
  * 
  *     """
  *     cdef double s = 0             # <<<<<<<<<<<<<<
@@ -5752,7 +5822,7 @@ static double __pyx_f_8pymatgen_4util_9neighbors_distance2(__Pyx_memviewslice __
  */
   __pyx_v_s = 0.0;
 
-  /* "pymatgen/util/neighbors.pyx":252
+  /* "pymatgen/optimization/neighbors.pyx":258
  *     cdef double s = 0
  *     cdef long i
  *     for i in range(size):             # <<<<<<<<<<<<<<
@@ -5764,7 +5834,7 @@ static double __pyx_f_8pymatgen_4util_9neighbors_distance2(__Pyx_memviewslice __
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "pymatgen/util/neighbors.pyx":253
+    /* "pymatgen/optimization/neighbors.pyx":259
  *     cdef long i
  *     for i in range(size):
  *         s += (m1[index1, i] - m2[index2, i]) * (m1[index1, i] - m2[index2, i])             # <<<<<<<<<<<<<<
@@ -5782,7 +5852,7 @@ static double __pyx_f_8pymatgen_4util_9neighbors_distance2(__Pyx_memviewslice __
     __pyx_v_s = (__pyx_v_s + (((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_m1.data + __pyx_t_4 * __pyx_v_m1.strides[0]) )) + __pyx_t_5)) ))) - (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_m2.data + __pyx_t_6 * __pyx_v_m2.strides[0]) )) + __pyx_t_7)) )))) * ((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_m1.data + __pyx_t_8 * __pyx_v_m1.strides[0]) )) + __pyx_t_9)) ))) - (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_m2.data + __pyx_t_10 * __pyx_v_m2.strides[0]) )) + __pyx_t_11)) ))))));
   }
 
-  /* "pymatgen/util/neighbors.pyx":254
+  /* "pymatgen/optimization/neighbors.pyx":260
  *     for i in range(size):
  *         s += (m1[index1, i] - m2[index2, i]) * (m1[index1, i] - m2[index2, i])
  *     return s             # <<<<<<<<<<<<<<
@@ -5792,7 +5862,7 @@ static double __pyx_f_8pymatgen_4util_9neighbors_distance2(__Pyx_memviewslice __
   __pyx_r = __pyx_v_s;
   goto __pyx_L0;
 
-  /* "pymatgen/util/neighbors.pyx":245
+  /* "pymatgen/optimization/neighbors.pyx":251
  *     return py_index_1, py_index_2, py_offsets, py_distances
  * 
  * cdef double distance2(double[:, ::1] m1, double[:, ::1] m2, long index1, long index2, long size):             # <<<<<<<<<<<<<<
@@ -5802,7 +5872,7 @@ static double __pyx_f_8pymatgen_4util_9neighbors_distance2(__Pyx_memviewslice __
 
   /* function exit code */
   __pyx_L1_error:;
-  __Pyx_WriteUnraisable("pymatgen.util.neighbors.distance2", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __Pyx_WriteUnraisable("pymatgen.optimization.neighbors.distance2", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_TraceReturn(Py_None, 0);
@@ -5810,7 +5880,7 @@ static double __pyx_f_8pymatgen_4util_9neighbors_distance2(__Pyx_memviewslice __
   return __pyx_r;
 }
 
-/* "pymatgen/util/neighbors.pyx":256
+/* "pymatgen/optimization/neighbors.pyx":262
  *     return s
  * 
  * cdef map[long, vector[long]] get_cube_neighbors(long [:] ncube):             # <<<<<<<<<<<<<<
@@ -5818,7 +5888,7 @@ static double __pyx_f_8pymatgen_4util_9neighbors_distance2(__Pyx_memviewslice __
  *     Get {cube_index: cube_neighbor_indices} map
  */
 
-static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get_cube_neighbors(__Pyx_memviewslice __pyx_v_ncube) {
+static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_12optimization_9neighbors_get_cube_neighbors(__Pyx_memviewslice __pyx_v_ncube) {
   long __pyx_v_ncubes;
   __Pyx_memviewslice __pyx_v_cube_indices_3d = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_memviewslice __pyx_v_cube_indices_1d = { 0, 0, { 0 }, { 0 }, { 0 } };
@@ -5905,9 +5975,9 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get
   Py_ssize_t __pyx_t_70;
   Py_ssize_t __pyx_t_71;
   __Pyx_RefNannySetupContext("get_cube_neighbors", 0);
-  __Pyx_TraceCall("get_cube_neighbors", __pyx_f[0], 256, 0, __PYX_ERR(0, 256, __pyx_L1_error));
+  __Pyx_TraceCall("get_cube_neighbors", __pyx_f[0], 262, 0, __PYX_ERR(0, 262, __pyx_L1_error));
 
-  /* "pymatgen/util/neighbors.pyx":260
+  /* "pymatgen/optimization/neighbors.pyx":266
  *     Get {cube_index: cube_neighbor_indices} map
  *     """
  *     cdef long ncubes = ncube[0] * ncube[1] * ncube[2]             # <<<<<<<<<<<<<<
@@ -5919,7 +5989,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get
   __pyx_t_3 = 2;
   __pyx_v_ncubes = (((*((long *) ( /* dim=0 */ (__pyx_v_ncube.data + __pyx_t_1 * __pyx_v_ncube.strides[0]) ))) * (*((long *) ( /* dim=0 */ (__pyx_v_ncube.data + __pyx_t_2 * __pyx_v_ncube.strides[0]) )))) * (*((long *) ( /* dim=0 */ (__pyx_v_ncube.data + __pyx_t_3 * __pyx_v_ncube.strides[0]) ))));
 
-  /* "pymatgen/util/neighbors.pyx":261
+  /* "pymatgen/optimization/neighbors.pyx":267
  *     """
  *     cdef long ncubes = ncube[0] * ncube[1] * ncube[2]
  *     cdef long[:, ::1] cube_indices_3d = <long[:ncubes, :3]> malloc(ncubes*3*sizeof(long))             # <<<<<<<<<<<<<<
@@ -5929,25 +5999,25 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get
   __pyx_t_4 = malloc(((__pyx_v_ncubes * 3) * (sizeof(long))));
   if (!__pyx_t_4) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 261, __pyx_L1_error)
+    __PYX_ERR(0, 267, __pyx_L1_error)
   }
   __pyx_t_7 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
   __pyx_t_6 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_ncubes), ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_7 || !__pyx_t_6 || !PyBytes_AsString(__pyx_t_7))) __PYX_ERR(0, 261, __pyx_L1_error)
+  if (unlikely(!__pyx_t_7 || !__pyx_t_6 || !PyBytes_AsString(__pyx_t_7))) __PYX_ERR(0, 267, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_t_5 = __pyx_array_new(__pyx_t_6, sizeof(long), PyBytes_AS_STRING(__pyx_t_7), (char *) "c", (char *) __pyx_t_4);
-  if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 261, __pyx_L1_error)
+  if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 267, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_long(((PyObject *)__pyx_t_5), PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 261, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_long(((PyObject *)__pyx_t_5), PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 267, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_5)); __pyx_t_5 = 0;
   __pyx_v_cube_indices_3d = __pyx_t_8;
   __pyx_t_8.memview = NULL;
   __pyx_t_8.data = NULL;
 
-  /* "pymatgen/util/neighbors.pyx":262
+  /* "pymatgen/optimization/neighbors.pyx":268
  *     cdef long ncubes = ncube[0] * ncube[1] * ncube[2]
  *     cdef long[:, ::1] cube_indices_3d = <long[:ncubes, :3]> malloc(ncubes*3*sizeof(long))
  *     cdef long[::1] cube_indices_1d = <long[:ncubes]> malloc(ncubes*sizeof(long))             # <<<<<<<<<<<<<<
@@ -5957,25 +6027,25 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get
   __pyx_t_4 = malloc((__pyx_v_ncubes * (sizeof(long))));
   if (!__pyx_t_4) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 262, __pyx_L1_error)
+    __PYX_ERR(0, 268, __pyx_L1_error)
   }
   __pyx_t_6 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
   __pyx_t_7 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_ncubes));
-  if (unlikely(!__pyx_t_6 || !__pyx_t_7 || !PyBytes_AsString(__pyx_t_6))) __PYX_ERR(0, 262, __pyx_L1_error)
+  if (unlikely(!__pyx_t_6 || !__pyx_t_7 || !PyBytes_AsString(__pyx_t_6))) __PYX_ERR(0, 268, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_GOTREF(__pyx_t_7);
   __pyx_t_5 = __pyx_array_new(__pyx_t_7, sizeof(long), PyBytes_AS_STRING(__pyx_t_6), (char *) "c", (char *) __pyx_t_4);
-  if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 262, __pyx_L1_error)
+  if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 268, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_dc_long(((PyObject *)__pyx_t_5), PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 262, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_dc_long(((PyObject *)__pyx_t_5), PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 268, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_5)); __pyx_t_5 = 0;
   __pyx_v_cube_indices_1d = __pyx_t_9;
   __pyx_t_9.memview = NULL;
   __pyx_t_9.data = NULL;
 
-  /* "pymatgen/util/neighbors.pyx":263
+  /* "pymatgen/optimization/neighbors.pyx":269
  *     cdef long[:, ::1] cube_indices_3d = <long[:ncubes, :3]> malloc(ncubes*3*sizeof(long))
  *     cdef long[::1] cube_indices_1d = <long[:ncubes]> malloc(ncubes*sizeof(long))
  *     cdef long count = 0             # <<<<<<<<<<<<<<
@@ -5984,7 +6054,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get
  */
   __pyx_v_count = 0;
 
-  /* "pymatgen/util/neighbors.pyx":266
+  /* "pymatgen/optimization/neighbors.pyx":272
  *     cdef int i, j, k
  * 
  *     for i in range(ncube[0]):             # <<<<<<<<<<<<<<
@@ -5997,7 +6067,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get
   for (__pyx_t_13 = 0; __pyx_t_13 < __pyx_t_12; __pyx_t_13+=1) {
     __pyx_v_i = __pyx_t_13;
 
-    /* "pymatgen/util/neighbors.pyx":267
+    /* "pymatgen/optimization/neighbors.pyx":273
  * 
  *     for i in range(ncube[0]):
  *         for j in range(ncube[1]):             # <<<<<<<<<<<<<<
@@ -6010,7 +6080,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get
     for (__pyx_t_17 = 0; __pyx_t_17 < __pyx_t_16; __pyx_t_17+=1) {
       __pyx_v_j = __pyx_t_17;
 
-      /* "pymatgen/util/neighbors.pyx":268
+      /* "pymatgen/optimization/neighbors.pyx":274
  *     for i in range(ncube[0]):
  *         for j in range(ncube[1]):
  *             for k in range(ncube[2]):             # <<<<<<<<<<<<<<
@@ -6023,7 +6093,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get
       for (__pyx_t_21 = 0; __pyx_t_21 < __pyx_t_20; __pyx_t_21+=1) {
         __pyx_v_k = __pyx_t_21;
 
-        /* "pymatgen/util/neighbors.pyx":269
+        /* "pymatgen/optimization/neighbors.pyx":275
  *         for j in range(ncube[1]):
  *             for k in range(ncube[2]):
  *                 cube_indices_3d[count, 0] = i             # <<<<<<<<<<<<<<
@@ -6034,7 +6104,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get
         __pyx_t_23 = 0;
         *((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_cube_indices_3d.data + __pyx_t_22 * __pyx_v_cube_indices_3d.strides[0]) )) + __pyx_t_23)) )) = __pyx_v_i;
 
-        /* "pymatgen/util/neighbors.pyx":270
+        /* "pymatgen/optimization/neighbors.pyx":276
  *             for k in range(ncube[2]):
  *                 cube_indices_3d[count, 0] = i
  *                 cube_indices_3d[count, 1] = j             # <<<<<<<<<<<<<<
@@ -6045,7 +6115,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get
         __pyx_t_25 = 1;
         *((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_cube_indices_3d.data + __pyx_t_24 * __pyx_v_cube_indices_3d.strides[0]) )) + __pyx_t_25)) )) = __pyx_v_j;
 
-        /* "pymatgen/util/neighbors.pyx":271
+        /* "pymatgen/optimization/neighbors.pyx":277
  *                 cube_indices_3d[count, 0] = i
  *                 cube_indices_3d[count, 1] = j
  *                 cube_indices_3d[count, 2] = k             # <<<<<<<<<<<<<<
@@ -6056,7 +6126,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get
         __pyx_t_27 = 2;
         *((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_cube_indices_3d.data + __pyx_t_26 * __pyx_v_cube_indices_3d.strides[0]) )) + __pyx_t_27)) )) = __pyx_v_k;
 
-        /* "pymatgen/util/neighbors.pyx":272
+        /* "pymatgen/optimization/neighbors.pyx":278
  *                 cube_indices_3d[count, 1] = j
  *                 cube_indices_3d[count, 2] = k
  *                 count += 1             # <<<<<<<<<<<<<<
@@ -6068,7 +6138,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get
     }
   }
 
-  /* "pymatgen/util/neighbors.pyx":273
+  /* "pymatgen/optimization/neighbors.pyx":279
  *                 cube_indices_3d[count, 2] = k
  *                 count += 1
  *     three_to_one(cube_indices_3d, ncube[1], ncube[2], cube_indices_1d)             # <<<<<<<<<<<<<<
@@ -6077,9 +6147,9 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get
  */
   __pyx_t_28 = 1;
   __pyx_t_29 = 2;
-  __pyx_f_8pymatgen_4util_9neighbors_three_to_one(__pyx_v_cube_indices_3d, (*((long *) ( /* dim=0 */ (__pyx_v_ncube.data + __pyx_t_28 * __pyx_v_ncube.strides[0]) ))), (*((long *) ( /* dim=0 */ (__pyx_v_ncube.data + __pyx_t_29 * __pyx_v_ncube.strides[0]) ))), __pyx_v_cube_indices_1d);
+  __pyx_f_8pymatgen_12optimization_9neighbors_three_to_one(__pyx_v_cube_indices_3d, (*((long *) ( /* dim=0 */ (__pyx_v_ncube.data + __pyx_t_28 * __pyx_v_ncube.strides[0]) ))), (*((long *) ( /* dim=0 */ (__pyx_v_ncube.data + __pyx_t_29 * __pyx_v_ncube.strides[0]) ))), __pyx_v_cube_indices_1d);
 
-  /* "pymatgen/util/neighbors.pyx":274
+  /* "pymatgen/optimization/neighbors.pyx":280
  *                 count += 1
  *     three_to_one(cube_indices_3d, ncube[1], ncube[2], cube_indices_1d)
  *     cdef long[:, ::1] index3 = <long[:1, :3]> malloc(3*sizeof(long))             # <<<<<<<<<<<<<<
@@ -6089,32 +6159,32 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get
   __pyx_t_4 = malloc((3 * (sizeof(long))));
   if (!__pyx_t_4) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 274, __pyx_L1_error)
+    __PYX_ERR(0, 280, __pyx_L1_error)
   }
   __pyx_t_7 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
   __pyx_t_6 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)1), ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_7 || !__pyx_t_6 || !PyBytes_AsString(__pyx_t_7))) __PYX_ERR(0, 274, __pyx_L1_error)
+  if (unlikely(!__pyx_t_7 || !__pyx_t_6 || !PyBytes_AsString(__pyx_t_7))) __PYX_ERR(0, 280, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_t_5 = __pyx_array_new(__pyx_t_6, sizeof(long), PyBytes_AS_STRING(__pyx_t_7), (char *) "c", (char *) __pyx_t_4);
-  if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 274, __pyx_L1_error)
+  if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 280, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_long(((PyObject *)__pyx_t_5), PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 274, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_long(((PyObject *)__pyx_t_5), PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 280, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_5)); __pyx_t_5 = 0;
   __pyx_v_index3 = __pyx_t_8;
   __pyx_t_8.memview = NULL;
   __pyx_t_8.data = NULL;
 
-  /* "pymatgen/util/neighbors.pyx":277
+  /* "pymatgen/optimization/neighbors.pyx":283
  *     cdef long index1[1]
  *     cdef map[long, vector[long]] neighbor_map
  *     cdef long[:, ::1] ovectors = compute_offset_vectors(1)             # <<<<<<<<<<<<<<
  *     for i in range(ncubes):
  *         for j in range(27):
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_compute_offset_vectors); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 277, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_compute_offset_vectors); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 283, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_t_30 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_6))) {
@@ -6128,16 +6198,16 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get
   }
   __pyx_t_7 = (__pyx_t_30) ? __Pyx_PyObject_Call2Args(__pyx_t_6, __pyx_t_30, __pyx_int_1) : __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_int_1);
   __Pyx_XDECREF(__pyx_t_30); __pyx_t_30 = 0;
-  if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 277, __pyx_L1_error)
+  if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 283, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_long(__pyx_t_7, PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 277, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_long(__pyx_t_7, PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 283, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __pyx_v_ovectors = __pyx_t_8;
   __pyx_t_8.memview = NULL;
   __pyx_t_8.data = NULL;
 
-  /* "pymatgen/util/neighbors.pyx":278
+  /* "pymatgen/optimization/neighbors.pyx":284
  *     cdef map[long, vector[long]] neighbor_map
  *     cdef long[:, ::1] ovectors = compute_offset_vectors(1)
  *     for i in range(ncubes):             # <<<<<<<<<<<<<<
@@ -6149,7 +6219,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get
   for (__pyx_t_13 = 0; __pyx_t_13 < __pyx_t_12; __pyx_t_13+=1) {
     __pyx_v_i = __pyx_t_13;
 
-    /* "pymatgen/util/neighbors.pyx":279
+    /* "pymatgen/optimization/neighbors.pyx":285
  *     cdef long[:, ::1] ovectors = compute_offset_vectors(1)
  *     for i in range(ncubes):
  *         for j in range(27):             # <<<<<<<<<<<<<<
@@ -6159,7 +6229,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get
     for (__pyx_t_17 = 0; __pyx_t_17 < 27; __pyx_t_17+=1) {
       __pyx_v_j = __pyx_t_17;
 
-      /* "pymatgen/util/neighbors.pyx":280
+      /* "pymatgen/optimization/neighbors.pyx":286
  *     for i in range(ncubes):
  *         for j in range(27):
  *             index3[0, 0] = ovectors[j, 0] + cube_indices_3d[i, 0]             # <<<<<<<<<<<<<<
@@ -6174,7 +6244,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get
       __pyx_t_36 = 0;
       *((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_index3.data + __pyx_t_35 * __pyx_v_index3.strides[0]) )) + __pyx_t_36)) )) = ((*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_ovectors.data + __pyx_t_31 * __pyx_v_ovectors.strides[0]) )) + __pyx_t_32)) ))) + (*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_cube_indices_3d.data + __pyx_t_33 * __pyx_v_cube_indices_3d.strides[0]) )) + __pyx_t_34)) ))));
 
-      /* "pymatgen/util/neighbors.pyx":281
+      /* "pymatgen/optimization/neighbors.pyx":287
  *         for j in range(27):
  *             index3[0, 0] = ovectors[j, 0] + cube_indices_3d[i, 0]
  *             index3[0, 1] = ovectors[j, 1] + cube_indices_3d[i, 1]             # <<<<<<<<<<<<<<
@@ -6189,7 +6259,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get
       __pyx_t_42 = 1;
       *((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_index3.data + __pyx_t_41 * __pyx_v_index3.strides[0]) )) + __pyx_t_42)) )) = ((*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_ovectors.data + __pyx_t_37 * __pyx_v_ovectors.strides[0]) )) + __pyx_t_38)) ))) + (*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_cube_indices_3d.data + __pyx_t_39 * __pyx_v_cube_indices_3d.strides[0]) )) + __pyx_t_40)) ))));
 
-      /* "pymatgen/util/neighbors.pyx":282
+      /* "pymatgen/optimization/neighbors.pyx":288
  *             index3[0, 0] = ovectors[j, 0] + cube_indices_3d[i, 0]
  *             index3[0, 1] = ovectors[j, 1] + cube_indices_3d[i, 1]
  *             index3[0, 2] = ovectors[j, 2] + cube_indices_3d[i, 2]             # <<<<<<<<<<<<<<
@@ -6204,7 +6274,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get
       __pyx_t_48 = 2;
       *((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_index3.data + __pyx_t_47 * __pyx_v_index3.strides[0]) )) + __pyx_t_48)) )) = ((*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_ovectors.data + __pyx_t_43 * __pyx_v_ovectors.strides[0]) )) + __pyx_t_44)) ))) + (*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_cube_indices_3d.data + __pyx_t_45 * __pyx_v_cube_indices_3d.strides[0]) )) + __pyx_t_46)) ))));
 
-      /* "pymatgen/util/neighbors.pyx":283
+      /* "pymatgen/optimization/neighbors.pyx":289
  *             index3[0, 1] = ovectors[j, 1] + cube_indices_3d[i, 1]
  *             index3[0, 2] = ovectors[j, 2] + cube_indices_3d[i, 2]
  *             if (index3[0, 0] < ncube[0]) & (index3[0, 0] >= 0) & (index3[0, 1] < ncube[1]) & \             # <<<<<<<<<<<<<<
@@ -6220,7 +6290,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get
       __pyx_t_55 = 1;
       __pyx_t_56 = 1;
 
-      /* "pymatgen/util/neighbors.pyx":284
+      /* "pymatgen/optimization/neighbors.pyx":290
  *             index3[0, 2] = ovectors[j, 2] + cube_indices_3d[i, 2]
  *             if (index3[0, 0] < ncube[0]) & (index3[0, 0] >= 0) & (index3[0, 1] < ncube[1]) & \
  *                 (index3[0, 1] >= 0) & (index3[0, 2] < ncube[2]) & (index3[0, 2] >= 0):             # <<<<<<<<<<<<<<
@@ -6230,7 +6300,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get
       __pyx_t_57 = 0;
       __pyx_t_58 = 1;
 
-      /* "pymatgen/util/neighbors.pyx":283
+      /* "pymatgen/optimization/neighbors.pyx":289
  *             index3[0, 1] = ovectors[j, 1] + cube_indices_3d[i, 1]
  *             index3[0, 2] = ovectors[j, 2] + cube_indices_3d[i, 2]
  *             if (index3[0, 0] < ncube[0]) & (index3[0, 0] >= 0) & (index3[0, 1] < ncube[1]) & \             # <<<<<<<<<<<<<<
@@ -6240,7 +6310,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get
       __pyx_t_59 = 0;
       __pyx_t_60 = 2;
 
-      /* "pymatgen/util/neighbors.pyx":284
+      /* "pymatgen/optimization/neighbors.pyx":290
  *             index3[0, 2] = ovectors[j, 2] + cube_indices_3d[i, 2]
  *             if (index3[0, 0] < ncube[0]) & (index3[0, 0] >= 0) & (index3[0, 1] < ncube[1]) & \
  *                 (index3[0, 1] >= 0) & (index3[0, 2] < ncube[2]) & (index3[0, 2] >= 0):             # <<<<<<<<<<<<<<
@@ -6252,7 +6322,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get
       __pyx_t_63 = 2;
       __pyx_t_64 = ((((((((*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_index3.data + __pyx_t_49 * __pyx_v_index3.strides[0]) )) + __pyx_t_50)) ))) < (*((long *) ( /* dim=0 */ (__pyx_v_ncube.data + __pyx_t_51 * __pyx_v_ncube.strides[0]) )))) & ((*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_index3.data + __pyx_t_52 * __pyx_v_index3.strides[0]) )) + __pyx_t_53)) ))) >= 0)) & ((*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_index3.data + __pyx_t_54 * __pyx_v_index3.strides[0]) )) + __pyx_t_55)) ))) < (*((long *) ( /* dim=0 */ (__pyx_v_ncube.data + __pyx_t_56 * __pyx_v_ncube.strides[0]) ))))) & ((*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_index3.data + __pyx_t_57 * __pyx_v_index3.strides[0]) )) + __pyx_t_58)) ))) >= 0)) & ((*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_index3.data + __pyx_t_59 * __pyx_v_index3.strides[0]) )) + __pyx_t_60)) ))) < (*((long *) ( /* dim=0 */ (__pyx_v_ncube.data + __pyx_t_61 * __pyx_v_ncube.strides[0]) ))))) & ((*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_index3.data + __pyx_t_62 * __pyx_v_index3.strides[0]) )) + __pyx_t_63)) ))) >= 0)) != 0);
 
-      /* "pymatgen/util/neighbors.pyx":283
+      /* "pymatgen/optimization/neighbors.pyx":289
  *             index3[0, 1] = ovectors[j, 1] + cube_indices_3d[i, 1]
  *             index3[0, 2] = ovectors[j, 2] + cube_indices_3d[i, 2]
  *             if (index3[0, 0] < ncube[0]) & (index3[0, 0] >= 0) & (index3[0, 1] < ncube[1]) & \             # <<<<<<<<<<<<<<
@@ -6261,7 +6331,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get
  */
       if (__pyx_t_64) {
 
-        /* "pymatgen/util/neighbors.pyx":285
+        /* "pymatgen/optimization/neighbors.pyx":291
  *             if (index3[0, 0] < ncube[0]) & (index3[0, 0] >= 0) & (index3[0, 1] < ncube[1]) & \
  *                 (index3[0, 1] >= 0) & (index3[0, 2] < ncube[2]) & (index3[0, 2] >= 0):
  *                 three_to_one(index3, ncube[1], ncube[2], index1)             # <<<<<<<<<<<<<<
@@ -6272,22 +6342,22 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get
         __pyx_t_66 = 2;
         __pyx_t_6 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
         __pyx_t_7 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)1));
-        if (unlikely(!__pyx_t_6 || !__pyx_t_7 || !PyBytes_AsString(__pyx_t_6))) __PYX_ERR(0, 285, __pyx_L1_error)
+        if (unlikely(!__pyx_t_6 || !__pyx_t_7 || !PyBytes_AsString(__pyx_t_6))) __PYX_ERR(0, 291, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
         __Pyx_GOTREF(__pyx_t_7);
         __pyx_t_5 = __pyx_array_new(__pyx_t_7, sizeof(long), PyBytes_AS_STRING(__pyx_t_6), (char *) "fortran", (char *) __pyx_v_index1);
-        if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 285, __pyx_L1_error)
+        if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 291, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-        __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_dc_long(((PyObject *)__pyx_t_5), PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 285, __pyx_L1_error)
+        __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_dc_long(((PyObject *)__pyx_t_5), PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 291, __pyx_L1_error)
         __Pyx_DECREF(((PyObject *)__pyx_t_5)); __pyx_t_5 = 0;
-        __pyx_f_8pymatgen_4util_9neighbors_three_to_one(__pyx_v_index3, (*((long *) ( /* dim=0 */ (__pyx_v_ncube.data + __pyx_t_65 * __pyx_v_ncube.strides[0]) ))), (*((long *) ( /* dim=0 */ (__pyx_v_ncube.data + __pyx_t_66 * __pyx_v_ncube.strides[0]) ))), __pyx_t_9);
+        __pyx_f_8pymatgen_12optimization_9neighbors_three_to_one(__pyx_v_index3, (*((long *) ( /* dim=0 */ (__pyx_v_ncube.data + __pyx_t_65 * __pyx_v_ncube.strides[0]) ))), (*((long *) ( /* dim=0 */ (__pyx_v_ncube.data + __pyx_t_66 * __pyx_v_ncube.strides[0]) ))), __pyx_t_9);
         __PYX_XDEC_MEMVIEW(&__pyx_t_9, 1);
         __pyx_t_9.memview = NULL;
         __pyx_t_9.data = NULL;
 
-        /* "pymatgen/util/neighbors.pyx":286
+        /* "pymatgen/optimization/neighbors.pyx":292
  *                 (index3[0, 1] >= 0) & (index3[0, 2] < ncube[2]) & (index3[0, 2] >= 0):
  *                 three_to_one(index3, ncube[1], ncube[2], index1)
  *                 neighbor_map[i].push_back(index1[0])             # <<<<<<<<<<<<<<
@@ -6298,10 +6368,10 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get
           (__pyx_v_neighbor_map[__pyx_v_i]).push_back((__pyx_v_index1[0]));
         } catch(...) {
           __Pyx_CppExn2PyErr();
-          __PYX_ERR(0, 286, __pyx_L1_error)
+          __PYX_ERR(0, 292, __pyx_L1_error)
         }
 
-        /* "pymatgen/util/neighbors.pyx":283
+        /* "pymatgen/optimization/neighbors.pyx":289
  *             index3[0, 1] = ovectors[j, 1] + cube_indices_3d[i, 1]
  *             index3[0, 2] = ovectors[j, 2] + cube_indices_3d[i, 2]
  *             if (index3[0, 0] < ncube[0]) & (index3[0, 0] >= 0) & (index3[0, 1] < ncube[1]) & \             # <<<<<<<<<<<<<<
@@ -6312,7 +6382,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get
     }
   }
 
-  /* "pymatgen/util/neighbors.pyx":287
+  /* "pymatgen/optimization/neighbors.pyx":293
  *                 three_to_one(index3, ncube[1], ncube[2], index1)
  *                 neighbor_map[i].push_back(index1[0])
  *     free(&cube_indices_3d[0, 0])             # <<<<<<<<<<<<<<
@@ -6323,7 +6393,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get
   __pyx_t_68 = 0;
   free((&(*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_cube_indices_3d.data + __pyx_t_67 * __pyx_v_cube_indices_3d.strides[0]) )) + __pyx_t_68)) )))));
 
-  /* "pymatgen/util/neighbors.pyx":288
+  /* "pymatgen/optimization/neighbors.pyx":294
  *                 neighbor_map[i].push_back(index1[0])
  *     free(&cube_indices_3d[0, 0])
  *     free(&cube_indices_1d[0])             # <<<<<<<<<<<<<<
@@ -6333,7 +6403,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get
   __pyx_t_69 = 0;
   free((&(*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_cube_indices_1d.data) + __pyx_t_69)) )))));
 
-  /* "pymatgen/util/neighbors.pyx":289
+  /* "pymatgen/optimization/neighbors.pyx":295
  *     free(&cube_indices_3d[0, 0])
  *     free(&cube_indices_1d[0])
  *     free(&index3[0, 0])             # <<<<<<<<<<<<<<
@@ -6344,7 +6414,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get
   __pyx_t_71 = 0;
   free((&(*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_index3.data + __pyx_t_70 * __pyx_v_index3.strides[0]) )) + __pyx_t_71)) )))));
 
-  /* "pymatgen/util/neighbors.pyx":290
+  /* "pymatgen/optimization/neighbors.pyx":296
  *     free(&cube_indices_1d[0])
  *     free(&index3[0, 0])
  *     return neighbor_map             # <<<<<<<<<<<<<<
@@ -6354,7 +6424,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get
   __pyx_r = __pyx_v_neighbor_map;
   goto __pyx_L0;
 
-  /* "pymatgen/util/neighbors.pyx":256
+  /* "pymatgen/optimization/neighbors.pyx":262
  *     return s
  * 
  * cdef map[long, vector[long]] get_cube_neighbors(long [:] ncube):             # <<<<<<<<<<<<<<
@@ -6370,7 +6440,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get
   __PYX_XDEC_MEMVIEW(&__pyx_t_8, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_t_9, 1);
   __Pyx_XDECREF(__pyx_t_30);
-  __Pyx_WriteUnraisable("pymatgen.util.neighbors.get_cube_neighbors", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __Pyx_WriteUnraisable("pymatgen.optimization.neighbors.get_cube_neighbors", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
   __Pyx_pretend_to_initialize(&__pyx_r);
   __pyx_L0:;
   __PYX_XDEC_MEMVIEW(&__pyx_v_cube_indices_3d, 1);
@@ -6382,15 +6452,15 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_4util_9neighbors_get
   return __pyx_r;
 }
 
-/* "pymatgen/util/neighbors.pyx":292
+/* "pymatgen/optimization/neighbors.pyx":298
  *     return neighbor_map
  * 
  * cdef void get_bounds(double[:, ::1] frac_coords, double[::1] maxr, long[:] pbc, long[:] max_bounds, long[:] min_bounds):             # <<<<<<<<<<<<<<
- *     """Given the fractional coordinates and the number of repeation needed in each direction, maxr, compute the translational
- *     bounds in each dimension
+ *     """Given the fractional coordinates and the number of repeation needed in each direction, maxr,
+ *     compute the translational bounds in each dimension
  */
 
-static void __pyx_f_8pymatgen_4util_9neighbors_get_bounds(__Pyx_memviewslice __pyx_v_frac_coords, __Pyx_memviewslice __pyx_v_maxr, __Pyx_memviewslice __pyx_v_pbc, __Pyx_memviewslice __pyx_v_max_bounds, __Pyx_memviewslice __pyx_v_min_bounds) {
+static void __pyx_f_8pymatgen_12optimization_9neighbors_get_bounds(__Pyx_memviewslice __pyx_v_frac_coords, __Pyx_memviewslice __pyx_v_maxr, __Pyx_memviewslice __pyx_v_pbc, __Pyx_memviewslice __pyx_v_max_bounds, __Pyx_memviewslice __pyx_v_min_bounds) {
   double __pyx_v_max_fcoords[3];
   double __pyx_v_min_fcoords[3];
   int __pyx_v_i;
@@ -6411,9 +6481,9 @@ static void __pyx_f_8pymatgen_4util_9neighbors_get_bounds(__Pyx_memviewslice __p
   Py_ssize_t __pyx_t_13;
   Py_ssize_t __pyx_t_14;
   __Pyx_RefNannySetupContext("get_bounds", 0);
-  __Pyx_TraceCall("get_bounds", __pyx_f[0], 292, 0, __PYX_ERR(0, 292, __pyx_L1_error));
+  __Pyx_TraceCall("get_bounds", __pyx_f[0], 298, 0, __PYX_ERR(0, 298, __pyx_L1_error));
 
-  /* "pymatgen/util/neighbors.pyx":298
+  /* "pymatgen/optimization/neighbors.pyx":304
  *     cdef double max_fcoords[3]
  *     cdef double min_fcoords[3]
  *     max_and_min(frac_coords, max_fcoords, min_fcoords)             # <<<<<<<<<<<<<<
@@ -6422,29 +6492,29 @@ static void __pyx_f_8pymatgen_4util_9neighbors_get_bounds(__Pyx_memviewslice __p
  */
   __pyx_t_3 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
   __pyx_t_2 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_3 || !__pyx_t_2 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 298, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3 || !__pyx_t_2 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 304, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_1 = __pyx_array_new(__pyx_t_2, sizeof(double), PyBytes_AS_STRING(__pyx_t_3), (char *) "fortran", (char *) __pyx_v_max_fcoords);
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 298, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 304, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_4 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(((PyObject *)__pyx_t_1), PyBUF_WRITABLE); if (unlikely(!__pyx_t_4.memview)) __PYX_ERR(0, 298, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(((PyObject *)__pyx_t_1), PyBUF_WRITABLE); if (unlikely(!__pyx_t_4.memview)) __PYX_ERR(0, 304, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_1)); __pyx_t_1 = 0;
   __pyx_t_2 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
   __pyx_t_3 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_2 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_2))) __PYX_ERR(0, 298, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_2))) __PYX_ERR(0, 304, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_1 = __pyx_array_new(__pyx_t_3, sizeof(double), PyBytes_AS_STRING(__pyx_t_2), (char *) "fortran", (char *) __pyx_v_min_fcoords);
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 298, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 304, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_5 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(((PyObject *)__pyx_t_1), PyBUF_WRITABLE); if (unlikely(!__pyx_t_5.memview)) __PYX_ERR(0, 298, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(((PyObject *)__pyx_t_1), PyBUF_WRITABLE); if (unlikely(!__pyx_t_5.memview)) __PYX_ERR(0, 304, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_1)); __pyx_t_1 = 0;
-  __pyx_t_2 = __pyx_f_8pymatgen_4util_9neighbors_max_and_min(__pyx_v_frac_coords, __pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 298, __pyx_L1_error)
+  __pyx_t_2 = __pyx_f_8pymatgen_12optimization_9neighbors_max_and_min(__pyx_v_frac_coords, __pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 304, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __PYX_XDEC_MEMVIEW(&__pyx_t_4, 1);
   __pyx_t_4.memview = NULL;
@@ -6454,7 +6524,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_get_bounds(__Pyx_memviewslice __p
   __pyx_t_5.data = NULL;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "pymatgen/util/neighbors.pyx":300
+  /* "pymatgen/optimization/neighbors.pyx":306
  *     max_and_min(frac_coords, max_fcoords, min_fcoords)
  *     cdef int i
  *     for i in range(3):             # <<<<<<<<<<<<<<
@@ -6464,7 +6534,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_get_bounds(__Pyx_memviewslice __p
   for (__pyx_t_6 = 0; __pyx_t_6 < 3; __pyx_t_6+=1) {
     __pyx_v_i = __pyx_t_6;
 
-    /* "pymatgen/util/neighbors.pyx":301
+    /* "pymatgen/optimization/neighbors.pyx":307
  *     cdef int i
  *     for i in range(3):
  *         min_bounds[i] = 0             # <<<<<<<<<<<<<<
@@ -6474,7 +6544,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_get_bounds(__Pyx_memviewslice __p
     __pyx_t_7 = __pyx_v_i;
     *((long *) ( /* dim=0 */ (__pyx_v_min_bounds.data + __pyx_t_7 * __pyx_v_min_bounds.strides[0]) )) = 0;
 
-    /* "pymatgen/util/neighbors.pyx":302
+    /* "pymatgen/optimization/neighbors.pyx":308
  *     for i in range(3):
  *         min_bounds[i] = 0
  *         max_bounds[i] = 1             # <<<<<<<<<<<<<<
@@ -6485,7 +6555,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_get_bounds(__Pyx_memviewslice __p
     *((long *) ( /* dim=0 */ (__pyx_v_max_bounds.data + __pyx_t_8 * __pyx_v_max_bounds.strides[0]) )) = 1;
   }
 
-  /* "pymatgen/util/neighbors.pyx":304
+  /* "pymatgen/optimization/neighbors.pyx":310
  *         max_bounds[i] = 1
  * 
  *     for i in range(3):             # <<<<<<<<<<<<<<
@@ -6495,7 +6565,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_get_bounds(__Pyx_memviewslice __p
   for (__pyx_t_6 = 0; __pyx_t_6 < 3; __pyx_t_6+=1) {
     __pyx_v_i = __pyx_t_6;
 
-    /* "pymatgen/util/neighbors.pyx":305
+    /* "pymatgen/optimization/neighbors.pyx":311
  * 
  *     for i in range(3):
  *         if pbc[i]:             # <<<<<<<<<<<<<<
@@ -6506,7 +6576,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_get_bounds(__Pyx_memviewslice __p
     __pyx_t_10 = ((*((long *) ( /* dim=0 */ (__pyx_v_pbc.data + __pyx_t_9 * __pyx_v_pbc.strides[0]) ))) != 0);
     if (__pyx_t_10) {
 
-      /* "pymatgen/util/neighbors.pyx":306
+      /* "pymatgen/optimization/neighbors.pyx":312
  *     for i in range(3):
  *         if pbc[i]:
  *             min_bounds[i] = <long>(floor(min_fcoords[i] - maxr[i] - 1e-8))             # <<<<<<<<<<<<<<
@@ -6517,7 +6587,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_get_bounds(__Pyx_memviewslice __p
       __pyx_t_12 = __pyx_v_i;
       *((long *) ( /* dim=0 */ (__pyx_v_min_bounds.data + __pyx_t_12 * __pyx_v_min_bounds.strides[0]) )) = ((long)floor((((__pyx_v_min_fcoords[__pyx_v_i]) - (*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_maxr.data) + __pyx_t_11)) )))) - 1e-8)));
 
-      /* "pymatgen/util/neighbors.pyx":307
+      /* "pymatgen/optimization/neighbors.pyx":313
  *         if pbc[i]:
  *             min_bounds[i] = <long>(floor(min_fcoords[i] - maxr[i] - 1e-8))
  *             max_bounds[i] = <long>(ceil(max_fcoords[i] + maxr[i] + 1e-8))             # <<<<<<<<<<<<<<
@@ -6528,7 +6598,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_get_bounds(__Pyx_memviewslice __p
       __pyx_t_14 = __pyx_v_i;
       *((long *) ( /* dim=0 */ (__pyx_v_max_bounds.data + __pyx_t_14 * __pyx_v_max_bounds.strides[0]) )) = ((long)ceil((((__pyx_v_max_fcoords[__pyx_v_i]) + (*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_maxr.data) + __pyx_t_13)) )))) + 1e-8)));
 
-      /* "pymatgen/util/neighbors.pyx":305
+      /* "pymatgen/optimization/neighbors.pyx":311
  * 
  *     for i in range(3):
  *         if pbc[i]:             # <<<<<<<<<<<<<<
@@ -6538,12 +6608,12 @@ static void __pyx_f_8pymatgen_4util_9neighbors_get_bounds(__Pyx_memviewslice __p
     }
   }
 
-  /* "pymatgen/util/neighbors.pyx":292
+  /* "pymatgen/optimization/neighbors.pyx":298
  *     return neighbor_map
  * 
  * cdef void get_bounds(double[:, ::1] frac_coords, double[::1] maxr, long[:] pbc, long[:] max_bounds, long[:] min_bounds):             # <<<<<<<<<<<<<<
- *     """Given the fractional coordinates and the number of repeation needed in each direction, maxr, compute the translational
- *     bounds in each dimension
+ *     """Given the fractional coordinates and the number of repeation needed in each direction, maxr,
+ *     compute the translational bounds in each dimension
  */
 
   /* function exit code */
@@ -6554,13 +6624,13 @@ static void __pyx_f_8pymatgen_4util_9neighbors_get_bounds(__Pyx_memviewslice __p
   __Pyx_XDECREF(__pyx_t_3);
   __PYX_XDEC_MEMVIEW(&__pyx_t_4, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_t_5, 1);
-  __Pyx_WriteUnraisable("pymatgen.util.neighbors.get_bounds", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __Pyx_WriteUnraisable("pymatgen.optimization.neighbors.get_bounds", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
   __pyx_L0:;
   __Pyx_TraceReturn(Py_None, 0);
   __Pyx_RefNannyFinishContext();
 }
 
-/* "pymatgen/util/neighbors.pyx":309
+/* "pymatgen/optimization/neighbors.pyx":315
  *             max_bounds[i] = <long>(ceil(max_fcoords[i] + maxr[i] + 1e-8))
  * 
  * cdef void get_frac_coords(double[:, ::1] lattice, double[:, ::1] cart_coords, double [:, ::1] frac_coords):             # <<<<<<<<<<<<<<
@@ -6568,7 +6638,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_get_bounds(__Pyx_memviewslice __p
  *     Compute the fractional coordinates
  */
 
-static void __pyx_f_8pymatgen_4util_9neighbors_get_frac_coords(__Pyx_memviewslice __pyx_v_lattice, __Pyx_memviewslice __pyx_v_cart_coords, __Pyx_memviewslice __pyx_v_frac_coords) {
+static void __pyx_f_8pymatgen_12optimization_9neighbors_get_frac_coords(__Pyx_memviewslice __pyx_v_lattice, __Pyx_memviewslice __pyx_v_cart_coords, __Pyx_memviewslice __pyx_v_frac_coords) {
   __Pyx_memviewslice __pyx_v_inv_lattice = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
@@ -6578,58 +6648,58 @@ static void __pyx_f_8pymatgen_4util_9neighbors_get_frac_coords(__Pyx_memviewslic
   PyObject *__pyx_t_4 = NULL;
   __Pyx_memviewslice __pyx_t_5 = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_RefNannySetupContext("get_frac_coords", 0);
-  __Pyx_TraceCall("get_frac_coords", __pyx_f[0], 309, 0, __PYX_ERR(0, 309, __pyx_L1_error));
+  __Pyx_TraceCall("get_frac_coords", __pyx_f[0], 315, 0, __PYX_ERR(0, 315, __pyx_L1_error));
 
-  /* "pymatgen/util/neighbors.pyx":313
+  /* "pymatgen/optimization/neighbors.pyx":319
  *     Compute the fractional coordinates
  *     """
  *     cdef double[:, ::1] inv_lattice = np.empty((3, 3), dtype=np.float64)             # <<<<<<<<<<<<<<
  *     matrix_inv(lattice, inv_lattice)
  *     matmul(cart_coords, inv_lattice, frac_coords)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 313, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 319, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_empty); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 313, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_empty); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 319, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 313, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 319, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 313, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 319, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_float64); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 313, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_float64); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 319, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_dtype, __pyx_t_4) < 0) __PYX_ERR(0, 313, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_dtype, __pyx_t_4) < 0) __PYX_ERR(0, 319, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_tuple__3, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 313, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_tuple__3, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 319, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_5 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_double(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_5.memview)) __PYX_ERR(0, 313, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_double(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_5.memview)) __PYX_ERR(0, 319, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_v_inv_lattice = __pyx_t_5;
   __pyx_t_5.memview = NULL;
   __pyx_t_5.data = NULL;
 
-  /* "pymatgen/util/neighbors.pyx":314
+  /* "pymatgen/optimization/neighbors.pyx":320
  *     """
  *     cdef double[:, ::1] inv_lattice = np.empty((3, 3), dtype=np.float64)
  *     matrix_inv(lattice, inv_lattice)             # <<<<<<<<<<<<<<
  *     matmul(cart_coords, inv_lattice, frac_coords)
  * 
  */
-  __pyx_f_8pymatgen_4util_9neighbors_matrix_inv(__pyx_v_lattice, __pyx_v_inv_lattice);
+  __pyx_f_8pymatgen_12optimization_9neighbors_matrix_inv(__pyx_v_lattice, __pyx_v_inv_lattice);
 
-  /* "pymatgen/util/neighbors.pyx":315
+  /* "pymatgen/optimization/neighbors.pyx":321
  *     cdef double[:, ::1] inv_lattice = np.empty((3, 3), dtype=np.float64)
  *     matrix_inv(lattice, inv_lattice)
  *     matmul(cart_coords, inv_lattice, frac_coords)             # <<<<<<<<<<<<<<
  * 
  * cdef void matmul(double [:, ::1] m1, double [:, ::1] m2, double [:, ::1] out):
  */
-  __pyx_f_8pymatgen_4util_9neighbors_matmul(__pyx_v_cart_coords, __pyx_v_inv_lattice, __pyx_v_frac_coords);
+  __pyx_f_8pymatgen_12optimization_9neighbors_matmul(__pyx_v_cart_coords, __pyx_v_inv_lattice, __pyx_v_frac_coords);
 
-  /* "pymatgen/util/neighbors.pyx":309
+  /* "pymatgen/optimization/neighbors.pyx":315
  *             max_bounds[i] = <long>(ceil(max_fcoords[i] + maxr[i] + 1e-8))
  * 
  * cdef void get_frac_coords(double[:, ::1] lattice, double[:, ::1] cart_coords, double [:, ::1] frac_coords):             # <<<<<<<<<<<<<<
@@ -6645,14 +6715,14 @@ static void __pyx_f_8pymatgen_4util_9neighbors_get_frac_coords(__Pyx_memviewslic
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __PYX_XDEC_MEMVIEW(&__pyx_t_5, 1);
-  __Pyx_WriteUnraisable("pymatgen.util.neighbors.get_frac_coords", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __Pyx_WriteUnraisable("pymatgen.optimization.neighbors.get_frac_coords", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
   __pyx_L0:;
   __PYX_XDEC_MEMVIEW(&__pyx_v_inv_lattice, 1);
   __Pyx_TraceReturn(Py_None, 0);
   __Pyx_RefNannyFinishContext();
 }
 
-/* "pymatgen/util/neighbors.pyx":317
+/* "pymatgen/optimization/neighbors.pyx":323
  *     matmul(cart_coords, inv_lattice, frac_coords)
  * 
  * cdef void matmul(double [:, ::1] m1, double [:, ::1] m2, double [:, ::1] out):             # <<<<<<<<<<<<<<
@@ -6660,7 +6730,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_get_frac_coords(__Pyx_memviewslic
  *     Matrix multiplication
  */
 
-static void __pyx_f_8pymatgen_4util_9neighbors_matmul(__Pyx_memviewslice __pyx_v_m1, __Pyx_memviewslice __pyx_v_m2, __Pyx_memviewslice __pyx_v_out) {
+static void __pyx_f_8pymatgen_12optimization_9neighbors_matmul(__Pyx_memviewslice __pyx_v_m1, __Pyx_memviewslice __pyx_v_m2, __Pyx_memviewslice __pyx_v_out) {
   int __pyx_v_m;
   int __pyx_v_n;
   int __pyx_v_l;
@@ -6687,9 +6757,9 @@ static void __pyx_f_8pymatgen_4util_9neighbors_matmul(__Pyx_memviewslice __pyx_v
   Py_ssize_t __pyx_t_16;
   Py_ssize_t __pyx_t_17;
   __Pyx_RefNannySetupContext("matmul", 0);
-  __Pyx_TraceCall("matmul", __pyx_f[0], 317, 0, __PYX_ERR(0, 317, __pyx_L1_error));
+  __Pyx_TraceCall("matmul", __pyx_f[0], 323, 0, __PYX_ERR(0, 323, __pyx_L1_error));
 
-  /* "pymatgen/util/neighbors.pyx":321
+  /* "pymatgen/optimization/neighbors.pyx":327
  *     Matrix multiplication
  *     """
  *     cdef int m = m1.shape[0], n = m1.shape[1], l = m2.shape[1]             # <<<<<<<<<<<<<<
@@ -6700,7 +6770,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_matmul(__Pyx_memviewslice __pyx_v
   __pyx_v_n = (__pyx_v_m1.shape[1]);
   __pyx_v_l = (__pyx_v_m2.shape[1]);
 
-  /* "pymatgen/util/neighbors.pyx":323
+  /* "pymatgen/optimization/neighbors.pyx":329
  *     cdef int m = m1.shape[0], n = m1.shape[1], l = m2.shape[1]
  *     cdef int i, j, k
  *     for i in range(m):             # <<<<<<<<<<<<<<
@@ -6712,7 +6782,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_matmul(__Pyx_memviewslice __pyx_v
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "pymatgen/util/neighbors.pyx":324
+    /* "pymatgen/optimization/neighbors.pyx":330
  *     cdef int i, j, k
  *     for i in range(m):
  *         for j in range(l):             # <<<<<<<<<<<<<<
@@ -6724,7 +6794,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_matmul(__Pyx_memviewslice __pyx_v
     for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
       __pyx_v_j = __pyx_t_6;
 
-      /* "pymatgen/util/neighbors.pyx":325
+      /* "pymatgen/optimization/neighbors.pyx":331
  *     for i in range(m):
  *         for j in range(l):
  *             out[i, j] = 0             # <<<<<<<<<<<<<<
@@ -6735,7 +6805,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_matmul(__Pyx_memviewslice __pyx_v
       __pyx_t_8 = __pyx_v_j;
       *((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_out.data + __pyx_t_7 * __pyx_v_out.strides[0]) )) + __pyx_t_8)) )) = 0.0;
 
-      /* "pymatgen/util/neighbors.pyx":326
+      /* "pymatgen/optimization/neighbors.pyx":332
  *         for j in range(l):
  *             out[i, j] = 0
  *             for k in range(n):             # <<<<<<<<<<<<<<
@@ -6747,7 +6817,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_matmul(__Pyx_memviewslice __pyx_v
       for (__pyx_t_11 = 0; __pyx_t_11 < __pyx_t_10; __pyx_t_11+=1) {
         __pyx_v_k = __pyx_t_11;
 
-        /* "pymatgen/util/neighbors.pyx":327
+        /* "pymatgen/optimization/neighbors.pyx":333
  *             out[i, j] = 0
  *             for k in range(n):
  *                 out[i, j] += m1[i, k] * m2[k, j]             # <<<<<<<<<<<<<<
@@ -6765,7 +6835,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_matmul(__Pyx_memviewslice __pyx_v
     }
   }
 
-  /* "pymatgen/util/neighbors.pyx":317
+  /* "pymatgen/optimization/neighbors.pyx":323
  *     matmul(cart_coords, inv_lattice, frac_coords)
  * 
  * cdef void matmul(double [:, ::1] m1, double [:, ::1] m2, double [:, ::1] out):             # <<<<<<<<<<<<<<
@@ -6776,13 +6846,13 @@ static void __pyx_f_8pymatgen_4util_9neighbors_matmul(__Pyx_memviewslice __pyx_v
   /* function exit code */
   goto __pyx_L0;
   __pyx_L1_error:;
-  __Pyx_WriteUnraisable("pymatgen.util.neighbors.matmul", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __Pyx_WriteUnraisable("pymatgen.optimization.neighbors.matmul", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
   __pyx_L0:;
   __Pyx_TraceReturn(Py_None, 0);
   __Pyx_RefNannyFinishContext();
 }
 
-/* "pymatgen/util/neighbors.pyx":329
+/* "pymatgen/optimization/neighbors.pyx":335
  *                 out[i, j] += m1[i, k] * m2[k, j]
  * 
  * cdef void matrix_inv(double[:, ::1] matrix, double[:, ::1] inv):             # <<<<<<<<<<<<<<
@@ -6790,7 +6860,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_matmul(__Pyx_memviewslice __pyx_v
  *     Matrix inversion
  */
 
-static void __pyx_f_8pymatgen_4util_9neighbors_matrix_inv(__Pyx_memviewslice __pyx_v_matrix, __Pyx_memviewslice __pyx_v_inv) {
+static void __pyx_f_8pymatgen_12optimization_9neighbors_matrix_inv(__Pyx_memviewslice __pyx_v_matrix, __Pyx_memviewslice __pyx_v_inv) {
   double __pyx_v_det;
   int __pyx_v_i;
   int __pyx_v_j;
@@ -6809,18 +6879,18 @@ static void __pyx_f_8pymatgen_4util_9neighbors_matrix_inv(__Pyx_memviewslice __p
   Py_ssize_t __pyx_t_11;
   Py_ssize_t __pyx_t_12;
   __Pyx_RefNannySetupContext("matrix_inv", 0);
-  __Pyx_TraceCall("matrix_inv", __pyx_f[0], 329, 0, __PYX_ERR(0, 329, __pyx_L1_error));
+  __Pyx_TraceCall("matrix_inv", __pyx_f[0], 335, 0, __PYX_ERR(0, 335, __pyx_L1_error));
 
-  /* "pymatgen/util/neighbors.pyx":333
+  /* "pymatgen/optimization/neighbors.pyx":339
  *     Matrix inversion
  *     """
  *     cdef double det = matrix_det(matrix)             # <<<<<<<<<<<<<<
  *     cdef int i, j
  *     for i in range(3):
  */
-  __pyx_v_det = __pyx_f_8pymatgen_4util_9neighbors_matrix_det(__pyx_v_matrix);
+  __pyx_v_det = __pyx_f_8pymatgen_12optimization_9neighbors_matrix_det(__pyx_v_matrix);
 
-  /* "pymatgen/util/neighbors.pyx":335
+  /* "pymatgen/optimization/neighbors.pyx":341
  *     cdef double det = matrix_det(matrix)
  *     cdef int i, j
  *     for i in range(3):             # <<<<<<<<<<<<<<
@@ -6830,7 +6900,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_matrix_inv(__Pyx_memviewslice __p
   for (__pyx_t_1 = 0; __pyx_t_1 < 3; __pyx_t_1+=1) {
     __pyx_v_i = __pyx_t_1;
 
-    /* "pymatgen/util/neighbors.pyx":336
+    /* "pymatgen/optimization/neighbors.pyx":342
  *     cdef int i, j
  *     for i in range(3):
  *         for j in range(3):             # <<<<<<<<<<<<<<
@@ -6840,7 +6910,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_matrix_inv(__Pyx_memviewslice __p
     for (__pyx_t_2 = 0; __pyx_t_2 < 3; __pyx_t_2+=1) {
       __pyx_v_j = __pyx_t_2;
 
-      /* "pymatgen/util/neighbors.pyx":337
+      /* "pymatgen/optimization/neighbors.pyx":343
  *     for i in range(3):
  *         for j in range(3):
  *             inv[i, j] = (matrix[(j+1)%3, (i+1)%3] * matrix[(j+2)%3, (i+2)%3] - \             # <<<<<<<<<<<<<<
@@ -6852,7 +6922,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_matrix_inv(__Pyx_memviewslice __p
       __pyx_t_5 = ((__pyx_v_j + 2) % 3);
       __pyx_t_6 = ((__pyx_v_i + 2) % 3);
 
-      /* "pymatgen/util/neighbors.pyx":338
+      /* "pymatgen/optimization/neighbors.pyx":344
  *         for j in range(3):
  *             inv[i, j] = (matrix[(j+1)%3, (i+1)%3] * matrix[(j+2)%3, (i+2)%3] - \
  *                 matrix[(j+2)%3, (i+1)%3] * matrix[(j+1)%3, (i+2)%3]) / det             # <<<<<<<<<<<<<<
@@ -6864,7 +6934,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_matrix_inv(__Pyx_memviewslice __p
       __pyx_t_9 = ((__pyx_v_j + 1) % 3);
       __pyx_t_10 = ((__pyx_v_i + 2) % 3);
 
-      /* "pymatgen/util/neighbors.pyx":337
+      /* "pymatgen/optimization/neighbors.pyx":343
  *     for i in range(3):
  *         for j in range(3):
  *             inv[i, j] = (matrix[(j+1)%3, (i+1)%3] * matrix[(j+2)%3, (i+2)%3] - \             # <<<<<<<<<<<<<<
@@ -6877,7 +6947,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_matrix_inv(__Pyx_memviewslice __p
     }
   }
 
-  /* "pymatgen/util/neighbors.pyx":329
+  /* "pymatgen/optimization/neighbors.pyx":335
  *                 out[i, j] += m1[i, k] * m2[k, j]
  * 
  * cdef void matrix_inv(double[:, ::1] matrix, double[:, ::1] inv):             # <<<<<<<<<<<<<<
@@ -6888,13 +6958,13 @@ static void __pyx_f_8pymatgen_4util_9neighbors_matrix_inv(__Pyx_memviewslice __p
   /* function exit code */
   goto __pyx_L0;
   __pyx_L1_error:;
-  __Pyx_WriteUnraisable("pymatgen.util.neighbors.matrix_inv", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __Pyx_WriteUnraisable("pymatgen.optimization.neighbors.matrix_inv", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
   __pyx_L0:;
   __Pyx_TraceReturn(Py_None, 0);
   __Pyx_RefNannyFinishContext();
 }
 
-/* "pymatgen/util/neighbors.pyx":340
+/* "pymatgen/optimization/neighbors.pyx":346
  *                 matrix[(j+2)%3, (i+1)%3] * matrix[(j+1)%3, (i+2)%3]) / det
  * 
  * cdef double matrix_det(double[:, ::1] matrix):             # <<<<<<<<<<<<<<
@@ -6902,7 +6972,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_matrix_inv(__Pyx_memviewslice __p
  *     Matrix determinant
  */
 
-static double __pyx_f_8pymatgen_4util_9neighbors_matrix_det(__Pyx_memviewslice __pyx_v_matrix) {
+static double __pyx_f_8pymatgen_12optimization_9neighbors_matrix_det(__Pyx_memviewslice __pyx_v_matrix) {
   double __pyx_r;
   __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
@@ -6937,9 +7007,9 @@ static double __pyx_f_8pymatgen_4util_9neighbors_matrix_det(__Pyx_memviewslice _
   Py_ssize_t __pyx_t_29;
   Py_ssize_t __pyx_t_30;
   __Pyx_RefNannySetupContext("matrix_det", 0);
-  __Pyx_TraceCall("matrix_det", __pyx_f[0], 340, 0, __PYX_ERR(0, 340, __pyx_L1_error));
+  __Pyx_TraceCall("matrix_det", __pyx_f[0], 346, 0, __PYX_ERR(0, 346, __pyx_L1_error));
 
-  /* "pymatgen/util/neighbors.pyx":344
+  /* "pymatgen/optimization/neighbors.pyx":350
  *     Matrix determinant
  *     """
  *     return matrix[0, 0] * (matrix[1, 1] * matrix[2, 2] - matrix[1, 2] * matrix[2, 1]) + \             # <<<<<<<<<<<<<<
@@ -6957,7 +7027,7 @@ static double __pyx_f_8pymatgen_4util_9neighbors_matrix_det(__Pyx_memviewslice _
   __pyx_t_9 = 2;
   __pyx_t_10 = 1;
 
-  /* "pymatgen/util/neighbors.pyx":345
+  /* "pymatgen/optimization/neighbors.pyx":351
  *     """
  *     return matrix[0, 0] * (matrix[1, 1] * matrix[2, 2] - matrix[1, 2] * matrix[2, 1]) + \
  *         matrix[0, 1] * (matrix[1, 2] * matrix[2, 0] - matrix[1, 0] * matrix[2, 2]) + \             # <<<<<<<<<<<<<<
@@ -6975,7 +7045,7 @@ static double __pyx_f_8pymatgen_4util_9neighbors_matrix_det(__Pyx_memviewslice _
   __pyx_t_19 = 2;
   __pyx_t_20 = 2;
 
-  /* "pymatgen/util/neighbors.pyx":346
+  /* "pymatgen/optimization/neighbors.pyx":352
  *     return matrix[0, 0] * (matrix[1, 1] * matrix[2, 2] - matrix[1, 2] * matrix[2, 1]) + \
  *         matrix[0, 1] * (matrix[1, 2] * matrix[2, 0] - matrix[1, 0] * matrix[2, 2]) + \
  *             matrix[0, 2] * (matrix[1, 0] * matrix[2, 1] - matrix[1, 1] * matrix[2, 0])             # <<<<<<<<<<<<<<
@@ -6993,7 +7063,7 @@ static double __pyx_f_8pymatgen_4util_9neighbors_matrix_det(__Pyx_memviewslice _
   __pyx_t_29 = 2;
   __pyx_t_30 = 0;
 
-  /* "pymatgen/util/neighbors.pyx":345
+  /* "pymatgen/optimization/neighbors.pyx":351
  *     """
  *     return matrix[0, 0] * (matrix[1, 1] * matrix[2, 2] - matrix[1, 2] * matrix[2, 1]) + \
  *         matrix[0, 1] * (matrix[1, 2] * matrix[2, 0] - matrix[1, 0] * matrix[2, 2]) + \             # <<<<<<<<<<<<<<
@@ -7003,7 +7073,7 @@ static double __pyx_f_8pymatgen_4util_9neighbors_matrix_det(__Pyx_memviewslice _
   __pyx_r = ((((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_matrix.data + __pyx_t_1 * __pyx_v_matrix.strides[0]) )) + __pyx_t_2)) ))) * (((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_matrix.data + __pyx_t_3 * __pyx_v_matrix.strides[0]) )) + __pyx_t_4)) ))) * (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_matrix.data + __pyx_t_5 * __pyx_v_matrix.strides[0]) )) + __pyx_t_6)) )))) - ((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_matrix.data + __pyx_t_7 * __pyx_v_matrix.strides[0]) )) + __pyx_t_8)) ))) * (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_matrix.data + __pyx_t_9 * __pyx_v_matrix.strides[0]) )) + __pyx_t_10)) )))))) + ((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_matrix.data + __pyx_t_11 * __pyx_v_matrix.strides[0]) )) + __pyx_t_12)) ))) * (((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_matrix.data + __pyx_t_13 * __pyx_v_matrix.strides[0]) )) + __pyx_t_14)) ))) * (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_matrix.data + __pyx_t_15 * __pyx_v_matrix.strides[0]) )) + __pyx_t_16)) )))) - ((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_matrix.data + __pyx_t_17 * __pyx_v_matrix.strides[0]) )) + __pyx_t_18)) ))) * (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_matrix.data + __pyx_t_19 * __pyx_v_matrix.strides[0]) )) + __pyx_t_20)) ))))))) + ((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_matrix.data + __pyx_t_21 * __pyx_v_matrix.strides[0]) )) + __pyx_t_22)) ))) * (((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_matrix.data + __pyx_t_23 * __pyx_v_matrix.strides[0]) )) + __pyx_t_24)) ))) * (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_matrix.data + __pyx_t_25 * __pyx_v_matrix.strides[0]) )) + __pyx_t_26)) )))) - ((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_matrix.data + __pyx_t_27 * __pyx_v_matrix.strides[0]) )) + __pyx_t_28)) ))) * (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_matrix.data + __pyx_t_29 * __pyx_v_matrix.strides[0]) )) + __pyx_t_30)) )))))));
   goto __pyx_L0;
 
-  /* "pymatgen/util/neighbors.pyx":340
+  /* "pymatgen/optimization/neighbors.pyx":346
  *                 matrix[(j+2)%3, (i+1)%3] * matrix[(j+1)%3, (i+2)%3]) / det
  * 
  * cdef double matrix_det(double[:, ::1] matrix):             # <<<<<<<<<<<<<<
@@ -7013,7 +7083,7 @@ static double __pyx_f_8pymatgen_4util_9neighbors_matrix_det(__Pyx_memviewslice _
 
   /* function exit code */
   __pyx_L1_error:;
-  __Pyx_WriteUnraisable("pymatgen.util.neighbors.matrix_det", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __Pyx_WriteUnraisable("pymatgen.optimization.neighbors.matrix_det", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_TraceReturn(Py_None, 0);
@@ -7021,7 +7091,7 @@ static double __pyx_f_8pymatgen_4util_9neighbors_matrix_det(__Pyx_memviewslice _
   return __pyx_r;
 }
 
-/* "pymatgen/util/neighbors.pyx":348
+/* "pymatgen/optimization/neighbors.pyx":354
  *             matrix[0, 2] * (matrix[1, 0] * matrix[2, 1] - matrix[1, 1] * matrix[2, 0])
  * 
  * cdef void get_max_r(double[:, ::1] lattice, double [::1] maxr, double r):             # <<<<<<<<<<<<<<
@@ -7029,7 +7099,7 @@ static double __pyx_f_8pymatgen_4util_9neighbors_matrix_det(__Pyx_memviewslice _
  *     Get maximum repetition in each directions
  */
 
-static void __pyx_f_8pymatgen_4util_9neighbors_get_max_r(__Pyx_memviewslice __pyx_v_lattice, __Pyx_memviewslice __pyx_v_maxr, double __pyx_v_r) {
+static void __pyx_f_8pymatgen_12optimization_9neighbors_get_max_r(__Pyx_memviewslice __pyx_v_lattice, __Pyx_memviewslice __pyx_v_maxr, double __pyx_v_r) {
   __Pyx_memviewslice __pyx_v_reciprocal_lattice = { 0, 0, { 0 }, { 0 }, { 0 } };
   int __pyx_v_i;
   int __pyx_v_n;
@@ -7047,40 +7117,40 @@ static void __pyx_f_8pymatgen_4util_9neighbors_get_max_r(__Pyx_memviewslice __py
   __Pyx_memviewslice __pyx_t_9 = { 0, 0, { 0 }, { 0 }, { 0 } };
   Py_ssize_t __pyx_t_10;
   __Pyx_RefNannySetupContext("get_max_r", 0);
-  __Pyx_TraceCall("get_max_r", __pyx_f[0], 348, 0, __PYX_ERR(0, 348, __pyx_L1_error));
+  __Pyx_TraceCall("get_max_r", __pyx_f[0], 354, 0, __PYX_ERR(0, 354, __pyx_L1_error));
 
-  /* "pymatgen/util/neighbors.pyx":352
+  /* "pymatgen/optimization/neighbors.pyx":358
  *     Get maximum repetition in each directions
  *     """
  *     cdef double [:, ::1] reciprocal_lattice = np.eye(3, dtype=np.float64)             # <<<<<<<<<<<<<<
  *     cdef int i
  *     cdef int n = lattice.shape[1]
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 352, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 358, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_eye); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 352, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_eye); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 358, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 352, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 358, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 352, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 358, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_float64); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 352, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_float64); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 358, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_dtype, __pyx_t_4) < 0) __PYX_ERR(0, 352, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_dtype, __pyx_t_4) < 0) __PYX_ERR(0, 358, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_tuple__4, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 352, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_tuple__4, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 358, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_5 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_double(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_5.memview)) __PYX_ERR(0, 352, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_double(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_5.memview)) __PYX_ERR(0, 358, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_v_reciprocal_lattice = __pyx_t_5;
   __pyx_t_5.memview = NULL;
   __pyx_t_5.data = NULL;
 
-  /* "pymatgen/util/neighbors.pyx":354
+  /* "pymatgen/optimization/neighbors.pyx":360
  *     cdef double [:, ::1] reciprocal_lattice = np.eye(3, dtype=np.float64)
  *     cdef int i
  *     cdef int n = lattice.shape[1]             # <<<<<<<<<<<<<<
@@ -7089,16 +7159,16 @@ static void __pyx_f_8pymatgen_4util_9neighbors_get_max_r(__Pyx_memviewslice __py
  */
   __pyx_v_n = (__pyx_v_lattice.shape[1]);
 
-  /* "pymatgen/util/neighbors.pyx":356
+  /* "pymatgen/optimization/neighbors.pyx":362
  *     cdef int n = lattice.shape[1]
  *     cdef double recp_len
  *     get_reciprocal_lattice(lattice, reciprocal_lattice)             # <<<<<<<<<<<<<<
  *     for i in range(n):
  *         recp_len = norm(reciprocal_lattice[i, :])
  */
-  __pyx_f_8pymatgen_4util_9neighbors_get_reciprocal_lattice(__pyx_v_lattice, __pyx_v_reciprocal_lattice);
+  __pyx_f_8pymatgen_12optimization_9neighbors_get_reciprocal_lattice(__pyx_v_lattice, __pyx_v_reciprocal_lattice);
 
-  /* "pymatgen/util/neighbors.pyx":357
+  /* "pymatgen/optimization/neighbors.pyx":363
  *     cdef double recp_len
  *     get_reciprocal_lattice(lattice, reciprocal_lattice)
  *     for i in range(n):             # <<<<<<<<<<<<<<
@@ -7110,7 +7180,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_get_max_r(__Pyx_memviewslice __py
   for (__pyx_t_8 = 0; __pyx_t_8 < __pyx_t_7; __pyx_t_8+=1) {
     __pyx_v_i = __pyx_t_8;
 
-    /* "pymatgen/util/neighbors.pyx":358
+    /* "pymatgen/optimization/neighbors.pyx":364
  *     get_reciprocal_lattice(lattice, reciprocal_lattice)
  *     for i in range(n):
  *         recp_len = norm(reciprocal_lattice[i, :])             # <<<<<<<<<<<<<<
@@ -7123,7 +7193,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_get_max_r(__Pyx_memviewslice __py
     {
     Py_ssize_t __pyx_tmp_idx = __pyx_v_i;
     Py_ssize_t __pyx_tmp_stride = __pyx_v_reciprocal_lattice.strides[0];
-        if ((0)) __PYX_ERR(0, 358, __pyx_L1_error)
+        if ((0)) __PYX_ERR(0, 364, __pyx_L1_error)
         __pyx_t_9.data += __pyx_tmp_idx * __pyx_tmp_stride;
 }
 
@@ -7131,12 +7201,12 @@ __pyx_t_9.shape[0] = __pyx_v_reciprocal_lattice.shape[1];
 __pyx_t_9.strides[0] = __pyx_v_reciprocal_lattice.strides[1];
     __pyx_t_9.suboffsets[0] = -1;
 
-__pyx_v_recp_len = __pyx_f_8pymatgen_4util_9neighbors_norm(__pyx_t_9);
+__pyx_v_recp_len = __pyx_f_8pymatgen_12optimization_9neighbors_norm(__pyx_t_9);
     __PYX_XDEC_MEMVIEW(&__pyx_t_9, 1);
     __pyx_t_9.memview = NULL;
     __pyx_t_9.data = NULL;
 
-    /* "pymatgen/util/neighbors.pyx":359
+    /* "pymatgen/optimization/neighbors.pyx":365
  *     for i in range(n):
  *         recp_len = norm(reciprocal_lattice[i, :])
  *         maxr[i] = ceil((r + 0.15) * recp_len / (2 * pi))             # <<<<<<<<<<<<<<
@@ -7147,7 +7217,7 @@ __pyx_v_recp_len = __pyx_f_8pymatgen_4util_9neighbors_norm(__pyx_t_9);
     *((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_maxr.data) + __pyx_t_10)) )) = ceil((((__pyx_v_r + 0.15) * __pyx_v_recp_len) / (2.0 * M_PI)));
   }
 
-  /* "pymatgen/util/neighbors.pyx":348
+  /* "pymatgen/optimization/neighbors.pyx":354
  *             matrix[0, 2] * (matrix[1, 0] * matrix[2, 1] - matrix[1, 1] * matrix[2, 0])
  * 
  * cdef void get_max_r(double[:, ::1] lattice, double [::1] maxr, double r):             # <<<<<<<<<<<<<<
@@ -7164,14 +7234,14 @@ __pyx_v_recp_len = __pyx_f_8pymatgen_4util_9neighbors_norm(__pyx_t_9);
   __Pyx_XDECREF(__pyx_t_4);
   __PYX_XDEC_MEMVIEW(&__pyx_t_5, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_t_9, 1);
-  __Pyx_WriteUnraisable("pymatgen.util.neighbors.get_max_r", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __Pyx_WriteUnraisable("pymatgen.optimization.neighbors.get_max_r", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
   __pyx_L0:;
   __PYX_XDEC_MEMVIEW(&__pyx_v_reciprocal_lattice, 1);
   __Pyx_TraceReturn(Py_None, 0);
   __Pyx_RefNannyFinishContext();
 }
 
-/* "pymatgen/util/neighbors.pyx":361
+/* "pymatgen/optimization/neighbors.pyx":367
  *         maxr[i] = ceil((r + 0.15) * recp_len / (2 * pi))
  * 
  * cdef void get_reciprocal_lattice(double[:, ::1] lattice, double[:, ::1] reciprocal):             # <<<<<<<<<<<<<<
@@ -7179,7 +7249,7 @@ __pyx_v_recp_len = __pyx_f_8pymatgen_4util_9neighbors_norm(__pyx_t_9);
  *     Compute the reciprocal lattice
  */
 
-static void __pyx_f_8pymatgen_4util_9neighbors_get_reciprocal_lattice(__Pyx_memviewslice __pyx_v_lattice, __Pyx_memviewslice __pyx_v_reciprocal) {
+static void __pyx_f_8pymatgen_12optimization_9neighbors_get_reciprocal_lattice(__Pyx_memviewslice __pyx_v_lattice, __Pyx_memviewslice __pyx_v_reciprocal) {
   int __pyx_v_i;
   __Pyx_TraceDeclarations
   __Pyx_RefNannyDeclarations
@@ -7189,9 +7259,9 @@ static void __pyx_f_8pymatgen_4util_9neighbors_get_reciprocal_lattice(__Pyx_memv
   __Pyx_memviewslice __pyx_t_4 = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_memviewslice __pyx_t_5 = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_RefNannySetupContext("get_reciprocal_lattice", 0);
-  __Pyx_TraceCall("get_reciprocal_lattice", __pyx_f[0], 361, 0, __PYX_ERR(0, 361, __pyx_L1_error));
+  __Pyx_TraceCall("get_reciprocal_lattice", __pyx_f[0], 367, 0, __PYX_ERR(0, 367, __pyx_L1_error));
 
-  /* "pymatgen/util/neighbors.pyx":366
+  /* "pymatgen/optimization/neighbors.pyx":372
  *     """
  *     cdef int i
  *     for i in range(3):             # <<<<<<<<<<<<<<
@@ -7201,7 +7271,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_get_reciprocal_lattice(__Pyx_memv
   for (__pyx_t_1 = 0; __pyx_t_1 < 3; __pyx_t_1+=1) {
     __pyx_v_i = __pyx_t_1;
 
-    /* "pymatgen/util/neighbors.pyx":367
+    /* "pymatgen/optimization/neighbors.pyx":373
  *     cdef int i
  *     for i in range(3):
  *         recip_component(lattice[i, :], lattice[(i+1)%3, :], lattice[(i+2)%3, :], reciprocal[i, :])             # <<<<<<<<<<<<<<
@@ -7214,7 +7284,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_get_reciprocal_lattice(__Pyx_memv
     {
     Py_ssize_t __pyx_tmp_idx = __pyx_v_i;
     Py_ssize_t __pyx_tmp_stride = __pyx_v_lattice.strides[0];
-        if ((0)) __PYX_ERR(0, 367, __pyx_L1_error)
+        if ((0)) __PYX_ERR(0, 373, __pyx_L1_error)
         __pyx_t_2.data += __pyx_tmp_idx * __pyx_tmp_stride;
 }
 
@@ -7228,7 +7298,7 @@ __pyx_t_3.data = __pyx_v_lattice.data;
     {
     Py_ssize_t __pyx_tmp_idx = ((__pyx_v_i + 1) % 3);
     Py_ssize_t __pyx_tmp_stride = __pyx_v_lattice.strides[0];
-        if ((0)) __PYX_ERR(0, 367, __pyx_L1_error)
+        if ((0)) __PYX_ERR(0, 373, __pyx_L1_error)
         __pyx_t_3.data += __pyx_tmp_idx * __pyx_tmp_stride;
 }
 
@@ -7242,7 +7312,7 @@ __pyx_t_4.data = __pyx_v_lattice.data;
     {
     Py_ssize_t __pyx_tmp_idx = ((__pyx_v_i + 2) % 3);
     Py_ssize_t __pyx_tmp_stride = __pyx_v_lattice.strides[0];
-        if ((0)) __PYX_ERR(0, 367, __pyx_L1_error)
+        if ((0)) __PYX_ERR(0, 373, __pyx_L1_error)
         __pyx_t_4.data += __pyx_tmp_idx * __pyx_tmp_stride;
 }
 
@@ -7256,7 +7326,7 @@ __pyx_t_5.data = __pyx_v_reciprocal.data;
     {
     Py_ssize_t __pyx_tmp_idx = __pyx_v_i;
     Py_ssize_t __pyx_tmp_stride = __pyx_v_reciprocal.strides[0];
-        if ((0)) __PYX_ERR(0, 367, __pyx_L1_error)
+        if ((0)) __PYX_ERR(0, 373, __pyx_L1_error)
         __pyx_t_5.data += __pyx_tmp_idx * __pyx_tmp_stride;
 }
 
@@ -7264,7 +7334,7 @@ __pyx_t_5.shape[0] = __pyx_v_reciprocal.shape[1];
 __pyx_t_5.strides[0] = __pyx_v_reciprocal.strides[1];
     __pyx_t_5.suboffsets[0] = -1;
 
-__pyx_f_8pymatgen_4util_9neighbors_recip_component(__pyx_t_2, __pyx_t_3, __pyx_t_4, __pyx_t_5);
+__pyx_f_8pymatgen_12optimization_9neighbors_recip_component(__pyx_t_2, __pyx_t_3, __pyx_t_4, __pyx_t_5);
     __PYX_XDEC_MEMVIEW(&__pyx_t_2, 1);
     __pyx_t_2.memview = NULL;
     __pyx_t_2.data = NULL;
@@ -7279,7 +7349,7 @@ __pyx_f_8pymatgen_4util_9neighbors_recip_component(__pyx_t_2, __pyx_t_3, __pyx_t
     __pyx_t_5.data = NULL;
   }
 
-  /* "pymatgen/util/neighbors.pyx":361
+  /* "pymatgen/optimization/neighbors.pyx":367
  *         maxr[i] = ceil((r + 0.15) * recp_len / (2 * pi))
  * 
  * cdef void get_reciprocal_lattice(double[:, ::1] lattice, double[:, ::1] reciprocal):             # <<<<<<<<<<<<<<
@@ -7294,13 +7364,13 @@ __pyx_f_8pymatgen_4util_9neighbors_recip_component(__pyx_t_2, __pyx_t_3, __pyx_t
   __PYX_XDEC_MEMVIEW(&__pyx_t_3, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_t_4, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_t_5, 1);
-  __Pyx_WriteUnraisable("pymatgen.util.neighbors.get_reciprocal_lattice", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __Pyx_WriteUnraisable("pymatgen.optimization.neighbors.get_reciprocal_lattice", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
   __pyx_L0:;
   __Pyx_TraceReturn(Py_None, 0);
   __Pyx_RefNannyFinishContext();
 }
 
-/* "pymatgen/util/neighbors.pyx":369
+/* "pymatgen/optimization/neighbors.pyx":375
  *         recip_component(lattice[i, :], lattice[(i+1)%3, :], lattice[(i+2)%3, :], reciprocal[i, :])
  * 
  * cdef void recip_component(double[::1] a1, double[::1] a2, double[::1] a3, double[::1] out):             # <<<<<<<<<<<<<<
@@ -7308,7 +7378,7 @@ __pyx_f_8pymatgen_4util_9neighbors_recip_component(__pyx_t_2, __pyx_t_3, __pyx_t
  *     Compute the reciprocal lattice vector
  */
 
-static void __pyx_f_8pymatgen_4util_9neighbors_recip_component(__Pyx_memviewslice __pyx_v_a1, __Pyx_memviewslice __pyx_v_a2, __Pyx_memviewslice __pyx_v_a3, __Pyx_memviewslice __pyx_v_out) {
+static void __pyx_f_8pymatgen_12optimization_9neighbors_recip_component(__Pyx_memviewslice __pyx_v_a1, __Pyx_memviewslice __pyx_v_a2, __Pyx_memviewslice __pyx_v_a3, __Pyx_memviewslice __pyx_v_out) {
   double __pyx_v_ai_cross_aj[3];
   double __pyx_v_prod;
   int __pyx_v_i;
@@ -7323,9 +7393,9 @@ static void __pyx_f_8pymatgen_4util_9neighbors_recip_component(__Pyx_memviewslic
   int __pyx_t_7;
   Py_ssize_t __pyx_t_8;
   __Pyx_RefNannySetupContext("recip_component", 0);
-  __Pyx_TraceCall("recip_component", __pyx_f[0], 369, 0, __PYX_ERR(0, 369, __pyx_L1_error));
+  __Pyx_TraceCall("recip_component", __pyx_f[0], 375, 0, __PYX_ERR(0, 375, __pyx_L1_error));
 
-  /* "pymatgen/util/neighbors.pyx":376
+  /* "pymatgen/optimization/neighbors.pyx":382
  *     cdef double prod
  *     cdef int i
  *     cross(a2, a3, ai_cross_aj)             # <<<<<<<<<<<<<<
@@ -7334,22 +7404,22 @@ static void __pyx_f_8pymatgen_4util_9neighbors_recip_component(__Pyx_memviewslic
  */
   __pyx_t_3 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
   __pyx_t_2 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_3 || !__pyx_t_2 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 376, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3 || !__pyx_t_2 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 382, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_1 = __pyx_array_new(__pyx_t_2, sizeof(double), PyBytes_AS_STRING(__pyx_t_3), (char *) "fortran", (char *) __pyx_v_ai_cross_aj);
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 376, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 382, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_4 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(((PyObject *)__pyx_t_1), PyBUF_WRITABLE); if (unlikely(!__pyx_t_4.memview)) __PYX_ERR(0, 376, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(((PyObject *)__pyx_t_1), PyBUF_WRITABLE); if (unlikely(!__pyx_t_4.memview)) __PYX_ERR(0, 382, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_1)); __pyx_t_1 = 0;
-  __pyx_f_8pymatgen_4util_9neighbors_cross(__pyx_v_a2, __pyx_v_a3, __pyx_t_4);
+  __pyx_f_8pymatgen_12optimization_9neighbors_cross(__pyx_v_a2, __pyx_v_a3, __pyx_t_4);
   __PYX_XDEC_MEMVIEW(&__pyx_t_4, 1);
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pymatgen/util/neighbors.pyx":377
+  /* "pymatgen/optimization/neighbors.pyx":383
  *     cdef int i
  *     cross(a2, a3, ai_cross_aj)
  *     prod = inner(a1, ai_cross_aj)             # <<<<<<<<<<<<<<
@@ -7358,22 +7428,22 @@ static void __pyx_f_8pymatgen_4util_9neighbors_recip_component(__Pyx_memviewslic
  */
   __pyx_t_2 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
   __pyx_t_3 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_2 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_2))) __PYX_ERR(0, 377, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_2))) __PYX_ERR(0, 383, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_1 = __pyx_array_new(__pyx_t_3, sizeof(double), PyBytes_AS_STRING(__pyx_t_2), (char *) "fortran", (char *) __pyx_v_ai_cross_aj);
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 377, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 383, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_4 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(((PyObject *)__pyx_t_1), PyBUF_WRITABLE); if (unlikely(!__pyx_t_4.memview)) __PYX_ERR(0, 377, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(((PyObject *)__pyx_t_1), PyBUF_WRITABLE); if (unlikely(!__pyx_t_4.memview)) __PYX_ERR(0, 383, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_1)); __pyx_t_1 = 0;
-  __pyx_v_prod = __pyx_f_8pymatgen_4util_9neighbors_inner(__pyx_v_a1, __pyx_t_4);
+  __pyx_v_prod = __pyx_f_8pymatgen_12optimization_9neighbors_inner(__pyx_v_a1, __pyx_t_4);
   __PYX_XDEC_MEMVIEW(&__pyx_t_4, 1);
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pymatgen/util/neighbors.pyx":378
+  /* "pymatgen/optimization/neighbors.pyx":384
  *     cross(a2, a3, ai_cross_aj)
  *     prod = inner(a1, ai_cross_aj)
  *     for i in range(a1.shape[0]):             # <<<<<<<<<<<<<<
@@ -7385,7 +7455,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_recip_component(__Pyx_memviewslic
   for (__pyx_t_7 = 0; __pyx_t_7 < __pyx_t_6; __pyx_t_7+=1) {
     __pyx_v_i = __pyx_t_7;
 
-    /* "pymatgen/util/neighbors.pyx":379
+    /* "pymatgen/optimization/neighbors.pyx":385
  *     prod = inner(a1, ai_cross_aj)
  *     for i in range(a1.shape[0]):
  *         out[i] = 2 * pi * ai_cross_aj[i] / prod             # <<<<<<<<<<<<<<
@@ -7396,7 +7466,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_recip_component(__Pyx_memviewslic
     *((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_out.data) + __pyx_t_8)) )) = (((2.0 * M_PI) * (__pyx_v_ai_cross_aj[__pyx_v_i])) / __pyx_v_prod);
   }
 
-  /* "pymatgen/util/neighbors.pyx":369
+  /* "pymatgen/optimization/neighbors.pyx":375
  *         recip_component(lattice[i, :], lattice[(i+1)%3, :], lattice[(i+2)%3, :], reciprocal[i, :])
  * 
  * cdef void recip_component(double[::1] a1, double[::1] a2, double[::1] a3, double[::1] out):             # <<<<<<<<<<<<<<
@@ -7411,13 +7481,13 @@ static void __pyx_f_8pymatgen_4util_9neighbors_recip_component(__Pyx_memviewslic
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __PYX_XDEC_MEMVIEW(&__pyx_t_4, 1);
-  __Pyx_WriteUnraisable("pymatgen.util.neighbors.recip_component", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __Pyx_WriteUnraisable("pymatgen.optimization.neighbors.recip_component", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
   __pyx_L0:;
   __Pyx_TraceReturn(Py_None, 0);
   __Pyx_RefNannyFinishContext();
 }
 
-/* "pymatgen/util/neighbors.pyx":381
+/* "pymatgen/optimization/neighbors.pyx":387
  *         out[i] = 2 * pi * ai_cross_aj[i] / prod
  * 
  * cdef double inner(double[:] x, double[:] y):             # <<<<<<<<<<<<<<
@@ -7425,7 +7495,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_recip_component(__Pyx_memviewslic
  *     Compute inner product
  */
 
-static double __pyx_f_8pymatgen_4util_9neighbors_inner(__Pyx_memviewslice __pyx_v_x, __Pyx_memviewslice __pyx_v_y) {
+static double __pyx_f_8pymatgen_12optimization_9neighbors_inner(__Pyx_memviewslice __pyx_v_x, __Pyx_memviewslice __pyx_v_y) {
   double __pyx_v_sum;
   int __pyx_v_i;
   int __pyx_v_n;
@@ -7438,9 +7508,9 @@ static double __pyx_f_8pymatgen_4util_9neighbors_inner(__Pyx_memviewslice __pyx_
   Py_ssize_t __pyx_t_4;
   Py_ssize_t __pyx_t_5;
   __Pyx_RefNannySetupContext("inner", 0);
-  __Pyx_TraceCall("inner", __pyx_f[0], 381, 0, __PYX_ERR(0, 381, __pyx_L1_error));
+  __Pyx_TraceCall("inner", __pyx_f[0], 387, 0, __PYX_ERR(0, 387, __pyx_L1_error));
 
-  /* "pymatgen/util/neighbors.pyx":385
+  /* "pymatgen/optimization/neighbors.pyx":391
  *     Compute inner product
  *     """
  *     cdef double sum = 0             # <<<<<<<<<<<<<<
@@ -7449,7 +7519,7 @@ static double __pyx_f_8pymatgen_4util_9neighbors_inner(__Pyx_memviewslice __pyx_
  */
   __pyx_v_sum = 0.0;
 
-  /* "pymatgen/util/neighbors.pyx":386
+  /* "pymatgen/optimization/neighbors.pyx":392
  *     """
  *     cdef double sum = 0
  *     cdef int i, n = x.shape[0]             # <<<<<<<<<<<<<<
@@ -7458,7 +7528,7 @@ static double __pyx_f_8pymatgen_4util_9neighbors_inner(__Pyx_memviewslice __pyx_
  */
   __pyx_v_n = (__pyx_v_x.shape[0]);
 
-  /* "pymatgen/util/neighbors.pyx":387
+  /* "pymatgen/optimization/neighbors.pyx":393
  *     cdef double sum = 0
  *     cdef int i, n = x.shape[0]
  *     for i in range(n):             # <<<<<<<<<<<<<<
@@ -7470,7 +7540,7 @@ static double __pyx_f_8pymatgen_4util_9neighbors_inner(__Pyx_memviewslice __pyx_
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "pymatgen/util/neighbors.pyx":388
+    /* "pymatgen/optimization/neighbors.pyx":394
  *     cdef int i, n = x.shape[0]
  *     for i in range(n):
  *         sum += x[i] * y[i]             # <<<<<<<<<<<<<<
@@ -7482,7 +7552,7 @@ static double __pyx_f_8pymatgen_4util_9neighbors_inner(__Pyx_memviewslice __pyx_
     __pyx_v_sum = (__pyx_v_sum + ((*((double *) ( /* dim=0 */ (__pyx_v_x.data + __pyx_t_4 * __pyx_v_x.strides[0]) ))) * (*((double *) ( /* dim=0 */ (__pyx_v_y.data + __pyx_t_5 * __pyx_v_y.strides[0]) )))));
   }
 
-  /* "pymatgen/util/neighbors.pyx":389
+  /* "pymatgen/optimization/neighbors.pyx":395
  *     for i in range(n):
  *         sum += x[i] * y[i]
  *     return sum             # <<<<<<<<<<<<<<
@@ -7492,7 +7562,7 @@ static double __pyx_f_8pymatgen_4util_9neighbors_inner(__Pyx_memviewslice __pyx_
   __pyx_r = __pyx_v_sum;
   goto __pyx_L0;
 
-  /* "pymatgen/util/neighbors.pyx":381
+  /* "pymatgen/optimization/neighbors.pyx":387
  *         out[i] = 2 * pi * ai_cross_aj[i] / prod
  * 
  * cdef double inner(double[:] x, double[:] y):             # <<<<<<<<<<<<<<
@@ -7502,7 +7572,7 @@ static double __pyx_f_8pymatgen_4util_9neighbors_inner(__Pyx_memviewslice __pyx_
 
   /* function exit code */
   __pyx_L1_error:;
-  __Pyx_WriteUnraisable("pymatgen.util.neighbors.inner", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __Pyx_WriteUnraisable("pymatgen.optimization.neighbors.inner", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_TraceReturn(Py_None, 0);
@@ -7510,7 +7580,7 @@ static double __pyx_f_8pymatgen_4util_9neighbors_inner(__Pyx_memviewslice __pyx_
   return __pyx_r;
 }
 
-/* "pymatgen/util/neighbors.pyx":391
+/* "pymatgen/optimization/neighbors.pyx":397
  *     return sum
  * 
  * cdef void cross(double[:] x, double[:] y, double[:] out) nogil:             # <<<<<<<<<<<<<<
@@ -7518,7 +7588,7 @@ static double __pyx_f_8pymatgen_4util_9neighbors_inner(__Pyx_memviewslice __pyx_
  *     Cross product of vector x and y, output in out
  */
 
-static void __pyx_f_8pymatgen_4util_9neighbors_cross(__Pyx_memviewslice __pyx_v_x, __Pyx_memviewslice __pyx_v_y, __Pyx_memviewslice __pyx_v_out) {
+static void __pyx_f_8pymatgen_12optimization_9neighbors_cross(__Pyx_memviewslice __pyx_v_x, __Pyx_memviewslice __pyx_v_y, __Pyx_memviewslice __pyx_v_out) {
   __Pyx_TraceDeclarations
   Py_ssize_t __pyx_t_1;
   Py_ssize_t __pyx_t_2;
@@ -7535,9 +7605,9 @@ static void __pyx_f_8pymatgen_4util_9neighbors_cross(__Pyx_memviewslice __pyx_v_
   Py_ssize_t __pyx_t_13;
   Py_ssize_t __pyx_t_14;
   Py_ssize_t __pyx_t_15;
-  __Pyx_TraceCall("cross", __pyx_f[0], 391, 1, __PYX_ERR(0, 391, __pyx_L1_error));
+  __Pyx_TraceCall("cross", __pyx_f[0], 397, 1, __PYX_ERR(0, 397, __pyx_L1_error));
 
-  /* "pymatgen/util/neighbors.pyx":395
+  /* "pymatgen/optimization/neighbors.pyx":401
  *     Cross product of vector x and y, output in out
  *     """
  *     out[0] = x[1] * y[2] - x[2] * y[1]             # <<<<<<<<<<<<<<
@@ -7551,7 +7621,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_cross(__Pyx_memviewslice __pyx_v_
   __pyx_t_5 = 0;
   *((double *) ( /* dim=0 */ (__pyx_v_out.data + __pyx_t_5 * __pyx_v_out.strides[0]) )) = (((*((double *) ( /* dim=0 */ (__pyx_v_x.data + __pyx_t_1 * __pyx_v_x.strides[0]) ))) * (*((double *) ( /* dim=0 */ (__pyx_v_y.data + __pyx_t_2 * __pyx_v_y.strides[0]) )))) - ((*((double *) ( /* dim=0 */ (__pyx_v_x.data + __pyx_t_3 * __pyx_v_x.strides[0]) ))) * (*((double *) ( /* dim=0 */ (__pyx_v_y.data + __pyx_t_4 * __pyx_v_y.strides[0]) )))));
 
-  /* "pymatgen/util/neighbors.pyx":396
+  /* "pymatgen/optimization/neighbors.pyx":402
  *     """
  *     out[0] = x[1] * y[2] - x[2] * y[1]
  *     out[1] = x[2] * y[0] - x[0] * y[2]             # <<<<<<<<<<<<<<
@@ -7565,7 +7635,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_cross(__Pyx_memviewslice __pyx_v_
   __pyx_t_10 = 1;
   *((double *) ( /* dim=0 */ (__pyx_v_out.data + __pyx_t_10 * __pyx_v_out.strides[0]) )) = (((*((double *) ( /* dim=0 */ (__pyx_v_x.data + __pyx_t_6 * __pyx_v_x.strides[0]) ))) * (*((double *) ( /* dim=0 */ (__pyx_v_y.data + __pyx_t_7 * __pyx_v_y.strides[0]) )))) - ((*((double *) ( /* dim=0 */ (__pyx_v_x.data + __pyx_t_8 * __pyx_v_x.strides[0]) ))) * (*((double *) ( /* dim=0 */ (__pyx_v_y.data + __pyx_t_9 * __pyx_v_y.strides[0]) )))));
 
-  /* "pymatgen/util/neighbors.pyx":397
+  /* "pymatgen/optimization/neighbors.pyx":403
  *     out[0] = x[1] * y[2] - x[2] * y[1]
  *     out[1] = x[2] * y[0] - x[0] * y[2]
  *     out[2] = x[0] * y[1] - x[1] * y[0]             # <<<<<<<<<<<<<<
@@ -7579,7 +7649,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_cross(__Pyx_memviewslice __pyx_v_
   __pyx_t_15 = 2;
   *((double *) ( /* dim=0 */ (__pyx_v_out.data + __pyx_t_15 * __pyx_v_out.strides[0]) )) = (((*((double *) ( /* dim=0 */ (__pyx_v_x.data + __pyx_t_11 * __pyx_v_x.strides[0]) ))) * (*((double *) ( /* dim=0 */ (__pyx_v_y.data + __pyx_t_12 * __pyx_v_y.strides[0]) )))) - ((*((double *) ( /* dim=0 */ (__pyx_v_x.data + __pyx_t_13 * __pyx_v_x.strides[0]) ))) * (*((double *) ( /* dim=0 */ (__pyx_v_y.data + __pyx_t_14 * __pyx_v_y.strides[0]) )))));
 
-  /* "pymatgen/util/neighbors.pyx":391
+  /* "pymatgen/optimization/neighbors.pyx":397
  *     return sum
  * 
  * cdef void cross(double[:] x, double[:] y, double[:] out) nogil:             # <<<<<<<<<<<<<<
@@ -7590,12 +7660,12 @@ static void __pyx_f_8pymatgen_4util_9neighbors_cross(__Pyx_memviewslice __pyx_v_
   /* function exit code */
   goto __pyx_L0;
   __pyx_L1_error:;
-  __Pyx_WriteUnraisable("pymatgen.util.neighbors.cross", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 1);
+  __Pyx_WriteUnraisable("pymatgen.optimization.neighbors.cross", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 1);
   __pyx_L0:;
   __Pyx_TraceReturn(Py_None, 1);
 }
 
-/* "pymatgen/util/neighbors.pyx":399
+/* "pymatgen/optimization/neighbors.pyx":405
  *     out[2] = x[0] * y[1] - x[1] * y[0]
  * 
  * cdef double norm(double[::1] vec) nogil:             # <<<<<<<<<<<<<<
@@ -7603,7 +7673,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_cross(__Pyx_memviewslice __pyx_v_
  *     Vector norm
  */
 
-static double __pyx_f_8pymatgen_4util_9neighbors_norm(__Pyx_memviewslice __pyx_v_vec) {
+static double __pyx_f_8pymatgen_12optimization_9neighbors_norm(__Pyx_memviewslice __pyx_v_vec) {
   int __pyx_v_i;
   int __pyx_v_n;
   double __pyx_v_sum;
@@ -7614,9 +7684,9 @@ static double __pyx_f_8pymatgen_4util_9neighbors_norm(__Pyx_memviewslice __pyx_v
   int __pyx_t_3;
   Py_ssize_t __pyx_t_4;
   Py_ssize_t __pyx_t_5;
-  __Pyx_TraceCall("norm", __pyx_f[0], 399, 1, __PYX_ERR(0, 399, __pyx_L1_error));
+  __Pyx_TraceCall("norm", __pyx_f[0], 405, 1, __PYX_ERR(0, 405, __pyx_L1_error));
 
-  /* "pymatgen/util/neighbors.pyx":403
+  /* "pymatgen/optimization/neighbors.pyx":409
  *     Vector norm
  *     """
  *     cdef int i, n = vec.shape[0]             # <<<<<<<<<<<<<<
@@ -7625,7 +7695,7 @@ static double __pyx_f_8pymatgen_4util_9neighbors_norm(__Pyx_memviewslice __pyx_v
  */
   __pyx_v_n = (__pyx_v_vec.shape[0]);
 
-  /* "pymatgen/util/neighbors.pyx":404
+  /* "pymatgen/optimization/neighbors.pyx":410
  *     """
  *     cdef int i, n = vec.shape[0]
  *     cdef double sum = 0             # <<<<<<<<<<<<<<
@@ -7634,7 +7704,7 @@ static double __pyx_f_8pymatgen_4util_9neighbors_norm(__Pyx_memviewslice __pyx_v
  */
   __pyx_v_sum = 0.0;
 
-  /* "pymatgen/util/neighbors.pyx":405
+  /* "pymatgen/optimization/neighbors.pyx":411
  *     cdef int i, n = vec.shape[0]
  *     cdef double sum = 0
  *     for i in range(n):             # <<<<<<<<<<<<<<
@@ -7646,7 +7716,7 @@ static double __pyx_f_8pymatgen_4util_9neighbors_norm(__Pyx_memviewslice __pyx_v
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "pymatgen/util/neighbors.pyx":406
+    /* "pymatgen/optimization/neighbors.pyx":412
  *     cdef double sum = 0
  *     for i in range(n):
  *         sum += vec[i] * vec[i]             # <<<<<<<<<<<<<<
@@ -7658,7 +7728,7 @@ static double __pyx_f_8pymatgen_4util_9neighbors_norm(__Pyx_memviewslice __pyx_v
     __pyx_v_sum = (__pyx_v_sum + ((*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_vec.data) + __pyx_t_4)) ))) * (*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_vec.data) + __pyx_t_5)) )))));
   }
 
-  /* "pymatgen/util/neighbors.pyx":407
+  /* "pymatgen/optimization/neighbors.pyx":413
  *     for i in range(n):
  *         sum += vec[i] * vec[i]
  *     return sqrt(sum)             # <<<<<<<<<<<<<<
@@ -7668,7 +7738,7 @@ static double __pyx_f_8pymatgen_4util_9neighbors_norm(__Pyx_memviewslice __pyx_v
   __pyx_r = sqrt(__pyx_v_sum);
   goto __pyx_L0;
 
-  /* "pymatgen/util/neighbors.pyx":399
+  /* "pymatgen/optimization/neighbors.pyx":405
  *     out[2] = x[0] * y[1] - x[1] * y[0]
  * 
  * cdef double norm(double[::1] vec) nogil:             # <<<<<<<<<<<<<<
@@ -7678,14 +7748,14 @@ static double __pyx_f_8pymatgen_4util_9neighbors_norm(__Pyx_memviewslice __pyx_v
 
   /* function exit code */
   __pyx_L1_error:;
-  __Pyx_WriteUnraisable("pymatgen.util.neighbors.norm", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 1);
+  __Pyx_WriteUnraisable("pymatgen.optimization.neighbors.norm", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 1);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_TraceReturn(Py_None, 1);
   return __pyx_r;
 }
 
-/* "pymatgen/util/neighbors.pyx":409
+/* "pymatgen/optimization/neighbors.pyx":415
  *     return sqrt(sum)
  * 
  * cdef max_and_min(double[:, ::1] coords, double[::1] max_coords, double[::1] min_coords):             # <<<<<<<<<<<<<<
@@ -7693,7 +7763,7 @@ static double __pyx_f_8pymatgen_4util_9neighbors_norm(__Pyx_memviewslice __pyx_v
  *     Compute the min and max of coords
  */
 
-static PyObject *__pyx_f_8pymatgen_4util_9neighbors_max_and_min(__Pyx_memviewslice __pyx_v_coords, __Pyx_memviewslice __pyx_v_max_coords, __Pyx_memviewslice __pyx_v_min_coords) {
+static PyObject *__pyx_f_8pymatgen_12optimization_9neighbors_max_and_min(__Pyx_memviewslice __pyx_v_coords, __Pyx_memviewslice __pyx_v_max_coords, __Pyx_memviewslice __pyx_v_min_coords) {
   int __pyx_v_i;
   int __pyx_v_j;
   int __pyx_v_M;
@@ -7727,9 +7797,9 @@ static PyObject *__pyx_f_8pymatgen_4util_9neighbors_max_and_min(__Pyx_memviewsli
   Py_ssize_t __pyx_t_24;
   Py_ssize_t __pyx_t_25;
   __Pyx_RefNannySetupContext("max_and_min", 0);
-  __Pyx_TraceCall("max_and_min", __pyx_f[0], 409, 0, __PYX_ERR(0, 409, __pyx_L1_error));
+  __Pyx_TraceCall("max_and_min", __pyx_f[0], 415, 0, __PYX_ERR(0, 415, __pyx_L1_error));
 
-  /* "pymatgen/util/neighbors.pyx":414
+  /* "pymatgen/optimization/neighbors.pyx":420
  *     """
  *     cdef int i, j
  *     cdef int M = coords.shape[0]             # <<<<<<<<<<<<<<
@@ -7738,7 +7808,7 @@ static PyObject *__pyx_f_8pymatgen_4util_9neighbors_max_and_min(__Pyx_memviewsli
  */
   __pyx_v_M = (__pyx_v_coords.shape[0]);
 
-  /* "pymatgen/util/neighbors.pyx":415
+  /* "pymatgen/optimization/neighbors.pyx":421
  *     cdef int i, j
  *     cdef int M = coords.shape[0]
  *     cdef int N = coords.shape[1]             # <<<<<<<<<<<<<<
@@ -7747,7 +7817,7 @@ static PyObject *__pyx_f_8pymatgen_4util_9neighbors_max_and_min(__Pyx_memviewsli
  */
   __pyx_v_N = (__pyx_v_coords.shape[1]);
 
-  /* "pymatgen/util/neighbors.pyx":416
+  /* "pymatgen/optimization/neighbors.pyx":422
  *     cdef int M = coords.shape[0]
  *     cdef int N = coords.shape[1]
  *     for i in range(N):             # <<<<<<<<<<<<<<
@@ -7759,7 +7829,7 @@ static PyObject *__pyx_f_8pymatgen_4util_9neighbors_max_and_min(__Pyx_memviewsli
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "pymatgen/util/neighbors.pyx":417
+    /* "pymatgen/optimization/neighbors.pyx":423
  *     cdef int N = coords.shape[1]
  *     for i in range(N):
  *         max_coords[i] = coords[0, i]             # <<<<<<<<<<<<<<
@@ -7771,7 +7841,7 @@ static PyObject *__pyx_f_8pymatgen_4util_9neighbors_max_and_min(__Pyx_memviewsli
     __pyx_t_6 = __pyx_v_i;
     *((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_max_coords.data) + __pyx_t_6)) )) = (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_coords.data + __pyx_t_4 * __pyx_v_coords.strides[0]) )) + __pyx_t_5)) )));
 
-    /* "pymatgen/util/neighbors.pyx":418
+    /* "pymatgen/optimization/neighbors.pyx":424
  *     for i in range(N):
  *         max_coords[i] = coords[0, i]
  *         min_coords[i] = coords[0, i]             # <<<<<<<<<<<<<<
@@ -7784,7 +7854,7 @@ static PyObject *__pyx_f_8pymatgen_4util_9neighbors_max_and_min(__Pyx_memviewsli
     *((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_min_coords.data) + __pyx_t_9)) )) = (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_coords.data + __pyx_t_7 * __pyx_v_coords.strides[0]) )) + __pyx_t_8)) )));
   }
 
-  /* "pymatgen/util/neighbors.pyx":419
+  /* "pymatgen/optimization/neighbors.pyx":425
  *         max_coords[i] = coords[0, i]
  *         min_coords[i] = coords[0, i]
  *     for i in range(M):             # <<<<<<<<<<<<<<
@@ -7796,7 +7866,7 @@ static PyObject *__pyx_f_8pymatgen_4util_9neighbors_max_and_min(__Pyx_memviewsli
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "pymatgen/util/neighbors.pyx":420
+    /* "pymatgen/optimization/neighbors.pyx":426
  *         min_coords[i] = coords[0, i]
  *     for i in range(M):
  *         for j in range(N):             # <<<<<<<<<<<<<<
@@ -7808,7 +7878,7 @@ static PyObject *__pyx_f_8pymatgen_4util_9neighbors_max_and_min(__Pyx_memviewsli
     for (__pyx_t_12 = 0; __pyx_t_12 < __pyx_t_11; __pyx_t_12+=1) {
       __pyx_v_j = __pyx_t_12;
 
-      /* "pymatgen/util/neighbors.pyx":421
+      /* "pymatgen/optimization/neighbors.pyx":427
  *     for i in range(M):
  *         for j in range(N):
  *             if coords[i, j] >= max_coords[j]:             # <<<<<<<<<<<<<<
@@ -7821,7 +7891,7 @@ static PyObject *__pyx_f_8pymatgen_4util_9neighbors_max_and_min(__Pyx_memviewsli
       __pyx_t_16 = (((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_coords.data + __pyx_t_13 * __pyx_v_coords.strides[0]) )) + __pyx_t_14)) ))) >= (*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_max_coords.data) + __pyx_t_15)) )))) != 0);
       if (__pyx_t_16) {
 
-        /* "pymatgen/util/neighbors.pyx":422
+        /* "pymatgen/optimization/neighbors.pyx":428
  *         for j in range(N):
  *             if coords[i, j] >= max_coords[j]:
  *                 max_coords[j] = coords[i, j]             # <<<<<<<<<<<<<<
@@ -7833,7 +7903,7 @@ static PyObject *__pyx_f_8pymatgen_4util_9neighbors_max_and_min(__Pyx_memviewsli
         __pyx_t_19 = __pyx_v_j;
         *((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_max_coords.data) + __pyx_t_19)) )) = (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_coords.data + __pyx_t_17 * __pyx_v_coords.strides[0]) )) + __pyx_t_18)) )));
 
-        /* "pymatgen/util/neighbors.pyx":421
+        /* "pymatgen/optimization/neighbors.pyx":427
  *     for i in range(M):
  *         for j in range(N):
  *             if coords[i, j] >= max_coords[j]:             # <<<<<<<<<<<<<<
@@ -7842,7 +7912,7 @@ static PyObject *__pyx_f_8pymatgen_4util_9neighbors_max_and_min(__Pyx_memviewsli
  */
       }
 
-      /* "pymatgen/util/neighbors.pyx":423
+      /* "pymatgen/optimization/neighbors.pyx":429
  *             if coords[i, j] >= max_coords[j]:
  *                 max_coords[j] = coords[i, j]
  *             if coords[i, j] <= min_coords[j]:             # <<<<<<<<<<<<<<
@@ -7855,7 +7925,7 @@ static PyObject *__pyx_f_8pymatgen_4util_9neighbors_max_and_min(__Pyx_memviewsli
       __pyx_t_16 = (((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_coords.data + __pyx_t_20 * __pyx_v_coords.strides[0]) )) + __pyx_t_21)) ))) <= (*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_min_coords.data) + __pyx_t_22)) )))) != 0);
       if (__pyx_t_16) {
 
-        /* "pymatgen/util/neighbors.pyx":424
+        /* "pymatgen/optimization/neighbors.pyx":430
  *                 max_coords[j] = coords[i, j]
  *             if coords[i, j] <= min_coords[j]:
  *                 min_coords[j] = coords[i, j]             # <<<<<<<<<<<<<<
@@ -7867,7 +7937,7 @@ static PyObject *__pyx_f_8pymatgen_4util_9neighbors_max_and_min(__Pyx_memviewsli
         __pyx_t_25 = __pyx_v_j;
         *((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_min_coords.data) + __pyx_t_25)) )) = (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_coords.data + __pyx_t_23 * __pyx_v_coords.strides[0]) )) + __pyx_t_24)) )));
 
-        /* "pymatgen/util/neighbors.pyx":423
+        /* "pymatgen/optimization/neighbors.pyx":429
  *             if coords[i, j] >= max_coords[j]:
  *                 max_coords[j] = coords[i, j]
  *             if coords[i, j] <= min_coords[j]:             # <<<<<<<<<<<<<<
@@ -7878,7 +7948,7 @@ static PyObject *__pyx_f_8pymatgen_4util_9neighbors_max_and_min(__Pyx_memviewsli
     }
   }
 
-  /* "pymatgen/util/neighbors.pyx":409
+  /* "pymatgen/optimization/neighbors.pyx":415
  *     return sqrt(sum)
  * 
  * cdef max_and_min(double[:, ::1] coords, double[::1] max_coords, double[::1] min_coords):             # <<<<<<<<<<<<<<
@@ -7890,7 +7960,7 @@ static PyObject *__pyx_f_8pymatgen_4util_9neighbors_max_and_min(__Pyx_memviewsli
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
   goto __pyx_L0;
   __pyx_L1_error:;
-  __Pyx_AddTraceback("pymatgen.util.neighbors.max_and_min", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("pymatgen.optimization.neighbors.max_and_min", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -7899,7 +7969,7 @@ static PyObject *__pyx_f_8pymatgen_4util_9neighbors_max_and_min(__Pyx_memviewsli
   return __pyx_r;
 }
 
-/* "pymatgen/util/neighbors.pyx":426
+/* "pymatgen/optimization/neighbors.pyx":432
  *                 min_coords[j] = coords[i, j]
  * 
  * cdef void compute_cube_index(double[:, ::1] coords, double [:] global_min, double radius, long[:, ::1] return_indice) nogil:             # <<<<<<<<<<<<<<
@@ -7907,7 +7977,7 @@ static PyObject *__pyx_f_8pymatgen_4util_9neighbors_max_and_min(__Pyx_memviewsli
  *     for i in range(coords.shape[0]):
  */
 
-static void __pyx_f_8pymatgen_4util_9neighbors_compute_cube_index(__Pyx_memviewslice __pyx_v_coords, __Pyx_memviewslice __pyx_v_global_min, double __pyx_v_radius, __Pyx_memviewslice __pyx_v_return_indice) {
+static void __pyx_f_8pymatgen_12optimization_9neighbors_compute_cube_index(__Pyx_memviewslice __pyx_v_coords, __Pyx_memviewslice __pyx_v_global_min, double __pyx_v_radius, __Pyx_memviewslice __pyx_v_return_indice) {
   int __pyx_v_i;
   int __pyx_v_j;
   __Pyx_TraceDeclarations
@@ -7922,9 +7992,9 @@ static void __pyx_f_8pymatgen_4util_9neighbors_compute_cube_index(__Pyx_memviews
   Py_ssize_t __pyx_t_9;
   Py_ssize_t __pyx_t_10;
   Py_ssize_t __pyx_t_11;
-  __Pyx_TraceCall("compute_cube_index", __pyx_f[0], 426, 1, __PYX_ERR(0, 426, __pyx_L1_error));
+  __Pyx_TraceCall("compute_cube_index", __pyx_f[0], 432, 1, __PYX_ERR(0, 432, __pyx_L1_error));
 
-  /* "pymatgen/util/neighbors.pyx":428
+  /* "pymatgen/optimization/neighbors.pyx":434
  * cdef void compute_cube_index(double[:, ::1] coords, double [:] global_min, double radius, long[:, ::1] return_indice) nogil:
  *     cdef int i, j
  *     for i in range(coords.shape[0]):             # <<<<<<<<<<<<<<
@@ -7936,7 +8006,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_compute_cube_index(__Pyx_memviews
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "pymatgen/util/neighbors.pyx":429
+    /* "pymatgen/optimization/neighbors.pyx":435
  *     cdef int i, j
  *     for i in range(coords.shape[0]):
  *         for j in range(coords.shape[1]):             # <<<<<<<<<<<<<<
@@ -7948,7 +8018,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_compute_cube_index(__Pyx_memviews
     for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
       __pyx_v_j = __pyx_t_6;
 
-      /* "pymatgen/util/neighbors.pyx":430
+      /* "pymatgen/optimization/neighbors.pyx":436
  *     for i in range(coords.shape[0]):
  *         for j in range(coords.shape[1]):
  *             return_indice[i, j] = <long>(floor((coords[i, j] - global_min[j] + 1e-8) / radius))             # <<<<<<<<<<<<<<
@@ -7964,7 +8034,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_compute_cube_index(__Pyx_memviews
     }
   }
 
-  /* "pymatgen/util/neighbors.pyx":426
+  /* "pymatgen/optimization/neighbors.pyx":432
  *                 min_coords[j] = coords[i, j]
  * 
  * cdef void compute_cube_index(double[:, ::1] coords, double [:] global_min, double radius, long[:, ::1] return_indice) nogil:             # <<<<<<<<<<<<<<
@@ -7975,12 +8045,12 @@ static void __pyx_f_8pymatgen_4util_9neighbors_compute_cube_index(__Pyx_memviews
   /* function exit code */
   goto __pyx_L0;
   __pyx_L1_error:;
-  __Pyx_WriteUnraisable("pymatgen.util.neighbors.compute_cube_index", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 1);
+  __Pyx_WriteUnraisable("pymatgen.optimization.neighbors.compute_cube_index", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 1);
   __pyx_L0:;
   __Pyx_TraceReturn(Py_None, 1);
 }
 
-/* "pymatgen/util/neighbors.pyx":433
+/* "pymatgen/optimization/neighbors.pyx":439
  * 
  * 
  * cdef void one_to_three(long[::1] label1d, long ny, long nz, long[:, ::1] label3d) nogil:             # <<<<<<<<<<<<<<
@@ -7988,7 +8058,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_compute_cube_index(__Pyx_memviews
  *     1D label vector to 3D label representation
  */
 
-static void __pyx_f_8pymatgen_4util_9neighbors_one_to_three(__Pyx_memviewslice __pyx_v_label1d, long __pyx_v_ny, long __pyx_v_nz, __Pyx_memviewslice __pyx_v_label3d) {
+static void __pyx_f_8pymatgen_12optimization_9neighbors_one_to_three(__Pyx_memviewslice __pyx_v_label1d, long __pyx_v_ny, long __pyx_v_nz, __Pyx_memviewslice __pyx_v_label3d) {
   int __pyx_v_i;
   int __pyx_v_n;
   __Pyx_TraceDeclarations
@@ -8010,9 +8080,9 @@ static void __pyx_f_8pymatgen_4util_9neighbors_one_to_three(__Pyx_memviewslice _
   Py_ssize_t __pyx_t_16;
   Py_ssize_t __pyx_t_17;
   Py_ssize_t __pyx_t_18;
-  __Pyx_TraceCall("one_to_three", __pyx_f[0], 433, 1, __PYX_ERR(0, 433, __pyx_L1_error));
+  __Pyx_TraceCall("one_to_three", __pyx_f[0], 439, 1, __PYX_ERR(0, 439, __pyx_L1_error));
 
-  /* "pymatgen/util/neighbors.pyx":438
+  /* "pymatgen/optimization/neighbors.pyx":444
  *     """
  *     cdef int i
  *     cdef int n = label1d.shape[0]             # <<<<<<<<<<<<<<
@@ -8021,7 +8091,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_one_to_three(__Pyx_memviewslice _
  */
   __pyx_v_n = (__pyx_v_label1d.shape[0]);
 
-  /* "pymatgen/util/neighbors.pyx":439
+  /* "pymatgen/optimization/neighbors.pyx":445
  *     cdef int i
  *     cdef int n = label1d.shape[0]
  *     for i in range(n):             # <<<<<<<<<<<<<<
@@ -8033,7 +8103,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_one_to_three(__Pyx_memviewslice _
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "pymatgen/util/neighbors.pyx":440
+    /* "pymatgen/optimization/neighbors.pyx":446
  *     cdef int n = label1d.shape[0]
  *     for i in range(n):
  *         label3d[i, 2] = label1d[i] % nz             # <<<<<<<<<<<<<<
@@ -8045,7 +8115,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_one_to_three(__Pyx_memviewslice _
     __pyx_t_6 = 2;
     *((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_label3d.data + __pyx_t_5 * __pyx_v_label3d.strides[0]) )) + __pyx_t_6)) )) = ((*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_label1d.data) + __pyx_t_4)) ))) % __pyx_v_nz);
 
-    /* "pymatgen/util/neighbors.pyx":441
+    /* "pymatgen/optimization/neighbors.pyx":447
  *     for i in range(n):
  *         label3d[i, 2] = label1d[i] % nz
  *         label3d[i, 1] = ((label1d[i] - label3d[i, 2]) / nz) % ny             # <<<<<<<<<<<<<<
@@ -8059,7 +8129,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_one_to_three(__Pyx_memviewslice _
     __pyx_t_11 = 1;
     *((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_label3d.data + __pyx_t_10 * __pyx_v_label3d.strides[0]) )) + __pyx_t_11)) )) = ((((*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_label1d.data) + __pyx_t_7)) ))) - (*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_label3d.data + __pyx_t_8 * __pyx_v_label3d.strides[0]) )) + __pyx_t_9)) )))) / __pyx_v_nz) % __pyx_v_ny);
 
-    /* "pymatgen/util/neighbors.pyx":442
+    /* "pymatgen/optimization/neighbors.pyx":448
  *         label3d[i, 2] = label1d[i] % nz
  *         label3d[i, 1] = ((label1d[i] - label3d[i, 2]) / nz) % ny
  *         label3d[i, 0] = (label1d[i] - label3d[i, 2] - label3d[i, 1] * nz) / (ny * nz)             # <<<<<<<<<<<<<<
@@ -8076,7 +8146,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_one_to_three(__Pyx_memviewslice _
     *((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_label3d.data + __pyx_t_17 * __pyx_v_label3d.strides[0]) )) + __pyx_t_18)) )) = ((((*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_label1d.data) + __pyx_t_12)) ))) - (*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_label3d.data + __pyx_t_13 * __pyx_v_label3d.strides[0]) )) + __pyx_t_14)) )))) - ((*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_label3d.data + __pyx_t_15 * __pyx_v_label3d.strides[0]) )) + __pyx_t_16)) ))) * __pyx_v_nz)) / (__pyx_v_ny * __pyx_v_nz));
   }
 
-  /* "pymatgen/util/neighbors.pyx":433
+  /* "pymatgen/optimization/neighbors.pyx":439
  * 
  * 
  * cdef void one_to_three(long[::1] label1d, long ny, long nz, long[:, ::1] label3d) nogil:             # <<<<<<<<<<<<<<
@@ -8087,12 +8157,12 @@ static void __pyx_f_8pymatgen_4util_9neighbors_one_to_three(__Pyx_memviewslice _
   /* function exit code */
   goto __pyx_L0;
   __pyx_L1_error:;
-  __Pyx_WriteUnraisable("pymatgen.util.neighbors.one_to_three", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 1);
+  __Pyx_WriteUnraisable("pymatgen.optimization.neighbors.one_to_three", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 1);
   __pyx_L0:;
   __Pyx_TraceReturn(Py_None, 1);
 }
 
-/* "pymatgen/util/neighbors.pyx":445
+/* "pymatgen/optimization/neighbors.pyx":451
  * 
  * 
  * cdef void three_to_one(long[:, ::1] label3d, long ny, long nz, long[::1] label1d) nogil:             # <<<<<<<<<<<<<<
@@ -8100,7 +8170,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_one_to_three(__Pyx_memviewslice _
  *     3D vector representation to 1D
  */
 
-static void __pyx_f_8pymatgen_4util_9neighbors_three_to_one(__Pyx_memviewslice __pyx_v_label3d, long __pyx_v_ny, long __pyx_v_nz, __Pyx_memviewslice __pyx_v_label1d) {
+static void __pyx_f_8pymatgen_12optimization_9neighbors_three_to_one(__Pyx_memviewslice __pyx_v_label3d, long __pyx_v_ny, long __pyx_v_nz, __Pyx_memviewslice __pyx_v_label1d) {
   int __pyx_v_i;
   int __pyx_v_n;
   __Pyx_TraceDeclarations
@@ -8114,9 +8184,9 @@ static void __pyx_f_8pymatgen_4util_9neighbors_three_to_one(__Pyx_memviewslice _
   Py_ssize_t __pyx_t_8;
   Py_ssize_t __pyx_t_9;
   Py_ssize_t __pyx_t_10;
-  __Pyx_TraceCall("three_to_one", __pyx_f[0], 445, 1, __PYX_ERR(0, 445, __pyx_L1_error));
+  __Pyx_TraceCall("three_to_one", __pyx_f[0], 451, 1, __PYX_ERR(0, 451, __pyx_L1_error));
 
-  /* "pymatgen/util/neighbors.pyx":450
+  /* "pymatgen/optimization/neighbors.pyx":456
  *     """
  *     cdef int i
  *     cdef int n = label3d.shape[0]             # <<<<<<<<<<<<<<
@@ -8125,7 +8195,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_three_to_one(__Pyx_memviewslice _
  */
   __pyx_v_n = (__pyx_v_label3d.shape[0]);
 
-  /* "pymatgen/util/neighbors.pyx":451
+  /* "pymatgen/optimization/neighbors.pyx":457
  *     cdef int i
  *     cdef int n = label3d.shape[0]
  *     for i in range(n):             # <<<<<<<<<<<<<<
@@ -8137,7 +8207,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_three_to_one(__Pyx_memviewslice _
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "pymatgen/util/neighbors.pyx":452
+    /* "pymatgen/optimization/neighbors.pyx":458
  *     cdef int n = label3d.shape[0]
  *     for i in range(n):
  *         label1d[i] = label3d[i, 0] * ny * nz + label3d[i, 1] * nz + label3d[i, 2]             # <<<<<<<<<<<<<<
@@ -8154,7 +8224,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_three_to_one(__Pyx_memviewslice _
     *((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_label1d.data) + __pyx_t_10)) )) = (((((*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_label3d.data + __pyx_t_4 * __pyx_v_label3d.strides[0]) )) + __pyx_t_5)) ))) * __pyx_v_ny) * __pyx_v_nz) + ((*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_label3d.data + __pyx_t_6 * __pyx_v_label3d.strides[0]) )) + __pyx_t_7)) ))) * __pyx_v_nz)) + (*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_label3d.data + __pyx_t_8 * __pyx_v_label3d.strides[0]) )) + __pyx_t_9)) ))));
   }
 
-  /* "pymatgen/util/neighbors.pyx":445
+  /* "pymatgen/optimization/neighbors.pyx":451
  * 
  * 
  * cdef void three_to_one(long[:, ::1] label3d, long ny, long nz, long[::1] label1d) nogil:             # <<<<<<<<<<<<<<
@@ -8165,12 +8235,12 @@ static void __pyx_f_8pymatgen_4util_9neighbors_three_to_one(__Pyx_memviewslice _
   /* function exit code */
   goto __pyx_L0;
   __pyx_L1_error:;
-  __Pyx_WriteUnraisable("pymatgen.util.neighbors.three_to_one", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 1);
+  __Pyx_WriteUnraisable("pymatgen.optimization.neighbors.three_to_one", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 1);
   __pyx_L0:;
   __Pyx_TraceReturn(Py_None, 1);
 }
 
-/* "pymatgen/util/neighbors.pyx":454
+/* "pymatgen/optimization/neighbors.pyx":460
  *         label1d[i] = label3d[i, 0] * ny * nz + label3d[i, 1] * nz + label3d[i, 2]
  * 
  * def compute_offset_vectors(long n):             # <<<<<<<<<<<<<<
@@ -8179,30 +8249,30 @@ static void __pyx_f_8pymatgen_4util_9neighbors_three_to_one(__Pyx_memviewslice _
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_8pymatgen_4util_9neighbors_3compute_offset_vectors(PyObject *__pyx_self, PyObject *__pyx_arg_n); /*proto*/
-static PyMethodDef __pyx_mdef_8pymatgen_4util_9neighbors_3compute_offset_vectors = {"compute_offset_vectors", (PyCFunction)__pyx_pw_8pymatgen_4util_9neighbors_3compute_offset_vectors, METH_O, 0};
-static PyObject *__pyx_pw_8pymatgen_4util_9neighbors_3compute_offset_vectors(PyObject *__pyx_self, PyObject *__pyx_arg_n) {
+static PyObject *__pyx_pw_8pymatgen_12optimization_9neighbors_3compute_offset_vectors(PyObject *__pyx_self, PyObject *__pyx_arg_n); /*proto*/
+static PyMethodDef __pyx_mdef_8pymatgen_12optimization_9neighbors_3compute_offset_vectors = {"compute_offset_vectors", (PyCFunction)__pyx_pw_8pymatgen_12optimization_9neighbors_3compute_offset_vectors, METH_O, 0};
+static PyObject *__pyx_pw_8pymatgen_12optimization_9neighbors_3compute_offset_vectors(PyObject *__pyx_self, PyObject *__pyx_arg_n) {
   long __pyx_v_n;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("compute_offset_vectors (wrapper)", 0);
   assert(__pyx_arg_n); {
-    __pyx_v_n = __Pyx_PyInt_As_long(__pyx_arg_n); if (unlikely((__pyx_v_n == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 454, __pyx_L3_error)
+    __pyx_v_n = __Pyx_PyInt_As_long(__pyx_arg_n); if (unlikely((__pyx_v_n == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 460, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pymatgen.util.neighbors.compute_offset_vectors", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("pymatgen.optimization.neighbors.compute_offset_vectors", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_8pymatgen_4util_9neighbors_2compute_offset_vectors(__pyx_self, ((long)__pyx_v_n));
+  __pyx_r = __pyx_pf_8pymatgen_12optimization_9neighbors_2compute_offset_vectors(__pyx_self, ((long)__pyx_v_n));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_2compute_offset_vectors(CYTHON_UNUSED PyObject *__pyx_self, long __pyx_v_n) {
+static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_2compute_offset_vectors(CYTHON_UNUSED PyObject *__pyx_self, long __pyx_v_n) {
   long __pyx_v_i;
   long __pyx_v_j;
   long __pyx_v_k;
@@ -8233,9 +8303,9 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_2compute_offset_vectors(CYT
   PyObject *__pyx_t_15 = NULL;
   __Pyx_TraceFrameInit(__pyx_codeobj__5)
   __Pyx_RefNannySetupContext("compute_offset_vectors", 0);
-  __Pyx_TraceCall("compute_offset_vectors", __pyx_f[0], 454, 0, __PYX_ERR(0, 454, __pyx_L1_error));
+  __Pyx_TraceCall("compute_offset_vectors", __pyx_f[0], 460, 0, __PYX_ERR(0, 460, __pyx_L1_error));
 
-  /* "pymatgen/util/neighbors.pyx":460
+  /* "pymatgen/optimization/neighbors.pyx":466
  *     cdef int ind
  *     cdef bint is_within
  *     cdef long ntotal = (2*n+1) * (2*n+1) * (2*n+1)             # <<<<<<<<<<<<<<
@@ -8244,7 +8314,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_2compute_offset_vectors(CYT
  */
   __pyx_v_ntotal = ((((2 * __pyx_v_n) + 1) * ((2 * __pyx_v_n) + 1)) * ((2 * __pyx_v_n) + 1));
 
-  /* "pymatgen/util/neighbors.pyx":461
+  /* "pymatgen/optimization/neighbors.pyx":467
  *     cdef bint is_within
  *     cdef long ntotal = (2*n+1) * (2*n+1) * (2*n+1)
  *     cdef long *ovectors = <long*> malloc(ntotal*3*sizeof(long))             # <<<<<<<<<<<<<<
@@ -8253,7 +8323,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_2compute_offset_vectors(CYT
  */
   __pyx_v_ovectors = ((long *)malloc(((__pyx_v_ntotal * 3) * (sizeof(long)))));
 
-  /* "pymatgen/util/neighbors.pyx":462
+  /* "pymatgen/optimization/neighbors.pyx":468
  *     cdef long ntotal = (2*n+1) * (2*n+1) * (2*n+1)
  *     cdef long *ovectors = <long*> malloc(ntotal*3*sizeof(long))
  *     cdef long count = 0             # <<<<<<<<<<<<<<
@@ -8262,7 +8332,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_2compute_offset_vectors(CYT
  */
   __pyx_v_count = 0;
 
-  /* "pymatgen/util/neighbors.pyx":463
+  /* "pymatgen/optimization/neighbors.pyx":469
  *     cdef long *ovectors = <long*> malloc(ntotal*3*sizeof(long))
  *     cdef long count = 0
  *     for i in range(2):             # <<<<<<<<<<<<<<
@@ -8272,7 +8342,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_2compute_offset_vectors(CYT
   for (__pyx_t_1 = 0; __pyx_t_1 < 2; __pyx_t_1+=1) {
     __pyx_v_i = __pyx_t_1;
 
-    /* "pymatgen/util/neighbors.pyx":464
+    /* "pymatgen/optimization/neighbors.pyx":470
  *     cdef long count = 0
  *     for i in range(2):
  *         for j in range(2):             # <<<<<<<<<<<<<<
@@ -8282,7 +8352,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_2compute_offset_vectors(CYT
     for (__pyx_t_2 = 0; __pyx_t_2 < 2; __pyx_t_2+=1) {
       __pyx_v_j = __pyx_t_2;
 
-      /* "pymatgen/util/neighbors.pyx":465
+      /* "pymatgen/optimization/neighbors.pyx":471
  *     for i in range(2):
  *         for j in range(2):
  *             for k in range(2):             # <<<<<<<<<<<<<<
@@ -8292,7 +8362,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_2compute_offset_vectors(CYT
       for (__pyx_t_3 = 0; __pyx_t_3 < 2; __pyx_t_3+=1) {
         __pyx_v_k = __pyx_t_3;
 
-        /* "pymatgen/util/neighbors.pyx":466
+        /* "pymatgen/optimization/neighbors.pyx":472
  *         for j in range(2):
  *             for k in range(2):
  *                 ind = i * 4 + j * 2 + k             # <<<<<<<<<<<<<<
@@ -8301,7 +8371,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_2compute_offset_vectors(CYT
  */
         __pyx_v_ind = (((__pyx_v_i * 4) + (__pyx_v_j * 2)) + __pyx_v_k);
 
-        /* "pymatgen/util/neighbors.pyx":467
+        /* "pymatgen/optimization/neighbors.pyx":473
  *             for k in range(2):
  *                 ind = i * 4 + j * 2 + k
  *                 center[ind][0] = i - 0.5             # <<<<<<<<<<<<<<
@@ -8310,7 +8380,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_2compute_offset_vectors(CYT
  */
         ((__pyx_v_center[__pyx_v_ind])[0]) = (__pyx_v_i - 0.5);
 
-        /* "pymatgen/util/neighbors.pyx":468
+        /* "pymatgen/optimization/neighbors.pyx":474
  *                 ind = i * 4 + j * 2 + k
  *                 center[ind][0] = i - 0.5
  *                 center[ind][1] = j - 0.5             # <<<<<<<<<<<<<<
@@ -8319,7 +8389,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_2compute_offset_vectors(CYT
  */
         ((__pyx_v_center[__pyx_v_ind])[1]) = (__pyx_v_j - 0.5);
 
-        /* "pymatgen/util/neighbors.pyx":469
+        /* "pymatgen/optimization/neighbors.pyx":475
  *                 center[ind][0] = i - 0.5
  *                 center[ind][1] = j - 0.5
  *                 center[ind][2] = k - 0.5             # <<<<<<<<<<<<<<
@@ -8331,7 +8401,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_2compute_offset_vectors(CYT
     }
   }
 
-  /* "pymatgen/util/neighbors.pyx":472
+  /* "pymatgen/optimization/neighbors.pyx":478
  * 
  *     cdef double off[8][3] # offseted vertices
  *     for i in range(-n, n + 1):             # <<<<<<<<<<<<<<
@@ -8343,7 +8413,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_2compute_offset_vectors(CYT
   for (__pyx_t_3 = (-__pyx_v_n); __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "pymatgen/util/neighbors.pyx":473
+    /* "pymatgen/optimization/neighbors.pyx":479
  *     cdef double off[8][3] # offseted vertices
  *     for i in range(-n, n + 1):
  *         for j in range(-n, n + 1):             # <<<<<<<<<<<<<<
@@ -8355,7 +8425,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_2compute_offset_vectors(CYT
     for (__pyx_t_6 = (-__pyx_v_n); __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
       __pyx_v_j = __pyx_t_6;
 
-      /* "pymatgen/util/neighbors.pyx":474
+      /* "pymatgen/optimization/neighbors.pyx":480
  *     for i in range(-n, n + 1):
  *         for j in range(-n, n + 1):
  *             for k in range(-n, n + 1):             # <<<<<<<<<<<<<<
@@ -8367,26 +8437,26 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_2compute_offset_vectors(CYT
       for (__pyx_t_9 = (-__pyx_v_n); __pyx_t_9 < __pyx_t_8; __pyx_t_9+=1) {
         __pyx_v_k = __pyx_t_9;
 
-        /* "pymatgen/util/neighbors.pyx":475
+        /* "pymatgen/optimization/neighbors.pyx":481
  *         for j in range(-n, n + 1):
  *             for k in range(-n, n + 1):
  *                 offset_cube(center, i, j, k, off)             # <<<<<<<<<<<<<<
  *                 if distance_vertices(center, off, n):
  *                     ovectors[3*count] = i
  */
-        __pyx_f_8pymatgen_4util_9neighbors_offset_cube(__pyx_v_center, __pyx_v_i, __pyx_v_j, __pyx_v_k, __pyx_v_off);
+        __pyx_f_8pymatgen_12optimization_9neighbors_offset_cube(__pyx_v_center, __pyx_v_i, __pyx_v_j, __pyx_v_k, __pyx_v_off);
 
-        /* "pymatgen/util/neighbors.pyx":476
+        /* "pymatgen/optimization/neighbors.pyx":482
  *             for k in range(-n, n + 1):
  *                 offset_cube(center, i, j, k, off)
  *                 if distance_vertices(center, off, n):             # <<<<<<<<<<<<<<
  *                     ovectors[3*count] = i
  *                     ovectors[3*count + 1] = j
  */
-        __pyx_t_10 = (__pyx_f_8pymatgen_4util_9neighbors_distance_vertices(__pyx_v_center, __pyx_v_off, __pyx_v_n) != 0);
+        __pyx_t_10 = (__pyx_f_8pymatgen_12optimization_9neighbors_distance_vertices(__pyx_v_center, __pyx_v_off, __pyx_v_n) != 0);
         if (__pyx_t_10) {
 
-          /* "pymatgen/util/neighbors.pyx":477
+          /* "pymatgen/optimization/neighbors.pyx":483
  *                 offset_cube(center, i, j, k, off)
  *                 if distance_vertices(center, off, n):
  *                     ovectors[3*count] = i             # <<<<<<<<<<<<<<
@@ -8395,7 +8465,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_2compute_offset_vectors(CYT
  */
           (__pyx_v_ovectors[(3 * __pyx_v_count)]) = __pyx_v_i;
 
-          /* "pymatgen/util/neighbors.pyx":478
+          /* "pymatgen/optimization/neighbors.pyx":484
  *                 if distance_vertices(center, off, n):
  *                     ovectors[3*count] = i
  *                     ovectors[3*count + 1] = j             # <<<<<<<<<<<<<<
@@ -8404,7 +8474,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_2compute_offset_vectors(CYT
  */
           (__pyx_v_ovectors[((3 * __pyx_v_count) + 1)]) = __pyx_v_j;
 
-          /* "pymatgen/util/neighbors.pyx":479
+          /* "pymatgen/optimization/neighbors.pyx":485
  *                     ovectors[3*count] = i
  *                     ovectors[3*count + 1] = j
  *                     ovectors[3*count + 2] = k             # <<<<<<<<<<<<<<
@@ -8413,7 +8483,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_2compute_offset_vectors(CYT
  */
           (__pyx_v_ovectors[((3 * __pyx_v_count) + 2)]) = __pyx_v_k;
 
-          /* "pymatgen/util/neighbors.pyx":480
+          /* "pymatgen/optimization/neighbors.pyx":486
  *                     ovectors[3*count + 1] = j
  *                     ovectors[3*count + 2] = k
  *                     count += 1             # <<<<<<<<<<<<<<
@@ -8422,7 +8492,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_2compute_offset_vectors(CYT
  */
           __pyx_v_count = (__pyx_v_count + 1);
 
-          /* "pymatgen/util/neighbors.pyx":476
+          /* "pymatgen/optimization/neighbors.pyx":482
  *             for k in range(-n, n + 1):
  *                 offset_cube(center, i, j, k, off)
  *                 if distance_vertices(center, off, n):             # <<<<<<<<<<<<<<
@@ -8434,7 +8504,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_2compute_offset_vectors(CYT
     }
   }
 
-  /* "pymatgen/util/neighbors.pyx":481
+  /* "pymatgen/optimization/neighbors.pyx":487
  *                     ovectors[3*count + 2] = k
  *                     count += 1
  *     ovectors = <long*> realloc(ovectors, count*3*sizeof(long))             # <<<<<<<<<<<<<<
@@ -8443,29 +8513,29 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_2compute_offset_vectors(CYT
  */
   __pyx_v_ovectors = ((long *)realloc(__pyx_v_ovectors, ((__pyx_v_count * 3) * (sizeof(long)))));
 
-  /* "pymatgen/util/neighbors.pyx":482
+  /* "pymatgen/optimization/neighbors.pyx":488
  *                     count += 1
  *     ovectors = <long*> realloc(ovectors, count*3*sizeof(long))
  *     array = np.array(<long[:count, :3]>ovectors)             # <<<<<<<<<<<<<<
  *     free(ovectors)
  *     return array
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_12, __pyx_n_s_np); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 482, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_12, __pyx_n_s_np); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 488, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_12);
-  __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_t_12, __pyx_n_s_array); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 482, __pyx_L1_error)
+  __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_t_12, __pyx_n_s_array); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 488, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_13);
   __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
   if (!__pyx_v_ovectors) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 482, __pyx_L1_error)
+    __PYX_ERR(0, 488, __pyx_L1_error)
   }
   __pyx_t_15 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
   __pyx_t_12 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_count), ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_15 || !__pyx_t_12 || !PyBytes_AsString(__pyx_t_15))) __PYX_ERR(0, 482, __pyx_L1_error)
+  if (unlikely(!__pyx_t_15 || !__pyx_t_12 || !PyBytes_AsString(__pyx_t_15))) __PYX_ERR(0, 488, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_15);
   __Pyx_GOTREF(__pyx_t_12);
   __pyx_t_14 = __pyx_array_new(__pyx_t_12, sizeof(long), PyBytes_AS_STRING(__pyx_t_15), (char *) "c", (char *) __pyx_v_ovectors);
-  if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 482, __pyx_L1_error)
+  if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 488, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_14);
   __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
   __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
@@ -8482,13 +8552,13 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_2compute_offset_vectors(CYT
   __pyx_t_11 = (__pyx_t_15) ? __Pyx_PyObject_Call2Args(__pyx_t_13, __pyx_t_15, ((PyObject *)__pyx_t_14)) : __Pyx_PyObject_CallOneArg(__pyx_t_13, ((PyObject *)__pyx_t_14));
   __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
   __Pyx_DECREF(((PyObject *)__pyx_t_14)); __pyx_t_14 = 0;
-  if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 482, __pyx_L1_error)
+  if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 488, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
   __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
   __pyx_v_array = __pyx_t_11;
   __pyx_t_11 = 0;
 
-  /* "pymatgen/util/neighbors.pyx":483
+  /* "pymatgen/optimization/neighbors.pyx":489
  *     ovectors = <long*> realloc(ovectors, count*3*sizeof(long))
  *     array = np.array(<long[:count, :3]>ovectors)
  *     free(ovectors)             # <<<<<<<<<<<<<<
@@ -8497,7 +8567,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_2compute_offset_vectors(CYT
  */
   free(__pyx_v_ovectors);
 
-  /* "pymatgen/util/neighbors.pyx":484
+  /* "pymatgen/optimization/neighbors.pyx":490
  *     array = np.array(<long[:count, :3]>ovectors)
  *     free(ovectors)
  *     return array             # <<<<<<<<<<<<<<
@@ -8509,7 +8579,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_2compute_offset_vectors(CYT
   __pyx_r = __pyx_v_array;
   goto __pyx_L0;
 
-  /* "pymatgen/util/neighbors.pyx":454
+  /* "pymatgen/optimization/neighbors.pyx":460
  *         label1d[i] = label3d[i, 0] * ny * nz + label3d[i, 1] * nz + label3d[i, 2]
  * 
  * def compute_offset_vectors(long n):             # <<<<<<<<<<<<<<
@@ -8524,7 +8594,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_2compute_offset_vectors(CYT
   __Pyx_XDECREF(__pyx_t_13);
   __Pyx_XDECREF(((PyObject *)__pyx_t_14));
   __Pyx_XDECREF(__pyx_t_15);
-  __Pyx_AddTraceback("pymatgen.util.neighbors.compute_offset_vectors", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("pymatgen.optimization.neighbors.compute_offset_vectors", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_array);
@@ -8534,7 +8604,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_2compute_offset_vectors(CYT
   return __pyx_r;
 }
 
-/* "pymatgen/util/neighbors.pyx":486
+/* "pymatgen/optimization/neighbors.pyx":492
  *     return array
  * 
  * cdef bint distance_vertices(double center[8][3], double off[8][3], double r):             # <<<<<<<<<<<<<<
@@ -8542,7 +8612,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_9neighbors_2compute_offset_vectors(CYT
  *     cdef double d2
  */
 
-static int __pyx_f_8pymatgen_4util_9neighbors_distance_vertices(double (*__pyx_v_center)[3], double (*__pyx_v_off)[3], double __pyx_v_r) {
+static int __pyx_f_8pymatgen_12optimization_9neighbors_distance_vertices(double (*__pyx_v_center)[3], double (*__pyx_v_off)[3], double __pyx_v_r) {
   int __pyx_v_i;
   int __pyx_v_j;
   double __pyx_v_d2;
@@ -8554,9 +8624,9 @@ static int __pyx_f_8pymatgen_4util_9neighbors_distance_vertices(double (*__pyx_v
   int __pyx_t_2;
   int __pyx_t_3;
   __Pyx_RefNannySetupContext("distance_vertices", 0);
-  __Pyx_TraceCall("distance_vertices", __pyx_f[0], 486, 0, __PYX_ERR(0, 486, __pyx_L1_error));
+  __Pyx_TraceCall("distance_vertices", __pyx_f[0], 492, 0, __PYX_ERR(0, 492, __pyx_L1_error));
 
-  /* "pymatgen/util/neighbors.pyx":489
+  /* "pymatgen/optimization/neighbors.pyx":495
  *     cdef int i, j
  *     cdef double d2
  *     cdef double r2 = r * r             # <<<<<<<<<<<<<<
@@ -8565,7 +8635,7 @@ static int __pyx_f_8pymatgen_4util_9neighbors_distance_vertices(double (*__pyx_v
  */
   __pyx_v_r2 = (__pyx_v_r * __pyx_v_r);
 
-  /* "pymatgen/util/neighbors.pyx":490
+  /* "pymatgen/optimization/neighbors.pyx":496
  *     cdef double d2
  *     cdef double r2 = r * r
  *     for i in range(8):             # <<<<<<<<<<<<<<
@@ -8575,7 +8645,7 @@ static int __pyx_f_8pymatgen_4util_9neighbors_distance_vertices(double (*__pyx_v
   for (__pyx_t_1 = 0; __pyx_t_1 < 8; __pyx_t_1+=1) {
     __pyx_v_i = __pyx_t_1;
 
-    /* "pymatgen/util/neighbors.pyx":491
+    /* "pymatgen/optimization/neighbors.pyx":497
  *     cdef double r2 = r * r
  *     for i in range(8):
  *         for j in range(8):             # <<<<<<<<<<<<<<
@@ -8585,7 +8655,7 @@ static int __pyx_f_8pymatgen_4util_9neighbors_distance_vertices(double (*__pyx_v
     for (__pyx_t_2 = 0; __pyx_t_2 < 8; __pyx_t_2+=1) {
       __pyx_v_j = __pyx_t_2;
 
-      /* "pymatgen/util/neighbors.pyx":492
+      /* "pymatgen/optimization/neighbors.pyx":498
  *     for i in range(8):
  *         for j in range(8):
  *             d2 = (center[i][0] - off[j][0]) * (center[i][0] - off[j][0]) + (center[i][1] - off[j][1]) * (center[i][1] - off[j][1]) + \             # <<<<<<<<<<<<<<
@@ -8594,7 +8664,7 @@ static int __pyx_f_8pymatgen_4util_9neighbors_distance_vertices(double (*__pyx_v
  */
       __pyx_v_d2 = ((((((__pyx_v_center[__pyx_v_i])[0]) - ((__pyx_v_off[__pyx_v_j])[0])) * (((__pyx_v_center[__pyx_v_i])[0]) - ((__pyx_v_off[__pyx_v_j])[0]))) + ((((__pyx_v_center[__pyx_v_i])[1]) - ((__pyx_v_off[__pyx_v_j])[1])) * (((__pyx_v_center[__pyx_v_i])[1]) - ((__pyx_v_off[__pyx_v_j])[1])))) + ((((__pyx_v_center[__pyx_v_i])[2]) - ((__pyx_v_off[__pyx_v_j])[2])) * (((__pyx_v_center[__pyx_v_i])[2]) - ((__pyx_v_off[__pyx_v_j])[2]))));
 
-      /* "pymatgen/util/neighbors.pyx":494
+      /* "pymatgen/optimization/neighbors.pyx":500
  *             d2 = (center[i][0] - off[j][0]) * (center[i][0] - off[j][0]) + (center[i][1] - off[j][1]) * (center[i][1] - off[j][1]) + \
  *                 (center[i][2] - off[j][2]) * (center[i][2] - off[j][2])
  *             if d2 <= r2:             # <<<<<<<<<<<<<<
@@ -8604,7 +8674,7 @@ static int __pyx_f_8pymatgen_4util_9neighbors_distance_vertices(double (*__pyx_v
       __pyx_t_3 = ((__pyx_v_d2 <= __pyx_v_r2) != 0);
       if (__pyx_t_3) {
 
-        /* "pymatgen/util/neighbors.pyx":495
+        /* "pymatgen/optimization/neighbors.pyx":501
  *                 (center[i][2] - off[j][2]) * (center[i][2] - off[j][2])
  *             if d2 <= r2:
  *                 return 1             # <<<<<<<<<<<<<<
@@ -8614,7 +8684,7 @@ static int __pyx_f_8pymatgen_4util_9neighbors_distance_vertices(double (*__pyx_v
         __pyx_r = 1;
         goto __pyx_L0;
 
-        /* "pymatgen/util/neighbors.pyx":494
+        /* "pymatgen/optimization/neighbors.pyx":500
  *             d2 = (center[i][0] - off[j][0]) * (center[i][0] - off[j][0]) + (center[i][1] - off[j][1]) * (center[i][1] - off[j][1]) + \
  *                 (center[i][2] - off[j][2]) * (center[i][2] - off[j][2])
  *             if d2 <= r2:             # <<<<<<<<<<<<<<
@@ -8625,7 +8695,7 @@ static int __pyx_f_8pymatgen_4util_9neighbors_distance_vertices(double (*__pyx_v
     }
   }
 
-  /* "pymatgen/util/neighbors.pyx":496
+  /* "pymatgen/optimization/neighbors.pyx":502
  *             if d2 <= r2:
  *                 return 1
  *     return 0             # <<<<<<<<<<<<<<
@@ -8635,7 +8705,7 @@ static int __pyx_f_8pymatgen_4util_9neighbors_distance_vertices(double (*__pyx_v
   __pyx_r = 0;
   goto __pyx_L0;
 
-  /* "pymatgen/util/neighbors.pyx":486
+  /* "pymatgen/optimization/neighbors.pyx":492
  *     return array
  * 
  * cdef bint distance_vertices(double center[8][3], double off[8][3], double r):             # <<<<<<<<<<<<<<
@@ -8645,7 +8715,7 @@ static int __pyx_f_8pymatgen_4util_9neighbors_distance_vertices(double (*__pyx_v
 
   /* function exit code */
   __pyx_L1_error:;
-  __Pyx_WriteUnraisable("pymatgen.util.neighbors.distance_vertices", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __Pyx_WriteUnraisable("pymatgen.optimization.neighbors.distance_vertices", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_TraceReturn(Py_None, 0);
@@ -8653,7 +8723,7 @@ static int __pyx_f_8pymatgen_4util_9neighbors_distance_vertices(double (*__pyx_v
   return __pyx_r;
 }
 
-/* "pymatgen/util/neighbors.pyx":498
+/* "pymatgen/optimization/neighbors.pyx":504
  *     return 0
  * 
  * cdef void offset_cube(double center[8][3], long n, long m, long l, double (&offseted)[8][3]):             # <<<<<<<<<<<<<<
@@ -8661,7 +8731,7 @@ static int __pyx_f_8pymatgen_4util_9neighbors_distance_vertices(double (*__pyx_v
  *     for i in range(2):
  */
 
-static void __pyx_f_8pymatgen_4util_9neighbors_offset_cube(double (*__pyx_v_center)[3], long __pyx_v_n, long __pyx_v_m, long __pyx_v_l, double (*__pyx_v_offseted)[3]) {
+static void __pyx_f_8pymatgen_12optimization_9neighbors_offset_cube(double (*__pyx_v_center)[3], long __pyx_v_n, long __pyx_v_m, long __pyx_v_l, double (*__pyx_v_offseted)[3]) {
   int __pyx_v_i;
   int __pyx_v_j;
   int __pyx_v_k;
@@ -8672,9 +8742,9 @@ static void __pyx_f_8pymatgen_4util_9neighbors_offset_cube(double (*__pyx_v_cent
   int __pyx_t_2;
   int __pyx_t_3;
   __Pyx_RefNannySetupContext("offset_cube", 0);
-  __Pyx_TraceCall("offset_cube", __pyx_f[0], 498, 0, __PYX_ERR(0, 498, __pyx_L1_error));
+  __Pyx_TraceCall("offset_cube", __pyx_f[0], 504, 0, __PYX_ERR(0, 504, __pyx_L1_error));
 
-  /* "pymatgen/util/neighbors.pyx":500
+  /* "pymatgen/optimization/neighbors.pyx":506
  * cdef void offset_cube(double center[8][3], long n, long m, long l, double (&offseted)[8][3]):
  *     cdef int i, j, k
  *     for i in range(2):             # <<<<<<<<<<<<<<
@@ -8684,7 +8754,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_offset_cube(double (*__pyx_v_cent
   for (__pyx_t_1 = 0; __pyx_t_1 < 2; __pyx_t_1+=1) {
     __pyx_v_i = __pyx_t_1;
 
-    /* "pymatgen/util/neighbors.pyx":501
+    /* "pymatgen/optimization/neighbors.pyx":507
  *     cdef int i, j, k
  *     for i in range(2):
  *         for j in range(2):             # <<<<<<<<<<<<<<
@@ -8694,7 +8764,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_offset_cube(double (*__pyx_v_cent
     for (__pyx_t_2 = 0; __pyx_t_2 < 2; __pyx_t_2+=1) {
       __pyx_v_j = __pyx_t_2;
 
-      /* "pymatgen/util/neighbors.pyx":502
+      /* "pymatgen/optimization/neighbors.pyx":508
  *     for i in range(2):
  *         for j in range(2):
  *             for k in range(2):             # <<<<<<<<<<<<<<
@@ -8704,7 +8774,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_offset_cube(double (*__pyx_v_cent
       for (__pyx_t_3 = 0; __pyx_t_3 < 2; __pyx_t_3+=1) {
         __pyx_v_k = __pyx_t_3;
 
-        /* "pymatgen/util/neighbors.pyx":503
+        /* "pymatgen/optimization/neighbors.pyx":509
  *         for j in range(2):
  *             for k in range(2):
  *                 ind = i * 4 + j * 2 + k             # <<<<<<<<<<<<<<
@@ -8713,7 +8783,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_offset_cube(double (*__pyx_v_cent
  */
         __pyx_v_ind = (((__pyx_v_i * 4) + (__pyx_v_j * 2)) + __pyx_v_k);
 
-        /* "pymatgen/util/neighbors.pyx":504
+        /* "pymatgen/optimization/neighbors.pyx":510
  *             for k in range(2):
  *                 ind = i * 4 + j * 2 + k
  *                 offseted[ind][0] = center[ind][0] + n             # <<<<<<<<<<<<<<
@@ -8722,7 +8792,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_offset_cube(double (*__pyx_v_cent
  */
         ((__pyx_v_offseted[__pyx_v_ind])[0]) = (((__pyx_v_center[__pyx_v_ind])[0]) + __pyx_v_n);
 
-        /* "pymatgen/util/neighbors.pyx":505
+        /* "pymatgen/optimization/neighbors.pyx":511
  *                 ind = i * 4 + j * 2 + k
  *                 offseted[ind][0] = center[ind][0] + n
  *                 offseted[ind][1] = center[ind][1] + m             # <<<<<<<<<<<<<<
@@ -8730,7 +8800,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_offset_cube(double (*__pyx_v_cent
  */
         ((__pyx_v_offseted[__pyx_v_ind])[1]) = (((__pyx_v_center[__pyx_v_ind])[1]) + __pyx_v_m);
 
-        /* "pymatgen/util/neighbors.pyx":506
+        /* "pymatgen/optimization/neighbors.pyx":512
  *                 offseted[ind][0] = center[ind][0] + n
  *                 offseted[ind][1] = center[ind][1] + m
  *                 offseted[ind][2] = center[ind][2] + l             # <<<<<<<<<<<<<<
@@ -8740,7 +8810,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_offset_cube(double (*__pyx_v_cent
     }
   }
 
-  /* "pymatgen/util/neighbors.pyx":498
+  /* "pymatgen/optimization/neighbors.pyx":504
  *     return 0
  * 
  * cdef void offset_cube(double center[8][3], long n, long m, long l, double (&offseted)[8][3]):             # <<<<<<<<<<<<<<
@@ -8751,7 +8821,7 @@ static void __pyx_f_8pymatgen_4util_9neighbors_offset_cube(double (*__pyx_v_cent
   /* function exit code */
   goto __pyx_L0;
   __pyx_L1_error:;
-  __Pyx_WriteUnraisable("pymatgen.util.neighbors.offset_cube", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __Pyx_WriteUnraisable("pymatgen.optimization.neighbors.offset_cube", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
   __pyx_L0:;
   __Pyx_TraceReturn(Py_None, 0);
   __Pyx_RefNannyFinishContext();
@@ -24850,7 +24920,7 @@ static PyBufferProcs __pyx_tp_as_buffer_array = {
 
 static PyTypeObject __pyx_type___pyx_array = {
   PyVarObject_HEAD_INIT(0, 0)
-  "pymatgen.util.neighbors.array", /*tp_name*/
+  "pymatgen.optimization.neighbors.array", /*tp_name*/
   sizeof(struct __pyx_array_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc_array, /*tp_dealloc*/
@@ -24961,7 +25031,7 @@ static PyMethodDef __pyx_methods_Enum[] = {
 
 static PyTypeObject __pyx_type___pyx_MemviewEnum = {
   PyVarObject_HEAD_INIT(0, 0)
-  "pymatgen.util.neighbors.Enum", /*tp_name*/
+  "pymatgen.optimization.neighbors.Enum", /*tp_name*/
   sizeof(struct __pyx_MemviewEnum_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc_Enum, /*tp_dealloc*/
@@ -25214,7 +25284,7 @@ static PyBufferProcs __pyx_tp_as_buffer_memoryview = {
 
 static PyTypeObject __pyx_type___pyx_memoryview = {
   PyVarObject_HEAD_INIT(0, 0)
-  "pymatgen.util.neighbors.memoryview", /*tp_name*/
+  "pymatgen.optimization.neighbors.memoryview", /*tp_name*/
   sizeof(struct __pyx_memoryview_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc_memoryview, /*tp_dealloc*/
@@ -25344,7 +25414,7 @@ static struct PyGetSetDef __pyx_getsets__memoryviewslice[] = {
 
 static PyTypeObject __pyx_type___pyx_memoryviewslice = {
   PyVarObject_HEAD_INIT(0, 0)
-  "pymatgen.util.neighbors._memoryviewslice", /*tp_name*/
+  "pymatgen.optimization.neighbors._memoryviewslice", /*tp_name*/
   sizeof(struct __pyx_memoryviewslice_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc__memoryviewslice, /*tp_dealloc*/
@@ -25601,8 +25671,8 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_py_index_1, __pyx_k_py_index_1, sizeof(__pyx_k_py_index_1), 0, 0, 1, 1},
   {&__pyx_n_s_py_index_2, __pyx_k_py_index_2, sizeof(__pyx_k_py_index_2), 0, 0, 1, 1},
   {&__pyx_n_s_py_offsets, __pyx_k_py_offsets, sizeof(__pyx_k_py_offsets), 0, 0, 1, 1},
-  {&__pyx_n_s_pymatgen_util_neighbors, __pyx_k_pymatgen_util_neighbors, sizeof(__pyx_k_pymatgen_util_neighbors), 0, 0, 1, 1},
-  {&__pyx_kp_s_pymatgen_util_neighbors_pyx, __pyx_k_pymatgen_util_neighbors_pyx, sizeof(__pyx_k_pymatgen_util_neighbors_pyx), 0, 0, 1, 0},
+  {&__pyx_kp_s_pymatgen_optimization_neighbors, __pyx_k_pymatgen_optimization_neighbors, sizeof(__pyx_k_pymatgen_optimization_neighbors), 0, 0, 1, 0},
+  {&__pyx_n_s_pymatgen_optimization_neighbors_2, __pyx_k_pymatgen_optimization_neighbors_2, sizeof(__pyx_k_pymatgen_optimization_neighbors_2), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_PickleError, __pyx_k_pyx_PickleError, sizeof(__pyx_k_pyx_PickleError), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_checksum, __pyx_k_pyx_checksum, sizeof(__pyx_k_pyx_checksum), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_getbuffer, __pyx_k_pyx_getbuffer, sizeof(__pyx_k_pyx_getbuffer), 0, 0, 1, 1},
@@ -25662,28 +25732,28 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "pymatgen/util/neighbors.pyx":313
+  /* "pymatgen/optimization/neighbors.pyx":319
  *     Compute the fractional coordinates
  *     """
  *     cdef double[:, ::1] inv_lattice = np.empty((3, 3), dtype=np.float64)             # <<<<<<<<<<<<<<
  *     matrix_inv(lattice, inv_lattice)
  *     matmul(cart_coords, inv_lattice, frac_coords)
  */
-  __pyx_tuple__2 = PyTuple_Pack(2, __pyx_int_3, __pyx_int_3); if (unlikely(!__pyx_tuple__2)) __PYX_ERR(0, 313, __pyx_L1_error)
+  __pyx_tuple__2 = PyTuple_Pack(2, __pyx_int_3, __pyx_int_3); if (unlikely(!__pyx_tuple__2)) __PYX_ERR(0, 319, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__2);
   __Pyx_GIVEREF(__pyx_tuple__2);
-  __pyx_tuple__3 = PyTuple_Pack(1, __pyx_tuple__2); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 313, __pyx_L1_error)
+  __pyx_tuple__3 = PyTuple_Pack(1, __pyx_tuple__2); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 319, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__3);
   __Pyx_GIVEREF(__pyx_tuple__3);
 
-  /* "pymatgen/util/neighbors.pyx":352
+  /* "pymatgen/optimization/neighbors.pyx":358
  *     Get maximum repetition in each directions
  *     """
  *     cdef double [:, ::1] reciprocal_lattice = np.eye(3, dtype=np.float64)             # <<<<<<<<<<<<<<
  *     cdef int i
  *     cdef int n = lattice.shape[1]
  */
-  __pyx_tuple__4 = PyTuple_Pack(1, __pyx_int_3); if (unlikely(!__pyx_tuple__4)) __PYX_ERR(0, 352, __pyx_L1_error)
+  __pyx_tuple__4 = PyTuple_Pack(1, __pyx_int_3); if (unlikely(!__pyx_tuple__4)) __PYX_ERR(0, 358, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__4);
   __Pyx_GIVEREF(__pyx_tuple__4);
 
@@ -25956,7 +26026,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__30);
   __Pyx_GIVEREF(__pyx_tuple__30);
 
-  /* "pymatgen/util/neighbors.pyx":19
+  /* "pymatgen/optimization/neighbors.pyx":19
  * 
  * 
  * def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coords, float r, long[:] pbc, double[:, ::1] lattice, double tol=1e-8):             # <<<<<<<<<<<<<<
@@ -25966,19 +26036,19 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__37 = PyTuple_Pack(60, __pyx_n_s_all_coords, __pyx_n_s_center_coords, __pyx_n_s_r, __pyx_n_s_pbc, __pyx_n_s_lattice, __pyx_n_s_tol, __pyx_n_s_i, __pyx_n_s_j, __pyx_n_s_k, __pyx_n_s_l, __pyx_n_s_m, __pyx_n_s_n, __pyx_n_s_maxr, __pyx_n_s_valid_min, __pyx_n_s_valid_max, __pyx_n_s_ledge, __pyx_n_s_n_center, __pyx_n_s_n_total, __pyx_n_s_frac_coords, __pyx_n_s_max_bounds, __pyx_n_s_min_bounds, __pyx_n_s_nlattice, __pyx_n_s_count, __pyx_n_s_all_fcoords, __pyx_n_s_coords_in_cell, __pyx_n_s_offset_correction, __pyx_n_s_natoms, __pyx_n_s_offsets_p_temp, __pyx_n_s_expanded_coords_p_temp, __pyx_n_s_indices_p_temp, __pyx_n_s_coord_temp, __pyx_n_s_offsets_p, __pyx_n_s_expanded_coords_p, __pyx_n_s_indices_p, __pyx_n_s_offsets, __pyx_n_s_expanded_coords, __pyx_n_s_indices, __pyx_n_s_ncube, __pyx_n_s_all_indices3, __pyx_n_s_all_indices1, __pyx_n_s_nb_cubes, __pyx_n_s_head, __pyx_n_s_atom_indices, __pyx_n_s_neighbor_map, __pyx_n_s_center_indices3, __pyx_n_s_center_indices1, __pyx_n_s_index_1, __pyx_n_s_index_2, __pyx_n_s_offset_final, __pyx_n_s_distances, __pyx_n_s_ncube_indices_temp, __pyx_n_s_it, __pyx_n_s_cube_index_temp, __pyx_n_s_link_index, __pyx_n_s_d_temp2, __pyx_n_s_r2, __pyx_n_s_py_index_1, __pyx_n_s_py_index_2, __pyx_n_s_py_offsets, __pyx_n_s_py_distances); if (unlikely(!__pyx_tuple__37)) __PYX_ERR(0, 19, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__37);
   __Pyx_GIVEREF(__pyx_tuple__37);
-  __pyx_codeobj_ = (PyObject*)__Pyx_PyCode_New(6, 0, 60, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__37, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_pymatgen_util_neighbors_pyx, __pyx_n_s_find_points_in_spheres, 19, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj_)) __PYX_ERR(0, 19, __pyx_L1_error)
+  __pyx_codeobj_ = (PyObject*)__Pyx_PyCode_New(6, 0, 60, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__37, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_pymatgen_optimization_neighbors, __pyx_n_s_find_points_in_spheres, 19, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj_)) __PYX_ERR(0, 19, __pyx_L1_error)
 
-  /* "pymatgen/util/neighbors.pyx":454
+  /* "pymatgen/optimization/neighbors.pyx":460
  *         label1d[i] = label3d[i, 0] * ny * nz + label3d[i, 1] * nz + label3d[i, 2]
  * 
  * def compute_offset_vectors(long n):             # <<<<<<<<<<<<<<
  *     cdef long i, j, k
  *     cdef long v[3]
  */
-  __pyx_tuple__38 = PyTuple_Pack(14, __pyx_n_s_n, __pyx_n_s_n, __pyx_n_s_i, __pyx_n_s_j, __pyx_n_s_k, __pyx_n_s_v, __pyx_n_s_center, __pyx_n_s_ind, __pyx_n_s_is_within, __pyx_n_s_ntotal, __pyx_n_s_ovectors, __pyx_n_s_count, __pyx_n_s_off, __pyx_n_s_array); if (unlikely(!__pyx_tuple__38)) __PYX_ERR(0, 454, __pyx_L1_error)
+  __pyx_tuple__38 = PyTuple_Pack(14, __pyx_n_s_n, __pyx_n_s_n, __pyx_n_s_i, __pyx_n_s_j, __pyx_n_s_k, __pyx_n_s_v, __pyx_n_s_center, __pyx_n_s_ind, __pyx_n_s_is_within, __pyx_n_s_ntotal, __pyx_n_s_ovectors, __pyx_n_s_count, __pyx_n_s_off, __pyx_n_s_array); if (unlikely(!__pyx_tuple__38)) __PYX_ERR(0, 460, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__38);
   __Pyx_GIVEREF(__pyx_tuple__38);
-  __pyx_codeobj__5 = (PyObject*)__Pyx_PyCode_New(1, 0, 14, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__38, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_pymatgen_util_neighbors_pyx, __pyx_n_s_compute_offset_vectors, 454, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__5)) __PYX_ERR(0, 454, __pyx_L1_error)
+  __pyx_codeobj__5 = (PyObject*)__Pyx_PyCode_New(1, 0, 14, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__38, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_pymatgen_optimization_neighbors, __pyx_n_s_compute_offset_vectors, 460, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__5)) __PYX_ERR(0, 460, __pyx_L1_error)
 
   /* "View.MemoryView":286
  *         return self.name
@@ -26386,14 +26456,14 @@ if (!__Pyx_RefNanny) {
   #if PY_MAJOR_VERSION < 3 && (__PYX_DEFAULT_STRING_ENCODING_IS_ASCII || __PYX_DEFAULT_STRING_ENCODING_IS_DEFAULT)
   if (__Pyx_init_sys_getdefaultencoding_params() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #endif
-  if (__pyx_module_is_main_pymatgen__util__neighbors) {
+  if (__pyx_module_is_main_pymatgen__optimization__neighbors) {
     if (PyObject_SetAttr(__pyx_m, __pyx_n_s_name_2, __pyx_n_s_main) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   }
   #if PY_MAJOR_VERSION >= 3
   {
     PyObject *modules = PyImport_GetModuleDict(); if (unlikely(!modules)) __PYX_ERR(0, 1, __pyx_L1_error)
-    if (!PyDict_GetItemString(modules, "pymatgen.util.neighbors")) {
-      if (unlikely(PyDict_SetItemString(modules, "pymatgen.util.neighbors", __pyx_m) < 0)) __PYX_ERR(0, 1, __pyx_L1_error)
+    if (!PyDict_GetItemString(modules, "pymatgen.optimization.neighbors")) {
+      if (unlikely(PyDict_SetItemString(modules, "pymatgen.optimization.neighbors", __pyx_m) < 0)) __PYX_ERR(0, 1, __pyx_L1_error)
     }
   }
   #endif
@@ -26415,7 +26485,7 @@ if (!__Pyx_RefNanny) {
   #endif
   __Pyx_TraceCall("__Pyx_PyMODINIT_FUNC PyInit_neighbors(void)", __pyx_f[0], 1, 0, __PYX_ERR(0, 1, __pyx_L1_error));
 
-  /* "pymatgen/util/neighbors.pyx":8
+  /* "pymatgen/optimization/neighbors.pyx":8
  * # cython: language_level=3
  * from __future__ import print_function
  * import numpy as np             # <<<<<<<<<<<<<<
@@ -26427,31 +26497,31 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_np, __pyx_t_1) < 0) __PYX_ERR(0, 8, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pymatgen/util/neighbors.pyx":19
+  /* "pymatgen/optimization/neighbors.pyx":19
  * 
  * 
  * def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coords, float r, long[:] pbc, double[:, ::1] lattice, double tol=1e-8):             # <<<<<<<<<<<<<<
  *     """
  *     For each point in `center_coords`, get all the neighboring points in `all_coords` that are within the
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_8pymatgen_4util_9neighbors_1find_points_in_spheres, NULL, __pyx_n_s_pymatgen_util_neighbors); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 19, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_8pymatgen_12optimization_9neighbors_1find_points_in_spheres, NULL, __pyx_n_s_pymatgen_optimization_neighbors_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 19, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_find_points_in_spheres, __pyx_t_1) < 0) __PYX_ERR(0, 19, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pymatgen/util/neighbors.pyx":454
+  /* "pymatgen/optimization/neighbors.pyx":460
  *         label1d[i] = label3d[i, 0] * ny * nz + label3d[i, 1] * nz + label3d[i, 2]
  * 
  * def compute_offset_vectors(long n):             # <<<<<<<<<<<<<<
  *     cdef long i, j, k
  *     cdef long v[3]
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_8pymatgen_4util_9neighbors_3compute_offset_vectors, NULL, __pyx_n_s_pymatgen_util_neighbors); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 454, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_8pymatgen_12optimization_9neighbors_3compute_offset_vectors, NULL, __pyx_n_s_pymatgen_optimization_neighbors_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 460, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_compute_offset_vectors, __pyx_t_1) < 0) __PYX_ERR(0, 454, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_compute_offset_vectors, __pyx_t_1) < 0) __PYX_ERR(0, 460, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pymatgen/util/neighbors.pyx":1
+  /* "pymatgen/optimization/neighbors.pyx":1
  * # cython: boundscheck=False             # <<<<<<<<<<<<<<
  * # cython: wraparound=False
  * # cython: nonecheck=False
@@ -26622,11 +26692,11 @@ if (!__Pyx_RefNanny) {
   __Pyx_XDECREF(__pyx_t_1);
   if (__pyx_m) {
     if (__pyx_d) {
-      __Pyx_AddTraceback("init pymatgen.util.neighbors", __pyx_clineno, __pyx_lineno, __pyx_filename);
+      __Pyx_AddTraceback("init pymatgen.optimization.neighbors", __pyx_clineno, __pyx_lineno, __pyx_filename);
     }
     Py_CLEAR(__pyx_m);
   } else if (!PyErr_Occurred()) {
-    PyErr_SetString(PyExc_ImportError, "init pymatgen.util.neighbors");
+    PyErr_SetString(PyExc_ImportError, "init pymatgen.optimization.neighbors");
   }
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();

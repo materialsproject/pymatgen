@@ -4,7 +4,7 @@ import numpy as np
 from pymatgen.util.testing import PymatgenTest
 
 
-class LatticeTestCase(PymatgenTest):
+class NeighborsTestCase(PymatgenTest):
 
     def setUp(self):
         self.lattice = Lattice.cubic(10.0)
