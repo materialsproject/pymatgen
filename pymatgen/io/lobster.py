@@ -647,7 +647,7 @@ class Lobsterout:
         """
         warnings.warn("Make sure the lobsterout is read in correctly. This is a brand new class.")
         # read in file
-        with zopen(filename) as f:
+        with zopen(filename, 'rt') as f:
             data = f.read().split("\n")  # [3:-3]
         if len(data) == 0:
             raise IOError("lobsterout does not contain any data")
