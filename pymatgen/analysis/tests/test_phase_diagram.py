@@ -128,8 +128,7 @@ class PhaseDiagramTest(unittest.TestCase):
     def test_init(self):
         # Ensure that a bad set of entries raises a PD error. Remove all Li
         # from self.entries.
-        entries = filter(lambda e: (not e.composition.is_element) or
-                                   e.composition.elements[0] != Element("Li"),
+        entries = filter(lambda e: (not e.composition.is_element) or e.composition.elements[0] != Element("Li"),
                          self.entries)
         self.assertRaises(PhaseDiagramError, PhaseDiagram, entries)
 
@@ -158,8 +157,7 @@ class PhaseDiagramTest(unittest.TestCase):
                             formula + " not in stable entries!")
 
     def test_get_formation_energy(self):
-        stable_formation_energies = {ent.composition.reduced_formula:
-                                         self.pd.get_form_energy(ent)
+        stable_formation_energies = {ent.composition.reduced_formula: self.pd.get_form_energy(ent)
                                      for ent in self.pd.stable_entries}
         expected_formation_energies = {'Li5FeO4': -164.8117344866667,
                                        'Li2O2': -14.119232793333332,
@@ -444,8 +442,7 @@ class CompoundPhaseDiagramTest(unittest.TestCase):
             self.assertTrue(formula in stable_formulas)
 
     def test_get_formation_energy(self):
-        stable_formation_energies = {ent.name:
-                                         self.pd.get_form_energy(ent)
+        stable_formation_energies = {ent.name: self.pd.get_form_energy(ent)
                                      for ent in self.pd.stable_entries}
         expected_formation_energies = {'Li5FeO4': -7.0773284399999739,
                                        'Fe2O3': 0,

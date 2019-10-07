@@ -15,23 +15,23 @@ from pymatgen.io.abinit import qutils as qu
 
 class ParseTimestr(PymatgenTest):
     def test_slurm_parse_timestr(self):
-        days, hours, minutes, secs = 24*60*60, 60*60, 60, 1
+        days, hours, minutes, secs = 24 * 60 * 60, 60 * 60, 60, 1
         aequal = self.assertEqual
 
         slurm_parse_timestr = qu.slurm_parse_timestr
 
         # "days-hours",
-        aequal(slurm_parse_timestr("2-1"), 2*days + hours)
+        aequal(slurm_parse_timestr("2-1"), 2 * days + hours)
         # "days-hours:minutes",
-        aequal(slurm_parse_timestr("2-1:1"), 2*days + hours + minutes)
+        aequal(slurm_parse_timestr("2-1:1"), 2 * days + hours + minutes)
         # "days-hours:minutes:seconds".
-        aequal(slurm_parse_timestr("3-4:2:20"), 3*days + 4*hours + 2*minutes + 20*secs)
+        aequal(slurm_parse_timestr("3-4:2:20"), 3 * days + 4 * hours + 2 * minutes + 20 * secs)
         # "minutes",
-        aequal(slurm_parse_timestr("10"), 10*minutes)
+        aequal(slurm_parse_timestr("10"), 10 * minutes)
         # "minutes:seconds",
-        aequal(slurm_parse_timestr("3:20"), 3*minutes + 20*secs)
+        aequal(slurm_parse_timestr("3:20"), 3 * minutes + 20 * secs)
         # "hours:minutes:seconds",
-        aequal(slurm_parse_timestr("3:2:5"), 3*hours + 2*minutes + 5*secs)
+        aequal(slurm_parse_timestr("3:2:5"), 3 * hours + 2 * minutes + 5 * secs)
 
 
 @unittest.skipIf(sys.platform.startswith("win"), "Skipping for Windows")
@@ -116,7 +116,7 @@ hardware:
 
             # Test can_run and distribute
             # The hardware has num_nodes=3, sockets_per_node=2, cores_per_socket=4, mem_per_node="8 Gb"
-            afalse(qad.can_run_pconf(ParalConf(mpi_ncpus=hw.num_cores+1, omp_ncpus=1, mem_per_cpu=0.1)))
+            afalse(qad.can_run_pconf(ParalConf(mpi_ncpus=hw.num_cores + 1, omp_ncpus=1, mem_per_cpu=0.1)))
             afalse(qad.can_run_pconf(ParalConf(mpi_ncpus=4, omp_ncpus=9, mem_per_cpu=0.1)))
             afalse(qad.can_run_pconf(ParalConf(mpi_ncpus=4, omp_ncpus=1, mem_per_cpu=10 * giga)))
 
@@ -136,8 +136,8 @@ hardware:
 
             # TODO
             # not commensurate with node
-            #d = qad.distribute(mpi_procs=9, omp_threads=1, mem_per_proc=giga)
-            #assert d.num_nodes == 3 and d.mpi_per_node == 3 and not d.exact
+            # d = qad.distribute(mpi_procs=9, omp_threads=1, mem_per_proc=giga)
+            # assert d.num_nodes == 3 and d.mpi_per_node == 3 and not d.exact
 
             with self.assertRaises(qad.Error):
                 qad.set_mpi_procs(25)
@@ -186,6 +186,7 @@ hardware:
     cores_per_socket: 1
     mem_per_node: 4 Gb
 """)
+
     def test_methods(self):
         qad = make_qadapter(**self.QDICT)
         print(qad)
@@ -294,9 +295,9 @@ export PATH=/home/user/bin:$PATH
 
 mpirun --bind-to None -n 4 executable < stdin > stdout 2> stderr
 """)
-        #assert 0
-        #qad.set_omp_threads(1)
-        #assert qad.has_omp
+        # assert 0
+        # qad.set_omp_threads(1)
+        # assert qad.has_omp
 
 
 @unittest.skipIf(sys.platform.startswith("win"), "Skipping for Windows")
@@ -376,7 +377,7 @@ hardware:
         assert (qad.mpi_procs, qad.omp_threads) == (3, 1)
         assert qad.priority == 1 and qad.num_launches == 0 and qad.last_launch is None
 
-        #qad.set_mpi_procs(4)
+        # qad.set_mpi_procs(4)
         s = qad.get_script_str("job_name", "/launch_dir", "executable", "qout_path", "qerr_path",
                                stdin="stdin", stdout="stdout", stderr="stderr")
         print(s)
@@ -403,26 +404,26 @@ mpirun  -n 3 executable < stdin > stdout 2> stderr
         s, params = qad.get_select(ret_dict=True)
         # IN_CORE PURE MPI: MPI: 4, OMP: 1
         aequal(params,
-          {'ncpus': 1, 'chunks': 4, 'mpiprocs': 1, "mem": mem})
+               {'ncpus': 1, 'chunks': 4, 'mpiprocs': 1, "mem": mem})
 
         qad.set_omp_threads(2)
         s, params = qad.get_select(ret_dict=True)
         # HYBRID MPI-OPENMP run, perfectly divisible among nodes:  MPI: 4, OMP: 2
         aequal(params,
-            {'mem': mem, 'ncpus': 2, 'chunks': 4, 'ompthreads': 2, 'mpiprocs': 1})
+               {'mem': mem, 'ncpus': 2, 'chunks': 4, 'ompthreads': 2, 'mpiprocs': 1})
 
         qad.set_mpi_procs(12)
         s, params = qad.get_select(ret_dict=True)
         # HYBRID MPI-OPENMP run, perfectly divisible among nodes:  MPI: 12, OMP: 2
         aequal(params,
-            {'mem': mem, 'ncpus': 2, 'chunks': 12, 'ompthreads': 2, 'mpiprocs': 1})
+               {'mem': mem, 'ncpus': 2, 'chunks': 12, 'ompthreads': 2, 'mpiprocs': 1})
 
         qad.set_omp_threads(5)
         qad.set_mpi_procs(3)
         s, params = qad.get_select(ret_dict=True)
         # HYBRID MPI-OPENMP, NOT commensurate with nodes:  MPI: 3, OMP: 5
         aequal(params,
-            {'mem': mem, 'ncpus': 5, 'chunks': 3, 'ompthreads': 5, 'mpiprocs': 1})
+               {'mem': mem, 'ncpus': 5, 'chunks': 3, 'ompthreads': 5, 'mpiprocs': 1})
 
         # Testing the handling of master memory overhead
         # Shared mode (the nodes might be shared amongst different jobs from different users)
@@ -456,6 +457,8 @@ mpirun  -n 3 executable < stdin > stdout 2> stderr
         aequal(qad_exclusive.get_select(), '1:ncpus=2:mem=48000mb:mpiprocs=2+'
                                            '2:ncpus=24:mem=48000mb:mpiprocs=24')
 
+
 if __name__ == '__main__':
     import unittest
+
     unittest.main()

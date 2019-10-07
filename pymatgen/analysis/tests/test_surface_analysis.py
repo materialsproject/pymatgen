@@ -113,7 +113,7 @@ class SlabEntryTest(PymatgenTest):
             se = slab_entry.surface_energy(self.Cu_ucell_entry)
             all_se.append(se)
             # Manually calculate surface energy
-            manual_se = (slab_entry.energy - \
+            manual_se = (slab_entry.energy -
                          ECu * len(slab_entry.structure)) / (2 * slab_entry.surface_area)
             self.assertArrayAlmostEqual(float(se), manual_se, 10)
 

@@ -128,10 +128,10 @@ class VoronoiContainerTest(PymatgenTest):
                       [5.0, 3.98, 5.0],
                       [5.0, 5.0, 6.05]]
             fake_structure3 = Structure(cubic_lattice, species, coords, coords_are_cartesian=True)
-            detailed_voronoi_container = DetailedVoronoiContainer(structure=fake_structure3, valences=valences,
-                                                                  normalized_distance_tolerance=0.0100001, isites=[0],
-                                                                  additional_conditions=
-                                                                  [DetailedVoronoiContainer.AC.ONLY_ACB])
+            detailed_voronoi_container = DetailedVoronoiContainer(
+                structure=fake_structure3, valences=valences,
+                normalized_distance_tolerance=0.0100001, isites=[0],
+                additional_conditions=[DetailedVoronoiContainer.AC.ONLY_ACB])
             self.assertEqual(len(detailed_voronoi_container.voronoi_list2[0]), 6)
             neighbors = detailed_voronoi_container.neighbors(0, 1.01, 0.5, True)
             nbs = [nb['site'] for nb in neighbors]

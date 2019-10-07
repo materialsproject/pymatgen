@@ -12,7 +12,6 @@ from pymatgen.core.structure import Molecule
 
 __author__ = 'xiaohuiqu'
 
-
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         "test_files", "molecules", "structural_change")
 
@@ -96,6 +95,7 @@ class TestMoleculeStructureComparator(TestCase):
         ans = ((0, 3), (0, 4), (0, 5), (0, 6), (0, 7), (0, 8), (1, 2), (1, 6), (1, 10), (2, 4), (2, 9), (3, 4),
                (3, 7), (4, 7), (4, 9), (5, 6), (5, 8), (6, 8), (6, 10))
         self.assertEqual(bonds_13, tuple(ans))
+
 
 if __name__ == '__main__':
     unittest.main()

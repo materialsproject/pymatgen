@@ -18,22 +18,11 @@ from pymatgen import Composition, Structure
 from pymatgen.electronic_structure.core import Magmom
 from monty.io import zopen
 
-"""
-Created on Jul 16, 2012
-"""
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
-__date__ = "Jul 16, 2012"
-
 
 class PoscarTest(PymatgenTest):
     def test_init(self):
         filepath = self.TEST_FILES_DIR / 'POSCAR'
-        poscar = Poscar.from_file(filepath,check_for_POTCAR=False)
+        poscar = Poscar.from_file(filepath, check_for_POTCAR=False)
         comp = poscar.structure.composition
         self.assertEqual(comp, Composition("Fe4P4O16"))
 
@@ -249,7 +238,7 @@ direct
 
     def test_setattr(self):
         filepath = self.TEST_FILES_DIR / 'POSCAR'
-        poscar = Poscar.from_file(filepath,check_for_POTCAR=False)
+        poscar = Poscar.from_file(filepath, check_for_POTCAR=False)
         self.assertRaises(ValueError, setattr, poscar, 'velocities',
                           [[0, 0, 0]])
         poscar.selective_dynamics = np.array([[True, False, False]] * 24)
@@ -568,7 +557,7 @@ SIGMA = 0.1"""
                 'AMIN': 0.01,
                 'AMIX': 0.2,
                 'BMIX': 0.001,
-                'EDIFF': 5+1j, # EDIFF needs to be real
+                'EDIFF': 5 + 1j,  # EDIFF needs to be real
                 'EDIFFG': -0.01,
                 'ENCUT': 520,
                 'IBRION': 2,
@@ -576,21 +565,21 @@ SIGMA = 0.1"""
                 'ISIF': 3,
                 'ISMEAR': 1,
                 'ISPIN': 2,
-                'LASPH': 5, # Should be a bool
+                'LASPH': 5,  # Should be a bool
                 'LORBIT': 11,
                 'LREAL': 'Auto',
                 'LWAVE': False,
                 'MAGMOM': [1, 2, 4, 5],
-                'METAGGA': 'SCAM', # spelling mistake
+                'METAGGA': 'SCAM',  # spelling mistake
                 'NELM': 200,
                 'NPAR': 4,
                 'NSW': 99,
                 'PREC': 'Accurate',
                 'SIGMA': 0.2,
-                'NBAND': 250, # spelling mistake
-                'PHON_TLIST': 'is_a_str', # this parameter should be a list
-                'LATTICE_CONSTRAINTS': [True, False, 'f'], # Should be a list of bools
-                'M_CONSTR': [True, 1, 'string'] # Should be a list of real numbers
+                'NBAND': 250,  # spelling mistake
+                'PHON_TLIST': 'is_a_str',  # this parameter should be a list
+                'LATTICE_CONSTRAINTS': [True, False, 'f'],  # Should be a list of bools
+                'M_CONSTR': [True, 1, 'string']  # Should be a list of real numbers
             })
             incar.check_params()
 
@@ -777,7 +766,7 @@ class PotcarSingleTest(PymatgenTest):
 
         self.assertEqual(self.psingle.potential_type, 'PAW')
 
-        psingle = PotcarSingle.from_file(self.TEST_FILES_DIR/ "POT_LDA_PAW"/ "POTCAR.Fe.gz")
+        psingle = PotcarSingle.from_file(self.TEST_FILES_DIR / "POT_LDA_PAW" / "POTCAR.Fe.gz")
 
         self.assertEqual(psingle.functional, 'Perdew-Zunger81')
 
@@ -857,7 +846,7 @@ class VaspInputTest(PymatgenTest):
         filepath = self.TEST_FILES_DIR / 'INCAR'
         incar = Incar.from_file(filepath)
         filepath = self.TEST_FILES_DIR / 'POSCAR'
-        poscar = Poscar.from_file(filepath,check_for_POTCAR=False)
+        poscar = Poscar.from_file(filepath, check_for_POTCAR=False)
         if "PMG_VASP_PSP_DIR" not in os.environ:
             os.environ["PMG_VASP_PSP_DIR"] = str(self.TEST_FILES_DIR)
         filepath = self.TEST_FILES_DIR / 'POTCAR'

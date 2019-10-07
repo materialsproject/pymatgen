@@ -8,7 +8,6 @@ from pymatgen import Molecule
 from pymatgen.io.lammps.utils import Polymer
 from pymatgen.io.lammps.data import Topology
 
-
 __author__ = 'Kiran Mathew'
 __email__ = 'kmathew@lbl.gov'
 
@@ -57,8 +56,8 @@ class TestPolymer(unittest.TestCase):
 
     def test_polymer_chain_lengths(self):
         self.assertEqual(len(self.peo_polymer.molecule),
-                         len(self.peo_head)+
-                         (self.n_units-2)*len(self.peo_bulk)+
+                         len(self.peo_head) +
+                         (self.n_units - 2) * len(self.peo_bulk) +
                          len(self.peo_tail))
         self.assertEqual(len(self.peo_polymer.molecule),
                          len(self.peo_polymer_linear.molecule))

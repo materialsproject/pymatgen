@@ -322,13 +322,4 @@ class PlanesUtilsTest(PymatgenTest):
 
 
 if __name__ == "__main__":
-    # p1 = np.array([0.0, 0.0, 0.0])
-    # p2 = np.array([-0.75, 3.0, 2.0])
-    # p3 = np.array([1.0, -1.5, 2.0])
-    # plane = Plane.from_3points(p1, p2, p3)
-    # print(plane.distances([[0.0, 0.0, 0.0], [0.0, 0.0, 0.75], [0.0, 0.0, -0.75], [0.2, -0.3, 0.75], [-0.2, 0.3, -0.75]]))
-    # print(plane.distances_indices_sorted([[0.0, 0.0, 0.0], [0.0, 0.0, 0.75], [0.0, 0.0, -0.75], [0.2, -0.3, 0.75], [-0.2, 0.3, -0.75]]))
-    # print(plane.normal_vector)
-    # print(plane.d)
-    # exit()
     unittest.main()

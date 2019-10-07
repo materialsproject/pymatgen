@@ -5,6 +5,7 @@
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinit.utils import *
 
+
 class RpnTest(PymatgenTest):
 
     def test_mongodb_like_conditions(self):
@@ -15,18 +16,18 @@ class RpnTest(PymatgenTest):
             four = 4.0
 
         map_res = [
-            ( {"one": 1.0}, True),
-            ( {"one": {"$eq": 1.0}}, True),
-            ( {"one": {"$eq": "one"}}, True),
-            ( {"one": {"$ne": "two"}}, True),
-            ( {"one": {"$ne": 1.0}}, False),
-            ( {"four": {"$divisible": 2.0}}, True),
-            ( {"four": {"$divisible": 3.0}}, False),
-            ( {"two": {"$gt": "one"}}, True ),
-            ( {"$and": [ {"one": 1.0}, {"two": {"$lt": 3}}]}, True),
-            ( {"$and": [{"one": {"$ge": 0.8}}, {"two": {"$le": 6.0}}]}, True),
-            ( {"$or": [ {"$not": {"one": 1.0}}, {"two": {"$lt": 20}}]}, True),
-            ( {"$not": {"$and": [ {"$not": {"one": 1.0}}, {"two": {"$lt": 3}}] }}, True),
+            ({"one": 1.0}, True),
+            ({"one": {"$eq": 1.0}}, True),
+            ({"one": {"$eq": "one"}}, True),
+            ({"one": {"$ne": "two"}}, True),
+            ({"one": {"$ne": 1.0}}, False),
+            ({"four": {"$divisible": 2.0}}, True),
+            ({"four": {"$divisible": 3.0}}, False),
+            ({"two": {"$gt": "one"}}, True),
+            ({"$and": [{"one": 1.0}, {"two": {"$lt": 3}}]}, True),
+            ({"$and": [{"one": {"$ge": 0.8}}, {"two": {"$le": 6.0}}]}, True),
+            ({"$or": [{"$not": {"one": 1.0}}, {"two": {"$lt": 20}}]}, True),
+            ({"$not": {"$and": [{"$not": {"one": 1.0}}, {"two": {"$lt": 3}}]}}, True),
         ]
 
         for map, res in map_res:
@@ -38,11 +39,11 @@ class RpnTest(PymatgenTest):
 
 class ConditionTest(PymatgenTest):
     def test_condition(self):
-        c = Condition({}) 
+        c = Condition({})
         assert not c
         print(c)
 
-        class A: 
+        class A:
             def __init__(self):
                 self.one = 1.0
 
@@ -55,15 +56,16 @@ class SparseHistogramTest(PymatgenTest):
     def test_sparse(self):
         items = [1, 2, 2.9, 4]
         hist = SparseHistogram(items, step=1)
-        assert hist.binvals == [1.0, 2.0, 3.0] 
+        assert hist.binvals == [1.0, 2.0, 3.0]
         assert hist.values == [[1], [2, 2.9], [4]]
-        #hist.plot()
+        # hist.plot()
 
         hist = SparseHistogram([iv for iv in enumerate(items)], key=lambda t: t[1], step=1)
-        assert hist.binvals == [1.0, 2.0, 3.0] 
+        assert hist.binvals == [1.0, 2.0, 3.0]
         assert hist.values == [[(0, 1)], [(1, 2), (2, 2.9)], [(3, 4)]]
 
 
 if __name__ == '__main__':
     import unittest
+
     unittest.main()

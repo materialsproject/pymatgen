@@ -373,7 +373,7 @@ class MiniDistNNTest(PymatgenTest):
             coords_are_cartesian=True, site_properties=None)
         self.mos2 = Structure(
             Lattice([[3.19, 0, 0], [-1.595, 2.763, 0], [0, 0, 17.44]]),
-            ['Mo', 'S', 'S'], [[-1e-06, 1.842, 3.72], [1.595, 0.92, 5.29], \
+            ['Mo', 'S', 'S'], [[-1e-06, 1.842, 3.72], [1.595, 0.92, 5.29],
                                [1.595, 0.92, 2.155]], coords_are_cartesian=True)
 
     def test_all_nn_classes(self):

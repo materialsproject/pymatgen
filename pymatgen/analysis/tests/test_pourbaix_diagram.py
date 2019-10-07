@@ -126,7 +126,7 @@ class PourbaixDiagramTest(unittest.TestCase):
     def test_multicomponent(self):
         # Assure no ions get filtered at high concentration
         ag_n = [e for e in self.test_data['Ag-Te-N']
-                if not "Te" in e.composition]
+                if "Te" not in e.composition]
         highconc = PourbaixDiagram(ag_n, filter_solids=True,
                                    conc_dict={"Ag": 1e-5, "N": 1})
         entry_sets = [set(e.entry_id) for e in highconc.stable_entries]
