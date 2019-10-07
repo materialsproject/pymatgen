@@ -14,6 +14,7 @@ __email__ = "mkhorton@lbl.gov"
 __status__ = "Beta"
 __date__ = "Feb 2017"
 
+
 class MagneticSpaceGroupTest(unittest.TestCase):
 
     def setUp(self):
@@ -165,7 +166,7 @@ x+1, -y+1/2, -z+1/2, -1
 
         ref_string = """BNS: 4.11 P_b2_1
 Operators: (1|0,0,0) (2y|0,1/2,0) (1|0,1/2,0)' (2y|0,0,0)'
-Wyckoff Positions: 
+Wyckoff Positions:
 4e  (x,y,z;mx,my,mz) (-x,y+1/2,-z;-mx,my,-mz) (x,y+1/2,z;-mx,-my,-mz)
     (-x,y,-z;mx,-my,mz)
 2d  (1/2,y,1/2;mx,0,mz) (1/2,y+1/2,1/2;-mx,0,-mz)
@@ -177,7 +178,7 @@ Alternative OG setting exists for this space group."""
         ref_string_all = """BNS: 4.11 P_b2_1		OG: 3.7.14 P_2b2'
 OG-BNS Transform: (a,2b,c;0,0,0)
 Operators (BNS): (1|0,0,0) (2y|0,1/2,0) (1|0,1/2,0)' (2y|0,0,0)'
-Wyckoff Positions (BNS): 
+Wyckoff Positions (BNS):
 4e  (x,y,z;mx,my,mz) (-x,y+1/2,-z;-mx,my,-mz) (x,y+1/2,z;-mx,-my,-mz)
     (-x,y,-z;mx,-my,mz)
 2d  (1/2,y,1/2;mx,0,mz) (1/2,y+1/2,1/2;-mx,0,-mz)
@@ -195,6 +196,7 @@ Wyckoff Positions (OG): (1,0,0)+ (0,2,0)+ (0,0,1)+
 
         self.assertEqual(str(msg), ref_string)
         self.assertEqual(msg.data_str(), ref_string_all)
+
 
 if __name__ == '__main__':
     unittest.main()
