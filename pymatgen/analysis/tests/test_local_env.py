@@ -493,13 +493,13 @@ class MotifIdentificationTest(PymatgenTest):
         self.square_pyramid = Structure(
             Lattice([[100, 0, 0], [0, 100, 0], [0, 0, 100]]),
             ["C", "C", "C", "C", "C", "C"], [
-                [0, 0, 0], [1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], \
+                [0, 0, 0], [1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0],
                 [0, 0, 1]], validate_proximity=False, to_unit_cell=False,
             coords_are_cartesian=True, site_properties=None)
         self.trigonal_bipyramid = Structure(
             Lattice([[100, 0, 0], [0, 100, 0], [0, 0, 100]]),
             ["P", "Cl", "Cl", "Cl", "Cl", "Cl"], [
-                [0, 0, 0], [0, 0, 2.14], [0, 2.02, 0], [1.74937, -1.01, 0], \
+                [0, 0, 0], [0, 0, 2.14], [0, 2.02, 0], [1.74937, -1.01, 0],
                 [-1.74937, -1.01, 0], [0, 0, -2.14]], validate_proximity=False,
             to_unit_cell=False, coords_are_cartesian=True,
             site_properties=None)
@@ -629,29 +629,29 @@ class LocalStructOrderParamsTest(PymatgenTest):
         self.trigonal_off_plane = Structure(
             Lattice.cubic(100),
             ["H", "H", "H", "H"],
-            [[0.50, 0.50, 0.50], [0.25, 0.75, 0.25], \
-             [0.25, 0.25, 0.75], [0.75, 0.25, 0.25]], \
+            [[0.50, 0.50, 0.50], [0.25, 0.75, 0.25],
+             [0.25, 0.25, 0.75], [0.75, 0.25, 0.25]],
             validate_proximity=False, to_unit_cell=False,
             coords_are_cartesian=True, site_properties=None)
         self.regular_triangle = Structure(
             Lattice.cubic(30), ["H", "H", "H", "H"],
-            [[15, 15.28867, 15.65], [14.5, 15, 15], [15.5, 15, 15], \
+            [[15, 15.28867, 15.65], [14.5, 15, 15], [15.5, 15, 15],
              [15, 15.866, 15]], validate_proximity=False, to_unit_cell=False,
             coords_are_cartesian=True, site_properties=None)
         self.trigonal_planar = Structure(
             Lattice.cubic(30), ["H", "H", "H", "H"],
-            [[15, 15.28867, 15], [14.5, 15, 15], [15.5, 15, 15], \
+            [[15, 15.28867, 15], [14.5, 15, 15], [15.5, 15, 15],
              [15, 15.866, 15]], validate_proximity=False, to_unit_cell=False,
             coords_are_cartesian=True, site_properties=None)
         self.square_planar = Structure(
             Lattice.cubic(30), ["H", "H", "H", "H", "H"],
-            [[15, 15, 15], [14.75, 14.75, 15], [14.75, 15.25, 15], \
+            [[15, 15, 15], [14.75, 14.75, 15], [14.75, 15.25, 15],
              [15.25, 14.75, 15], [15.25, 15.25, 15]],
             validate_proximity=False, to_unit_cell=False,
             coords_are_cartesian=True, site_properties=None)
         self.square = Structure(
             Lattice.cubic(30), ["H", "H", "H", "H", "H"],
-            [[15, 15, 15.707], [14.75, 14.75, 15], [14.75, 15.25, 15], \
+            [[15, 15, 15.707], [14.75, 14.75, 15], [14.75, 15.25, 15],
              [15.25, 14.75, 15], [15.25, 15.25, 15]],
             validate_proximity=False, to_unit_cell=False,
             coords_are_cartesian=True, site_properties=None)
@@ -669,7 +669,7 @@ class LocalStructOrderParamsTest(PymatgenTest):
             coords_are_cartesian=True, site_properties=None)
         self.pentagonal_planar = Structure(
             Lattice.cubic(30), ["Xe", "F", "F", "F", "F", "F"],
-            [[0, -1.6237, 0], [1.17969, 0, 0], [-1.17969, 0, 0], \
+            [[0, -1.6237, 0], [1.17969, 0, 0], [-1.17969, 0, 0],
              [1.90877, -2.24389, 0], [-1.90877, -2.24389, 0], [0, -3.6307, 0]],
             validate_proximity=False, to_unit_cell=False,
             coords_are_cartesian=True, site_properties=None)
@@ -767,11 +767,11 @@ class LocalStructOrderParamsTest(PymatgenTest):
 
     def test_get_order_parameters(self):
         # Set up everything.
-        op_types = ["cn", "bent", "bent", "tet", "oct", "bcc", "q2", "q4", \
-                    "q6", "reg_tri", "sq", "sq_pyr_legacy", "tri_bipyr", "sgl_bd", \
-                    "tri_plan", "sq_plan", "pent_plan", "sq_pyr", "tri_pyr", \
-                    "pent_pyr", "hex_pyr", "pent_bipyr", "hex_bipyr", "T", "cuboct", \
-                    "see_saw_rect", "hex_plan_max", "tet_max", "oct_max", "tri_plan_max", "sq_plan_max", \
+        op_types = ["cn", "bent", "bent", "tet", "oct", "bcc", "q2", "q4",
+                    "q6", "reg_tri", "sq", "sq_pyr_legacy", "tri_bipyr", "sgl_bd",
+                    "tri_plan", "sq_plan", "pent_plan", "sq_pyr", "tri_pyr",
+                    "pent_pyr", "hex_pyr", "pent_bipyr", "hex_bipyr", "T", "cuboct",
+                    "see_saw_rect", "hex_plan_max", "tet_max", "oct_max", "tri_plan_max", "sq_plan_max",
                     "pent_plan_max", "cuboct_max", "tet_max", "sq_face_cap_trig_pris"]
         op_params = [None for i in range(len(op_types))]
         op_params[1] = {'TA': 1, 'IGW_TA': 1. / 0.0667}

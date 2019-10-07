@@ -405,7 +405,7 @@ class IStructureTest(PymatgenTest):
         all_nn = s.get_all_neighbors(0.05)
         self.assertEqual([len(nn) for nn in all_nn], [0] * len(s))
 
-    @unittest.skipIf(not os.environ.get("CI"))
+    @unittest.skipIf(not os.environ.get("CI"), "Only run this in CI tests.")
     def test_get_all_neighbors_crosscheck_old(self):
         warnings.simplefilter("ignore")
         for i in range(100):
