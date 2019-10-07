@@ -528,7 +528,7 @@ class LobsteroutTest(PymatgenTest):
     def setUp(self):
         warnings.simplefilter("ignore")
         self.lobsterout_normal = Lobsterout(filename=os.path.join(test_dir, "lobsterout.normal"))
-        #make sure .gz files are also read correctly
+        # make sure .gz files are also read correctly
         self.lobsterout_normal = Lobsterout(filename=os.path.join(test_dir, "lobsterout.normal2.gz"))
         self.lobsterout_fatband_grosspop_densityofenergies = Lobsterout(
             filename=os.path.join(test_dir, "lobsterout.fatband_grosspop_densityofenergy"))
