@@ -27,15 +27,13 @@ poff.init_notebook_mode(connected=True)
 #voltage default set to 200 instead of 300 kv
 #beam directions: all permutations/families of 1, -1 (-1-1-1, 111, 110, 100)
 #cluster analysis of the points: min vector (1d or 2d)
-from math import *
 from fractions import Fraction 
 
 import os
 import json
-import math
 import numpy as np
 import random
-
+import scipy.constants as sc
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 from pymatgen.analysis.diffraction.core import DiffractionPattern, AbstractDiffractionPatternCalculator, \
@@ -52,12 +50,12 @@ This module implements a TEM pattern calculator.
 """
 
 #Credit to Dr. Shyue Ping Ong for the template of the calculator
-__author__ = "Frank Wan"
+__author__ = "Frank Wan, modified by JasonL"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Frank Wan respect for S.P.O"
 __email__ = "fwan@berkeley.edu"
-__date__ = "06/19/2019"
+__date__ = "06/19/2019, updated 10/2019"
 
 class TEMDot():
     """
@@ -91,14 +89,9 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     Computes the TEM pattern of a crystal structure for multiple Laue zones.
     """
 
-    """
-    some important constants needed for calculations
-    """
-    planck = 6.62607004 * 10**-34
-    rest_mass_elec = 9.1093835611 * 10**-31
-    charge_elec = 1.60217662 * 10**-19 
-    speed_light = 299792458
-    vacuum_perm = 8.8541878176 * 10**-12
+    charge_elec = 1.60217662 * 10**-19 # sc.e
+    speed_light = 299792458 #call sc.c
+    vacuum_perm = 8.8541878176 * 10**-12 #call sc.epsilon_0
     wavelength_cache = {}
     
     def __init__(self, symprec: float=None, voltage: float=300, beam_direction: List[int]=[0,0,1], 
@@ -141,8 +134,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         """
         if self.voltage in self.wavelength_cache:
             return self.wavelength_cache[self.voltage]
-        wavelength_rel = self.planck/math.sqrt(2*self.rest_mass_elec*self.charge_elec*1000*self.voltage*
-        	(1+(self.charge_elec*1000*self.voltage)/(2*self.rest_mass_elec*self.speed_light**2)))
+        wavelength_rel = sc.h/np.sqrt(2 * sc.m_e * sc.e * 1000 * self.voltage*
+        	(1+(sc.e * 1000*self.voltage)/(2 * sc.m_e * self.speed_light**2)))
         self.wavelength_cache[self.voltage] = wavelength_rel
         return wavelength_rel
 
@@ -186,7 +179,6 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     #difficulty of separating said points based on where they would theoretically appear in a 
     #2d DP, it is impractical to calculate interplanar distance from the g-vector (which must
     # be calc'ed by knowing the Bragg angle).
-
     # actually disregard that, it's not hard to test it. you only need the miller indices.
     # however just by a cursory inspection of interplanar distances, how is it 
     # mathematically possible for hkl alone to determine interplanar distance?  
