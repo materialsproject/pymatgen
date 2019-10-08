@@ -88,10 +88,6 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     """
     Computes the TEM pattern of a crystal structure for multiple Laue zones.
     """
-
-    charge_elec = 1.60217662 * 10**-19 # sc.e
-    speed_light = 299792458 #call sc.c
-    vacuum_perm = 8.8541878176 * 10**-12 #call sc.epsilon_0
     wavelength_cache = {}
     
     def __init__(self, symprec: float=None, voltage: float=300, beam_direction: List[int]=[0,0,1], 
@@ -135,7 +131,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         if self.voltage in self.wavelength_cache:
             return self.wavelength_cache[self.voltage]
         wavelength_rel = sc.h/np.sqrt(2 * sc.m_e * sc.e * 1000 * self.voltage*
-        	(1+(sc.e * 1000*self.voltage)/(2 * sc.m_e * self.speed_light**2)))
+        	(1+(sc.e * 1000*self.voltage)/(2 * sc.m_e * sc.c**2)))
         self.wavelength_cache[self.voltage] = wavelength_rel
         return wavelength_rel
 
@@ -313,7 +309,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             points (3-tuple list): The hkl points in question.
         Returns:
             dict of hkl plane (3-tuple) to interplanar spacing (float)
-        """        
+        Original code:
         interplanar_spacings = {}
         analy = SpacegroupAnalyzer(structure, 0.1)
         points_filtered = self.zone_axis_filter(points)
@@ -333,7 +329,16 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                     interplanar_spacings[point] = self.dist_monoclinic(structure, point)
                 if analy.get_lattice_type() == 'triclinic':
                     interplanar_spacings[point] = self.dist_triclinic(structure, point)
-        return interplanar_spacings   
+        """
+        interplanar_spacings = {}
+        points_filtered = self.zone_axis_filter(points)
+        reciprocal_lat = structure.lattice.reciprocal_lattice_crystallographic
+        for point in points_filtered:
+             interplanar_spacings[point] = 1 / ((point[0] ** 2 * reciprocal_lat.a) + \
+             (point[1] ** 2 * reciprocal_lat.b) + \
+             (point[2] ** 2 * reciprocal_lat.c))
+            
+        return interplanar_spacings
         
     def bragg_angles(self, interplanar_spacings: Dict[Tuple[int, int, int], float]) -> Dict[Tuple[int, int, int], float]:
         """
@@ -405,7 +410,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         x_ray_factors = self.x_ray_factors(structure, bragg_angles)
         s2 = self.get_s2(structure, bragg_angles)
         atoms = structure.composition.elements
-        prefactor = self.charge_elec/(16*(pi**2)*self.vacuum_perm) 
+        prefactor = sc.e/(16*(pi**2)*sc.epsilon_0) 
         
         scattering_factors_for_atom = {}
         scattering_factor_curr = 0
