@@ -26,17 +26,6 @@ from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.testing import PymatgenTest
 
-"""
-Created on Jul 16, 2012
-"""
-
-__author__ = "Shyue Ping Ong, Stephen Dacek, Mark Turiansky"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
-__date__ = "Jul 16, 2012"
-
 
 class VasprunTest(PymatgenTest):
     _multiprocess_shared_ = True
@@ -289,7 +278,6 @@ class VasprunTest(PymatgenTest):
         self.assertAlmostEqual(
             1.0741, vasprun_diel.dielectric_data["velocity"][1][51][0])
         self.assertEqual(len(vasprun_diel.other_dielectric), 0)
-
 
     def test_indirect_vasprun(self):
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.indirect.gz")
@@ -581,6 +569,7 @@ class VasprunTest(PymatgenTest):
         vasprun = Vasprun(vpath, parse_potcar_file=False)
         self.assertEqual(vasprun.eigenvalues[Spin.up].shape[0], len(vasprun.actual_kpoints))
 
+
 class OutcarTest(PymatgenTest):
     _multiprocess_shared_ = True
 
@@ -660,7 +649,6 @@ class OutcarTest(PymatgenTest):
             self.assertAlmostEqual(outcar.internal_strain_tensor[1][0][0], 570.98927, places=4)
             self.assertAlmostEqual(outcar.internal_strain_tensor[1][1][0], -683.68519, places=4)
             self.assertAlmostEqual(outcar.internal_strain_tensor[1][2][2], 570.98927, places=4)
-
 
     def test_stopped(self):
         filepath = self.TEST_FILES_DIR / 'OUTCAR.stopped'
@@ -1428,7 +1416,7 @@ class WavederTest(PymatgenTest):
     _multiprocess_shared_ = True
 
     def setUp(self):
-        wder = Waveder(self.TEST_FILES_DIR / 'WAVEDER', gamma_only = True)
+        wder = Waveder(self.TEST_FILES_DIR / 'WAVEDER', gamma_only=True)
         self.assertEqual(wder.nbands, 36)
         self.assertEqual(wder.nkpoints, 56)
         self.assertEqual(wder.nelect, 8)
@@ -1442,23 +1430,23 @@ class WavederTest(PymatgenTest):
 
     def test_consistency(self):
         wder = Waveder(self.TEST_FILES_DIR / 'WAVEDER.Si')
-        wderf = np.loadtxt(self.TEST_FILES_DIR / 'WAVEDERF.Si', skiprows = 1)
+        wderf = np.loadtxt(self.TEST_FILES_DIR / 'WAVEDERF.Si', skiprows=1)
         with open(self.TEST_FILES_DIR / 'WAVEDERF.Si', 'r') as f:
             first_line = [int(a) for a in f.readline().split()]
         self.assertEqual(wder.nkpoints, first_line[1])
         self.assertEqual(wder.nbands, first_line[2])
         for i in range(10):
             self.assertAlmostEqual(
-                first = wder.get_orbital_derivative_between_states(0,i,0,0,0).real,
-                second = wderf[i,6],
-                places = 10
+                first=wder.get_orbital_derivative_between_states(0, i, 0, 0, 0).real,
+                second=wderf[i, 6],
+                places=10
             )
-            self.assertAlmostEqual(wder.cder_data[0,i,0,0,0].real, wderf[i,6], places = 10)
-            self.assertAlmostEqual(wder.cder_data[0,i,0,0,0].imag, wderf[i,7], places = 10)
-            self.assertAlmostEqual(wder.cder_data[0,i,0,0,1].real, wderf[i,8], places = 10)
-            self.assertAlmostEqual(wder.cder_data[0,i,0,0,1].imag, wderf[i,9], places = 10)
-            self.assertAlmostEqual(wder.cder_data[0,i,0,0,2].real, wderf[i,10], places = 10)
-            self.assertAlmostEqual(wder.cder_data[0,i,0,0,2].imag, wderf[i,11], places = 10)
+            self.assertAlmostEqual(wder.cder_data[0, i, 0, 0, 0].real, wderf[i, 6], places=10)
+            self.assertAlmostEqual(wder.cder_data[0, i, 0, 0, 0].imag, wderf[i, 7], places=10)
+            self.assertAlmostEqual(wder.cder_data[0, i, 0, 0, 1].real, wderf[i, 8], places=10)
+            self.assertAlmostEqual(wder.cder_data[0, i, 0, 0, 1].imag, wderf[i, 9], places=10)
+            self.assertAlmostEqual(wder.cder_data[0, i, 0, 0, 2].real, wderf[i, 10], places=10)
+            self.assertAlmostEqual(wder.cder_data[0, i, 0, 0, 2].imag, wderf[i, 11], places=10)
 
 
 if __name__ == "__main__":

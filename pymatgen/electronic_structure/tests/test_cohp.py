@@ -321,7 +321,8 @@ class CombinedIcohpTest(unittest.TestCase):
                 v.pop("@version")
             self.assertDictEqual(v, icohpvalue[key])
 
-        # compare number of results dependent on minsummedicohp, maxsummedicohp,minbondlength, maxbondlength, and only_bonds_to
+        # compare number of results dependent on minsummedicohp, maxsummedicohp,minbondlength, maxbondlength, and
+        # only_bonds_to
         dict_KF_2 = self.icohpcollection_KF.get_icohp_dict_of_site(site=0, minsummedicohp=None,
                                                                    maxsummedicohp=-0.0, minbondlength=0.0,
                                                                    maxbondlength=8.0)

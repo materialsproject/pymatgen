@@ -3,7 +3,6 @@
 # Distributed under the terms of the MIT License.
 
 
-
 import unittest
 import os
 from monty.serialization import loadfn
@@ -12,7 +11,7 @@ import numpy as np
 import multiprocessing
 import logging
 
-from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, PourbaixEntry,\
+from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, PourbaixEntry, \
     PourbaixPlotter, IonEntry, MultiEntry
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.core.ion import Ion
@@ -28,6 +27,7 @@ class PourbaixEntryTest(unittest.TestCase):
     """
     Test all functions using a fictitious entry
     """
+
     def setUp(self):
         # comp = Composition("Mn2O3")
         self.solentry = ComputedEntry("Mn2O3", 49)
@@ -126,7 +126,7 @@ class PourbaixDiagramTest(unittest.TestCase):
     def test_multicomponent(self):
         # Assure no ions get filtered at high concentration
         ag_n = [e for e in self.test_data['Ag-Te-N']
-                if not "Te" in e.composition]
+                if "Te" not in e.composition]
         highconc = PourbaixDiagram(ag_n, filter_solids=True,
                                    conc_dict={"Ag": 1e-5, "N": 1})
         entry_sets = [set(e.entry_id) for e in highconc.stable_entries]
@@ -149,7 +149,7 @@ class PourbaixDiagramTest(unittest.TestCase):
         # Fetch a solid entry and a ground state entry mixture
         ag_te_n = self.test_data['Ag-Te-N'][-1]
         ground_state_ag_with_ions = MultiEntry([self.test_data['Ag-Te-N'][i] for i in [4, 18, 30]],
-                                               weights=[1/3, 1/3, 1/3])
+                                               weights=[1 / 3, 1 / 3, 1 / 3])
         self.assertAlmostEqual(pd_ternary.get_decomposition_energy(ag_te_n, 2, -1), 2.767822855765)
         self.assertAlmostEqual(pd_ternary.get_decomposition_energy(ag_te_n, 10, -2), 3.756840056890625)
         self.assertAlmostEqual(pd_ternary.get_decomposition_energy(ground_state_ag_with_ions, 2, -1), 0)
@@ -161,14 +161,13 @@ class PourbaixDiagramTest(unittest.TestCase):
         self.assertAlmostEqual(new_ternary.get_decomposition_energy(ag_te_n, 10, -2), 3.756840056890625)
         self.assertAlmostEqual(new_ternary.get_decomposition_energy(ground_state_ag_with_ions, 2, -1), 0)
 
-
     def test_get_pourbaix_domains(self):
         domains = PourbaixDiagram.get_pourbaix_domains(self.test_data['Zn'])
         self.assertEqual(len(domains[0]), 7)
 
     def test_get_decomposition(self):
         # Test a stable entry to ensure that it's zero in the stable region
-        entry = self.test_data['Zn'][12] # Should correspond to mp-2133
+        entry = self.test_data['Zn'][12]  # Should correspond to mp-2133
         self.assertAlmostEqual(self.pbx.get_decomposition_energy(entry, 10, 1),
                                0.0, 5, "Decomposition energy of ZnO is not 0.")
 

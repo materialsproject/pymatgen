@@ -2,6 +2,14 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Common test support for pymatgen test scripts.
+
+This single module should provide all the common functionality for pymatgen
+tests in a single location, so that test scripts can just import it and work
+right away.
+"""
+
 import unittest
 import tempfile
 import numpy.testing.utils as nptu
@@ -15,14 +23,6 @@ from monty.json import MSONable
 from monty.dev import requires
 
 from pymatgen import SETTINGS, MPRester
-
-"""
-Common test support for pymatgen test scripts.
-
-This single module should provide all the common functionality for pymatgen
-tests in a single location, so that test scripts can just import it and work
-right away.
-"""
 
 
 class PymatgenTest(unittest.TestCase):
@@ -43,11 +43,23 @@ class PymatgenTest(unittest.TestCase):
 
     @classmethod
     def get_structure(cls, name):
+        """
+        Get a structure from the template directories.
+
+        :param name: Name of a structure.
+        :return: Structure
+        """
         return cls.TEST_STRUCTURES[name].copy()
 
     @classmethod
     @requires(SETTINGS.get("PMG_MAPI_KEY"), "PMG_MAPI_KEY needs to be set.")
     def get_mp_structure(cls, mpid):
+        """
+        Get a structure from MP.
+
+        :param mpid: Materials Project id.
+        :return: Structure
+        """
         m = MPRester()
         return m.get_structure_by_material_id(mpid)
 
@@ -69,6 +81,22 @@ class PymatgenTest(unittest.TestCase):
         """
         return nptu.assert_equal(actual, desired, err_msg=err_msg,
                                  verbose=verbose)
+
+    @staticmethod
+    def assertStrContentEqual(actual, desired, err_msg='', verbose=True):
+        """
+        Tests if two strings are equal, ignoring things like trailing spaces,
+        etc.
+        """
+        lines1 = actual.split("\n")
+        lines2 = desired.split("\n")
+        if len(lines1) != len(lines2):
+            return False
+        failed = []
+        for l1, l2 in zip(lines1, lines2):
+            if l1.strip() != l2.strip():
+                failed.append("%s != %s" % (l1, l2))
+        return len(failed) == 0
 
     def serialize_with_pickle(self, objects, protocols=None, test_eq=True):
         """

@@ -1,4 +1,3 @@
-
 import unittest
 
 from pymatgen.util.testing import PymatgenTest
@@ -30,8 +29,7 @@ class AdsorbateSiteFinderTest(PymatgenTest):
         slabs = generate_all_slabs(self.structure, max_index=2,
                                    min_slab_size=6.0, min_vacuum_size=15.0,
                                    max_normal_search=1, center_slab=True)
-        self.slab_dict = {''.join([str(i) for i in slab.miller_index]):
-                              slab for slab in slabs}
+        self.slab_dict = {''.join([str(i) for i in slab.miller_index]): slab for slab in slabs}
         self.asf_211 = AdsorbateSiteFinder(self.slab_dict["211"])
         self.asf_100 = AdsorbateSiteFinder(self.slab_dict["100"])
         self.asf_111 = AdsorbateSiteFinder(self.slab_dict["111"])
@@ -111,7 +109,7 @@ class AdsorbateSiteFinderTest(PymatgenTest):
         sites = self.asf_111.find_adsorption_sites()
         ads_site_coords = sites['all'][0]
         c_site = structures[0].sites[-2]
-        self.assertArrayAlmostEqual(c_site.coords, ads_site_coords+np.array([1.0, -0.5, 3]))
+        self.assertArrayAlmostEqual(c_site.coords, ads_site_coords + np.array([1.0, -0.5, 3]))
 
     def test_adsorb_both_surfaces(self):
 
@@ -147,18 +145,17 @@ class AdsorbateSiteFinderTest(PymatgenTest):
         for slab in slabs:
             adsgen = AdsorbateSiteFinder(slab)
 
-
             adslabs = adsgen.generate_substitution_structures("Ni")
             # There should be 2 configs (sub O and sub
             # Mg) for (110) and (100), 1 for (111)
-            if tuple(slab.miller_index) != (1,1,1):
+            if tuple(slab.miller_index) != (1, 1, 1):
                 self.assertEqual(len(adslabs), 2)
             else:
                 self.assertEqual(len(adslabs), 1)
 
             # Test out whether it can correctly dope both
             # sides. Avoid (111) becasue it is not symmetric
-            if tuple(slab.miller_index) != (1,1,1):
+            if tuple(slab.miller_index) != (1, 1, 1):
                 adslabs = adsgen.generate_substitution_structures("Ni", sub_both_sides=True,
                                                                   target_species=["Mg"])
                 # Test if default parameters dope the surface site
@@ -172,7 +169,7 @@ class AdsorbateSiteFinderTest(PymatgenTest):
                 self.assertTrue(adslabs[0].is_symmetric())
                 # Correctly dope the target species
                 self.assertEqual(adslabs[0].composition.as_dict()["Mg"],
-                                 slab.composition.as_dict()["Mg"]-2)
+                                 slab.composition.as_dict()["Mg"] - 2)
                 # There should be one config (sub Mg)
                 self.assertEqual(len(adslabs), 1)
 

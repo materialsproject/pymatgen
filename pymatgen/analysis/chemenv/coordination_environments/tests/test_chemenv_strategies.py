@@ -98,6 +98,5 @@ class StrategyOptionsTest(PymatgenTest):
         self.assertEqual(str(cm.exception), 'Continuous symmetry measure limits should be between 0.0 and 100.0')
 
 
-
 if __name__ == "__main__":
     unittest.main()

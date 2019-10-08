@@ -2,8 +2,13 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+import unittest
 from pathlib import Path
 import warnings
+import random
+import os
+import numpy as np
+
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.composition import Composition
@@ -12,9 +17,6 @@ from pymatgen.core.structure import IStructure, Structure, IMolecule, \
     StructureError, Molecule
 from pymatgen.core.lattice import Lattice
 from pymatgen.electronic_structure.core import Magmom
-import random
-import os
-import numpy as np
 
 
 class IStructureTest(PymatgenTest):
@@ -174,9 +176,7 @@ class IStructureTest(PymatgenTest):
         self.assertEqual(self.propertied_structure[1].magmom, -5)
 
     def test_copy(self):
-        new_struct = self.propertied_structure.copy(site_properties={'charge':
-                                                                         [2,
-                                                                          3]})
+        new_struct = self.propertied_structure.copy(site_properties={'charge': [2, 3]})
         self.assertEqual(new_struct[0].magmom, 5)
         self.assertEqual(new_struct[1].magmom, -5)
         self.assertEqual(new_struct[0].charge, 2)
@@ -405,43 +405,46 @@ class IStructureTest(PymatgenTest):
         all_nn = s.get_all_neighbors(0.05)
         self.assertEqual([len(nn) for nn in all_nn], [0] * len(s))
 
-    # def test_get_all_neighbors_crosscheck_old(self):
-    #     warnings.simplefilter("ignore")
-    #     for i in range(100):
-    #         alpha, beta = np.random.rand(2) * 90
-    #         a, b, c = 3 + np.random.rand(3) * 5
-    #         species = ["H"] * 5
-    #         frac_coords = np.random.rand(5, 3)
-    #         try:
-    #             latt = Lattice.from_parameters(a, b, c, alpha, beta, 90)
-    #             s = Structure.from_spacegroup("P1", latt,
-    #                                           species, frac_coords)
-    #             for nn_new, nn_old in zip(s.get_all_neighbors(4),
-    #                                       s.get_all_neighbors_old(4)):
-    #                 sites1 = [i[0] for i in nn_new]
-    #                 sites2 = [i[0] for i in nn_old]
-    #                 self.assertEqual(set(sites1), set(sites2))
-    #             break
-    #         except Exception as ex:
-    #             pass
-    #     else:
-    #         raise ValueError("No valid structure tested.")
-    #
-    #     from pymatgen.electronic_structure.core import Spin
-    #     d = {'@module': 'pymatgen.core.structure', '@class': 'Structure', 'charge': None, 'lattice': {
-    #         'matrix': [[0.0, 0.0, 5.5333], [5.7461, 0.0, 3.518471486290303e-16],
-    #                    [-4.692662837312786e-16, 7.6637, 4.692662837312786e-16]], 'a': 5.5333, 'b': 5.7461, 'c': 7.6637,
-    #         'alpha': 90.0, 'beta': 90.0, 'gamma': 90.0, 'volume': 243.66653780778103}, 'sites': [
-    #         {'species': [{'element': 'Mn', 'oxidation_state': 0, 'properties': {'spin': Spin.down}, 'occu': 1}],
-    #          'abc': [0.0, 0.5, 0.5], 'xyz': [2.8730499999999997, 3.83185, 4.1055671618015446e-16], 'label': 'Mn0+,spin=-1',
-    #          'properties': {}},
-    #         {'species': [{'element': 'Mn', 'oxidation_state': None, 'occu': 1.0}], 'abc': [1.232595164407831e-32, 0.5, 0.5],
-    #          'xyz': [2.8730499999999997, 3.83185, 4.105567161801545e-16], 'label': 'Mn', 'properties': {}}]}
-    #     struct = Structure.from_dict(d)
-    #     self.assertEqual(set([i[0] for i in struct.get_neighbors(struct[0], 0.05)]),
-    #                      set([i[0] for i in struct.get_neighbors_old(struct[0], 0.05)]))
-    #
-    #     warnings.simplefilter("default")
+    @unittest.skipIf(not os.environ.get("CI"), "Only run this in CI tests.")
+    def test_get_all_neighbors_crosscheck_old(self):
+        warnings.simplefilter("ignore")
+        for i in range(100):
+            alpha, beta = np.random.rand(2) * 90
+            a, b, c = 3 + np.random.rand(3) * 5
+            species = ["H"] * 5
+            frac_coords = np.random.rand(5, 3)
+            try:
+                latt = Lattice.from_parameters(a, b, c, alpha, beta, 90)
+                s = Structure.from_spacegroup("P1", latt,
+                                              species, frac_coords)
+                for nn_new, nn_old in zip(s.get_all_neighbors(4),
+                                          s.get_all_neighbors_old(4)):
+                    sites1 = [i[0] for i in nn_new]
+                    sites2 = [i[0] for i in nn_old]
+                    self.assertEqual(set(sites1), set(sites2))
+                break
+            except Exception as ex:
+                pass
+        else:
+            raise ValueError("No valid structure tested.")
+
+        from pymatgen.electronic_structure.core import Spin
+        d = {'@module': 'pymatgen.core.structure', '@class': 'Structure', 'charge': None, 'lattice': {
+            'matrix': [[0.0, 0.0, 5.5333], [5.7461, 0.0, 3.518471486290303e-16],
+                       [-4.692662837312786e-16, 7.6637, 4.692662837312786e-16]], 'a': 5.5333, 'b': 5.7461, 'c': 7.6637,
+            'alpha': 90.0, 'beta': 90.0, 'gamma': 90.0, 'volume': 243.66653780778103}, 'sites': [
+            {'species': [{'element': 'Mn', 'oxidation_state': 0, 'properties': {'spin': Spin.down}, 'occu': 1}],
+             'abc': [0.0, 0.5, 0.5], 'xyz': [2.8730499999999997, 3.83185, 4.1055671618015446e-16],
+             'label': 'Mn0+,spin=-1',
+             'properties': {}},
+            {'species': [{'element': 'Mn', 'oxidation_state': None, 'occu': 1.0}],
+             'abc': [1.232595164407831e-32, 0.5, 0.5],
+             'xyz': [2.8730499999999997, 3.83185, 4.105567161801545e-16], 'label': 'Mn', 'properties': {}}]}
+        struct = Structure.from_dict(d)
+        self.assertEqual(set([i[0] for i in struct.get_neighbors(struct[0], 0.05)]),
+                         set([i[0] for i in struct.get_neighbors_old(struct[0], 0.05)]))
+
+        warnings.simplefilter("default")
 
     def test_get_all_neighbors_outside_cell(self):
         s = Structure(Lattice.cubic(2), ['Li', 'Li', 'Li', 'Si'],
@@ -482,7 +485,7 @@ class IStructureTest(PymatgenTest):
         for i in range(4):
             self.assertEqual(len(nn_traditional[i]), len(nn_cell_lists[i]))
             self.assertTrue(np.linalg.norm(np.array(sorted([j[1] for j in nn_traditional[i]])) -
-                            np.array(sorted([j[1] for j in nn_cell_lists[i]]))) < 1e-3)
+                                           np.array(sorted([j[1] for j in nn_cell_lists[i]]))) < 1e-3)
 
     def test_get_dist_matrix(self):
         ans = [[0., 2.3516318],
@@ -974,13 +977,12 @@ class StructureTest(PymatgenTest):
         species = ["Na", "V", "S", "S"]
         coords = [[0.333333, 0.666667, 0.165000], [0.000000, 0.000000, 0.998333],
                   [0.333333, 0.666667, 0.399394], [0.666667, 0.333333, 0.597273]]
-        site_props = {'prop1' : [3.0, 5.0, 7.0, 11.0]}
+        site_props = {'prop1': [3.0, 5.0, 7.0, 11.0]}
         navs2 = Structure.from_spacegroup(160, l, species, coords, site_properties=site_props)
         navs2.insert(0, 'Na', coords[0], properties={'prop1': 100.})
         navs2.merge_sites(mode="a")
         self.assertEqual(len(navs2), 12)
         self.assertEqual(51.5 in [itr.properties['prop1'] for itr in navs2.sites], True)
-
 
     def test_properties(self):
         self.assertEqual(self.structure.num_sites, len(self.structure))
@@ -1188,8 +1190,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
 
     def test_site_properties(self):
         propertied_mol = Molecule(["C", "H", "H", "H", "H"], self.coords,
-                                  site_properties={'magmom':
-                                                       [0.5, -0.5, 1, 2, 3]})
+                                  site_properties={'magmom': [0.5, -0.5, 1, 2, 3]})
         self.assertEqual(propertied_mol[0].magmom, 0.5)
         self.assertEqual(propertied_mol[1].magmom, -0.5)
 
@@ -1278,8 +1279,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         self.assertEqual(type(mol2), IMolecule)
         propertied_mol = Molecule(["C", "H", "H", "H", "H"], self.coords,
                                   charge=1,
-                                  site_properties={'magmom':
-                                                       [0.5, -0.5, 1, 2, 3]})
+                                  site_properties={'magmom': [0.5, -0.5, 1, 2, 3]})
         d = propertied_mol.as_dict()
         self.assertEqual(d['sites'][0]['properties']['magmom'], 0.5)
         mol = Molecule.from_dict(d)
@@ -1470,4 +1470,5 @@ class MoleculeTest(PymatgenTest):
 
 if __name__ == '__main__':
     import unittest
+
     unittest.main()

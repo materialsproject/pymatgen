@@ -1,4 +1,3 @@
-
 __author__ = 'setten'
 
 import numpy
@@ -15,10 +14,10 @@ class ConvergenceTest(PymatgenTest):
         ys = [4, 5, 6, 6, 6, 6]
         self.assertEqual(determine_convergence(xs, ys, name='name', tol=0.1, plots=False),
                          [True, 4, 6, 3, 6.0, 0.091269841269839724])
-        #self.assertTrue(os.path.isfile('name.fitdat'))
-        #self.assertTrue(os.path.isfile('plot-fits'))
+        # self.assertTrue(os.path.isfile('name.fitdat'))
+        # self.assertTrue(os.path.isfile('plot-fits'))
         # another converging example
-        ys = [1/1, 1/2, 1/3, 1/4, 1/5, 1/6]
+        ys = [1 / 1, 1 / 2, 1 / 3, 1 / 4, 1 / 5, 1 / 6]
         self.assertEqual(determine_convergence(xs, ys, name='name', tol=0.3, plots=False),
                          [True, 3, 0.3333333333333333, 2, 0.0, -0.12813051146384496])
         # a non converging example

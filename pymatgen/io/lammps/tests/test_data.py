@@ -13,7 +13,7 @@ import pandas as pd
 from ruamel.yaml import YAML
 from pymatgen import Molecule, Element, Lattice, Structure
 
-from pymatgen.io.lammps.data import LammpsBox, LammpsData, Topology,\
+from pymatgen.io.lammps.data import LammpsBox, LammpsData, Topology, \
     ForceField, lattice_2_lmpbox, structure_2_lmpdata, CombinedData
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
@@ -59,7 +59,7 @@ class LammpsBoxTest(unittest.TestCase):
                          29.768095 - 57.139462)
         quartz = self.quartz
         np.testing.assert_array_almost_equal(quartz.get_box_shift([0, 0, 1]),
-                                      [0, 0, 5.4052], 4)
+                                             [0, 0, 5.4052], 4)
         np.testing.assert_array_almost_equal(quartz.get_box_shift([0, 1, -1]),
                                              [-2.4567, 4.2551, -5.4052], 4)
         np.testing.assert_array_almost_equal(quartz.get_box_shift([1, -1, 0]),
@@ -80,17 +80,17 @@ class LammpsDataTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.peptide = LammpsData.\
+        cls.peptide = LammpsData. \
             from_file(filename=os.path.join(test_dir, "data.peptide"))
-        cls.ethane = LammpsData.\
+        cls.ethane = LammpsData. \
             from_file(filename=os.path.join(test_dir, "ethane.data"))
-        cls.quartz = LammpsData.\
+        cls.quartz = LammpsData. \
             from_file(filename=os.path.join(test_dir, "data.quartz"),
                       atom_style="atomic")
-        cls.virus = LammpsData.\
+        cls.virus = LammpsData. \
             from_file(filename=os.path.join(test_dir, "virus.data"),
                       atom_style="angle")
-        cls.tatb = LammpsData.\
+        cls.tatb = LammpsData. \
             from_file(filename=os.path.join(test_dir, "tatb.data"),
                       atom_style="charge", sort_id=True)
 
@@ -121,7 +121,7 @@ class LammpsDataTest(unittest.TestCase):
 
         co = Structure.from_spacegroup(194,
                                        Lattice.hexagonal(2.50078, 4.03333),
-                                       ["Co"], [[1/3, 2/3, 1/4]])
+                                       ["Co"], [[1 / 3, 2 / 3, 1 / 4]])
         ld_co = LammpsData.from_structure(co)
         self.assertEqual(ld_co.structure.composition.reduced_formula, "Co")
         ni = Structure.from_spacegroup(225, Lattice.cubic(3.50804),
@@ -280,7 +280,7 @@ class LammpsDataTest(unittest.TestCase):
             ff_kw = kw + " Coeffs"
             i = random.randint(0, len(c_ff.topo_coeffs[ff_kw]) - 1)
             sample_coeff = c_ff.topo_coeffs[ff_kw][i]
-            np.testing.\
+            np.testing. \
                 assert_array_equal(sample_coeff["coeffs"],
                                    c.force_field[ff_kw].iloc[i].values,
                                    ff_kw)
@@ -614,10 +614,10 @@ class ForceFieldTest(unittest.TestCase):
         mass_info = [("A", "H"), ("B", Element("C")),
                      ("C", Element("O")), ("D", 1.00794)]
         nonbond_coeffs = [[1, 1, 1.1225], [1, 1.175, 1.31894],
-                          [1, 1.55, 1.73988], [1, 1, 1.1225 ],
+                          [1, 1.55, 1.73988], [1, 1, 1.1225],
                           [1, 1.35, 4], [1, 1.725, 1.93631],
                           [1, 1.175, 1.31894], [1, 2.1, 4],
-                          [1, 1.55, 1.73988], [1, 1,  1.1225 ]]
+                          [1, 1.55, 1.73988], [1, 1, 1.1225]]
         topo_coeffs = {"Bond Coeffs": [{"coeffs": [50, 0.659469],
                                         "types": [("A", "B"), ("C", "D")]},
                                        {"coeffs": [50, 0.855906],
@@ -665,9 +665,9 @@ class ForceFieldTest(unittest.TestCase):
         self.assertEqual(e_ff["AngleAngle Coeffs"].at[1, "coeff2"], -0.4825)
         e_maps = e.maps
         self.assertDictEqual(e_maps["Atoms"], {"c4": 1, "h1": 2})
-        self.assertDictEqual(e_maps["Bonds"],{("c4", "c4"): 1,
-                                              ("c4", "h1"): 2,
-                                              ("h1", "c4"): 2})
+        self.assertDictEqual(e_maps["Bonds"], {("c4", "c4"): 1,
+                                               ("c4", "h1"): 2,
+                                               ("h1", "c4"): 2})
         self.assertDictEqual(e_maps["Angles"], {("c4", "c4", "h1"): 1,
                                                 ("h1", "c4", "c4"): 1,
                                                 ("h1", "c4", "h1"): 2})
@@ -733,8 +733,7 @@ class FuncTest(unittest.TestCase):
         np.testing.assert_array_almost_equal(init_latt.abc, boxed_latt.abc)
         np.testing.assert_array_almost_equal(init_latt.angles,
                                              boxed_latt.angles)
-        cart_coords = symmop.operate_multi(init_structure.cart_coords) \
-                      - origin
+        cart_coords = symmop.operate_multi(init_structure.cart_coords) - origin
         boxed_structure = Structure(boxed_latt, ["H"] * 10, cart_coords,
                                     coords_are_cartesian=True)
         np.testing.assert_array_almost_equal(boxed_structure.frac_coords,
@@ -747,7 +746,7 @@ class FuncTest(unittest.TestCase):
         self.assertIsNone(ortho_box.tilt)
         rot_tetra_latt = Lattice([[5, 0, 0], [0, 2, 2], [0, -2, 2]])
         _, rotop = lattice_2_lmpbox(rot_tetra_latt)
-        np.testing.\
+        np.testing. \
             assert_array_almost_equal(rotop.rotation_matrix,
                                       [[1, 0, 0],
                                        [0, 2 ** 0.5 / 2, 2 ** 0.5 / 2],
@@ -755,8 +754,7 @@ class FuncTest(unittest.TestCase):
 
     @unittest.skip("The function is deprecated")
     def test_structure_2_lmpdata(self):
-        matrix = np.diag(np.random.randint(5, 14, size=(3,))) \
-                 + np.random.rand(3, 3) * 0.2 - 0.1
+        matrix = np.diag(np.random.randint(5, 14, size=(3,))) + np.random.rand(3, 3) * 0.2 - 0.1
         latt = Lattice(matrix)
         frac_coords = np.random.rand(10, 3)
         structure = Structure(latt, ["H"] * 10, frac_coords)
@@ -789,9 +787,9 @@ class CombinedDataTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.ec = LammpsData.\
+        cls.ec = LammpsData. \
             from_file(filename=os.path.join(test_dir, "ec.data"))
-        cls.fec = LammpsData.\
+        cls.fec = LammpsData. \
             from_file(filename=os.path.join(test_dir, "fec.data"))
         cls.coord = CombinedData. \
             parse_xyz(filename=os.path.join(test_dir, "ec_fec.xyz"))

@@ -1510,6 +1510,7 @@ def get_points_in_spheres(all_coords: np.ndarray, center_coords: np.ndarray, r: 
     """
     if isinstance(pbc, bool):
         pbc = [pbc] * 3
+    pbc = np.array(pbc, dtype=bool)
     if return_fcoords and lattice is None:
         raise ValueError("Lattice needs to be supplied to compute fractional coordinates")
     center_coords_min = np.min(center_coords, axis=0)
@@ -1517,8 +1518,7 @@ def get_points_in_spheres(all_coords: np.ndarray, center_coords: np.ndarray, r: 
     # The lower bound of all considered atom coords
     global_min = center_coords_min - r - numerical_tol
     global_max = center_coords_max + r + numerical_tol
-
-    if any(pbc):
+    if np.any(pbc):
         if lattice is None:
             raise ValueError("Lattice needs to be supplied when considering periodic boundary")
         recp_len = np.array(lattice.reciprocal_lattice.abc)
@@ -1532,11 +1532,18 @@ def get_points_in_spheres(all_coords: np.ndarray, center_coords: np.ndarray, r: 
         nmax[pbc] = nmax_temp[pbc]
         all_ranges = [np.arange(x, y, dtype='int64') for x, y in zip(nmin, nmax)]
         matrix = lattice.matrix
+        # temporarily hold the fractional coordinates
         image_offsets = lattice.get_fractional_coords(all_coords)
-        all_fcoords = np.mod(image_offsets, 1)
+        all_fcoords = []
+        # only wrap periodic boundary
+        for k in range(3):
+            if pbc[k]:  # type: ignore
+                all_fcoords.append(np.mod(image_offsets[:, k:k+1], 1))
+            else:
+                all_fcoords.append(image_offsets[:, k:k+1])
+        all_fcoords = np.concatenate(all_fcoords, axis=1)
         image_offsets = image_offsets - all_fcoords
         coords_in_cell = np.dot(all_fcoords, matrix)
-
         # Filter out those beyond max range
         valid_coords = []
         valid_images = []

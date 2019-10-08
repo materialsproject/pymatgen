@@ -19,13 +19,6 @@ from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.util.provenance import StructureNL
 from pymatgen.util.testing import PymatgenTest
 
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Mar 5, 2012"
-
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 

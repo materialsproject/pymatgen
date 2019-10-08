@@ -21,7 +21,6 @@ class XSFTest(PymatgenTest):
         xsf = XSF(structure)
         self.assertTrue(structure, XSF.from_string(xsf.to_string()))
 
-
     def test_xsf_symbolparse(self):
         """
         Ensure that the same structure is parsed
@@ -55,6 +54,8 @@ PRIMCOORD
         structure2 = XSF.from_string(test_string2).structure
         self.assertEqual(structure, structure2)
 
+
 if __name__ == "__main__":
     import unittest
+
     unittest.main()

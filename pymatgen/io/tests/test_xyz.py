@@ -2,19 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
-"""
-Created on Apr 17, 2012
-"""
-
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Apr 17, 2012"
-
 import unittest
 import os
 
@@ -109,7 +96,6 @@ C  -4.440892098501D-01 -1.116307996198d+01  1.933502166311E+01
         self.assertAlmostEqual(mol[2].x, -0.4440892098501)
         self.assertAlmostEqual(mol[2].y, -11.16307996198)
         # self.assertTrue(abs(mol[1].z) < 1e-5)
-
 
     def test_from_file(self):
         filepath = os.path.join(test_dir, 'multiple_frame_xyz.xyz')
