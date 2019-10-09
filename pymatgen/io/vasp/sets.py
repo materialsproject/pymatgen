@@ -2021,12 +2021,13 @@ class LobsterSet(MPRelaxSet):
         ismear (int): ISMEAR entry for INCAR, only ismear=-5 and ismear=0 are allowed
         reciprocal_density (int): density of k-mesh by reciprocal volume
         potcar_functional (string): only PBE_54, PBE_52 and PBE are recommended at the moment
+        user_supplied_basis (dict): dict including basis functions for all elements in structure, e.g. {"Fe": "3d 3p 4s", "O": "2s 2p"}
         **kwargs: Other kwargs supported by :class:`DictSet`.
 
     """
 
-    def __init__(self, structure: Structure, isym=-1, ismear=-5, reciprocal_density=None, potcar_functional="PBE_54",
-                 **kwargs):
+    def __init__(self, structure: Structure, isym: int = -1, ismear: int = -5, reciprocal_density: int = None,
+                 potcar_functional: str = "PBE_54", user_supplied_basis: dict = None, **kwargs):
         warnings.warn("Make sure that all parameters are okay! This is a brand new implementation.")
 
         if not (isym == -1 or isym == 0):
@@ -2057,9 +2058,18 @@ class LobsterSet(MPRelaxSet):
 
         self.isym = isym
         self.ismear = ismear
+        self.user_supplied_basis = user_supplied_basis
         # predefined basis! Check if the basis is okay! (charge spilling and bandoverlaps!)
-        basis = Lobsterin._get_basis(structure=structure,
-                                     potcar_symbols=self.potcar_symbols)
+        if user_supplied_basis == None:
+            basis = Lobsterin._get_basis(structure=structure,
+                                         potcar_symbols=self.potcar_symbols)
+        else:
+            # test if all elements from structure are in user_supplied_basis
+            for atomtype in structure.symbol_set:
+                if not atomtype in user_supplied_basis:
+                    raise ValueError("There are no basis functions for the atom type " + str(atomtype))
+            basis = [key + ' ' + value for key, value in user_supplied_basis.items()]
+
         lobsterin = Lobsterin(settingsdict={"basisfunctions": basis})
         nbands = lobsterin._get_nbands(structure=structure)
 

@@ -32,7 +32,7 @@ __author__ = "Janine George, Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
 __version__ = "0.2"
 __maintainer__ = "Janine George, Marco Esters "
-__email__ = "esters@uoregon.edu, janine.george@uclouvain.be"
+__email__ = "janine.george@uclouvain.be, esters@uoregon.edu"
 __date__ = "Dec 13, 2017"
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -75,7 +75,7 @@ class Cohpcar:
 
     """
 
-    def __init__(self, are_coops=False, filename=None):
+    def __init__(self, are_coops: bool = False, filename: str = None):
         """
         Args:
             are_coops: Determines if the file is a list of COHPs or COOPs.
@@ -167,7 +167,7 @@ class Cohpcar:
         self.cohp_data = cohp_data
 
     @staticmethod
-    def _get_bond_data(line):
+    def _get_bond_data(line: str) -> dict:
         """
         Subroutine to extract bond label, site indices, and length from
         a LOBSTER header line. The site indices are zero-based, so they
@@ -239,7 +239,7 @@ class Icohplist:
 
     """
 
-    def __init__(self, are_coops=False, filename=None):
+    def __init__(self, are_coops: bool = False, filename: str = None):
         """
         Args:
             are_coops: Determines if the file is a list of ICOHPs or ICOOPs.
@@ -328,7 +328,7 @@ class Icohplist:
                                                 list_icohp=list_icohp, is_spin_polarized=self.is_spin_polarized)
 
     @property
-    def icohplist(self):
+    def icohplist(self) -> list:
         """
         Returns: icohplist compatible with older version of this class
         """
@@ -379,7 +379,7 @@ class Doscar:
 
     """
 
-    def __init__(self, doscar="DOSCAR.lobster", structure_file="POSCAR", dftprogram="Vasp"):
+    def __init__(self, doscar: str = "DOSCAR.lobster", structure_file: str = "POSCAR", dftprogram: str = "Vasp"):
         """
         Args:
             doscar: DOSCAR filename, typically "DOSCAR.lobster"
@@ -466,42 +466,42 @@ class Doscar:
         self._completedos = LobsterCompleteDos(final_struct, self._tdos, pdossneu)
 
     @property
-    def completedos(self):
+    def completedos(self) -> LobsterCompleteDos:
         """
         :return: CompleteDos
         """
         return self._completedos
 
     @property
-    def pdos(self):
+    def pdos(self) -> list:
         """
         :return: Projected DOS
         """
         return self._pdos
 
     @property
-    def tdos(self):
+    def tdos(self) -> Dos:
         """
         :return: Total DOS
         """
         return self._tdos
 
     @property
-    def energies(self):
+    def energies(self) -> list:
         """
         :return: Energies
         """
         return self._energies
 
     @property
-    def tdensities(self):
+    def tdensities(self) -> list:
         """
-        :return: What is this?!??!
+        :return: total densities as a list
         """
         return self._tdensities
 
     @property
-    def is_spin_polarized(self):
+    def is_spin_polarized(self) -> bool:
         """
         :return: Whether run is spin polarized.
         """
@@ -525,12 +525,12 @@ class Charge:
 
     """
 
-    def __init__(self, filename="CHARGE.lobster"):
+    def __init__(self, filename: str = "CHARGE.lobster"):
         """
         Args:
             filename: filename for the CHARGE file, typically "CHARGE.lobster"
         """
-        with zopen(filename) as f:
+        with zopen(filename, 'rt') as f:
             data = f.read().split("\n")[3:-3]
         if len(data) == 0:
             raise IOError("CHARGES file contains no data.")
@@ -1440,11 +1440,12 @@ class Lobsterin(dict, MSONable):
         new_structure.to(fmt='POSCAR', filename=POSCAR_output)
 
     @staticmethod
-    def write_KPOINTS(POSCAR_input="POSCAR", KPOINTS_output="KPOINTS.lobster", reciprocal_density=100, from_grid=False,
-                      input_grid=[5, 5, 5], line_mode=True,
-                      kpoints_line_density=20, symprec=0.01):
+    def write_KPOINTS(POSCAR_input: str = "POSCAR", KPOINTS_output="KPOINTS.lobster", reciprocal_density: int = 100,
+                      from_grid: bool = False, input_grid: list = [5, 5, 5], line_mode: bool = True,
+                      kpoints_line_density: int = 20, symprec: float = 0.01):
         """
         writes a KPOINT file for lobster (no symmetry considered!, ISYM=-1)
+        #TODO: extend this to ISYM=0
         Args:
             POSCAR_input (str): path to POSCAR
             KPOINTS_output (str): path to output KPOINTS
@@ -1455,7 +1456,6 @@ class Lobsterin(dict, MSONable):
             line_mode (bool): If True, band structure will be generated
             kpoints_line_density (int): density of the lines in the band structure
             symprec (float): precision to determine symmetry
-
         """
         structure = Structure.from_file(POSCAR_input)
         # should this really be static? -> make it similar to INCAR?
@@ -1540,7 +1540,7 @@ class Lobsterin(dict, MSONable):
         Returns:
             Lobsterin object
         """
-        with zopen(lobsterin) as f:
+        with zopen(lobsterin, 'rt') as f:
             data = f.read().split("\n")
         if len(data) == 0:
             raise IOError("lobsterin file contains no data.")
@@ -1598,9 +1598,10 @@ class Lobsterin(dict, MSONable):
         return Potcar_names
 
     @classmethod
-    def standard_calculations_from_vasp_files(cls, POSCAR_input="POSCAR", INCAR_input="INCAR", POTCAR_input=None,
-                                              dict_for_basis=None,
-                                              option='standard'):
+    def standard_calculations_from_vasp_files(cls, POSCAR_input: str = "POSCAR", INCAR_input: str = "INCAR",
+                                              POTCAR_input: str = None,
+                                              dict_for_basis: dict = None,
+                                              option: str = 'standard'):
         """
         will generate Lobsterin with standard settings
 
@@ -1712,7 +1713,7 @@ class Bandoverlaps:
 
     """
 
-    def __init__(self, filename="bandOverlaps.lobster"):
+    def __init__(self, filename: str = "bandOverlaps.lobster"):
         """
         Args:
             filename: filename of the "bandOverlaps.lobster" file
@@ -1760,7 +1761,7 @@ class Bandoverlaps:
                         overlaps.append(float(el))
                 self.bandoverlapsdict[spin][" ".join(kpoint_array)]["matrix"].append(overlaps)
 
-    def has_good_quality_maxDeviation(self, limit_maxDeviation=0.1) -> bool:
+    def has_good_quality_maxDeviation(self, limit_maxDeviation: float = 0.1) -> bool:
         """
         will check if the maxDeviation from the ideal bandoverlap is smaller or equal to limit_maxDeviation
         Args:
@@ -1774,8 +1775,9 @@ class Bandoverlaps:
                 return False
         return True
 
-    def has_good_quality_check_occupied_bands(self, number_occ_bands_spin_up, number_occ_bands_spin_down=None,
-                                              spin_polarized=False, limit_deviation=0.1) -> bool:
+    def has_good_quality_check_occupied_bands(self, number_occ_bands_spin_up: int,
+                                              number_occ_bands_spin_down: int = None,
+                                              spin_polarized: bool = False, limit_deviation: float = 0.1) -> bool:
         """
         will check if the deviation from the ideal bandoverlap of all occupied bands is smaller or equal to
         limit_deviation
@@ -1826,7 +1828,7 @@ class Grosspop:
         The 0. entry of the list refers to the first atom in GROSSPOP.lobster and so on.
     """
 
-    def __init__(self, filename="GROSSPOP.lobster"):
+    def __init__(self, filename: str = "GROSSPOP.lobster"):
         """
         Args:
             filename: filename of the "GROSSPOP.lobster" file
