@@ -1689,12 +1689,14 @@ class Lobsterin(dict, MSONable):
             # dict_for_basis={"Fe":'3p 3d 4s 4f', "C": '2s 2p'}
             # will just insert this basis and not check with poscar
             basis = [key + ' ' + value for key, value in dict_for_basis.items()]
-        else:
+        elif POTCAR_input is not None:
             # get basis from POTCAR
             potcar_names = Lobsterin._get_potcar_symbols(POTCAR_input=POTCAR_input)
 
             basis = Lobsterin._get_basis(structure=Structure.from_file(POSCAR_input),
                                          potcar_symbols=potcar_names)
+        else:
+            raise ValueError("basis cannot be generated")
         Lobsterindict["basisfunctions"] = basis
         if option == 'standard_with_fatband':
             Lobsterindict['createFatband'] = basis
