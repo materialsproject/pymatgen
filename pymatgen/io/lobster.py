@@ -1839,7 +1839,7 @@ class Grosspop:
         with zopen(filename, "rt") as f:
             contents = f.read().split("\n")
 
-        self.list_dict_grosspop = [] #type: List[Any]
+        self.list_dict_grosspop = []  # type: List[Any]
         # transfers content of file to list of dict
         for line in contents[3:]:
             cleanline = [i for i in line.split(" ") if not i == '']
