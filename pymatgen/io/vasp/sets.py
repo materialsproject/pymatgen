@@ -2021,8 +2021,8 @@ class LobsterSet(MPRelaxSet):
         ismear (int): ISMEAR entry for INCAR, only ismear=-5 and ismear=0 are allowed
         reciprocal_density (int): density of k-mesh by reciprocal volume
         potcar_functional (string): only PBE_54, PBE_52 and PBE are recommended at the moment
-        user_supplied_basis (dict): dict including basis functions for all elements in structure, 
-        e.g. {"Fe": "3d 3p 4s", "O": "2s 2p"}; if not supplied, a standard basis is used
+        user_supplied_basis (dict): dict including basis functions for all elements in structure,
+            e.g. {"Fe": "3d 3p 4s", "O": "2s 2p"}; if not supplied, a standard basis is used
         **kwargs: Other kwargs supported by :class:`DictSet`.
 
     """
@@ -2061,13 +2061,13 @@ class LobsterSet(MPRelaxSet):
         self.ismear = ismear
         self.user_supplied_basis = user_supplied_basis
         # predefined basis! Check if the basis is okay! (charge spilling and bandoverlaps!)
-        if user_supplied_basis == None:
+        if user_supplied_basis is None:
             basis = Lobsterin._get_basis(structure=structure,
                                          potcar_symbols=self.potcar_symbols)
         else:
             # test if all elements from structure are in user_supplied_basis
             for atomtype in structure.symbol_set:
-                if not atomtype in user_supplied_basis:
+                if atomtype not in user_supplied_basis:
                     raise ValueError("There are no basis functions for the atom type " + str(atomtype))
             basis = [key + ' ' + value for key, value in user_supplied_basis.items()]
 
