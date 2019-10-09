@@ -20,7 +20,7 @@ from pymatgen.electronic_structure.core import OrbitalType
 from pymatgen.io.vasp.inputs import Kpoints, Poscar
 from pymatgen.io.vasp.outputs import Chgcar, Locpot, Oszicar, Outcar, \
     Vasprun, Procar, Xdatcar, Dynmat, BSVasprun, UnconvergedVASPWarning, \
-    VaspParserError, Wavecar, Waveder, Elfcar
+    VaspParserError, Wavecar, Waveder, Elfcar, Eigenval
 from pymatgen import Spin, Orbital, Lattice, Structure
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.electronic_structure.core import Magmom
@@ -1410,6 +1410,37 @@ class WavecarTest(PymatgenTest):
         self.assertTrue('diff' not in c.data)
         self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng * 2))
         self.assertFalse(np.all(c.data['total'] > 0.))
+
+
+class EigenvalTest(PymatgenTest):
+    _multiprocess_shared_ = True
+
+    def test_init(self):
+        eig = Eigenval(self.TEST_FILES_DIR / 'EIGENVAL.gz')
+        self.assertEqual(eig.ispin, 1)
+        self.assertEqual(eig.nkpt, len(eig.kpoints))
+        self.assertEqual(eig.nkpt, len(eig.kpoints_weights))
+        self.assertEqual(eig.nkpt, eig.eigenvalues[Spin.up].shape[0])
+        self.assertEqual(eig.nelect, 16)
+        self.assertEqual(eig.nbands, eig.eigenvalues[Spin.up].shape[1])
+        self.assertTrue(np.max(eig.eigenvalues[Spin.up]) > 0)
+        self.assertTrue(np.min(eig.eigenvalues[Spin.up]) < 0)
+
+    def test_ispin2(self):
+        eig = Eigenval(self.TEST_FILES_DIR / 'EIGENVAL.ispin2.gz')
+        self.assertEqual(eig.ispin, 2)
+        self.assertEqual(eig.nkpt, eig.eigenvalues[Spin.up].shape[0])
+        self.assertEqual(eig.nbands, eig.eigenvalues[Spin.up].shape[1])
+        self.assertEqual(eig.nkpt, eig.eigenvalues[Spin.down].shape[0])
+        self.assertEqual(eig.nbands, eig.eigenvalues[Spin.down].shape[1])
+
+    def test_eigenvalue_band_properties(self):
+        eig = Eigenval(self.TEST_FILES_DIR / 'EIGENVAL.gz')
+        props = eig.eigenvalue_band_properties
+        self.assertAlmostEqual(props[0], 6.4153, places=4)
+        self.assertAlmostEqual(props[1], 7.5587, places=4)
+        self.assertAlmostEqual(props[2], 1.1434, places=4)
+        self.assertEqual(props[3], False)
 
 
 class WavederTest(PymatgenTest):
