@@ -1578,7 +1578,7 @@ class Lobsterin(dict, MSONable):
         return cls(Lobsterindict)
 
     @staticmethod
-    def _get_potcar_symbols(POTCAR_input: Optional[str]) -> list:
+    def _get_potcar_symbols(POTCAR_input: str) -> list:
         """
         will return the name of the species in the POTCAR
         Args:
