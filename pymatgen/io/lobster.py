@@ -18,7 +18,7 @@ import fnmatch
 import itertools
 import warnings
 import spglib
-from typing import List, Dict
+from typing import List, Dict, Any, Optional, Tuple
 from collections import defaultdict
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.io.vasp.outputs import Vasprun
@@ -112,9 +112,9 @@ class Cohpcar:
         cohp_data = {"average": {"COHP": {spin: data[1 + 2 * s * (num_bonds + 1)]
                                           for s, spin in enumerate(spins)},
                                  "ICOHP": {spin: data[2 + 2 * s * (num_bonds + 1)]
-                                           for s, spin in enumerate(spins)}}}
-        orb_cohp = {}
+                                           for s, spin in enumerate(spins)}}}  # type: Dict[Any, Any]
 
+        orb_cohp = {}  # type: Dict[str, Any]
         # present for Lobster versions older than Lobster 2.2.0
         veryold = False
         # the labeling had to be changed: there are more than one COHP for each atom combination
@@ -158,10 +158,10 @@ class Cohpcar:
 
         # present for lobster older than 2.2.0
         if veryold:
-            for bond in orb_cohp:
-                cohp_data[bond] = {"COHP": None, "ICOHP": None,
-                                   "length": bond_data["length"],
-                                   "sites": bond_data["sites"]}
+            for bond_str in orb_cohp:
+                cohp_data[bond_str] = {"COHP": None, "ICOHP": None,
+                                       "length": bond_data["length"],
+                                       "sites": bond_data["sites"]}
 
         self.orb_res_cohp = orb_cohp if orb_cohp else None
         self.cohp_data = cohp_data
@@ -190,21 +190,21 @@ class Cohpcar:
                     "d_xz", "d_x^2-y^2", "f_y(3x^2-y^2)", "f_xyz",
                     "f_yz^2", "f_z^3", "f_xz^2", "f_z(x^2-y^2)", "f_x(x^2-3y^2)"]
 
-        line = line.rsplit("(", 1)
+        line_new = line.rsplit("(", 1)
         # bondnumber = line[0].replace("->", ":").replace(".", ":").split(':')[1]
-        length = float(line[-1][:-1])
+        length = float(line_new[-1][:-1])
 
-        sites = line[0].replace("->", ":").split(":")[1:3]
+        sites = line_new[0].replace("->", ":").split(":")[1:3]
         site_indices = tuple(int(re.split(r"\D+", site)[1]) - 1
                              for site in sites)
 
         # species = tuple(re.split(r"\d+", site)[0] for site in sites)
         if "[" in sites[0]:
             orbs = [re.findall(r"\[(.*)\]", site)[0] for site in sites]
-            orbitals = [tuple((int(orb[0]), Orbital(orb_labs.index(orb[1:]))))
-                        for orb in orbs]
+            orbitals = [tuple((int(orb[0]), Orbital(orb_labs.index(orb[1:])))) for orb in
+                        orbs]  # type: Any
             orb_label = "%d%s-%d%s" % (orbitals[0][0], orbitals[0][1].name,
-                                       orbitals[1][0], orbitals[1][1].name)
+                                       orbitals[1][0], orbitals[1][1].name)  # type: Any
 
         else:
             orbitals = None
@@ -328,7 +328,7 @@ class Icohplist:
                                                 list_icohp=list_icohp, is_spin_polarized=self.is_spin_polarized)
 
     @property
-    def icohplist(self) -> list:
+    def icohplist(self) -> Dict[Any, Dict[str, Any]]:
         """
         Returns: icohplist compatible with older version of this class
         """
@@ -536,10 +536,10 @@ class Charge:
             raise IOError("CHARGES file contains no data.")
 
         self.num_atoms = len(data)
-        self.atomlist = []
-        self.types = []
-        self.Mulliken = []
-        self.Loewdin = []
+        self.atomlist = []  # type: List[str]
+        self.types = []  # type: List[str]
+        self.Mulliken = []  # type: List[float]
+        self.Loewdin = []  # type: List[float]
         for atom in range(0, self.num_atoms):
             line = data[atom].split()
             self.atomlist.append(line[1] + line[0])
@@ -1469,7 +1469,7 @@ class Lobsterin(dict, MSONable):
         # we need to switch off symmetry here
         latt = structure.lattice.matrix
         positions = structure.frac_coords
-        unique_species = []
+        unique_species = []  # type: List[Any]
         zs = []
         magmoms = []
 
@@ -1501,7 +1501,7 @@ class Lobsterin(dict, MSONable):
         for i, (ir_gp_id, gp) in enumerate(zip(mapping, grid)):
             # print("%3d ->%3d %s" % (i, ir_gp_id, gp.astype(float) / mesh))
             kpts.append(gp.astype(float) / mesh)
-            weights.append(1)
+            weights.append(float(1))
             all_labels.append("")
 
         # line mode
@@ -1578,7 +1578,7 @@ class Lobsterin(dict, MSONable):
         return cls(Lobsterindict)
 
     @staticmethod
-    def _get_potcar_symbols(POTCAR_input: str) -> list:
+    def _get_potcar_symbols(POTCAR_input: Optional[str]) -> list:
         """
         will return the name of the species in the POTCAR
         Args:
@@ -1599,8 +1599,8 @@ class Lobsterin(dict, MSONable):
 
     @classmethod
     def standard_calculations_from_vasp_files(cls, POSCAR_input: str = "POSCAR", INCAR_input: str = "INCAR",
-                                              POTCAR_input: str = None,
-                                              dict_for_basis: dict = None,
+                                              POTCAR_input: Optional[str] = None,
+                                              dict_for_basis: Optional[dict] = None,
                                               option: str = 'standard'):
         """
         will generate Lobsterin with standard settings
@@ -1632,7 +1632,7 @@ class Lobsterin(dict, MSONable):
                           'onlycohp', 'onlycoop', 'onlycohpcoop']:
             raise ValueError("The option is not valid!")
 
-        Lobsterindict = {}
+        Lobsterindict = {}  # type: Dict[Any,Any]
         # this basis set covers most elements
         Lobsterindict['basisSet'] = 'pbeVaspFit2015'
         # energies around e-fermi
@@ -1776,7 +1776,7 @@ class Bandoverlaps:
         return True
 
     def has_good_quality_check_occupied_bands(self, number_occ_bands_spin_up: int,
-                                              number_occ_bands_spin_down: int = None,
+                                              number_occ_bands_spin_down: Optional[int] = None,
                                               spin_polarized: bool = False, limit_deviation: float = 0.1) -> bool:
         """
         will check if the deviation from the ideal bandoverlap of all occupied bands is smaller or equal to
@@ -1806,14 +1806,16 @@ class Bandoverlaps:
             for matrix in self.bandoverlapsdict[Spin.down].values():
                 for iband1, band1 in enumerate(matrix["matrix"]):
                     for iband2, band2 in enumerate(band1):
-                        if iband1 < number_occ_bands_spin_down and iband2 < number_occ_bands_spin_down:
-                            if iband1 == iband2:
-                                if abs(band2 - 1.0) > limit_deviation:
-                                    return False
-                            else:
-                                if band2 > limit_deviation:
-                                    return False
-
+                        if number_occ_bands_spin_down is not None:
+                            if iband1 < number_occ_bands_spin_down and iband2 < number_occ_bands_spin_down:
+                                if iband1 == iband2:
+                                    if abs(band2 - 1.0) > limit_deviation:
+                                        return False
+                                else:
+                                    if band2 > limit_deviation:
+                                        return False
+                        else:
+                            ValueError("number_occ_bands_spin_down has to be specified")
         return True
 
 
@@ -1837,7 +1839,7 @@ class Grosspop:
         with zopen(filename, "rt") as f:
             contents = f.read().split("\n")
 
-        self.list_dict_grosspop = []
+        self.list_dict_grosspop = [] #type: List[Any]
         # transfers content of file to list of dict
         for line in contents[3:]:
             cleanline = [i for i in line.split(" ") if not i == '']
