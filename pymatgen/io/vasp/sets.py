@@ -2021,7 +2021,8 @@ class LobsterSet(MPRelaxSet):
         ismear (int): ISMEAR entry for INCAR, only ismear=-5 and ismear=0 are allowed
         reciprocal_density (int): density of k-mesh by reciprocal volume
         potcar_functional (string): only PBE_54, PBE_52 and PBE are recommended at the moment
-        user_supplied_basis (dict): dict including basis functions for all elements in structure, e.g. {"Fe": "3d 3p 4s", "O": "2s 2p"}
+        user_supplied_basis (dict): dict including basis functions for all elements in structure, 
+        e.g. {"Fe": "3d 3p 4s", "O": "2s 2p"}; if not supplied, a standard basis is used
         **kwargs: Other kwargs supported by :class:`DictSet`.
 
     """
