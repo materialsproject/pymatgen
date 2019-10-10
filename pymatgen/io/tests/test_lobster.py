@@ -490,6 +490,8 @@ class DoscarTest(unittest.TestCase):
 class ChargeTest(PymatgenTest):
     def setUp(self):
         self.charge2 = Charge(filename=os.path.join(test_dir, "CHARGE.lobster.MnO"))
+        # gzipped file
+        self.charge = Charge(filename=os.path.join(test_dir, "CHARGE.lobster.MnO2.gz"))
 
     def testattributes(self):
         charge_Loewdin = [-1.25, 1.25]
@@ -1059,6 +1061,7 @@ class LobsterinTest(unittest.TestCase):
         self.Lobsterinfromfile = Lobsterin.from_file(os.path.join(test_dir, "lobsterin.1"))
         self.Lobsterinfromfile2 = Lobsterin.from_file(os.path.join(test_dir, "lobsterin.2"))
         self.Lobsterinfromfile3 = Lobsterin.from_file(os.path.join(test_dir, "lobsterin.3"))
+        self.Lobsterinfromfile4 = Lobsterin.from_file(os.path.join(test_dir, "lobsterin.4.gz"))
 
     def test_from_file(self):
         # test read from file
