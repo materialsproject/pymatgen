@@ -312,8 +312,8 @@ class AbinitTimerParser(collections.abc.Iterable):
 
         # Compute parallel efficiency (use the run with min number of cpus to normalize).
         i = frame["tot_ncpus"].values.argmin()
-        ref_wtime = frame.ix[i]["wall_time"]
-        ref_ncpus = frame.ix[i]["tot_ncpus"]
+        ref_wtime = frame.iloc[i]["wall_time"]
+        ref_ncpus = frame.iloc[i]["tot_ncpus"]
         frame["peff"] = (ref_ncpus * ref_wtime) / (frame["wall_time"] * frame["tot_ncpus"])
 
         return frame
