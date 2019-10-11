@@ -12,6 +12,7 @@ import plotly.graph_objs as go
 import plotly.offline as poff
 import matplotlib.pyplot as plt
 import numpy as np
+import scipy as sc
 from matplotlib.widgets import Cursor, Button
 from IPython.display import set_matplotlib_formats, Image, display
 set_matplotlib_formats('retina')
@@ -54,7 +55,7 @@ __author__ = "Frank Wan, modified by JasonL"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Frank Wan respect for S.P.O"
-__email__ = "fwan@berkeley.edu"
+__email__ = "fwan@berkeley.edu, yhljason@berkeley.edu"
 __date__ = "06/19/2019, updated 10/2019"
 
 class TEMDot():
@@ -90,7 +91,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     """
     wavelength_cache = {}
     
-    def __init__(self, symprec: float=None, voltage: float=300, beam_direction: List[int]=[0,0,1], 
+    def __init__(self, symprec: float=None, voltage: float=200, beam_direction: List[int]=[0,0,1], 
                  camera_length: int=160, debye_waller_factors: Dict[str, float]=None, cs: float=1) -> None:
         """
         Initializes the TEM calculator with a given radiation.
@@ -99,7 +100,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                 set to 0, no refinement is done. Otherwise, refinement is
                 performed using spglib with provided precision.
             voltage (float): The wavelength is a function of the TEM microscope's
-            	voltage. By default, set to 300 kV. Units in kV.
+            	voltage. By default, set to 200 kV. Units in kV.
             beam_direction: The direction of the electron beam fired onto the sample.
                 By default, set to [0,0,1], which corresponds to the normal direction
                 of the sample plane.
@@ -178,166 +179,16 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     # actually disregard that, it's not hard to test it. you only need the miller indices.
     # however just by a cursory inspection of interplanar distances, how is it 
     # mathematically possible for hkl alone to determine interplanar distance?  
-    def dist_cubic(self, structure, point):
-        """
-        Calculates the interplanar distance of an hkl plane in a cubic crystal.
-        Args:
-            structure (Structure): The structure in question.
-            point (3-tuple): The hkl plane in question.
-        Returns:
-            cubic interplanar distance (float)
-        """
-        return structure.lattice.a/sqrt(np.dot(point, np.transpose(point)))
 
-    def dist_tetragonal(self, structure, point):
-        """
-        Calculates the interplanar distance of an hkl plane in a tetragonal crystal.
-        Args:
-            structure (Structure): The structure in question.
-            point (3-tuple): The hkl plane in question.
-        Returns:
-            tetragonal interplanar distance (float)
-        """
-        h = point[0]
-        k = point[1]
-        l = point[2]
-        a = structure.lattice.a
-        c = structure.lattice.c
-        return (((h*h + k*k) / (a*a)) + (l*l)/(c*c))**(-0.5)
-
-    def dist_hexagonal(self, structure, point):
-        h = point[0]
-        k = point[1]
-        l = point[2]
-        a = structure.lattice.a
-        c = structure.lattice.c
-        return ((4/3) * ((h*h + h*k + l*l) / (a*a)) + ((l*l)/(c*c))) ** (-0.5)
-    
-    def dist_rhombohedral(self, structure, point):
-        """
-        Calculates the interplanar distance of an hkl plane in a rhombohedral crystal.
-        Args:
-            structure (Structure): The structure in question.
-            point (3-tuple): The hkl plane in question.
-        Returns:
-            rhombohedral interplanar distance (float)
-        """
-        h = point[0]
-        k = point[1]
-        l = point[2]
-        a = structure.lattice.a
-        alpha = structure.lattice.alpha
-        term_1 = np.dot(point, np.transpose(point)) * (np.sin(alpha))**2
-        term_2 = 2 * (h*k + k*l + h*l) * ((np.cos(alpha))**2 - np.cos(alpha))
-        term_3 = a*a*(1 - 3*(np.cos(alpha))**2 + 2 * (np.cos(alpha))**3)
-        return ((term_1 + term_2) / term_3) ** (-0.5)
-        
-    def dist_orthorhombic(self, structure, point):
-        """
-        Calculates the interplanar distance of an hkl plane in an orthorhombic crystal.
-        Args:
-            structure (Structure): The structure in question.
-            point (3-tuple): The hkl plane in question.
-        Returns:
-            rhombohedral interplanar distance (float)
-        """
-        h_2 = point[0] * point[0]
-        k_2 = point[1] * point[1]
-        l_2 = point[2] * point[2]
-        a_2 = structure.lattice.a * structure.lattice.a
-        b_2 = structure.lattice.b * structure.lattice.b
-        c_2 = structure.lattice.c * structure.lattice.c
-        return ((h_2 / a_2) + (k_2 / b_2) + (l_2 / c_2))**(-0.5)
-    
-    def dist_monoclinic(self, structure, point):
-        """
-        Calculates the interplanar distance of an hkl plane in a monoclinic crystal.
-        Args:
-            structure (Structure): The structure in question.
-            point (3-tuple): The hkl plane in question.
-        Returns:
-            monoclinic interplanar distance (float)
-        """
-        h = point[0]
-        k = point[1]
-        l = point[2]
-        a = structure.lattice.a
-        b = structure.lattice.b
-        c = structure.lattice.c
-        alpha = structure.lattice.alpha
-        beta = structure.lattice.beta
-        gamma = structure.lattice.gamma
-        return ((((h*h) / (a*a)) + ((k*k*(np.sin(beta))**2)/(b*b)) + ((l*l)/(c*c)) - ((2*h*l*np.cos(beta))/(a*c))) * (1/ ((np.sin(beta))**2)))**(-0.5)
-        
-    def dist_triclinic(self, structure, point):
-        """
-        Calculates the interplanar distance of an hkl plane in a triclinic crystal.
-        Args:
-            structure (Structure): The structure in question.
-            point (3-tuple): The hkl plane in question.
-        Returns:
-            triclinic interplanar distance (float)
-        """
-        h = point[0]
-        k = point[1]
-        l = point[2]
-        a = structure.lattice.a
-        b = structure.lattice.b
-        c = structure.lattice.c
-        alpha = structure.lattice.alpha
-        beta = structure.lattice.beta
-        gamma = structure.lattice.gamma
-        elm_1 = (h * np.sin(alpha))/a
-        elm_2 = (k * np.sin(beta))/b
-        elm_3 = (l * np.sin(gamma))/c
-        vect_1 = (elm_1, elm_2, elm_3)
-        term_1 = np.dot(vect_1, np.transpose(vect_1))
-        
-        term_2 = ((2*k*l)/(b*c)) * (np.cos(beta)*np.cos(gamma) - np.cos(alpha))
-        term_3 = ((2*h*l)/(a*c)) * (np.cos(gamma)*np.cos(alpha) - np.cos(beta))
-        term_4 = ((2*h*k)/(a*b)) * (np.cos(alpha)*np.cos(beta) - np.cos(gamma))
-        numerator = term_1 + term_2 + term_3 + term_4
-        
-        denominator = 1 - np.cos(alpha)*np.cos(alpha) - np.cos(beta)*np.cos(beta) - np.cos(gamma)*np.cos(gamma) + 2*np.cos(alpha)*np.cos(beta)*np.cos(gamma) 
-        return (numerator / denominator)**(-0.5)
-        
     def get_interplanar_spacings(self, structure: Structure, points: List[Tuple[int, int, int]]) -> Dict[Tuple[int, int, int], float]:
-        """
-        Gets the interplanar spacings for every hkl point passed in.
-        Args:
-            structure (Structure): The structure in question.
-            points (3-tuple list): The hkl points in question.
-        Returns:
-            dict of hkl plane (3-tuple) to interplanar spacing (float)
-        Original code:
-        interplanar_spacings = {}
-        analy = SpacegroupAnalyzer(structure, 0.1)
-        points_filtered = self.zone_axis_filter(points)
-        for point in points_filtered:
-            if point != (0,0,0):
-                if analy.get_lattice_type() == 'cubic':
-                    interplanar_spacings[point] = self.dist_cubic(structure, point)
-                if analy.get_lattice_type() == 'tetragonal':
-                    interplanar_spacings[point] = self.dist_tetragonal(structure, point)
-                if analy.get_lattice_type() == 'hexagonal':
-                    interplanar_spacings[point] = self.dist_hexagonal(structure, point)
-                if analy.get_lattice_type() == 'rhombohedral':
-                    interplanar_spacings[point] = self.dist_rhombohedral(structure, point)
-                if analy.get_lattice_type() == 'orthorhombic':
-                    interplanar_spacings[point] = self.dist_orthorhombic(structure, point)
-                if analy.get_lattice_type() == 'monoclinic':
-                    interplanar_spacings[point] = self.dist_monoclinic(structure, point)
-                if analy.get_lattice_type() == 'triclinic':
-                    interplanar_spacings[point] = self.dist_triclinic(structure, point)
-        """
         interplanar_spacings = {}
         points_filtered = self.zone_axis_filter(points)
         reciprocal_lat = structure.lattice.reciprocal_lattice_crystallographic
         for point in points_filtered:
-             interplanar_spacings[point] = 1 / ((point[0] ** 2 * reciprocal_lat.a) + \
-             (point[1] ** 2 * reciprocal_lat.b) + \
-             (point[2] ** 2 * reciprocal_lat.c))
-            
+            if point != (0, 0, 0):
+                interplanar_spacings[point] = 1 / ((point[0] ** 2 * reciprocal_lat.a) + \
+                                    (point[1] ** 2 * reciprocal_lat.b) + \
+                                    (point[2] ** 2 * reciprocal_lat.c))  
         return interplanar_spacings
         
     def bragg_angles(self, interplanar_spacings: Dict[Tuple[int, int, int], float]) -> Dict[Tuple[int, int, int], float]:
@@ -410,7 +261,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         x_ray_factors = self.x_ray_factors(structure, bragg_angles)
         s2 = self.get_s2(structure, bragg_angles)
         atoms = structure.composition.elements
-        prefactor = sc.e/(16*(pi**2)*sc.epsilon_0) 
+        prefactor = sc.e/(16*(np.pi**2)*sc.epsilon_0) 
         
         scattering_factors_for_atom = {}
         scattering_factor_curr = 0
@@ -441,7 +292,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             for site in structure:
                 for sp, occu in site.species.items(): #depending on how this iterates it may increase scatt by factor of 2.
                     g_dot_r = np.dot(np.array(plane), np.transpose(site.frac_coords))
-                    scattering_factor_curr += electron_scattering_factors[sp.symbol][plane] * np.exp(2j * pi * g_dot_r)
+                    scattering_factor_curr += electron_scattering_factors[sp.symbol][plane] * np.exp(2j * np.pi * g_dot_r)
             cell_scattering_factors[plane] = scattering_factor_curr
             scattering_factor_curr = 0
         return cell_scattering_factors    
@@ -615,8 +466,6 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         points.remove((0,0,0))            
         points.remove(first_point)
         points.remove(second_point)  
-
-
         positions[(0, 0, 0)] = np.array([0,0])
         
         #factor of 10**10 needed because first_d is in Angstroms (since first_d's calc is with lattice parameter which
@@ -627,7 +476,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         #gets position of the second point. WLoG, assume it is located an angle phi (calculated by formula below) 
         #counterclockwise to the first point.  
         r2 = 10**10 * self.wavelength_rel() * self.camera_length / second_d
-        phi = np.arccos(np.dot(p1, np.transpose(p2)) / (sqrt(np.dot(p1, np.transpose(p1)) * np.dot(p2, np.transpose(p2)))))
+        phi = np.arccos(np.dot(p1, np.transpose(p2)) / (np.sqrt(np.dot(p1, np.transpose(p1)) * np.dot(p2, np.transpose(p2)))))
         positions[second_point] = np.array([r2*np.cos(phi), r2*np.sin(phi)])
 
         #in theory you have to check satisfaction of z3 = a*z1 + b*z2. in practice, the "physical realness" of
