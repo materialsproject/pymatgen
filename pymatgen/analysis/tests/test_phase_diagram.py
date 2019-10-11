@@ -18,9 +18,6 @@ module_dir = Path(__file__).absolute().parent
 
 
 class PDEntryTest(unittest.TestCase):
-    '''
-    Test all functions using a ficitious entry
-    '''
 
     def setUp(self):
         comp = Composition("LiFeO2")
@@ -82,9 +79,6 @@ class PDEntryTest(unittest.TestCase):
 
 
 class TransformedPDEntryTest(unittest.TestCase):
-    '''
-    Test all functions using a ficitious entry
-    '''
 
     def setUp(self):
         comp = Composition("LiFeO2")
@@ -134,8 +128,7 @@ class PhaseDiagramTest(unittest.TestCase):
     def test_init(self):
         # Ensure that a bad set of entries raises a PD error. Remove all Li
         # from self.entries.
-        entries = filter(lambda e: (not e.composition.is_element) or
-                                   e.composition.elements[0] != Element("Li"),
+        entries = filter(lambda e: (not e.composition.is_element) or e.composition.elements[0] != Element("Li"),
                          self.entries)
         self.assertRaises(PhaseDiagramError, PhaseDiagram, entries)
 
@@ -164,8 +157,7 @@ class PhaseDiagramTest(unittest.TestCase):
                             formula + " not in stable entries!")
 
     def test_get_formation_energy(self):
-        stable_formation_energies = {ent.composition.reduced_formula:
-                                         self.pd.get_form_energy(ent)
+        stable_formation_energies = {ent.composition.reduced_formula: self.pd.get_form_energy(ent)
                                      for ent in self.pd.stable_entries}
         expected_formation_energies = {'Li5FeO4': -164.8117344866667,
                                        'Li2O2': -14.119232793333332,
@@ -272,7 +264,7 @@ class PhaseDiagramTest(unittest.TestCase):
         test_equality = False
         for c in results:
             if abs(c[Element("O")] + 7.115) < 1e-2 and abs(c[Element("Fe")] + 6.596) < 1e-2 and \
-                            abs(c[Element("Li")] + 3.931) < 1e-2:
+                    abs(c[Element("Li")] + 3.931) < 1e-2:
                 test_equality = True
         self.assertTrue(test_equality, "there is an expected vertex missing in the list")
 
@@ -382,7 +374,7 @@ class PhaseDiagramTest(unittest.TestCase):
                     Element("O"): -6.969907375000003}
 
         for elem, energy in cpresult.items():
-            self.assertAlmostEqual(cp1['FeO-LiFeO2-Fe3O4'][elem],energy)
+            self.assertAlmostEqual(cp1['FeO-LiFeO2-Fe3O4'][elem], energy)
 
         cp2 = self.pd.get_all_chempots(c2)
         cpresult = {Element("O"): -7.115354140000001,
@@ -390,7 +382,7 @@ class PhaseDiagramTest(unittest.TestCase):
                     Element("Li"): -3.9316151899999987}
 
         for elem, energy in cpresult.items():
-            self.assertAlmostEqual(cp2['FeO-LiFeO2-Fe'][elem],energy)
+            self.assertAlmostEqual(cp2['FeO-LiFeO2-Fe'][elem], energy)
 
     def test_to_from_dict(self):
 
@@ -401,6 +393,7 @@ class PhaseDiagramTest(unittest.TestCase):
         pd_roundtrip = PhaseDiagram.from_dict(d)
         self.assertEqual(pd.all_entries[0].entry_id,
                          pd_roundtrip.all_entries[0].entry_id)
+
 
 class GrandPotentialPhaseDiagramTest(unittest.TestCase):
     def setUp(self):
@@ -449,8 +442,7 @@ class CompoundPhaseDiagramTest(unittest.TestCase):
             self.assertTrue(formula in stable_formulas)
 
     def test_get_formation_energy(self):
-        stable_formation_energies = {ent.name:
-                                         self.pd.get_form_energy(ent)
+        stable_formation_energies = {ent.name: self.pd.get_form_energy(ent)
                                      for ent in self.pd.stable_entries}
         expected_formation_energies = {'Li5FeO4': -7.0773284399999739,
                                        'Fe2O3': 0,
@@ -496,7 +488,7 @@ class ReactionDiagramTest(unittest.TestCase):
             'V0.04225352P0.04225352H0.28169014C0.21126761O0.42253521']
 
         for formula in expected_formula:
-            self.assertTrue(formula in formed_formula)
+            self.assertTrue(formula in formed_formula, "%s not in %s" % (formed_formula, expected_formula))
 
 
 class PDPlotterTest(unittest.TestCase):

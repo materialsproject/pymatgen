@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.defects.generators &#8212; pymatgen 2019.7.21 documentation</title>
+    <title>pymatgen.analysis.defects.generators &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -60,7 +59,6 @@
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.utils</span> <span class="k">import</span> <span class="n">StructureMotifInterstitial</span><span class="p">,</span> <span class="n">TopographyAnalyzer</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="k">import</span> <span class="n">PointDefectComparator</span>
-
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Danny Broberg, Shyam Dwaraknath&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2018, The Materials Project&quot;</span>
@@ -212,13 +210,13 @@
         <span class="n">pdc</span> <span class="o">=</span> <span class="n">PointDefectComparator</span><span class="p">()</span>
 
         <span class="k">for</span> <span class="n">poss_site</span> <span class="ow">in</span> <span class="n">interstitial_finder</span><span class="o">.</span><span class="n">enumerate_defectsites</span><span class="p">():</span>
-            <span class="n">now_defect</span> <span class="o">=</span> <span class="n">Interstitial</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">poss_site</span><span class="p">)</span>
+            <span class="n">now_defect</span> <span class="o">=</span> <span class="n">Interstitial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">poss_site</span><span class="p">)</span>
             <span class="n">append_defect</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">for</span> <span class="n">unique_defect</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">unique_defect_seq</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">pdc</span><span class="o">.</span><span class="n">are_equal</span><span class="p">(</span> <span class="n">now_defect</span><span class="p">,</span> <span class="n">unique_defect</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">pdc</span><span class="o">.</span><span class="n">are_equal</span><span class="p">(</span><span class="n">now_defect</span><span class="p">,</span> <span class="n">unique_defect</span><span class="p">):</span>
                     <span class="n">append_defect</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="k">if</span> <span class="n">append_defect</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">unique_defect_seq</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">now_defect</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">unique_defect_seq</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">now_defect</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">count_def</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># for counting the index of the generated defect</span>
 
@@ -272,13 +270,13 @@
         <span class="k">for</span> <span class="n">poss_site_list</span> <span class="ow">in</span> <span class="n">equiv_sites_list</span><span class="p">:</span>
             <span class="n">poss_site</span> <span class="o">=</span> <span class="n">poss_site_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">poss_site</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">:</span>
-                <span class="n">now_defect</span> <span class="o">=</span> <span class="n">Interstitial</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">poss_site</span><span class="p">)</span>
+                <span class="n">now_defect</span> <span class="o">=</span> <span class="n">Interstitial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">poss_site</span><span class="p">)</span>
                 <span class="n">append_defect</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="k">for</span> <span class="n">unique_defect</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">unique_defect_seq</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">pdc</span><span class="o">.</span><span class="n">are_equal</span><span class="p">(</span> <span class="n">now_defect</span><span class="p">,</span> <span class="n">unique_defect</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">pdc</span><span class="o">.</span><span class="n">are_equal</span><span class="p">(</span><span class="n">now_defect</span><span class="p">,</span> <span class="n">unique_defect</span><span class="p">):</span>
                         <span class="n">append_defect</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="k">if</span> <span class="n">append_defect</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">unique_defect_seq</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">now_defect</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">unique_defect_seq</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">now_defect</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">count_def</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># for counting the index of the generated defect</span>
 
@@ -292,7 +290,7 @@
             <span class="n">inter_site</span> <span class="o">=</span> <span class="n">inter_defect</span><span class="o">.</span><span class="n">site</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">count_def</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="n">site_name</span> <span class="o">=</span> <span class="s1">&#39;Voronoi&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">count_def</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">Interstitial</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">inter_site</span><span class="p">,</span> <span class="n">site_name</span><span class="o">=</span><span class="n">site_name</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Interstitial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">inter_site</span><span class="p">,</span> <span class="n">site_name</span><span class="o">=</span><span class="n">site_name</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">StopIteration</span></div>
 
@@ -328,7 +326,7 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">defect</span><span class="p">,</span> <span class="n">Vacancy</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">charges</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">def_site_valence</span><span class="p">]</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">defect</span><span class="p">,</span> <span class="n">Substitution</span><span class="p">):</span>
-            <span class="c1">#(minimize difference with host site specie)</span>
+            <span class="c1"># (minimize difference with host site specie)</span>
             <span class="n">probable_chgs</span> <span class="o">=</span> <span class="p">[</span><span class="n">ox</span> <span class="o">-</span> <span class="n">def_site_valence</span> <span class="k">for</span> <span class="n">ox</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">defect</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">oxidation_states</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">charges</span> <span class="o">=</span> <span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">probable_chgs</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="nb">abs</span><span class="p">)]</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">defect</span><span class="p">,</span> <span class="n">Interstitial</span><span class="p">):</span>
@@ -378,7 +376,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -386,7 +384,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

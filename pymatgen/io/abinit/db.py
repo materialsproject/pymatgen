@@ -31,13 +31,13 @@ def mongo_getattr(rec, key):
     if not rec:
         raise AttributeError('Empty dict')
 
-    if not '.' in key:
+    if '.' not in key:
         return rec.get(key)
 
     for key_part in key.split('.'):
         if not isinstance(rec, collections.abc.Mapping):
             raise AttributeError('not a mapping for rec_part %s' % key_part)
-        if not key_part in rec:
+        if key_part not in rec:
             raise AttributeError('key %s not in dict %s' % key)
         rec = rec[key_part]
 
@@ -78,14 +78,14 @@ def scan_nestdict(d, key):
 
 class DBConnector:
 
-    #DEFAULTS = dict(
+    # DEFAULTS = dict(
     #    database="abinit",
     #    collection=None,
     #    port=None,
     #    host=None,
     #    user=None,
     #    password=None,
-    #}
+    # }
 
     @classmethod
     def autodoc(cls):
@@ -123,7 +123,7 @@ class DBConnector:
     def __repr__(self):
         return "<%s object at %s>" % (self.__class__.__name__, id(self))
 
-    #def __str__(self):
+    # def __str__(self):
     #    return str(self.config)
 
     def deepcopy(self):
@@ -159,9 +159,9 @@ class DBConnector:
 if __name__ == "__main__":
     connector = DBConnector()
     print(connector.get_collection())
-    #connector.set_collection_name("foo")
+    # connector.set_collection_name("foo")
     print(connector)
     print(connector.get_collection())
 
-    #import unittest
-    #unittest.main()
+    # import unittest
+    # unittest.main()

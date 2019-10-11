@@ -65,9 +65,9 @@ class SymmOpTestCase(PymatgenTest):
         tensor = np.arange(0, 9).reshape(3, 3)
         new_tensor = self.op.transform_tensor(tensor)
         self.assertArrayAlmostEqual(new_tensor,
-                                    [[-0.73205,  -1.73205,  -0.76794],
-                                     [0.26795,  4.73205,  5.33013],
-                                     [1.69615,  9.06218,  8.]], 5)
+                                    [[-0.73205, -1.73205, -0.76794],
+                                     [0.26795, 4.73205, 5.33013],
+                                     [1.69615, 9.06218, 8.]], 5)
 
         # Rank 3
         tensor = np.arange(0, 27).reshape(3, 3, 3)
@@ -166,7 +166,7 @@ class SymmOpTestCase(PymatgenTest):
         # TODO: assertWarns not in Python 2.x unittest
         # update PymatgenTest for unittest2?
         # self.assertWarns(UserWarning, self.op.as_xyz_string)
-            
+
         o = SymmOp.from_xyz_string('0.5+x, 0.25+y, 0.75+z')
         self.assertArrayAlmostEqual(o.translation_vector, [0.5, 0.25, 0.75])
         o = SymmOp.from_xyz_string('x + 0.5, y + 0.25, z + 0.75')
@@ -224,6 +224,8 @@ class MagSymmOpTestCase(PymatgenTest):
                 op = MagSymmOp.from_xyzt_string(xyzt_string)
                 self.assertTrue(np.allclose(transformed_magmom, op.operate_magmom(magmom).global_moment))
 
+
 if __name__ == '__main__':
     import unittest
+
     unittest.main()

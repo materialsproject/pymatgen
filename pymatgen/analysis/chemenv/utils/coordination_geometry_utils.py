@@ -15,7 +15,6 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-
 import math
 
 import numpy as np
@@ -168,7 +167,7 @@ def spline_functions(lower_points, upper_points, degree=3):
 
 
 def diamond_functions(xx, yy, y_x0, x_y0):
-    """
+    r"""
     Method that creates two upper and lower functions based on points xx and yy
     as well as intercepts defined by y_x0 and x_y0. The resulting functions
     form kind of a distorted diamond-like structure aligned from
@@ -222,15 +221,16 @@ def diamond_functions(xx, yy, y_x0, x_y0):
         else:
             p1 = npyy
             p2 = npxx
-    slope = (p2[1]-p1[1]) / (p2[0]- p1[0])
+    slope = (p2[1] - p1[1]) / (p2[0] - p1[0])
     if slope > 0.0:
         x_bpoint = p1[0] + x_y0
         myy = p1[1]
-        bq_intercept = myy - slope*x_bpoint
+        bq_intercept = myy - slope * x_bpoint
         myx = p1[0]
         myy = p1[1] + y_x0
-        ap_intercept = myy - slope*myx
+        ap_intercept = myy - slope * myx
         x_ppoint = (p2[1] - ap_intercept) / slope
+
         def lower(x):
             return np.where(x <= x_bpoint, p1[1] * np.ones_like(x), slope * x + bq_intercept)
 
@@ -244,6 +244,7 @@ def diamond_functions(xx, yy, y_x0, x_y0):
         myy = p1[1] - y_x0
         ap_intercept = myy - slope * myx
         x_ppoint = (p2[1] - ap_intercept) / slope
+
         def lower(x):
             return np.where(x >= x_ppoint, p2[1] * np.ones_like(x), slope * x + ap_intercept)
 
@@ -290,7 +291,7 @@ def rectangle_surface_intersection(rectangle, f_lower, f_upper,
             if bounds_upper is not None:
                 if not all(np.array(bounds_lower) == np.array(bounds_upper)):
                     raise ValueError('Bounds should be identical for both f_lower and f_upper')
-                if not '<' in function_comparison(f1=f_lower, f2=f_upper,
+                if '<' not in function_comparison(f1=f_lower, f2=f_upper,
                                                   x1=bounds_lower[0], x2=bounds_lower[1],
                                                   numpoints_check=numpoints_check):
                     raise RuntimeError('Function f_lower is not allways lower or equal to function f_upper within '
@@ -301,13 +302,13 @@ def rectangle_surface_intersection(rectangle, f_lower, f_upper,
             if bounds_lower is None:
                 raise ValueError('Bounds are given for f_upper but not for f_lower')
             else:
-                if not '<' in function_comparison(f1=f_lower, f2=f_upper,
+                if '<' not in function_comparison(f1=f_lower, f2=f_upper,
                                                   x1=bounds_lower[0], x2=bounds_lower[1],
                                                   numpoints_check=numpoints_check):
                     raise RuntimeError('Function f_lower is not allways lower or equal to function f_upper within '
                                        'the domain defined by the functions bounds.')
         else:
-            if not '<' in function_comparison(f1=f_lower, f2=f_upper,
+            if '<' not in function_comparison(f1=f_lower, f2=f_upper,
                                               x1=x1, x2=x2, numpoints_check=numpoints_check):
                 raise RuntimeError('Function f_lower is not allways lower or equal to function f_upper within '
                                    'the domain defined by x1 and x2.')
@@ -324,6 +325,7 @@ def rectangle_surface_intersection(rectangle, f_lower, f_upper,
             xmax = bounds_lower[1]
         else:
             xmax = x2
+
         def diff(x):
             flwx = f_lower(x)
             fupx = f_upper(x)
@@ -332,8 +334,10 @@ def rectangle_surface_intersection(rectangle, f_lower, f_upper,
             zeros = np.zeros_like(fupx)
             upper = np.where(y2 >= flwx, np.where(y1 <= fupx, minup, zeros), zeros)
             lower = np.where(y1 <= fupx, np.where(y2 >= flwx, maxlw, zeros), zeros)
-            return upper-lower
+            return upper - lower
+
         return quad(diff, xmin, xmax)
+
 
 def my_solid_angle(center, coords):
     """
@@ -568,12 +572,12 @@ class Plane:
         Initializes a plane from the 4 coefficients a, b, c and d of ax + by + cz + d = 0
         :param coefficients: abcd coefficients of the plane
         """
-        #Initializes the normal vector
+        # Initializes the normal vector
         self.normal_vector = np.array([coefficients[0], coefficients[1], coefficients[2]], np.float)
         normv = np.linalg.norm(self.normal_vector)
         self.normal_vector /= normv
         nonzeros = np.argwhere(self.normal_vector != 0.0).flatten()
-        zeros = list(set(range(3))-set(nonzeros))
+        zeros = list(set(range(3)) - set(nonzeros))
         if len(nonzeros) == 0:
             raise ValueError("Normal vector is equal to 0.0")
         if self.normal_vector[nonzeros[0]] < 0.0:
@@ -589,7 +593,7 @@ class Plane:
         self.p1 = p1
         self.p2 = p2
         self.p3 = p3
-        #Initializes 3 points belonging to the plane (useful for some methods)
+        # Initializes 3 points belonging to the plane (useful for some methods)
         if self.p1 is None:
             self.init_3points(nonzeros, zeros)
         self.vector_to_origin = dd * self.normal_vector
@@ -666,9 +670,9 @@ class Plane:
         is considered to lie on the plane or not (distance to the plane)
         :param points: list of points
         :param dist_tolerance: tolerance to which a point is considered to lie on the plane
-        or not (distance to the plane)
+            or not (distance to the plane)
         :return: The lists of indices of the points on one side of the plane, on the plane and
-        on the other side of the plane
+            on the other side of the plane
         """
         side1 = list()
         inplane = list()
@@ -697,7 +701,7 @@ class Plane:
         normal of the plane while negative distances are on the other side
         :param points: Points for which distances are computed
         :return: Distances from the plane to the points (positive values on the side of the normal to the plane,
-                 negative values on the other side)
+            negative values on the other side)
         """
         return [np.dot(self.normal_vector, pp) + self.d for pp in points]
 
@@ -709,9 +713,8 @@ class Plane:
         :param points: Points for which distances are computed
         :param sign: Whether to add sign information in the indices sorting the points distances
         :return: Distances from the plane to the points (positive values on the side of the normal to the plane,
-                 negative values on the other side), as well as indices of the points from closest to furthest. For
-                 the latter, when the sign parameter is True, items of the sorting list are given as tuples of
-                 (index, sign).
+            negative values on the other side), as well as indices of the points from closest to furthest. For the
+            latter, when the sign parameter is True, items of the sorting list are given as tuples of (index, sign).
         """
         distances = [np.dot(self.normal_vector, pp) + self.d for pp in points]
         indices = sorted(range(len(distances)), key=lambda k: np.abs(distances[k]))
@@ -729,18 +732,18 @@ class Plane:
         :param points: Points for which distances are computed
         :param delta: Distance interval for which two points are considered in the same group.
         :param delta_factor: If delta is None, the distance interval is taken as delta_factor times the maximal
-                             point distance.
-                             :param sign: Whether to add sign information in the indices sorting the points distances
+            point distance.
+        :param sign: Whether to add sign information in the indices sorting the points distances
         :return: Distances from the plane to the points (positive values on the side of the normal to the plane,
-                 negative values on the other side), as well as indices of the points from closest to furthest and
-                 grouped indices of distances separated by less than delta. For the sorting list and the grouped
-                 indices, when the sign parameter is True, items are given as tuples of (index, sign).
+            negative values on the other side), as well as indices of the points from closest to furthest and
+            grouped indices of distances separated by less than delta. For the sorting list and the grouped
+            indices, when the sign parameter is True, items are given as tuples of (index, sign).
         """
         distances, indices = self.distances_indices_sorted(points=points)
         if delta is None:
-            delta = delta_factor*np.abs(distances[indices[-1]])
+            delta = delta_factor * np.abs(distances[indices[-1]])
         iends = [ii for ii, idist in enumerate(indices, start=1)
-                 if ii == len(distances) or (np.abs(distances[indices[ii]])-np.abs(distances[idist])>delta)]
+                 if ii == len(distances) or (np.abs(distances[indices[ii]]) - np.abs(distances[idist]) > delta)]
         if sign:
             indices = [(ii, int(np.sign(distances[ii]))) for ii in indices]
         grouped_indices = [indices[iends[ii - 1]:iend]
@@ -789,7 +792,6 @@ class Plane:
             self.e2 = np.cross(self.e3, self.e1)
         return [self.e1, self.e2, self.e3]
 
-
     def project_and_to2dim_ordered_indices(self, pps, plane_center='mean'):
         """
         Projects each points in the point list pps on plane and returns the indices that would sort the
@@ -834,7 +836,7 @@ class Plane:
             return self.fit_maximum_distance_error(points)
 
     def fit_least_square_distance_error(self, points):
-        return np.sum([self.distance_to_point(pp)**2.0 for pp in points])
+        return np.sum([self.distance_to_point(pp) ** 2.0 for pp in points])
 
     def fit_maximum_distance_error(self, points):
         return np.max([self.distance_to_point(pp) for pp in points])
@@ -923,8 +925,8 @@ class Plane:
 
     @classmethod
     def perpendicular_bisector(cls, p1, p2):
-        middle_point = 0.5*(p1+p2)
-        normal_vector = p2-p1
+        middle_point = 0.5 * (p1 + p2)
+        normal_vector = p2 - p1
         dd = -np.dot(normal_vector, middle_point)
         return cls(np.array([normal_vector[0],
                              normal_vector[1],

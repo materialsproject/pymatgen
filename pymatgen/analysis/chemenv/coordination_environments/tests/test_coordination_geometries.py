@@ -12,7 +12,6 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import CoordinationGeometry
 
-
 allcg = AllCoordinationGeometries()
 
 
@@ -224,7 +223,7 @@ class CoordinationGeometriesTest(PymatgenTest):
                          '==>> CN = 3 <<==\n'
                          ' - TL:3 : Trigonal plane\n - TY:3 : Triangular non-coplanar\n - TS:3 : T-shaped\n\n'
                          '==>> CN = 4 <<==\n - T:4 : Tetrahedron\n - S:4 : Square plane\n'
-                         ' - SY:4 : Square non-coplanar\n - SS:4 : See-saw\n\n'                        )
+                         ' - SY:4 : Square non-coplanar\n - SS:4 : See-saw\n\n')
         self.assertEqual(allcg.pretty_print(maxcn=2, type='all_geometries_latex'),
                          '\\subsection*{Coordination 1}\n\n\\begin{itemize}\n'
                          '\\item S:1 $\\rightarrow$ Single neighbor (IUPAC : None - IUCr : $[$1l$]$)\n'
@@ -290,6 +289,7 @@ class CoordinationGeometriesTest(PymatgenTest):
                                                          (4, 4, 4): [u'I:12', u'PBP:12', u'C:12', u'HP:12'],
                                                          (0, 8, 4): [u'SC:12']},
                                                     13: {(0, 6, 7): [u'SH:13']}})
+
 
 if __name__ == "__main__":
     unittest.main()

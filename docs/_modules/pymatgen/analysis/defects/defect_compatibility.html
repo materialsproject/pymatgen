@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.defects.defect_compatibility &#8212; pymatgen 2019.7.21 documentation</title>
+    <title>pymatgen.analysis.defects.defect_compatibility &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -51,7 +50,7 @@
 
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="k">import</span> <span class="n">PeriodicSite</span><span class="p">,</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="k">import</span> <span class="n">Structure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.corrections</span> <span class="k">import</span> <span class="n">FreysoldtCorrection</span><span class="p">,</span> \
     <span class="n">KumagaiCorrection</span><span class="p">,</span> <span class="n">BandFillingCorrection</span><span class="p">,</span> <span class="n">BandEdgeShiftingCorrection</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.core</span> <span class="k">import</span> <span class="n">Vacancy</span>
@@ -70,6 +69,7 @@
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Mar 15, 2018&quot;</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
 
 <div class="viewcode-block" id="DefectCompatibility"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.defect_compatibility.html#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility">[docs]</a><span class="k">class</span> <span class="nc">DefectCompatibility</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -147,7 +147,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">use_bandfilling</span> <span class="o">=</span> <span class="n">use_bandfilling</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">use_bandedgeshift</span> <span class="o">=</span> <span class="n">use_bandedgeshift</span>
 
-<div class="viewcode-block" id="DefectCompatibility.process_entry"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.defect_compatibility.html#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.process_entry">[docs]</a>    <span class="k">def</span> <span class="nf">process_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">defect_entry</span><span class="p">,</span> <span class="n">perform_corrections</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="DefectCompatibility.process_entry"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.defect_compatibility.html#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.process_entry">[docs]</a>    <span class="k">def</span> <span class="nf">process_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">defect_entry</span><span class="p">,</span> <span class="n">perform_corrections</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Process a given DefectEntry with qualifiers given from initialization of class.</span>
 <span class="sd">        Order of processing is:</span>
@@ -177,7 +177,7 @@
         <span class="n">skip_charge_corrections</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="s2">&quot;num_hole_vbm&quot;</span> <span class="ow">in</span> <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">free_chg_cutoff</span> <span class="o">&lt;</span> <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;num_hole_vbm&quot;</span><span class="p">])</span> <span class="ow">or</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">free_chg_cutoff</span> <span class="o">&lt;</span> <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;num_elec_cbm&quot;</span><span class="p">]):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">free_chg_cutoff</span> <span class="o">&lt;</span> <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;num_elec_cbm&quot;</span><span class="p">]):</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Will not use charge correction because too many free charges&#39;</span><span class="p">)</span>
                 <span class="n">skip_charge_corrections</span> <span class="o">=</span> <span class="kc">True</span>
 
@@ -205,10 +205,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">corrections</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;bandfilling_correction&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">})</span>
 
-
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_bandedgeshift</span> <span class="ow">and</span> <span class="p">(</span><span class="s2">&quot;bandshift_meta&quot;</span> <span class="ow">in</span> <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
-            <span class="n">corrections</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;bandedgeshifting_correction&#39;</span><span class="p">:</span>
-                                    <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;bandshift_meta&quot;</span><span class="p">][</span><span class="s2">&quot;bandedgeshifting_correction&quot;</span><span class="p">]</span> <span class="p">})</span>
+            <span class="n">corrections</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                <span class="s1">&#39;bandedgeshifting_correction&#39;</span><span class="p">:</span>
+                    <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;bandshift_meta&quot;</span><span class="p">][</span><span class="s2">&quot;bandedgeshifting_correction&quot;</span><span class="p">]})</span>
 
             <span class="c1"># also want to update relevant data for phase diagram</span>
             <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
@@ -222,9 +222,9 @@
             <span class="k">if</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;vbm&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;cbm&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="nb">float</span><span class="p">):</span>
                 <span class="c1"># still want to have vbm and gap ready for phase diagram</span>
                 <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
-                <span class="s1">&#39;phasediagram_meta&#39;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s1">&#39;vbm&#39;</span><span class="p">:</span> <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;vbm&#39;</span><span class="p">],</span>
-                    <span class="s1">&#39;gap&#39;</span><span class="p">:</span> <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;cbm&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;vbm&#39;</span><span class="p">]</span>
+                    <span class="s1">&#39;phasediagram_meta&#39;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s1">&#39;vbm&#39;</span><span class="p">:</span> <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;vbm&#39;</span><span class="p">],</span>
+                        <span class="s1">&#39;gap&#39;</span><span class="p">:</span> <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;cbm&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;vbm&#39;</span><span class="p">]</span>
                     <span class="p">}</span>
                 <span class="p">})</span>
 
@@ -235,26 +235,26 @@
 <div class="viewcode-block" id="DefectCompatibility.perform_all_corrections"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.defect_compatibility.html#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_all_corrections">[docs]</a>    <span class="k">def</span> <span class="nf">perform_all_corrections</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">defect_entry</span><span class="p">):</span>
 
         <span class="c1"># consider running freysoldt correction</span>
-        <span class="n">required_frey_params</span> <span class="o">=</span> <span class="p">[</span> <span class="s2">&quot;dielectric&quot;</span><span class="p">,</span> <span class="s2">&quot;axis_grid&quot;</span><span class="p">,</span> <span class="s2">&quot;bulk_planar_averages&quot;</span><span class="p">,</span> <span class="s2">&quot;defect_planar_averages&quot;</span><span class="p">,</span>
-                                 <span class="s2">&quot;initial_defect_structure&quot;</span><span class="p">,</span> <span class="s2">&quot;defect_frac_sc_coords&quot;</span><span class="p">]</span>
-        <span class="n">run_freysoldt</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span> <span class="nb">set</span><span class="p">(</span><span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">required_frey_params</span><span class="p">))</span> \
-                                <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">required_frey_params</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
+        <span class="n">required_frey_params</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;dielectric&quot;</span><span class="p">,</span> <span class="s2">&quot;axis_grid&quot;</span><span class="p">,</span> <span class="s2">&quot;bulk_planar_averages&quot;</span><span class="p">,</span> <span class="s2">&quot;defect_planar_averages&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;initial_defect_structure&quot;</span><span class="p">,</span> <span class="s2">&quot;defect_frac_sc_coords&quot;</span><span class="p">]</span>
+        <span class="n">run_freysoldt</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">required_frey_params</span><span class="p">))</span>
+                         <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">required_frey_params</span><span class="p">))</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">run_freysoldt</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Insufficient DefectEntry parameters exist for Freysoldt Correction.&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">defect_entry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">perform_freysoldt</span><span class="p">(</span> <span class="n">defect_entry</span><span class="p">)</span>
+            <span class="n">defect_entry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">perform_freysoldt</span><span class="p">(</span><span class="n">defect_entry</span><span class="p">)</span>
 
         <span class="c1"># consider running kumagai correction</span>
-        <span class="n">required_kumagai_params</span> <span class="o">=</span> <span class="p">[</span> <span class="s2">&quot;dielectric&quot;</span><span class="p">,</span> <span class="s2">&quot;bulk_atomic_site_averages&quot;</span><span class="p">,</span> <span class="s2">&quot;defect_atomic_site_averages&quot;</span><span class="p">,</span>
-                                    <span class="s2">&quot;site_matching_indices&quot;</span><span class="p">,</span> <span class="s2">&quot;initial_defect_structure&quot;</span><span class="p">,</span> <span class="s2">&quot;defect_frac_sc_coords&quot;</span><span class="p">]</span>
-        <span class="n">run_kumagai</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span> <span class="nb">set</span><span class="p">(</span><span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">required_kumagai_params</span><span class="p">))</span> \
-                                <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">required_kumagai_params</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
+        <span class="n">required_kumagai_params</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;dielectric&quot;</span><span class="p">,</span> <span class="s2">&quot;bulk_atomic_site_averages&quot;</span><span class="p">,</span> <span class="s2">&quot;defect_atomic_site_averages&quot;</span><span class="p">,</span>
+                                   <span class="s2">&quot;site_matching_indices&quot;</span><span class="p">,</span> <span class="s2">&quot;initial_defect_structure&quot;</span><span class="p">,</span> <span class="s2">&quot;defect_frac_sc_coords&quot;</span><span class="p">]</span>
+        <span class="n">run_kumagai</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">required_kumagai_params</span><span class="p">))</span>
+                       <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">required_kumagai_params</span><span class="p">))</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">run_kumagai</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Insufficient DefectEntry parameters exist for Kumagai Correction.&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">defect_entry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">perform_kumagai</span><span class="p">(</span> <span class="n">defect_entry</span><span class="p">)</span>
-            <span class="k">except</span><span class="p">:</span>
+                <span class="n">defect_entry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">perform_kumagai</span><span class="p">(</span><span class="n">defect_entry</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Kumagai correction error occured! Wont perform correction.&quot;</span><span class="p">)</span>
 
         <span class="c1"># add potalign based on preferred correction setting if it does not already exist in defect entry</span>
@@ -264,7 +264,7 @@
                 <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;potalign&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">potalign</span>
             <span class="k">elif</span> <span class="s1">&#39;kumagai_meta&#39;</span> <span class="ow">in</span> <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;WARNING: was not able to use potalign from Freysoldt correction, &#39;</span>
-                      <span class="s1">&#39;using Kumagai value for purposes of band filling correction.&#39;</span><span class="p">)</span>
+                            <span class="s1">&#39;using Kumagai value for purposes of band filling correction.&#39;</span><span class="p">)</span>
                 <span class="n">potalign</span> <span class="o">=</span> <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;kumagai_meta&#39;</span><span class="p">][</span><span class="s1">&#39;kumagai_potalign&#39;</span><span class="p">]</span>
                 <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;potalign&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">potalign</span>
         <span class="k">else</span><span class="p">:</span>
@@ -273,32 +273,33 @@
                 <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;potalign&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">potalign</span>
             <span class="k">elif</span> <span class="s1">&#39;freysoldt_meta&#39;</span> <span class="ow">in</span> <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;WARNING: was not able to use potalign from Kumagai correction, &#39;</span>
-                      <span class="s1">&#39;using Freysoldt value for purposes of band filling correction.&#39;</span><span class="p">)</span>
+                            <span class="s1">&#39;using Freysoldt value for purposes of band filling correction.&#39;</span><span class="p">)</span>
                 <span class="n">potalign</span> <span class="o">=</span> <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;freysoldt_meta&#39;</span><span class="p">][</span><span class="s1">&#39;freysoldt_potalign&#39;</span><span class="p">]</span>
                 <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;potalign&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">potalign</span>
 
         <span class="c1"># consider running band filling correction</span>
         <span class="n">required_bandfilling_params</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;eigenvalues&quot;</span><span class="p">,</span> <span class="s2">&quot;kpoint_weights&quot;</span><span class="p">,</span> <span class="s2">&quot;potalign&quot;</span><span class="p">,</span> <span class="s2">&quot;vbm&quot;</span><span class="p">,</span> <span class="s2">&quot;cbm&quot;</span><span class="p">]</span>
-        <span class="n">run_bandfilling</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span> <span class="nb">set</span><span class="p">(</span><span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">required_bandfilling_params</span><span class="p">))</span> \
-                                <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">required_bandfilling_params</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
+        <span class="n">run_bandfilling</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">required_bandfilling_params</span><span class="p">))</span>
+                           <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">required_bandfilling_params</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">run_bandfilling</span><span class="p">:</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;vbm&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;cbm&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">None</span><span class="p">)</span> \
-                    <span class="ow">or</span> <span class="p">(</span><span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;potalign&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;vbm&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;cbm&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> \
+                    <span class="ow">or</span> <span class="p">(</span><span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;potalign&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
                 <span class="n">run_bandfilling</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">run_bandfilling</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Insufficient DefectEntry parameters exist for BandFilling Correction.&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">defect_entry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">perform_bandfilling</span><span class="p">(</span> <span class="n">defect_entry</span><span class="p">)</span>
+            <span class="n">defect_entry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">perform_bandfilling</span><span class="p">(</span><span class="n">defect_entry</span><span class="p">)</span>
 
         <span class="c1"># consider running band edge shifting correction</span>
         <span class="n">required_bandedge_shifting_params</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;hybrid_cbm&quot;</span><span class="p">,</span> <span class="s2">&quot;hybrid_vbm&quot;</span><span class="p">,</span> <span class="s2">&quot;vbm&quot;</span><span class="p">,</span> <span class="s2">&quot;cbm&quot;</span><span class="p">]</span>
-        <span class="n">run_bandedge_shifting</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span> <span class="nb">set</span><span class="p">(</span><span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">required_bandedge_shifting_params</span><span class="p">))</span> \
-                                <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">required_bandedge_shifting_params</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
+        <span class="n">run_bandedge_shifting</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">required_bandedge_shifting_params</span><span class="p">))</span>
+                <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">required_bandedge_shifting_params</span><span class="p">))</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">run_bandedge_shifting</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Insufficient DefectEntry parameters exist for BandShifting Correction.&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">defect_entry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">perform_band_edge_shifting</span><span class="p">(</span> <span class="n">defect_entry</span><span class="p">)</span>
+            <span class="n">defect_entry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">perform_band_edge_shifting</span><span class="p">(</span><span class="n">defect_entry</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">defect_entry</span></div>
 
@@ -315,7 +316,8 @@
 
 <div class="viewcode-block" id="DefectCompatibility.perform_kumagai"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.defect_compatibility.html#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_kumagai">[docs]</a>    <span class="k">def</span> <span class="nf">perform_kumagai</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">defect_entry</span><span class="p">):</span>
         <span class="n">gamma</span> <span class="o">=</span> <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;gamma&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;gamma&#39;</span> <span class="ow">in</span> <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="n">sampling_radius</span> <span class="o">=</span> <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;sampling_radius&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;sampling_radius&#39;</span> <span class="ow">in</span> <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">sampling_radius</span> <span class="o">=</span> <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span>
+            <span class="s1">&#39;sampling_radius&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;sampling_radius&#39;</span> <span class="ow">in</span> <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span>
 
         <span class="n">KC</span> <span class="o">=</span> <span class="n">KumagaiCorrection</span><span class="p">(</span><span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;dielectric&#39;</span><span class="p">],</span>
                                <span class="n">sampling_radius</span><span class="o">=</span><span class="n">sampling_radius</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="n">gamma</span><span class="p">)</span>
@@ -333,7 +335,7 @@
         <span class="n">bfc_dict</span> <span class="o">=</span> <span class="n">BFC</span><span class="o">.</span><span class="n">get_correction</span><span class="p">(</span><span class="n">defect_entry</span><span class="p">)</span>
 
         <span class="n">bandfilling_meta</span> <span class="o">=</span> <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;bandfilling_meta&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">bandfilling_meta</span><span class="o">.</span><span class="n">update</span><span class="p">(</span> <span class="p">{</span><span class="s1">&#39;bandfilling_correction&#39;</span><span class="p">:</span> <span class="n">bfc_dict</span><span class="p">[</span><span class="s1">&#39;bandfilling_correction&#39;</span><span class="p">]})</span>
+        <span class="n">bandfilling_meta</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;bandfilling_correction&#39;</span><span class="p">:</span> <span class="n">bfc_dict</span><span class="p">[</span><span class="s1">&#39;bandfilling_correction&#39;</span><span class="p">]})</span>
         <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;bandfilling_meta&#39;</span><span class="p">:</span> <span class="n">bandfilling_meta</span><span class="p">,</span>
                                         <span class="c1"># also update free holes and electrons for shallow level shifting correction...</span>
                                         <span class="s1">&#39;num_hole_vbm&#39;</span><span class="p">:</span> <span class="n">bandfilling_meta</span><span class="p">[</span><span class="s1">&#39;num_hole_vbm&#39;</span><span class="p">],</span>
@@ -356,7 +358,8 @@
 <span class="sd">        Do delocalization analysis. To do this, one considers:</span>
 <span class="sd">            i) sampling region of planar averaged electrostatic potential (freysoldt approach)</span>
 <span class="sd">            ii) sampling region of atomic site averaged potentials (kumagai approach)</span>
-<span class="sd">            iii) structural relaxation amount outside of radius considered in kumagai approach (default is wigner seitz radius)</span>
+<span class="sd">            iii) structural relaxation amount outside of radius considered in kumagai approach (default is wigner seitz</span>
+<span class="sd">            radius)</span>
 <span class="sd">            iv) if defect is not a vacancy type -&gt; track to see how much the defect has moved</span>
 
 <span class="sd">        calculations that fail delocalization get &quot;is_compatibile&quot; set to False in parameters</span>
@@ -366,30 +369,29 @@
 <span class="sd">            structure_relax = {&#39;is_compatible&#39;: True/False, &#39;metadata&#39;: metadata used for determining this}</span>
 <span class="sd">            defectsite_relax = {&#39;is_compatible&#39;: True/False, &#39;metadata&#39;: metadata used for determing this}</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;is_compatible&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span> <span class="c1">#this will be switched to False if delocalization is detected</span>
+        <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span><span class="s1">&#39;is_compatible&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>  <span class="c1"># this will be switched to False if delocalization is detected</span>
 
         <span class="k">if</span> <span class="s1">&#39;freysoldt_meta&#39;</span> <span class="ow">in</span> <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="n">defect_entry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_freysoldt_delocalized</span><span class="p">(</span><span class="n">defect_entry</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Insufficient information provided for performing Freysoldt &#39;</span>
-                          <span class="s1">&#39;correction delocalization analysis.</span><span class="se">\n</span><span class="s1">&#39;</span>
-                          <span class="s1">&#39;Cannot perform planar averaged electrostatic potential &#39;</span>
-                          <span class="s1">&#39;compatibility analysis.&#39;</span><span class="p">)</span>
-
+                        <span class="s1">&#39;correction delocalization analysis.</span><span class="se">\n</span><span class="s1">&#39;</span>
+                        <span class="s1">&#39;Cannot perform planar averaged electrostatic potential &#39;</span>
+                        <span class="s1">&#39;compatibility analysis.&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="s1">&#39;kumagai_meta&#39;</span> <span class="ow">in</span> <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="n">defect_entry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_kumagai_delocalized</span><span class="p">(</span><span class="n">defect_entry</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Insufficient information provided for performing Kumagai &#39;</span>
-                          <span class="s1">&#39;correction delocalization analysis.</span><span class="se">\n</span><span class="s1">&#39;</span>
-                          <span class="s1">&#39;Cannot perform atomic site averaged electrostatic &#39;</span>
-                          <span class="s1">&#39;potential compatibility analysis.&#39;</span><span class="p">)</span>
-
+                        <span class="s1">&#39;correction delocalization analysis.</span><span class="se">\n</span><span class="s1">&#39;</span>
+                        <span class="s1">&#39;Cannot perform atomic site averaged electrostatic &#39;</span>
+                        <span class="s1">&#39;potential compatibility analysis.&#39;</span><span class="p">)</span>
 
         <span class="n">req_struct_delocal_params</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;final_defect_structure&quot;</span><span class="p">,</span> <span class="s2">&quot;initial_defect_structure&quot;</span><span class="p">,</span>
                                      <span class="s2">&quot;sampling_radius&quot;</span><span class="p">,</span> <span class="s2">&quot;defect_frac_sc_coords&quot;</span><span class="p">]</span>
         <span class="n">run_struct_delocal</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> \
-            <span class="nb">len</span><span class="p">(</span> <span class="nb">set</span><span class="p">(</span><span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">req_struct_delocal_params</span><span class="p">))</span> \
+            <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">req_struct_delocal_params</span><span class="p">))</span> \
             <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">req_struct_delocal_params</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="n">run_struct_delocal</span><span class="p">:</span>
             <span class="n">defect_entry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_final_relaxed_structure_delocalized</span><span class="p">(</span><span class="n">defect_entry</span><span class="p">)</span>
@@ -398,7 +400,6 @@
                         <span class="s1">&#39;Cannot perform full structure site relaxation compatibility analysis.&#39;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">defect_entry</span></div>
-
 
 <div class="viewcode-block" id="DefectCompatibility.check_freysoldt_delocalized"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.defect_compatibility.html#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.check_freysoldt_delocalized">[docs]</a>    <span class="k">def</span> <span class="nf">check_freysoldt_delocalized</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">defect_entry</span><span class="p">):</span>
         <span class="n">plnr_avg_analyze_meta</span> <span class="o">=</span> <span class="p">{}</span>
@@ -410,21 +411,22 @@
             <span class="n">frey_window</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">freystats</span><span class="p">[</span><span class="s1">&#39;minmax&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">freystats</span><span class="p">[</span><span class="s1">&#39;minmax&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
             <span class="n">frey_minmax_compatible</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">frey_window</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plnr_avg_minmax_tol</span> <span class="k">else</span> <span class="kc">False</span>
 
-            <span class="n">plnr_avg_analyze_meta</span><span class="o">.</span><span class="n">update</span><span class="p">(</span> <span class="p">{</span><span class="n">ax</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;frey_variance_compatible&#39;</span><span class="p">:</span> <span class="n">frey_variance_compatible</span><span class="p">,</span>
-                                                <span class="s1">&#39;frey_variance&#39;</span><span class="p">:</span> <span class="n">freystats</span><span class="p">[</span><span class="s1">&#39;variance&#39;</span><span class="p">],</span>
-                                                <span class="s1">&#39;plnr_avg_var_tol&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">plnr_avg_var_tol</span><span class="p">,</span>
-                                                <span class="s1">&#39;frey_minmax_compatible&#39;</span><span class="p">:</span> <span class="n">frey_minmax_compatible</span><span class="p">,</span>
-                                                <span class="s1">&#39;frey_minmax_window&#39;</span><span class="p">:</span> <span class="n">frey_window</span><span class="p">,</span>
-                                                <span class="s1">&#39;plnr_avg_minmax_tol&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">plnr_avg_minmax_tol</span><span class="p">}})</span>
+            <span class="n">plnr_avg_analyze_meta</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">ax</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;frey_variance_compatible&#39;</span><span class="p">:</span> <span class="n">frey_variance_compatible</span><span class="p">,</span>
+                                               <span class="s1">&#39;frey_variance&#39;</span><span class="p">:</span> <span class="n">freystats</span><span class="p">[</span><span class="s1">&#39;variance&#39;</span><span class="p">],</span>
+                                               <span class="s1">&#39;plnr_avg_var_tol&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">plnr_avg_var_tol</span><span class="p">,</span>
+                                               <span class="s1">&#39;frey_minmax_compatible&#39;</span><span class="p">:</span> <span class="n">frey_minmax_compatible</span><span class="p">,</span>
+                                               <span class="s1">&#39;frey_minmax_window&#39;</span><span class="p">:</span> <span class="n">frey_window</span><span class="p">,</span>
+                                               <span class="s1">&#39;plnr_avg_minmax_tol&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">plnr_avg_minmax_tol</span><span class="p">}})</span>
 
             <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">frey_variance_compatible</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">frey_minmax_compatible</span><span class="p">):</span>
                 <span class="n">plnr_avg_allows_compatible</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="k">if</span> <span class="s1">&#39;delocalization_meta&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;delocalization_meta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;delocalization_meta&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span> <span class="p">{</span><span class="s1">&#39;plnr_avg&#39;</span><span class="p">:</span>
-                                                                    <span class="p">{</span><span class="s1">&#39;is_compatible&#39;</span><span class="p">:</span> <span class="n">plnr_avg_allows_compatible</span><span class="p">,</span>
-                                                                     <span class="s1">&#39;metadata&#39;</span><span class="p">:</span> <span class="n">plnr_avg_analyze_meta</span><span class="p">}})</span>
+        <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;delocalization_meta&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+            <span class="s1">&#39;plnr_avg&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;is_compatible&#39;</span><span class="p">:</span> <span class="n">plnr_avg_allows_compatible</span><span class="p">,</span>
+                <span class="s1">&#39;metadata&#39;</span><span class="p">:</span> <span class="n">plnr_avg_analyze_meta</span><span class="p">}})</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">plnr_avg_allows_compatible</span><span class="p">:</span>
             <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;is_compatible&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})</span>
@@ -447,13 +449,14 @@
                                          <span class="s1">&#39;plnr_avg_minmax_tol&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">atomic_site_minmax_tol</span><span class="p">})</span>
 
         <span class="n">atomic_site_allows_compatible</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="p">(</span>
-            <span class="n">kumagai_variance_compatible</span> <span class="ow">and</span> <span class="n">kumagai_minmax_compatible</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
+                <span class="n">kumagai_variance_compatible</span> <span class="ow">and</span> <span class="n">kumagai_minmax_compatible</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
 
         <span class="k">if</span> <span class="s1">&#39;delocalization_meta&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;delocalization_meta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;delocalization_meta&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span> <span class="p">{</span><span class="s1">&#39;atomic_site&#39;</span><span class="p">:</span>
-                                                                    <span class="p">{</span><span class="s1">&#39;is_compatible&#39;</span><span class="p">:</span> <span class="n">atomic_site_allows_compatible</span><span class="p">,</span>
-                                                                     <span class="s1">&#39;metadata&#39;</span><span class="p">:</span> <span class="n">atomic_site_analyze_meta</span><span class="p">}})</span>
+        <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;delocalization_meta&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+            <span class="s1">&#39;atomic_site&#39;</span><span class="p">:</span>
+                <span class="p">{</span><span class="s1">&#39;is_compatible&#39;</span><span class="p">:</span> <span class="n">atomic_site_allows_compatible</span><span class="p">,</span>
+                 <span class="s1">&#39;metadata&#39;</span><span class="p">:</span> <span class="n">atomic_site_analyze_meta</span><span class="p">}})</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">atomic_site_allows_compatible</span><span class="p">:</span>
             <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;is_compatible&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})</span>
@@ -477,19 +480,20 @@
         <span class="n">finalsites</span> <span class="o">=</span> <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">final_defect_structure</span><span class="p">]</span>
         <span class="n">distmatrix</span> <span class="o">=</span> <span class="n">initial_defect_structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_all_distances</span><span class="p">(</span><span class="n">finalsites</span><span class="p">,</span> <span class="n">initsites</span><span class="p">)</span>
 
-        <span class="c1">#calculate distance moved as a function of the distance from the defect</span>
+        <span class="c1"># calculate distance moved as a function of the distance from the defect</span>
         <span class="n">distdata</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">totpert</span> <span class="o">=</span> <span class="mf">0.</span>
         <span class="n">defindex</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">ind</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">initial_defect_structure</span><span class="o">.</span><span class="n">sites</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">distance_and_image_from_frac_coords</span><span class="p">(</span> <span class="n">def_frac_coords</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.01</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">distance_and_image_from_frac_coords</span><span class="p">(</span><span class="n">def_frac_coords</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.01</span><span class="p">:</span>
                 <span class="n">defindex</span> <span class="o">=</span> <span class="n">ind</span>
                 <span class="k">continue</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">totpert</span> <span class="o">+=</span> <span class="n">distmatrix</span><span class="p">[</span><span class="n">ind</span><span class="p">,</span> <span class="n">ind</span><span class="p">]</span>
                 <span class="c1"># append [distance to defect, distance traveled, index in structure]</span>
-                <span class="n">distance_to_defect</span> <span class="o">=</span> <span class="n">initial_defect_structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_distance_and_image</span><span class="p">(</span> <span class="n">def_frac_coords</span><span class="p">,</span> <span class="n">initsites</span><span class="p">[</span><span class="n">ind</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">distdata</span><span class="o">.</span><span class="n">append</span><span class="p">([</span> <span class="n">distance_to_defect</span><span class="p">,</span> <span class="n">distmatrix</span><span class="p">[</span><span class="n">ind</span><span class="p">,</span> <span class="n">ind</span><span class="p">],</span> <span class="nb">int</span><span class="p">(</span><span class="n">ind</span><span class="p">)])</span>
+                <span class="n">distance_to_defect</span> <span class="o">=</span> \
+                    <span class="n">initial_defect_structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_distance_and_image</span><span class="p">(</span><span class="n">def_frac_coords</span><span class="p">,</span> <span class="n">initsites</span><span class="p">[</span><span class="n">ind</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">distdata</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">distance_to_defect</span><span class="p">,</span> <span class="n">distmatrix</span><span class="p">[</span><span class="n">ind</span><span class="p">,</span> <span class="n">ind</span><span class="p">],</span> <span class="nb">int</span><span class="p">(</span><span class="n">ind</span><span class="p">)])</span>
 
         <span class="k">if</span> <span class="n">defindex</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">defect_entry</span><span class="o">.</span><span class="n">defect</span><span class="p">,</span> <span class="n">Vacancy</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;fractional coordinate for defect could not be &quot;</span>
@@ -500,13 +504,14 @@
         <span class="n">perc_relax_outside_rad</span> <span class="o">=</span> <span class="mf">0.</span>
         <span class="k">for</span> <span class="n">newind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">distdata</span><span class="p">)):</span>
             <span class="n">perc_relax</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">*</span> <span class="n">distdata</span><span class="p">[</span><span class="n">newind</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">totpert</span> <span class="k">if</span> <span class="n">totpert</span> <span class="k">else</span> <span class="mf">0.</span>
-            <span class="n">distdata</span><span class="p">[</span><span class="n">newind</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">perc_relax</span><span class="p">)</span>  <span class="c1"># percentage contribution to total relaxation</span>
+            <span class="n">distdata</span><span class="p">[</span><span class="n">newind</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">perc_relax</span><span class="p">)</span>  <span class="c1"># percentage contribution to total relaxation</span>
             <span class="k">if</span> <span class="n">distdata</span><span class="p">[</span><span class="n">newind</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">radius_to_sample</span><span class="p">:</span>
                 <span class="n">tot_relax_outside_rad</span> <span class="o">+=</span> <span class="n">distdata</span><span class="p">[</span><span class="n">newind</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
                 <span class="n">perc_relax_outside_rad</span> <span class="o">+=</span> <span class="n">distdata</span><span class="p">[</span><span class="n">newind</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span>
 
         <span class="n">structure_tot_relax_compatible</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">tot_relax_outside_rad</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tot_relax_tol</span> <span class="k">else</span> <span class="kc">False</span>
-        <span class="n">structure_perc_relax_compatible</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="p">(</span><span class="n">perc_relax_outside_rad</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">perc_relax_tol</span> <span class="ow">and</span> <span class="n">totpert</span> <span class="o">&gt;=</span> <span class="mf">1.</span><span class="p">)</span> <span class="k">else</span> <span class="kc">True</span>
+        <span class="n">structure_perc_relax_compatible</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">perc_relax_outside_rad</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">perc_relax_tol</span> <span class="ow">and</span> <span class="n">totpert</span> <span class="o">&gt;=</span> <span class="mf">1.</span><span class="p">)</span> <span class="k">else</span> <span class="kc">True</span>
         <span class="n">structure_relax_analyze_meta</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;structure_tot_relax_compatible&#39;</span><span class="p">:</span> <span class="n">structure_tot_relax_compatible</span><span class="p">,</span>
                                              <span class="s1">&#39;tot_relax_outside_rad&#39;</span><span class="p">:</span> <span class="n">tot_relax_outside_rad</span><span class="p">,</span>
                                              <span class="s1">&#39;tot_relax_tol&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tot_relax_tol</span><span class="p">,</span>
@@ -517,12 +522,12 @@
                                              <span class="s1">&#39;defect_index&#39;</span><span class="p">:</span> <span class="n">defindex</span><span class="p">})</span>
 
         <span class="n">structure_relax_allows_compatible</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="p">(</span>
-            <span class="n">structure_tot_relax_compatible</span> <span class="ow">and</span> <span class="n">structure_perc_relax_compatible</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
+                <span class="n">structure_tot_relax_compatible</span> <span class="ow">and</span> <span class="n">structure_perc_relax_compatible</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
 
-        <span class="c1">#NEXT: do single defect delocalization analysis (requires similar data, so might as well run in tandem</span>
+        <span class="c1"># NEXT: do single defect delocalization analysis (requires similar data, so might as well run in tandem</span>
         <span class="c1"># with structural delocalization)</span>
         <span class="n">defectsite_relax_analyze_meta</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">defect_entry</span><span class="o">.</span><span class="n">defect</span><span class="p">,</span><span class="n">Vacancy</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">defect_entry</span><span class="o">.</span><span class="n">defect</span><span class="p">,</span> <span class="n">Vacancy</span><span class="p">):</span>
             <span class="n">defectsite_relax_allows_compatible</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="n">defectsite_relax_analyze_meta</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;relax_amount&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
                                                   <span class="s1">&#39;defect_tot_relax_tol&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">defect_tot_relax_tol</span><span class="p">})</span>
@@ -534,12 +539,14 @@
 
         <span class="k">if</span> <span class="s1">&#39;delocalization_meta&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;delocalization_meta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;delocalization_meta&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span> <span class="p">{</span><span class="s1">&#39;defectsite_relax&#39;</span><span class="p">:</span>
-                                                                    <span class="p">{</span><span class="s1">&#39;is_compatible&#39;</span><span class="p">:</span> <span class="n">defectsite_relax_allows_compatible</span><span class="p">,</span>
-                                                                     <span class="s1">&#39;metadata&#39;</span><span class="p">:</span> <span class="n">defectsite_relax_analyze_meta</span><span class="p">}})</span>
-        <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;delocalization_meta&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span> <span class="p">{</span><span class="s1">&#39;structure_relax&#39;</span><span class="p">:</span>
-                                                                   <span class="p">{</span><span class="s1">&#39;is_compatible&#39;</span><span class="p">:</span> <span class="n">structure_relax_allows_compatible</span><span class="p">,</span>
-                                                                    <span class="s1">&#39;metadata&#39;</span><span class="p">:</span> <span class="n">structure_relax_analyze_meta</span><span class="p">}})</span>
+        <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;delocalization_meta&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+            <span class="s1">&#39;defectsite_relax&#39;</span><span class="p">:</span>
+                <span class="p">{</span><span class="s1">&#39;is_compatible&#39;</span><span class="p">:</span> <span class="n">defectsite_relax_allows_compatible</span><span class="p">,</span>
+                 <span class="s1">&#39;metadata&#39;</span><span class="p">:</span> <span class="n">defectsite_relax_analyze_meta</span><span class="p">}})</span>
+        <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;delocalization_meta&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+            <span class="s1">&#39;structure_relax&#39;</span><span class="p">:</span>
+                <span class="p">{</span><span class="s1">&#39;is_compatible&#39;</span><span class="p">:</span> <span class="n">structure_relax_allows_compatible</span><span class="p">,</span>
+                 <span class="s1">&#39;metadata&#39;</span><span class="p">:</span> <span class="n">structure_relax_analyze_meta</span><span class="p">}})</span>
 
         <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">structure_relax_allows_compatible</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">defectsite_relax_allows_compatible</span><span class="p">):</span>
             <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;is_compatible&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})</span>
@@ -575,7 +582,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -583,7 +590,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -26,6 +26,7 @@ def ref_file(filename):
 
 class FakeAbinitInput:
     """Emulate an Abinit input."""
+
     @lazy_property
     def pseudos(self):
         return [Pseudo.as_pseudo(ref_file("14si.pspnc"))]
@@ -36,13 +37,14 @@ class FakeAbinitInput:
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
         lattice = Lattice([[3.8401979337, 0.00, 0.00],
-                          [1.9200989668, 3.3257101909, 0.00],
-                          [0.00, -2.2171384943, 3.1355090603]])
+                           [1.9200989668, 3.3257101909, 0.00],
+                           [0.00, -2.2171384943, 3.1355090603]])
         return Structure(lattice, ["Si", "Si"], coords)
 
     def get(self, key, default=None):
         """The real AbinitInput is a dict-like object."""
-        if default is not None: return default
+        if default is not None:
+            return default
         return key
 
 
@@ -89,6 +91,7 @@ db_connector:
 
 batch_adapter: *batch
 """
+
     def setUp(self):
         """Initialization phase."""
         super().setUp()
@@ -129,7 +132,7 @@ class FlowTest(FlowUnitTest):
         aequal(flow.num_tasks, 1)
         atrue(flow.has_db)
 
-        #print(task0_w0.input_structure)
+        # print(task0_w0.input_structure)
         print(task0_w0.make_input)
 
         # Task history
@@ -142,7 +145,7 @@ class FlowTest(FlowUnitTest):
         assert record.get_message(asctime=False) == "Hello world"
         assert len(task0_w0.history) == 0
         assert flow.select_tasks(nids=task0_w0.node_id)[0] == task0_w0
-        assert flow.select_tasks(wslice=slice(0,1,1)) == [task0_w0]
+        assert flow.select_tasks(wslice=slice(0, 1, 1)) == [task0_w0]
         assert flow.select_tasks(task_class="DfptTask") == []
         assert flow.get_task_scfcycles() == []
 
@@ -202,9 +205,9 @@ class FlowTest(FlowUnitTest):
 
         # to/from string
         # FIXME This does not work with py3k
-        #s = flow.pickle_dumps(protocol=0)
-        #same_flow = Flow.pickle_loads(s)
-        #aequal(same_flow, flow)
+        # s = flow.pickle_dumps(protocol=0)
+        # same_flow = Flow.pickle_loads(s)
+        # aequal(same_flow, flow)
 
         self.assertMSONable(flow)
 
@@ -225,13 +228,14 @@ class FlowTest(FlowUnitTest):
         """Testing if one can use workdir=None in flow.__init__ and then flow.allocate(workdir)."""
         flow = Flow(workdir=None, manager=self.manager)
         flow.register_task(self.fake_input)
-        #flow.register_work(work)
+        # flow.register_work(work)
         work = Work()
         work.register_scf_task(self.fake_input)
         flow.register_work(work)
 
         # If flow.workdir is None, we should used flow.allocate(workdir)
-        with self.assertRaises(RuntimeError): flow.allocate()
+        with self.assertRaises(RuntimeError):
+            flow.allocate()
 
         tmpdir = tempfile.mkdtemp()
         flow.allocate(workdir=tmpdir)
@@ -289,19 +293,19 @@ class TestFlowInSpectatorMode(FlowUnitTest):
         flow = Flow.pickle_load(flow.workdir)
         assert flow.in_spectator_mode
 
-        #with self.assertRaises(flow.SpectatorError): flow.pickle_dump()
-        #with self.assertRaises(flow.SpectatorError): flow.make_scheduler().start()
+        # with self.assertRaises(flow.SpectatorError): flow.pickle_dump()
+        # with self.assertRaises(flow.SpectatorError): flow.make_scheduler().start()
 
         work = flow[0]
         assert work.send_signal(work.S_OK) is None
-        #with self.assertRaises(work.SpectatorError): work.on_ok()
-        #with self.assertRaises(work.SpectatorError): work.on_all_ok()
+        # with self.assertRaises(work.SpectatorError): work.on_ok()
+        # with self.assertRaises(work.SpectatorError): work.on_all_ok()
 
         task = work[0]
         assert task.send_signal(task.S_OK) is None
-        #with self.assertRaises(task.SpectatorError): task._on_done()
-        #with self.assertRaises(task.SpectatorError): task.on_ok()
-        #with self.assertRaises(task.SpectatorError): task._on_ok()
+        # with self.assertRaises(task.SpectatorError): task._on_done()
+        # with self.assertRaises(task.SpectatorError): task.on_ok()
+        # with self.assertRaises(task.SpectatorError): task._on_ok()
 
 
 class TestBatchLauncher(FlowUnitTest):
@@ -358,4 +362,5 @@ class TestBatchLauncher(FlowUnitTest):
 
 if __name__ == '__main__':
     import unittest
+
     unittest.main()

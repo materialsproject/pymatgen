@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.chemenv.utils.scripts_utils &#8212; pymatgen 2019.7.21 documentation</title>
+    <title>pymatgen.analysis.chemenv.utils.scripts_utils &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -50,21 +49,16 @@
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
 
-
 <span class="kn">from</span> <span class="nn">pymatgen.ext.matproj</span> <span class="k">import</span> <span class="n">MPRester</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.cif</span> <span class="k">import</span> <span class="n">CifParser</span>
+
 <span class="k">try</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">vtk</span>
     <span class="kn">from</span> <span class="nn">pymatgen.vis.structure_vtk</span> <span class="k">import</span> <span class="n">StructureVis</span>
     <span class="n">no_vis</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="n">StructureVis</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">StructureVis</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: ignore</span>
     <span class="n">no_vis</span> <span class="o">=</span> <span class="kc">True</span>
 
-<span class="k">try</span><span class="p">:</span>
-    <span class="nb">input</span> <span class="o">=</span> <span class="n">raw_input</span>
-<span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
-    <span class="k">pass</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.core.sites</span> <span class="k">import</span> <span class="n">PeriodicSite</span>
 <span class="kn">import</span> <span class="nn">re</span>
@@ -76,8 +70,6 @@
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.coordination_geometry_utils</span> <span class="k">import</span> <span class="n">rotateCoords</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.defs_utils</span> <span class="k">import</span> <span class="n">chemenv_citations</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies</span> <span class="k">import</span> <span class="n">SimplestChemenvStrategy</span>
-<span class="c1">#from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimpleAbundanceChemenvStrategy</span>
-<span class="c1">#from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import TargettedPenaltiedAbundanceChemenvStrategy</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Molecule</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -94,13 +86,12 @@
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;david.waroquiers@gmail.com&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Feb 20, 2016&quot;</span>
 
-
-
-<span class="n">strategies_class_lookup</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+<span class="n">strategies_class_lookup</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>  <span class="c1"># type: dict</span>
 <span class="n">strategies_class_lookup</span><span class="p">[</span><span class="s1">&#39;SimplestChemenvStrategy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">SimplestChemenvStrategy</span>
 
-<span class="c1">#strategies_class_lookup[&#39;SimpleAbundanceChemenvStrategy&#39;] = SimpleAbundanceChemenvStrategy</span>
-<span class="c1">#strategies_class_lookup[&#39;TargettedPenaltiedAbundanceChemenvStrategy&#39;] = TargettedPenaltiedAbundanceChemenvStrategy</span>
+
+<span class="c1"># strategies_class_lookup[&#39;SimpleAbundanceChemenvStrategy&#39;] = SimpleAbundanceChemenvStrategy</span>
+<span class="c1"># strategies_class_lookup[&#39;TargettedPenaltiedAbundanceChemenvStrategy&#39;] = TargettedPenaltiedAbundanceChemenvStrategy</span>
 
 
 <div class="viewcode-block" id="draw_cg"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.scripts_utils.html#pymatgen.analysis.chemenv.utils.scripts_utils.draw_cg">[docs]</a><span class="k">def</span> <span class="nf">draw_cg</span><span class="p">(</span><span class="n">vis</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">neighbors</span><span class="p">,</span> <span class="n">cg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">perm</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">perfect2local_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -163,7 +154,7 @@
             <span class="n">scale</span> <span class="o">=</span> <span class="n">csm_info</span><span class="p">[</span><span class="s1">&#39;other_symmetry_measures&#39;</span><span class="p">][</span><span class="s1">&#39;scaling_factor_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">csm_suffix</span><span class="p">)]</span>
             <span class="n">points</span> <span class="o">=</span> <span class="n">perfect_geometry</span><span class="o">.</span><span class="n">points_wcs_ctwcc</span><span class="p">()</span>
             <span class="n">rotated_points</span> <span class="o">=</span> <span class="n">rotateCoords</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">rot</span><span class="p">)</span>
-            <span class="n">points</span> <span class="o">=</span> <span class="p">[</span><span class="n">scale</span><span class="o">*</span><span class="n">pp</span> <span class="o">+</span> <span class="n">trans</span> <span class="k">for</span> <span class="n">pp</span> <span class="ow">in</span> <span class="n">rotated_points</span><span class="p">]</span>
+            <span class="n">points</span> <span class="o">=</span> <span class="p">[</span><span class="n">scale</span> <span class="o">*</span> <span class="n">pp</span> <span class="o">+</span> <span class="n">trans</span> <span class="k">for</span> <span class="n">pp</span> <span class="ow">in</span> <span class="n">rotated_points</span><span class="p">]</span>
             <span class="k">if</span> <span class="s1">&#39;wcs&#39;</span> <span class="ow">in</span> <span class="n">csm_suffix</span><span class="p">:</span>
                 <span class="n">ef_points</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
             <span class="k">else</span><span class="p">:</span>
@@ -175,13 +166,11 @@
                                        <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">360</span><span class="p">,</span> <span class="n">opacity</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
 
 
-
-
 <span class="c1"># Visualizing a coordination geometry</span>
 <div class="viewcode-block" id="visualize"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.scripts_utils.html#pymatgen.analysis.chemenv.utils.scripts_utils.visualize">[docs]</a><span class="k">def</span> <span class="nf">visualize</span><span class="p">(</span><span class="n">cg</span><span class="p">,</span> <span class="n">zoom</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vis</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">myfactor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">view_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">faces_color_override</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">vis</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">vis</span> <span class="o">=</span> <span class="n">StructureVis</span><span class="p">(</span><span class="n">show_polyhedron</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">show_unit_cell</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">myspecies</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;O&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">cg</span><span class="o">.</span><span class="n">coordination_number</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">myspecies</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;O&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">cg</span><span class="o">.</span><span class="n">coordination_number</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">myspecies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Cu&quot;</span>
     <span class="n">coords</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span> <span class="o">+</span> <span class="n">cg</span><span class="o">.</span><span class="n">central_site</span><span class="p">]</span>
 
@@ -221,7 +210,7 @@
     <span class="n">lgf</span><span class="o">.</span><span class="n">setup_parameters</span><span class="p">()</span>
     <span class="n">allcg</span> <span class="o">=</span> <span class="n">AllCoordinationGeometries</span><span class="p">()</span>
     <span class="n">strategy_class</span> <span class="o">=</span> <span class="n">strategies_class_lookup</span><span class="p">[</span><span class="n">chemenv_configuration</span><span class="o">.</span><span class="n">package_options</span><span class="p">[</span><span class="s1">&#39;default_strategy&#39;</span><span class="p">][</span><span class="s1">&#39;strategy&#39;</span><span class="p">]]</span>
-    <span class="c1">#TODO: Add the possibility to change the parameters and save them in the chemenv_configuration</span>
+    <span class="c1"># TODO: Add the possibility to change the parameters and save them in the chemenv_configuration</span>
     <span class="n">default_strategy</span> <span class="o">=</span> <span class="n">strategy_class</span><span class="p">()</span>
     <span class="n">default_strategy</span><span class="o">.</span><span class="n">setup_options</span><span class="p">(</span><span class="n">chemenv_configuration</span><span class="o">.</span><span class="n">package_options</span><span class="p">[</span><span class="s1">&#39;default_strategy&#39;</span><span class="p">][</span><span class="s1">&#39;strategy_options&#39;</span><span class="p">])</span>
     <span class="n">max_dist_factor</span> <span class="o">=</span> <span class="n">chemenv_configuration</span><span class="o">.</span><span class="n">package_options</span><span class="p">[</span><span class="s1">&#39;default_max_distance_factor&#39;</span><span class="p">]</span>
@@ -285,26 +274,23 @@
                     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ces</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                         <span class="k">continue</span>
                     <span class="n">comp</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">species</span>
-                    <span class="c1">#ce = strategy.get_site_coordination_environment(site)</span>
+                    <span class="c1"># ce = strategy.get_site_coordination_environment(site)</span>
                     <span class="k">if</span> <span class="n">strategy</span><span class="o">.</span><span class="n">uniquely_determines_coordination_environments</span><span class="p">:</span>
                         <span class="n">ce</span> <span class="o">=</span> <span class="n">ces</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                         <span class="k">if</span> <span class="n">ce</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                             <span class="k">continue</span>
                         <span class="n">thecg</span> <span class="o">=</span> <span class="n">allcg</span><span class="o">.</span><span class="n">get_geometry_from_mp_symbol</span><span class="p">(</span><span class="n">ce</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-                        <span class="n">mystring</span> <span class="o">=</span> <span class="s1">&#39;Environment for site #</span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> (</span><span class="si">{}</span><span class="s1">) : </span><span class="si">{}</span><span class="s1"> (</span><span class="si">{}</span><span class="s1">)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">isite</span><span class="p">),</span>
-                                                                                         <span class="n">comp</span><span class="o">.</span><span class="n">get_reduced_formula_and_factor</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span>
-                                                                                         <span class="nb">str</span><span class="p">(</span><span class="n">comp</span><span class="p">),</span>
-                                                                                         <span class="n">thecg</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-                                                                                         <span class="n">ce</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                        <span class="n">mystring</span> <span class="o">=</span> <span class="s1">&#39;Environment for site #</span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> (</span><span class="si">{}</span><span class="s1">) : </span><span class="si">{}</span><span class="s1"> (</span><span class="si">{}</span><span class="s1">)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="nb">str</span><span class="p">(</span><span class="n">isite</span><span class="p">),</span> <span class="n">comp</span><span class="o">.</span><span class="n">get_reduced_formula_and_factor</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span>
+                            <span class="nb">str</span><span class="p">(</span><span class="n">comp</span><span class="p">),</span> <span class="n">thecg</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">ce</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="n">mystring</span> <span class="o">=</span> <span class="s1">&#39;Environments for site #</span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> (</span><span class="si">{}</span><span class="s1">) : </span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">isite</span><span class="p">),</span>
-                                                                                   <span class="n">comp</span><span class="o">.</span><span class="n">get_reduced_formula_and_factor</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span>
-                                                                                   <span class="nb">str</span><span class="p">(</span><span class="n">comp</span><span class="p">))</span>
+                        <span class="n">mystring</span> <span class="o">=</span> <span class="s1">&#39;Environments for site #</span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> (</span><span class="si">{}</span><span class="s1">) : </span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="nb">str</span><span class="p">(</span><span class="n">isite</span><span class="p">),</span> <span class="n">comp</span><span class="o">.</span><span class="n">get_reduced_formula_and_factor</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">comp</span><span class="p">))</span>
                         <span class="k">for</span> <span class="n">ce</span> <span class="ow">in</span> <span class="n">ces</span><span class="p">:</span>
                             <span class="n">cg</span> <span class="o">=</span> <span class="n">allcg</span><span class="o">.</span><span class="n">get_geometry_from_mp_symbol</span><span class="p">(</span><span class="n">ce</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
                             <span class="n">csm</span> <span class="o">=</span> <span class="n">ce</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;other_symmetry_measures&#39;</span><span class="p">][</span><span class="s1">&#39;csm_wcs_ctwcc&#39;</span><span class="p">]</span>
                             <span class="n">mystring</span> <span class="o">+=</span> <span class="s1">&#39; - </span><span class="si">{}</span><span class="s1"> (</span><span class="si">{}</span><span class="s1">): </span><span class="si">{:.2f}</span><span class="s1"> % (csm : </span><span class="si">{:2f}</span><span class="s1">)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cg</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">cg</span><span class="o">.</span><span class="n">mp_symbol</span><span class="p">,</span>
-                                                                                      <span class="mf">100.0</span><span class="o">*</span><span class="n">ce</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                                                                                      <span class="mf">100.0</span> <span class="o">*</span> <span class="n">ce</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
                                                                                       <span class="n">csm</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">test</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">strategy</span><span class="o">.</span><span class="n">uniquely_determines_coordination_environments</span><span class="p">:</span>
                         <span class="k">if</span> <span class="n">thecg</span><span class="o">.</span><span class="n">mp_symbol</span> <span class="o">!=</span> <span class="n">UNCLEAR_ENVIRONMENT_SYMBOL</span><span class="p">:</span>
@@ -316,20 +302,21 @@
                     <span class="nb">print</span><span class="p">(</span><span class="n">mystring</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">test</span> <span class="o">==</span> <span class="s1">&#39;g&#39;</span><span class="p">:</span>
                 <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-                    <span class="n">test</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Enter index of site(s) (e.g. 0 1 2, separated by spaces) for which you want to see the grid of parameters : &#39;</span><span class="p">)</span>
+                    <span class="n">test</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span>
+                        <span class="s1">&#39;Enter index of site(s) (e.g. 0 1 2, separated by spaces) for which you want to see the grid &#39;</span>
+                        <span class="s1">&#39;of parameters : &#39;</span><span class="p">)</span>
                     <span class="k">try</span><span class="p">:</span>
-                         <span class="n">indices</span><span class="o">=</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">test</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
-                         <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">indices</span><span class="p">))</span>
-                         <span class="k">for</span> <span class="n">isite</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">:</span>
-                             <span class="k">if</span> <span class="n">isite</span> <span class="o">&lt;</span><span class="mi">0</span><span class="p">:</span>
-                                 <span class="k">raise</span> <span class="ne">IndexError</span>
-                             <span class="n">se</span><span class="o">.</span><span class="n">plot_environments</span><span class="p">(</span><span class="n">isite</span><span class="p">,</span> <span class="n">additional_condition</span><span class="o">=</span><span class="n">se</span><span class="o">.</span><span class="n">AC</span><span class="o">.</span><span class="n">ONLY_ACB</span><span class="p">)</span>
-                         <span class="k">break</span>
+                        <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">test</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">indices</span><span class="p">))</span>
+                        <span class="k">for</span> <span class="n">isite</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">isite</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                                <span class="k">raise</span> <span class="ne">IndexError</span>
+                            <span class="n">se</span><span class="o">.</span><span class="n">plot_environments</span><span class="p">(</span><span class="n">isite</span><span class="p">,</span> <span class="n">additional_condition</span><span class="o">=</span><span class="n">se</span><span class="o">.</span><span class="n">AC</span><span class="o">.</span><span class="n">ONLY_ACB</span><span class="p">)</span>
+                        <span class="k">break</span>
                     <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;This is not a valid site&#39;</span><span class="p">)</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;This is not a valid site&#39;</span><span class="p">)</span>
                     <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
-                         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;This site is out of the site range&#39;</span><span class="p">)</span>
-
+                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;This site is out of the site range&#39;</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">no_vis</span><span class="p">:</span>
                 <span class="n">test</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Go to next structure ? (&quot;y&quot; to do so)&#39;</span><span class="p">)</span>
@@ -347,10 +334,10 @@
                             <span class="k">for</span> <span class="n">i0</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">nns</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
                                 <span class="k">for</span> <span class="n">i1</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">nns</span><span class="p">[</span><span class="mi">1</span><span class="p">])):</span>
                                     <span class="k">for</span> <span class="n">i2</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">nns</span><span class="p">[</span><span class="mi">2</span><span class="p">])):</span>
-                                        <span class="n">mydeltas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="o">*</span><span class="n">i0</span><span class="p">,</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">i1</span><span class="p">,</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">i2</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">))</span>
+                                        <span class="n">mydeltas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span> <span class="o">*</span> <span class="n">i0</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">*</span> <span class="n">i1</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">*</span> <span class="n">i2</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">))</span>
                             <span class="k">break</span>
 
-                        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span><span class="ne">IndexError</span><span class="p">):</span>
+                        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">):</span>
                             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Not a valid multiplicity&#39;</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">mydeltas</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)]</span>
@@ -411,7 +398,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -419,7 +406,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

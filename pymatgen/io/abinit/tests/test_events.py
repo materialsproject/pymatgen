@@ -7,7 +7,8 @@ from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinit import events
 
 _test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
-                        'test_files', "abinit")
+                         'test_files', "abinit")
+
 
 def ref_file(filename):
     return os.path.join(_test_dir, filename)
@@ -30,8 +31,8 @@ class EventsParserTest(PymatgenTest):
         assert (report.num_errors, report.num_warnings, report.num_comments) == (0, 0, 0)
         assert report.run_completed
         fmt = "%a %b %d %H:%M:%S %Y"
-        assert report.start_datetime ==  datetime.datetime.strptime("Fri Mar 13 20:08:51 2015", fmt)
-        assert report.end_datetime ==  datetime.datetime.strptime("Fri Mar 13 20:08:57 2015", fmt)
+        assert report.start_datetime == datetime.datetime.strptime("Fri Mar 13 20:08:51 2015", fmt)
+        assert report.end_datetime == datetime.datetime.strptime("Fri Mar 13 20:08:57 2015", fmt)
 
         # Analyze nscf log
         report = events.EventsParser().parse(ref_file("mgb2_nscf.log"), verbose=0)
@@ -39,15 +40,15 @@ class EventsParserTest(PymatgenTest):
         print(report)
         self.assertMSONable(report)
 
-        #d = report.as_dict()
-        #print(d)
-        #assert 0
+        # d = report.as_dict()
+        # print(d)
+        # assert 0
 
         for i, warning in enumerate(report.warnings):
             print(warning)
             assert warning == report[i]
             # Msonable is conflict with YAMLObject
-            #self.assertMSONable(warning, check_inst=False)
+            # self.assertMSONable(warning, check_inst=False)
 
         report = parser.report_exception(ref_file("mgb2_scf.log"), "exception")
         assert len(report.errors) == 1
@@ -63,7 +64,7 @@ class EventsParserTest(PymatgenTest):
         # The event parser should have registered a AbinitYamlWarning and an AbinitYamlError
         assert len(report.get_events_of_type(events.AbinitYamlWarning)) == 1
         assert len(report.get_events_of_type(events.AbinitYamlError)) == 1
-        #assert 0
+        # assert 0
 
 
 class EventHandlersTest(PymatgenTest):
@@ -83,4 +84,5 @@ class EventHandlersTest(PymatgenTest):
 
 if __name__ == '__main__':
     import unittest
+
     unittest.main()

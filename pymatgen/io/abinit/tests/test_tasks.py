@@ -8,13 +8,13 @@ from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinit.tasks import *
 from pymatgen.io.abinit.tasks import TaskPolicy, ParalHints
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", 
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files', "abinit")
 
 
 class TaskManagerTest(PymatgenTest):
     MANAGER = """\
-#policy:
+# policy:
 #    autoparal: 1
 qadapters:
     - priority: 1
@@ -42,16 +42,17 @@ qadapters:
             LD_LIBRARY_PATH: /home/user/NAPS/intel13/lib:$LD_LIBRARY_PATH
         mpi_runner: mpirun
 
-# Connection to the MongoDb database (optional) 
+# Connection to the MongoDb database (optional)
 db_connector:
     enabled: no
     database: abinit
     collection: test
-    #host: 0.0.0.0 
-    #port: 8080 
+    #host: 0.0.0.0
+    #port: 8080
     #user: gmatteo
     #password: helloworld
 """
+
     def test_base(self):
         """
         Simple unit tests for Qadapter subclasses.
@@ -84,9 +85,8 @@ db_connector:
 class ParalHintsTest(PymatgenTest):
     def test_base(self):
         """Testing ParalHints."""
-        s = \
-"""--- !Autoparal
-#Autoparal section for Sigma runs.
+        s = """--- !Autoparal
+# Autoparal section for Sigma runs.
 info:
     autoparal: 1
     max_ncpus: 4
@@ -135,49 +135,49 @@ configurations:
         # Test as_dict, from_dict
         ParalHints.from_dict(confs.as_dict())
 
-        # MG: Disabled after refactoring. 
+        # MG: Disabled after refactoring.
         # TODO: Write new units tests
         # Optimize speedup with ncpus <= max_ncpus
-        #policy = TaskPolicy(autoparal=1, max_ncpus=3)
-        #optimal = confs.select_optimal_conf(policy)
-        #aequal(optimal.num_cores, 3)
+        # policy = TaskPolicy(autoparal=1, max_ncpus=3)
+        # optimal = confs.select_optimal_conf(policy)
+        # a equal(optimal.num_cores, 3)
 
         # Optimize speedup with ncpus <= max_ncpus and condition on efficiency.
-        #policy = TaskPolicy(autoparal=1, max_ncpus=4, condition={"efficiency": {"$ge": 0.9}})
-        #optimal = confs.select_optimal_conf(policy)
-        #aequal(optimal.num_cores, 2)
+        # policy = TaskPolicy(autoparal=1, max_ncpus=4, condition={"efficiency": {"$ge": 0.9}})
+        # optimal = confs.select_optimal_conf(policy)
+        # aequal(optimal.num_cores, 2)
 
         # Optimize speedup with ncpus <= max_ncpus and conditions on efficiency and mem_per_cpu.
-        #policy = TaskPolicy(autoparal=1, mode="default", max_ncpus=4, 
+        # policy = TaskPolicy(autoparal=1, mode="default", max_ncpus=4,
         #                    condition={"$and": [{"efficiency": {"$ge": 0.8}}, {"mem_per_cpu": {"$le": 7.0}}]})
-        #optimal = confs.select_optimal_conf(policy)
-        #aequal(optimal.num_cores, 3)
+        # optimal = confs.select_optimal_conf(policy)
+        # aequal(optimal.num_cores, 3)
 
         # If no configuration satisfies the constraints, we return the conf with the highest speedup.
-        #policy = TaskPolicy(autoparal=1, max_ncpus=4, condition={"efficiency": {"$ge": 100}})
-        #optimal = confs.select_optimal_conf(policy)
-        #aequal(optimal.num_cores, 4)
+        # policy = TaskPolicy(autoparal=1, max_ncpus=4, condition={"efficiency": {"$ge": 100}})
+        # optimal = confs.select_optimal_conf(policy)
+        # aequal(optimal.num_cores, 4)
 
         # Wrong conditions --> dump a warning and return the conf with the highest speedup.
-        #policy = TaskPolicy(autoparal=1, max_ncpus=4, condition={"foobar": {"$ge": 100}})
-        #optimal = confs.select_optimal_conf(policy)
-        #aequal(optimal.num_cores, 4)
+        # policy = TaskPolicy(autoparal=1, max_ncpus=4, condition={"foobar": {"$ge": 100}})
+        # optimal = confs.select_optimal_conf(policy)
+        # aequal(optimal.num_cores, 4)
 
         # Select configuration with npfft == 1
-        #policy = TaskPolicy(autoparal=1, max_ncpus=4, vars_condition={"npfft": {"$eq": 3}})
-        #optimal = confs.select_optimal_conf(policy)
-        #aequal(optimal.num_cores, 3)
-        #aequal(optimal.vars["npfft"],  3)
+        # policy = TaskPolicy(autoparal=1, max_ncpus=4, vars_condition={"npfft": {"$eq": 3}})
+        # optimal = confs.select_optimal_conf(policy)
+        # aequal(optimal.num_cores, 3)
+        # aequal(optimal.vars["npfft"],  3)
 
         # Select configuration with npfft == 2 and npkpt == 1
-        #policy = TaskPolicy(autoparal=1, max_ncpus=4,
+        # policy = TaskPolicy(autoparal=1, max_ncpus=4,
         #                    vars_condition={"$and": [{"npfft": {"$eq": 2}}, {"npkpt": {"$eq": 1}}]})
-        #optimal = confs.select_optimal_conf(policy)
-        #aequal(optimal.num_cores, 2)
-        #aequal(optimal.vars["npfft"],  2)
-        #aequal(optimal.vars["npkpt"],  1)
-        #assert 0
-        
+        # optimal = confs.select_optimal_conf(policy)
+        # aequal(optimal.num_cores, 2)
+        # aequal(optimal.vars["npfft"],  2)
+        # aequal(optimal.vars["npkpt"],  1)
+        # assert 0
+
 
 if __name__ == '__main__':
     import unittest

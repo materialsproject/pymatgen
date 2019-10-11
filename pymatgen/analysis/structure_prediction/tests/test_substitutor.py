@@ -31,17 +31,15 @@ class SubstitutorTest(PymatgenTest):
 
     def setUp(self):
         self.s = Substitutor(threshold=1e-3, lambda_table=get_table(),
-                             alpha= -5.)
+                             alpha=-5.)
 
     def test_substitutor(self):
         s_list = [Specie('O', -2), Specie('Li', 1)]
         subs = self.s.pred_from_list(s_list)
-        self.assertEqual(len(subs), 4
-                         , 'incorrect number of substitutions')
+        self.assertEqual(len(subs), 4, 'incorrect number of substitutions')
         c = Composition({'O2-': 1, 'Li1+': 2})
         subs = self.s.pred_from_comp(c)
-        self.assertEqual(len(subs), 4
-                         , 'incorrect number of substitutions')
+        self.assertEqual(len(subs), 4, 'incorrect number of substitutions')
 
         structures = [{"structure": PymatgenTest.get_structure("Li2O"),
                        "id": "pmgtest"}]

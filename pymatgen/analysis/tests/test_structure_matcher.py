@@ -352,15 +352,15 @@ class StructureMatcherTest(PymatgenTest):
         sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5,
                               primitive_cell=True, scale=True,
                               attempt_supercell=False)
-        l1 = Lattice.from_lengths_and_angles([1, 2.1, 1.9], [90, 89, 91])
-        l2 = Lattice.from_lengths_and_angles([1.1, 2, 2], [89, 91, 90])
+        l1 = Lattice.from_parameters(1, 2.1, 1.9, 90, 89, 91)
+        l2 = Lattice.from_parameters(1.1, 2, 2, 89, 91, 90)
         s1 = Structure(l1, [], [])
         s2 = Structure(l2, [], [])
 
         lattices = list(sm._get_lattices(s=s1, target_lattice=s2.lattice))
         self.assertEqual(len(lattices), 16)
 
-        l3 = Lattice.from_lengths_and_angles([1.1, 2, 20], [89, 91, 90])
+        l3 = Lattice.from_parameters(1.1, 2, 20, 89, 91, 90)
         s3 = Structure(l3, [], [])
 
         lattices = list(sm._get_lattices(s=s1, target_lattice=s3.lattice))
@@ -815,7 +815,8 @@ class PointDefectComparatorTest(PymatgenTest):
         ))
 
         # test symmorphic interstitial matching
-        # (using set generated from Voronoi generator, with same sublattice given by saturatated_interstitial_structure function)
+        # (using set generated from Voronoi generator, with same sublattice given by saturatated_
+        # interstitial_structure function)
         inter_H_sublattice1_set1 = PeriodicSite('H', [0., 0.75, 0.25],
                                                 s_struc.lattice)
         inter_H_sublattice1_set2 = PeriodicSite('H', [0., 0.75, 0.75],
@@ -854,7 +855,8 @@ class PointDefectComparatorTest(PymatgenTest):
             ))
 
         # test non-symmorphic interstitial matching
-        # (using set generated from Voronoi generator, with same sublattice given by saturatated_interstitial_structure function)
+        # (using set generated from Voronoi generator, with same sublattice given by
+        # saturatated_interstitial_structure function)
         ns_struc = Structure.from_file(os.path.join(test_dir, "CuCl.cif"))
         ns_inter_H_sublattice1_set1 = PeriodicSite('H', [0.06924513, 0.06308959,
                                                          0.86766528],

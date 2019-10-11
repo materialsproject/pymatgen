@@ -7,6 +7,7 @@ import unittest
 
 from pymatgen.io.abinit.launcher import ScriptEditor
 
+
 class ScriptEditorTest(unittest.TestCase):
 
     def test_base(self):
@@ -19,7 +20,6 @@ class ScriptEditorTest(unittest.TestCase):
         se.declare_vars({"FOO1": "BAR1"})
         se.load_modules(["module1", "module2"])
         print(se.get_script_str())
-
 
 
 if __name__ == '__main__':
