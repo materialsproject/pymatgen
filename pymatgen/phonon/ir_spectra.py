@@ -19,7 +19,7 @@ https://github.com/abinit/abipy
 where it was originally done by Guido Petretto and Matteo Giantomassi
 """
 
-__author__ = "Henrique Miranda, Guido Pettreto, Matteo Giantomassi"
+__author__ = "Henrique Miranda, Guido Petretto, Matteo Giantomassi"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Henrique Miranda"
