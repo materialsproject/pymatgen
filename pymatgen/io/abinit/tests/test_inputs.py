@@ -9,18 +9,21 @@ import numpy as np
 
 from pymatgen import Structure
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.abinit.inputs import (BasicAbinitInput, BasicMultiDataset, calc_shiftk, 
-        num_valence_electrons, ShiftMode, gs_input, ebands_input, ion_ioncell_relax_input)
+from pymatgen.io.abinit.inputs import (BasicAbinitInput, BasicMultiDataset, calc_shiftk,
+                                       num_valence_electrons, ShiftMode, gs_input, ebands_input,
+                                       ion_ioncell_relax_input)
 
 _test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                          'test_files', "abinit")
 
 
 def abiref_file(filename):
+    """Return absolute path to filename in ~pymatgen/test_files/abinit"""
     return os.path.join(_test_dir, filename)
 
 
 def abiref_files(*filenames):
+    """Return list of absolute paths to filenames in ~pymatgen/test_files/abinit"""
     return [os.path.join(_test_dir, f) for f in filenames]
 
 
@@ -31,25 +34,22 @@ class AbinitInputTestCase(PymatgenTest):
         """Testing BasicAbinitInput API."""
         # Build simple input with structure and pseudos
         unit_cell = {
-            "acell": 3*[10.217],
+            "acell": 3 * [10.217],
             'rprim': [[.0, .5, .5],
                       [.5, .0, .5],
                       [.5, .5, .0]],
             'ntypat': 1,
-            'znucl': [14,],
+            'znucl': [14],
             'natom': 2,
             'typat': [1, 1],
             'xred': [[.0, .0, .0],
-                     [.25,.25,.25]]
+                     [.25, .25, .25]]
         }
 
         inp = BasicAbinitInput(structure=unit_cell, pseudos=abiref_file("14si.pspnc"))
 
-        shiftk = [[ 0.5,  0.5,  0.5], [ 0.5,  0. ,  0. ], [ 0. ,  0.5,  0. ], [ 0. ,  0. ,  0.5]]
-        #self.assertEqual(si.calc_ngkpt(nksmall=2), [2, 2, 2])
+        shiftk = [[0.5, 0.5, 0.5], [0.5,  0., 0.], [0., 0.5, 0.], [0., 0., 0.5]]
         self.assertArrayEqual(calc_shiftk(inp.structure), shiftk)
-        #self.assertEqual(ksamp.ngkpt, [10, 10, 10])
-        #self.assertEqual(ksamp.shiftk, shiftk)
         assert num_valence_electrons(inp.structure, inp.pseudos) == 8
 
         repr(inp), str(inp)
@@ -60,7 +60,7 @@ class AbinitInputTestCase(PymatgenTest):
         assert inp.comment == "This is a comment"
         assert inp.isnc and not inp.ispaw
 
-        inp["ecut" ] = 1
+        inp["ecut"] = 1
         assert inp.get("ecut") == 1 and len(inp) == 1 and "ecut" in inp.keys() and "foo" not in inp
 
         # Test to_string
@@ -150,8 +150,8 @@ class AbinitInputTestCase(PymatgenTest):
         assert inp["kptopt"] == 1 and inp["nshiftk"] == 1
         assert np.all(inp["shiftk"] == 0)
 
-        #inp.set_kpath(ndivsm=3, kptbounds=None)
-        #assert inp["ndivsm"] == 3 and inp["iscf"] == -2 and len(inp["kptbounds"]) == 12
+        # inp.set_kpath(ndivsm=3, kptbounds=None)
+        # assert inp["ndivsm"] == 3 and inp["iscf"] == -2 and len(inp["kptbounds"]) == 12
 
 
 class TestMultiDataset(PymatgenTest):
@@ -161,7 +161,7 @@ class TestMultiDataset(PymatgenTest):
         """Testing BasicMultiDataset API."""
         structure = Structure.from_file(abiref_file("si.cif"))
         pseudo = abiref_file("14si.pspnc")
-        pseudo_dir = os.path.dirname(pseudo) #.filepath)
+        pseudo_dir = os.path.dirname(pseudo)
         multi = BasicMultiDataset(structure=structure, pseudos=pseudo)
         with self.assertRaises(ValueError):
             BasicMultiDataset(structure=structure, pseudos=pseudo, ndtset=-1)
@@ -175,7 +175,7 @@ class TestMultiDataset(PymatgenTest):
 
         multi.addnew_from(0)
         assert multi.ndtset == 2 and multi[0] is not multi[1]
-        assert multi[0].structure ==  multi[1].structure
+        assert multi[0].structure == multi[1].structure
         assert multi[0].structure is not multi[1].structure
 
         multi.set_vars(ecut=2)
@@ -205,7 +205,8 @@ class TestMultiDataset(PymatgenTest):
 
         split = multi.split_datasets()
         assert len(split) == 2 and all(split[i] == multi[i] for i in range(multi.ndtset))
-        repr(multi); str(multi)
+        repr(multi)
+        str(multi)
         assert multi.to_string()
 
         tmpdir = tempfile.mkdtemp()
@@ -231,7 +232,7 @@ class TestMultiDataset(PymatgenTest):
 
         # Compatible with Pickle and MSONable?
         self.serialize_with_pickle(multi, test_eq=False)
-        #self.assertMSONable(multi)
+        # self.assertMSONable(multi)
 
 
 class ShiftModeTest(PymatgenTest):

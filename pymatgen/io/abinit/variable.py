@@ -1,5 +1,3 @@
-from __future__ import print_function, division, absolute_import #, unicode_literals
-
 import string
 import warnings
 import collections
@@ -19,11 +17,11 @@ _INTERNAL_DATASET_INDICES = ('__s', '__i', '__a')
 _SPECIAL_CONVERSION = zip(_INTERNAL_DATASET_INDICES, _SPECIAL_DATASET_INDICES)
 
 _UNITS = {
-    'bohr' : 1.0,
-    'angstrom' : 1.8897261328856432,
-    'hartree' : 1.0,
-    'Ha' : 1.0,
-    'eV' : 0.03674932539796232,
+    'bohr': 1.0,
+    'angstrom': 1.8897261328856432,
+    'hartree': 1.0,
+    'Ha': 1.0,
+    'eV': 0.03674932539796232,
 }
 
 
@@ -131,7 +129,7 @@ class InputVariable(object):
 
         try:
             fval = float(val)
-        except:
+        except Exception:
             return sval
 
         if fval == 0 or (abs(fval) > 1e-3 and abs(fval) < 1e4):
@@ -162,7 +160,7 @@ class InputVariable(object):
                 for v in lvals:
                     float(v)
                 type_all = float
-            except:
+            except Exception:
                 type_all = str
 
         # Determine the format

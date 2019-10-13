@@ -152,7 +152,7 @@ class ShiftMode(Enum):
     def from_object(cls, obj):
         """
         Returns an instance of ShiftMode based on the type of object passed. Converts strings to ShiftMode depending
-        on the iniital letter of the string. G for GammaCenterd, M for MonkhorstPack, 
+        on the iniital letter of the string. G for GammaCenterd, M for MonkhorstPack,
         S for Symmetric, O for OneSymmetric.
         Case insensitive.
         """
@@ -193,7 +193,7 @@ def _find_ecut_pawecutdg(ecut, pawecutdg, pseudos, accuracy):
 
 def _find_scf_nband(structure, pseudos, electrons, spinat=None):
     """Find the value of ``nband``."""
-    if electrons.nband is not None: 
+    if electrons.nband is not None:
         return electrons.nband
 
     nsppol, smearing = electrons.nsppol, electrons.smearing
@@ -274,9 +274,9 @@ def gs_input(structure, pseudos,
         scf_algorithm: Algorithm used for solving of the SCF cycle.
     """
     multi = ebands_input(structure, pseudos,
-                 kppa=kppa, ndivsm=0,
-                 ecut=ecut, pawecutdg=pawecutdg, scf_nband=scf_nband, accuracy=accuracy, spin_mode=spin_mode,
-                 smearing=smearing, charge=charge, scf_algorithm=scf_algorithm)
+                         kppa=kppa, ndivsm=0,
+                         ecut=ecut, pawecutdg=pawecutdg, scf_nband=scf_nband, accuracy=accuracy, spin_mode=spin_mode,
+                         smearing=smearing, charge=charge, scf_algorithm=scf_algorithm)
 
     return multi[0]
 
@@ -330,7 +330,7 @@ def ebands_input(structure, pseudos,
     multi[0].set_vars(scf_ksampling.to_abivars())
     multi[0].set_vars(scf_electrons.to_abivars())
     multi[0].set_vars(_stopping_criterion("scf", accuracy))
-    if ndivsm == 0: 
+    if ndivsm == 0:
         return multi
 
     # Band structure calculation.
@@ -480,7 +480,7 @@ def calc_shiftk(structure, symprec=0.01, angle_tolerance=5):
             elif "I" in spg_symbol:
                 # BCC
                 shiftk = [0.25,  0.25,  0.25,
-                         -0.25, -0.25, -0.25]
+                          -0.25, -0.25, -0.25]
                 # shiftk = [0.5, 0.5, 05])
 
         elif lattice_type == "hexagonal":
@@ -501,7 +501,7 @@ def calc_shiftk(structure, symprec=0.01, angle_tolerance=5):
             if "I" in spg_symbol:
                 # BCT
                 shiftk = [0.25,  0.25,  0.25,
-                         -0.25, -0.25, -0.25]
+                          -0.25, -0.25, -0.25]
 
     if shiftk is None:
         # Use default value.
@@ -558,7 +558,7 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
         Write the input file to file to ``filepath``.
         """
         dirname = os.path.dirname(os.path.abspath(filepath))
-        if not os.path.exists(dirname): 
+        if not os.path.exists(dirname):
             os.makedirs(dirname)
 
         # Write the input file.
@@ -697,7 +697,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         except ValueError as exc:
             raise self.Error(str(exc))
 
-        if comment is not None: 
+        if comment is not None:
             self.set_comment(comment)
 
     @pmg_serialize
@@ -708,7 +708,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         # Use a list of (key, value) to serialize the OrderedDict
         abi_args = []
         for key, value in self.items():
-            if isinstance(value, np.ndarray): 
+            if isinstance(value, np.ndarray):
                 value = value.tolist()
             abi_args.append((key, value))
 
@@ -773,7 +773,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         lines = []
         app = lines.append
 
-        if self.comment: 
+        if self.comment:
             app("# " + self.comment.replace("\n", "\n#"))
 
         post = post if post is not None else ""
@@ -881,7 +881,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         #    from .kpoints import KpointList
         #    return KpointList(self.reciprocal_lattice, frac_coords, weights=None, names=names)
 
-        if kptbounds is None: 
+        if kptbounds is None:
             kptbounds = self.structure.calc_kptbounds()
         kptbounds = np.reshape(kptbounds, (-1, 3))
         # self.pop_vars(["ngkpt", "shiftk"]) ??
@@ -1103,7 +1103,9 @@ class BasicMultiDataset(object):
 
             return results
 
-        if isattr: on_all = on_all()
+        if isattr:
+            on_all = on_all()
+
         return on_all
 
     def __add__(self, other):
@@ -1177,7 +1179,7 @@ class BasicMultiDataset(object):
 
             def has_same_variable(kref, vref, other_inp):
                 """True if variable kref is present in other_inp with the same value."""
-                if kref not in other_inp: 
+                if kref not in other_inp:
                     return False
                 otherv = other_inp[kref]
                 return np.array_equal(vref, otherv)
@@ -1216,7 +1218,7 @@ class BasicMultiDataset(object):
 
             for i, inp in enumerate(self):
                 header = "### DATASET %d ###" % (i + 1)
-                is_last = (i==self.ndtset - 1)
+                is_last = i == self.ndtset - 1
                 s = inp.to_string(post=str(i + 1), with_pseudos=is_last and with_pseudos,
                                   with_structure=not has_same_structures, exclude=global_vars)
                 if s:
