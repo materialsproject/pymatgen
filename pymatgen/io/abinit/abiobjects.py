@@ -173,7 +173,6 @@ Received disordered structure with partial occupancies that cannot be converted 
 Please use OrderDisorderedStructureTransformation or EnumerateStructureTransformation
 to build an appropriate supercell from partial occupancies or alternatively use the Virtual Crystal Approximation.""")
 
-
     types_of_specie = structure.types_of_specie
     natom = structure.num_sites
 
