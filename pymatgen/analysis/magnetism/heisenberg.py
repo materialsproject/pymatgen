@@ -611,7 +611,7 @@ class HeisenbergMapper:
                 Only <J> is available. The interaction graph will not tell
                 you much.
                 """
-            warnings.warn(warning_msg)
+            logging.warning(warning_msg)
 
         # J_ij exchange interaction matrix
         for i, node in enumerate(sgraph.graph.nodes):
