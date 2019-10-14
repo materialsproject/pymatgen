@@ -17,8 +17,8 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.composition import Composition
 
 from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.optimization.linear_assignment import LinearAssignment
-from pymatgen.util.coord_cython import pbc_shortest_vectors, is_coord_subset_pbc
+from pymatgen.optimization.linear_assignment import LinearAssignment  # type: ignore
+from pymatgen.util.coord_cython import pbc_shortest_vectors, is_coord_subset_pbc  # type: ignore
 from pymatgen.util.coord import lattice_points_in_supercell
 from pymatgen.analysis.defects.core import Interstitial, \
     Defect, Vacancy, Substitution
@@ -81,6 +81,10 @@ class AbstractComparator(MSONable, metaclass=abc.ABCMeta):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        :param d: Dict representation
+        :return: Comparator.
+        """
         for trans_modules in ['structure_matcher']:
             mod = __import__('pymatgen.analysis.' + trans_modules,
                              globals(), locals(), [d['@class']], 0)
@@ -90,6 +94,9 @@ class AbstractComparator(MSONable, metaclass=abc.ABCMeta):
         raise ValueError("Invalid Comparator dict")
 
     def as_dict(self):
+        """
+        :return: MSONable dict
+        """
         return {"version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
@@ -278,7 +285,10 @@ class OccupancyComparator(AbstractComparator):
             return False
 
     def get_hash(self, composition):
-        # Difficult to define sensible hash
+        """
+        :param composition: Composition.
+        :return: 1. Difficult to define sensible hash
+        """
         return 1
 
 
@@ -325,52 +335,53 @@ class StructureMatcher(MSONable):
                     continue. (This function will search all possible
                     lattices for the smallest average rms displacement
                     between the two structures)
-
-    Args:
-        ltol (float): Fractional length tolerance. Default is 0.2.
-        stol (float): Site tolerance. Defined as the fraction of the
-            average free length per atom := ( V / Nsites ) ** (1/3)
-            Default is 0.3.
-        angle_tol (float): Angle tolerance in degrees. Default is 5 degrees.
-        primitive_cell (bool): If true: input structures will be reduced to
-            primitive cells prior to matching. Default to True.
-        scale (bool): Input structures are scaled to equivalent volume if
-           true; For exact matching, set to False.
-        attempt_supercell (bool): If set to True and number of sites in
-            cells differ after a primitive cell reduction (divisible by an
-            integer) attempts to generate a supercell transformation of the
-            smaller cell which is equivalent to the larger structure.
-        allow_subset (bool): Allow one structure to match to the subset of
-            another structure. Eg. Matching of an ordered structure onto a
-            disordered one, or matching a delithiated to a lithiated
-            structure. This option cannot be combined with
-            attempt_supercell, or with structure grouping.
-        comparator (Comparator): A comparator object implementing an equals
-            method that declares declaring equivalency of sites. Default is
-            SpeciesComparator, which implies rigid species
-            mapping, i.e., Fe2+ only matches Fe2+ and not Fe3+.
-
-            Other comparators are provided, e.g., ElementComparator which
-            matches only the elements and not the species.
-
-            The reason why a comparator object is used instead of
-            supplying a comparison function is that it is not possible to
-            pickle a function, which makes it otherwise difficult to use
-            StructureMatcher with Python's multiprocessing.
-        supercell_size (str): Method to use for determining the size of a
-            supercell (if applicable). Possible values are num_sites,
-            num_atoms, volume, or an element present in both structures.
-        ignored_species (list): A list of ions to be ignored in matching. Useful
-            for matching structures that have similar frameworks except for
-            certain ions, e.g., Li-ion intercalation frameworks. This is more
-            useful than allow_subset because it allows better control over
-            what species are ignored in the matching.
     """
 
     def __init__(self, ltol=0.2, stol=0.3, angle_tol=5, primitive_cell=True,
                  scale=True, attempt_supercell=False, allow_subset=False,
                  comparator=SpeciesComparator(), supercell_size='num_sites',
                  ignored_species=None):
+        """
+        Args:
+            ltol (float): Fractional length tolerance. Default is 0.2.
+            stol (float): Site tolerance. Defined as the fraction of the
+                average free length per atom := ( V / Nsites ) ** (1/3)
+                Default is 0.3.
+            angle_tol (float): Angle tolerance in degrees. Default is 5 degrees.
+            primitive_cell (bool): If true: input structures will be reduced to
+                primitive cells prior to matching. Default to True.
+            scale (bool): Input structures are scaled to equivalent volume if
+               true; For exact matching, set to False.
+            attempt_supercell (bool): If set to True and number of sites in
+                cells differ after a primitive cell reduction (divisible by an
+                integer) attempts to generate a supercell transformation of the
+                smaller cell which is equivalent to the larger structure.
+            allow_subset (bool): Allow one structure to match to the subset of
+                another structure. Eg. Matching of an ordered structure onto a
+                disordered one, or matching a delithiated to a lithiated
+                structure. This option cannot be combined with
+                attempt_supercell, or with structure grouping.
+            comparator (Comparator): A comparator object implementing an equals
+                method that declares declaring equivalency of sites. Default is
+                SpeciesComparator, which implies rigid species
+                mapping, i.e., Fe2+ only matches Fe2+ and not Fe3+.
+
+                Other comparators are provided, e.g., ElementComparator which
+                matches only the elements and not the species.
+
+                The reason why a comparator object is used instead of
+                supplying a comparison function is that it is not possible to
+                pickle a function, which makes it otherwise difficult to use
+                StructureMatcher with Python's multiprocessing.
+            supercell_size (str): Method to use for determining the size of a
+                supercell (if applicable). Possible values are num_sites,
+                num_atoms, volume, or an element present in both structures.
+            ignored_species (list): A list of ions to be ignored in matching. Useful
+                for matching structures that have similar frameworks except for
+                certain ions, e.g., Li-ion intercalation frameworks. This is more
+                useful than allow_subset because it allows better control over
+                what species are ignored in the matching.
+        """
 
         self.ltol = ltol
         self.stol = stol
@@ -436,9 +447,9 @@ class StructureMatcher(MSONable):
         """
 
         def av_lat(l1, l2):
-            params = (np.array(l1.lengths_and_angles) +
-                      np.array(l2.lengths_and_angles)) / 2
-            return Lattice.from_lengths_and_angles(*params)
+            params = (np.array(l1.parameters) +
+                      np.array(l2.parameters)) / 2
+            return Lattice.from_parameters(*params)
 
         def sc_generator(s1, s2):
             s2_fc = np.array(s2.frac_coords)
@@ -780,6 +791,9 @@ class StructureMatcher(MSONable):
         return all_groups
 
     def as_dict(self):
+        """
+        :return: MSONable dict
+        """
         return {"version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "comparator": self._comparator.as_dict(),
@@ -791,6 +805,10 @@ class StructureMatcher(MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        :param d: Dict representation
+        :return: StructureMatcher
+        """
         return StructureMatcher(
             ltol=d["ltol"], stol=d["stol"], angle_tol=d["angle_tol"],
             primitive_cell=d["primitive_cell"], scale=d["scale"],
@@ -1117,23 +1135,24 @@ class PointDefectComparator(MSONable):
 
     NOTE: for defect complexes (more than a single defect),
     this comparator will break.
-
-    Args:
-        check_charge (bool): Gives option to check
-            if charges are identical.
-            Default is False (different charged defects can be same)
-        check_primitive_cell (bool): Gives option to
-            compare different supercells of bulk_structure,
-            rather than directly compare supercell sizes
-            Default is False (requires bulk_structure in each defect to be same size)
-        check_lattice_scale (bool): Gives option to scale volumes of
-            structures to each other identical lattice constants.
-            Default is False (enforces same
-            lattice constants in both structures)
     """
 
     def __init__(self, check_charge=False, check_primitive_cell=False,
                  check_lattice_scale=False):
+        """
+        Args:
+            check_charge (bool): Gives option to check
+                if charges are identical.
+                Default is False (different charged defects can be same)
+            check_primitive_cell (bool): Gives option to
+                compare different supercells of bulk_structure,
+                rather than directly compare supercell sizes
+                Default is False (requires bulk_structure in each defect to be same size)
+            check_lattice_scale (bool): Gives option to scale volumes of
+                structures to each other identical lattice constants.
+                Default is False (enforces same
+                lattice constants in both structures)
+        """
         self.check_charge = check_charge
         self.check_primitive_cell = check_primitive_cell
         self.check_lattice_scale = check_lattice_scale

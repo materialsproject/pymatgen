@@ -2,30 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
-import os
-import re
-
-from monty.io import zopen
-from monty.dev import requires
-from monty.tempfile import ScratchDir
-
-from pymatgen.core.structure import Structure, Molecule
-from pymatgen.core.lattice import Lattice
-from pymatgen.io.cssr import Cssr
-from pymatgen.io.xyz import XYZ
-
-try:
-    from zeo.netstorage import AtomNetwork, VoronoiNetwork
-    from zeo.area_volume import volume, surface_area
-    from zeo.cluster import get_nearest_largest_diameter_highaccuracy_vornode, \
-        generate_simplified_highaccuracy_voronoi_network, \
-        prune_voronoi_network_close_node
-
-    zeo_found = True
-except ImportError:
-    zeo_found = False
-
 """
 Module implementing classes and functions to use Zeo++.
 
@@ -68,6 +44,27 @@ b) Go to pymatgen/analysis/defects/tests and run
    is not installed. But there should be no errors.
 """
 
+import os
+import re
+
+from monty.io import zopen
+from monty.dev import requires
+from monty.tempfile import ScratchDir
+
+from pymatgen.core.structure import Structure, Molecule
+from pymatgen.core.lattice import Lattice
+from pymatgen.io.cssr import Cssr
+from pymatgen.io.xyz import XYZ
+
+try:
+    from zeo.netstorage import AtomNetwork
+    from zeo.area_volume import volume, surface_area
+    from zeo.cluster import prune_voronoi_network_close_node
+
+    zeo_found = True
+except ImportError:
+    zeo_found = False
+
 __author__ = "Bharat Medasani"
 __copyright = "Copyright 2013, The Materials Project"
 __version__ = "0.1"
@@ -82,12 +79,13 @@ class ZeoCssr(Cssr):
     input CSSR format. The coordinate system is rorated from xyz to zyx.
     This change aligns the pivot axis of pymatgen (z-axis) to pivot axis
     of Zeo++ (x-axis) for structurural modifications.
-
-    Args:
-        structure: A structure to create ZeoCssr object
     """
 
     def __init__(self, structure):
+        """
+        Args:
+            structure: A structure to create ZeoCssr object
+        """
         super().__init__(structure)
 
     def __str__(self):
@@ -142,7 +140,7 @@ class ZeoCssr(Cssr):
         lengths.insert(0, a)
         alpha = angles.pop(-1)
         angles.insert(0, alpha)
-        latt = Lattice.from_lengths_and_angles(lengths, angles)
+        latt = Lattice.from_parameters(*lengths, *angles)
         sp = []
         coords = []
         chrg = []
@@ -179,12 +177,13 @@ class ZeoVoronoiXYZ(XYZ):
     Class to read Voronoi Nodes from XYZ file written by Zeo++.
     The sites have an additional column representing the voronoi node radius.
     The voronoi node radius is represented by the site property voronoi_radius.
-
-    Args:
-        mol: Input molecule holding the voronoi node information
     """
 
     def __init__(self, mol):
+        """
+        Args:
+            mol: Input molecule holding the voronoi node information
+        """
         super().__init__(mol)
 
     @staticmethod
@@ -300,8 +299,7 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
         coords.append(list(site.coords))
         prop.append(site.properties['voronoi_radius'])
 
-    lattice = Lattice.from_lengths_and_angles(
-        structure.lattice.abc, structure.lattice.angles)
+    lattice = Lattice.from_parameters(structure.lattice.parameters)
     vor_node_struct = Structure(
         lattice, species, coords, coords_are_cartesian=True,
         to_unit_cell=True, site_properties={"voronoi_radius": prop})
@@ -378,8 +376,7 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
         coords.append(list(site.coords))
         prop.append(site.properties['voronoi_radius'])
 
-    lattice = Lattice.from_lengths_and_angles(
-        structure.lattice.abc, structure.lattice.angles)
+    lattice = Lattice.from_parameters(structure.lattice.parameters)
     vor_node_struct = Structure(
         lattice, species, coords, coords_are_cartesian=True,
         to_unit_cell=True, site_properties={"voronoi_radius": prop})

@@ -22,12 +22,14 @@ from pymatgen.util.io_utils import ask_yesno
 
 try:
     import apscheduler
+
     has_apscheduler = True
     has_sched_v3 = apscheduler.version >= "3.0.0"
 except ImportError:
     has_apscheduler = False
 
 import logging
+
 logger = logging.getLogger(__name__)
 
 __all__ = [
@@ -145,7 +147,7 @@ class PyLauncher:
         self.flow = flow
         self.max_njobs_inqueue = kwargs.get("max_njobs_inqueue", 200)
 
-        #self.flow.check_pid_file()
+        # self.flow.check_pid_file()
 
     def single_shot(self):
         """
@@ -254,7 +256,8 @@ class PyFlowScheduler:
         #. Python exceptions
         #. Errors in the ab-initio code
 
-    Python exceptions are easy to detect and are usually due to a bug in the python code or random errors such as IOError.
+    Python exceptions are easy to detect and are usually due to a bug in the python code or random errors such as
+    IOError.
     The set of errors in the ab-initio is much much broader. It includes wrong input data, segmentation
     faults, problems with the resource manager, etc. The flow tries to handle the most common cases
     but there's still a lot of room for improvement.
@@ -279,7 +282,7 @@ class PyFlowScheduler:
     @classmethod
     def autodoc(cls):
         i = cls.__init__.__doc__.index("Args:")
-        return cls.__init__.__doc__[i+5:]
+        return cls.__init__.__doc__[i + 5:]
 
     def __init__(self, **kwargs):
         """
@@ -320,7 +323,7 @@ class PyFlowScheduler:
             hours=kwargs.pop("hours", 0),
             minutes=kwargs.pop("minutes", 0),
             seconds=kwargs.pop("seconds", 0),
-            #start_date=kwargs.pop("start_date", None),
+            # start_date=kwargs.pop("start_date", None),
         )
         if all(not v for v in self.sched_options.values()):
             raise self.Error("Wrong set of options passed to the scheduler.")
@@ -336,7 +339,7 @@ class PyFlowScheduler:
         self.max_num_pyexcs = int(kwargs.pop("max_num_pyexcs", 0))
         self.max_num_abierrs = int(kwargs.pop("max_num_abierrs", 0))
         self.safety_ratio = int(kwargs.pop("safety_ratio", 5))
-        #self.max_etime_s = kwargs.pop("max_etime_s", )
+        # self.max_etime_s = kwargs.pop("max_etime_s", )
         self.max_nlaunches = kwargs.pop("max_nlaunches", -1)
         self.debug = kwargs.pop("debug", 0)
         self.fix_qcritical = as_bool(kwargs.pop("fix_qcritical", False))
@@ -495,29 +498,33 @@ class PyFlowScheduler:
         a lightweight tarball file with inputs and the most important output files
         is created in customer_servide_dir.
         """
-        if self.customer_service_dir is None: return
+        if self.customer_service_dir is None:
+            return
         doit = self.exceptions or not self.flow.all_ok
         doit = True
-        if not doit: return
+        if not doit:
+            return
 
         prefix = os.path.basename(self.flow.workdir) + "_"
 
-        import tempfile, datetime
+        import tempfile
+        import datetime
         suffix = str(datetime.datetime.now()).replace(" ", "-")
         # Remove milliseconds
         i = suffix.index(".")
-        if i != -1: suffix = suffix[:i]
+        if i != -1:
+            suffix = suffix[:i]
         suffix += ".tar.gz"
 
-        #back = os.getcwd()
-        #os.chdir(self.customer_service_dir.path)
+        # back = os.getcwd()
+        # os.chdir(self.customer_service_dir.path)
 
         _, tmpname = tempfile.mkstemp(suffix="_" + suffix, prefix=prefix,
                                       dir=self.customer_service_dir.path, text=False)
 
         print("Dear customer,\n We are about to generate a tarball in\n  %s" % tmpname)
         self.flow.make_light_tarfile(name=tmpname)
-        #os.chdir(back)
+        # os.chdir(back)
 
     def start(self):
         """
@@ -577,7 +584,7 @@ class PyFlowScheduler:
                 work.set_manager(new_manager)
 
         nqjobs = 0
-        if self.contact_resource_manager: # and flow.TaskManager.qadapter.QTYPE == "shell":
+        if self.contact_resource_manager:  # and flow.TaskManager.qadapter.QTYPE == "shell":
             # This call is expensive and therefore it's optional (must be activate in manager.yml)
             nqjobs = flow.get_njobs_in_queue()
             if nqjobs is None:
@@ -607,7 +614,7 @@ class PyFlowScheduler:
         # This check is not perfect, we should make a list of tasks to sumbit
         # and select only the subset so that we don't exceeed mac_ncores_used
         # Many sections of this code should be rewritten.
-        #if self.max_ncores_used is not None and flow.ncores_used > self.max_ncores_used:
+        # if self.max_ncores_used is not None and flow.ncores_used > self.max_ncores_used:
         if self.max_ncores_used is not None and flow.ncores_allocated > self.max_ncores_used:
             print("Cannot exceed max_ncores_used %s" % self.max_ncores_used)
             return
@@ -635,10 +642,12 @@ class PyFlowScheduler:
         # fix only prepares for restarting, and sets to ready
         if self.fix_qcritical:
             nfixed = flow.fix_queue_critical()
-            if nfixed: print("Fixed %d QCritical error(s)" % nfixed)
+            if nfixed:
+                print("Fixed %d QCritical error(s)" % nfixed)
 
         nfixed = flow.fix_abicritical()
-        if nfixed: print("Fixed %d AbiCritical error(s)" % nfixed)
+        if nfixed:
+            print("Fixed %d AbiCritical error(s)" % nfixed)
 
         # update database
         flow.pickle_dump()
@@ -670,11 +679,11 @@ class PyFlowScheduler:
             self.exceptions.append(s)
 
             # This is useful when debugging
-            #try:
+            # try:
             #    print("Exception in callback, will cancel all tasks")
             #    for task in self.flow.iflat_tasks():
             #        task.cancel()
-            #except Exception:
+            # except Exception:
             #    pass
 
             self.shutdown(msg="Exception raised in callback!\n" + s)
@@ -701,7 +710,7 @@ class PyFlowScheduler:
         if delta_etime.total_seconds() > self.num_reminders * self.remindme_s:
             self.num_reminders += 1
             msg = ("Just to remind you that the scheduler with pid %s, flow %s\n has been running for %s " %
-                  (self.pid, self.flow, delta_etime))
+                   (self.pid, self.flow, delta_etime))
             retcode = self.send_email(msg, tag="[REMINDER]")
 
             if retcode:
@@ -709,9 +718,9 @@ class PyFlowScheduler:
                 msg += ("\nThe scheduler tried to send an e-mail to remind the user\n" +
                         " but send_email returned %d. Error is not critical though!" % retcode)
                 print(msg)
-                #err_lines.append(msg)
+                # err_lines.append(msg)
 
-        #if delta_etime.total_seconds() > self.max_etime_s:
+        # if delta_etime.total_seconds() > self.max_etime_s:
         #    err_lines.append("\nExceeded max_etime_s %s. Will shutdown the scheduler and exit" % self.max_etime_s)
 
         # Too many exceptions. Shutdown the scheduler.
@@ -741,7 +750,7 @@ class PyFlowScheduler:
             self.flow.check_status()
 
             g = self.flow.find_deadlocks()
-            #print("deadlocked:\n", g.deadlocked, "\nrunnables:\n", g.runnables, "\nrunning\n", g.running)
+            # print("deadlocked:\n", g.deadlocked, "\nrunnables:\n", g.runnables, "\nrunning\n", g.running)
             print("deadlocked:", len(g.deadlocked), ", runnables:", len(g.runnables), ", running:", len(g.running))
             if g.deadlocked and not g.runnables and not g.running:
                 err_lines.append("No runnable job with deadlocked tasks:\n%s." % str(g.deadlocked))
@@ -824,7 +833,7 @@ class PyFlowScheduler:
             if self.flow.all_ok:
                 print("Calling flow.finalize()...")
                 self.flow.finalize()
-                #print("finalized:", self.flow.finalized)
+                # print("finalized:", self.flow.finalized)
                 if self.rmflow:
                     app("Flow directory will be removed...")
                     try:
@@ -837,15 +846,15 @@ class PyFlowScheduler:
             logger.debug('This should be the shutdown of the scheduler')
 
             # Unschedule all the jobs before calling shutdown
-            #self.sched.print_jobs()
+            # self.sched.print_jobs()
             if not has_sched_v3:
                 for job in self.sched.get_jobs():
                     self.sched.unschedule_job(job)
-            #self.sched.print_jobs()
+            # self.sched.print_jobs()
 
             self.sched.shutdown()
             # Uncomment the line below if shutdown does not work!
-            #os.system("kill -9 %d" % os.getpid())
+            # os.system("kill -9 %d" % os.getpid())
 
     def send_email(self, msg, tag=None):
         """
@@ -901,6 +910,7 @@ def sendmail(subject, text, mailto, sender=None):
     Returns:
         Exit status
     """
+
     def user_at_host():
         from socket import gethostname
         return os.getlogin() + "@" + gethostname()
@@ -911,7 +921,8 @@ def sendmail(subject, text, mailto, sender=None):
     except OSError:
         sender = 'abipyscheduler@youknowwhere'
 
-    if is_string(mailto): mailto = [mailto]
+    if is_string(mailto):
+        mailto = [mailto]
 
     from email.mime.text import MIMEText
     mail = MIMEText(text)
@@ -927,7 +938,8 @@ def sendmail(subject, text, mailto, sender=None):
     import sys
 
     sendmail = which("sendmail")
-    if sendmail is None: return -1
+    if sendmail is None:
+        return -1
     if sys.version_info[0] < 3:
         p = Popen([sendmail, "-t"], stdin=PIPE, stderr=PIPE)
     else:
@@ -977,6 +989,7 @@ class BatchLauncher:
             max_depth: Search in directory only if it is N or fewer levels below top
         """
         from .flows import Flow
+
         def find_pickles(dirtop):
             # Walk through each directory inside path and find the pickle database.
             paths = []
@@ -993,7 +1006,7 @@ class BatchLauncher:
             for p in top:
                 pickle_paths.extend(find_pickles(p))
 
-        #workdir = os.path.join(top, "batch") if workdir is None else workdir
+        # workdir = os.path.join(top, "batch") if workdir is None else workdir
         workdir = "batch" if workdir is None else workdir
         new = cls(workdir, name=name, manager=manager)
 
@@ -1076,7 +1089,7 @@ class BatchLauncher:
             os.makedirs(self.workdir)
         else:
             pass
-            #raise RuntimeError("Directory %s already exists. Use BatchLauncher.pickle_load()" % self.workdir)
+            # raise RuntimeError("Directory %s already exists. Use BatchLauncher.pickle_load()" % self.workdir)
 
         self.name = os.path.basename(self.workdir) if name is None else name
         self.script_file = File(os.path.join(self.workdir, "run.sh"))
@@ -1106,8 +1119,10 @@ class BatchLauncher:
             self.set_timelimit(36000)
 
         # Initialize list of flows.
-        if flows is None: flows = []
-        if not isinstance(flows, (list, tuple)): flows = [flows]
+        if flows is None:
+            flows = []
+        if not isinstance(flows, (list, tuple)):
+            flows = [flows]
         self.flows = flows
 
     def set_timelimit(self, timelimit):
@@ -1155,12 +1170,12 @@ class BatchLauncher:
 
         flow.check_status(show=False)
 
-        #if flow.all_ok:
+        # if flow.all_ok:
         #    print("flow.all_ok: Ignoring %s" % flow)
         #    return 0
 
         self.flows.append(flow)
-        #print("Flow %s added to the BatchLauncher" % flow)
+        # print("Flow %s added to the BatchLauncher" % flow)
 
         return 1
 
@@ -1236,7 +1251,8 @@ class BatchLauncher:
             flow.build_and_pickle_dump()
 
         # Submit the task and save the queue id.
-        if dry_run: return -1
+        if dry_run:
+            return -1
 
         print("Will submit %s flows in batch script" % len(self.flows))
         self.qjob, process = self.qadapter.submit_to_queue(self.script_file.path)
@@ -1270,10 +1286,9 @@ class BatchLauncher:
         # Build list of abirun commands and save the name of the log files.
         self.sched_logs, num_flows = [], len(flows_torun)
         for i, flow in enumerate(flows_torun):
-
             logfile = os.path.join(self.workdir, "log_" + os.path.basename(flow.workdir))
 
-            app("echo Starting flow %d/%d on: `date` >> ${LOG}" % (i+1, num_flows))
+            app("echo Starting flow %d/%d on: `date` >> ${LOG}" % (i + 1, num_flows))
             app("\nabirun.py %s scheduler > %s" % (flow.workdir, logfile))
             app("echo Returning from abirun on `date` with retcode $? >> ${_LOG}")
 

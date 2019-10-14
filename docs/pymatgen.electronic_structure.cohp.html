@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.electronic_structure.cohp module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.electronic_structure.cohp module &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,17 +43,23 @@
             
   <div class="section" id="module-pymatgen.electronic_structure.cohp">
 <span id="pymatgen-electronic-structure-cohp-module"></span><h1>pymatgen.electronic_structure.cohp module<a class="headerlink" href="#module-pymatgen.electronic_structure.cohp" title="Permalink to this headline">¶</a></h1>
+<p>This module defines classes to represent crystal orbital Hamilton
+populations (COHP) and integrated COHP (ICOHP), but can also be used
+for crystal orbital overlap populations (COOP).</p>
 <dl class="class">
 <dt id="pymatgen.electronic_structure.cohp.Cohp">
 <em class="property">class </em><code class="sig-name descname">Cohp</code><span class="sig-paren">(</span><em class="sig-param">efermi</em>, <em class="sig-param">energies</em>, <em class="sig-param">cohp</em>, <em class="sig-param">are_coops=False</em>, <em class="sig-param">icohp=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/cohp.html#Cohp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.cohp.Cohp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Basic COHP object.</p>
-<dl>
-<dt>Args/attributes:</dt><dd><p>are_coops: Indicates whether this object describes COHPs or COOPs.</p>
-<p>efermi: Fermi energy.</p>
-<p>energies: A sequence of energies.</p>
-<p>cohp ({Spin: np.array}): representing the COHP for each spin.</p>
-<p>icohp ({Spin: np.array}): representing the ICOHP for each spin.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>are_coops</strong> – Indicates whether this object describes COHPs or COOPs.</p></li>
+<li><p><strong>efermi</strong> – Fermi energy.</p></li>
+<li><p><strong>energies</strong> – A sequence of energies.</p></li>
+<li><p><strong>(</strong><strong>{Spin</strong> (<em>icohp</em>) – np.array}): representing the COHP for each spin.</p></li>
+<li><p><strong>(</strong><strong>{Spin</strong> – np.array}): representing the ICOHP for each spin.</p></li>
+</ul>
 </dd>
 </dl>
 <dl class="method">
@@ -262,6 +267,20 @@ label_list)</p></li>
 <em class="property">class </em><code class="sig-name descname">IcohpCollection</code><span class="sig-paren">(</span><em class="sig-param">list_labels</em>, <em class="sig-param">list_atom1</em>, <em class="sig-param">list_atom2</em>, <em class="sig-param">list_length</em>, <em class="sig-param">list_translation</em>, <em class="sig-param">list_num</em>, <em class="sig-param">list_icohp</em>, <em class="sig-param">is_spin_polarized</em>, <em class="sig-param">are_coops=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/cohp.html#IcohpCollection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.cohp.IcohpCollection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Class to store IcohpValues</p>
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.cohp.IcohpCollection.are_coops">
+<code class="sig-name descname">are_coops</code><a class="headerlink" href="#pymatgen.electronic_structure.cohp.IcohpCollection.are_coops" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="sig-name descname">Boolean to indicate whether ICOHPs or ICOOPs are stored</code></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.cohp.IcohpCollection.is_spin_polarized">
+<code class="sig-name descname">is_spin_polarized</code><a class="headerlink" href="#pymatgen.electronic_structure.cohp.IcohpCollection.is_spin_polarized" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="sig-name descname">Boolean to indicate if the Lobster calculation was done spin polarized or not</code></dt>
+<dd></dd></dl>
+
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -278,24 +297,16 @@ indicate if the Lobster calculation was done spin polarized or not</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="attribute">
-<dt id="pymatgen.electronic_structure.cohp.IcohpCollection.are_coops">
-<code class="sig-name descname">are_coops</code><a class="headerlink" href="#pymatgen.electronic_structure.cohp.IcohpCollection.are_coops" title="Permalink to this definition">¶</a></dt>
-<dt>
-<code class="sig-name descname">Boolean to indicate whether ICOHPs or ICOOPs are stored</code></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pymatgen.electronic_structure.cohp.IcohpCollection.is_spin_polarized">
-<code class="sig-name descname">is_spin_polarized</code><a class="headerlink" href="#pymatgen.electronic_structure.cohp.IcohpCollection.is_spin_polarized" title="Permalink to this definition">¶</a></dt>
-<dt>
-<code class="sig-name descname">Boolean to indicate if the Lobster calculation was done spin polarized or not</code></dt>
-<dd></dd></dl>
-
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">are_coops</code></dt>
-<dd></dd></dl>
+<dd><p>Whether this is coops.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.cohp.IcohpCollection.extremum_icohpvalue">
@@ -390,7 +401,13 @@ in ICOHPLIST/ICOOPLIST)</p>
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">is_spin_polarized</code></dt>
-<dd></dd></dl>
+<dd><p>Whether it is spin polarized.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -398,14 +415,7 @@ in ICOHPLIST/ICOOPLIST)</p>
 <dt id="pymatgen.electronic_structure.cohp.IcohpValue">
 <em class="property">class </em><code class="sig-name descname">IcohpValue</code><span class="sig-paren">(</span><em class="sig-param">label</em>, <em class="sig-param">atom1</em>, <em class="sig-param">atom2</em>, <em class="sig-param">length</em>, <em class="sig-param">translation</em>, <em class="sig-param">num</em>, <em class="sig-param">icohp</em>, <em class="sig-param">are_coops=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/cohp.html#IcohpValue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.cohp.IcohpValue" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
-<p>Class to store information on an ICOHP or ICOOP value
-:param label: label for the icohp
-:param atom1: str of atom that is contributing to the bond
-:param atom2: str of second atom that is contributing to the bond
-:param length: float of bond lengths
-:param translation: translation list, e.g. [0,0,0]
-:param num: integer describing how often the bond exists
-:param icohp: dict={Spin.up: icohpvalue for spin.up, Spin.down: icohpvalue for spin.down}</p>
+<p>Class to store information on an ICOHP or ICOOP value</p>
 <dl class="attribute">
 <dt id="pymatgen.electronic_structure.cohp.IcohpValue.num_bonds">
 <code class="sig-name descname">num_bonds</code><a class="headerlink" href="#pymatgen.electronic_structure.cohp.IcohpValue.num_bonds" title="Permalink to this definition">¶</a></dt>
@@ -434,6 +444,19 @@ in ICOHPLIST/ICOOPLIST)</p>
 <code class="sig-name descname">sum of icohp/icoop of both spin channels</code></dt>
 <dd></dd></dl>
 
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>label</strong> – label for the icohp</p></li>
+<li><p><strong>atom1</strong> – str of atom that is contributing to the bond</p></li>
+<li><p><strong>atom2</strong> – str of second atom that is contributing to the bond</p></li>
+<li><p><strong>length</strong> – float of bond lengths</p></li>
+<li><p><strong>translation</strong> – translation list, e.g. [0,0,0]</p></li>
+<li><p><strong>num</strong> – integer describing how often the bond exists</p></li>
+<li><p><strong>icohp</strong> – dict={Spin.up: icohpvalue for spin.up, Spin.down: icohpvalue for spin.down}</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">are_coops</code></dt>
@@ -523,13 +546,13 @@ in ICOHPLIST/ICOOPLIST)</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

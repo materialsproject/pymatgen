@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.symmetry.bandstructure module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.symmetry.bandstructure module &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +43,8 @@
             
   <div class="section" id="module-pymatgen.symmetry.bandstructure">
 <span id="pymatgen-symmetry-bandstructure-module"></span><h1>pymatgen.symmetry.bandstructure module<a class="headerlink" href="#module-pymatgen.symmetry.bandstructure" title="Permalink to this headline">¶</a></h1>
+<p>Created on March 25, 2013</p>
+<p>&#64;author: geoffroy</p>
 <dl class="class">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath">
 <em class="property">class </em><code class="sig-name descname">HighSymmKpath</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">symprec=0.01</em>, <em class="sig-param">angle_tolerance=5</em>, <em class="sig-param">atol=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/bandstructure.html#HighSymmKpath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath" title="Permalink to this definition">¶</a></dt>
@@ -77,17 +78,35 @@ A warning will be issued if the lattices don’t match.</p></li>
 <dl class="method">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.bcc">
 <code class="sig-name descname">bcc</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/bandstructure.html#HighSymmKpath.bcc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.bcc" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Bcc HighSymmKPath</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.bctet1">
 <code class="sig-name descname">bctet1</code><span class="sig-paren">(</span><em class="sig-param">c</em>, <em class="sig-param">a</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/bandstructure.html#HighSymmKpath.bctet1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.bctet1" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>BCT1 HighSymmKPath</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.bctet2">
 <code class="sig-name descname">bctet2</code><span class="sig-paren">(</span><em class="sig-param">c</em>, <em class="sig-param">a</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/bandstructure.html#HighSymmKpath.bctet2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.bctet2" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>BCT2 HighSymmKPath</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.conventional">
@@ -99,12 +118,24 @@ The conventional cell structure</p>
 <dl class="method">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.cubic">
 <code class="sig-name descname">cubic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/bandstructure.html#HighSymmKpath.cubic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.cubic" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Cubic HighSymmKPath</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.fcc">
 <code class="sig-name descname">fcc</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/bandstructure.html#HighSymmKpath.fcc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.fcc" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Fcc HighSymmKPath</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.get_kpoints">
@@ -120,7 +151,13 @@ together with the labels for symmetry points -Wei</p>
 <dl class="method">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.hex">
 <code class="sig-name descname">hex</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/bandstructure.html#HighSymmKpath.hex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.hex" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Hexagonal HighSymmKPath</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.kpath">
@@ -132,62 +169,134 @@ The symmetry line path in reciprocal space</p>
 <dl class="method">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.mcl">
 <code class="sig-name descname">mcl</code><span class="sig-paren">(</span><em class="sig-param">b</em>, <em class="sig-param">c</em>, <em class="sig-param">beta</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/bandstructure.html#HighSymmKpath.mcl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.mcl" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Monoclinic 1 HighSymmKPath</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.mclc1">
 <code class="sig-name descname">mclc1</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">b</em>, <em class="sig-param">c</em>, <em class="sig-param">alpha</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/bandstructure.html#HighSymmKpath.mclc1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.mclc1" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Monoclinic C1 HighSymmKPath</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.mclc2">
 <code class="sig-name descname">mclc2</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">b</em>, <em class="sig-param">c</em>, <em class="sig-param">alpha</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/bandstructure.html#HighSymmKpath.mclc2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.mclc2" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Monoclinic C2 HighSymmKPath</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.mclc3">
 <code class="sig-name descname">mclc3</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">b</em>, <em class="sig-param">c</em>, <em class="sig-param">alpha</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/bandstructure.html#HighSymmKpath.mclc3"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.mclc3" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Monoclinic C3 HighSymmKPath</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.mclc4">
 <code class="sig-name descname">mclc4</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">b</em>, <em class="sig-param">c</em>, <em class="sig-param">alpha</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/bandstructure.html#HighSymmKpath.mclc4"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.mclc4" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Monoclinic C4 HighSymmKPath</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.mclc5">
 <code class="sig-name descname">mclc5</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">b</em>, <em class="sig-param">c</em>, <em class="sig-param">alpha</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/bandstructure.html#HighSymmKpath.mclc5"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.mclc5" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Monoclinic C5 HighSymmKPath</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.orc">
 <code class="sig-name descname">orc</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/bandstructure.html#HighSymmKpath.orc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.orc" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Orthorhombic HighSymmKPath</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.orcc">
 <code class="sig-name descname">orcc</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">b</em>, <em class="sig-param">c</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/bandstructure.html#HighSymmKpath.orcc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.orcc" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Orthorhombic C HighSymmKPath</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.orcf1">
 <code class="sig-name descname">orcf1</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">b</em>, <em class="sig-param">c</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/bandstructure.html#HighSymmKpath.orcf1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.orcf1" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Orthorhombic f1 HighSymmKPath</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.orcf2">
 <code class="sig-name descname">orcf2</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">b</em>, <em class="sig-param">c</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/bandstructure.html#HighSymmKpath.orcf2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.orcf2" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Orthorhombic f2 HighSymmKPath</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.orcf3">
 <code class="sig-name descname">orcf3</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">b</em>, <em class="sig-param">c</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/bandstructure.html#HighSymmKpath.orcf3"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.orcf3" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Orthorhombic f3 HighSymmKPath</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.orci">
 <code class="sig-name descname">orci</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">b</em>, <em class="sig-param">c</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/bandstructure.html#HighSymmKpath.orci"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.orci" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Orthorhombic I HighSymmKPath</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.prim">
@@ -206,12 +315,24 @@ The primitive reciprocal cell structure</p>
 <dl class="method">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.rhl1">
 <code class="sig-name descname">rhl1</code><span class="sig-paren">(</span><em class="sig-param">alpha</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/bandstructure.html#HighSymmKpath.rhl1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.rhl1" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Rhombohedral 1 HighSymmKPath</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.rhl2">
 <code class="sig-name descname">rhl2</code><span class="sig-paren">(</span><em class="sig-param">alpha</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/bandstructure.html#HighSymmKpath.rhl2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.rhl2" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Rhombohedral 2 HighSymmKPath</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.structure">
@@ -223,17 +344,35 @@ The standardized primitive structure</p>
 <dl class="method">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.tet">
 <code class="sig-name descname">tet</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/bandstructure.html#HighSymmKpath.tet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.tet" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Tetragonal HighSymmKPath</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.tria">
 <code class="sig-name descname">tria</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/bandstructure.html#HighSymmKpath.tria"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.tria" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Trigonal a HighSymmKPath</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.trib">
 <code class="sig-name descname">trib</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/bandstructure.html#HighSymmKpath.trib"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.trib" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Trigonal b HighSymmKPath</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -275,13 +414,13 @@ The standardized primitive structure</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -2,6 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Predict volumes of crystal structures.
+"""
 
 import warnings
 import os
@@ -17,7 +20,7 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 bond_params = loadfn(os.path.join(MODULE_DIR, 'DLS_bond_params.yaml'))
 
 
-def is_ox(structure):
+def _is_ox(structure):
     comp = structure.composition
     for k in comp.keys():
         try:
@@ -53,6 +56,7 @@ class RLSVolumePredictor:
     def predict(self, structure, ref_structure):
         """
         Given a structure, returns the predicted volume.
+
         Args:
             structure (Structure): structure w/unknown volume
             ref_structure (Structure): A reference structure with a similar
@@ -73,10 +77,10 @@ class RLSVolumePredictor:
                 # Use BV analyzer to determine oxidation states only if the
                 # oxidation states are not already specified in the structure
                 # and use_bv is true.
-                if (not is_ox(structure)) and self.use_bv:
+                if (not _is_ox(structure)) and self.use_bv:
                     a = BVAnalyzer()
                     structure = a.get_oxi_state_decorated_structure(structure)
-                if (not is_ox(ref_structure)) and self.use_bv:
+                if (not _is_ox(ref_structure)) and self.use_bv:
                     a = BVAnalyzer()
                     ref_structure = a.get_oxi_state_decorated_structure(
                         ref_structure)
@@ -100,7 +104,7 @@ class RLSVolumePredictor:
                     denominator += k.ionic_radius * v ** (1 / 3)
 
                 return ref_structure.volume * (numerator / denominator) ** 3
-            except Exception as ex:
+            except Exception:
                 warnings.warn("Exception occured. Will attempt atomic radii.")
                 # If error occurs during use of ionic radii scheme, pass
                 # and see if we can resolve it using atomic radii.
@@ -214,15 +218,15 @@ class DLSVolumePredictor:
                                                         self.cutoff)
 
             for nn in neighbors:
-                sp2 = nn.site.specie
+                sp2 = nn.specie
 
                 if sp1 in bp_dict and sp2 in bp_dict:
                     expected_dist = bp_dict[sp1] + bp_dict[sp2]
                 else:
                     expected_dist = sp1.atomic_radius + sp2.atomic_radius
 
-                if not smallest_ratio or nn.distance / expected_dist < smallest_ratio:
-                    smallest_ratio = nn.distance / expected_dist
+                if not smallest_ratio or nn.nn_distance / expected_dist < smallest_ratio:
+                    smallest_ratio = nn.nn_distance / expected_dist
 
         if not smallest_ratio:
             raise ValueError("Could not find any bonds within the given cutoff "

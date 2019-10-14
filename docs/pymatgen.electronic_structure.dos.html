@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.electronic_structure.dos module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.electronic_structure.dos module &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +43,7 @@
             
   <div class="section" id="module-pymatgen.electronic_structure.dos">
 <span id="pymatgen-electronic-structure-dos-module"></span><h1>pymatgen.electronic_structure.dos module<a class="headerlink" href="#module-pymatgen.electronic_structure.dos" title="Permalink to this headline">¶</a></h1>
+<p>This module defines classes to represent the density of states, etc.</p>
 <dl class="class">
 <dt id="pymatgen.electronic_structure.dos.CompleteDos">
 <em class="property">class </em><code class="sig-name descname">CompleteDos</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">total_dos</em>, <em class="sig-param">pdoss</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos" title="Permalink to this definition">¶</a></dt>
@@ -52,16 +52,6 @@
 Mainly used by pymatgen.io.vasp.Vasprun to create a complete Dos from
 a vasprun.xml file. You are unlikely to try to generate this object
 manually.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>structure</strong> – Structure associated with this particular DOS.</p></li>
-<li><p><strong>total_dos</strong> – total Dos for structure</p></li>
-<li><p><strong>pdoss</strong> – The pdoss are supplied as an {Site:{Orbital:{
-Spin:Densities}}}</p></li>
-</ul>
-</dd>
-</dl>
 <dl class="attribute">
 <dt id="pymatgen.electronic_structure.dos.CompleteDos.structure">
 <code class="sig-name descname">structure</code><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.structure" title="Permalink to this definition">¶</a></dt>
@@ -74,6 +64,16 @@ Spin:Densities}}}</p></li>
 <dd><p>Dict of partial densities of the form {Site:{Orbital:{Spin:Densities}}}</p>
 </dd></dl>
 
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – Structure associated with this particular DOS.</p></li>
+<li><p><strong>total_dos</strong> – total Dos for structure</p></li>
+<li><p><strong>pdoss</strong> – The pdoss are supplied as an {Site:{Orbital:{
+Spin:Densities}}}</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.electronic_structure.dos.CompleteDos.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.as_dict" title="Permalink to this definition">¶</a></dt>
@@ -569,6 +569,16 @@ extrapolated and must be used with caution.</p>
 <em class="property">class </em><code class="sig-name descname">LobsterCompleteDos</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">total_dos</em>, <em class="sig-param">pdoss</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#LobsterCompleteDos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.LobsterCompleteDos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.electronic_structure.dos.CompleteDos" title="pymatgen.electronic_structure.dos.CompleteDos"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.electronic_structure.dos.CompleteDos</span></code></a></p>
 <p>Extended CompleteDOS for Lobster</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – Structure associated with this particular DOS.</p></li>
+<li><p><strong>total_dos</strong> – total Dos for structure</p></li>
+<li><p><strong>pdoss</strong> – The pdoss are supplied as an {Site:{Orbital:{
+Spin:Densities}}}</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.electronic_structure.dos.LobsterCompleteDos.from_dict">
 <em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#LobsterCompleteDos.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.LobsterCompleteDos.from_dict" title="Permalink to this definition">¶</a></dt>
@@ -717,13 +727,13 @@ projected DOS</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

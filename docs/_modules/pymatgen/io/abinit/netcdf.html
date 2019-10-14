@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.abinit.netcdf &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.io.abinit.netcdf &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -64,8 +63,8 @@
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
 
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Matteo Giantomassi&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2013, The Materials Project&quot;</span>
@@ -147,8 +146,8 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">ngroups</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">walk_tree</span><span class="p">()))</span>
 
-        <span class="c1">#self.path2group = OrderedDict()</span>
-        <span class="c1">#for children in self.walk_tree():</span>
+        <span class="c1"># self.path2group = OrderedDict()</span>
+        <span class="c1"># for children in self.walk_tree():</span>
         <span class="c1">#   for child in children:</span>
         <span class="c1">#       #print(child.group,  child.path)</span>
         <span class="c1">#       self.path2group[child.path] = child.group</span>
@@ -200,7 +199,8 @@
             <span class="n">dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_dimensions</span><span class="p">(</span><span class="n">dimname</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span>
         <span class="k">except</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="n">NO_DEFAULT</span><span class="p">:</span> <span class="k">raise</span>
+            <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="n">NO_DEFAULT</span><span class="p">:</span>
+                <span class="k">raise</span>
             <span class="k">return</span> <span class="n">default</span></div>
 
 <div class="viewcode-block" id="NetcdfReader.read_varnames"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.NetcdfReader.read_varnames">[docs]</a>    <span class="k">def</span> <span class="nf">read_varnames</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s2">&quot;/&quot;</span><span class="p">):</span>
@@ -229,7 +229,8 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_variable</span><span class="p">(</span><span class="n">varname</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>
         <span class="k">except</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="n">NO_DEFAULT</span><span class="p">:</span> <span class="k">raise</span>
+            <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="n">NO_DEFAULT</span><span class="p">:</span>
+                <span class="k">raise</span>
             <span class="k">return</span> <span class="n">default</span>
 
         <span class="k">if</span> <span class="n">cmode</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -243,7 +244,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">assert</span> <span class="n">var</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span>
             <span class="k">if</span> <span class="n">cmode</span> <span class="o">==</span> <span class="s2">&quot;c&quot;</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">var</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">var</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">return</span> <span class="n">var</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">var</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Wrong value for cmode </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">cmode</span><span class="p">)</span></div>
 
@@ -303,6 +304,7 @@
 
 <span class="sd">    We assume that the netcdf file contains at least the crystallographic section.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="ETSF_Reader.chemical_symbols"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.ETSF_Reader.chemical_symbols">[docs]</a>    <span class="nd">@lazy_property</span>
     <span class="k">def</span> <span class="nf">chemical_symbols</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Chemical symbols char [number of atom species][symbol length].&quot;&quot;&quot;</span>
@@ -356,7 +358,7 @@
                     <span class="n">d</span><span class="p">[</span><span class="n">hvar</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bs</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">bs</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="n">hvar</span><span class="o">.</span><span class="n">name</span><span class="p">])</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">d</span><span class="p">[</span><span class="n">hvar</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bs</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">bs</span> <span class="ow">in</span> <span class="n">astr</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-                            <span class="k">for</span> <span class="n">astr</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="n">hvar</span><span class="o">.</span><span class="n">name</span><span class="p">]]</span>
+                                    <span class="k">for</span> <span class="n">astr</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="n">hvar</span><span class="o">.</span><span class="n">name</span><span class="p">]]</span>
 
         <span class="k">return</span> <span class="n">AbinitHeader</span><span class="p">(</span><span class="n">d</span><span class="p">)</span></div></div>
 
@@ -410,83 +412,85 @@
 
     <span class="k">return</span> <span class="n">structure</span></div>
 
+
 <span class="k">class</span> <span class="nc">_H</span><span class="p">:</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;doc&quot;</span><span class="p">,</span> <span class="s2">&quot;etsf_name&quot;</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">doc</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">etsf_name</span> <span class="o">=</span> <span class="n">name</span><span class="p">,</span> <span class="n">doc</span><span class="p">,</span> <span class="n">etsf_name</span>
 
+
 <span class="n">_HDR_VARIABLES</span> <span class="o">=</span> <span class="p">(</span>
-  <span class="c1"># Scalars</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;bantot&quot;</span><span class="p">,</span> <span class="s2">&quot;total number of bands (sum of nband on all kpts and spins)&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="s2">&quot;starting date&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;headform&quot;</span><span class="p">,</span> <span class="s2">&quot;format of the header&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;intxc&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;ixc&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;mband&quot;</span><span class="p">,</span> <span class="s2">&quot;maxval(hdr%nband)&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;max_number_of_states&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;natom&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;number_of_atoms&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;nkpt&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;number_of_kpoints&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;npsp&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;nspden&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;number_of_components&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;nspinor&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;number_of_spinor_components&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;nsppol&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;number_of_spins&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;nsym&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;number_of_symmetry_operations&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;ntypat&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;number_of_atom_species&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;occopt&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;pertcase&quot;</span><span class="p">,</span> <span class="s2">&quot;the index of the perturbation, 0 if GS calculation&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;usepaw&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable (0=norm-conserving psps, 1=paw)&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;usewvl&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable (0=plane-waves, 1=wavelets)&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;kptopt&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable (defines symmetries used for k-point sampling)&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;pawcpxocc&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;nshiftk_orig&quot;</span><span class="p">,</span> <span class="s2">&quot;original number of shifts given in input (changed in inkpts, the actual value is nshiftk)&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;nshiftk&quot;</span><span class="p">,</span> <span class="s2">&quot;number of shifts after inkpts.&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;icoulomb&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable.&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;ecut&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;kinetic_energy_cutoff&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;ecutdg&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable (ecut for NC psps, pawecutdg for paw)&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;ecutsm&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;ecut_eff&quot;</span><span class="p">,</span> <span class="s2">&quot;ecut*dilatmx**2 (dilatmx is an input variable)&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;etot&quot;</span><span class="p">,</span> <span class="s2">&quot;EVOLVING variable&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;fermie&quot;</span><span class="p">,</span> <span class="s2">&quot;EVOLVING variable&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;fermi_energy&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;residm&quot;</span><span class="p">,</span> <span class="s2">&quot;EVOLVING variable&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;stmbias&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;tphysel&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;tsmear&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;nelect&quot;</span><span class="p">,</span> <span class="s2">&quot;number of electrons (computed from pseudos and charge)&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;charge&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">),</span>
-  <span class="c1"># Arrays</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;qptn&quot;</span><span class="p">,</span> <span class="s2">&quot;qptn(3) the wavevector, in case of a perturbation&quot;</span><span class="p">),</span>
-  <span class="c1">#_H(&quot;rprimd&quot;, &quot;rprimd(3,3) EVOLVING variables&quot;, etsf_name=&quot;primitive_vectors&quot;),</span>
-  <span class="c1">#_H(ngfft, &quot;ngfft(3) input variable&quot;,  number_of_grid_points_vector1&quot;</span>
-  <span class="c1">#_H(&quot;nwvlarr&quot;, &quot;nwvlarr(2) the number of wavelets for each resolution.&quot;, etsf_name=&quot;number_of_wavelets&quot;),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;kptrlatt_orig&quot;</span><span class="p">,</span> <span class="s2">&quot;kptrlatt_orig(3,3) Original kptrlatt&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;kptrlatt&quot;</span><span class="p">,</span> <span class="s2">&quot;kptrlatt(3,3) kptrlatt after inkpts.&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;istwfk&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable istwfk(nkpt)&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;lmn_size&quot;</span><span class="p">,</span> <span class="s2">&quot;lmn_size(npsp) from psps&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;nband&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable nband(nkpt*nsppol)&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;number_of_states&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;npwarr&quot;</span><span class="p">,</span> <span class="s2">&quot;npwarr(nkpt) array holding npw for each k point&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;number_of_coefficients&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;pspcod&quot;</span><span class="p">,</span> <span class="s2">&quot;pscod(npsp) from psps&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;pspdat&quot;</span><span class="p">,</span> <span class="s2">&quot;psdat(npsp) from psps&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;pspso&quot;</span><span class="p">,</span> <span class="s2">&quot;pspso(npsp) from psps&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;pspxc&quot;</span><span class="p">,</span> <span class="s2">&quot;pspxc(npsp) from psps&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;so_psp&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable so_psp(npsp)&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;symafm&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable symafm(nsym)&quot;</span><span class="p">),</span>
-  <span class="c1">#_H(symrel=&quot;input variable symrel(3,3,nsym)&quot;,  etsf_name=&quot;reduced_symmetry_matrices&quot;),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;typat&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable typat(natom)&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;atom_species&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;kptns&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable kptns(nkpt, 3)&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;reduced_coordinates_of_kpoints&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;occ&quot;</span><span class="p">,</span> <span class="s2">&quot;EVOLVING variable occ(mband, nkpt, nsppol)&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;occupations&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;tnons&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable tnons(nsym, 3)&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;reduced_symmetry_translations&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;wtk&quot;</span><span class="p">,</span> <span class="s2">&quot;weight of kpoints wtk(nkpt)&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;kpoint_weights&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;shiftk_orig&quot;</span><span class="p">,</span> <span class="s2">&quot;original shifts given in input (changed in inkpts).&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;shiftk&quot;</span><span class="p">,</span> <span class="s2">&quot;shiftk(3,nshiftk), shiftks after inkpts&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;amu&quot;</span><span class="p">,</span> <span class="s2">&quot;amu(ntypat) ! EVOLVING variable&quot;</span><span class="p">),</span>
-  <span class="c1">#_H(&quot;xred&quot;, &quot;EVOLVING variable xred(3,natom)&quot;, etsf_name=&quot;reduced_atom_positions&quot;),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;zionpsp&quot;</span><span class="p">,</span> <span class="s2">&quot;zionpsp(npsp) from psps&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;znuclpsp&quot;</span><span class="p">,</span> <span class="s2">&quot;znuclpsp(npsp) from psps. Note the difference between (znucl|znucltypat) and znuclpsp&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;znucltypat&quot;</span><span class="p">,</span> <span class="s2">&quot;znucltypat(ntypat) from alchemy&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;atomic_numbers&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;codvsn&quot;</span><span class="p">,</span> <span class="s2">&quot;version of the code&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="s2">&quot;title(npsp) from psps&quot;</span><span class="p">),</span>
-  <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;md5_pseudos&quot;</span><span class="p">,</span> <span class="s2">&quot;md5pseudos(npsp), md5 checksums associated to pseudos (read from file)&quot;</span><span class="p">),</span>
-  <span class="c1">#_H(type(pawrhoij_type), allocatable :: pawrhoij(:) ! EVOLVING variable, only for paw</span>
+    <span class="c1"># Scalars</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;bantot&quot;</span><span class="p">,</span> <span class="s2">&quot;total number of bands (sum of nband on all kpts and spins)&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="s2">&quot;starting date&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;headform&quot;</span><span class="p">,</span> <span class="s2">&quot;format of the header&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;intxc&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;ixc&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;mband&quot;</span><span class="p">,</span> <span class="s2">&quot;maxval(hdr%nband)&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;max_number_of_states&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;natom&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;number_of_atoms&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;nkpt&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;number_of_kpoints&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;npsp&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;nspden&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;number_of_components&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;nspinor&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;number_of_spinor_components&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;nsppol&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;number_of_spins&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;nsym&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;number_of_symmetry_operations&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;ntypat&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;number_of_atom_species&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;occopt&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;pertcase&quot;</span><span class="p">,</span> <span class="s2">&quot;the index of the perturbation, 0 if GS calculation&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;usepaw&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable (0=norm-conserving psps, 1=paw)&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;usewvl&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable (0=plane-waves, 1=wavelets)&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;kptopt&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable (defines symmetries used for k-point sampling)&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;pawcpxocc&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;nshiftk_orig&quot;</span><span class="p">,</span> <span class="s2">&quot;original number of shifts given in input (changed in inkpts, the actual value is nshiftk)&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;nshiftk&quot;</span><span class="p">,</span> <span class="s2">&quot;number of shifts after inkpts.&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;icoulomb&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable.&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;ecut&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;kinetic_energy_cutoff&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;ecutdg&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable (ecut for NC psps, pawecutdg for paw)&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;ecutsm&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;ecut_eff&quot;</span><span class="p">,</span> <span class="s2">&quot;ecut*dilatmx**2 (dilatmx is an input variable)&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;etot&quot;</span><span class="p">,</span> <span class="s2">&quot;EVOLVING variable&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;fermie&quot;</span><span class="p">,</span> <span class="s2">&quot;EVOLVING variable&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;fermi_energy&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;residm&quot;</span><span class="p">,</span> <span class="s2">&quot;EVOLVING variable&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;stmbias&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;tphysel&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;tsmear&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;nelect&quot;</span><span class="p">,</span> <span class="s2">&quot;number of electrons (computed from pseudos and charge)&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;charge&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">),</span>
+    <span class="c1"># Arrays</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;qptn&quot;</span><span class="p">,</span> <span class="s2">&quot;qptn(3) the wavevector, in case of a perturbation&quot;</span><span class="p">),</span>
+    <span class="c1"># _H(&quot;rprimd&quot;, &quot;rprimd(3,3) EVOLVING variables&quot;, etsf_name=&quot;primitive_vectors&quot;),</span>
+    <span class="c1"># _H(ngfft, &quot;ngfft(3) input variable&quot;,  number_of_grid_points_vector1&quot;</span>
+    <span class="c1"># _H(&quot;nwvlarr&quot;, &quot;nwvlarr(2) the number of wavelets for each resolution.&quot;, etsf_name=&quot;number_of_wavelets&quot;),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;kptrlatt_orig&quot;</span><span class="p">,</span> <span class="s2">&quot;kptrlatt_orig(3,3) Original kptrlatt&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;kptrlatt&quot;</span><span class="p">,</span> <span class="s2">&quot;kptrlatt(3,3) kptrlatt after inkpts.&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;istwfk&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable istwfk(nkpt)&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;lmn_size&quot;</span><span class="p">,</span> <span class="s2">&quot;lmn_size(npsp) from psps&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;nband&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable nband(nkpt*nsppol)&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;number_of_states&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;npwarr&quot;</span><span class="p">,</span> <span class="s2">&quot;npwarr(nkpt) array holding npw for each k point&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;number_of_coefficients&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;pspcod&quot;</span><span class="p">,</span> <span class="s2">&quot;pscod(npsp) from psps&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;pspdat&quot;</span><span class="p">,</span> <span class="s2">&quot;psdat(npsp) from psps&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;pspso&quot;</span><span class="p">,</span> <span class="s2">&quot;pspso(npsp) from psps&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;pspxc&quot;</span><span class="p">,</span> <span class="s2">&quot;pspxc(npsp) from psps&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;so_psp&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable so_psp(npsp)&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;symafm&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable symafm(nsym)&quot;</span><span class="p">),</span>
+    <span class="c1"># _H(symrel=&quot;input variable symrel(3,3,nsym)&quot;,  etsf_name=&quot;reduced_symmetry_matrices&quot;),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;typat&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable typat(natom)&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;atom_species&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;kptns&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable kptns(nkpt, 3)&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;reduced_coordinates_of_kpoints&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;occ&quot;</span><span class="p">,</span> <span class="s2">&quot;EVOLVING variable occ(mband, nkpt, nsppol)&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;occupations&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;tnons&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable tnons(nsym, 3)&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;reduced_symmetry_translations&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;wtk&quot;</span><span class="p">,</span> <span class="s2">&quot;weight of kpoints wtk(nkpt)&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;kpoint_weights&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;shiftk_orig&quot;</span><span class="p">,</span> <span class="s2">&quot;original shifts given in input (changed in inkpts).&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;shiftk&quot;</span><span class="p">,</span> <span class="s2">&quot;shiftk(3,nshiftk), shiftks after inkpts&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;amu&quot;</span><span class="p">,</span> <span class="s2">&quot;amu(ntypat) ! EVOLVING variable&quot;</span><span class="p">),</span>
+    <span class="c1"># _H(&quot;xred&quot;, &quot;EVOLVING variable xred(3,natom)&quot;, etsf_name=&quot;reduced_atom_positions&quot;),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;zionpsp&quot;</span><span class="p">,</span> <span class="s2">&quot;zionpsp(npsp) from psps&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;znuclpsp&quot;</span><span class="p">,</span> <span class="s2">&quot;znuclpsp(npsp) from psps. Note the difference between (znucl|znucltypat) and znuclpsp&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;znucltypat&quot;</span><span class="p">,</span> <span class="s2">&quot;znucltypat(ntypat) from alchemy&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;atomic_numbers&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;codvsn&quot;</span><span class="p">,</span> <span class="s2">&quot;version of the code&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="s2">&quot;title(npsp) from psps&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;md5_pseudos&quot;</span><span class="p">,</span> <span class="s2">&quot;md5pseudos(npsp), md5 checksums associated to pseudos (read from file)&quot;</span><span class="p">),</span>
+    <span class="c1"># _H(type(pawrhoij_type), allocatable :: pawrhoij(:) ! EVOLVING variable, only for paw</span>
 <span class="p">)</span>
 <span class="n">_HDR_VARIABLES</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([(</span><span class="n">h</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">_HDR_VARIABLES</span><span class="p">])</span>
 
@@ -494,7 +498,7 @@
 <span class="k">class</span> <span class="nc">AbinitHeader</span><span class="p">(</span><span class="n">AttrDict</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Stores the values reported in the Abinit header.&quot;&quot;&quot;</span>
 
-    <span class="c1">#def __init__(self, *args, **kwargs):</span>
+    <span class="c1"># def __init__(self, *args, **kwargs):</span>
     <span class="c1">#    super().__init__(*args, **kwargs)</span>
     <span class="c1">#    for k, v in self.items():</span>
     <span class="c1">#        v.__doc__ = _HDR_VARIABLES[k].doc</span>
@@ -545,7 +549,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -553,7 +557,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

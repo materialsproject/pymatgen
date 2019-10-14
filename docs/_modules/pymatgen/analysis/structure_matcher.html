@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.structure_matcher &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.analysis.structure_matcher &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -64,8 +63,8 @@
 <span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="k">import</span> <span class="n">Composition</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">get_el_sp</span>
-<span class="kn">from</span> <span class="nn">pymatgen.optimization.linear_assignment</span> <span class="k">import</span> <span class="n">LinearAssignment</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.coord_cython</span> <span class="k">import</span> <span class="n">pbc_shortest_vectors</span><span class="p">,</span> <span class="n">is_coord_subset_pbc</span>
+<span class="kn">from</span> <span class="nn">pymatgen.optimization.linear_assignment</span> <span class="k">import</span> <span class="n">LinearAssignment</span>  <span class="c1"># type: ignore</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.coord_cython</span> <span class="k">import</span> <span class="n">pbc_shortest_vectors</span><span class="p">,</span> <span class="n">is_coord_subset_pbc</span>  <span class="c1"># type: ignore</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="k">import</span> <span class="n">lattice_points_in_supercell</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.core</span> <span class="k">import</span> <span class="n">Interstitial</span><span class="p">,</span> \
     <span class="n">Defect</span><span class="p">,</span> <span class="n">Vacancy</span><span class="p">,</span> <span class="n">Substitution</span>
@@ -128,6 +127,10 @@
 
 <div class="viewcode-block" id="AbstractComparator.from_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.structure_matcher.html#pymatgen.analysis.structure_matcher.AbstractComparator.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param d: Dict representation</span>
+<span class="sd">        :return: Comparator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">trans_modules</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;structure_matcher&#39;</span><span class="p">]:</span>
             <span class="n">mod</span> <span class="o">=</span> <span class="nb">__import__</span><span class="p">(</span><span class="s1">&#39;pymatgen.analysis.&#39;</span> <span class="o">+</span> <span class="n">trans_modules</span><span class="p">,</span>
                              <span class="nb">globals</span><span class="p">(),</span> <span class="nb">locals</span><span class="p">(),</span> <span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;@class&#39;</span><span class="p">]],</span> <span class="mi">0</span><span class="p">)</span>
@@ -137,6 +140,9 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid Comparator dict&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AbstractComparator.as_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.structure_matcher.html#pymatgen.analysis.structure_matcher.AbstractComparator.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: MSONable dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">__version__</span><span class="p">,</span> <span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
                 <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">}</span></div></div>
 
@@ -325,7 +331,10 @@
             <span class="k">return</span> <span class="kc">False</span></div>
 
 <div class="viewcode-block" id="OccupancyComparator.get_hash"><a class="viewcode-back" href="../../../pymatgen.analysis.structure_matcher.html#pymatgen.analysis.structure_matcher.OccupancyComparator.get_hash">[docs]</a>    <span class="k">def</span> <span class="nf">get_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">composition</span><span class="p">):</span>
-        <span class="c1"># Difficult to define sensible hash</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param composition: Composition.</span>
+<span class="sd">        :return: 1. Difficult to define sensible hash</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="mi">1</span></div></div>
 
 
@@ -372,52 +381,53 @@
 <span class="sd">                    continue. (This function will search all possible</span>
 <span class="sd">                    lattices for the smallest average rms displacement</span>
 <span class="sd">                    between the two structures)</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        ltol (float): Fractional length tolerance. Default is 0.2.</span>
-<span class="sd">        stol (float): Site tolerance. Defined as the fraction of the</span>
-<span class="sd">            average free length per atom := ( V / Nsites ) ** (1/3)</span>
-<span class="sd">            Default is 0.3.</span>
-<span class="sd">        angle_tol (float): Angle tolerance in degrees. Default is 5 degrees.</span>
-<span class="sd">        primitive_cell (bool): If true: input structures will be reduced to</span>
-<span class="sd">            primitive cells prior to matching. Default to True.</span>
-<span class="sd">        scale (bool): Input structures are scaled to equivalent volume if</span>
-<span class="sd">           true; For exact matching, set to False.</span>
-<span class="sd">        attempt_supercell (bool): If set to True and number of sites in</span>
-<span class="sd">            cells differ after a primitive cell reduction (divisible by an</span>
-<span class="sd">            integer) attempts to generate a supercell transformation of the</span>
-<span class="sd">            smaller cell which is equivalent to the larger structure.</span>
-<span class="sd">        allow_subset (bool): Allow one structure to match to the subset of</span>
-<span class="sd">            another structure. Eg. Matching of an ordered structure onto a</span>
-<span class="sd">            disordered one, or matching a delithiated to a lithiated</span>
-<span class="sd">            structure. This option cannot be combined with</span>
-<span class="sd">            attempt_supercell, or with structure grouping.</span>
-<span class="sd">        comparator (Comparator): A comparator object implementing an equals</span>
-<span class="sd">            method that declares declaring equivalency of sites. Default is</span>
-<span class="sd">            SpeciesComparator, which implies rigid species</span>
-<span class="sd">            mapping, i.e., Fe2+ only matches Fe2+ and not Fe3+.</span>
-
-<span class="sd">            Other comparators are provided, e.g., ElementComparator which</span>
-<span class="sd">            matches only the elements and not the species.</span>
-
-<span class="sd">            The reason why a comparator object is used instead of</span>
-<span class="sd">            supplying a comparison function is that it is not possible to</span>
-<span class="sd">            pickle a function, which makes it otherwise difficult to use</span>
-<span class="sd">            StructureMatcher with Python&#39;s multiprocessing.</span>
-<span class="sd">        supercell_size (str): Method to use for determining the size of a</span>
-<span class="sd">            supercell (if applicable). Possible values are num_sites,</span>
-<span class="sd">            num_atoms, volume, or an element present in both structures.</span>
-<span class="sd">        ignored_species (list): A list of ions to be ignored in matching. Useful</span>
-<span class="sd">            for matching structures that have similar frameworks except for</span>
-<span class="sd">            certain ions, e.g., Li-ion intercalation frameworks. This is more</span>
-<span class="sd">            useful than allow_subset because it allows better control over</span>
-<span class="sd">            what species are ignored in the matching.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ltol</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">stol</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">angle_tol</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">primitive_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">scale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">attempt_supercell</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">allow_subset</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">comparator</span><span class="o">=</span><span class="n">SpeciesComparator</span><span class="p">(),</span> <span class="n">supercell_size</span><span class="o">=</span><span class="s1">&#39;num_sites&#39;</span><span class="p">,</span>
                  <span class="n">ignored_species</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            ltol (float): Fractional length tolerance. Default is 0.2.</span>
+<span class="sd">            stol (float): Site tolerance. Defined as the fraction of the</span>
+<span class="sd">                average free length per atom := ( V / Nsites ) ** (1/3)</span>
+<span class="sd">                Default is 0.3.</span>
+<span class="sd">            angle_tol (float): Angle tolerance in degrees. Default is 5 degrees.</span>
+<span class="sd">            primitive_cell (bool): If true: input structures will be reduced to</span>
+<span class="sd">                primitive cells prior to matching. Default to True.</span>
+<span class="sd">            scale (bool): Input structures are scaled to equivalent volume if</span>
+<span class="sd">               true; For exact matching, set to False.</span>
+<span class="sd">            attempt_supercell (bool): If set to True and number of sites in</span>
+<span class="sd">                cells differ after a primitive cell reduction (divisible by an</span>
+<span class="sd">                integer) attempts to generate a supercell transformation of the</span>
+<span class="sd">                smaller cell which is equivalent to the larger structure.</span>
+<span class="sd">            allow_subset (bool): Allow one structure to match to the subset of</span>
+<span class="sd">                another structure. Eg. Matching of an ordered structure onto a</span>
+<span class="sd">                disordered one, or matching a delithiated to a lithiated</span>
+<span class="sd">                structure. This option cannot be combined with</span>
+<span class="sd">                attempt_supercell, or with structure grouping.</span>
+<span class="sd">            comparator (Comparator): A comparator object implementing an equals</span>
+<span class="sd">                method that declares declaring equivalency of sites. Default is</span>
+<span class="sd">                SpeciesComparator, which implies rigid species</span>
+<span class="sd">                mapping, i.e., Fe2+ only matches Fe2+ and not Fe3+.</span>
+
+<span class="sd">                Other comparators are provided, e.g., ElementComparator which</span>
+<span class="sd">                matches only the elements and not the species.</span>
+
+<span class="sd">                The reason why a comparator object is used instead of</span>
+<span class="sd">                supplying a comparison function is that it is not possible to</span>
+<span class="sd">                pickle a function, which makes it otherwise difficult to use</span>
+<span class="sd">                StructureMatcher with Python&#39;s multiprocessing.</span>
+<span class="sd">            supercell_size (str): Method to use for determining the size of a</span>
+<span class="sd">                supercell (if applicable). Possible values are num_sites,</span>
+<span class="sd">                num_atoms, volume, or an element present in both structures.</span>
+<span class="sd">            ignored_species (list): A list of ions to be ignored in matching. Useful</span>
+<span class="sd">                for matching structures that have similar frameworks except for</span>
+<span class="sd">                certain ions, e.g., Li-ion intercalation frameworks. This is more</span>
+<span class="sd">                useful than allow_subset because it allows better control over</span>
+<span class="sd">                what species are ignored in the matching.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">ltol</span> <span class="o">=</span> <span class="n">ltol</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stol</span> <span class="o">=</span> <span class="n">stol</span>
@@ -483,9 +493,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">def</span> <span class="nf">av_lat</span><span class="p">(</span><span class="n">l1</span><span class="p">,</span> <span class="n">l2</span><span class="p">):</span>
-            <span class="n">params</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">l1</span><span class="o">.</span><span class="n">lengths_and_angles</span><span class="p">)</span> <span class="o">+</span>
-                      <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">l2</span><span class="o">.</span><span class="n">lengths_and_angles</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span>
-            <span class="k">return</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_lengths_and_angles</span><span class="p">(</span><span class="o">*</span><span class="n">params</span><span class="p">)</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">l1</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span> <span class="o">+</span>
+                      <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">l2</span><span class="o">.</span><span class="n">parameters</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="k">return</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span><span class="o">*</span><span class="n">params</span><span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">sc_generator</span><span class="p">(</span><span class="n">s1</span><span class="p">,</span> <span class="n">s2</span><span class="p">):</span>
             <span class="n">s2_fc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">s2</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
@@ -827,6 +837,9 @@
         <span class="k">return</span> <span class="n">all_groups</span></div>
 
 <div class="viewcode-block" id="StructureMatcher.as_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.structure_matcher.html#pymatgen.analysis.structure_matcher.StructureMatcher.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: MSONable dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">__version__</span><span class="p">,</span> <span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
                 <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
                 <span class="s2">&quot;comparator&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_comparator</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
@@ -838,6 +851,10 @@
 
 <div class="viewcode-block" id="StructureMatcher.from_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.structure_matcher.html#pymatgen.analysis.structure_matcher.StructureMatcher.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param d: Dict representation</span>
+<span class="sd">        :return: StructureMatcher</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">StructureMatcher</span><span class="p">(</span>
             <span class="n">ltol</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;ltol&quot;</span><span class="p">],</span> <span class="n">stol</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;stol&quot;</span><span class="p">],</span> <span class="n">angle_tol</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;angle_tol&quot;</span><span class="p">],</span>
             <span class="n">primitive_cell</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;primitive_cell&quot;</span><span class="p">],</span> <span class="n">scale</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;scale&quot;</span><span class="p">],</span>
@@ -1164,23 +1181,24 @@
 
 <span class="sd">    NOTE: for defect complexes (more than a single defect),</span>
 <span class="sd">    this comparator will break.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        check_charge (bool): Gives option to check</span>
-<span class="sd">            if charges are identical.</span>
-<span class="sd">            Default is False (different charged defects can be same)</span>
-<span class="sd">        check_primitive_cell (bool): Gives option to</span>
-<span class="sd">            compare different supercells of bulk_structure,</span>
-<span class="sd">            rather than directly compare supercell sizes</span>
-<span class="sd">            Default is False (requires bulk_structure in each defect to be same size)</span>
-<span class="sd">        check_lattice_scale (bool): Gives option to scale volumes of</span>
-<span class="sd">            structures to each other identical lattice constants.</span>
-<span class="sd">            Default is False (enforces same</span>
-<span class="sd">            lattice constants in both structures)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check_charge</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">check_primitive_cell</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">check_lattice_scale</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            check_charge (bool): Gives option to check</span>
+<span class="sd">                if charges are identical.</span>
+<span class="sd">                Default is False (different charged defects can be same)</span>
+<span class="sd">            check_primitive_cell (bool): Gives option to</span>
+<span class="sd">                compare different supercells of bulk_structure,</span>
+<span class="sd">                rather than directly compare supercell sizes</span>
+<span class="sd">                Default is False (requires bulk_structure in each defect to be same size)</span>
+<span class="sd">            check_lattice_scale (bool): Gives option to scale volumes of</span>
+<span class="sd">                structures to each other identical lattice constants.</span>
+<span class="sd">                Default is False (enforces same</span>
+<span class="sd">                lattice constants in both structures)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_charge</span> <span class="o">=</span> <span class="n">check_charge</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_primitive_cell</span> <span class="o">=</span> <span class="n">check_primitive_cell</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_lattice_scale</span> <span class="o">=</span> <span class="n">check_lattice_scale</span>
@@ -1267,7 +1285,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1275,7 +1293,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

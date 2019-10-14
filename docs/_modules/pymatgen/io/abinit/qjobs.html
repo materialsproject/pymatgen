@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.abinit.qjobs &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.io.abinit.qjobs &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -62,6 +61,7 @@
 <span class="kn">from</span> <span class="nn">monty.inspect</span> <span class="k">import</span> <span class="n">all_subclasses</span>
 
 <span class="kn">import</span> <span class="nn">logging</span>
+
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
@@ -80,7 +80,7 @@
 <span class="sd">    CA  CANCELLED       Job was explicitly cancelled by the user or system administrator.</span>
 <span class="sd">                        The job may or may not have been initiated.</span>
 <span class="sd">    CD  COMPLETED       Job has terminated all processes on all nodes.</span>
-<span class="sd">    CF  CONFIGURING     Job has been allocated resources, but are waiting for them to become ready for use (e.g. booting).</span>
+<span class="sd">    CF  CONFIGURING     Job has been allocated resources, but are waiting for them to become ready for use (booting).</span>
 <span class="sd">    CG  COMPLETING      Job is in the process of completing. Some processes on some  nodes may still be active.</span>
 <span class="sd">    F   FAILED          Job terminated with non-zero exit code or other failure condition.</span>
 <span class="sd">    NF  NODE_FAIL       Job terminated due to failure of one or more allocated nodes.</span>
@@ -118,9 +118,10 @@
     <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a :class:`JobStatus` instance from its string representation.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">num</span><span class="p">,</span> <span class="n">text</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_STATUS_TABLE</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">text</span> <span class="o">==</span> <span class="n">s</span><span class="p">:</span> <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">text</span> <span class="o">==</span> <span class="n">s</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c1">#raise ValueError(&quot;Wrong string %s&quot; % s)</span>
+            <span class="c1"># raise ValueError(&quot;Wrong string %s&quot; % s)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Got unknown status: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">s</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;UNKNOWN&quot;</span><span class="p">)</span></div></div>
 
@@ -133,18 +134,18 @@
     <span class="n">QTYPE</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="c1"># Used to handle other resource managers.</span>
-    <span class="n">S_UNKNOWN</span>   <span class="o">=</span> <span class="n">JobStatus</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;UNKNOWN&quot;</span><span class="p">)</span>
+    <span class="n">S_UNKNOWN</span> <span class="o">=</span> <span class="n">JobStatus</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;UNKNOWN&quot;</span><span class="p">)</span>
     <span class="c1"># Slurm status</span>
-    <span class="n">S_PENDING</span>   <span class="o">=</span> <span class="n">JobStatus</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;PENDING&quot;</span><span class="p">)</span>
-    <span class="n">S_RUNNING</span>   <span class="o">=</span> <span class="n">JobStatus</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;RUNNING&quot;</span><span class="p">)</span>
-    <span class="n">S_RESIZING</span>  <span class="o">=</span> <span class="n">JobStatus</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;RESIZING&quot;</span><span class="p">)</span>
+    <span class="n">S_PENDING</span> <span class="o">=</span> <span class="n">JobStatus</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;PENDING&quot;</span><span class="p">)</span>
+    <span class="n">S_RUNNING</span> <span class="o">=</span> <span class="n">JobStatus</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;RUNNING&quot;</span><span class="p">)</span>
+    <span class="n">S_RESIZING</span> <span class="o">=</span> <span class="n">JobStatus</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;RESIZING&quot;</span><span class="p">)</span>
     <span class="n">S_SUSPENDED</span> <span class="o">=</span> <span class="n">JobStatus</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;SUSPENDED&quot;</span><span class="p">)</span>
     <span class="n">S_COMPLETED</span> <span class="o">=</span> <span class="n">JobStatus</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;COMPLETED&quot;</span><span class="p">)</span>
     <span class="n">S_CANCELLED</span> <span class="o">=</span> <span class="n">JobStatus</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;CANCELLED&quot;</span><span class="p">)</span>
-    <span class="n">S_FAILED</span>    <span class="o">=</span> <span class="n">JobStatus</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;FAILED&quot;</span><span class="p">)</span>
-    <span class="n">S_TIMEOUT</span>   <span class="o">=</span> <span class="n">JobStatus</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;TIMEOUT&quot;</span><span class="p">)</span>
+    <span class="n">S_FAILED</span> <span class="o">=</span> <span class="n">JobStatus</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;FAILED&quot;</span><span class="p">)</span>
+    <span class="n">S_TIMEOUT</span> <span class="o">=</span> <span class="n">JobStatus</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;TIMEOUT&quot;</span><span class="p">)</span>
     <span class="n">S_PREEMPTED</span> <span class="o">=</span> <span class="n">JobStatus</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;PREEMPTED&quot;</span><span class="p">)</span>
-    <span class="n">S_NODEFAIL</span>  <span class="o">=</span> <span class="n">JobStatus</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;NODEFAIL&quot;</span><span class="p">)</span>
+    <span class="n">S_NODEFAIL</span> <span class="o">=</span> <span class="n">JobStatus</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;NODEFAIL&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="QueueJob.from_qtype_and_id"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.qjobs.html#pymatgen.io.abinit.qjobs.QueueJob.from_qtype_and_id">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_qtype_and_id</span><span class="p">(</span><span class="n">qtype</span><span class="p">,</span> <span class="n">queue_id</span><span class="p">,</span> <span class="n">qname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -157,7 +158,8 @@
 <span class="sd">            qname: Name of the queue (optional).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="bp">cls</span> <span class="ow">in</span> <span class="n">all_subclasses</span><span class="p">(</span><span class="n">QueueJob</span><span class="p">):</span>
-            <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">QTYPE</span> <span class="o">==</span> <span class="n">qtype</span><span class="p">:</span> <span class="k">break</span>
+            <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">QTYPE</span> <span class="o">==</span> <span class="n">qtype</span><span class="p">:</span>
+                <span class="k">break</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Cannot find QueueJob subclass registered for qtype </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">qtype</span><span class="p">)</span>
             <span class="bp">cls</span> <span class="o">=</span> <span class="n">QueueJob</span>
@@ -184,9 +186,8 @@
 
     <span class="n">__nonzero__</span> <span class="o">=</span> <span class="fm">__bool__</span>
 
-
-    <span class="c1">#In many cases, we only need to know if job is terminated or not</span>
-    <span class="c1">#def is_terminated()</span>
+    <span class="c1"># In many cases, we only need to know if job is terminated or not</span>
+    <span class="c1"># def is_terminated()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_completed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -257,11 +258,13 @@
 <span class="sd">        SIGXFSZ     25,25,31    Core    File size limit exceeded (4.2BSD)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">sig_name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;SIGFPE&quot;</span><span class="p">,):</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">received_signal</span><span class="p">(</span><span class="n">sig_name</span><span class="p">):</span> <span class="k">return</span> <span class="n">sig_name</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">received_signal</span><span class="p">(</span><span class="n">sig_name</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">sig_name</span>
         <span class="k">return</span> <span class="kc">False</span></div>
 
 <div class="viewcode-block" id="QueueJob.received_signal"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.qjobs.html#pymatgen.io.abinit.qjobs.QueueJob.received_signal">[docs]</a>    <span class="k">def</span> <span class="nf">received_signal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sig_name</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">signal</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">signal</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
         <span class="c1"># Get the numeric value from signal and compare it with self.signal</span>
         <span class="kn">import</span> <span class="nn">signal</span>
         <span class="k">try</span><span class="p">:</span>
@@ -294,7 +297,7 @@
     <span class="n">QTYPE</span> <span class="o">=</span> <span class="s2">&quot;slurm&quot;</span>
 
 <div class="viewcode-block" id="SlurmJob.estimated_start_time"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.qjobs.html#pymatgen.io.abinit.qjobs.SlurmJob.estimated_start_time">[docs]</a>    <span class="k">def</span> <span class="nf">estimated_start_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1">#squeue  --start -j  116791</span>
+        <span class="c1"># squeue  --start -j  116791</span>
         <span class="c1">#  JOBID PARTITION     NAME     USER  ST           START_TIME  NODES NODELIST(REASON)</span>
         <span class="c1"># 116791      defq gs6q2wop username  PD  2014-11-04T09:27:15     16 (QOSResourceLimit)</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="s2">&quot;squeue&quot;</span> <span class="s2">&quot;--start&quot;</span><span class="p">,</span> <span class="s2">&quot;--job </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">qid</span>
@@ -306,39 +309,41 @@
             <span class="k">return</span> <span class="kc">None</span>
 
         <span class="n">lines</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span> <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
 
         <span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
             <span class="n">tokens</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
             <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">qid</span><span class="p">:</span>
                 <span class="n">date_string</span> <span class="o">=</span> <span class="n">tokens</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
-                <span class="k">if</span> <span class="n">date_string</span> <span class="o">==</span> <span class="s2">&quot;N/A&quot;</span><span class="p">:</span> <span class="k">return</span> <span class="kc">None</span>
+                <span class="k">if</span> <span class="n">date_string</span> <span class="o">==</span> <span class="s2">&quot;N/A&quot;</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">None</span>
                 <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">date_string</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%S&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="SlurmJob.get_info"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.qjobs.html#pymatgen.io.abinit.qjobs.SlurmJob.get_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="c1"># See https://computing.llnl.gov/linux/slurm/sacct.html</span>
-        <span class="c1">#If SLURM job ids are reset, some job numbers will</span>
-        <span class="c1">#probably appear more than once refering to different jobs.</span>
-        <span class="c1">#Without this option only the most recent jobs will be displayed.</span>
+        <span class="c1"># If SLURM job ids are reset, some job numbers will</span>
+        <span class="c1"># probably appear more than once refering to different jobs.</span>
+        <span class="c1"># Without this option only the most recent jobs will be displayed.</span>
 
-        <span class="c1">#state Displays the job status, or state.</span>
-        <span class="c1">#Output can be RUNNING, RESIZING, SUSPENDED, COMPLETED, CANCELLED, FAILED, TIMEOUT,</span>
-        <span class="c1">#PREEMPTED or NODE_FAIL. If more information is available on the job state than will fit</span>
-        <span class="c1">#into the current field width (for example, the uid that CANCELLED a job) the state will be followed by a &quot;+&quot;.</span>
+        <span class="c1"># state Displays the job status, or state.</span>
+        <span class="c1"># Output can be RUNNING, RESIZING, SUSPENDED, COMPLETED, CANCELLED, FAILED, TIMEOUT,</span>
+        <span class="c1"># PREEMPTED or NODE_FAIL. If more information is available on the job state than will fit</span>
+        <span class="c1"># into the current field width (for example, the uid that CANCELLED a job) the state will be followed by a &quot;+&quot;.</span>
 
-        <span class="c1">#gmatteo@master2:~</span>
-        <span class="c1">#sacct --job 112367 --format=jobid,exitcode,state --allocations --parsable2</span>
-        <span class="c1">#JobID|ExitCode|State</span>
-        <span class="c1">#112367|0:0|RUNNING</span>
-        <span class="c1">#scontrol show job 800197 --oneliner</span>
+        <span class="c1"># gmatteo@master2:~</span>
+        <span class="c1"># sacct --job 112367 --format=jobid,exitcode,state --allocations --parsable2</span>
+        <span class="c1"># JobID|ExitCode|State</span>
+        <span class="c1"># 112367|0:0|RUNNING</span>
+        <span class="c1"># scontrol show job 800197 --oneliner</span>
 
         <span class="c1"># For more info</span>
-        <span class="c1">#login1$ scontrol show job 1676354</span>
+        <span class="c1"># login1$ scontrol show job 1676354</span>
 
-        <span class="c1">#cmd = &quot;sacct --job %i --format=jobid,exitcode,state --allocations --parsable2&quot; % self.qid</span>
+        <span class="c1"># cmd = &quot;sacct --job %i --format=jobid,exitcode,state --allocations --parsable2&quot; % self.qid</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="s2">&quot;scontrol show job </span><span class="si">%i</span><span class="s2"> --oneliner&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">qid</span>
         <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">(</span><span class="n">shlex</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">cmd</span><span class="p">),</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
         <span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
@@ -350,10 +355,10 @@
         <span class="n">tokens</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
         <span class="n">info</span> <span class="o">=</span> <span class="n">AttrDict</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">:</span>
-            <span class="c1">#print(line)</span>
+            <span class="c1"># print(line)</span>
             <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span>
             <span class="n">info</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
-            <span class="c1">#print(info)</span>
+            <span class="c1"># print(info)</span>
 
         <span class="n">qid</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">JobId</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">qid</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">qid</span>
@@ -366,7 +371,8 @@
             <span class="n">exitcode</span><span class="p">,</span> <span class="n">signal</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">exitcode</span><span class="p">),</span> <span class="kc">None</span>
 
         <span class="n">i</span> <span class="o">=</span> <span class="n">status</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;+&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span> <span class="n">status</span> <span class="o">=</span> <span class="n">status</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">status</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">set_status_exitcode_signal</span><span class="p">(</span><span class="n">JobStatus</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">status</span><span class="p">),</span> <span class="n">exitcode</span><span class="p">,</span> <span class="n">signal</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">AttrDict</span><span class="p">(</span><span class="n">exitcode</span><span class="o">=</span><span class="n">exitcode</span><span class="p">,</span> <span class="n">signal</span><span class="o">=</span><span class="n">signal</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">)</span></div>
@@ -383,7 +389,7 @@
         <span class="n">lines</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
         <span class="n">keys</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="p">)</span>
         <span class="n">values</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="p">)</span>
-        <span class="c1">#print(&quot;lines0&quot;, lines[0])</span>
+        <span class="c1"># print(&quot;lines0&quot;, lines[0])</span>
         <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">values</span><span class="p">))</span></div></div>
 
 
@@ -422,9 +428,9 @@
         <span class="c1"># qstat -T - Shows the estimated start time for all jobs in the queue.</span>
         <span class="c1">#                                                                           Est</span>
         <span class="c1">#                                                            Req&#39;d  Req&#39;d   Start</span>
-        <span class="c1">#Job ID          Username Queue    Jobname    SessID NDS TSK Memory Time  S Time</span>
-        <span class="c1">#--------------- -------- -------- ---------- ------ --- --- ------ ----- - -----</span>
-        <span class="c1">#5669001.frontal username large    gs.Pt         --   96  96    --  03:00 Q    --</span>
+        <span class="c1"># Job ID          Username Queue    Jobname    SessID NDS TSK Memory Time  S Time</span>
+        <span class="c1"># --------------- -------- -------- ---------- ------ --- --- ------ ----- - -----</span>
+        <span class="c1"># 5669001.frontal username large    gs.Pt         --   96  96    --  03:00 Q    --</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="s2">&quot;qstat </span><span class="si">%s</span><span class="s2"> -T&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">qid</span>
         <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">(</span><span class="n">shlex</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">cmd</span><span class="p">),</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
         <span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
@@ -444,14 +450,14 @@
 <div class="viewcode-block" id="PbsProJob.get_info"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.qjobs.html#pymatgen.io.abinit.qjobs.PbsProJob.get_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="c1"># See also qstat -f</span>
-        <span class="c1">#http://sc.tamu.edu/help/origins/batch.shtml#qstat</span>
+        <span class="c1"># http://sc.tamu.edu/help/origins/batch.shtml#qstat</span>
 
-        <span class="c1">#$&gt; qstat 5666289</span>
-        <span class="c1">#frontal1:</span>
+        <span class="c1"># $&gt; qstat 5666289</span>
+        <span class="c1"># frontal1:</span>
         <span class="c1">#                                                            Req&#39;d  Req&#39;d   Elap</span>
-        <span class="c1">#Job ID          Username Queue    Jobname    SessID NDS TSK Memory Time  S Time</span>
-        <span class="c1">#--------------- -------- -------- ---------- ------ --- --- ------ ----- - -----</span>
-        <span class="c1">#5666289.frontal username main_ivy MorfeoTChk  57546   1   4    --  08:00 R 00:17</span>
+        <span class="c1"># Job ID          Username Queue    Jobname    SessID NDS TSK Memory Time  S Time</span>
+        <span class="c1"># --------------- -------- -------- ---------- ------ --- --- ------ ----- - -----</span>
+        <span class="c1"># 5666289.frontal username main_ivy MorfeoTChk  57546   1   4    --  08:00 R 00:17</span>
 
         <span class="n">cmd</span> <span class="o">=</span> <span class="s2">&quot;qstat </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">qid</span>
         <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">(</span><span class="n">shlex</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">cmd</span><span class="p">),</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
@@ -472,10 +478,10 @@
         <span class="c1"># Job id            Name             User              Time Use S Queue</span>
         <span class="c1"># ----------------  ---------------- ----------------  -------- - -----</span>
         <span class="c1"># 5905011.frontal1  t0               gmatteo           01:37:08 F main_wes</span>
-        <span class="c1">#print(out)</span>
+        <span class="c1"># print(out)</span>
 
         <span class="n">line</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="c1">#print(line.split())</span>
+        <span class="c1"># print(line.split())</span>
         <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PBSSTAT_TO_SLURM</span><span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">4</span><span class="p">]]</span>
 
         <span class="c1"># Exit code and signal are not available.</span>
@@ -536,7 +542,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -544,7 +550,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

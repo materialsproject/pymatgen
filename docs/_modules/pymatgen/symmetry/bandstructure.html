@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.symmetry.bandstructure &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.symmetry.bandstructure &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -49,6 +48,11 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on March 25, 2013</span>
+
+<span class="sd">@author: geoffroy</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
@@ -59,12 +63,6 @@
 <span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">pi</span>
 <span class="kn">from</span> <span class="nn">warnings</span> <span class="k">import</span> <span class="n">warn</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
-
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Created on March 25, 2013</span>
-
-<span class="sd">@author: geoffroy</span>
-<span class="sd">&quot;&quot;&quot;</span>
 
 
 <div class="viewcode-block" id="HighSymmKpath"><a class="viewcode-back" href="../../../pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath">[docs]</a><span class="k">class</span> <span class="nc">HighSymmKpath</span><span class="p">:</span>
@@ -83,17 +81,18 @@
 <span class="sd">    get_primitive_standard_structure(international_monoclinic=False)).</span>
 <span class="sd">    A warning will signal possible compatibility problems</span>
 <span class="sd">    with the given structure.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        structure (Structure): Structure object</span>
-<span class="sd">        symprec (float): Tolerance for symmetry finding</span>
-<span class="sd">        angle_tolerance (float): Angle tolerance for symmetry finding.</span>
-<span class="sd">        atol (float): Absolute tolerance used to compare the input</span>
-<span class="sd">            structure with the one expected as primitive standard.</span>
-<span class="sd">            A warning will be issued if the lattices don&#39;t match.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): Structure object</span>
+<span class="sd">            symprec (float): Tolerance for symmetry finding</span>
+<span class="sd">            angle_tolerance (float): Angle tolerance for symmetry finding.</span>
+<span class="sd">            atol (float): Absolute tolerance used to compare the input</span>
+<span class="sd">                structure with the one expected as primitive standard.</span>
+<span class="sd">                A warning will be issued if the lattices don&#39;t match.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_structure</span> <span class="o">=</span> <span class="n">structure</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sym</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="n">symprec</span><span class="p">,</span>
                                        <span class="n">angle_tolerance</span><span class="o">=</span><span class="n">angle_tolerance</span><span class="p">)</span>
@@ -164,7 +163,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_kpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hex</span><span class="p">()</span>
 
         <span class="k">elif</span> <span class="n">lattice_type</span> <span class="o">==</span> <span class="s2">&quot;rhombohedral&quot;</span><span class="p">:</span>
-            <span class="n">alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prim</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">lengths_and_angles</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prim</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">angles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">alpha</span> <span class="o">&lt;</span> <span class="mi">90</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_kpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rhl1</span><span class="p">(</span><span class="n">alpha</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">/</span> <span class="mi">180</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
@@ -172,14 +171,13 @@
 
         <span class="k">elif</span> <span class="n">lattice_type</span> <span class="o">==</span> <span class="s2">&quot;monoclinic&quot;</span><span class="p">:</span>
             <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conv</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">abc</span>
-            <span class="n">alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conv</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">lengths_and_angles</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-            <span class="c1"># beta = self._conv.lattice.lengths_and_angles[1][1]</span>
+            <span class="n">alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conv</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">angles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
             <span class="k">if</span> <span class="s2">&quot;P&quot;</span> <span class="ow">in</span> <span class="n">spg_symbol</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_kpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mcl</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">/</span> <span class="mi">180</span><span class="p">)</span>
 
             <span class="k">elif</span> <span class="s2">&quot;C&quot;</span> <span class="ow">in</span> <span class="n">spg_symbol</span><span class="p">:</span>
-                <span class="n">kgamma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prim_rec</span><span class="o">.</span><span class="n">lengths_and_angles</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+                <span class="n">kgamma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prim_rec</span><span class="o">.</span><span class="n">angles</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">kgamma</span> <span class="o">&gt;</span> <span class="mi">90</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_kpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mclc1</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">/</span> <span class="mi">180</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">kgamma</span> <span class="o">==</span> <span class="mi">90</span><span class="p">:</span>
@@ -198,9 +196,9 @@
                 <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Unexpected value for spg_symbol: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">spg_symbol</span><span class="p">)</span>
 
         <span class="k">elif</span> <span class="n">lattice_type</span> <span class="o">==</span> <span class="s2">&quot;triclinic&quot;</span><span class="p">:</span>
-            <span class="n">kalpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prim_rec</span><span class="o">.</span><span class="n">lengths_and_angles</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">kbeta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prim_rec</span><span class="o">.</span><span class="n">lengths_and_angles</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">kgamma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prim_rec</span><span class="o">.</span><span class="n">lengths_and_angles</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">kalpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prim_rec</span><span class="o">.</span><span class="n">angles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">kbeta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prim_rec</span><span class="o">.</span><span class="n">angles</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">kgamma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prim_rec</span><span class="o">.</span><span class="n">angles</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">kalpha</span> <span class="o">&gt;</span> <span class="mi">90</span> <span class="ow">and</span> <span class="n">kbeta</span> <span class="o">&gt;</span> <span class="mi">90</span> <span class="ow">and</span> <span class="n">kgamma</span> <span class="o">&gt;</span> <span class="mi">90</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_kpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tria</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">kalpha</span> <span class="o">&lt;</span> <span class="mi">90</span> <span class="ow">and</span> <span class="n">kbeta</span> <span class="o">&lt;</span> <span class="mi">90</span> <span class="ow">and</span> <span class="n">kgamma</span> <span class="o">&lt;</span> <span class="mi">90</span><span class="p">:</span>
@@ -284,6 +282,11 @@
             <span class="k">return</span> <span class="n">frac_k_points</span><span class="p">,</span> <span class="n">sym_point_labels</span></div>
 
 <div class="viewcode-block" id="HighSymmKpath.cubic"><a class="viewcode-back" href="../../../pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath.cubic">[docs]</a>    <span class="k">def</span> <span class="nf">cubic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Cubic HighSymmKPath</span>
+
+<span class="sd">        :return: Dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;CUB&quot;</span>
         <span class="n">kpoints</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">Gamma&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]),</span>
                    <span class="s1">&#39;X&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]),</span>
@@ -293,6 +296,11 @@
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;kpoints&#39;</span><span class="p">:</span> <span class="n">kpoints</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">path</span><span class="p">}</span></div>
 
 <div class="viewcode-block" id="HighSymmKpath.fcc"><a class="viewcode-back" href="../../../pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath.fcc">[docs]</a>    <span class="k">def</span> <span class="nf">fcc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fcc HighSymmKPath</span>
+
+<span class="sd">        :return: Dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;FCC&quot;</span>
         <span class="n">kpoints</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">Gamma&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]),</span>
                    <span class="s1">&#39;K&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">3.0</span> <span class="o">/</span> <span class="mf">8.0</span><span class="p">,</span> <span class="mf">3.0</span> <span class="o">/</span> <span class="mf">8.0</span><span class="p">,</span> <span class="mf">3.0</span> <span class="o">/</span> <span class="mf">4.0</span><span class="p">]),</span>
@@ -305,6 +313,11 @@
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;kpoints&#39;</span><span class="p">:</span> <span class="n">kpoints</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">path</span><span class="p">}</span></div>
 
 <div class="viewcode-block" id="HighSymmKpath.bcc"><a class="viewcode-back" href="../../../pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath.bcc">[docs]</a>    <span class="k">def</span> <span class="nf">bcc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Bcc HighSymmKPath</span>
+
+<span class="sd">        :return: Dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;BCC&quot;</span>
         <span class="n">kpoints</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">Gamma&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]),</span>
                    <span class="s1">&#39;H&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]),</span>
@@ -314,6 +327,11 @@
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;kpoints&#39;</span><span class="p">:</span> <span class="n">kpoints</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">path</span><span class="p">}</span></div>
 
 <div class="viewcode-block" id="HighSymmKpath.tet"><a class="viewcode-back" href="../../../pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath.tet">[docs]</a>    <span class="k">def</span> <span class="nf">tet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Tetragonal HighSymmKPath</span>
+
+<span class="sd">        :return: Dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;TET&quot;</span>
         <span class="n">kpoints</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">Gamma&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]),</span>
                    <span class="s1">&#39;A&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]),</span>
@@ -326,6 +344,11 @@
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;kpoints&#39;</span><span class="p">:</span> <span class="n">kpoints</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">path</span><span class="p">}</span></div>
 
 <div class="viewcode-block" id="HighSymmKpath.bctet1"><a class="viewcode-back" href="../../../pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath.bctet1">[docs]</a>    <span class="k">def</span> <span class="nf">bctet1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        BCT1 HighSymmKPath</span>
+
+<span class="sd">        :return: Dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;BCT1&quot;</span>
         <span class="n">eta</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">c</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">a</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">4.0</span>
         <span class="n">kpoints</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">Gamma&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]),</span>
@@ -340,6 +363,11 @@
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;kpoints&#39;</span><span class="p">:</span> <span class="n">kpoints</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">path</span><span class="p">}</span></div>
 
 <div class="viewcode-block" id="HighSymmKpath.bctet2"><a class="viewcode-back" href="../../../pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath.bctet2">[docs]</a>    <span class="k">def</span> <span class="nf">bctet2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        BCT2 HighSymmKPath</span>
+
+<span class="sd">        :return: Dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;BCT2&quot;</span>
         <span class="n">eta</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">a</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">c</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">4.0</span>
         <span class="n">zeta</span> <span class="o">=</span> <span class="n">a</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">c</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
@@ -357,6 +385,11 @@
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;kpoints&#39;</span><span class="p">:</span> <span class="n">kpoints</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">path</span><span class="p">}</span></div>
 
 <div class="viewcode-block" id="HighSymmKpath.orc"><a class="viewcode-back" href="../../../pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath.orc">[docs]</a>    <span class="k">def</span> <span class="nf">orc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Orthorhombic HighSymmKPath</span>
+
+<span class="sd">        :return: Dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;ORC&quot;</span>
         <span class="n">kpoints</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">Gamma&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]),</span>
                    <span class="s1">&#39;R&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]),</span>
@@ -371,6 +404,11 @@
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;kpoints&#39;</span><span class="p">:</span> <span class="n">kpoints</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">path</span><span class="p">}</span></div>
 
 <div class="viewcode-block" id="HighSymmKpath.orcf1"><a class="viewcode-back" href="../../../pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath.orcf1">[docs]</a>    <span class="k">def</span> <span class="nf">orcf1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Orthorhombic f1 HighSymmKPath</span>
+
+<span class="sd">        :return: Dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;ORCF1&quot;</span>
         <span class="n">zeta</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">a</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">b</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">a</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">c</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">4</span>
         <span class="n">eta</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">a</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">b</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">a</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">c</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">4</span>
@@ -389,6 +427,11 @@
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;kpoints&#39;</span><span class="p">:</span> <span class="n">kpoints</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">path</span><span class="p">}</span></div>
 
 <div class="viewcode-block" id="HighSymmKpath.orcf2"><a class="viewcode-back" href="../../../pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath.orcf2">[docs]</a>    <span class="k">def</span> <span class="nf">orcf2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Orthorhombic f2 HighSymmKPath</span>
+
+<span class="sd">        :return: Dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;ORCF2&quot;</span>
         <span class="n">phi</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">c</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">b</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">c</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">a</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">4</span>
         <span class="n">eta</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">a</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">b</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">a</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">c</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">4</span>
@@ -410,6 +453,11 @@
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;kpoints&#39;</span><span class="p">:</span> <span class="n">kpoints</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">path</span><span class="p">}</span></div>
 
 <div class="viewcode-block" id="HighSymmKpath.orcf3"><a class="viewcode-back" href="../../../pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath.orcf3">[docs]</a>    <span class="k">def</span> <span class="nf">orcf3</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Orthorhombic f3 HighSymmKPath</span>
+
+<span class="sd">        :return: Dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;ORCF3&quot;</span>
         <span class="n">zeta</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">a</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">b</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">a</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">c</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">4</span>
         <span class="n">eta</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">a</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">b</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">a</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">c</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">4</span>
@@ -427,6 +475,11 @@
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;kpoints&#39;</span><span class="p">:</span> <span class="n">kpoints</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">path</span><span class="p">}</span></div>
 
 <div class="viewcode-block" id="HighSymmKpath.orci"><a class="viewcode-back" href="../../../pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath.orci">[docs]</a>    <span class="k">def</span> <span class="nf">orci</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Orthorhombic I HighSymmKPath</span>
+
+<span class="sd">        :return: Dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;ORCI&quot;</span>
         <span class="n">zeta</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">a</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">c</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">4</span>
         <span class="n">eta</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">b</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">c</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">4</span>
@@ -450,6 +503,11 @@
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;kpoints&#39;</span><span class="p">:</span> <span class="n">kpoints</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">path</span><span class="p">}</span></div>
 
 <div class="viewcode-block" id="HighSymmKpath.orcc"><a class="viewcode-back" href="../../../pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath.orcc">[docs]</a>    <span class="k">def</span> <span class="nf">orcc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Orthorhombic C HighSymmKPath</span>
+
+<span class="sd">        :return: Dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;ORCC&quot;</span>
         <span class="n">zeta</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">a</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">b</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">4</span>
         <span class="n">kpoints</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">Gamma&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]),</span>
@@ -467,6 +525,11 @@
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;kpoints&#39;</span><span class="p">:</span> <span class="n">kpoints</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">path</span><span class="p">}</span></div>
 
 <div class="viewcode-block" id="HighSymmKpath.hex"><a class="viewcode-back" href="../../../pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath.hex">[docs]</a>    <span class="k">def</span> <span class="nf">hex</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Hexagonal HighSymmKPath</span>
+
+<span class="sd">        :return: Dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;HEX&quot;</span>
         <span class="n">kpoints</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">Gamma&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]),</span>
                    <span class="s1">&#39;A&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]),</span>
@@ -479,6 +542,11 @@
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;kpoints&#39;</span><span class="p">:</span> <span class="n">kpoints</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">path</span><span class="p">}</span></div>
 
 <div class="viewcode-block" id="HighSymmKpath.rhl1"><a class="viewcode-back" href="../../../pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath.rhl1">[docs]</a>    <span class="k">def</span> <span class="nf">rhl1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alpha</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Rhombohedral 1 HighSymmKPath</span>
+
+<span class="sd">        :return: Dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;RHL1&quot;</span>
         <span class="n">eta</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">cos</span><span class="p">(</span><span class="n">alpha</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">cos</span><span class="p">(</span><span class="n">alpha</span><span class="p">))</span>
         <span class="n">nu</span> <span class="o">=</span> <span class="mf">3.0</span> <span class="o">/</span> <span class="mf">4.0</span> <span class="o">-</span> <span class="n">eta</span> <span class="o">/</span> <span class="mf">2.0</span>
@@ -499,6 +567,11 @@
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;kpoints&#39;</span><span class="p">:</span> <span class="n">kpoints</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">path</span><span class="p">}</span></div>
 
 <div class="viewcode-block" id="HighSymmKpath.rhl2"><a class="viewcode-back" href="../../../pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath.rhl2">[docs]</a>    <span class="k">def</span> <span class="nf">rhl2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alpha</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Rhombohedral 2 HighSymmKPath</span>
+
+<span class="sd">        :return: Dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;RHL2&quot;</span>
         <span class="n">eta</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">tan</span><span class="p">(</span><span class="n">alpha</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
         <span class="n">nu</span> <span class="o">=</span> <span class="mf">3.0</span> <span class="o">/</span> <span class="mf">4.0</span> <span class="o">-</span> <span class="n">eta</span> <span class="o">/</span> <span class="mf">2.0</span>
@@ -515,6 +588,11 @@
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;kpoints&#39;</span><span class="p">:</span> <span class="n">kpoints</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">path</span><span class="p">}</span></div>
 
 <div class="viewcode-block" id="HighSymmKpath.mcl"><a class="viewcode-back" href="../../../pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath.mcl">[docs]</a>    <span class="k">def</span> <span class="nf">mcl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">beta</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Monoclinic 1 HighSymmKPath</span>
+
+<span class="sd">        :return: Dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;MCL&quot;</span>
         <span class="n">eta</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">b</span> <span class="o">*</span> <span class="n">cos</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span> <span class="o">/</span> <span class="n">c</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">sin</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
         <span class="n">nu</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">-</span> <span class="n">eta</span> <span class="o">*</span> <span class="n">c</span> <span class="o">*</span> <span class="n">cos</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span> <span class="o">/</span> <span class="n">b</span>
@@ -539,6 +617,11 @@
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;kpoints&#39;</span><span class="p">:</span> <span class="n">kpoints</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">path</span><span class="p">}</span></div>
 
 <div class="viewcode-block" id="HighSymmKpath.mclc1"><a class="viewcode-back" href="../../../pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath.mclc1">[docs]</a>    <span class="k">def</span> <span class="nf">mclc1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">alpha</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Monoclinic C1 HighSymmKPath</span>
+
+<span class="sd">        :return: Dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;MCLC1&quot;</span>
         <span class="n">zeta</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">-</span> <span class="n">b</span> <span class="o">*</span> <span class="n">cos</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span> <span class="o">/</span> <span class="n">c</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">sin</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
         <span class="n">eta</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">zeta</span> <span class="o">*</span> <span class="n">c</span> <span class="o">*</span> <span class="n">cos</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span> <span class="o">/</span> <span class="n">b</span>
@@ -566,6 +649,11 @@
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;kpoints&#39;</span><span class="p">:</span> <span class="n">kpoints</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">path</span><span class="p">}</span></div>
 
 <div class="viewcode-block" id="HighSymmKpath.mclc2"><a class="viewcode-back" href="../../../pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath.mclc2">[docs]</a>    <span class="k">def</span> <span class="nf">mclc2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">alpha</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Monoclinic C2 HighSymmKPath</span>
+
+<span class="sd">        :return: Dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;MCLC2&quot;</span>
         <span class="n">zeta</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">-</span> <span class="n">b</span> <span class="o">*</span> <span class="n">cos</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span> <span class="o">/</span> <span class="n">c</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">sin</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
         <span class="n">eta</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">zeta</span> <span class="o">*</span> <span class="n">c</span> <span class="o">*</span> <span class="n">cos</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span> <span class="o">/</span> <span class="n">b</span>
@@ -593,6 +681,11 @@
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;kpoints&#39;</span><span class="p">:</span> <span class="n">kpoints</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">path</span><span class="p">}</span></div>
 
 <div class="viewcode-block" id="HighSymmKpath.mclc3"><a class="viewcode-back" href="../../../pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath.mclc3">[docs]</a>    <span class="k">def</span> <span class="nf">mclc3</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">alpha</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Monoclinic C3 HighSymmKPath</span>
+
+<span class="sd">        :return: Dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;MCLC3&quot;</span>
         <span class="n">mu</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">b</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">a</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">4.0</span>
         <span class="n">delta</span> <span class="o">=</span> <span class="n">b</span> <span class="o">*</span> <span class="n">c</span> <span class="o">*</span> <span class="n">cos</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">a</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
@@ -622,6 +715,11 @@
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;kpoints&#39;</span><span class="p">:</span> <span class="n">kpoints</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">path</span><span class="p">}</span></div>
 
 <div class="viewcode-block" id="HighSymmKpath.mclc4"><a class="viewcode-back" href="../../../pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath.mclc4">[docs]</a>    <span class="k">def</span> <span class="nf">mclc4</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">alpha</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Monoclinic C4 HighSymmKPath</span>
+
+<span class="sd">        :return: Dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;MCLC4&quot;</span>
         <span class="n">mu</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">b</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">a</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">4.0</span>
         <span class="n">delta</span> <span class="o">=</span> <span class="n">b</span> <span class="o">*</span> <span class="n">c</span> <span class="o">*</span> <span class="n">cos</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">a</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
@@ -651,6 +749,11 @@
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;kpoints&#39;</span><span class="p">:</span> <span class="n">kpoints</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">path</span><span class="p">}</span></div>
 
 <div class="viewcode-block" id="HighSymmKpath.mclc5"><a class="viewcode-back" href="../../../pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath.mclc5">[docs]</a>    <span class="k">def</span> <span class="nf">mclc5</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">alpha</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Monoclinic C5 HighSymmKPath</span>
+
+<span class="sd">        :return: Dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;MCLC5&quot;</span>
         <span class="n">zeta</span> <span class="o">=</span> <span class="p">(</span><span class="n">b</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">a</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">b</span> <span class="o">*</span> <span class="n">cos</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span> <span class="o">/</span> <span class="n">c</span><span class="p">)</span>
                 <span class="o">/</span> <span class="n">sin</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">4</span>
@@ -684,6 +787,11 @@
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;kpoints&#39;</span><span class="p">:</span> <span class="n">kpoints</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">path</span><span class="p">}</span></div>
 
 <div class="viewcode-block" id="HighSymmKpath.tria"><a class="viewcode-back" href="../../../pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath.tria">[docs]</a>    <span class="k">def</span> <span class="nf">tria</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Trigonal a HighSymmKPath</span>
+
+<span class="sd">        :return: Dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;TRI1a&quot;</span>
         <span class="n">kpoints</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">Gamma&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]),</span>
                    <span class="s1">&#39;L&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]),</span>
@@ -698,6 +806,11 @@
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;kpoints&#39;</span><span class="p">:</span> <span class="n">kpoints</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">path</span><span class="p">}</span></div>
 
 <div class="viewcode-block" id="HighSymmKpath.trib"><a class="viewcode-back" href="../../../pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath.trib">[docs]</a>    <span class="k">def</span> <span class="nf">trib</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Trigonal b HighSymmKPath</span>
+
+<span class="sd">        :return: Dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;TRI1b&quot;</span>
         <span class="n">kpoints</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">Gamma&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]),</span>
                    <span class="s1">&#39;L&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]),</span>
@@ -740,7 +853,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -748,7 +861,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

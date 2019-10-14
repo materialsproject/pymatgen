@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.xas.spectrum module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.analysis.xas.spectrum module &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -60,6 +59,19 @@
 </ul>
 </dd>
 </dl>
+<p>Args:
+x (ndarray): A ndarray of N values.
+y (ndarray): A ndarray of N x k values. The first dimension must be</p>
+<blockquote>
+<div><p>the same as that of x. Each of the k values are interpreted as</p>
+</div></blockquote>
+<dl class="simple">
+<dt><a href="#id1"><span class="problematic" id="id2">*</span></a>args: All subclasses should provide args other than x and y</dt><dd><p>when calling super, e.g., super().__init__(
+x, y, arg1, arg2, kwarg1=val1, ..). This guarantees the +, -, <a href="#id3"><span class="problematic" id="id4">*</span></a>,
+etc. operators work properly.</p>
+</dd>
+</dl>
+<p><a href="#id5"><span class="problematic" id="id6">**</span></a>kwargs: Same as that for <a href="#id7"><span class="problematic" id="id8">*</span></a>args.</p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.xas.spectrum.XANES.XLABEL">
 <code class="sig-name descname">XLABEL</code><em class="property"> = 'Energy'</em><a class="headerlink" href="#pymatgen.analysis.xas.spectrum.XANES.XLABEL" title="Permalink to this definition">¶</a></dt>
@@ -110,13 +122,13 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

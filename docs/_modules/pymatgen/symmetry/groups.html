@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.symmetry.groups &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.symmetry.groups &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -49,6 +48,12 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Defines SymmetryGroup parent class and PointGroup and SpaceGroup classes.</span>
+<span class="sd">Shyue Ping Ong thanks Marc De Graef for his generous sharing of his</span>
+<span class="sd">SpaceGroup data as published in his textbook &quot;Structure of Materials&quot;.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">product</span>
 <span class="kn">from</span> <span class="nn">fractions</span> <span class="k">import</span> <span class="n">Fraction</span>
@@ -62,36 +67,31 @@
 <span class="kn">from</span> <span class="nn">pymatgen.core.operations</span> <span class="k">import</span> <span class="n">SymmOp</span>
 <span class="kn">from</span> <span class="nn">monty.design_patterns</span> <span class="k">import</span> <span class="n">cached_class</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Defines SymmetryGroup parent class and PointGroup and SpaceGroup classes.</span>
-<span class="sd">Shyue Ping Ong thanks Marc De Graef for his generous sharing of his</span>
-<span class="sd">SpaceGroup data as published in his textbook &quot;Structure of Materials&quot;.</span>
-<span class="sd">&quot;&quot;&quot;</span>
-
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2013, The Materials Virtual Lab&quot;</span>
-<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
-<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
-<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;ongsp@ucsd.edu&quot;</span>
-<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;4/4/14&quot;</span>
 
 <span class="n">SYMM_DATA</span> <span class="o">=</span> <span class="kc">None</span>
 
 
-<div class="viewcode-block" id="get_symm_data"><a class="viewcode-back" href="../../../pymatgen.symmetry.groups.html#pymatgen.symmetry.groups.get_symm_data">[docs]</a><span class="k">def</span> <span class="nf">get_symm_data</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_get_symm_data</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">SYMM_DATA</span>
     <span class="k">if</span> <span class="n">SYMM_DATA</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">SYMM_DATA</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span>
                                         <span class="s2">&quot;symm_data.json&quot;</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">SYMM_DATA</span><span class="p">[</span><span class="n">name</span><span class="p">]</span></div>
+    <span class="k">return</span> <span class="n">SYMM_DATA</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="SymmetryGroup"><a class="viewcode-back" href="../../../pymatgen.symmetry.groups.html#pymatgen.symmetry.groups.SymmetryGroup">[docs]</a><span class="k">class</span> <span class="nc">SymmetryGroup</span><span class="p">(</span><span class="n">Sequence</span><span class="p">):</span>
-    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">ABCMeta</span>
+<div class="viewcode-block" id="SymmetryGroup"><a class="viewcode-back" href="../../../pymatgen.symmetry.groups.html#pymatgen.symmetry.groups.SymmetryGroup">[docs]</a><span class="k">class</span> <span class="nc">SymmetryGroup</span><span class="p">(</span><span class="n">Sequence</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract class representation a symmetry group.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">symmetry_ops</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: List of symmetry operations</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span>
 
     <span class="k">def</span> <span class="nf">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
@@ -164,14 +164,17 @@
 <span class="sd">            int_symbol (str): International or Hermann-Mauguin Symbol.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span> <span class="o">=</span> <span class="n">int_symbol</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">generators</span> <span class="o">=</span> <span class="p">[</span><span class="n">get_symm_data</span><span class="p">(</span><span class="s2">&quot;generator_matrices&quot;</span><span class="p">)[</span><span class="n">c</span><span class="p">]</span>
-                           <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">get_symm_data</span><span class="p">(</span><span class="s2">&quot;point_group_encoding&quot;</span><span class="p">)[</span><span class="n">int_symbol</span><span class="p">]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generators</span> <span class="o">=</span> <span class="p">[</span><span class="n">_get_symm_data</span><span class="p">(</span><span class="s2">&quot;generator_matrices&quot;</span><span class="p">)[</span><span class="n">c</span><span class="p">]</span>
+                           <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">_get_symm_data</span><span class="p">(</span><span class="s2">&quot;point_group_encoding&quot;</span><span class="p">)[</span><span class="n">int_symbol</span><span class="p">]]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_symmetry_ops</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">SymmOp</span><span class="o">.</span><span class="n">from_rotation_and_translation</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
                                   <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_full_symmetry_ops</span><span class="p">()])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">order</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_symmetry_ops</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">symmetry_ops</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: List of symmetry operations for SpaceGroup</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_symmetry_ops</span>
 
     <span class="k">def</span> <span class="nf">_generate_full_symmetry_ops</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -232,22 +235,22 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">SYMM_OPS</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span>
                                    <span class="s2">&quot;symm_ops.json&quot;</span><span class="p">))</span>
-    <span class="n">SG_SYMBOLS</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">get_symm_data</span><span class="p">(</span><span class="s2">&quot;space_group_encoding&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">SG_SYMBOLS</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">_get_symm_data</span><span class="p">(</span><span class="s2">&quot;space_group_encoding&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
     <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">SYMM_OPS</span><span class="p">:</span>
         <span class="n">op</span><span class="p">[</span><span class="s2">&quot;hermann_mauguin&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">op</span><span class="p">[</span><span class="s2">&quot;hermann_mauguin&quot;</span><span class="p">])</span>
         <span class="n">op</span><span class="p">[</span><span class="s2">&quot;universal_h_m&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">op</span><span class="p">[</span><span class="s2">&quot;universal_h_m&quot;</span><span class="p">])</span>
         <span class="n">SG_SYMBOLS</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">op</span><span class="p">[</span><span class="s2">&quot;hermann_mauguin&quot;</span><span class="p">])</span>
         <span class="n">SG_SYMBOLS</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">op</span><span class="p">[</span><span class="s2">&quot;universal_h_m&quot;</span><span class="p">])</span>
 
-    <span class="n">gen_matrices</span> <span class="o">=</span> <span class="n">get_symm_data</span><span class="p">(</span><span class="s2">&quot;generator_matrices&quot;</span><span class="p">)</span>
+    <span class="n">gen_matrices</span> <span class="o">=</span> <span class="n">_get_symm_data</span><span class="p">(</span><span class="s2">&quot;generator_matrices&quot;</span><span class="p">)</span>
     <span class="c1"># POINT_GROUP_ENC = SYMM_DATA[&quot;point_group_encoding&quot;]</span>
-    <span class="n">sgencoding</span> <span class="o">=</span> <span class="n">get_symm_data</span><span class="p">(</span><span class="s2">&quot;space_group_encoding&quot;</span><span class="p">)</span>
-    <span class="n">abbrev_sg_mapping</span> <span class="o">=</span> <span class="n">get_symm_data</span><span class="p">(</span><span class="s2">&quot;abbreviated_spacegroup_symbols&quot;</span><span class="p">)</span>
-    <span class="n">translations</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">Fraction</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">get_symm_data</span><span class="p">(</span>
+    <span class="n">sgencoding</span> <span class="o">=</span> <span class="n">_get_symm_data</span><span class="p">(</span><span class="s2">&quot;space_group_encoding&quot;</span><span class="p">)</span>
+    <span class="n">abbrev_sg_mapping</span> <span class="o">=</span> <span class="n">_get_symm_data</span><span class="p">(</span><span class="s2">&quot;abbreviated_spacegroup_symbols&quot;</span><span class="p">)</span>
+    <span class="n">translations</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">Fraction</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_get_symm_data</span><span class="p">(</span>
         <span class="s2">&quot;translations&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
     <span class="n">full_sg_mapping</span> <span class="o">=</span> <span class="p">{</span>
         <span class="n">v</span><span class="p">[</span><span class="s2">&quot;full_symbol&quot;</span><span class="p">]:</span> <span class="n">k</span>
-        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">get_symm_data</span><span class="p">(</span><span class="s2">&quot;space_group_encoding&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_get_symm_data</span><span class="p">(</span><span class="s2">&quot;space_group_encoding&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">int_symbol</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -415,7 +418,8 @@
 <span class="sd">            angle_tol (float): The tolerance to check for equality of angles</span>
 <span class="sd">                in degrees.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">abc</span><span class="p">,</span> <span class="n">angles</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">lengths_and_angles</span>
+        <span class="n">abc</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">lengths</span>
+        <span class="n">angles</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">angles</span>
         <span class="n">crys_system</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">crystal_system</span>
 
         <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">ref</span><span class="p">,</span> <span class="n">tolerance</span><span class="p">):</span>
@@ -448,6 +452,9 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">crystal_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Crystal system for space group.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">int_number</span>
         <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
             <span class="k">return</span> <span class="s2">&quot;triclinic&quot;</span>
@@ -480,7 +487,7 @@
         <span class="n">groups</span> <span class="o">=</span> <span class="p">[[</span><span class="n">supergroup</span><span class="o">.</span><span class="n">int_number</span><span class="p">]]</span>
         <span class="n">all_groups</span> <span class="o">=</span> <span class="p">[</span><span class="n">supergroup</span><span class="o">.</span><span class="n">int_number</span><span class="p">]</span>
         <span class="n">max_subgroups</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="n">v</span>
-                         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">get_symm_data</span><span class="p">(</span><span class="s2">&quot;maximal_subgroups&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+                         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_get_symm_data</span><span class="p">(</span><span class="s2">&quot;maximal_subgroups&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">new_sub_groups</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
@@ -541,7 +548,7 @@
 <span class="sd">        (str) Spacegroup symbol</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">syms</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">get_symm_data</span><span class="p">(</span><span class="s2">&quot;space_group_encoding&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_get_symm_data</span><span class="p">(</span><span class="s2">&quot;space_group_encoding&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">v</span><span class="p">[</span><span class="s2">&quot;int_number&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">int_number</span><span class="p">:</span>
             <span class="n">syms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">syms</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -606,7 +613,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -614,7 +621,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

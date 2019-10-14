@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.vis.structure_vtk module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.vis.structure_vtk module &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -60,6 +59,47 @@
 <dt id="pymatgen.vis.structure_vtk.MultiStructuresVis">
 <em class="property">class </em><code class="sig-name descname">MultiStructuresVis</code><span class="sig-paren">(</span><em class="sig-param">element_color_mapping=None</em>, <em class="sig-param">show_unit_cell=True</em>, <em class="sig-param">show_bonds=False</em>, <em class="sig-param">show_polyhedron=False</em>, <em class="sig-param">poly_radii_tol_factor=0.5</em>, <em class="sig-param">excluded_bonding_elements=None</em>, <em class="sig-param">animated_movie_options={'looping_type': 'restart'</em>, <em class="sig-param">'number_of_loops': 1</em>, <em class="sig-param">'time_between_frames': 0.1</em>, <em class="sig-param">'time_between_loops': 1.0}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#MultiStructuresVis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.vis.structure_vtk.StructureVis" title="pymatgen.vis.structure_vtk.StructureVis"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.vis.structure_vtk.StructureVis</span></code></a></p>
+<p>Constructs a Structure Visualization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>element_color_mapping</strong> – Optional color mapping for the elements,
+as a dict of {symbol: rgb tuple}. For example, {“Fe”: (255,
+123,0), ….} If None is specified, a default based on
+Jmol”s color scheme is used.</p></li>
+<li><p><strong>show_unit_cell</strong> – Set to False to not show the unit cell
+boundaries. Defaults to True.</p></li>
+<li><p><strong>show_bonds</strong> – Set to True to show bonds. Defaults to True.</p></li>
+<li><p><strong>show_polyhedron</strong> – Set to True to show polyhedrons. Defaults to
+False.</p></li>
+<li><p><strong>poly_radii_tol_factor</strong> – The polyhedron and bonding code uses the
+ionic radii of the elements or species to determine if two
+atoms are bonded. This specifies a tolerance scaling factor
+such that atoms which are (1 + poly_radii_tol_factor) * sum
+of ionic radii apart are still considered as bonded.</p></li>
+<li><p><strong>excluded_bonding_elements</strong> – List of atom types to exclude from
+bonding determination. Defaults to an empty list. Useful
+when trying to visualize a certain atom type in the
+framework (e.g., Li in a Li-ion battery cathode material).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Useful keyboard shortcuts implemented.</dt><dd><p>h : Show help
+A/a : Increase/decrease cell by one unit vector in a-direction
+B/b : Increase/decrease cell by one unit vector in b-direction
+C/c : Increase/decrease cell by one unit vector in c-direction
+# : Toggle showing of polyhedrons
+- : Toggle showing of bonds
+[ : Decrease poly_radii_tol_factor by 0.05
+] : Increase poly_radii_tol_factor by 0.05
+r : Reset camera direction
+o : Orthogonalize structure
+Up/Down : Rotate view along Up direction by 90 clock/anticlockwise
+Left/right : Rotate view along camera direction by 90
+clock/anticlockwise</p>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.vis.structure_vtk.MultiStructuresVis.DEFAULT_ANIMATED_MOVIE_OPTIONS">
 <code class="sig-name descname">DEFAULT_ANIMATED_MOVIE_OPTIONS</code><em class="property"> = {'looping_type': 'restart', 'number_of_loops': 1, 'time_between_frames': 0.1, 'time_between_loops': 1.0}</em><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.DEFAULT_ANIMATED_MOVIE_OPTIONS" title="Permalink to this definition">¶</a></dt>
@@ -464,13 +504,13 @@ generated.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -2,8 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
-
 """
 Script to visualize the model coordination environments
 """
@@ -34,7 +32,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import copy
 import json
-
 
 allcg = AllCoordinationGeometries()
 
@@ -245,7 +242,7 @@ if __name__ == '__main__':
     all_cn_pairs = []
     for ii in range(1, 14):
         self_weight_max_csms_per_cn[str(ii)] = list()
-        for jj in range(ii+1, 14):
+        for jj in range(ii + 1, 14):
             cn_pair = '{:d}_{:d}'.format(ii, jj)
             self_weight_max_csms[cn_pair] = list()
             delta_csm_mins[cn_pair] = list()
@@ -275,8 +272,8 @@ if __name__ == '__main__':
     for ipair, cn_pair in enumerate(all_cn_pairs):
         if len(self_weight_max_csms[cn_pair]) == 0:
             continue
-        subplot.plot(ipair*np.ones_like(self_weight_max_csms[cn_pair]), self_weight_max_csms[cn_pair], 'rx')
-        subplot.plot(ipair*np.ones_like(delta_csm_mins[cn_pair]), delta_csm_mins[cn_pair], 'b+')
+        subplot.plot(ipair * np.ones_like(self_weight_max_csms[cn_pair]), self_weight_max_csms[cn_pair], 'rx')
+        subplot.plot(ipair * np.ones_like(delta_csm_mins[cn_pair]), delta_csm_mins[cn_pair], 'b+')
 
     subplot.set_xticks(range(len(all_cn_pairs)))
     subplot.set_xticklabels(all_cn_pairs, rotation='vertical')
@@ -286,7 +283,8 @@ if __name__ == '__main__':
     subplot2 = fig2.add_subplot(111)
 
     for cn in range(1, 14):
-        subplot2.plot(cn*np.ones_like(self_weight_max_csms_per_cn[str(cn)]), self_weight_max_csms_per_cn[str(cn)], 'rx')
+        subplot2.plot(cn * np.ones_like(self_weight_max_csms_per_cn[str(cn)]), self_weight_max_csms_per_cn[str(cn)],
+                      'rx')
 
     subplot2.set_xticks(range(1, 14))
     fig2.savefig('self_params_per_cn.pdf')
@@ -299,7 +297,7 @@ if __name__ == '__main__':
     for ipair, cn_pair in enumerate(all_cn_pairs):
         if len(delta_csm_mins[cn_pair]) == 0:
             continue
-        subplot3.plot(ipair*np.ones_like(delta_csm_mins[cn_pair]), delta_csm_mins[cn_pair], 'b+')
+        subplot3.plot(ipair * np.ones_like(delta_csm_mins[cn_pair]), delta_csm_mins[cn_pair], 'b+')
 
     subplot3.set_xticks(range(len(all_cn_pairs)))
     subplot3.set_xticklabels(all_cn_pairs, rotation='vertical')

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.transformations.advanced_transformations module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.transformations.advanced_transformations module &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,10 +43,12 @@
             
   <div class="section" id="module-pymatgen.transformations.advanced_transformations">
 <span id="pymatgen-transformations-advanced-transformations-module"></span><h1>pymatgen.transformations.advanced_transformations module<a class="headerlink" href="#module-pymatgen.transformations.advanced_transformations" title="Permalink to this headline">¶</a></h1>
+<p>This module implements more advanced transformations.</p>
 <dl class="class">
 <dt id="pymatgen.transformations.advanced_transformations.AddAdsorbateTransformation">
 <em class="property">class </em><code class="sig-name descname">AddAdsorbateTransformation</code><span class="sig-paren">(</span><em class="sig-param">adsorbate</em>, <em class="sig-param">selective_dynamics=False</em>, <em class="sig-param">height=0.9</em>, <em class="sig-param">mi_vec=None</em>, <em class="sig-param">repeat=None</em>, <em class="sig-param">min_lw=5.0</em>, <em class="sig-param">translate=True</em>, <em class="sig-param">reorient=True</em>, <em class="sig-param">find_args=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#AddAdsorbateTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.AddAdsorbateTransformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
+<p>Create absorbate structures.</p>
 <p>Use AdsorbateSiteFinder to add an absorbate to a slab.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -91,18 +92,23 @@ structures is returned.</p></li>
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.AddAdsorbateTransformation.inverse">
 <em class="property">property </em><code class="sig-name descname">inverse</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.AddAdsorbateTransformation.inverse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the inverse transformation if available.
-Otherwise, should return None.</p>
+<dd><p>None</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.AddAdsorbateTransformation.is_one_to_many">
 <em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.AddAdsorbateTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determines if a Transformation is a one-to-many transformation. If a
-Transformation is a one-to-many transformation, the
-apply_transformation method should have a keyword arg
-“return_ranked_list” which allows for the transformed structures to be
-returned as a ranked list.</p>
+<dd><p>True</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -122,29 +128,13 @@ is supported</p>
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.ChargeBalanceTransformation.apply_transformation">
 <code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#ChargeBalanceTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.ChargeBalanceTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Applies the transformation to a structure. Depending on whether a
-transformation is one-to-many, there may be an option to return a
-ranked list of structures.</p>
+<dd><p>Applies the transformation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>structure</strong> – input structure</p></li>
-<li><p><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
-returned. If return_ranked_list is a number, that number of
-structures is returned.</p></li>
-</ul>
+<dd class="field-odd"><p><strong>structure</strong> – Input Structure</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>depending on returned_ranked list, either a transformed structure
-or
-a list of dictionaries, where each dictionary is of the form
-{‘structure’ = …. , ‘other_arguments’}
-the key ‘transformation’ is reserved for the transformation that
-was actually applied to the structure.
-This transformation is parsed by the alchemy classes for generating
-a more specific transformation history. Any other information will
-be stored in the transformation_parameters dictionary in the
-transmuted structure class.</p>
+<dd class="field-even"><p>Charge balanced structure.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -152,18 +142,23 @@ transmuted structure class.</p>
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.ChargeBalanceTransformation.inverse">
 <em class="property">property </em><code class="sig-name descname">inverse</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.ChargeBalanceTransformation.inverse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the inverse transformation if available.
-Otherwise, should return None.</p>
+<dd><p>None</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.ChargeBalanceTransformation.is_one_to_many">
 <em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.ChargeBalanceTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determines if a Transformation is a one-to-many transformation. If a
-Transformation is a one-to-many transformation, the
-apply_transformation method should have a keyword arg
-“return_ranked_list” which allows for the transformed structures to be
-returned as a ranked list.</p>
+<dd><p>False</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -227,18 +222,23 @@ distance and the number of atoms in the supercell falls in the range
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.CubicSupercellTransformation.inverse">
 <em class="property">property </em><code class="sig-name descname">inverse</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.CubicSupercellTransformation.inverse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the inverse transformation if available.
-Otherwise, should return None.</p>
+<dd><p>None</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.CubicSupercellTransformation.is_one_to_many">
 <em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.CubicSupercellTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determines if a Transformation is a one-to-many transformation. If a
-Transformation is a one-to-many transformation, the
-apply_transformation method should have a keyword arg
-“return_ranked_list” which allows for the transformed structures to be
-returned as a ranked list.</p>
+<dd><p>False</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -271,25 +271,32 @@ substitutions or alloying additions.</p>
 <li><p><strong>return_ranked_list</strong> – as in other pymatgen Transformations</p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Transformed disordered structure(s)</p>
+</dd>
 </dl>
-<p>Returns: transformed disordered structure(s)</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.DisorderOrderedTransformation.inverse">
 <em class="property">property </em><code class="sig-name descname">inverse</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.DisorderOrderedTransformation.inverse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the inverse transformation if available.
-Otherwise, should return None.</p>
+<dd><p>None</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.DisorderOrderedTransformation.is_one_to_many">
 <em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.DisorderOrderedTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determines if a Transformation is a one-to-many transformation. If a
-Transformation is a one-to-many transformation, the
-apply_transformation method should have a keyword arg
-“return_ranked_list” which allows for the transformed structures to be
-returned as a ranked list.</p>
+<dd><p>True</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -346,18 +353,23 @@ i.e., min_cell_size, etc.</p></li>
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.DopingTransformation.inverse">
 <em class="property">property </em><code class="sig-name descname">inverse</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.DopingTransformation.inverse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the inverse transformation if available.
-Otherwise, should return None.</p>
+<dd><p>None</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.DopingTransformation.is_one_to_many">
 <em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.DopingTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determines if a Transformation is a one-to-many transformation. If a
-Transformation is a one-to-many transformation, the
-apply_transformation method should have a keyword arg
-“return_ranked_list” which allows for the transformed structures to be
-returned as a ranked list.</p>
+<dd><p>True</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -410,7 +422,7 @@ states and slow) or by number of sites (“nsites”, much faster).</p></li>
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation.apply_transformation">
 <code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">return_ranked_list=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#EnumerateStructureTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return either a single ordered structure or a sequence of all ordered
+<dd><p>Returns either a single ordered structure or a sequence of all ordered
 structures.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -437,18 +449,23 @@ sites first.</p>
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation.inverse">
 <em class="property">property </em><code class="sig-name descname">inverse</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation.inverse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the inverse transformation if available.
-Otherwise, should return None.</p>
+<dd><p>None</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation.is_one_to_many">
 <em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determines if a Transformation is a one-to-many transformation. If a
-Transformation is a one-to-many transformation, the
-apply_transformation method should have a keyword arg
-“return_ranked_list” which allows for the transformed structures to be
-returned as a ranked list.</p>
+<dd><p>True</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -518,29 +535,16 @@ find the smallest cell.</p></li>
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.GrainBoundaryTransformation.apply_transformation">
 <code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#GrainBoundaryTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.GrainBoundaryTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Applies the transformation to a structure. Depending on whether a
-transformation is one-to-many, there may be an option to return a
-ranked list of structures.</p>
+<dd><p>Applies the transformation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>structure</strong> – input structure</p></li>
-<li><p><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
-returned. If return_ranked_list is a number, that number of
-structures is returned.</p></li>
+<li><p><strong>structure</strong> – Input Structure</p></li>
+<li><p><strong>return_ranked_list</strong> – Number of structures to return.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>depending on returned_ranked list, either a transformed structure
-or
-a list of dictionaries, where each dictionary is of the form
-{‘structure’ = …. , ‘other_arguments’}
-the key ‘transformation’ is reserved for the transformation that
-was actually applied to the structure.
-This transformation is parsed by the alchemy classes for generating
-a more specific transformation history. Any other information will
-be stored in the transformation_parameters dictionary in the
-transmuted structure class.</p>
+<dd class="field-even"><p>Grain boundary Structures.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -548,18 +552,23 @@ transmuted structure class.</p>
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.GrainBoundaryTransformation.inverse">
 <em class="property">property </em><code class="sig-name descname">inverse</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.GrainBoundaryTransformation.inverse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the inverse transformation if available.
-Otherwise, should return None.</p>
+<dd><p>None</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.GrainBoundaryTransformation.is_one_to_many">
 <em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.GrainBoundaryTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determines if a Transformation is a one-to-many transformation. If a
-Transformation is a one-to-many transformation, the
-apply_transformation method should have a keyword arg
-“return_ranked_list” which allows for the transformed structures to be
-returned as a ranked list.</p>
+<dd><p>False</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -644,18 +653,23 @@ the provided structure with the given order parameter</p>
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.MagOrderingTransformation.inverse">
 <em class="property">property </em><code class="sig-name descname">inverse</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.MagOrderingTransformation.inverse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the inverse transformation if available.
-Otherwise, should return None.</p>
+<dd><p>None</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.MagOrderingTransformation.is_one_to_many">
 <em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.MagOrderingTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determines if a Transformation is a one-to-many transformation. If a
-Transformation is a one-to-many transformation, the
-apply_transformation method should have a keyword arg
-“return_ranked_list” which allows for the transformed structures to be
-returned as a ranked list.</p>
+<dd><p>True</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -697,17 +711,95 @@ the structure using that specie.</p></li>
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.MultipleSubstitutionTransformation.apply_transformation">
 <code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">return_ranked_list=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#MultipleSubstitutionTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.MultipleSubstitutionTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Applies the transformation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – Input Structure</p></li>
+<li><p><strong>return_ranked_list</strong> – Number of structures to return.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Structures with all substitutions applied.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.MultipleSubstitutionTransformation.inverse">
 <em class="property">property </em><code class="sig-name descname">inverse</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.MultipleSubstitutionTransformation.inverse" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>None</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.MultipleSubstitutionTransformation.is_one_to_many">
 <em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.MultipleSubstitutionTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>True</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.transformations.advanced_transformations.SQSTransformation">
+<em class="property">class </em><code class="sig-name descname">SQSTransformation</code><span class="sig-paren">(</span><em class="sig-param">clusters</em>, <em class="sig-param">supercell=None</em>, <em class="sig-param">total_atoms=None</em>, <em class="sig-param">search_time=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#SQSTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SQSTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
+<p>A transformation that creates a SQS from a structure with partial occupancies.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>clusters</strong> (<em>dict</em>) – dictionary of cluster interactions with entries in the form</p></li>
+<li><p><strong>atoms</strong> – cutoff in angstroms</p></li>
+<li><p><strong>supercell</strong> (<em>list</em>) – dimensions of the supercell in units of the original unit cell</p></li>
+<li><p><strong>total_atoms</strong> (<em>int</em>) – total number of atoms in the final SQS. Choose either</p></li>
+<li><p><strong>OR supercell</strong> (<em>this</em>) – </p></li>
+<li><p><strong>search_time</strong> (<em>int</em>) – The time spent looking for the ideal SQS in minutes</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.transformations.advanced_transformations.SQSTransformation.apply_transformation">
+<code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param">struc</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#SQSTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SQSTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>structure</strong> (<em>Pymatgen Structure</em>) – Pymatgen Structure with partial occupancies</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Pymatgen Structure which is an SQS of the input structure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.transformations.advanced_transformations.SQSTransformation.inverse">
+<em class="property">property </em><code class="sig-name descname">inverse</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SQSTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>None</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.transformations.advanced_transformations.SQSTransformation.is_one_to_many">
+<em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SQSTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dd><p>False</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -736,29 +828,13 @@ to slab surface</p></li>
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.SlabTransformation.apply_transformation">
 <code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#SlabTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SlabTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Applies the transformation to a structure. Depending on whether a
-transformation is one-to-many, there may be an option to return a
-ranked list of structures.</p>
+<dd><p>Applies the transformation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>structure</strong> – input structure</p></li>
-<li><p><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
-returned. If return_ranked_list is a number, that number of
-structures is returned.</p></li>
-</ul>
+<dd class="field-odd"><p><strong>structure</strong> – Input Structure</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>depending on returned_ranked list, either a transformed structure
-or
-a list of dictionaries, where each dictionary is of the form
-{‘structure’ = …. , ‘other_arguments’}
-the key ‘transformation’ is reserved for the transformation that
-was actually applied to the structure.
-This transformation is parsed by the alchemy classes for generating
-a more specific transformation history. Any other information will
-be stored in the transformation_parameters dictionary in the
-transmuted structure class.</p>
+<dd class="field-even"><p>Slab Structures.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -766,18 +842,23 @@ transmuted structure class.</p>
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.SlabTransformation.inverse">
 <em class="property">property </em><code class="sig-name descname">inverse</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SlabTransformation.inverse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the inverse transformation if available.
-Otherwise, should return None.</p>
+<dd><p>None</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.SlabTransformation.is_one_to_many">
 <em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SlabTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determines if a Transformation is a one-to-many transformation. If a
-Transformation is a one-to-many transformation, the
-apply_transformation method should have a keyword arg
-“return_ranked_list” which allows for the transformed structures to be
-returned as a ranked list.</p>
+<dd><p>False</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -786,8 +867,8 @@ returned as a ranked list.</p>
 <dt id="pymatgen.transformations.advanced_transformations.SubstituteSurfaceSiteTransformation">
 <em class="property">class </em><code class="sig-name descname">SubstituteSurfaceSiteTransformation</code><span class="sig-paren">(</span><em class="sig-param">atom</em>, <em class="sig-param">selective_dynamics=False</em>, <em class="sig-param">height=0.9</em>, <em class="sig-param">mi_vec=None</em>, <em class="sig-param">target_species=None</em>, <em class="sig-param">sub_both_sides=False</em>, <em class="sig-param">range_tol=0.01</em>, <em class="sig-param">dist_from_surf=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#SubstituteSurfaceSiteTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SubstituteSurfaceSiteTransformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
-<p>Use AdsorptionSiteFinder to perform substitution-type doping on the surface and
-returns all possible configurations where one dopant is substituted
+<p>Use AdsorptionSiteFinder to perform substitution-type doping on the surface
+and returns all possible configurations where one dopant is substituted
 per surface. Can substitute one surface or both.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -829,18 +910,23 @@ structures is returned.</p></li>
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.SubstituteSurfaceSiteTransformation.inverse">
 <em class="property">property </em><code class="sig-name descname">inverse</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SubstituteSurfaceSiteTransformation.inverse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the inverse transformation if available.
-Otherwise, should return None.</p>
+<dd><p>None</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.SubstituteSurfaceSiteTransformation.is_one_to_many">
 <em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SubstituteSurfaceSiteTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determines if a Transformation is a one-to-many transformation. If a
-Transformation is a one-to-many transformation, the
-apply_transformation method should have a keyword arg
-“return_ranked_list” which allows for the transformed structures to be
-returned as a ranked list.</p>
+<dd><p>True</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -855,6 +941,7 @@ prediction module to find likely site substitutions.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>threshold</strong> – Threshold for substitution.</p></li>
+<li><p><strong>scale_volumes</strong> – Whether to scale volumes after substitution.</p></li>
 <li><p><strong>**kwargs</strong> – Args for SubstitutionProbability class lambda_table, alpha</p></li>
 </ul>
 </dd>
@@ -862,29 +949,16 @@ prediction module to find likely site substitutions.</p>
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.SubstitutionPredictorTransformation.apply_transformation">
 <code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">return_ranked_list=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#SubstitutionPredictorTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SubstitutionPredictorTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Applies the transformation to a structure. Depending on whether a
-transformation is one-to-many, there may be an option to return a
-ranked list of structures.</p>
+<dd><p>Applies the transformation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>structure</strong> – input structure</p></li>
-<li><p><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
-returned. If return_ranked_list is a number, that number of
-structures is returned.</p></li>
+<li><p><strong>structure</strong> – Input Structure</p></li>
+<li><p><strong>return_ranked_list</strong> – Number of structures to return.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>depending on returned_ranked list, either a transformed structure
-or
-a list of dictionaries, where each dictionary is of the form
-{‘structure’ = …. , ‘other_arguments’}
-the key ‘transformation’ is reserved for the transformation that
-was actually applied to the structure.
-This transformation is parsed by the alchemy classes for generating
-a more specific transformation history. Any other information will
-be stored in the transformation_parameters dictionary in the
-transmuted structure class.</p>
+<dd class="field-even"><p>Predicted Structures.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -892,18 +966,23 @@ transmuted structure class.</p>
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.SubstitutionPredictorTransformation.inverse">
 <em class="property">property </em><code class="sig-name descname">inverse</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SubstitutionPredictorTransformation.inverse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the inverse transformation if available.
-Otherwise, should return None.</p>
+<dd><p>None</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.SubstitutionPredictorTransformation.is_one_to_many">
 <em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SubstitutionPredictorTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determines if a Transformation is a one-to-many transformation. If a
-Transformation is a one-to-many transformation, the
-apply_transformation method should have a keyword arg
-“return_ranked_list” which allows for the transformed structures to be
-returned as a ranked list.</p>
+<dd><p>True</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -931,29 +1010,16 @@ added to the full list. Defaults to 1, i.e., only best structure.</p></li>
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.SuperTransformation.apply_transformation">
 <code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">return_ranked_list=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#SuperTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SuperTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Applies the transformation to a structure. Depending on whether a
-transformation is one-to-many, there may be an option to return a
-ranked list of structures.</p>
+<dd><p>Applies the transformation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>structure</strong> – input structure</p></li>
-<li><p><strong>return_ranked_list</strong> – Boolean stating whether or not multiple structures are
-returned. If return_ranked_list is a number, that number of
-structures is returned.</p></li>
+<li><p><strong>structure</strong> – Input Structure</p></li>
+<li><p><strong>return_ranked_list</strong> – Number of structures to return.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>depending on returned_ranked list, either a transformed structure
-or
-a list of dictionaries, where each dictionary is of the form
-{‘structure’ = …. , ‘other_arguments’}
-the key ‘transformation’ is reserved for the transformation that
-was actually applied to the structure.
-This transformation is parsed by the alchemy classes for generating
-a more specific transformation history. Any other information will
-be stored in the transformation_parameters dictionary in the
-transmuted structure class.</p>
+<dd class="field-even"><p>Structures with all transformations applied.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -961,18 +1027,23 @@ transmuted structure class.</p>
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.SuperTransformation.inverse">
 <em class="property">property </em><code class="sig-name descname">inverse</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SuperTransformation.inverse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the inverse transformation if available.
-Otherwise, should return None.</p>
+<dd><p>None</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.SuperTransformation.is_one_to_many">
 <em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SuperTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determines if a Transformation is a one-to-many transformation. If a
-Transformation is a one-to-many transformation, the
-apply_transformation method should have a keyword arg
-“return_ranked_list” which allows for the transformed structures to be
-returned as a ranked list.</p>
+<dd><p>True</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -1015,13 +1086,13 @@ returned as a ranked list.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

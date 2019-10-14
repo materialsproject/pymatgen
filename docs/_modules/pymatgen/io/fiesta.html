@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.fiesta &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.io.fiesta &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -47,6 +46,15 @@
   <h1>Source code for pymatgen.io.fiesta</h1><div class="highlight"><pre>
 <span></span><span class="c1"># coding: utf-8</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module implements input and output for Fiesta (http://perso.neel.cnrs.fr/xavier.blase/fiesta/index.html).</span>
+
+<span class="sd">and</span>
+
+<span class="sd">-Nwchem2Fiesta class: to create the input files needed for a Fiesta run</span>
+<span class="sd">-Fiesta_run: run gw_fiesta and bse_fiesta</span>
+<span class="sd">-Localised Basis set reader</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">os</span>
@@ -58,16 +66,6 @@
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Molecule</span>
-
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This module implements input and output for Fiesta (http://perso.neel.cnrs.fr/xavier.blase/fiesta/index.html).</span>
-
-<span class="sd">and</span>
-
-<span class="sd">-Nwchem2Fiesta class: to create the input files needed for a Fiesta run</span>
-<span class="sd">-Fiesta_run: run gw_fiesta and bse_fiesta</span>
-<span class="sd">-Localised Basis set reader</span>
-<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;ndardenne&#39;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
@@ -120,6 +118,9 @@
         <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">init_folder</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Nwchem2Fiesta.as_dict"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.Nwchem2Fiesta.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: MSONable dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
                 <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
                 <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span>
@@ -127,31 +128,39 @@
 
 <div class="viewcode-block" id="Nwchem2Fiesta.from_dict"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.Nwchem2Fiesta.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param d: Dict representation.</span>
+<span class="sd">        :return: Nwchem2Fiesta</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Nwchem2Fiesta</span><span class="p">(</span><span class="n">folder</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;folder&quot;</span><span class="p">],</span> <span class="n">filename</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">])</span></div></div>
 
 
-<div class="viewcode-block" id="Fiesta_run"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.Fiesta_run">[docs]</a><span class="k">class</span> <span class="nc">Fiesta_run</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+<div class="viewcode-block" id="FiestaRun"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaRun">[docs]</a><span class="k">class</span> <span class="nc">FiestaRun</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    To run FIESTA inside python:</span>
-<span class="sd">     if grid is [x,x] then bse runs</span>
-<span class="sd">     if grid is [x,x,y] the fiesta(gw) runs</span>
-<span class="sd">     otherwise it breaks</span>
+<span class="sd">        if grid is [x,x] then bse runs</span>
+<span class="sd">        if grid is [x,x,y] the fiesta(gw) runs</span>
+<span class="sd">        otherwise it breaks</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">grid</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">log_file</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        folder:</span>
-<span class="sd">        logfile: logfile of Fiesta</span>
+<span class="sd">        Args:</span>
+<span class="sd">            folder: Folder to look for runs.</span>
+<span class="sd">            grid:</span>
+<span class="sd">            log_file: logfile of Fiesta</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">folder</span> <span class="o">=</span> <span class="n">folder</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log_file</span> <span class="o">=</span> <span class="n">log_file</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">grid</span> <span class="o">=</span> <span class="n">grid</span>
 
-<div class="viewcode-block" id="Fiesta_run.run"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.Fiesta_run.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="FiestaRun.run"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaRun.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Performs FIESTA (gw) run.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mpi_procs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">gw_run</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_gw_run</span><span class="p">()</span>
         <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mpi_procs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">bse_run</span><span class="p">()</span>
@@ -159,7 +168,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;Wrong grid size: must be [nrow, ncolumn, nslice] for gw of [nrow, nslice] for bse&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Fiesta_run.gw_run"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.Fiesta_run.gw_run">[docs]</a>    <span class="k">def</span> <span class="nf">gw_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_gw_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Performs FIESTA (gw) run</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -174,9 +183,9 @@
                              <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="mi">2</span><span class="p">])],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">fout</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder</span> <span class="o">!=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">():</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">init_folder</span><span class="p">)</span></div>
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">init_folder</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Fiesta_run.bse_run"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.Fiesta_run.bse_run">[docs]</a>    <span class="k">def</span> <span class="nf">bse_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="FiestaRun.bse_run"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaRun.bse_run">[docs]</a>    <span class="k">def</span> <span class="nf">bse_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Performs BSE run</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -193,31 +202,39 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder</span> <span class="o">!=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">():</span>
             <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">init_folder</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Fiesta_run.as_dict"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.Fiesta_run.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="FiestaRun.as_dict"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaRun.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: MSONable dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
                 <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
                 <span class="s2">&quot;log_file&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_file</span><span class="p">,</span>
                 <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
                 <span class="s2">&quot;folder&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">}</span></div>
 
-<div class="viewcode-block" id="Fiesta_run.from_dict"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.Fiesta_run.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="FiestaRun.from_dict"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaRun.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">Fiesta_run</span><span class="p">(</span><span class="n">folder</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;folder&quot;</span><span class="p">],</span> <span class="n">grid</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;grid&quot;</span><span class="p">],</span>
-                          <span class="n">log_file</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;log_file&#39;</span><span class="p">])</span></div></div>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param d: Dict representation</span>
+<span class="sd">        :return: FiestaRun</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">FiestaRun</span><span class="p">(</span><span class="n">folder</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;folder&quot;</span><span class="p">],</span> <span class="n">grid</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;grid&quot;</span><span class="p">],</span>
+                         <span class="n">log_file</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;log_file&#39;</span><span class="p">])</span></div></div>
 
 
-<div class="viewcode-block" id="Basis_set_reader"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.Basis_set_reader">[docs]</a><span class="k">class</span> <span class="nc">Basis_set_reader</span><span class="p">:</span>
+<div class="viewcode-block" id="BasisSetReader"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.BasisSetReader">[docs]</a><span class="k">class</span> <span class="nc">BasisSetReader</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A basis set reader.</span>
-<span class="sd">    Args:</span>
-<span class="sd">        filename: Filename to read.</span>
-
-<span class="sd">        Basis set are stored in data as a dict:</span>
-<span class="sd">        :key l_zeta_ng for each nl orbitals which contain list of tuple (alpha, coef) for each of the ng gaussians</span>
-<span class="sd">        in l_zeta orbital</span>
+<span class="sd">    Basis set are stored in data as a dict:</span>
+<span class="sd">    :key l_zeta_ng for each nl orbitals which contain list of tuple (alpha, coef) for each of the ng gaussians</span>
+<span class="sd">    in l_zeta orbital</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            filename: Filename to read.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
 
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -277,9 +294,9 @@
         <span class="n">basis_set</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">lmax</span><span class="o">=</span><span class="n">lmax</span><span class="p">,</span> <span class="n">n_nlo</span><span class="o">=</span><span class="n">nnlo</span><span class="p">,</span> <span class="n">preamble</span><span class="o">=</span><span class="n">preamble</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">basis_set</span>
 
-<div class="viewcode-block" id="Basis_set_reader.set_n_nlmo"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.Basis_set_reader.set_n_nlmo">[docs]</a>    <span class="k">def</span> <span class="nf">set_n_nlmo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BasisSetReader.set_n_nlmo"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.BasisSetReader.set_n_nlmo">[docs]</a>    <span class="k">def</span> <span class="nf">set_n_nlmo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">                :return: the number of nlm orbitals for the basis set</span>
+<span class="sd">        :return: the number of nlm orbitals for the basis set</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">nnlmo</span> <span class="o">=</span> <span class="mi">0</span>
@@ -295,7 +312,7 @@
 
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">nnlmo</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Basis_set_reader.infos_on_basis_set"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.Basis_set_reader.infos_on_basis_set">[docs]</a>    <span class="k">def</span> <span class="nf">infos_on_basis_set</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BasisSetReader.infos_on_basis_set"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.BasisSetReader.infos_on_basis_set">[docs]</a>    <span class="k">def</span> <span class="nf">infos_on_basis_set</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        infos on the basis set as in Fiesta log</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -557,10 +574,17 @@
                             <span class="n">geometry</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">geometry</span><span class="p">))</span>
 
 <div class="viewcode-block" id="FiestaInput.write_file"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaInput.write_file">[docs]</a>    <span class="k">def</span> <span class="nf">write_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write FiestaInput to a file</span>
+<span class="sd">        :param filename: Filename</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">())</span></div>
 
 <div class="viewcode-block" id="FiestaInput.as_dict"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaInput.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: MSONable dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;mol&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
             <span class="s2">&quot;correlation_grid&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">correlation_grid</span><span class="p">,</span>
@@ -572,6 +596,10 @@
 
 <div class="viewcode-block" id="FiestaInput.from_dict"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaInput.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param d: Dict representation</span>
+<span class="sd">        :return: FiestaInput</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">FiestaInput</span><span class="p">(</span><span class="n">Molecule</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;mol&quot;</span><span class="p">]),</span>
                            <span class="n">correlation_grid</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;correlation_grid&quot;</span><span class="p">],</span>
                            <span class="n">Exc_DFT_option</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;Exc_DFT_option&quot;</span><span class="p">],</span>
@@ -609,7 +637,6 @@
         <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">l</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="n">toks</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-        <span class="n">nvbands</span> <span class="o">=</span> <span class="n">toks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="c1"># correlation_grid</span>
         <span class="c1"># number of points and spacing in eV for correlation grid</span>
@@ -691,7 +718,6 @@
         <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">l</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="n">toks</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-        <span class="n">scale</span> <span class="o">=</span> <span class="n">toks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="c1"># atoms x,y,z cartesian .. will be multiplied by scale</span>
         <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="c1"># Parse geometry</span>
@@ -734,12 +760,13 @@
 <span class="sd">    A Fiesta output file parser.</span>
 
 <span class="sd">    All energies are in eV.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        filename: Filename to read.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            filename: Filename to read.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
 
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -748,7 +775,7 @@
         <span class="n">chunks</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;GW Driver iteration&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 
         <span class="c1"># preamble: everything before the first GW Driver iteration</span>
-        <span class="n">preamble</span> <span class="o">=</span> <span class="n">chunks</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">chunks</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="c1"># self.job_info = self._parse_preamble(preamble)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_parse_job</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">chunks</span><span class="p">]</span>
@@ -768,9 +795,6 @@
 
         <span class="n">total_time_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\s*total \s+ time: \s+  ([\d.]+) .*&quot;</span><span class="p">,</span>
                                      <span class="n">re</span><span class="o">.</span><span class="n">VERBOSE</span><span class="p">)</span>
-
-        <span class="n">error_defs</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;calculations not reaching convergence&quot;</span><span class="p">:</span> <span class="s2">&quot;Bad convergence&quot;</span><span class="p">}</span>
 
         <span class="n">GW_results</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">parse_gw_results</span> <span class="o">=</span> <span class="kc">False</span>
@@ -821,12 +845,13 @@
 <span class="sd">    A bse output file parser. The start...</span>
 
 <span class="sd">    All energies are in eV.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        filename: Filename to read.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            filename: Filename to read.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
 
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -845,9 +870,6 @@
 
         <span class="n">total_time_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\s*total \s+ time: \s+  ([\d.]+) .*&quot;</span><span class="p">,</span>
                                      <span class="n">re</span><span class="o">.</span><span class="n">VERBOSE</span><span class="p">)</span>
-
-        <span class="n">error_defs</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;calculations not reaching convergence&quot;</span><span class="p">:</span> <span class="s2">&quot;Bad convergence&quot;</span><span class="p">}</span>
 
         <span class="n">BSE_results</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">parse_BSE_results</span> <span class="o">=</span> <span class="kc">False</span>
@@ -911,7 +933,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -919,7 +941,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

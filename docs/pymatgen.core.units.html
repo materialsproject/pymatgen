@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.units module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.core.units module &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +43,12 @@
             
   <div class="section" id="module-pymatgen.core.units">
 <span id="pymatgen-core-units-module"></span><h1>pymatgen.core.units module<a class="headerlink" href="#module-pymatgen.core.units" title="Permalink to this headline">¶</a></h1>
+<p>This module implements a FloatWithUnit, which is a subclass of float. It
+also defines supported units for some commonly used units for energy, length,
+temperature, time and charge. FloatWithUnit also support conversion to one
+another, and additions and subtractions perform automatic conversion if
+units are detected. An ArrayWithUnit is also implemented, which is a subclass
+of numpy’s ndarray with similar unit features.</p>
 <dl class="class">
 <dt id="pymatgen.core.units.ArrayWithUnit">
 <em class="property">class </em><code class="sig-name descname">ArrayWithUnit</code><a class="reference internal" href="_modules/pymatgen/core/units.html#ArrayWithUnit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.ArrayWithUnit" title="Permalink to this definition">¶</a></dt>
@@ -63,6 +68,7 @@ leftmost quantity).</p>
 <span class="go">array([ 28.21138386,  56.42276772]) eV</span>
 </pre></div>
 </div>
+<p>Override __new__.</p>
 <dl class="attribute">
 <dt id="pymatgen.core.units.ArrayWithUnit.Error">
 <code class="sig-name descname">Error</code><a class="headerlink" href="#pymatgen.core.units.ArrayWithUnit.Error" title="Permalink to this definition">¶</a></dt>
@@ -114,12 +120,24 @@ array([ 27.21138386,  29.93252225]) eV</p>
 <dl class="method">
 <dt id="pymatgen.core.units.ArrayWithUnit.unit">
 <em class="property">property </em><code class="sig-name descname">unit</code><a class="headerlink" href="#pymatgen.core.units.ArrayWithUnit.unit" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>The unit, e.g., “eV”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.units.ArrayWithUnit.unit_type">
 <em class="property">property </em><code class="sig-name descname">unit_type</code><a class="headerlink" href="#pymatgen.core.units.ArrayWithUnit.unit_type" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>The type of unit. Energy, Charge, etc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -237,12 +255,24 @@ units of each type.</p>
 <dl class="method">
 <dt id="pymatgen.core.units.FloatWithUnit.unit">
 <em class="property">property </em><code class="sig-name descname">unit</code><a class="headerlink" href="#pymatgen.core.units.FloatWithUnit.unit" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>The unit, e.g., “eV”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.units.FloatWithUnit.unit_type">
 <em class="property">property </em><code class="sig-name descname">unit_type</code><a class="headerlink" href="#pymatgen.core.units.FloatWithUnit.unit_type" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>The type of unit. Energy, Charge, etc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -385,11 +415,6 @@ The SI units must have factor 1.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="pymatgen.core.units.check_mappings">
-<code class="sig-name descname">check_mappings</code><span class="sig-paren">(</span><em class="sig-param">u</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/units.html#check_mappings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.check_mappings" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
 <dt id="pymatgen.core.units.obj_with_unit">
 <code class="sig-name descname">obj_with_unit</code><span class="sig-paren">(</span><em class="sig-param">obj</em>, <em class="sig-param">unit</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/units.html#obj_with_unit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.obj_with_unit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a <cite>FloatWithUnit</cite> instance if obj is scalar, a dictionary of
@@ -462,13 +487,13 @@ are assigned units.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

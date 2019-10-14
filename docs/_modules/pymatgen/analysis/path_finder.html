@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.path_finder &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.analysis.path_finder &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -56,14 +55,15 @@
 <span class="sd">    Ceder, The Journal of Chemical Physics 145 (7), 074112</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">numpy.linalg</span> <span class="k">as</span> <span class="nn">la</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">ABCMeta</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="k">import</span> <span class="n">interp1d</span>
 <span class="kn">import</span> <span class="nn">scipy.signal</span>
 <span class="kn">import</span> <span class="nn">scipy.stats</span>
-<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="k">import</span> <span class="n">interp1d</span>
-<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy.linalg</span> <span class="k">as</span> <span class="nn">la</span>
 
-<span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">ABCMeta</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.sites</span> <span class="k">import</span> <span class="n">PeriodicSite</span>
@@ -76,24 +76,36 @@
 <span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Development&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;March 17, 2015&quot;</span>
 
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
 
 <div class="viewcode-block" id="NEBPathfinder"><a class="viewcode-back" href="../../../pymatgen.analysis.path_finder.html#pymatgen.analysis.path_finder.NEBPathfinder">[docs]</a><span class="k">class</span> <span class="nc">NEBPathfinder</span><span class="p">:</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_struct</span><span class="p">,</span> <span class="n">end_struct</span><span class="p">,</span> <span class="n">relax_sites</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">n_images</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        General pathfinder for interpolating between two structures, where the</span>
-<span class="sd">        interpolating path is calculated with the elastic band method with</span>
-<span class="sd">        respect to the given static potential for sites whose indices are given</span>
-<span class="sd">        in relax_sites, and is linear otherwise.</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    General pathfinder for interpolating between two structures, where the</span>
+<span class="sd">    interpolating path is calculated with the elastic band method with</span>
+<span class="sd">    respect to the given static potential for sites whose indices are given</span>
+<span class="sd">    in relax_sites, and is linear otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">start_struct</span><span class="p">,</span>
+                 <span class="n">end_struct</span><span class="p">,</span>
+                 <span class="n">relax_sites</span><span class="p">,</span>
+                 <span class="n">v</span><span class="p">,</span>
+                 <span class="n">n_images</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+                 <span class="n">mid_struct</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            start_struct, end_struct: Endpoint structures to interpolate</span>
 <span class="sd">            relax_sites: List of site indices whose interpolation paths should</span>
 <span class="sd">                be relaxed</span>
 <span class="sd">            v: Static potential field to use for the elastic band relaxation</span>
 <span class="sd">            n_images: Number of interpolation images to generate</span>
+<span class="sd">            mid_struct: (optional) additional structure between the start and end structures to help</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__s1</span> <span class="o">=</span> <span class="n">start_struct</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__s2</span> <span class="o">=</span> <span class="n">end_struct</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__mid</span> <span class="o">=</span> <span class="n">mid_struct</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__relax_sites</span> <span class="o">=</span> <span class="n">relax_sites</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__v</span> <span class="o">=</span> <span class="n">v</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__n_images</span> <span class="o">=</span> <span class="n">n_images</span>
@@ -107,9 +119,25 @@
 <span class="sd">        pymatgen.core.structure.interpolate), and for the site indices given</span>
 <span class="sd">        in relax_sites, the path is relaxed by the elastic band method within</span>
 <span class="sd">        the static potential V.</span>
+
+<span class="sd">        If a mid point is defined we will interpolate from s1--&gt; mid --&gt;s2</span>
+<span class="sd">        The final number of images will still be n_images.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__s1</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__s2</span><span class="p">,</span> <span class="n">nimages</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__n_images</span><span class="p">,</span>
-                                       <span class="n">interpolate_lattices</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__mid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># to make arithmatic easier we will do the interpolation in two parts with n images each</span>
+            <span class="c1"># then just take every other image at the end, this results in exactly n images</span>
+            <span class="n">images_0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__s1</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__mid</span><span class="p">,</span>
+                                             <span class="n">nimages</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__n_images</span><span class="p">,</span>
+                                             <span class="n">interpolate_lattices</span><span class="o">=</span><span class="kc">False</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">images_1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__mid</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__s2</span><span class="p">,</span>
+                                              <span class="n">nimages</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__n_images</span><span class="p">,</span>
+                                              <span class="n">interpolate_lattices</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">images</span> <span class="o">=</span> <span class="n">images_0</span> <span class="o">+</span> <span class="n">images_1</span>
+            <span class="n">images</span> <span class="o">=</span> <span class="n">images</span><span class="p">[::</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__s1</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__s2</span><span class="p">,</span>
+                                           <span class="n">nimages</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__n_images</span><span class="p">,</span>
+                                           <span class="n">interpolate_lattices</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">site_i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__relax_sites</span><span class="p">:</span>
             <span class="n">start_f</span> <span class="o">=</span> <span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">site_i</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span>
             <span class="n">end_f</span> <span class="o">=</span> <span class="n">images</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">site_i</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span>
@@ -117,16 +145,20 @@
             <span class="n">path</span> <span class="o">=</span> <span class="n">NEBPathfinder</span><span class="o">.</span><span class="n">string_relax</span><span class="p">(</span>
                 <span class="n">NEBPathfinder</span><span class="o">.</span><span class="n">__f2d</span><span class="p">(</span><span class="n">start_f</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__v</span><span class="p">),</span>
                 <span class="n">NEBPathfinder</span><span class="o">.</span><span class="n">__f2d</span><span class="p">(</span><span class="n">end_f</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__v</span><span class="p">),</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">__v</span><span class="p">,</span> <span class="n">n_images</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__n_images</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
-                <span class="n">dr</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__s1</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">a</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">__v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__v</span><span class="p">,</span>
+                <span class="n">n_images</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__n_images</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
+                <span class="n">dr</span><span class="o">=</span><span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">__s1</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">a</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">__v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">__s1</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">b</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">__v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">__s1</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">c</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">__v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">__s1</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">c</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">__v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                <span class="p">])</span>
             <span class="k">for</span> <span class="n">image_i</span><span class="p">,</span> <span class="n">image</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">images</span><span class="p">):</span>
-                <span class="n">image</span><span class="o">.</span><span class="n">translate_sites</span><span class="p">(</span><span class="n">site_i</span><span class="p">,</span>
-                                      <span class="n">NEBPathfinder</span><span class="o">.</span><span class="n">__d2f</span><span class="p">(</span><span class="n">path</span><span class="p">[</span><span class="n">image_i</span><span class="p">],</span>
-                                                          <span class="bp">self</span><span class="o">.</span><span class="n">__v</span><span class="p">)</span> <span class="o">-</span>
-                                      <span class="n">image</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">site_i</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
-                                      <span class="n">frac_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">image</span><span class="o">.</span><span class="n">translate_sites</span><span class="p">(</span>
+                    <span class="n">site_i</span><span class="p">,</span>
+                    <span class="n">NEBPathfinder</span><span class="o">.</span><span class="n">__d2f</span><span class="p">(</span><span class="n">path</span><span class="p">[</span><span class="n">image_i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">__v</span><span class="p">)</span> <span class="o">-</span>
+                    <span class="n">image</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">site_i</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
+                    <span class="n">frac_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__images</span> <span class="o">=</span> <span class="n">images</span></div>
 
     <span class="nd">@property</span>
@@ -145,18 +177,27 @@
         <span class="n">sum_struct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sites</span>
         <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__images</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">site_i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__relax_sites</span><span class="p">:</span>
-                <span class="n">sum_struct</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PeriodicSite</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">site_i</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span>
-                                               <span class="n">image</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">site_i</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
-                                               <span class="bp">self</span><span class="o">.</span><span class="n">__images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span>
-                                               <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                                               <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+                <span class="n">sum_struct</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">PeriodicSite</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">site_i</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span>
+                                 <span class="n">image</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">site_i</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
+                                 <span class="bp">self</span><span class="o">.</span><span class="n">__images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span>
+                                 <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                 <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
         <span class="n">sum_struct</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">sum_struct</span><span class="p">,</span> <span class="n">validate_proximity</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">p</span> <span class="o">=</span> <span class="n">Poscar</span><span class="p">(</span><span class="n">sum_struct</span><span class="p">)</span>
         <span class="n">p</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">outfile</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="NEBPathfinder.string_relax"><a class="viewcode-back" href="../../../pymatgen.analysis.path_finder.html#pymatgen.analysis.path_finder.NEBPathfinder.string_relax">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">string_relax</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">n_images</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">dr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mf">0.17</span><span class="p">,</span>
-                     <span class="n">min_iter</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">max_tol</span><span class="o">=</span><span class="mf">5e-6</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">string_relax</span><span class="p">(</span><span class="n">start</span><span class="p">,</span>
+                     <span class="n">end</span><span class="p">,</span>
+                     <span class="n">V</span><span class="p">,</span>
+                     <span class="n">n_images</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
+                     <span class="n">dr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">h</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span>
+                     <span class="n">k</span><span class="o">=</span><span class="mf">0.17</span><span class="p">,</span>
+                     <span class="n">min_iter</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+                     <span class="n">max_iter</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
+                     <span class="n">max_tol</span><span class="o">=</span><span class="mf">5e-6</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Implements path relaxation via the elastic band method. In general, the</span>
 <span class="sd">        method is to define a path by a set of points (images) connected with</span>
@@ -192,7 +233,7 @@
         <span class="c1"># (http://www.cims.nyu.edu/~eve2/main.htm)</span>
         <span class="c1">#</span>
 
-        <span class="c1"># print(&quot;Getting path from {} to {} (coords wrt V grid)&quot;.format(start, end))</span>
+        <span class="c1"># logger.debug(&quot;Getting path from {} to {} (coords wrt V grid)&quot;.format(start, end))</span>
 
         <span class="c1"># Set parameters</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">dr</span><span class="p">:</span>
@@ -235,14 +276,16 @@
             <span class="c1"># Calculate forces acting on string</span>
             <span class="n">d</span> <span class="o">=</span> <span class="n">V</span><span class="o">.</span><span class="n">shape</span>
             <span class="n">s0</span> <span class="o">=</span> <span class="n">s</span>
-            <span class="n">edV</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">dV</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="nb">int</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">%</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="nb">int</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">%</span> <span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span>
-                                 <span class="nb">int</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">%</span> <span class="n">d</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">/</span> <span class="n">dr</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                             <span class="n">dV</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="nb">int</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">%</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="nb">int</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">%</span> <span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span>
-                                 <span class="nb">int</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">%</span> <span class="n">d</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">/</span> <span class="n">dr</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                             <span class="n">dV</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="nb">int</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">%</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="nb">int</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">%</span> <span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span>
-                                 <span class="nb">int</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">%</span> <span class="n">d</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">/</span> <span class="n">dr</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">s</span><span class="p">])</span>
+            <span class="n">edV</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span>
+                <span class="n">dV</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="nb">int</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">%</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="nb">int</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">%</span> <span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span><span class="nb">int</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">%</span> <span class="n">d</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+                <span class="o">/</span> <span class="n">dr</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">dV</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="nb">int</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">%</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="nb">int</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">%</span> <span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span><span class="nb">int</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">%</span> <span class="n">d</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+                <span class="o">/</span> <span class="n">dr</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">dV</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="nb">int</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">%</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="nb">int</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">%</span> <span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span><span class="nb">int</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">%</span> <span class="n">d</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+                <span class="o">/</span> <span class="n">dr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="p">]</span> <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">s</span><span class="p">])</span>
             <span class="c1"># if(step % 100 == 0):</span>
-            <span class="c1">#    print(edV)</span>
+            <span class="c1">#    logger.debug(edV)</span>
 
             <span class="c1"># Update according to force due to potential and string elasticity</span>
             <span class="n">ds_plus</span> <span class="o">=</span> <span class="n">s</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
@@ -250,10 +293,10 @@
             <span class="n">ds_plus</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">ds_plus</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">ds_plus</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
             <span class="n">ds_minus</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">ds_minus</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ds_minus</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
             <span class="n">Fpot</span> <span class="o">=</span> <span class="n">edV</span>
-            <span class="n">Fel</span> <span class="o">=</span> <span class="n">keff</span> <span class="o">*</span> <span class="p">(</span><span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">ds_plus</span><span class="p">)</span> <span class="o">-</span> <span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">ds0_plus</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span>
-                    <span class="n">ds_plus</span> <span class="o">/</span> <span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">ds_plus</span><span class="p">))</span>
-            <span class="n">Fel</span> <span class="o">+=</span> <span class="n">keff</span> <span class="o">*</span> <span class="p">(</span><span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">ds_minus</span><span class="p">)</span> <span class="o">-</span> <span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">ds0_minus</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span>
-                    <span class="n">ds_minus</span> <span class="o">/</span> <span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">ds_minus</span><span class="p">))</span>
+            <span class="n">Fel</span> <span class="o">=</span> <span class="n">keff</span> <span class="o">*</span> <span class="p">(</span><span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">ds_plus</span><span class="p">)</span> <span class="o">-</span>
+                          <span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">ds0_plus</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span><span class="n">ds_plus</span> <span class="o">/</span> <span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">ds_plus</span><span class="p">))</span>
+            <span class="n">Fel</span> <span class="o">+=</span> <span class="n">keff</span> <span class="o">*</span> <span class="p">(</span><span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">ds_minus</span><span class="p">)</span> <span class="o">-</span>
+                           <span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">ds0_minus</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span><span class="n">ds_minus</span> <span class="o">/</span> <span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">ds_minus</span><span class="p">))</span>
             <span class="n">s</span> <span class="o">-=</span> <span class="n">h</span> <span class="o">*</span> <span class="p">(</span><span class="n">Fpot</span> <span class="o">+</span> <span class="n">Fel</span><span class="p">)</span>
 
             <span class="c1"># Fix endpoints</span>
@@ -276,11 +319,11 @@
                     <span class="s2">&quot;avoid divergence.&quot;</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">step</span> <span class="o">&gt;</span> <span class="n">min_iter</span> <span class="ow">and</span> <span class="n">tol</span> <span class="o">&lt;</span> <span class="n">max_tol</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Converged at step </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">step</span><span class="p">))</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Converged at step </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">step</span><span class="p">))</span>
                 <span class="k">break</span>
 
             <span class="k">if</span> <span class="n">step</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Step </span><span class="si">{}</span><span class="s2"> - ds = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">tol</span><span class="p">))</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Step </span><span class="si">{}</span><span class="s2"> - ds = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">tol</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">s</span></div>
 
     <span class="nd">@staticmethod</span>
@@ -290,9 +333,11 @@
 <span class="sd">        the grid size of v</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># frac_coords = frac_coords % 1</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
-                         <span class="nb">int</span><span class="p">(</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
-                         <span class="nb">int</span><span class="p">(</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">])])</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="p">])</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">__d2f</span><span class="p">(</span><span class="n">disc_coords</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
@@ -300,9 +345,10 @@
 <span class="sd">        Converts a point given in discrete coordinates withe respect to the</span>
 <span class="sd">        grid in v to fractional coordinates.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">disc_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                         <span class="n">disc_coords</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
-                         <span class="n">disc_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span></div>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+            <span class="n">disc_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">disc_coords</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="n">disc_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="StaticPotential"><a class="viewcode-back" href="../../../pymatgen.analysis.path_finder.html#pymatgen.analysis.path_finder.StaticPotential">[docs]</a><span class="k">class</span> <span class="nc">StaticPotential</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
@@ -313,6 +359,10 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">struct</span><span class="p">,</span> <span class="n">pot</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param struct: atomic structure of the potential</span>
+<span class="sd">        :param pot: volumentric data to be used as a potential</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__v</span> <span class="o">=</span> <span class="n">pot</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__s</span> <span class="o">=</span> <span class="n">struct</span>
 
@@ -342,17 +392,23 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">v_dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__v</span><span class="o">.</span><span class="n">shape</span>
         <span class="n">padded_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">lib</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__v</span><span class="p">,</span> <span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;wrap&#39;</span><span class="p">)</span>
-        <span class="n">ogrid_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">list</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">ndindex</span><span class="p">(</span><span class="n">v_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))])</span>
+        <span class="n">ogrid_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+            <span class="nb">list</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndindex</span><span class="p">(</span><span class="n">v_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="p">])</span>
         <span class="n">v_ogrid</span> <span class="o">=</span> <span class="n">padded_v</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
             <span class="p">((</span><span class="n">v_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">v_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">v_dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
-        <span class="n">ngrid_a</span><span class="p">,</span> <span class="n">ngrid_b</span><span class="p">,</span> <span class="n">ngrid_c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">new_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">:</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">new_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
-                                             <span class="mi">0</span><span class="p">:</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">new_dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+        <span class="n">ngrid_a</span><span class="p">,</span> <span class="n">ngrid_b</span><span class="p">,</span> <span class="n">ngrid_c</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">v_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">v_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span>
+                                              <span class="n">new_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">:</span><span class="n">v_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="n">v_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span>
+                                              <span class="n">new_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">:</span><span class="n">v_dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span><span class="n">v_dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span>
+                                              <span class="n">new_dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
 
-        <span class="n">v_ngrid</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">interpolate</span><span class="o">.</span><span class="n">griddata</span><span class="p">(</span><span class="n">ogrid_list</span><span class="p">,</span> <span class="n">v_ogrid</span><span class="p">,</span>
+        <span class="n">v_ngrid</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">interpolate</span><span class="o">.</span><span class="n">griddata</span><span class="p">(</span><span class="n">ogrid_list</span><span class="p">,</span>
+                                             <span class="n">v_ogrid</span><span class="p">,</span>
                                              <span class="p">(</span><span class="n">ngrid_a</span><span class="p">,</span> <span class="n">ngrid_b</span><span class="p">,</span> <span class="n">ngrid_c</span><span class="p">),</span>
                                              <span class="n">method</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
-            <span class="p">(</span><span class="n">new_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">new_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">new_dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+                                                 <span class="p">(</span><span class="n">new_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">new_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                                  <span class="n">new_dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__v</span> <span class="o">=</span> <span class="n">v_ngrid</span></div>
 
 <div class="viewcode-block" id="StaticPotential.gaussian_smear"><a class="viewcode-back" href="../../../pymatgen.analysis.path_finder.html#pymatgen.analysis.path_finder.StaticPotential.gaussian_smear">[docs]</a>    <span class="k">def</span> <span class="nf">gaussian_smear</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
@@ -390,13 +446,14 @@
                                      <span class="mf">1.0</span><span class="p">):</span>
                     <span class="n">g</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
                         <span class="p">[</span><span class="n">g_a</span> <span class="o">/</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">g_b</span> <span class="o">/</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">g_c</span> <span class="o">/</span> <span class="n">v_dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span><span class="o">.</span><span class="n">T</span>
-                    <span class="n">gauss_dist</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">g_a</span> <span class="o">+</span> <span class="n">r_disc</span><span class="p">[</span><span class="mi">0</span><span class="p">])][</span><span class="nb">int</span><span class="p">(</span><span class="n">g_b</span> <span class="o">+</span> <span class="n">r_disc</span><span class="p">[</span><span class="mi">1</span><span class="p">])][</span>
-                        <span class="nb">int</span><span class="p">(</span><span class="n">g_c</span> <span class="o">+</span> <span class="n">r_disc</span><span class="p">[</span><span class="mi">2</span><span class="p">])]</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span>
-                        <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">g</span><span class="p">))</span> <span class="o">/</span> <span class="n">r</span>
+                    <span class="n">gauss_dist</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">g_a</span> <span class="o">+</span> <span class="n">r_disc</span><span class="p">[</span><span class="mi">0</span><span class="p">])][</span><span class="nb">int</span><span class="p">(</span><span class="n">g_b</span> <span class="o">+</span> <span class="n">r_disc</span><span class="p">[</span><span class="mi">1</span><span class="p">])][</span><span class="nb">int</span><span class="p">(</span>
+                        <span class="n">g_c</span> <span class="o">+</span> <span class="n">r_disc</span><span class="p">[</span><span class="mi">2</span><span class="p">])]</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span>
+                            <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">g</span><span class="p">))</span> <span class="o">/</span> <span class="n">r</span>
         <span class="n">gauss</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">gauss_dist</span><span class="p">)</span>
         <span class="n">gauss</span> <span class="o">=</span> <span class="n">gauss</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">gauss</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-        <span class="n">padded_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__v</span><span class="p">,</span> <span class="p">(</span>
-            <span class="p">(</span><span class="n">r_disc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">r_disc</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="p">(</span><span class="n">r_disc</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">r_disc</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="p">(</span><span class="n">r_disc</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">r_disc</span><span class="p">[</span><span class="mi">2</span><span class="p">])),</span>
+        <span class="n">padded_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__v</span><span class="p">,</span>
+                          <span class="p">((</span><span class="n">r_disc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">r_disc</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="p">(</span><span class="n">r_disc</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">r_disc</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                           <span class="p">(</span><span class="n">r_disc</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">r_disc</span><span class="p">[</span><span class="mi">2</span><span class="p">])),</span>
                           <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;wrap&#39;</span><span class="p">)</span>
         <span class="n">smeared_v</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">signal</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">padded_v</span><span class="p">,</span> <span class="n">gauss</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;valid&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__v</span> <span class="o">=</span> <span class="n">smeared_v</span></div></div>
@@ -459,7 +516,7 @@
                         <span class="p">[</span><span class="n">a_d</span> <span class="o">/</span> <span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">b_d</span> <span class="o">/</span> <span class="n">dim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">c_d</span> <span class="o">/</span> <span class="n">dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
                     <span class="n">d_f</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">get_sites_in_sphere</span><span class="p">(</span><span class="n">coords_f</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">a</span><span class="p">),</span>
                                  <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
-                    <span class="c1"># print(d_f)</span>
+                    <span class="c1"># logger.debug(d_f)</span>
                     <span class="n">gauss_dist</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">a_d</span><span class="p">)][</span><span class="nb">int</span><span class="p">(</span><span class="n">b_d</span><span class="p">)][</span><span class="nb">int</span><span class="p">(</span><span class="n">c_d</span><span class="p">)]</span> <span class="o">=</span> <span class="n">d_f</span> <span class="o">/</span> <span class="n">r</span>
         <span class="n">v</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">gauss_dist</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">v</span></div>
@@ -518,7 +575,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -526,7 +583,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

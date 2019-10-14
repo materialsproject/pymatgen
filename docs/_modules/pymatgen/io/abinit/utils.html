@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.abinit.utils &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.io.abinit.utils &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -65,6 +64,7 @@
 <span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="k">import</span> <span class="n">add_fig_kwargs</span><span class="p">,</span> <span class="n">get_ax_fig_plt</span>
 
 <span class="kn">import</span> <span class="nn">logging</span>
+
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
@@ -74,7 +74,8 @@
 
 <span class="sd">    &gt;&gt;&gt; assert as_bool(True) is True and as_bool(&quot;Yes&quot;) is True and as_bool(&quot;false&quot;) is False</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span> <span class="k">return</span> <span class="n">s</span>
+    <span class="k">if</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">s</span>
     <span class="c1"># Assume string</span>
     <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;yes&quot;</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">):</span>
@@ -90,6 +91,7 @@
 <span class="sd">    Very simple class used to store file basenames, absolute paths and directory names.</span>
 <span class="sd">    Provides wrappers for the most commonly used functions defined in os.path.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
@@ -196,7 +198,8 @@
 <span class="sd">        Return the size, in bytes, of path.</span>
 <span class="sd">        Return 0 if the file is empty or it does not exist.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">exists</span><span class="p">:</span> <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">exists</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
         <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span></div></div>
 
 
@@ -205,6 +208,7 @@
 <span class="sd">    Very simple class that provides helper functions</span>
 <span class="sd">    wrapping the most commonly used functions defined in os.path.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
@@ -315,13 +319,16 @@
         <span class="n">files</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_filepaths</span><span class="p">():</span>
             <span class="c1"># For the time being, we ignore DDB files in nc format.</span>
-            <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;_DDB&quot;</span> <span class="ow">and</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.nc&quot;</span><span class="p">):</span> <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;_DDB&quot;</span> <span class="ow">and</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.nc&quot;</span><span class="p">):</span>
+                <span class="k">continue</span>
             <span class="c1"># Ignore BSE text files e.g. GW_NLF_MDF</span>
-            <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;_MDF&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.nc&quot;</span><span class="p">):</span> <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;_MDF&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.nc&quot;</span><span class="p">):</span>
+                <span class="k">continue</span>
             <span class="c1"># Ignore DDK.nc files (temporary workaround for v8.8.2 in which</span>
             <span class="c1"># the DFPT code produces a new file with DDK.nc extension that enters</span>
             <span class="c1"># into conflict with AbiPy convention.</span>
-            <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;_DDK&quot;</span> <span class="ow">and</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.nc&quot;</span><span class="p">):</span> <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;_DDK&quot;</span> <span class="ow">and</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.nc&quot;</span><span class="p">):</span>
+                <span class="k">continue</span>
 
             <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">ext</span><span class="p">)</span> <span class="ow">or</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">ext</span> <span class="o">+</span> <span class="s2">&quot;.nc&quot;</span><span class="p">):</span>
                 <span class="n">files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
@@ -373,7 +380,8 @@
                     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;link </span><span class="si">%s</span><span class="s2"> already exists but it&#39;s ok because it points to the correct file&quot;</span> <span class="o">%</span> <span class="n">outfile</span><span class="p">)</span>
                     <span class="k">return</span> <span class="mi">0</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Expecting link at </span><span class="si">%s</span><span class="s2"> already exists but it does not point to </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="n">infile</span><span class="p">))</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                        <span class="s2">&quot;Expecting link at </span><span class="si">%s</span><span class="s2"> already exists but it does not point to </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="n">infile</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Expecting link at </span><span class="si">%s</span><span class="s1"> but found file.&#39;</span> <span class="o">%</span> <span class="n">outfile</span><span class="p">)</span>
 
@@ -421,7 +429,8 @@
 
         <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">list_strings</span><span class="p">(</span><span class="n">exts</span><span class="p">):</span>
             <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_abiext</span><span class="p">(</span><span class="n">ext</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span> <span class="k">continue</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
+                <span class="k">continue</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
                 <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
@@ -442,7 +451,8 @@
         <span class="n">regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;out_TIM(\d+)_DEN(.nc)?$&quot;</span><span class="p">)</span>
 
         <span class="n">timden_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_filepaths</span><span class="p">()</span> <span class="k">if</span> <span class="n">regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">f</span><span class="p">))]</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">timden_paths</span><span class="p">:</span> <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">timden_paths</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
 
         <span class="c1"># Build list of (step, path) tuples.</span>
         <span class="n">stepfile_list</span> <span class="o">=</span> <span class="p">[]</span>
@@ -465,7 +475,8 @@
         <span class="n">regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;out_1WF(\d+)(\.nc)?$&quot;</span><span class="p">)</span>
 
         <span class="n">wf_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_filepaths</span><span class="p">()</span> <span class="k">if</span> <span class="n">regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">f</span><span class="p">))]</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">wf_paths</span><span class="p">:</span> <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">wf_paths</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
 
         <span class="c1"># Build list of (pertcase, path) tuples.</span>
         <span class="n">pertfile_list</span> <span class="o">=</span> <span class="p">[]</span>
@@ -487,7 +498,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;out_DEN(\d+)(\.nc)?$&quot;</span><span class="p">)</span>
         <span class="n">den_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_filepaths</span><span class="p">()</span> <span class="k">if</span> <span class="n">regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">f</span><span class="p">))]</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">den_paths</span><span class="p">:</span> <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">den_paths</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
 
         <span class="c1"># Build list of (pertcase, path) tuples.</span>
         <span class="n">pertfile_list</span> <span class="o">=</span> <span class="p">[]</span>
@@ -500,6 +512,7 @@
         <span class="c1"># DSU sort.</span>
         <span class="n">pertfile_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">pertfile_list</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">dict2namedtuple</span><span class="p">(</span><span class="n">pertcase</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">path</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">pertfile_list</span><span class="p">]</span></div></div>
+
 
 <span class="c1"># This dictionary maps ABINIT file extensions to the variables that must be used to read the file in input.</span>
 <span class="c1">#</span>
@@ -560,7 +573,7 @@
 
     <span class="c1"># This algorith fails if we have two files</span>
     <span class="c1"># e.g. HAYDR_SAVE, ANOTHER_HAYDR_SAVE</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
         <span class="n">ext</span> <span class="o">=</span> <span class="n">filename</span><span class="p">[</span><span class="n">i</span><span class="p">:]</span>
         <span class="k">if</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">known_extensions</span><span class="p">:</span>
             <span class="k">break</span>
@@ -598,6 +611,7 @@
 <span class="sd">    &gt;&gt;&gt; assert fixer.fix_paths(&#39;/foo/out_1WF17&#39;) == {&#39;/foo/out_1WF17&#39;: &#39;/foo/out_1WF&#39;}</span>
 <span class="sd">    &gt;&gt;&gt; assert fixer.fix_paths(&#39;/foo/out_1WF5.nc&#39;) == {&#39;/foo/out_1WF5.nc&#39;: &#39;/foo/out_1WF.nc&#39;}</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># dictionary mapping the *official* file extension to</span>
         <span class="c1"># the regular expression used to tokenize the basename of the file</span>
@@ -611,13 +625,15 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_fix_1WF</span><span class="p">(</span><span class="n">match</span><span class="p">):</span>
         <span class="n">root</span><span class="p">,</span> <span class="n">pert</span><span class="p">,</span> <span class="n">ncext</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">ncext</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="n">ncext</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">ncext</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ncext</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="k">return</span> <span class="n">root</span> <span class="o">+</span> <span class="s2">&quot;1WF&quot;</span> <span class="o">+</span> <span class="n">ncext</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_fix_1DEN</span><span class="p">(</span><span class="n">match</span><span class="p">):</span>
         <span class="n">root</span><span class="p">,</span> <span class="n">pert</span><span class="p">,</span> <span class="n">ncext</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">ncext</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="n">ncext</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">ncext</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ncext</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="k">return</span> <span class="n">root</span> <span class="o">+</span> <span class="s2">&quot;1DEN&quot;</span> <span class="o">+</span> <span class="n">ncext</span>
 
     <span class="k">def</span> <span class="nf">_fix_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
@@ -645,14 +661,15 @@
             <span class="n">newpath</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fix_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">newpath</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="c1">#if ext not in fixed_exts:</span>
+                <span class="c1"># if ext not in fixed_exts:</span>
                 <span class="c1">#    if ext == &quot;1WF&quot;: continue</span>
                 <span class="c1">#    raise ValueError(&quot;Unknown extension %s&quot; % ext)</span>
-                <span class="c1">#print(ext, path, fixed_exts)</span>
-                <span class="c1">#if ext != &#39;1WF&#39;:</span>
+                <span class="c1"># print(ext, path, fixed_exts)</span>
+                <span class="c1"># if ext != &#39;1WF&#39;:</span>
                 <span class="c1">#    assert ext not in fixed_exts</span>
                 <span class="k">if</span> <span class="n">ext</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fixed_exts</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;1WF&quot;</span><span class="p">:</span> <span class="k">continue</span>
+                    <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;1WF&quot;</span><span class="p">:</span>
+                        <span class="k">continue</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown extension </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ext</span><span class="p">)</span>
                 <span class="n">fixed_exts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ext</span><span class="p">)</span>
                 <span class="n">old2new</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="n">newpath</span>
@@ -679,6 +696,7 @@
     <span class="sd">&quot;&quot;&quot;Return True if num1 is divisible by num2.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">num1</span> <span class="o">%</span> <span class="n">num2</span><span class="p">)</span> <span class="o">==</span> <span class="mf">0.0</span>
 
+
 <span class="c1"># Mapping string --&gt; operator.</span>
 <span class="n">_UNARY_OPS</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;$not&quot;</span><span class="p">:</span> <span class="n">_bop_not</span><span class="p">,</span>
@@ -695,9 +713,8 @@
     <span class="s2">&quot;$lte&quot;</span><span class="p">:</span> <span class="n">operator</span><span class="o">.</span><span class="n">le</span><span class="p">,</span>
     <span class="s2">&quot;$divisible&quot;</span><span class="p">:</span> <span class="n">_bop_divisible</span><span class="p">,</span>
     <span class="s2">&quot;$and&quot;</span><span class="p">:</span> <span class="n">_bop_and</span><span class="p">,</span>
-    <span class="s2">&quot;$or&quot;</span><span class="p">:</span>  <span class="n">_bop_or</span><span class="p">,</span>
-    <span class="p">}</span>
-
+    <span class="s2">&quot;$or&quot;</span><span class="p">:</span> <span class="n">_bop_or</span><span class="p">,</span>
+<span class="p">}</span>
 
 <span class="n">_ALL_OPS</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">_UNARY_OPS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">_BIN_OPS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 
@@ -739,12 +756,12 @@
                 <span class="c1"># 1) &quot;$eq&quot;&quot;: &quot;attribute_name&quot;</span>
                 <span class="c1"># 2) &quot;$eq&quot;&quot;: 1.0</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="c1">#print(&quot;in_otherv&quot;,k, v)</span>
+                    <span class="c1"># print(&quot;in_otherv&quot;,k, v)</span>
                     <span class="n">rpn</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
                     <span class="n">rpn</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
 
                 <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
-                    <span class="c1">#print(&quot;in_otherv, raised&quot;,k, v)</span>
+                    <span class="c1"># print(&quot;in_otherv, raised&quot;,k, v)</span>
                     <span class="n">rpn</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
@@ -758,7 +775,7 @@
                 <span class="n">rpn</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
                 <span class="n">rpn</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="c1">#&quot;one&quot;: 1.0</span>
+                <span class="c1"># &quot;one&quot;: 1.0</span>
                 <span class="n">rpn</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="s2">&quot;$eq&quot;</span><span class="p">])</span>
 
     <span class="k">return</span> <span class="n">rpn</span></div>
@@ -794,7 +811,7 @@
             <span class="c1"># Push the operand</span>
             <span class="n">vals_stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
 
-        <span class="c1">#print(vals_stack)</span>
+        <span class="c1"># print(vals_stack)</span>
 
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">vals_stack</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
     <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vals_stack</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">bool</span><span class="p">)</span>
@@ -813,7 +830,8 @@
 
 <span class="sd">    $gt selects those documents where the value of the field is greater than (i.e. &gt;) the specified value.</span>
 
-<span class="sd">    $and performs a logical AND operation on an array of two or more expressions (e.g. &lt;expression1&gt;, &lt;expression2&gt;, etc.)</span>
+<span class="sd">    $and performs a logical AND operation on an array of two or more expressions (e.g. &lt;expression1&gt;, &lt;expression2&gt;,</span>
+<span class="sd">    etc.)</span>
 <span class="sd">    and selects the documents that satisfy all the expressions in the array.</span>
 
 <span class="sd">    { $and: [ { &lt;expression1&gt; }, { &lt;expression2&gt; } , ... , { &lt;expressionN&gt; } ] }</span>
@@ -827,6 +845,7 @@
 <span class="sd">    db.inventory.find( { qty: { $gt: 20 } } )</span>
 <span class="sd">    db.inventory.find({ $and: [ { price: 1.99 }, { qty: { $lt: 20 } }, { sale: true } ] } )</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="Condition.as_condition"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.Condition.as_condition">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">as_condition</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Convert obj into :class:`Condition`&quot;&quot;&quot;</span>
@@ -847,7 +866,8 @@
     <span class="n">__nonzero__</span> <span class="o">=</span> <span class="fm">__bool__</span>
 
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="p">:</span> <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">evaluate_rpn</span><span class="p">(</span><span class="n">map2rpn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmap</span><span class="p">,</span> <span class="n">obj</span><span class="p">))</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
@@ -860,6 +880,7 @@
 <span class="sd">    Wrapper class that calls the editor specified by the user</span>
 <span class="sd">    or the one specified in the $EDITOR env variable.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">editor</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;If editor is None, $EDITOR is used.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">editor</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;EDITOR&quot;</span><span class="p">,</span> <span class="s2">&quot;vi&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">editor</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">editor</span><span class="p">)</span>
@@ -868,7 +889,7 @@
         <span class="n">exit_status</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">fname</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fnames</span><span class="p">):</span>
             <span class="n">exit_status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edit_file</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">ask_for_exit</span> <span class="ow">and</span> <span class="n">idx</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">fnames</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_wants_to_exit</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">ask_for_exit</span> <span class="ow">and</span> <span class="n">idx</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">fnames</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_wants_to_exit</span><span class="p">():</span>
                 <span class="k">break</span>
         <span class="k">return</span> <span class="n">exit_status</span></div>
 
@@ -906,7 +927,8 @@
         <span class="n">start</span><span class="p">,</span> <span class="n">stop</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">values</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">num</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">num</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">stop</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span> <span class="o">/</span> <span class="n">step</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">num</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="n">num</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">num</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">num</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="n">mesh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">num</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
         <span class="kn">from</span> <span class="nn">monty.bisect</span> <span class="k">import</span> <span class="n">find_le</span>
@@ -918,7 +940,7 @@
             <span class="n">pos</span> <span class="o">=</span> <span class="n">find_le</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
             <span class="n">hist</span><span class="p">[</span><span class="n">mesh</span><span class="p">[</span><span class="n">pos</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
 
-        <span class="c1">#new = OrderedDict([(pos, hist[pos]) for pos in sorted(hist.keys(), reverse=reverse)])</span>
+        <span class="c1"># new = OrderedDict([(pos, hist[pos]) for pos in sorted(hist.keys(), reverse=reverse)])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">binvals</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">hist</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">hist</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span> <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">binvals</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num</span> <span class="o">=</span> <span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">num</span>
@@ -938,11 +960,11 @@
 
 <div class="viewcode-block" id="Dirviz"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.Dirviz">[docs]</a><span class="k">class</span> <span class="nc">Dirviz</span><span class="p">:</span>
 
-    <span class="c1">#file_color = np.array((255, 0, 0)) / 255</span>
-    <span class="c1">#dir_color = np.array((0, 0, 255)) / 255</span>
+    <span class="c1"># file_color = np.array((255, 0, 0)) / 255</span>
+    <span class="c1"># dir_color = np.array((0, 0, 255)) / 255</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top</span><span class="p">):</span>
-        <span class="c1">#if not os.path.isdir(top):</span>
+        <span class="c1"># if not os.path.isdir(top):</span>
         <span class="c1">#    raise TypeError(&quot;%s should be a directory!&quot; % str(top))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">top</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">top</span><span class="p">)</span>
 
@@ -965,17 +987,17 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># https://www.graphviz.org/doc/info/</span>
         <span class="kn">from</span> <span class="nn">graphviz</span> <span class="k">import</span> <span class="n">Digraph</span>
-        <span class="n">g</span> <span class="o">=</span> <span class="n">Digraph</span><span class="p">(</span><span class="s2">&quot;directory&quot;</span><span class="p">,</span> <span class="c1">#filename=&quot;flow_%s.gv&quot; % os.path.basename(self.relworkdir),</span>
-            <span class="n">engine</span><span class="o">=</span><span class="n">engine</span><span class="p">)</span> <span class="c1"># if engine == &quot;automatic&quot; else engine)</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">Digraph</span><span class="p">(</span><span class="s2">&quot;directory&quot;</span><span class="p">,</span>  <span class="c1"># filename=&quot;flow_%s.gv&quot; % os.path.basename(self.relworkdir),</span>
+                    <span class="n">engine</span><span class="o">=</span><span class="n">engine</span><span class="p">)</span>  <span class="c1"># if engine == &quot;automatic&quot; else engine)</span>
 
         <span class="c1"># Set graph attributes.</span>
-        <span class="c1">#g.attr(label=&quot;%s@%s&quot; % (self.__class__.__name__, self.relworkdir))</span>
+        <span class="c1"># g.attr(label=&quot;%s@%s&quot; % (self.__class__.__name__, self.relworkdir))</span>
         <span class="n">g</span><span class="o">.</span><span class="n">attr</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">top</span><span class="p">)</span>
-        <span class="c1">#g.attr(fontcolor=&quot;white&quot;, bgcolor=&#39;purple:pink&#39;)</span>
-        <span class="c1">#g.attr(rankdir=&quot;LR&quot;, pagedir=&quot;BL&quot;)</span>
-        <span class="c1">#g.attr(constraint=&quot;false&quot;, pack=&quot;true&quot;, packMode=&quot;clust&quot;)</span>
+        <span class="c1"># g.attr(fontcolor=&quot;white&quot;, bgcolor=&#39;purple:pink&#39;)</span>
+        <span class="c1"># g.attr(rankdir=&quot;LR&quot;, pagedir=&quot;BL&quot;)</span>
+        <span class="c1"># g.attr(constraint=&quot;false&quot;, pack=&quot;true&quot;, packMode=&quot;clust&quot;)</span>
         <span class="n">g</span><span class="o">.</span><span class="n">node_attr</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;lightblue2&#39;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">&#39;filled&#39;</span><span class="p">)</span>
-        <span class="c1">#g.node_attr.update(ranksep=&#39;equally&#39;)</span>
+        <span class="c1"># g.node_attr.update(ranksep=&#39;equally&#39;)</span>
 
         <span class="c1"># Add input attributes.</span>
         <span class="k">if</span> <span class="n">graph_attr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -987,12 +1009,12 @@
 
         <span class="k">def</span> <span class="nf">node_kwargs</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
             <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
-                <span class="c1">#shape=&quot;circle&quot;,</span>
-                <span class="c1">#shape=&quot;none&quot;,</span>
-                <span class="c1">#shape=&quot;plaintext&quot;,</span>
-                <span class="c1">#shape=&quot;point&quot;,</span>
+                <span class="c1"># shape=&quot;circle&quot;,</span>
+                <span class="c1"># shape=&quot;none&quot;,</span>
+                <span class="c1"># shape=&quot;plaintext&quot;,</span>
+                <span class="c1"># shape=&quot;point&quot;,</span>
                 <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;record&quot;</span><span class="p">,</span>
-                <span class="c1">#color=node.color_hex,</span>
+                <span class="c1"># color=node.color_hex,</span>
                 <span class="n">fontsize</span><span class="o">=</span><span class="s2">&quot;8.0&quot;</span><span class="p">,</span>
                 <span class="n">label</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">),</span>
             <span class="p">)</span>
@@ -1003,9 +1025,10 @@
         <span class="c1"># TODO: Write other method without clusters if not walk.</span>
         <span class="n">exclude_top_node</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">top</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">exclude_top_node</span> <span class="ow">and</span> <span class="n">root</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">top</span><span class="p">:</span> <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">exclude_top_node</span> <span class="ow">and</span> <span class="n">root</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">top</span><span class="p">:</span>
+                <span class="k">continue</span>
             <span class="n">cluster_name</span> <span class="o">=</span> <span class="s2">&quot;cluster_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">root</span>
-            <span class="c1">#print(&quot;root&quot;, root, cluster_name, &quot;dirs&quot;, dirs, &quot;files&quot;, files, sep=&quot;\n&quot;)</span>
+            <span class="c1"># print(&quot;root&quot;, root, cluster_name, &quot;dirs&quot;, dirs, &quot;files&quot;, files, sep=&quot;\n&quot;)</span>
 
             <span class="k">with</span> <span class="n">g</span><span class="o">.</span><span class="n">subgraph</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">cluster_name</span><span class="p">)</span> <span class="k">as</span> <span class="n">d</span><span class="p">:</span>
                 <span class="n">d</span><span class="o">.</span><span class="n">attr</span><span class="p">(</span><span class="o">**</span><span class="n">cluster_kwargs</span><span class="p">)</span>
@@ -1018,19 +1041,19 @@
                         <span class="c1"># Follow the link and use the relpath wrt link as label.</span>
                         <span class="n">realp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
                         <span class="n">realp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">realp</span><span class="p">,</span> <span class="n">filepath</span><span class="p">)</span>
-                        <span class="c1">#realp = os.path.relpath(realp, self.top)</span>
-                        <span class="c1">#print(filepath, realp)</span>
-                        <span class="c1">#g.node(realp, **node_kwargs(realp))</span>
+                        <span class="c1"># realp = os.path.relpath(realp, self.top)</span>
+                        <span class="c1"># print(filepath, realp)</span>
+                        <span class="c1"># g.node(realp, **node_kwargs(realp))</span>
                         <span class="n">g</span><span class="o">.</span><span class="n">edge</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">realp</span><span class="p">,</span> <span class="o">**</span><span class="n">edge_kwargs</span><span class="p">)</span>
 
                 <span class="k">for</span> <span class="n">dirname</span> <span class="ow">in</span> <span class="n">dirs</span><span class="p">:</span>
                     <span class="n">dirpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">dirname</span><span class="p">)</span>
-                    <span class="c1">#head, basename = os.path.split(dirpath)</span>
+                    <span class="c1"># head, basename = os.path.split(dirpath)</span>
                     <span class="n">new_cluster_name</span> <span class="o">=</span> <span class="s2">&quot;cluster_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">dirpath</span>
-                    <span class="c1">#rank = &quot;source&quot; if os.listdir(dirpath) else &quot;sink&quot;</span>
-                    <span class="c1">#g.node(dirpath, rank=rank, **node_kwargs(dirpath))</span>
-                    <span class="c1">#g.edge(dirpath, new_cluster_name, **edge_kwargs)</span>
-                    <span class="c1">#d.edge(cluster_name, new_cluster_name, minlen=&quot;2&quot;, **edge_kwargs)</span>
+                    <span class="c1"># rank = &quot;source&quot; if os.listdir(dirpath) else &quot;sink&quot;</span>
+                    <span class="c1"># g.node(dirpath, rank=rank, **node_kwargs(dirpath))</span>
+                    <span class="c1"># g.edge(dirpath, new_cluster_name, **edge_kwargs)</span>
+                    <span class="c1"># d.edge(cluster_name, new_cluster_name, minlen=&quot;2&quot;, **edge_kwargs)</span>
                     <span class="n">d</span><span class="o">.</span><span class="n">edge</span><span class="p">(</span><span class="n">cluster_name</span><span class="p">,</span> <span class="n">new_cluster_name</span><span class="p">,</span> <span class="o">**</span><span class="n">edge_kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">g</span></div></div>
 </pre></div>
@@ -1063,7 +1086,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1071,7 +1094,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

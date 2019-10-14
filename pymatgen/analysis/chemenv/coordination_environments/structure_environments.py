@@ -656,8 +656,8 @@ class StructureEnvironments(MSONable):
         try:
             import matplotlib.pyplot as mpl
             from matplotlib import cm
-            from matplotlib.colors import Normalize, LinearSegmentedColormap, ListedColormap
-            from matplotlib.patches import Rectangle, Polygon
+            from matplotlib.colors import Normalize
+            from matplotlib.patches import Polygon
         except ImportError:
             print('Plotting Chemical Environments requires matplotlib ... exiting "plot" function')
             return

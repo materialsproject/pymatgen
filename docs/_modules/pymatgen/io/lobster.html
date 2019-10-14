@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.lobster &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.io.lobster &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -49,10 +48,13 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module for reading Lobster output files. For more information</span>
+<span class="sd">on LOBSTER see www.cohp.de.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">collections</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">monty.io</span> <span class="k">import</span> <span class="n">zopen</span>
@@ -62,23 +64,15 @@
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">spglib</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="k">import</span> <span class="n">Spin</span><span class="p">,</span> <span class="n">Orbital</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.vasp.outputs</span> <span class="k">import</span> <span class="n">Vasprun</span>
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.dos</span> <span class="k">import</span> <span class="n">Dos</span><span class="p">,</span> <span class="n">LobsterCompleteDos</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.bandstructure</span> <span class="k">import</span> <span class="n">Kpoint</span>
-<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="k">import</span> <span class="n">Kpoints</span>
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.bandstructure</span> <span class="k">import</span> <span class="n">LobsterBandStructureSymmLine</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="k">import</span> <span class="n">Incar</span><span class="p">,</span> <span class="n">Kpoints</span><span class="p">,</span> <span class="n">Potcar</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.bandstructure</span> <span class="k">import</span> <span class="n">HighSymmKpath</span>
-
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Module for reading Lobster output files. For more information</span>
-<span class="sd">on LOBSTER see www.cohp.de.</span>
-<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Janine George, Marco Esters&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2017, The Materials Project&quot;</span>
@@ -93,14 +87,6 @@
 <div class="viewcode-block" id="Cohpcar"><a class="viewcode-back" href="../../../pymatgen.io.lobster.html#pymatgen.io.lobster.Cohpcar">[docs]</a><span class="k">class</span> <span class="nc">Cohpcar</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class to read COHPCAR/COOPCAR files generated by LOBSTER.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        are_coops: Determines if the file is a list of COHPs or COOPs.</span>
-<span class="sd">          Default is False for COHPs.</span>
-
-<span class="sd">        filename: Name of the COHPCAR file. If it is None, the default</span>
-<span class="sd">          file name will be chosen, depending on the value of are_coops.</span>
-
 
 <span class="sd">    .. attribute: cohp_data</span>
 
@@ -136,6 +122,13 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">are_coops</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            are_coops: Determines if the file is a list of COHPs or COOPs.</span>
+<span class="sd">              Default is False for COHPs.</span>
+<span class="sd">            filename: Name of the COHPCAR file. If it is None, the default</span>
+<span class="sd">              file name will be chosen, depending on the value of are_coops.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">are_coops</span> <span class="o">=</span> <span class="n">are_coops</span>
         <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">filename</span> <span class="o">=</span> <span class="s2">&quot;COOPCAR.lobster&quot;</span> <span class="k">if</span> <span class="n">are_coops</span> \
@@ -275,14 +268,6 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class to read ICOHPLIST/ICOOPLIST files generated by LOBSTER.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        are_coops: Determines if the file is a list of ICOHPs or ICOOPs.</span>
-<span class="sd">          Defaults to False for ICOHPs.</span>
-
-<span class="sd">        filename: Name of the ICOHPLIST file. If it is None, the default</span>
-<span class="sd">          file name will be chosen, depending on the value of are_coops.</span>
-
-
 <span class="sd">    .. attribute: are_coops</span>
 <span class="sd">         Boolean to indicate if the populations are COOPs or COHPs.</span>
 
@@ -301,7 +286,13 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">are_coops</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            are_coops: Determines if the file is a list of ICOHPs or ICOOPs.</span>
+<span class="sd">              Defaults to False for ICOHPs.</span>
+<span class="sd">            filename: Name of the ICOHPLIST file. If it is None, the default</span>
+<span class="sd">              file name will be chosen, depending on the value of are_coops.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">are_coops</span> <span class="o">=</span> <span class="n">are_coops</span>
         <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">filename</span> <span class="o">=</span> <span class="s2">&quot;ICOOPLIST.lobster&quot;</span> <span class="k">if</span> <span class="n">are_coops</span> \
@@ -406,11 +397,6 @@
 <span class="sd">    Class to deal with Lobster&#39;s projected DOS and local projected DOS.</span>
 <span class="sd">    The beforehand quantum-chemical calculation was performed with VASP</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        doscar: DOSCAR filename, typically &quot;DOSCAR.lobster&quot;</span>
-<span class="sd">        structure_file: for vasp, this is typically &quot;POSCAR&quot;</span>
-<span class="sd">        dftprogram: so far only &quot;vasp&quot; is implemented</span>
-
 <span class="sd">    .. attribute:: completedos</span>
 
 <span class="sd">        LobsterCompleteDos Object</span>
@@ -440,7 +426,12 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doscar</span><span class="o">=</span><span class="s2">&quot;DOSCAR.lobster&quot;</span><span class="p">,</span> <span class="n">structure_file</span><span class="o">=</span><span class="s2">&quot;POSCAR&quot;</span><span class="p">,</span> <span class="n">dftprogram</span><span class="o">=</span><span class="s2">&quot;Vasp&quot;</span><span class="p">):</span>
-
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            doscar: DOSCAR filename, typically &quot;DOSCAR.lobster&quot;</span>
+<span class="sd">            structure_file: for vasp, this is typically &quot;POSCAR&quot;</span>
+<span class="sd">            dftprogram: so far only &quot;vasp&quot; is implemented</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_doscar</span> <span class="o">=</span> <span class="n">doscar</span>
         <span class="k">if</span> <span class="n">dftprogram</span> <span class="o">==</span> <span class="s2">&quot;Vasp&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_final_structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">structure_file</span><span class="p">)</span>
@@ -522,48 +513,69 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">completedos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: CompleteDos</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_completedos</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">pdos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Projected DOS</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pdos</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">tdos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Total DOS</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tdos</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">energies</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Energies</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_energies</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">tdensities</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: What is this?!??!</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tdensities</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_spin_polarized</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Whether run is spin polarized.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_spin_polarized</span></div>
 
 
 <div class="viewcode-block" id="Charge"><a class="viewcode-back" href="../../../pymatgen.io.lobster.html#pymatgen.io.lobster.Charge">[docs]</a><span class="k">class</span> <span class="nc">Charge</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Class to read CHARGE files generated by LOBSTER</span>
-<span class="sd">        Args:</span>
-<span class="sd">            filename: filename for the CHARGE file, typically &quot;CHARGE.lobster&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class to read CHARGE files generated by LOBSTER</span>
 
-<span class="sd">        .. attribute: atomlist</span>
-<span class="sd">            List of atoms in CHARGE.lobster</span>
-<span class="sd">        .. attribute: types</span>
-<span class="sd">            List of types of atoms in CHARGE.lobster</span>
-<span class="sd">        .. attribute: Mulliken</span>
-<span class="sd">            List of Mulliken charges of atoms in CHARGE.lobster</span>
-<span class="sd">        .. attribute: Loewdin</span>
-<span class="sd">            List of Loewdin charges of atoms in CHARGE.Loewdin</span>
-<span class="sd">        .. attribute: num_atoms</span>
-<span class="sd">            Number of atoms in CHARGE.lobster</span>
+<span class="sd">    .. attribute: atomlist</span>
+<span class="sd">        List of atoms in CHARGE.lobster</span>
+<span class="sd">    .. attribute: types</span>
+<span class="sd">        List of types of atoms in CHARGE.lobster</span>
+<span class="sd">    .. attribute: Mulliken</span>
+<span class="sd">        List of Mulliken charges of atoms in CHARGE.lobster</span>
+<span class="sd">    .. attribute: Loewdin</span>
+<span class="sd">        List of Loewdin charges of atoms in CHARGE.Loewdin</span>
+<span class="sd">    .. attribute: num_atoms</span>
+<span class="sd">        Number of atoms in CHARGE.lobster</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;CHARGE.lobster&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            filename: filename for the CHARGE file, typically &quot;CHARGE.lobster&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)[</span><span class="mi">3</span><span class="p">:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -601,8 +613,6 @@
 <div class="viewcode-block" id="Lobsterout"><a class="viewcode-back" href="../../../pymatgen.io.lobster.html#pymatgen.io.lobster.Lobsterout">[docs]</a><span class="k">class</span> <span class="nc">Lobsterout</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class to read in the lobsterout and evaluate the spilling, save the basis, save warnings, save infos</span>
-<span class="sd">    Args:</span>
-<span class="sd">      filename: filename of lobsterout</span>
 
 <span class="sd">      .. attribute: basis_functions</span>
 <span class="sd">        list of basis functions that were used in lobster run as strings</span>
@@ -677,7 +687,10 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;lobsterout&quot;</span><span class="p">):</span>
-
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            filename: filename of lobsterout</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Make sure the lobsterout is read in correctly. This is a brand new class.&quot;</span><span class="p">)</span>
         <span class="c1"># read in file</span>
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -685,7 +698,6 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;lobsterout does not contain any data&quot;</span><span class="p">)</span>
 
-        <span class="n">LobsterDict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="c1"># check if Lobster starts from a projection</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_restart_from_projection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_starts_from_projection</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
 
@@ -744,7 +756,6 @@
         <span class="n">LobsterDict</span><span class="p">[</span><span class="s1">&#39;threads&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_of_threads</span>
         <span class="n">LobsterDict</span><span class="p">[</span><span class="s1">&#39;Dftprogram&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dftprogram</span>
 
-        <span class="n">number_of_spins</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_of_spins</span>
         <span class="n">LobsterDict</span><span class="p">[</span><span class="s1">&#39;chargespilling&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">chargespilling</span>
         <span class="n">LobsterDict</span><span class="p">[</span><span class="s1">&#39;totalspilling&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">totalspilling</span>
 
@@ -965,12 +976,7 @@
 
 <div class="viewcode-block" id="Fatband"><a class="viewcode-back" href="../../../pymatgen.io.lobster.html#pymatgen.io.lobster.Fatband">[docs]</a><span class="k">class</span> <span class="nc">Fatband</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    reads in FATBAND_x_y.lobster files</span>
-<span class="sd">    Args:</span>
-<span class="sd">        filenames (list or string): can be a list of file names or a path to a folder folder from which all &quot;FATBAND_*&quot;</span>
-<span class="sd">            files will be read</span>
-<span class="sd">        vasprun: corresponding vasprun file</span>
-<span class="sd">        Kpointsfile: KPOINTS file for bandstructure calculation, typically &quot;KPOINTS&quot;</span>
+<span class="sd">    Reads in FATBAND_x_y.lobster files</span>
 
 <span class="sd">    .. attribute: efermi</span>
 
@@ -1017,7 +1023,13 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filenames</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">vasprun</span><span class="o">=</span><span class="s1">&#39;vasprun.xml&#39;</span><span class="p">,</span> <span class="n">Kpointsfile</span><span class="o">=</span><span class="s1">&#39;KPOINTS&#39;</span><span class="p">):</span>
-
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            filenames (list or string): can be a list of file names or a path to a folder folder from which all</span>
+<span class="sd">                &quot;FATBAND_*&quot; files will be read</span>
+<span class="sd">            vasprun: corresponding vasprun file</span>
+<span class="sd">            Kpointsfile: KPOINTS file for bandstructure calculation, typically &quot;KPOINTS&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Make sure all relevant FATBAND files were generated and read in!&#39;</span><span class="p">)</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Use Lobster 3.2.0 or newer for fatband calculations!&#39;</span><span class="p">)</span>
 
@@ -1130,7 +1142,6 @@
             <span class="n">ikpoint</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
             <span class="k">for</span> <span class="n">iline</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">contents</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
                 <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;#&#39;</span><span class="p">:</span>
-                    <span class="n">Kpointnumber</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">2</span><span class="p">])</span>
                     <span class="n">KPOINT</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">4</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">5</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">6</span><span class="p">])])</span>
                     <span class="k">if</span> <span class="n">ifilename</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                         <span class="n">kpoints_array</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">KPOINT</span><span class="p">)</span>
@@ -1188,9 +1199,6 @@
 <span class="sd">    Furthermore, it can also modify INCAR files for lobster, generate KPOINT files for fatband calculations in Lobster,</span>
 <span class="sd">    and generate the standard primitive cells in a POSCAR file that are needed for the fatband calculations.</span>
 <span class="sd">    There are also several standard lobsterin files that can be easily generated.</span>
-<span class="sd">    Args:</span>
-<span class="sd">        settingsdict: dict to initialize Lobsterin</span>
-
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># all keywords known to this class so far</span>
@@ -1224,6 +1232,10 @@
     <span class="n">LISTKEYWORDS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;basisfunctions&#39;</span><span class="p">,</span> <span class="s1">&#39;cohpbetween&#39;</span><span class="p">,</span> <span class="s1">&#39;createFatband&#39;</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">settingsdict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            settingsdict: dict to initialize Lobsterin</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="c1"># check for duplicates</span>
         <span class="n">listkey</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">settingsdict</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
@@ -1322,8 +1334,8 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;basisfunctions&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;No basis functions are provided. The program cannot calculate nbands.&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">basis_functions</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">string_basis</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;basisfunctions&quot;</span><span class="p">):</span>
+            <span class="n">basis_functions</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># type: List[str]</span>
+            <span class="k">for</span> <span class="n">string_basis</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;basisfunctions&quot;</span><span class="p">]:</span>
                 <span class="c1"># string_basis.lstrip()</span>
                 <span class="n">string_basis_raw</span> <span class="o">=</span> <span class="n">string_basis</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
                 <span class="k">while</span> <span class="s2">&quot;&quot;</span> <span class="ow">in</span> <span class="n">string_basis_raw</span><span class="p">:</span>
@@ -1385,7 +1397,7 @@
 
 <div class="viewcode-block" id="Lobsterin.as_dict"><a class="viewcode-back" href="../../../pymatgen.io.lobster.html#pymatgen.io.lobster.Lobsterin.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        get dict</span>
+<span class="sd">        :return: MSONable dict</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">d</span><span class="p">[</span><span class="s2">&quot;@module&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span>
@@ -1395,7 +1407,8 @@
 <div class="viewcode-block" id="Lobsterin.from_dict"><a class="viewcode-back" href="../../../pymatgen.io.lobster.html#pymatgen.io.lobster.Lobsterin.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        initalize from dict</span>
+<span class="sd">        :param d: Dict representation</span>
+<span class="sd">        :return: Lobsterin</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Lobsterin</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;@module&quot;</span><span class="p">,</span>
                                                                   <span class="s2">&quot;@class&quot;</span><span class="p">]})</span></div>
@@ -1577,7 +1590,7 @@
             <span class="n">data</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;lobsterin file contains no data.&quot;</span><span class="p">)</span>
-        <span class="n">Lobsterindict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">Lobsterindict</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># type: Dict</span>
 
         <span class="k">for</span> <span class="n">datum</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
             <span class="c1"># will remove all commments to avoid complications</span>
@@ -1737,9 +1750,6 @@
 <div class="viewcode-block" id="Bandoverlaps"><a class="viewcode-back" href="../../../pymatgen.io.lobster.html#pymatgen.io.lobster.Bandoverlaps">[docs]</a><span class="k">class</span> <span class="nc">Bandoverlaps</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class to read in bandOverlaps.lobster files. These files are not created during every Lobster run.</span>
-<span class="sd">    Args:</span>
-<span class="sd">        filename: filename of the &quot;bandOverlaps.lobster&quot; file</span>
-
 <span class="sd">    .. attribute: bandoverlapsdict is a dict of the following form:</span>
 <span class="sd">        {spin:{&quot;kpoint as string&quot;: {&quot;maxDeviation&quot;: float that describes the max deviation, &quot;matrix&quot;: 2D</span>
 <span class="sd">        array of the size number of bands times number of bands including the overlap matrices with } }}</span>
@@ -1749,7 +1759,10 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;bandOverlaps.lobster&quot;</span><span class="p">):</span>
-
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            filename: filename of the &quot;bandOverlaps.lobster&quot; file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">contents</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
@@ -1761,8 +1774,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">         contents: list of strings</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bandoverlapsdict</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">maxDeviation</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bandoverlapsdict</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># type: Dict</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_deviation</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># type: List</span>
         <span class="c1"># This has to be done like this because there can be different numbers of problematic k-points per spin</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">contents</span><span class="p">:</span>
             <span class="k">if</span> <span class="s2">&quot;Overlap Matrix (abs) of the orthonormalized projected bands for spin 0&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
@@ -1783,7 +1796,7 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">bandoverlapsdict</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">kpoint_array</span><span class="p">)]</span> <span class="o">=</span> <span class="p">{}</span>
                 <span class="n">maxdev</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">bandoverlapsdict</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">kpoint_array</span><span class="p">)][</span><span class="s2">&quot;maxDeviation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">maxdev</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">maxDeviation</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">maxdev</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">max_deviation</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">maxdev</span><span class="p">))</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">bandoverlapsdict</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">kpoint_array</span><span class="p">)][</span><span class="s2">&quot;matrix&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
             <span class="k">else</span><span class="p">:</span>
@@ -1802,7 +1815,7 @@
 <span class="sd">             Boolean that will give you information about the quality of the projection</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">for</span> <span class="n">deviation</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxDeviation</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">deviation</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_deviation</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">deviation</span> <span class="o">&gt;</span> <span class="n">limit_maxDeviation</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="kc">True</span></div>
@@ -1851,8 +1864,6 @@
 <div class="viewcode-block" id="Grosspop"><a class="viewcode-back" href="../../../pymatgen.io.lobster.html#pymatgen.io.lobster.Grosspop">[docs]</a><span class="k">class</span> <span class="nc">Grosspop</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class to read in GROSSPOP.lobster files.</span>
-<span class="sd">    Args:</span>
-<span class="sd">        filename: filename of the &quot;GROSSPOP.lobster&quot; file</span>
 
 <span class="sd">    .. attribute: list_dict_grosspop</span>
 <span class="sd">       which is a list of dicts including all information about the grosspopulations, one sample dict looks like this:</span>
@@ -1862,7 +1873,10 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;GROSSPOP.lobster&quot;</span><span class="p">):</span>
-
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            filename: filename of the &quot;GROSSPOP.lobster&quot; file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># opens file</span>
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">contents</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -1913,7 +1927,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1921,7 +1935,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

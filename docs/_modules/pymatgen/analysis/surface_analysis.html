@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.surface_analysis &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.analysis.surface_analysis &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -48,46 +47,6 @@
 <span></span><span class="c1"># coding: utf-8</span>
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
-
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">TODO:</span>
-<span class="sd">    -Still assumes individual elements have their own chempots</span>
-<span class="sd">        in a molecular adsorbate instead of considering a single</span>
-<span class="sd">        chempot for a single molecular adsorbate. E.g. for an OH</span>
-<span class="sd">        adsorbate, the surface energy is a function of delu_O and</span>
-<span class="sd">        delu_H instead of delu_OH</span>
-<span class="sd">    -Need a method to automatically get chempot range when</span>
-<span class="sd">        dealing with non-stoichiometric slabs</span>
-<span class="sd">    -Simplify the input for SurfaceEnergyPlotter such that the</span>
-<span class="sd">        user does not need to generate a dict</span>
-<span class="sd">&quot;&quot;&quot;</span>
-
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">itertools</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">import</span> <span class="nn">random</span>
-<span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">from</span> <span class="nn">sympy</span> <span class="k">import</span> <span class="n">Symbol</span>
-<span class="kn">from</span> <span class="nn">sympy.solvers</span> <span class="k">import</span> <span class="n">linsolve</span><span class="p">,</span> <span class="n">solve</span>
-
-<span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="k">import</span> <span class="n">Composition</span>
-<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="k">import</span> <span class="n">Structure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.surface</span> <span class="k">import</span> <span class="n">get_slab_regions</span>
-<span class="kn">from</span> <span class="nn">pymatgen.entries.computed_entries</span> <span class="k">import</span> <span class="n">ComputedStructureEntry</span>
-<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.wulff</span> <span class="k">import</span> <span class="n">WulffShape</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="k">import</span> <span class="n">pretty_plot</span>
-<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.outputs</span> <span class="k">import</span> <span class="n">Outcar</span><span class="p">,</span> <span class="n">Locpot</span><span class="p">,</span> <span class="n">Poscar</span>
-
-<span class="n">EV_PER_ANG2_TO_JOULES_PER_M2</span> <span class="o">=</span> <span class="mf">16.0217656</span>
-
-<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Richard Tran&quot;</span>
-<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2017, The Materials Virtual Lab&quot;</span>
-<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.2&quot;</span>
-<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Richard Tran&quot;</span>
-<span class="n">__credits__</span> <span class="o">=</span> <span class="s2">&quot;Joseph Montoya, Xianguo Li&quot;</span>
-<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;rit001@eng.ucsd.edu&quot;</span>
-<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;8/24/17&quot;</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module defines tools to analyze surface and adsorption related</span>
@@ -110,7 +69,44 @@
 <span class="sd">        for determining adsorption energies on solid surfaces. Npj</span>
 <span class="sd">        Computational Materials, 3(1), 14.</span>
 <span class="sd">        https://doi.org/10.1038/s41524-017-0017-z</span>
+
+<span class="sd">TODO:</span>
+<span class="sd">    -Still assumes individual elements have their own chempots</span>
+<span class="sd">        in a molecular adsorbate instead of considering a single</span>
+<span class="sd">        chempot for a single molecular adsorbate. E.g. for an OH</span>
+<span class="sd">        adsorbate, the surface energy is a function of delu_O and</span>
+<span class="sd">        delu_H instead of delu_OH</span>
+<span class="sd">    -Need a method to automatically get chempot range when</span>
+<span class="sd">        dealing with non-stoichiometric slabs</span>
+<span class="sd">    -Simplify the input for SurfaceEnergyPlotter such that the</span>
+<span class="sd">        user does not need to generate a dict</span>
 <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">from</span> <span class="nn">sympy</span> <span class="k">import</span> <span class="n">Symbol</span>
+<span class="kn">from</span> <span class="nn">sympy.solvers</span> <span class="k">import</span> <span class="n">linsolve</span><span class="p">,</span> <span class="n">solve</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="k">import</span> <span class="n">Composition</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.surface</span> <span class="k">import</span> <span class="n">get_slab_regions</span>
+<span class="kn">from</span> <span class="nn">pymatgen.entries.computed_entries</span> <span class="k">import</span> <span class="n">ComputedStructureEntry</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.wulff</span> <span class="k">import</span> <span class="n">WulffShape</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="k">import</span> <span class="n">pretty_plot</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.outputs</span> <span class="k">import</span> <span class="n">Outcar</span><span class="p">,</span> <span class="n">Locpot</span><span class="p">,</span> <span class="n">Poscar</span>
+
+<span class="n">EV_PER_ANG2_TO_JOULES_PER_M2</span> <span class="o">=</span> <span class="mf">16.0217656</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Richard Tran&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2017, The Materials Virtual Lab&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.2&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Richard Tran&quot;</span>
+<span class="n">__credits__</span> <span class="o">=</span> <span class="s2">&quot;Joseph Montoya, Xianguo Li&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;rit001@eng.ucsd.edu&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;8/24/17&quot;</span>
 
 
 <div class="viewcode-block" id="SlabEntry"><a class="viewcode-back" href="../../../pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.SlabEntry">[docs]</a><span class="k">class</span> <span class="nc">SlabEntry</span><span class="p">(</span><span class="n">ComputedStructureEntry</span><span class="p">):</span>
@@ -340,7 +336,7 @@
         <span class="n">label</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span>
         <span class="n">coverage</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;coverage&quot;</span><span class="p">]</span>
         <span class="n">adsorbates</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;adsorbates&quot;</span><span class="p">]</span>
-        <span class="n">clean_entry</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;clean_entry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clean_entry</span>
+        <span class="n">clean_entry</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;clean_entry&quot;</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="n">SlabEntry</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">miller_index</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
                          <span class="n">coverage</span><span class="o">=</span><span class="n">coverage</span><span class="p">,</span> <span class="n">adsorbates</span><span class="o">=</span><span class="n">adsorbates</span><span class="p">,</span>
@@ -1607,6 +1603,16 @@
 
 <div class="viewcode-block" id="WorkFunctionAnalyzer.from_files"><a class="viewcode-back" href="../../../pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.from_files">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_files</span><span class="p">(</span><span class="n">poscar_filename</span><span class="p">,</span> <span class="n">locpot_filename</span><span class="p">,</span> <span class="n">outcar_filename</span><span class="p">,</span> <span class="n">shift</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">blength</span><span class="o">=</span><span class="mf">3.5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param poscar_filename: POSCAR file</span>
+<span class="sd">        :param locpot_filename: LOCPOT file</span>
+<span class="sd">        :param outcar_filename: OUTCAR file</span>
+<span class="sd">        :param shift: shift</span>
+<span class="sd">        :param blength: The longest bond length in the material.</span>
+<span class="sd">            Used to handle pbc for noncontiguous slab layers</span>
+<span class="sd">        :return: WorkFunctionAnalyzer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">p</span> <span class="o">=</span> <span class="n">Poscar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">poscar_filename</span><span class="p">)</span>
         <span class="n">l</span> <span class="o">=</span> <span class="n">Locpot</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">locpot_filename</span><span class="p">)</span>
         <span class="n">o</span> <span class="o">=</span> <span class="n">Outcar</span><span class="p">(</span><span class="n">outcar_filename</span><span class="p">)</span>
@@ -1824,7 +1830,7 @@
             <span class="n">gform_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gform</span><span class="p">)</span>
             <span class="n">r_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
 
-        <span class="n">ru</span> <span class="o">=</span> <span class="s2">&quot;nm&quot;</span> <span class="k">if</span> <span class="n">r_units</span> <span class="o">==</span> <span class="s2">&quot;nanometers&quot;</span> <span class="k">else</span> <span class="s2">&quot;\AA&quot;</span>
+        <span class="n">ru</span> <span class="o">=</span> <span class="s2">&quot;nm&quot;</span> <span class="k">if</span> <span class="n">r_units</span> <span class="o">==</span> <span class="s2">&quot;nanometers&quot;</span> <span class="k">else</span> <span class="sa">r</span><span class="s2">&quot;\AA&quot;</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Particle radius ($</span><span class="si">%s</span><span class="s2">$)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ru</span><span class="p">))</span>
         <span class="n">eu</span> <span class="o">=</span> <span class="s2">&quot;$</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">^3$&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">e_units</span><span class="p">,</span> <span class="n">ru</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$G_</span><span class="si">{form}</span><span class="s2">$ (</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">eu</span><span class="p">))</span>
@@ -1937,7 +1943,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1945,7 +1951,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

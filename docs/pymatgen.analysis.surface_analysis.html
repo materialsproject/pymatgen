@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.surface_analysis module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.analysis.surface_analysis module &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +43,27 @@
             
   <div class="section" id="module-pymatgen.analysis.surface_analysis">
 <span id="pymatgen-analysis-surface-analysis-module"></span><h1>pymatgen.analysis.surface_analysis module<a class="headerlink" href="#module-pymatgen.analysis.surface_analysis" title="Permalink to this headline">¶</a></h1>
+<p>This module defines tools to analyze surface and adsorption related
+quantities as well as related plots. If you use this module, please
+consider citing the following works:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>R. Tran, Z. Xu, B. Radhakrishnan, D. Winston, W. Sun, K. A. Persson,
+S. P. Ong, &quot;Surface Energies of Elemental Crystals&quot;, Scientific
+Data, 2016, 3:160080, doi: 10.1038/sdata.2016.80.
+
+and
+
+Kang, S., Mo, Y., Ong, S. P., &amp; Ceder, G. (2014). Nanoscale
+stabilization of sodium oxides: Implications for Na-O2 batteries.
+Nano Letters, 14(2), 1016–1020. https://doi.org/10.1021/nl404557w
+
+and
+
+Montoya, J. H., &amp; Persson, K. A. (2017). A high-throughput framework
+    for determining adsorption energies on solid surfaces. Npj
+    Computational Materials, 3(1), 14.
+    https://doi.org/10.1038/s41524-017-0017-z
+</pre></div>
+</div>
 <dl class="class">
 <dt id="pymatgen.analysis.surface_analysis.NanoscaleStability">
 <em class="property">class </em><code class="sig-name descname">NanoscaleStability</code><span class="sig-paren">(</span><em class="sig-param">se_analyzers</em>, <em class="sig-param">symprec=1e-05</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#NanoscaleStability"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.NanoscaleStability" title="Permalink to this definition">¶</a></dt>
@@ -963,7 +983,22 @@ Used to handle pbc for noncontiguous slab layers</p></li>
 <dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.from_files">
 <em class="property">static </em><code class="sig-name descname">from_files</code><span class="sig-paren">(</span><em class="sig-param">poscar_filename</em>, <em class="sig-param">locpot_filename</em>, <em class="sig-param">outcar_filename</em>, <em class="sig-param">shift=0</em>, <em class="sig-param">blength=3.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#WorkFunctionAnalyzer.from_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.from_files" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>poscar_filename</strong> – POSCAR file</p></li>
+<li><p><strong>locpot_filename</strong> – LOCPOT file</p></li>
+<li><p><strong>outcar_filename</strong> – OUTCAR file</p></li>
+<li><p><strong>shift</strong> – shift</p></li>
+<li><p><strong>blength</strong> – The longest bond length in the material.
+Used to handle pbc for noncontiguous slab layers</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>WorkFunctionAnalyzer</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.get_labels">
@@ -1107,13 +1142,13 @@ potential (key) in gamma a value</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

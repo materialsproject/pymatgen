@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.command_line.bader_caller module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.command_line.bader_caller module &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +43,14 @@
             
   <div class="section" id="module-pymatgen.command_line.bader_caller">
 <span id="pymatgen-command-line-bader-caller-module"></span><h1>pymatgen.command_line.bader_caller module<a class="headerlink" href="#module-pymatgen.command_line.bader_caller" title="Permalink to this headline">¶</a></h1>
+<p>This module implements an interface to the Henkelmann et al.’s excellent
+Fortran code for calculating a Bader charge analysis.</p>
+<p>This module depends on a compiled bader executable available in the path.
+Please download the library at <a class="reference external" href="http://theory.cm.utexas.edu/vasp/bader/">http://theory.cm.utexas.edu/vasp/bader/</a> and
+follow the instructions to compile the executable.</p>
+<p>If you use this module, please cite the following:</p>
+<p>G. Henkelman, A. Arnaldsson, and H. Jonsson, “A fast and robust algorithm for
+Bader decomposition of charge density”, Comput. Mater. Sci. 36, 254-360 (2006).</p>
 <dl class="class">
 <dt id="pymatgen.command_line.bader_caller.BaderAnalysis">
 <em class="property">class </em><code class="sig-name descname">BaderAnalysis</code><span class="sig-paren">(</span><em class="sig-param">chgcar_filename</em>, <em class="sig-param">potcar_filename=None</em>, <em class="sig-param">chgref_filename=None</em>, <em class="sig-param">parse_atomic_densities=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/command_line/bader_caller.html#BaderAnalysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis" title="Permalink to this definition">¶</a></dt>
@@ -126,14 +133,15 @@ to be supplied.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pymatgen.command_line.bader_caller.BaderAnalysis.rebuild_chgcar">
-<em class="property">classmethod </em><code class="sig-name descname">rebuild_chgcar</code><span class="sig-paren">(</span><em class="sig-param">atomic_densities</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/command_line/bader_caller.html#BaderAnalysis.rebuild_chgcar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis.rebuild_chgcar" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
 <dt id="pymatgen.command_line.bader_caller.BaderAnalysis.summary">
 <em class="property">property </em><code class="sig-name descname">summary</code><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis.summary" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Dict summary of key analysis, e.g., atomic volume, charge, etc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -225,13 +233,13 @@ for the charge difference (magnetization density).</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

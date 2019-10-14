@@ -16,27 +16,15 @@ from monty.tempfile import ScratchDir
 
 import xml.etree.cElementTree as ET
 
-from pymatgen.core.periodic_table import Element
 from pymatgen.electronic_structure.core import OrbitalType
 from pymatgen.io.vasp.inputs import Kpoints, Poscar
 from pymatgen.io.vasp.outputs import Chgcar, Locpot, Oszicar, Outcar, \
     Vasprun, Procar, Xdatcar, Dynmat, BSVasprun, UnconvergedVASPWarning, \
-    VaspParserError, Wavecar, Waveder, Elfcar
+    VaspParserError, Wavecar, Waveder, Elfcar, Eigenval
 from pymatgen import Spin, Orbital, Lattice, Structure
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.testing import PymatgenTest
-
-"""
-Created on Jul 16, 2012
-"""
-
-__author__ = "Shyue Ping Ong, Stephen Dacek, Mark Turiansky"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
-__date__ = "Jul 16, 2012"
 
 
 class VasprunTest(PymatgenTest):
@@ -126,8 +114,6 @@ class VasprunTest(PymatgenTest):
                             for i in vasprun.ionic_steps])
         self.assertEqual(29, len(vasprun.ionic_steps))
         self.assertEqual(len(vasprun.structures), len(vasprun.ionic_steps))
-        self.assertEqual(vasprun.lattice,
-                         vasprun.lattice_rec.reciprocal_lattice)
 
         for i, step in enumerate(vasprun.ionic_steps):
             self.assertEqual(vasprun.structures[i], step["structure"])
@@ -292,7 +278,6 @@ class VasprunTest(PymatgenTest):
         self.assertAlmostEqual(
             1.0741, vasprun_diel.dielectric_data["velocity"][1][51][0])
         self.assertEqual(len(vasprun_diel.other_dielectric), 0)
-
 
     def test_indirect_vasprun(self):
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.indirect.gz")
@@ -584,6 +569,7 @@ class VasprunTest(PymatgenTest):
         vasprun = Vasprun(vpath, parse_potcar_file=False)
         self.assertEqual(vasprun.eigenvalues[Spin.up].shape[0], len(vasprun.actual_kpoints))
 
+
 class OutcarTest(PymatgenTest):
     _multiprocess_shared_ = True
 
@@ -663,7 +649,6 @@ class OutcarTest(PymatgenTest):
             self.assertAlmostEqual(outcar.internal_strain_tensor[1][0][0], 570.98927, places=4)
             self.assertAlmostEqual(outcar.internal_strain_tensor[1][1][0], -683.68519, places=4)
             self.assertAlmostEqual(outcar.internal_strain_tensor[1][2][2], 570.98927, places=4)
-
 
     def test_stopped(self):
         filepath = self.TEST_FILES_DIR / 'OUTCAR.stopped'
@@ -1138,6 +1123,22 @@ class ChgcarTest(PymatgenTest):
         for k, v in d.items():
             self.assertEqual(v.shape, (48, 48, 48))
 
+    def test_add(self):
+        chgcar_sum = self.chgcar_spin + self.chgcar_spin
+        self.assertArrayAlmostEqual(chgcar_sum.data['total'], self.chgcar_spin.data['total'] * 2)
+        chgcar_copy = self.chgcar_spin.copy()
+        chgcar_copy.structure = self.get_structure("Li2O")
+        with warnings.catch_warnings(record=True) as w:
+            # Cause all warnings to always be triggered.
+            warnings.simplefilter("always")
+            # Trigger a warning.
+            chgcar_sum = chgcar_copy + self.chgcar_spin
+            # Verify some things
+            assert len(w) == 1
+            assert "Structures are different. Make sure you know what you are doing..." in str(w[-1].message)
+        self.assertRaises(ValueError, self.chgcar_spin.__add__, self.chgcar_fe3o4)
+        self.assertRaises(ValueError, self.chgcar_spin.__add__, self.chgcar_no_spin)
+
     def test_as_dict_and_from_dict(self):
         d = self.chgcar_NiO_SOC.as_dict()
         chgcar_from_dict = Chgcar.from_dict(d)
@@ -1411,11 +1412,42 @@ class WavecarTest(PymatgenTest):
         self.assertFalse(np.all(c.data['total'] > 0.))
 
 
+class EigenvalTest(PymatgenTest):
+    _multiprocess_shared_ = True
+
+    def test_init(self):
+        eig = Eigenval(self.TEST_FILES_DIR / 'EIGENVAL.gz')
+        self.assertEqual(eig.ispin, 1)
+        self.assertEqual(eig.nkpt, len(eig.kpoints))
+        self.assertEqual(eig.nkpt, len(eig.kpoints_weights))
+        self.assertEqual(eig.nkpt, eig.eigenvalues[Spin.up].shape[0])
+        self.assertEqual(eig.nelect, 16)
+        self.assertEqual(eig.nbands, eig.eigenvalues[Spin.up].shape[1])
+        self.assertTrue(np.max(eig.eigenvalues[Spin.up]) > 0)
+        self.assertTrue(np.min(eig.eigenvalues[Spin.up]) < 0)
+
+    def test_ispin2(self):
+        eig = Eigenval(self.TEST_FILES_DIR / 'EIGENVAL.ispin2.gz')
+        self.assertEqual(eig.ispin, 2)
+        self.assertEqual(eig.nkpt, eig.eigenvalues[Spin.up].shape[0])
+        self.assertEqual(eig.nbands, eig.eigenvalues[Spin.up].shape[1])
+        self.assertEqual(eig.nkpt, eig.eigenvalues[Spin.down].shape[0])
+        self.assertEqual(eig.nbands, eig.eigenvalues[Spin.down].shape[1])
+
+    def test_eigenvalue_band_properties(self):
+        eig = Eigenval(self.TEST_FILES_DIR / 'EIGENVAL.gz')
+        props = eig.eigenvalue_band_properties
+        self.assertAlmostEqual(props[0], 6.4153, places=4)
+        self.assertAlmostEqual(props[1], 7.5587, places=4)
+        self.assertAlmostEqual(props[2], 1.1434, places=4)
+        self.assertEqual(props[3], False)
+
+
 class WavederTest(PymatgenTest):
     _multiprocess_shared_ = True
 
     def setUp(self):
-        wder = Waveder(self.TEST_FILES_DIR / 'WAVEDER', gamma_only = True)
+        wder = Waveder(self.TEST_FILES_DIR / 'WAVEDER', gamma_only=True)
         self.assertEqual(wder.nbands, 36)
         self.assertEqual(wder.nkpoints, 56)
         self.assertEqual(wder.nelect, 8)
@@ -1429,23 +1461,23 @@ class WavederTest(PymatgenTest):
 
     def test_consistency(self):
         wder = Waveder(self.TEST_FILES_DIR / 'WAVEDER.Si')
-        wderf = np.loadtxt(self.TEST_FILES_DIR / 'WAVEDERF.Si', skiprows = 1)
+        wderf = np.loadtxt(self.TEST_FILES_DIR / 'WAVEDERF.Si', skiprows=1)
         with open(self.TEST_FILES_DIR / 'WAVEDERF.Si', 'r') as f:
             first_line = [int(a) for a in f.readline().split()]
         self.assertEqual(wder.nkpoints, first_line[1])
         self.assertEqual(wder.nbands, first_line[2])
         for i in range(10):
             self.assertAlmostEqual(
-                first = wder.get_orbital_derivative_between_states(0,i,0,0,0).real,
-                second = wderf[i,6],
-                places = 10
+                first=wder.get_orbital_derivative_between_states(0, i, 0, 0, 0).real,
+                second=wderf[i, 6],
+                places=10
             )
-            self.assertAlmostEqual(wder.cder_data[0,i,0,0,0].real, wderf[i,6], places = 10)
-            self.assertAlmostEqual(wder.cder_data[0,i,0,0,0].imag, wderf[i,7], places = 10)
-            self.assertAlmostEqual(wder.cder_data[0,i,0,0,1].real, wderf[i,8], places = 10)
-            self.assertAlmostEqual(wder.cder_data[0,i,0,0,1].imag, wderf[i,9], places = 10)
-            self.assertAlmostEqual(wder.cder_data[0,i,0,0,2].real, wderf[i,10], places = 10)
-            self.assertAlmostEqual(wder.cder_data[0,i,0,0,2].imag, wderf[i,11], places = 10)
+            self.assertAlmostEqual(wder.cder_data[0, i, 0, 0, 0].real, wderf[i, 6], places=10)
+            self.assertAlmostEqual(wder.cder_data[0, i, 0, 0, 0].imag, wderf[i, 7], places=10)
+            self.assertAlmostEqual(wder.cder_data[0, i, 0, 0, 1].real, wderf[i, 8], places=10)
+            self.assertAlmostEqual(wder.cder_data[0, i, 0, 0, 1].imag, wderf[i, 9], places=10)
+            self.assertAlmostEqual(wder.cder_data[0, i, 0, 0, 2].real, wderf[i, 10], places=10)
+            self.assertAlmostEqual(wder.cder_data[0, i, 0, 0, 2].imag, wderf[i, 11], places=10)
 
 
 if __name__ == "__main__":

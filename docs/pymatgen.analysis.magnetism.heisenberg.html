@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.magnetism.heisenberg module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.analysis.magnetism.heisenberg module &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,11 +43,14 @@
             
   <div class="section" id="module-pymatgen.analysis.magnetism.heisenberg">
 <span id="pymatgen-analysis-magnetism-heisenberg-module"></span><h1>pymatgen.analysis.magnetism.heisenberg module<a class="headerlink" href="#module-pymatgen.analysis.magnetism.heisenberg" title="Permalink to this headline">¶</a></h1>
+<p>This module implements a simple algorithm for extracting nearest neighbor
+exchange parameters by mapping low energy magnetic orderings to a Heisenberg
+model.</p>
 <dl class="class">
 <dt id="pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper">
 <em class="property">class </em><code class="sig-name descname">HeisenbergMapper</code><span class="sig-paren">(</span><em class="sig-param">ordered_structures</em>, <em class="sig-param">energies</em>, <em class="sig-param">cutoff=0.0</em>, <em class="sig-param">tol=0.02</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/magnetism/heisenberg.html#HeisenbergMapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Compute exchange parameters from low energy magnetic orderings.</p>
+<p>Class to compute exchange parameters from low energy magnetic orderings.</p>
 <p>Exchange parameters are computed by mapping to a classical Heisenberg
 model. Strategy is the scheme for generating neighbors. Currently only
 MinimumDistanceNN is implemented.
@@ -181,9 +183,10 @@ material.</p>
 <dt id="pymatgen.analysis.magnetism.heisenberg.HeisenbergScreener">
 <em class="property">class </em><code class="sig-name descname">HeisenbergScreener</code><span class="sig-paren">(</span><em class="sig-param">structures</em>, <em class="sig-param">energies</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/magnetism/heisenberg.html#HeisenbergScreener"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergScreener" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Clean and screen magnetic orderings.</p>
-<p>This class pre-processes magnetic orderings and energies for HeisenbergMapper. It prioritizes low-energy
-orderings with large and localized magnetic moments.</p>
+<p>Class to clean and screen magnetic orderings.</p>
+<p>This class pre-processes magnetic orderings and energies for
+HeisenbergMapper. It prioritizes low-energy orderings with large and
+localized magnetic moments.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -254,13 +257,13 @@ orderings with large and localized magnetic moments.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

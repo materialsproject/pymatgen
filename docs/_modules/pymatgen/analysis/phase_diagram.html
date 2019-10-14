@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.phase_diagram &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.analysis.phase_diagram &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -49,6 +48,9 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module defines tools to generate and analyze phase diagrams.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">collections</span>
@@ -69,10 +71,6 @@
 <span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="k">import</span> <span class="n">pretty_plot</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.reaction_calculator</span> <span class="k">import</span> <span class="n">Reaction</span><span class="p">,</span> \
     <span class="n">ReactionError</span>
-
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This module defines tools to generate and analyze phase diagrams.</span>
-<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2011, The Materials Project&quot;</span>
@@ -106,21 +104,22 @@
 <span class="sd">    .. attribute:: attribute</span>
 
 <span class="sd">        A arbitrary attribute.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        composition (Composition): Composition</span>
-<span class="sd">        energy (float): Energy for composition.</span>
-<span class="sd">        name (str): Optional parameter to name the entry. Defaults to the</span>
-<span class="sd">            reduced chemical formula.</span>
-<span class="sd">        attribute: Optional attribute of the entry. This can be used to</span>
-<span class="sd">            specify that the entry is a newly found compound, or to specify a</span>
-<span class="sd">            particular label for the entry, or else ... Used for further</span>
-<span class="sd">            analysis and plotting purposes. An attribute can be anything</span>
-<span class="sd">            but must be MSONable.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">composition</span><span class="p">:</span> <span class="n">Composition</span><span class="p">,</span> <span class="n">energy</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
                  <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">attribute</span><span class="p">:</span> <span class="nb">object</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            composition (Composition): Composition</span>
+<span class="sd">            energy (float): Energy for composition.</span>
+<span class="sd">            name (str): Optional parameter to name the entry. Defaults to the</span>
+<span class="sd">                reduced chemical formula.</span>
+<span class="sd">            attribute: Optional attribute of the entry. This can be used to</span>
+<span class="sd">                specify that the entry is a newly found compound, or to specify a</span>
+<span class="sd">                particular label for the entry, or else ... Used for further</span>
+<span class="sd">                analysis and plotting purposes. An attribute can be anything</span>
+<span class="sd">                but must be MSONable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">energy</span> <span class="o">=</span> <span class="n">energy</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">composition</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">(</span><span class="n">composition</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="k">if</span> <span class="n">name</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span>
@@ -148,6 +147,9 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span>
 
 <div class="viewcode-block" id="PDEntry.as_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PDEntry.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: MSONable dict.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
                 <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
                 <span class="s2">&quot;composition&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
@@ -166,6 +168,10 @@
 
 <div class="viewcode-block" id="PDEntry.from_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PDEntry.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param d: Dict representation</span>
+<span class="sd">        :return: PDEntry</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">Composition</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;composition&quot;</span><span class="p">]),</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">],</span>
                    <span class="n">d</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;name&quot;</span> <span class="ow">in</span> <span class="n">d</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
                    <span class="n">d</span><span class="p">[</span><span class="s2">&quot;attribute&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;attribute&quot;</span> <span class="ow">in</span> <span class="n">d</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span></div></div>
@@ -176,15 +182,16 @@
 <span class="sd">    A grand potential pd entry object encompassing all relevant data for phase</span>
 <span class="sd">    diagrams.  Chemical potentials are given as a element-chemical potential</span>
 <span class="sd">    dict.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        entry: A PDEntry-like object.</span>
-<span class="sd">        chempots: Chemical potential specification as {Element: float}.</span>
-<span class="sd">        name: Optional parameter to name the entry. Defaults to the reduced</span>
-<span class="sd">            chemical formula of the original entry.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="n">chempots</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            entry: A PDEntry-like object.</span>
+<span class="sd">            chempots: Chemical potential specification as {Element: float}.</span>
+<span class="sd">            name: Optional parameter to name the entry. Defaults to the reduced</span>
+<span class="sd">                chemical formula of the original entry.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">comp</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">composition</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">original_entry</span> <span class="o">=</span> <span class="n">entry</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">original_comp</span> <span class="o">=</span> <span class="n">comp</span>
@@ -215,6 +222,9 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span>
 
 <div class="viewcode-block" id="GrandPotPDEntry.as_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.GrandPotPDEntry.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: MSONAble dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
                 <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
                 <span class="s2">&quot;entry&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_entry</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
@@ -223,6 +233,10 @@
 
 <div class="viewcode-block" id="GrandPotPDEntry.from_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.GrandPotPDEntry.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param d: Dict representation</span>
+<span class="sd">        :return: PDStructureEntry</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">chempots</span> <span class="o">=</span> <span class="p">{</span><span class="n">Element</span><span class="p">(</span><span class="n">symbol</span><span class="p">):</span> <span class="n">u</span> <span class="k">for</span> <span class="n">symbol</span><span class="p">,</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;chempots&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
         <span class="n">entry</span> <span class="o">=</span> <span class="n">MontyDecoder</span><span class="p">()</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;entry&quot;</span><span class="p">])</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">chempots</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span></div>
@@ -242,13 +256,14 @@
 <span class="sd">    transformed to a different composition coordinate space. It is used in the</span>
 <span class="sd">    construction of phase diagrams that do not have elements as the terminal</span>
 <span class="sd">    compositions.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        comp (Composition): Transformed composition as a Composition.</span>
-<span class="sd">        original_entry (PDEntry): Original entry that this entry arose from.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comp</span><span class="p">,</span> <span class="n">original_entry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            comp (Composition): Transformed composition as a Composition.</span>
+<span class="sd">            original_entry (PDEntry): Original entry that this entry arose from.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span> <span class="n">original_entry</span><span class="o">.</span><span class="n">energy</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">original_entry</span> <span class="o">=</span> <span class="n">original_entry</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">original_entry</span><span class="o">.</span><span class="n">name</span>
@@ -271,6 +286,9 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span>
 
 <div class="viewcode-block" id="TransformedPDEntry.as_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.TransformedPDEntry.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: MSONable dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
                 <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
                 <span class="s2">&quot;entry&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_entry</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
@@ -278,6 +296,10 @@
 
 <div class="viewcode-block" id="TransformedPDEntry.from_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.TransformedPDEntry.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param d: Dict representation</span>
+<span class="sd">        :return: TransformedPDEntry</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">entry</span> <span class="o">=</span> <span class="n">MontyDecoder</span><span class="p">()</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;entry&quot;</span><span class="p">])</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;composition&quot;</span><span class="p">],</span> <span class="n">entry</span><span class="p">)</span></div></div>
 
@@ -441,6 +463,9 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">all_entries_hulldata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: The actual ndarray used to construct the convex hull.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_entries</span><span class="p">:</span>
             <span class="n">comp</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">composition</span>
@@ -504,6 +529,9 @@
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
 
 <div class="viewcode-block" id="PhaseDiagram.as_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PhaseDiagram.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: MSONAble dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
                 <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
                 <span class="s2">&quot;all_entries&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_entries</span><span class="p">],</span>
@@ -511,6 +539,10 @@
 
 <div class="viewcode-block" id="PhaseDiagram.from_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PhaseDiagram.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param d: Dict representation</span>
+<span class="sd">        :return: PhaseDiagram</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">entries</span> <span class="o">=</span> <span class="p">[</span><span class="n">MontyDecoder</span><span class="p">()</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">dd</span><span class="p">)</span> <span class="k">for</span> <span class="n">dd</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;all_entries&quot;</span><span class="p">]]</span>
         <span class="n">elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">Element</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">dd</span><span class="p">)</span> <span class="k">for</span> <span class="n">dd</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;elements&quot;</span><span class="p">]]</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">entries</span><span class="p">,</span> <span class="n">elements</span><span class="p">)</span></div>
@@ -642,10 +674,22 @@
                                                  <span class="n">allow_negative</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="PhaseDiagram.get_composition_chempots"><a class="viewcode-back" href="../../../pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PhaseDiagram.get_composition_chempots">[docs]</a>    <span class="k">def</span> <span class="nf">get_composition_chempots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comp</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the chemical potentials for all elements at a given composition.</span>
+
+<span class="sd">        :param comp: Composition</span>
+<span class="sd">        :return: Dict of chemical potentials.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">facet</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_facet_and_simplex</span><span class="p">(</span><span class="n">comp</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_facet_chempots</span><span class="p">(</span><span class="n">facet</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PhaseDiagram.get_all_chempots"><a class="viewcode-back" href="../../../pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PhaseDiagram.get_all_chempots">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_chempots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comp</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get chemical potentials at a given compositon.</span>
+
+<span class="sd">        :param comp: Composition</span>
+<span class="sd">        :return: Chemical potentials.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># note the top part takes from format of _get_facet_and_simplex,</span>
         <span class="c1">#   but wants to return all facets rather than the first one that meets this criteria</span>
         <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pd_coords</span><span class="p">(</span><span class="n">comp</span><span class="p">)</span>
@@ -773,7 +817,6 @@
 <span class="sd">            &#39;reaction&#39;: Reaction Object], ...]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">element</span> <span class="o">=</span> <span class="n">get_el_sp</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
-        <span class="n">element</span> <span class="o">=</span> <span class="n">Element</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">symbol</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">element</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;get_transition_chempots can only be called with&quot;</span>
@@ -1018,6 +1061,9 @@
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
 
 <div class="viewcode-block" id="GrandPotentialPhaseDiagram.as_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.GrandPotentialPhaseDiagram.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: MSONable dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
                 <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
                 <span class="s2">&quot;all_entries&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_entries</span><span class="p">],</span>
@@ -1026,6 +1072,10 @@
 
 <div class="viewcode-block" id="GrandPotentialPhaseDiagram.from_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.GrandPotentialPhaseDiagram.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param d: Dict representation</span>
+<span class="sd">        :return: GrandPotentialPhaseDiagram</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">entries</span> <span class="o">=</span> <span class="n">MontyDecoder</span><span class="p">()</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;all_entries&quot;</span><span class="p">])</span>
         <span class="n">elements</span> <span class="o">=</span> <span class="n">MontyDecoder</span><span class="p">()</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;elements&quot;</span><span class="p">])</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">entries</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;chempots&quot;</span><span class="p">],</span> <span class="n">elements</span><span class="p">)</span></div></div>
@@ -1116,6 +1166,9 @@
         <span class="k">return</span> <span class="n">new_entries</span><span class="p">,</span> <span class="n">sp_mapping</span></div>
 
 <div class="viewcode-block" id="CompoundPhaseDiagram.as_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.CompoundPhaseDiagram.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: MSONable dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
             <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
@@ -1127,6 +1180,10 @@
 
 <div class="viewcode-block" id="CompoundPhaseDiagram.from_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.CompoundPhaseDiagram.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param d: Dict Representation</span>
+<span class="sd">        :return: CompoundPhaseDiagram</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">dec</span> <span class="o">=</span> <span class="n">MontyDecoder</span><span class="p">()</span>
         <span class="n">entries</span> <span class="o">=</span> <span class="n">dec</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;original_entries&quot;</span><span class="p">])</span>
         <span class="n">terminal_compositions</span> <span class="o">=</span> <span class="n">dec</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;terminal_compositions&quot;</span><span class="p">])</span>
@@ -1135,13 +1192,14 @@
 
 
 <div class="viewcode-block" id="ReactionDiagram"><a class="viewcode-back" href="../../../pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.ReactionDiagram">[docs]</a><span class="k">class</span> <span class="nc">ReactionDiagram</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Analyzes the possible reactions between a pair of compounds, e.g.,</span>
+<span class="sd">    an electrolyte and an electrode.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry1</span><span class="p">,</span> <span class="n">entry2</span><span class="p">,</span> <span class="n">all_entries</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span>
                  <span class="n">float_fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%.4f</span><span class="s2">&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Analyzes the possible reactions between a pair of compounds, e.g.,</span>
-<span class="sd">        an electrolyte and an electrode.</span>
-
 <span class="sd">        Args:</span>
 <span class="sd">            entry1 (ComputedEntry): Entry for 1st component. Note that</span>
 <span class="sd">                corrections, if any, must already be pre-applied. This is to</span>
@@ -1247,7 +1305,7 @@
                             <span class="n">Composition</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">elements</span><span class="p">,</span> <span class="n">comp</span><span class="p">))),</span>
                             <span class="n">energy</span><span class="o">=</span><span class="n">energy</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="n">rxn_str</span><span class="p">)</span>
                         <span class="n">rxn_entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
-                <span class="k">except</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinAlgError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+                <span class="k">except</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinAlgError</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Reactants = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span>
                         <span class="n">entry1</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">,</span>
                         <span class="n">entry2</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">])))</span>
@@ -1319,23 +1377,24 @@
 <div class="viewcode-block" id="PDPlotter"><a class="viewcode-back" href="../../../pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PDPlotter">[docs]</a><span class="k">class</span> <span class="nc">PDPlotter</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A plotter class for phase diagrams.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        phasediagram: PhaseDiagram object.</span>
-<span class="sd">        show_unstable (float): Whether unstable phases will be plotted as</span>
-<span class="sd">            well as red crosses. If a number &gt; 0 is entered, all phases with</span>
-<span class="sd">            ehull &lt; show_unstable will be shown.</span>
-<span class="sd">        \\*\\*plotkwargs: Keyword args passed to matplotlib.pyplot.plot. Can</span>
-<span class="sd">            be used to customize markers etc. If not set, the default is</span>
-<span class="sd">            {</span>
-<span class="sd">                &quot;markerfacecolor&quot;: (0.2157, 0.4941, 0.7216),</span>
-<span class="sd">                &quot;markersize&quot;: 10,</span>
-<span class="sd">                &quot;linewidth&quot;: 3</span>
-<span class="sd">            }</span>
-
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phasediagram</span><span class="p">,</span> <span class="n">show_unstable</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">plotkwargs</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            phasediagram: PhaseDiagram object.</span>
+<span class="sd">            show_unstable (float): Whether unstable phases will be plotted as</span>
+<span class="sd">                well as red crosses. If a number &gt; 0 is entered, all phases with</span>
+<span class="sd">                ehull &lt; show_unstable will be shown.</span>
+<span class="sd">            **plotkwargs: Keyword args passed to matplotlib.pyplot.plot. Can</span>
+<span class="sd">                be used to customize markers etc. If not set, the default is</span>
+<span class="sd">                {</span>
+<span class="sd">                    &quot;markerfacecolor&quot;: (0.2157, 0.4941, 0.7216),</span>
+<span class="sd">                    &quot;markersize&quot;: 10,</span>
+<span class="sd">                    &quot;linewidth&quot;: 3</span>
+<span class="sd">                }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># note: palettable imports matplotlib</span>
         <span class="kn">from</span> <span class="nn">palettable.colorbrewer.qualitative</span> <span class="k">import</span> <span class="n">Set1_3</span>
 
@@ -1416,6 +1475,15 @@
 
 <div class="viewcode-block" id="PDPlotter.get_plot"><a class="viewcode-back" href="../../../pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PDPlotter.get_plot">[docs]</a>    <span class="k">def</span> <span class="nf">get_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label_stable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">label_unstable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ordering</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">energy_colormap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">process_attributes</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">plt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param label_stable: Whether to label stable compounds.</span>
+<span class="sd">        :param label_unstable: Whether to label unstable compounds.</span>
+<span class="sd">        :param ordering: Ordering of vertices.</span>
+<span class="sd">        :param energy_colormap: Colormap for coloring energy.</span>
+<span class="sd">        :param process_attributes: Whether to process the attributes.</span>
+<span class="sd">        :param plt: Existing plt object if plotting multiple phase diagrams.</span>
+<span class="sd">        :return: matplotlib.pyplot.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dim</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">:</span>
             <span class="n">plt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_2d_plot</span><span class="p">(</span><span class="n">label_stable</span><span class="p">,</span> <span class="n">label_unstable</span><span class="p">,</span> <span class="n">ordering</span><span class="p">,</span>
                                     <span class="n">energy_colormap</span><span class="p">,</span> <span class="n">plt</span><span class="o">=</span><span class="n">plt</span><span class="p">,</span>
@@ -1459,6 +1527,7 @@
         <span class="n">evolution</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">get_element_profile</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">comp</span><span class="p">)</span>
         <span class="n">num_atoms</span> <span class="o">=</span> <span class="n">evolution</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;reaction&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">reactants</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">num_atoms</span>
         <span class="n">element_energy</span> <span class="o">=</span> <span class="n">evolution</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;chempot&#39;</span><span class="p">]</span>
+        <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">evolution</span><span class="p">):</span>
             <span class="n">v</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;chempot&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">element_energy</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;index= </span><span class="si">%s</span><span class="s2">, -</span><span class="se">\u0394\u03BC</span><span class="s2">=</span><span class="si">%.4f</span><span class="s2">(eV),&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">v</span><span class="p">),</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;reaction&quot;</span><span class="p">])</span>
@@ -1489,12 +1558,12 @@
         <span class="k">return</span> <span class="n">plt</span></div>
 
 <div class="viewcode-block" id="PDPlotter.show"><a class="viewcode-back" href="../../../pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PDPlotter.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Draws the phase diagram using Matplotlib and show it.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            \\*args: Passed to get_plot.</span>
-<span class="sd">            \\*\\*kwargs: Passed to get_plot.</span>
+<span class="sd">            *args: Passed to get_plot.</span>
+<span class="sd">            **kwargs: Passed to get_plot.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">get_plot</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 
@@ -1666,9 +1735,6 @@
                 <span class="s1">&#39;Energy [meV/at] above hull (in red)</span><span class="se">\n</span><span class="s1">Inverse energy [&#39;</span>
                 <span class="s1">&#39;meV/at] above hull (in green)&#39;</span><span class="p">,</span>
                 <span class="n">rotation</span><span class="o">=-</span><span class="mi">90</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
-            <span class="n">ticks</span> <span class="o">=</span> <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">get_yticklabels</span><span class="p">()</span>
-            <span class="c1"># cbar.ax.set_yticklabels([&#39;${v}$&#39;.format(</span>
-            <span class="c1">#     v=float(t.get_text().strip(&#39;$&#39;))*1000.0) for t in ticks])</span>
         <span class="n">f</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span>
         <span class="n">f</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">((</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="mf">0.09</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="mf">0.98</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mf">0.98</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="mf">0.07</span><span class="p">)</span>
@@ -1709,7 +1775,7 @@
         <span class="k">return</span> <span class="n">plt</span>
 
 <div class="viewcode-block" id="PDPlotter.write_image"><a class="viewcode-back" href="../../../pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PDPlotter.write_image">[docs]</a>    <span class="k">def</span> <span class="nf">write_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">image_format</span><span class="o">=</span><span class="s2">&quot;svg&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Writes the phase diagram to an image in a stream.</span>
 
 <span class="sd">        Args:</span>
@@ -1718,7 +1784,7 @@
 <span class="sd">            image_format</span>
 <span class="sd">                format for image. Can be any of matplotlib supported formats.</span>
 <span class="sd">                Defaults to svg for best results for vector graphics.</span>
-<span class="sd">            \\*\\*kwargs: Pass through to get_plot functino.</span>
+<span class="sd">            **kwargs: Pass through to get_plot functino.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">plt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_plot</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -2107,7 +2173,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -2115,7 +2181,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

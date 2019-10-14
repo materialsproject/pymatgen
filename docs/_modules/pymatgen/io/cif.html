@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.cif &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.io.cif &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -49,6 +48,9 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Wrapper classes for Cif input and output from Structures.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">re</span>
@@ -76,10 +78,6 @@
 <span class="kn">from</span> <span class="nn">pymatgen.core.operations</span> <span class="k">import</span> <span class="n">MagSymmOp</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.maggroups</span> <span class="k">import</span> <span class="n">MagneticSpaceGroup</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Wrapper classes for Cif input and output from Structures.</span>
-<span class="sd">&quot;&quot;&quot;</span>
-
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong, Will Richards, Matthew Horton&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2011, The Materials Project&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;4.0&quot;</span>
@@ -90,11 +88,9 @@
 
 <span class="n">sub_spgrp</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;[\s_]&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
 
-<span class="n">space_groups</span> <span class="o">=</span> <span class="p">{</span><span class="n">sub_spgrp</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="n">k</span>
-                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">SYMM_DATA</span><span class="p">[</span><span class="s1">&#39;space_group_encoding&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
+<span class="n">space_groups</span> <span class="o">=</span> <span class="p">{</span><span class="n">sub_spgrp</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">SYMM_DATA</span><span class="p">[</span><span class="s1">&#39;space_group_encoding&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>  <span class="c1"># type: ignore</span>
 
-<span class="n">space_groups</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">sub_spgrp</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="n">k</span>
-                     <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">SYMM_DATA</span><span class="p">[</span><span class="s1">&#39;space_group_encoding&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()})</span>
+<span class="n">space_groups</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">sub_spgrp</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">SYMM_DATA</span><span class="p">[</span><span class="s1">&#39;space_group_encoding&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()})</span>  <span class="c1"># type: ignore</span>
 
 <span class="n">_COD_DATA</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -113,15 +109,16 @@
 
 
 <div class="viewcode-block" id="CifBlock"><a class="viewcode-back" href="../../../pymatgen.io.cif.html#pymatgen.io.cif.CifBlock">[docs]</a><span class="k">class</span> <span class="nc">CifBlock</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Object for storing cif data. All data is stored in a single dictionary.</span>
+<span class="sd">    Data inside loops are stored in lists in the data dictionary, and</span>
+<span class="sd">    information on which keys are grouped together are stored in the loops</span>
+<span class="sd">    attribute.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">maxlen</span> <span class="o">=</span> <span class="mi">70</span>  <span class="c1"># not quite 80 so we can deal with semicolons and things</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">loops</span><span class="p">,</span> <span class="n">header</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Object for storing cif data. All data is stored in a single dictionary.</span>
-<span class="sd">        Data inside loops are stored in lists in the data dictionary, and</span>
-<span class="sd">        information on which keys are grouped together are stored in the loops</span>
-<span class="sd">        attribute.</span>
-
 <span class="sd">        Args:</span>
 <span class="sd">            data: dict or OrderedDict of data to go into the cif. Values should</span>
 <span class="sd">                    be convertible to string, or lists of these if the key is</span>
@@ -246,6 +243,12 @@
 
 <div class="viewcode-block" id="CifBlock.from_string"><a class="viewcode-back" href="../../../pymatgen.io.cif.html#pymatgen.io.cif.CifBlock.from_string">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">string</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reads CifBlock from string.</span>
+
+<span class="sd">        :param string: String representation.</span>
+<span class="sd">        :return: CifBlock</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">q</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_process_string</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
         <span class="n">header</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">popleft</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">5</span><span class="p">:]</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
@@ -307,6 +310,12 @@
 
 <div class="viewcode-block" id="CifFile.from_string"><a class="viewcode-back" href="../../../pymatgen.io.cif.html#pymatgen.io.cif.CifFile.from_string">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">string</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reads CifFile from a string.</span>
+
+<span class="sd">        :param string: String representation.</span>
+<span class="sd">        :return: CifFile</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">d</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^\s*data_&quot;</span><span class="p">,</span> <span class="s2">&quot;x</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">string</span><span class="p">,</span>
                           <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span> <span class="o">|</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]:</span>
@@ -324,6 +333,12 @@
 
 <div class="viewcode-block" id="CifFile.from_file"><a class="viewcode-back" href="../../../pymatgen.io.cif.html#pymatgen.io.cif.CifFile.from_file">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reads CifFile from a filename.</span>
+
+<span class="sd">        :param filename: Filename</span>
+<span class="sd">        :return: CifFile</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="s2">&quot;rt&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span></div></div>
 
@@ -333,17 +348,18 @@
 <span class="sd">    Parses a CIF file. Attempts to fix CIFs that are out-of-spec, but will</span>
 <span class="sd">    issue warnings if corrections applied. These are also stored in the</span>
 <span class="sd">    CifParser&#39;s errors attribute.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        filename (str): CIF filename, bzipped or gzipped CIF files are fine too.</span>
-<span class="sd">        occupancy_tolerance (float): If total occupancy of a site is between 1</span>
-<span class="sd">            and occupancy_tolerance, the occupancies will be scaled down to 1.</span>
-<span class="sd">        site_tolerance (float): This tolerance is used to determine if two</span>
-<span class="sd">            sites are sitting in the same position, in which case they will be</span>
-<span class="sd">            combined to a single disordered site. Defaults to 1e-4.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">occupancy_tolerance</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">site_tolerance</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            filename (str): CIF filename, bzipped or gzipped CIF files are fine too.</span>
+<span class="sd">            occupancy_tolerance (float): If total occupancy of a site is between 1</span>
+<span class="sd">                and occupancy_tolerance, the occupancies will be scaled down to 1.</span>
+<span class="sd">            site_tolerance (float): This tolerance is used to determine if two</span>
+<span class="sd">                sites are sitting in the same position, in which case they will be</span>
+<span class="sd">                combined to a single disordered site. Defaults to 1e-4.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_occupancy_tolerance</span> <span class="o">=</span> <span class="n">occupancy_tolerance</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_site_tolerance</span> <span class="o">=</span> <span class="n">site_tolerance</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">)):</span>
@@ -663,7 +679,7 @@
             <span class="n">angles</span> <span class="o">=</span> <span class="p">[</span><span class="n">str2float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;_cell_angle_&quot;</span> <span class="o">+</span> <span class="n">i</span><span class="p">])</span>
                       <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">angle_strings</span><span class="p">]</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">lattice_type</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_lengths_and_angles</span><span class="p">(</span><span class="n">lengths</span><span class="p">,</span> <span class="n">angles</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span><span class="o">*</span><span class="n">lengths</span><span class="p">,</span> <span class="o">*</span><span class="n">angles</span><span class="p">)</span>
 
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">Lattice</span><span class="p">,</span> <span class="n">lattice_type</span><span class="p">)(</span><span class="o">*</span><span class="p">(</span><span class="n">lengths</span> <span class="o">+</span> <span class="n">angles</span><span class="p">))</span>
@@ -759,7 +775,7 @@
                                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
                                 <span class="bp">self</span><span class="o">.</span><span class="n">warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
                                 <span class="k">break</span>
-                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+                    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                         <span class="k">continue</span>
 
                     <span class="k">if</span> <span class="n">symops</span><span class="p">:</span>
@@ -1214,6 +1230,9 @@
         <span class="k">return</span> <span class="n">BibliographyData</span><span class="p">(</span><span class="n">entries</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">bib_format</span><span class="o">=</span><span class="s1">&#39;bibtex&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="CifParser.as_dict"><a class="viewcode-back" href="../../../pymatgen.io.cif.html#pymatgen.io.cif.CifParser.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: MSONable dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">d</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cif</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -1223,14 +1242,18 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">has_errors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Whether there are errors/warnings detected in CIF parsing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">warnings</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span></div>
 
 
 <div class="viewcode-block" id="CifWriter"><a class="viewcode-back" href="../../../pymatgen.io.cif.html#pymatgen.io.cif.CifWriter">[docs]</a><span class="k">class</span> <span class="nc">CifWriter</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A wrapper around CifFile to write CIF files from pymatgen structures.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">struct</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">write_magmoms</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        A wrapper around CifFile to write CIF files from pymatgen structures.</span>
-
 <span class="sd">        Args:</span>
 <span class="sd">            struct (Structure): structure to write</span>
 <span class="sd">            symprec (float): If not none, finds the symmetry of the structure</span>
@@ -1457,7 +1480,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1465,7 +1488,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.abinit.abitimer &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.io.abinit.abitimer &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -58,12 +57,12 @@
 <span class="kn">import</span> <span class="nn">collections</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-
 <span class="kn">from</span> <span class="nn">monty.string</span> <span class="k">import</span> <span class="n">is_string</span><span class="p">,</span> <span class="n">list_strings</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.num</span> <span class="k">import</span> <span class="n">minloc</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="k">import</span> <span class="n">add_fig_kwargs</span><span class="p">,</span> <span class="n">get_ax_fig_plt</span>
 
 <span class="kn">import</span> <span class="nn">logging</span>
+
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
@@ -104,7 +103,7 @@
 
     <span class="n">Error</span> <span class="o">=</span> <span class="n">AbinitTimerParserError</span>
 
-    <span class="c1">#DEFAULT_MPI_RANK = &quot;0&quot;</span>
+    <span class="c1"># DEFAULT_MPI_RANK = &quot;0&quot;</span>
 
 <div class="viewcode-block" id="AbinitTimerParser.walk"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimerParser.walk">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">walk</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">ext</span><span class="o">=</span><span class="s2">&quot;.abo&quot;</span><span class="p">):</span>
@@ -197,7 +196,7 @@
         <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">inside</span><span class="p">,</span> <span class="n">has_timer</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">False</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fh</span><span class="p">:</span>
-            <span class="c1">#print(line.strip())</span>
+            <span class="c1"># print(line.strip())</span>
             <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">BEGIN_TAG</span><span class="p">):</span>
                 <span class="n">has_timer</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">sections</span> <span class="o">=</span> <span class="p">[]</span>
@@ -265,13 +264,13 @@
         <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">timer</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="p">()):</span>
             <span class="k">if</span> <span class="n">idx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">section_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">timer</span><span class="o">.</span><span class="n">order_sections</span><span class="p">(</span><span class="n">ordkey</span><span class="p">)]</span>
-                <span class="c1">#check = section_names</span>
-                <span class="c1">#else:</span>
+                <span class="c1"># check = section_names</span>
+                <span class="c1"># else:</span>
                 <span class="c1">#  new_set = set( [s.name for s in timer.order_sections(ordkey)])</span>
                 <span class="c1">#  section_names.intersection_update(new_set)</span>
                 <span class="c1">#  check = check.union(new_set)</span>
 
-        <span class="c1">#if check != section_names:</span>
+        <span class="c1"># if check != section_names:</span>
         <span class="c1">#  print(&quot;sections&quot;, section_names)</span>
         <span class="c1">#  print(&quot;check&quot;,check)</span>
 
@@ -325,7 +324,7 @@
         <span class="n">peff</span><span class="p">[</span><span class="s2">&quot;total&quot;</span><span class="p">][</span><span class="s2">&quot;wall_fract&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">n</span> <span class="o">*</span> <span class="p">[</span><span class="mi">100</span><span class="p">]</span>
 
         <span class="k">for</span> <span class="n">sect_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">section_names</span><span class="p">():</span>
-            <span class="c1">#print(sect_name)</span>
+            <span class="c1"># print(sect_name)</span>
             <span class="n">ref_sect</span> <span class="o">=</span> <span class="n">ref_t</span><span class="o">.</span><span class="n">get_section</span><span class="p">(</span><span class="n">sect_name</span><span class="p">)</span>
             <span class="n">sects</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">get_section</span><span class="p">(</span><span class="n">sect_name</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">timers</span><span class="p">]</span>
             <span class="k">try</span><span class="p">:</span>
@@ -397,7 +396,7 @@
         <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">timers</span><span class="p">)</span>
         <span class="n">xx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
 
-        <span class="c1">#ax.set_color_cycle([&#39;g&#39;, &#39;b&#39;, &#39;c&#39;, &#39;m&#39;, &#39;y&#39;, &#39;k&#39;])</span>
+        <span class="c1"># ax.set_color_cycle([&#39;g&#39;, &#39;b&#39;, &#39;c&#39;, &#39;m&#39;, &#39;y&#39;, &#39;k&#39;])</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_prop_cycle</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;k&#39;</span><span class="p">])</span>
 
         <span class="n">lines</span><span class="p">,</span> <span class="n">legend_entries</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
@@ -405,7 +404,7 @@
         <span class="k">if</span> <span class="s2">&quot;good&quot;</span> <span class="ow">in</span> <span class="n">what</span><span class="p">:</span>
             <span class="n">good</span> <span class="o">=</span> <span class="n">peff</span><span class="o">.</span><span class="n">good_sections</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">nmax</span><span class="o">=</span><span class="n">nmax</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">good</span><span class="p">:</span>
-                <span class="c1">#print(g, peff[g])</span>
+                <span class="c1"># print(g, peff[g])</span>
                 <span class="n">yy</span> <span class="o">=</span> <span class="n">peff</span><span class="p">[</span><span class="n">g</span><span class="p">][</span><span class="n">key</span><span class="p">]</span>
                 <span class="n">line</span><span class="p">,</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="s2">&quot;--&gt;&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">lw</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="n">msize</span><span class="p">)</span>
                 <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
@@ -415,7 +414,7 @@
         <span class="k">if</span> <span class="s2">&quot;bad&quot;</span> <span class="ow">in</span> <span class="n">what</span><span class="p">:</span>
             <span class="n">bad</span> <span class="o">=</span> <span class="n">peff</span><span class="o">.</span><span class="n">bad_sections</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">nmax</span><span class="o">=</span><span class="n">nmax</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">bad</span><span class="p">:</span>
-                <span class="c1">#print(b, peff[b])</span>
+                <span class="c1"># print(b, peff[b])</span>
                 <span class="n">yy</span> <span class="o">=</span> <span class="n">peff</span><span class="p">[</span><span class="n">b</span><span class="p">][</span><span class="n">key</span><span class="p">]</span>
                 <span class="n">line</span><span class="p">,</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="s2">&quot;-.&lt;&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">lw</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="n">msize</span><span class="p">)</span>
                 <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
@@ -430,7 +429,7 @@
 
         <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">legend_entries</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;best&quot;</span><span class="p">,</span> <span class="n">shadow</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="c1">#ax.set_title(title)</span>
+        <span class="c1"># ax.set_title(title)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Total_NCPUs&#39;</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Efficiency&#39;</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
@@ -506,8 +505,8 @@
         <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rest</span><span class="p">)</span>
 
         <span class="c1"># The dataset is stored in values. Now create the stacked histogram.</span>
-        <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="c1"># the locations for the groups</span>
-        <span class="n">width</span> <span class="o">=</span> <span class="mf">0.35</span>       <span class="c1"># the width of the bars</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>  <span class="c1"># the locations for the groups</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="mf">0.35</span>  <span class="c1"># the width of the bars</span>
         <span class="n">colors</span> <span class="o">=</span> <span class="n">nmax</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">]</span>
 
         <span class="n">bars</span> <span class="o">=</span> <span class="p">[]</span>
@@ -535,7 +534,8 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Call all plot methods provided by the parser.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">figs</span> <span class="o">=</span> <span class="p">[];</span> <span class="n">app</span> <span class="o">=</span> <span class="n">figs</span><span class="o">.</span><span class="n">append</span>
+        <span class="n">figs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">app</span> <span class="o">=</span> <span class="n">figs</span><span class="o">.</span><span class="n">append</span>
         <span class="n">app</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_stacked_hist</span><span class="p">(</span><span class="n">show</span><span class="o">=</span><span class="n">show</span><span class="p">))</span>
         <span class="n">app</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_efficiency</span><span class="p">(</span><span class="n">show</span><span class="o">=</span><span class="n">show</span><span class="p">))</span>
         <span class="n">app</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_pie</span><span class="p">(</span><span class="n">show</span><span class="o">=</span><span class="n">show</span><span class="p">))</span>
@@ -562,15 +562,14 @@
             <span class="c1"># Ignore values where we had a division by zero.</span>
             <span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="n">v</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">peff</span><span class="p">[</span><span class="n">key</span><span class="p">]]):</span>
                 <span class="n">values</span> <span class="o">=</span> <span class="n">peff</span><span class="p">[</span><span class="n">key</span><span class="p">][:]</span>
-                <span class="c1">#print(sect_name, values)</span>
+                <span class="c1"># print(sect_name, values)</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                     <span class="n">ref_value</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ref_idx</span><span class="p">)</span>
                     <span class="k">assert</span> <span class="n">ref_value</span> <span class="o">==</span> <span class="mf">1.0</span>
 
                 <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">sect_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="p">(</span><span class="n">values</span><span class="p">)))</span>
 
-        <span class="n">fsort</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">data</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">fsort</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">)</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">sect_name</span> <span class="k">for</span> <span class="p">(</span><span class="n">sect_name</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span> <span class="ow">in</span> <span class="n">data</span><span class="p">])</span>
 
 <div class="viewcode-block" id="ParallelEfficiency.totable"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.ParallelEfficiency.totable">[docs]</a>    <span class="k">def</span> <span class="nf">totable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -644,7 +643,8 @@
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">string</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">AbinitTimerSection</span><span class="o">.</span><span class="n">FIELDS</span><span class="p">:</span> <span class="n">string</span> <span class="o">+=</span> <span class="n">a</span> <span class="o">+</span> <span class="s2">&quot; = &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">AbinitTimerSection</span><span class="o">.</span><span class="n">FIELDS</span><span class="p">:</span>
+            <span class="n">string</span> <span class="o">+=</span> <span class="n">a</span> <span class="o">+</span> <span class="s2">&quot; = &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span>
         <span class="k">return</span> <span class="n">string</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
 
 
@@ -667,8 +667,8 @@
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">string</span> <span class="o">=</span> <span class="s2">&quot;file=</span><span class="si">%s</span><span class="s2">, wall_time=</span><span class="si">%.1f</span><span class="s2">, mpi_nprocs=</span><span class="si">%d</span><span class="s2">, omp_nthreads=</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">fname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wall_time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpi_nprocs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">omp_nthreads</span> <span class="p">)</span>
-        <span class="c1">#string += &quot;, rank = &quot; + self.mpi_rank</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wall_time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpi_nprocs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">omp_nthreads</span><span class="p">)</span>
+        <span class="c1"># string += &quot;, rank = &quot; + self.mpi_rank</span>
         <span class="k">return</span> <span class="n">string</span>
 
     <span class="k">def</span> <span class="nf">__cmp__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
@@ -730,13 +730,13 @@
             <span class="n">frame</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">osect</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="c1"># Monkey patch</span>
-        <span class="n">frame</span><span class="o">.</span><span class="n">info</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">info</span>
-        <span class="n">frame</span><span class="o">.</span><span class="n">cpu_time</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">cpu_time</span>
-        <span class="n">frame</span><span class="o">.</span><span class="n">wall_time</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">wall_time</span>
-        <span class="n">frame</span><span class="o">.</span><span class="n">mpi_nprocs</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">mpi_nprocs</span>
-        <span class="n">frame</span><span class="o">.</span><span class="n">omp_nthreads</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">omp_nthreads</span>
-        <span class="n">frame</span><span class="o">.</span><span class="n">mpi_rank</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">mpi_rank</span>
-        <span class="n">frame</span><span class="o">.</span><span class="n">fname</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">fname</span>
+        <span class="n">frame</span><span class="o">.</span><span class="n">info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span>
+        <span class="n">frame</span><span class="o">.</span><span class="n">cpu_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cpu_time</span>
+        <span class="n">frame</span><span class="o">.</span><span class="n">wall_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wall_time</span>
+        <span class="n">frame</span><span class="o">.</span><span class="n">mpi_nprocs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpi_nprocs</span>
+        <span class="n">frame</span><span class="o">.</span><span class="n">omp_nthreads</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">omp_nthreads</span>
+        <span class="n">frame</span><span class="o">.</span><span class="n">mpi_rank</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpi_rank</span>
+        <span class="n">frame</span><span class="o">.</span><span class="n">fname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fname</span>
 
         <span class="k">return</span> <span class="n">frame</span></div>
 
@@ -797,9 +797,8 @@
 
         <span class="k">if</span> <span class="nb">sorted</span><span class="p">:</span>
             <span class="c1"># Sort new_values and rearrange new_names.</span>
-            <span class="n">fsort</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
             <span class="n">nandv</span> <span class="o">=</span> <span class="p">[</span><span class="n">nv</span> <span class="k">for</span> <span class="n">nv</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">new_names</span><span class="p">,</span> <span class="n">new_values</span><span class="p">)]</span>
-            <span class="n">nandv</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">fsort</span><span class="p">)</span>
+            <span class="n">nandv</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
             <span class="n">new_names</span><span class="p">,</span> <span class="n">new_values</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">nandv</span><span class="p">],</span> <span class="p">[</span><span class="n">n</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">nandv</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="n">new_names</span><span class="p">,</span> <span class="n">new_values</span></div>
@@ -812,8 +811,7 @@
 
 <div class="viewcode-block" id="AbinitTimer.order_sections"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimer.order_sections">[docs]</a>    <span class="k">def</span> <span class="nf">order_sections</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Sort sections according to the value of key.&quot;&quot;&quot;</span>
-        <span class="n">fsort</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">fsort</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AbinitTimer.cpuwall_histogram"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimer.cpuwall_histogram">[docs]</a>    <span class="nd">@add_fig_kwargs</span>
     <span class="k">def</span> <span class="nf">cpuwall_histogram</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -821,7 +819,7 @@
 
         <span class="n">nk</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">)</span>
         <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nk</span><span class="p">)</span>  <span class="c1"># the x locations for the groups</span>
-        <span class="n">width</span> <span class="o">=</span> <span class="mf">0.35</span>         <span class="c1"># the width of the bars</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="mf">0.35</span>  <span class="c1"># the width of the bars</span>
 
         <span class="n">cpu_times</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s2">&quot;cpu_time&quot;</span><span class="p">)</span>
         <span class="n">rects1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">ind</span><span class="p">,</span> <span class="n">cpu_times</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
@@ -832,9 +830,9 @@
         <span class="c1"># Add ylable and title</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Time (s)&#39;</span><span class="p">)</span>
 
-        <span class="c1">#if title:</span>
+        <span class="c1"># if title:</span>
         <span class="c1">#    plt.title(title)</span>
-        <span class="c1">#else:</span>
+        <span class="c1"># else:</span>
         <span class="c1">#    plt.title(&#39;CPU-time and Wall-time for the different sections of the code&#39;)</span>
 
         <span class="n">ticks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
@@ -844,7 +842,7 @@
 
         <span class="k">return</span> <span class="n">fig</span></div>
 
-    <span class="c1">#def hist2(self, key1=&quot;wall_time&quot;, key2=&quot;cpu_time&quot;):</span>
+    <span class="c1"># def hist2(self, key1=&quot;wall_time&quot;, key2=&quot;cpu_time&quot;):</span>
     <span class="c1">#    labels = self.get_values(&quot;name&quot;)</span>
     <span class="c1">#    vals1, vals2 = self.get_values([key1, key2])</span>
     <span class="c1">#    N = len(vals1)</span>
@@ -916,17 +914,17 @@
         <span class="c1"># the xaxis of axHistx and yaxis of axHisty are shared with axScatter,</span>
         <span class="c1"># thus there is no need to manually adjust the xlim and ylim of these axis.</span>
 
-        <span class="c1">#axHistx.axis[&quot;bottom&quot;].major_ticklabels.set_visible(False)</span>
+        <span class="c1"># axHistx.axis[&quot;bottom&quot;].major_ticklabels.set_visible(False)</span>
         <span class="k">for</span> <span class="n">tl</span> <span class="ow">in</span> <span class="n">axHistx</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">():</span>
             <span class="n">tl</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
             <span class="n">axHistx</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">])</span>
 
-            <span class="c1">#axHisty.axis[&quot;left&quot;].major_ticklabels.set_visible(False)</span>
+            <span class="c1"># axHisty.axis[&quot;left&quot;].major_ticklabels.set_visible(False)</span>
             <span class="k">for</span> <span class="n">tl</span> <span class="ow">in</span> <span class="n">axHisty</span><span class="o">.</span><span class="n">get_yticklabels</span><span class="p">():</span>
                 <span class="n">tl</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
                 <span class="n">axHisty</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">])</span>
 
-        <span class="c1">#plt.draw()</span>
+        <span class="c1"># plt.draw()</span>
         <span class="k">return</span> <span class="n">fig</span></div></div>
 </pre></div>
 
@@ -958,7 +956,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -966,7 +964,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

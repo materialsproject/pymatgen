@@ -10,7 +10,7 @@ Introduction
 
 .. image:: https://ci.appveyor.com/api/projects/status/akdyke5jxg6gps45?svg=true
 
-.. image:: https://anaconda.org/matsci/pymatgen/badges/downloads.svg
+.. image:: https://anaconda.org/conda-forge/pymatgen/badges/downloads.svg
 
 .. image:: https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master
 
@@ -50,7 +50,7 @@ If you would like to have an offline version of the docs for reference, there
 are two options:
 
 1. Clone the Github repo and the latest html docs are in the "docs" folder.
-2. In `Dash <http://kapeli.com/dash>`_ or `Zeal <http://zealdocs.org/>`_, go to 
+2. In `Dash <http://kapeli.com/dash>`_ or `Zeal <http://zealdocs.org/>`_, go to
    "User Contributed Docsets", search for pymatgen and install.
 
 Development News
@@ -142,14 +142,11 @@ Via conda (recommended)
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 If you are absolutely new to Python and/or are using Windows, the easiest
-installation process is using `conda <http://conda.pydata.org>`_. The
-`Materials Virtual Lab`_ has started `materials.sh <http://materials.sh>`_,
-a community initiative to build a comprehensive collection of materials science
-software, where pymatgen is available. If you already have conda installed,
-pymatgen can be installed from the `matsci channel on Anaconda cloud
-<https://anaconda.org/matsci>`_ using the following one line command::
+installation process is using `conda <http://conda.pydata.org>`_. If you
+already have conda installed, pymatgen can be installed from the `conda-forge
+channel <https://anaconda.org/conda-forge>`_ using the following command::
 
-   conda install --channel matsci pymatgen
+   conda install --channel conda-forge pymatgen
 
 Pymatgen is under active development, and new features are added regularly. To
 upgrade pymatgen to the latest version, use the following command::
@@ -161,22 +158,6 @@ Step-by-step instructions for all platforms are available at the
 
 Via pip
 ~~~~~~~
-
-.. note:: Preparation
-
-    Before installing pymatgen, you may need to first install a few critical
-    dependencies manually.
-
-    1. It is highly recommended that you use Python>=2.7.9 or latest 3.x. In
-       fact, unless you are very sure you have dependencies that require Python
-       2, it is highly recommended that you use latest Python 3.x.
-    2. Installation has been tested to be most successful with gcc. Use gcc
-       where possible and do "export CC=gcc" prior to installation.
-    3. Numpy's distutils is needed to compile the spglib and pyhull
-       dependencies. Numpy should be the first thing you install.
-    4. One of the best things you can do is to use conda to manage all this.
-       The instructions for `Shared cluster installation`_ pretty much
-       applies to any machine as well.
 
 The version at the Python Package Index (PyPI) is always the latest stable
 release that is relatively bug-free. The easiest way to install pymatgen on
@@ -225,8 +206,6 @@ If you are installing pymatgen on shared computing clusters, e.g., the XSEDE
 or NERSC resources in the US, the best way is to use conda to perform a local
 install. This guarantees the right version of python and all dependencies::
 
-    # Here, Python 3.6+ is assumed.
-    # You can change the following to Miniconda2 if you prefer Python 2.7
     wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
     bash Miniconda3-latest-Linux-x86_64.sh -b
 
@@ -236,7 +215,7 @@ install. This guarantees the right version of python and all dependencies::
 
     # Install numpy and other pydata stack packages via conda.
     conda install --yes numpy scipy pandas
-    conda install --yes --channel matsci pymatgen
+    conda install --yes --channel conda-forge pymatgen
 
 Usage
 =====

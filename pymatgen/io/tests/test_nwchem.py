@@ -10,22 +10,8 @@ import json
 from pymatgen.core.structure import Molecule
 from pymatgen.io.nwchem import NwTask, NwInput, NwInputError, NwOutput
 
-"""
-This module supports the generation and parsing of input and output file for
-nwchem.
-"""
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "6/6/13"
-
-
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files', "nwchem")
-
 
 coords = [[0.000000, 0.000000, 0.000000],
           [0.000000, 0.000000, 1.089000],
@@ -63,7 +49,6 @@ task dft optimize"""
         self.assertEqual(str(t), ans)
 
     def test_str_and_from_string(self):
-
         ans = """title "dft optimize"
 charge 0
 basis cartesian
@@ -320,7 +305,7 @@ task dft energy
         self.assertEqual(nwi.memory_options, "total 1000 mb stack 400 mb")
         self.assertEqual(nwi.tasks[0].basis_set["C"], "6-31++G*")
         self.assertEqual(nwi.tasks[-1].basis_set["C"], "6-311++G**")
-        #Try a simplified input.
+        # Try a simplified input.
         str_inp = """start H4C1
 geometry units angstroms
  C 0.0 0.0 0.0
@@ -450,12 +435,12 @@ class NwOutputTest(unittest.TestCase):
         self.assertEqual(nwo[-1]["errors"][0], "autoz error")
 
         nwo = NwOutput(os.path.join(test_dir,
-                       "anthrachinon_wfs_16_ethyl.nwout"))
+                                    "anthrachinon_wfs_16_ethyl.nwout"))
         self.assertTrue(nwo[-1]["has_error"])
         self.assertEqual(nwo[-1]["errors"][0],
                          "Geometry optimization failed")
         nwo = NwOutput(os.path.join(test_dir,
-                       "anthrachinon_wfs_15_carboxyl.nwout"))
+                                    "anthrachinon_wfs_15_carboxyl.nwout"))
         self.assertEqual(nwo[1]['frequencies'][0][0], -70.47)
         self.assertEqual(len(nwo[1]['frequencies'][0][1]), 27)
         self.assertEqual(nwo[1]['frequencies'][-1][0], 3696.74)

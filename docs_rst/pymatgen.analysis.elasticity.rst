@@ -9,7 +9,6 @@ Submodules
    pymatgen.analysis.elasticity.elastic
    pymatgen.analysis.elasticity.strain
    pymatgen.analysis.elasticity.stress
-   pymatgen.analysis.elasticity.tensors
 
 Module contents
 ---------------

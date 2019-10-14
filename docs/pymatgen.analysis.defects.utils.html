@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.defects.utils module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.analysis.defects.utils module &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +43,7 @@
             
   <div class="section" id="module-pymatgen.analysis.defects.utils">
 <span id="pymatgen-analysis-defects-utils-module"></span><h1>pymatgen.analysis.defects.utils module<a class="headerlink" href="#module-pymatgen.analysis.defects.utils" title="Permalink to this headline">¶</a></h1>
+<p>Utilities for defects module.</p>
 <dl class="class">
 <dt id="pymatgen.analysis.defects.utils.ChargeDensityAnalyzer">
 <em class="property">class </em><code class="sig-name descname">ChargeDensityAnalyzer</code><span class="sig-paren">(</span><em class="sig-param">chgcar</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/utils.html#ChargeDensityAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.ChargeDensityAnalyzer" title="Permalink to this definition">¶</a></dt>
@@ -59,7 +59,13 @@
 <dl class="method">
 <dt id="pymatgen.analysis.defects.utils.ChargeDensityAnalyzer.charge_distribution_df">
 <em class="property">property </em><code class="sig-name descname">charge_distribution_df</code><a class="headerlink" href="#pymatgen.analysis.defects.utils.ChargeDensityAnalyzer.charge_distribution_df" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Charge distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.defects.utils.ChargeDensityAnalyzer.cluster_nodes">
@@ -75,12 +81,27 @@
 <dl class="method">
 <dt id="pymatgen.analysis.defects.utils.ChargeDensityAnalyzer.extrema_df">
 <em class="property">property </em><code class="sig-name descname">extrema_df</code><a class="headerlink" href="#pymatgen.analysis.defects.utils.ChargeDensityAnalyzer.extrema_df" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>The extrema in charge density.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.defects.utils.ChargeDensityAnalyzer.from_file">
 <em class="property">classmethod </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param">chgcar_filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/utils.html#ChargeDensityAnalyzer.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.ChargeDensityAnalyzer.from_file" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Init from a CHGCAR.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>chgcar_filename</strong> – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.defects.utils.ChargeDensityAnalyzer.get_local_extrema">
@@ -432,12 +453,22 @@ thickness of the regions where we want to explore. Default is
 <dl class="method">
 <dt id="pymatgen.analysis.defects.utils.TopographyAnalyzer.analyze_symmetry">
 <code class="sig-name descname">analyze_symmetry</code><span class="sig-paren">(</span><em class="sig-param">tol</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/utils.html#TopographyAnalyzer.analyze_symmetry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.TopographyAnalyzer.analyze_symmetry" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tol</strong> – Tolerance for SpaceGroupAnalyzer</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.defects.utils.TopographyAnalyzer.check_volume">
 <code class="sig-name descname">check_volume</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/utils.html#TopographyAnalyzer.check_volume"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.TopographyAnalyzer.check_volume" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Basic check for volume of all voronoi poly sum to unit cell volume
+Note that this does not apply after poly combination.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.defects.utils.TopographyAnalyzer.cluster_nodes">
@@ -460,7 +491,8 @@ species is set as a DummySpecie X.</p>
 <dl class="method">
 <dt id="pymatgen.analysis.defects.utils.TopographyAnalyzer.print_stats">
 <code class="sig-name descname">print_stats</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/utils.html#TopographyAnalyzer.print_stats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.TopographyAnalyzer.print_stats" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Print stats such as the MSE dist.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.defects.utils.TopographyAnalyzer.remove_collisions">
@@ -477,12 +509,19 @@ from existing atoms.</p>
 <dl class="method">
 <dt id="pymatgen.analysis.defects.utils.TopographyAnalyzer.vtk">
 <code class="sig-name descname">vtk</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/utils.html#TopographyAnalyzer.vtk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.TopographyAnalyzer.vtk" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Show VTK visualization.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.defects.utils.TopographyAnalyzer.write_topology">
 <code class="sig-name descname">write_topology</code><span class="sig-paren">(</span><em class="sig-param">fname='Topo.cif'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/utils.html#TopographyAnalyzer.write_topology"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.TopographyAnalyzer.write_topology" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Write topology to a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>fname</strong> – Filename</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -491,27 +530,70 @@ from existing atoms.</p>
 <em class="property">class </em><code class="sig-name descname">VoronoiPolyhedron</code><span class="sig-paren">(</span><em class="sig-param">lattice</em>, <em class="sig-param">frac_coords</em>, <em class="sig-param">polyhedron_indices</em>, <em class="sig-param">all_coords</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/utils.html#VoronoiPolyhedron"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.VoronoiPolyhedron" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Convenience container for a voronoi point in PBC and its associated polyhedron.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lattice</strong> – </p></li>
+<li><p><strong>frac_coords</strong> – </p></li>
+<li><p><strong>polyhedron_indices</strong> – </p></li>
+<li><p><strong>all_coords</strong> – </p></li>
+<li><p><strong>name</strong> – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.analysis.defects.utils.VoronoiPolyhedron.coordination">
 <em class="property">property </em><code class="sig-name descname">coordination</code><a class="headerlink" href="#pymatgen.analysis.defects.utils.VoronoiPolyhedron.coordination" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Coordination number</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.defects.utils.VoronoiPolyhedron.is_image">
 <code class="sig-name descname">is_image</code><span class="sig-paren">(</span><em class="sig-param">poly</em>, <em class="sig-param">tol</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/utils.html#VoronoiPolyhedron.is_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.VoronoiPolyhedron.is_image" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>poly</strong> – VoronoiPolyhedron</p></li>
+<li><p><strong>tol</strong> – Coordinate tolerance.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Whether a poly is an image of the current one.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.defects.utils.VoronoiPolyhedron.volume">
 <em class="property">property </em><code class="sig-name descname">volume</code><a class="headerlink" href="#pymatgen.analysis.defects.utils.VoronoiPolyhedron.volume" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Volume</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.analysis.defects.utils.calculate_vol">
 <code class="sig-name descname">calculate_vol</code><span class="sig-paren">(</span><em class="sig-param">coords</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/utils.html#calculate_vol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.calculate_vol" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Calculate volume given a set of coords.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>coords</strong> – List of coords.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Volume</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.analysis.defects.utils.closestsites">
@@ -633,13 +715,13 @@ given the suggested cut off radii by Kumagai and Oba</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

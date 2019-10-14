@@ -9,9 +9,9 @@ import collections
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinit.pseudos import *
 
-
 _test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
-                        'test_files', "abinit")
+                         'test_files', "abinit")
+
 
 def ref_file(filename):
     return os.path.join(_test_dir, filename)
@@ -25,7 +25,7 @@ class PseudoTestCase(PymatgenTest):
 
     def setUp(self):
         nc_pseudo_fnames = collections.defaultdict(list)
-        nc_pseudo_fnames["Si"] = ref_files("14si.pspnc",  "14si.4.hgh", "14-Si.LDA.fhi")
+        nc_pseudo_fnames["Si"] = ref_files("14si.pspnc", "14si.4.hgh", "14-Si.LDA.fhi")
 
         self.nc_pseudos = collections.defaultdict(list)
 
@@ -110,9 +110,9 @@ class PseudoTestCase(PymatgenTest):
 
         self.assertTrue(oxygen.ispaw)
         self.assertTrue(oxygen.symbol == "O" and
-                       (oxygen.Z, oxygen.core, oxygen.valence) == (8, 2, 6),
+                        (oxygen.Z, oxygen.core, oxygen.valence) == (8, 2, 6),
                         oxygen.Z_val == 6,
-                       )
+                        )
 
         assert oxygen.xc.type == "GGA" and oxygen.xc.name == "PBE"
         assert oxygen.supports_soc
@@ -127,9 +127,9 @@ class PseudoTestCase(PymatgenTest):
         for o in new_objs:
             self.assertTrue(o.ispaw)
             self.assertTrue(o.symbol == "O" and
-                           (o.Z, o.core, o.valence) == (8, 2, 6),
+                            (o.Z, o.core, o.valence) == (8, 2, 6),
                             o.Z_val == 6,
-                           )
+                            )
 
             self.assertAlmostEqual(o.paw_radius, 1.4146523028)
 
@@ -183,7 +183,7 @@ class PseudoTableTest(PymatgenTest):
 
     def test_methods(self):
         """Test PseudoTable methods"""
-        table = PseudoTable(ref_files("14si.pspnc",  "14si.4.hgh", "14-Si.LDA.fhi"))
+        table = PseudoTable(ref_files("14si.pspnc", "14si.4.hgh", "14-Si.LDA.fhi"))
         assert str(table)
         assert len(table) == 3
         for pseudo in table:

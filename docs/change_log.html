@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Change log &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>Change log &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +43,62 @@
             
   <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="v2019-10-4">
+<h2>v2019.10.4<a class="headerlink" href="#v2019-10-4" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li><p>Fix compile args.</p></li>
+</ol>
+</div>
+<div class="section" id="v2019-10-3">
+<h2>v2019.10.3<a class="headerlink" href="#v2019-10-3" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Faster get_all_neighbors based on &#64;chc273’s improvements. get_all_neighbors
+now returns a Site-like object with nn_distance, image and index attrbutes.
+Much easier to use.</p></li>
+<li><p>Bug fix for XCrySDen parser (&#64;stevetorr)</p></li>
+<li><p>Added optional mid_struct to direct interpolation (&#64;jmmshn)</p></li>
+</ul>
+</div>
+<div class="section" id="v2019-10-2">
+<h2>v2019.10.2<a class="headerlink" href="#v2019-10-2" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>IRSpectra class (&#64;henriquemiranda)</p></li>
+<li><p>Much faster get_neighbors written in Cython (&#64;chc273).</p></li>
+<li><p>VolumetricData allows for sum or substraction of data with different
+structures, with warnings.</p></li>
+</ul>
+</div>
+<div class="section" id="v2019-9-16">
+<h2>v2019.9.16<a class="headerlink" href="#v2019-9-16" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Updates to annotation, docstrings, etc. Linting service now provided on Github
+Actions as well as CircleCI.</p></li>
+</ul>
+</div>
+<div class="section" id="v2019-9-12">
+<h2>v2019.9.12<a class="headerlink" href="#v2019-9-12" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Massive updates to type annotations, especially for core classes.</p></li>
+<li><p>pycodestyle, pydocstyle and mypy will henchforth be enforced for all new PRs.</p></li>
+</ul>
+</div>
+<div class="section" id="v2019-9-8">
+<h2>v2019.9.8<a class="headerlink" href="#v2019-9-8" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Supplemental release to address missing incar_parameters.json</p></li>
+</ul>
+</div>
+<div class="section" id="v2019-9-7">
+<h2>v2019.9.7<a class="headerlink" href="#v2019-9-7" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>New fast Pourbaix algorithm (&#64;montoyjh)</p></li>
+<li><p>VASP Incar parameter checking (&#64;richardtran415)</p></li>
+<li><p>New VASP input set for Lobster, read support for GROSSPOP file (&#64;JaGeo)</p></li>
+<li><p>New CombinedData class  for LAMMPS (&#64;htz1992213)</p></li>
+<li><p>Improvements to molecule fragmenter (&#64;samblau)</p></li>
+<li><p>Various bug fixes and improvements (&#64;dongsenfo, &#64;shyuep, &#64;ardunn, &#64;nathan-diodan, &#64;rkingsbury, &#64;kmu)</p></li>
+</ul>
+</div>
 <div class="section" id="v2019-8-23">
 <h2>v2019.8.23<a class="headerlink" href="#v2019-8-23" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
@@ -2278,6 +2333,13 @@ environment variable.</p></li>
   <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Change log</a><ul>
+<li><a class="reference internal" href="#v2019-10-4">v2019.10.4</a></li>
+<li><a class="reference internal" href="#v2019-10-3">v2019.10.3</a></li>
+<li><a class="reference internal" href="#v2019-10-2">v2019.10.2</a></li>
+<li><a class="reference internal" href="#v2019-9-16">v2019.9.16</a></li>
+<li><a class="reference internal" href="#v2019-9-12">v2019.9.12</a></li>
+<li><a class="reference internal" href="#v2019-9-8">v2019.9.8</a></li>
+<li><a class="reference internal" href="#v2019-9-7">v2019.9.7</a></li>
 <li><a class="reference internal" href="#v2019-8-23">v2019.8.23</a></li>
 <li><a class="reference internal" href="#v2019-8-14">v2019.8.14</a></li>
 <li><a class="reference internal" href="#v2019-7-30">v2019.7.30</a></li>
@@ -2543,13 +2605,13 @@ environment variable.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

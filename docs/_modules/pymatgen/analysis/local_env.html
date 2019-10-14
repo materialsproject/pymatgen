@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.local_env &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.analysis.local_env &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -49,6 +48,11 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides classes to perform analyses of</span>
+<span class="sd">the local environments (e.g., finding near neighbors)</span>
+<span class="sd">of single sites in molecules and structures.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
@@ -64,11 +68,6 @@
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.molecule_structure_comparator</span> <span class="k">import</span> <span class="n">CovalentRadius</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.sites</span> <span class="k">import</span> <span class="n">PeriodicSite</span><span class="p">,</span> <span class="n">Site</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This module provides classes to perform analyses of</span>
-<span class="sd">the local environments (e.g., finding near neighbors)</span>
-<span class="sd">of single sites in molecules and structures.</span>
-<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong, Geoffroy Hautier, Sai Jayaraman,&quot;</span> <span class="o">+</span> \
              <span class="s2">&quot; Nils E. R. Zimmermann, Bharat Medasani, Evan Spotte-Smith&quot;</span>
@@ -114,12 +113,13 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes site valences and ionic radii for a structure using bond valence</span>
 <span class="sd">    analyzer</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        structure: pymatgen.core.structure.Structure</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure: pymatgen.core.structure.Structure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_structure</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_valences</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_valences</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ionic_radii</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_ionic_radii</span><span class="p">()</span>
@@ -640,26 +640,27 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Uses a Voronoi algorithm to determine near neighbors for each site in a</span>
 <span class="sd">    structure.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        tol (float): tolerance parameter for near-neighbor finding. Faces that are smaller</span>
-<span class="sd">            than `tol` fraction of the largest face are not included in the tessellation.</span>
-<span class="sd">            (default: 0).</span>
-<span class="sd">        targets (Element or list of Elements): target element(s).</span>
-<span class="sd">        cutoff (float): cutoff radius in Angstrom to look for near-neighbor</span>
-<span class="sd">            atoms. Defaults to 13.0.</span>
-<span class="sd">        allow_pathological (bool): whether to allow infinite vertices in</span>
-<span class="sd">            determination of Voronoi coordination.</span>
-<span class="sd">        weight (string) - Statistic used to weigh neighbors (see the statistics</span>
-<span class="sd">            available in get_voronoi_polyhedra)</span>
-<span class="sd">        extra_nn_info (bool) - Add all polyhedron info to `get_nn_info`</span>
-<span class="sd">        compute_adj_neighbors (bool) - Whether to compute which neighbors are adjacent. Turn off</span>
-<span class="sd">            for faster performance</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">targets</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">13.0</span><span class="p">,</span>
                  <span class="n">allow_pathological</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="s1">&#39;solid_angle&#39;</span><span class="p">,</span>
                  <span class="n">extra_nn_info</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">compute_adj_neighbors</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            tol (float): tolerance parameter for near-neighbor finding. Faces that are smaller</span>
+<span class="sd">                than `tol` fraction of the largest face are not included in the tessellation.</span>
+<span class="sd">                (default: 0).</span>
+<span class="sd">            targets (Element or list of Elements): target element(s).</span>
+<span class="sd">            cutoff (float): cutoff radius in Angstrom to look for near-neighbor</span>
+<span class="sd">                atoms. Defaults to 13.0.</span>
+<span class="sd">            allow_pathological (bool): whether to allow infinite vertices in</span>
+<span class="sd">                determination of Voronoi coordination.</span>
+<span class="sd">            weight (string) - Statistic used to weigh neighbors (see the statistics</span>
+<span class="sd">                available in get_voronoi_polyhedra)</span>
+<span class="sd">            extra_nn_info (bool) - Add all polyhedron info to `get_nn_info`</span>
+<span class="sd">            compute_adj_neighbors (bool) - Whether to compute which neighbors are adjacent. Turn off</span>
+<span class="sd">                for faster performance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tol</span> <span class="o">=</span> <span class="n">tol</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span> <span class="o">=</span> <span class="n">cutoff</span>
@@ -969,7 +970,7 @@
         <span class="k">return</span> <span class="n">resultweighted</span>
 
 <div class="viewcode-block" id="VoronoiNN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.VoronoiNN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all near-neighbor sites as well as the associated image locations</span>
 <span class="sd">        and weights of the site with index n in structure</span>
 <span class="sd">        using Voronoi decomposition.</span>
@@ -992,6 +993,13 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_nn_info</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">nns</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="VoronoiNN.get_all_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.VoronoiNN.get_all_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): input structure.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            All nn info for all sites.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">all_voro_cells</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_all_voronoi_polyhedra</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_extract_nn_info</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">cell</span><span class="p">)</span> <span class="k">for</span> <span class="n">cell</span> <span class="ow">in</span>
                 <span class="n">all_voro_cells</span><span class="p">]</span></div>
@@ -1065,15 +1073,16 @@
 <span class="sd">    of Jmol&#39;s default autoBond() algorithm. This version of the algorithm</span>
 <span class="sd">    does not take into account any information regarding known charge</span>
 <span class="sd">    states.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        tol (float): tolerance parameter for bond determination</span>
-<span class="sd">            (default: 0.56).</span>
-<span class="sd">        el_radius_updates: (dict) symbol-&gt;float to override default atomic</span>
-<span class="sd">            radii table values</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.56</span><span class="p">,</span> <span class="n">min_bond_distance</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">el_radius_updates</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            tol (float): tolerance parameter for bond determination</span>
+<span class="sd">                (default: 0.56).</span>
+<span class="sd">            el_radius_updates: (dict) symbol-&gt;float to override default atomic</span>
+<span class="sd">                radii table values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tol</span> <span class="o">=</span> <span class="n">tol</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min_bond_distance</span> <span class="o">=</span> <span class="n">min_bond_distance</span>
 
@@ -1131,16 +1140,16 @@
 
         <span class="n">siw</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">max_rad</span><span class="p">):</span>
-            <span class="n">neighb</span><span class="p">,</span> <span class="n">dist</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">site</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">distance</span>
+            <span class="n">dist</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">nn_distance</span>
             <span class="c1"># Confirm neighbor based on bond length specific to atom pair</span>
-            <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="n">bonds</span><span class="p">[(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">neighb</span><span class="o">.</span><span class="n">specie</span><span class="p">)])</span> <span class="ow">and</span> <span class="p">(</span>
-                    <span class="n">dist</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_bond_distance</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="n">bonds</span><span class="p">[(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">specie</span><span class="p">)])</span> <span class="ow">and</span> <span class="p">(</span>
+                    <span class="n">nn</span><span class="o">.</span><span class="n">nn_distance</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_bond_distance</span><span class="p">):</span>
                 <span class="n">weight</span> <span class="o">=</span> <span class="n">min_rad</span> <span class="o">/</span> <span class="n">dist</span>
-                <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">neighb</span><span class="p">,</span>
-                            <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">neighb</span><span class="p">),</span>
+                <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">nn</span><span class="p">,</span>
+                            <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">nn</span><span class="p">),</span>
                             <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">weight</span><span class="p">,</span>
                             <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span>
-                                                                  <span class="n">neighb</span><span class="p">)})</span>
+                                                                  <span class="n">nn</span><span class="p">)})</span>
         <span class="k">return</span> <span class="n">siw</span></div></div>
 
 
@@ -1150,18 +1159,18 @@
 <span class="sd">    nearest neighbor(s) at distance, d_min, plus all neighbors</span>
 <span class="sd">    within a distance (1 + tol) * d_min, where tol is a</span>
 <span class="sd">    (relative) distance tolerance parameter.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        tol (float): tolerance parameter for neighbor identification</span>
-<span class="sd">            (default: 0.1).</span>
-<span class="sd">        cutoff (float): cutoff radius in Angstrom to look for trial</span>
-<span class="sd">            near-neighbor sites (default: 10.0).</span>
-<span class="sd">        get_all_sites (boolean): If this is set to True then the neighbor</span>
-<span class="sd">            sites are only determined by the cutoff radius, tol is ignored</span>
-
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">get_all_sites</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            tol (float): tolerance parameter for neighbor identification</span>
+<span class="sd">                (default: 0.1).</span>
+<span class="sd">            cutoff (float): cutoff radius in Angstrom to look for trial</span>
+<span class="sd">                near-neighbor sites (default: 10.0).</span>
+<span class="sd">            get_all_sites (boolean): If this is set to True then the neighbor</span>
+<span class="sd">                sites are only determined by the cutoff radius, tol is ignored</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tol</span> <span class="o">=</span> <span class="n">tol</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span> <span class="o">=</span> <span class="n">cutoff</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">get_all_sites</span> <span class="o">=</span> <span class="n">get_all_sites</span>
@@ -1189,23 +1198,23 @@
         <span class="n">siw</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_all_sites</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">:</span>
-                <span class="n">w</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">distance</span>
-                <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">site</span><span class="p">,</span>
-                            <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">site</span><span class="p">),</span>
+                <span class="n">w</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">nn_distance</span>
+                <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">nn</span><span class="p">,</span>
+                            <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">nn</span><span class="p">),</span>
                             <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">w</span><span class="p">,</span>
                             <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span>
-                                                                  <span class="n">nn</span><span class="o">.</span><span class="n">site</span><span class="p">)})</span>
+                                                                  <span class="n">nn</span><span class="p">)})</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">min_dist</span> <span class="o">=</span> <span class="nb">min</span><span class="p">([</span><span class="n">nn</span><span class="o">.</span><span class="n">distance</span> <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">])</span>
+            <span class="n">min_dist</span> <span class="o">=</span> <span class="nb">min</span><span class="p">([</span><span class="n">nn</span><span class="o">.</span><span class="n">nn_distance</span> <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">])</span>
             <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">:</span>
-                <span class="n">dist</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">distance</span>
+                <span class="n">dist</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">nn_distance</span>
                 <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">)</span> <span class="o">*</span> <span class="n">min_dist</span><span class="p">:</span>
                     <span class="n">w</span> <span class="o">=</span> <span class="n">min_dist</span> <span class="o">/</span> <span class="n">dist</span>
-                    <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">site</span><span class="p">,</span>
-                                <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">site</span><span class="p">),</span>
+                    <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">nn</span><span class="p">,</span>
+                                <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">nn</span><span class="p">),</span>
                                 <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">w</span><span class="p">,</span>
                                 <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span>
-                                                                      <span class="n">nn</span><span class="o">.</span><span class="n">site</span><span class="p">)})</span>
+                                                                      <span class="n">nn</span><span class="p">)})</span>
         <span class="k">return</span> <span class="n">siw</span></div></div>
 
 
@@ -1215,17 +1224,17 @@
 
 <span class="sd">    NOTE: This strategy is only appropriate for molecules, and not for</span>
 <span class="sd">    structures.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        order (bool): True if bond order should be returned as a weight, False</span>
-<span class="sd">        if bond length should be used as a weight.</span>
-
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@requires</span><span class="p">(</span><span class="n">pb</span> <span class="ow">and</span> <span class="n">ob</span><span class="p">,</span>
               <span class="s2">&quot;OpenBabelNN requires openbabel to be installed with &quot;</span>
               <span class="s2">&quot;Python bindings. Please get it at http://openbabel.org.&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            order (bool): True if bond order should be returned as a weight, False</span>
+<span class="sd">            if bond length should be used as a weight.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">order</span> <span class="o">=</span> <span class="n">order</span>
 
 <div class="viewcode-block" id="OpenBabelNN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.OpenBabelNN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
@@ -1350,14 +1359,15 @@
 
 <span class="sd">    NOTE: This strategy is only appropriate for molecules, and not for</span>
 <span class="sd">    structures.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        tol (float): Tolerance for covalent bond checking.</span>
-<span class="sd">        order (bool): If True (default), this class will compute bond orders. If</span>
-<span class="sd">        False, bond lengths will be computed</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            tol (float): Tolerance for covalent bond checking.</span>
+<span class="sd">            order (bool): If True (default), this class will compute bond</span>
+<span class="sd">                orders. If False, bond lengths will be computed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tol</span> <span class="o">=</span> <span class="n">tol</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">order</span> <span class="o">=</span> <span class="n">order</span>
 
@@ -1482,15 +1492,16 @@
 <span class="sd">    relative tolerance, where bond valence parameters from O&#39;Keeffe&#39;s</span>
 <span class="sd">    bond valence method (J. Am. Chem. Soc. 1991, 3226-3229) are used</span>
 <span class="sd">    to calculate relative distances.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        tol (float): tolerance parameter for neighbor identification</span>
-<span class="sd">            (default: 0.1).</span>
-<span class="sd">        cutoff (float): cutoff radius in Angstrom to look for trial</span>
-<span class="sd">            near-neighbor sites (default: 10.0).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">10.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            tol (float): tolerance parameter for neighbor identification</span>
+<span class="sd">                (default: 0.1).</span>
+<span class="sd">            cutoff (float): cutoff radius in Angstrom to look for trial</span>
+<span class="sd">                near-neighbor sites (default: 10.0).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tol</span> <span class="o">=</span> <span class="n">tol</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span> <span class="o">=</span> <span class="n">cutoff</span>
 
@@ -1520,8 +1531,8 @@
 
         <span class="n">reldists_neighs</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">:</span>
-            <span class="n">neigh</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">site</span>
-            <span class="n">dist</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">distance</span>
+            <span class="n">neigh</span> <span class="o">=</span> <span class="n">nn</span>
+            <span class="n">dist</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">nn_distance</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">el2</span> <span class="o">=</span> <span class="n">neigh</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">element</span>
             <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
@@ -1550,15 +1561,16 @@
 <span class="sd">    relative tolerance, where atom radii from the</span>
 <span class="sd">    ValenceIonicRadiusEvaluator (VIRE) are used</span>
 <span class="sd">    to calculate relative distances.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        tol (float): tolerance parameter for neighbor identification</span>
-<span class="sd">            (default: 0.1).</span>
-<span class="sd">        cutoff (float): cutoff radius in Angstrom to look for trial</span>
-<span class="sd">            near-neighbor sites (default: 10.0).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">10.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            tol (float): tolerance parameter for neighbor identification</span>
+<span class="sd">                (default: 0.1).</span>
+<span class="sd">            cutoff (float): cutoff radius in Angstrom to look for trial</span>
+<span class="sd">                near-neighbor sites (default: 10.0).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tol</span> <span class="o">=</span> <span class="n">tol</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span> <span class="o">=</span> <span class="n">cutoff</span>
 
@@ -1586,9 +1598,9 @@
 
         <span class="n">reldists_neighs</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">:</span>
-            <span class="n">reldists_neighs</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">nn</span><span class="o">.</span><span class="n">distance</span> <span class="o">/</span> <span class="p">(</span>
-                    <span class="n">vire</span><span class="o">.</span><span class="n">radii</span><span class="p">[</span><span class="n">nn</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">species_string</span><span class="p">]</span> <span class="o">+</span> <span class="n">rn</span><span class="p">),</span>
-                                    <span class="n">nn</span><span class="o">.</span><span class="n">site</span><span class="p">])</span>
+            <span class="n">reldists_neighs</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">nn</span><span class="o">.</span><span class="n">nn_distance</span> <span class="o">/</span> <span class="p">(</span>
+                    <span class="n">vire</span><span class="o">.</span><span class="n">radii</span><span class="p">[</span><span class="n">nn</span><span class="o">.</span><span class="n">species_string</span><span class="p">]</span> <span class="o">+</span> <span class="n">rn</span><span class="p">),</span>
+                                    <span class="n">nn</span><span class="p">])</span>
 
         <span class="n">siw</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">min_reldist</span> <span class="o">=</span> <span class="nb">min</span><span class="p">([</span><span class="n">reldist</span> <span class="k">for</span> <span class="n">reldist</span><span class="p">,</span> <span class="n">neigh</span> <span class="ow">in</span> <span class="n">reldists_neighs</span><span class="p">])</span>
@@ -2018,8 +2030,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">num_ops</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-
-        <span class="sd">&quot;&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            int: the number of different order parameters that are targeted</span>
 <span class="sd">                to be calculated.</span>
@@ -2029,8 +2040,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">last_nneigh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-
-        <span class="sd">&quot;&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            int: the number of neighbors encountered during the most</span>
 <span class="sd">                recent order parameter calculation. A value of -1 indicates</span>
@@ -2042,7 +2052,7 @@
 
 <div class="viewcode-block" id="LocalStructOrderParams.compute_trigonometric_terms"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.LocalStructOrderParams.compute_trigonometric_terms">[docs]</a>    <span class="k">def</span> <span class="nf">compute_trigonometric_terms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thetas</span><span class="p">,</span> <span class="n">phis</span><span class="p">):</span>
 
-        <span class="sd">&quot;&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Computes trigonometric terms that are required to</span>
 <span class="sd">        calculate bond orientational order parameters using</span>
 <span class="sd">        internal variables.</span>
@@ -2645,8 +2655,6 @@
             <span class="n">norms</span> <span class="o">=</span> <span class="p">[[[]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nneigh</span><span class="p">)]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_types</span><span class="p">]</span>
             <span class="n">ipi</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">pi</span>
             <span class="n">piover2</span> <span class="o">=</span> <span class="n">pi</span> <span class="o">/</span> <span class="mf">2.0</span>
-            <span class="n">tetangoverpi</span> <span class="o">=</span> <span class="n">acos</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">ipi</span>  <span class="c1"># xxx: delete</span>
-            <span class="n">itetangminuspihalfoverpi</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">tetangoverpi</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span>
             <span class="n">onethird</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span>
             <span class="n">twothird</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">/</span> <span class="mf">3.0</span>
             <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nneigh</span><span class="p">):</span>  <span class="c1"># Neighbor j is put to the North pole.</span>
@@ -2997,23 +3005,37 @@
 <span class="sd">    atoms that are within the largest gap in differences in real space</span>
 <span class="sd">    interatomic distances. This algorithm uses Brunner&#39;s method of</span>
 <span class="sd">    largest reciprocal gap in interatomic distances.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        tol (float): tolerance parameter for bond determination</span>
-<span class="sd">            (default: 1E-4).</span>
-<span class="sd">        cutoff (float): cutoff radius in Angstrom to look for near-neighbor</span>
-<span class="sd">            atoms. Defaults to 8.0.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1.0e-4</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">8.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            tol (float): tolerance parameter for bond determination</span>
+<span class="sd">                (default: 1E-4).</span>
+<span class="sd">            cutoff (float): cutoff radius in Angstrom to look for near-neighbor</span>
+<span class="sd">                atoms. Defaults to 8.0.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tol</span> <span class="o">=</span> <span class="n">tol</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span> <span class="o">=</span> <span class="n">cutoff</span>
 
 <div class="viewcode-block" id="BrunnerNN_reciprocal.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.BrunnerNN_reciprocal.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all near-neighbor sites as well as the associated image locations</span>
+<span class="sd">        and weights of the site with index n in structure.</span>
 
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): input structure.</span>
+<span class="sd">            n (integer): index of site for which to determine near-neighbor</span>
+<span class="sd">                sites.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            siw (list of tuples (Site, array, float)): tuples, each one</span>
+<span class="sd">                of which represents a coordinated site, its image location,</span>
+<span class="sd">                and its weight.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">site</span> <span class="o">=</span> <span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
         <span class="n">neighs_dists</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span><span class="p">)</span>
-        <span class="n">ds</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">distance</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">]</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">nn_distance</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">]</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
 
         <span class="n">ns</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">ds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">ds</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
@@ -3021,7 +3043,7 @@
         <span class="n">d_max</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">ns</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">ns</span><span class="p">))]</span>
         <span class="n">siw</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">:</span>
-            <span class="n">s</span><span class="p">,</span> <span class="n">dist</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">site</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">distance</span>
+            <span class="n">s</span><span class="p">,</span> <span class="n">dist</span> <span class="o">=</span> <span class="n">nn</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">nn_distance</span>
             <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="n">d_max</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">:</span>
                 <span class="n">w</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">dist</span>
                 <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span>
@@ -3038,23 +3060,37 @@
 <span class="sd">    atoms that are within the largest gap in differences in real space</span>
 <span class="sd">    interatomic distances. This algorithm uses Brunner&#39;s method of</span>
 <span class="sd">    of largest relative gap in interatomic distances.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        tol (float): tolerance parameter for bond determination</span>
-<span class="sd">            (default: 1E-4).</span>
-<span class="sd">        cutoff (float): cutoff radius in Angstrom to look for near-neighbor</span>
-<span class="sd">            atoms. Defaults to 8.0.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1.0e-4</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">8.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            tol (float): tolerance parameter for bond determination</span>
+<span class="sd">                (default: 1E-4).</span>
+<span class="sd">            cutoff (float): cutoff radius in Angstrom to look for near-neighbor</span>
+<span class="sd">                atoms. Defaults to 8.0.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tol</span> <span class="o">=</span> <span class="n">tol</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span> <span class="o">=</span> <span class="n">cutoff</span>
 
 <div class="viewcode-block" id="BrunnerNN_relative.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.BrunnerNN_relative.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all near-neighbor sites as well as the associated image locations</span>
+<span class="sd">        and weights of the site with index n in structure.</span>
 
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): input structure.</span>
+<span class="sd">            n (integer): index of site for which to determine near-neighbor</span>
+<span class="sd">                sites.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            siw (list of tuples (Site, array, float)): tuples, each one</span>
+<span class="sd">                of which represents a coordinated site, its image location,</span>
+<span class="sd">                and its weight.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">site</span> <span class="o">=</span> <span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
         <span class="n">neighs_dists</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span><span class="p">)</span>
-        <span class="n">ds</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">distance</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">]</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">nn_distance</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">]</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
 
         <span class="n">ns</span> <span class="o">=</span> <span class="p">[</span><span class="n">ds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">ds</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
@@ -3062,7 +3098,7 @@
         <span class="n">d_max</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">ns</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">ns</span><span class="p">))]</span>
         <span class="n">siw</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">:</span>
-            <span class="n">s</span><span class="p">,</span> <span class="n">dist</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">site</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">distance</span>
+            <span class="n">s</span><span class="p">,</span> <span class="n">dist</span> <span class="o">=</span> <span class="n">nn</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">nn_distance</span>
             <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="n">d_max</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">:</span>
                 <span class="n">w</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">dist</span>
                 <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span>
@@ -3079,23 +3115,37 @@
 <span class="sd">    atoms that are within the largest gap in differences in real space</span>
 <span class="sd">    interatomic distances. This algorithm uses Brunner&#39;s method of</span>
 <span class="sd">    largest gap in interatomic distances.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        tol (float): tolerance parameter for bond determination</span>
-<span class="sd">            (default: 1E-4).</span>
-<span class="sd">        cutoff (float): cutoff radius in Angstrom to look for near-neighbor</span>
-<span class="sd">            atoms. Defaults to 8.0.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1.0e-4</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">8.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            tol (float): tolerance parameter for bond determination</span>
+<span class="sd">                (default: 1E-4).</span>
+<span class="sd">            cutoff (float): cutoff radius in Angstrom to look for near-neighbor</span>
+<span class="sd">                atoms. Defaults to 8.0.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tol</span> <span class="o">=</span> <span class="n">tol</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span> <span class="o">=</span> <span class="n">cutoff</span>
 
 <div class="viewcode-block" id="BrunnerNN_real.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.BrunnerNN_real.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all near-neighbor sites as well as the associated image locations</span>
+<span class="sd">        and weights of the site with index n in structure.</span>
 
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): input structure.</span>
+<span class="sd">            n (integer): index of site for which to determine near-neighbor</span>
+<span class="sd">                sites.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            siw (list of tuples (Site, array, float)): tuples, each one</span>
+<span class="sd">                of which represents a coordinated site, its image location,</span>
+<span class="sd">                and its weight.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">site</span> <span class="o">=</span> <span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
         <span class="n">neighs_dists</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span><span class="p">)</span>
-        <span class="n">ds</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">distance</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">]</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">nn_distance</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">]</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
 
         <span class="n">ns</span> <span class="o">=</span> <span class="p">[</span><span class="n">ds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">ds</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
@@ -3103,7 +3153,7 @@
         <span class="n">d_max</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">ns</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">ns</span><span class="p">))]</span>
         <span class="n">siw</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">:</span>
-            <span class="n">s</span><span class="p">,</span> <span class="n">dist</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">site</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">distance</span>
+            <span class="n">s</span><span class="p">,</span> <span class="n">dist</span> <span class="o">=</span> <span class="n">nn</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">nn_distance</span>
             <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="n">d_max</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">:</span>
                 <span class="n">w</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">dist</span>
                 <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span>
@@ -3124,28 +3174,42 @@
 <span class="sd">    to obtain the effective coordination number for each polyhedral. It then</span>
 <span class="sd">    averages the effective coordination of all polyhedrals with the same cation at the</span>
 <span class="sd">    central site.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        tol (float): tolerance parameter for bond determination</span>
-<span class="sd">            (default: 1e-4).</span>
-<span class="sd">        cutoff (float): cutoff radius in Angstrom to look for near-neighbor</span>
-<span class="sd">            atoms. Defaults to 10.0.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1.0e-4</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">10.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            tol (float): tolerance parameter for bond determination</span>
+<span class="sd">                (default: 1e-4).</span>
+<span class="sd">            cutoff (float): cutoff radius in Angstrom to look for near-neighbor</span>
+<span class="sd">                atoms. Defaults to 10.0.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tol</span> <span class="o">=</span> <span class="n">tol</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span> <span class="o">=</span> <span class="n">cutoff</span>
 
 <div class="viewcode-block" id="EconNN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.EconNN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all near-neighbor sites as well as the associated image locations</span>
+<span class="sd">        and weights of the site with index n in structure.</span>
 
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): input structure.</span>
+<span class="sd">            n (integer): index of site for which to determine near-neighbor</span>
+<span class="sd">                sites.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            siw (list of tuples (Site, array, float)): tuples, each one</span>
+<span class="sd">                of which represents a coordinated site, its image location,</span>
+<span class="sd">                and its weight.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">site</span> <span class="o">=</span> <span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
         <span class="n">neighs_dists</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span><span class="p">)</span>
-        <span class="n">all_bond_lengths</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">distance</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">]</span>
+        <span class="n">all_bond_lengths</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">nn_distance</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">]</span>
         <span class="n">weighted_avg</span> <span class="o">=</span> <span class="n">calculate_weighted_avg</span><span class="p">(</span><span class="n">all_bond_lengths</span><span class="p">)</span>
 
         <span class="n">siw</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">:</span>
-            <span class="n">s</span><span class="p">,</span> <span class="n">dist</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">site</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">distance</span>
+            <span class="n">s</span><span class="p">,</span> <span class="n">dist</span> <span class="o">=</span> <span class="n">nn</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">nn_distance</span>
             <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span><span class="p">:</span>
                 <span class="n">w</span> <span class="o">=</span> <span class="n">exp</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">dist</span> <span class="o">/</span> <span class="n">weighted_avg</span><span class="p">)</span> <span class="o">**</span> <span class="mi">6</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">w</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">:</span>
@@ -3608,15 +3672,28 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unrecognised preset: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">preset</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="CutOffDictNN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.CutOffDictNN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all near-neighbor sites as well as the associated image locations</span>
+<span class="sd">        and weights of the site with index n in structure.</span>
 
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): input structure.</span>
+<span class="sd">            n (integer): index of site for which to determine near-neighbor</span>
+<span class="sd">                sites.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            siw (list of tuples (Site, array, float)): tuples, each one</span>
+<span class="sd">                of which represents a coordinated site, its image location,</span>
+<span class="sd">                and its weight.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">site</span> <span class="o">=</span> <span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
 
         <span class="n">neighs_dists</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_dist</span><span class="p">)</span>
 
         <span class="n">nn_info</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">:</span>
-            <span class="n">n_site</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">site</span>
-            <span class="n">dist</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">distance</span>
+            <span class="n">n_site</span> <span class="o">=</span> <span class="n">nn</span>
+            <span class="n">dist</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">nn_distance</span>
             <span class="n">neigh_cut_off_dist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lookup_dict</span> \
                 <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">species_string</span><span class="p">,</span> <span class="p">{})</span> \
                 <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">n_site</span><span class="o">.</span><span class="n">species_string</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
@@ -3642,7 +3719,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Init for Critic2NN.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># we cache the last-used structure, in case user</span>
         <span class="c1"># calls get_nn_info() repeatedly for different</span>
         <span class="c1"># sites in the same structure to save redundant</span>
@@ -3651,6 +3730,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">__last_bonded_structure</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="Critic2NN.get_bonded_structure"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.Critic2NN.get_bonded_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_bonded_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">decorate</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param structure: Input structure</span>
+<span class="sd">        :param decorate: Whether to decorate the structure</span>
+<span class="sd">        :return: Bonded structure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># not a top-level import because critic2 is an optional</span>
         <span class="c1"># dependency, only want to raise an import error if</span>
@@ -3674,7 +3758,20 @@
         <span class="k">return</span> <span class="n">sg</span></div>
 
 <div class="viewcode-block" id="Critic2NN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.Critic2NN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all near-neighbor sites as well as the associated image locations</span>
+<span class="sd">        and weights of the site with index n in structure.</span>
 
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): input structure.</span>
+<span class="sd">            n (integer): index of site for which to determine near-neighbor</span>
+<span class="sd">                sites.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            siw (list of tuples (Site, array, float)): tuples, each one</span>
+<span class="sd">                of which represents a coordinated site, its image location,</span>
+<span class="sd">                and its weight.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">sg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_bonded_structure</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="p">[</span>
@@ -3715,7 +3812,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -3723,7 +3820,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

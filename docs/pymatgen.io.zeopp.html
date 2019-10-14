@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.zeopp module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.io.zeopp module &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +43,60 @@
             
   <div class="section" id="module-pymatgen.io.zeopp">
 <span id="pymatgen-io-zeopp-module"></span><h1>pymatgen.io.zeopp module<a class="headerlink" href="#module-pymatgen.io.zeopp" title="Permalink to this headline">¶</a></h1>
+<p>Module implementing classes and functions to use Zeo++.</p>
+<div class="section" id="zeo-installation-steps">
+<h2>Zeo++ Installation Steps:<a class="headerlink" href="#zeo-installation-steps" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li><p>Zeo++ requires Voro++. Download Voro++ from code.lbl.gov using
+subversion:
+“svn checkout –username anonsvn <a class="reference external" href="https://code.lbl.gov/svn/voro/trunk">https://code.lbl.gov/svn/voro/trunk</a>
+Password is anonsvn.</p></li>
+<li><p>Stable version of Zeo++ can be obtained from
+<a class="reference external" href="http://www.maciejharanczyk.info/Zeopp/">http://www.maciejharanczyk.info/Zeopp/</a>
+Alternatively it can be obtained from code.lbl.gov. Replace voro
+with zeo.</p></li>
+</ol>
+<p>3) (Optional) Install cython from pip
+Mac OS X:
+4) (a) Edit the Voro++/voro/trunk/config.mk file to suit your environment</p>
+<blockquote>
+<div><p>(compiler, linker).
+(b) Run make command</p>
+</div></blockquote>
+<ol class="arabic simple" start="5">
+<li><p>(a) Edit the Zeo++/trunk/cython_wrapper/setup.py to correctly point to
+Voro++ directory.
+(b) Run “python setup.py develop” to install Zeo++ python bindings.
+Be patient, it will take a while.</p></li>
+</ol>
+<p>Linux:
+4) (a) Edit the Voro++/voro/trunk/config.mk file to suit your environment.</p>
+<blockquote>
+<div><ol class="loweralpha simple" start="2">
+<li><p>Also add -fPIC option to CFLAGS variable in config.mk file.</p></li>
+<li><p>Run make command</p></li>
+</ol>
+</div></blockquote>
+<ol class="arabic simple" start="5">
+<li><p>(a) Go to Zeo++/zeo/trunk folder and compile zeo++ library using the
+command “make dylib”.
+(b) Edit the Zeo++/trunk/cython_wrapper/setup_alt.py to correctly
+point to Voro++ directory.
+(c) Run “python setup_alt.py develop” to install Zeo++ python bindings.</p></li>
+</ol>
+</div>
+<div class="section" id="zeo-post-installation-checking">
+<h2>Zeo++ Post-Installation Checking:<a class="headerlink" href="#zeo-post-installation-checking" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li><p>Go to pymatgen/io/tests and run “python test_zeoio.py”
+If Zeo++ python bindings are properly installed, the tests should
+pass. One or two tests will be skipped.</p></li>
+</ol>
+<ol class="loweralpha simple" start="2">
+<li><p>Go to pymatgen/analysis/defects/tests and run
+“python test_point_defects.py”. Lots of tests will be skipped if GULP
+is not installed. But there should be no errors.</p></li>
+</ol>
 <dl class="class">
 <dt id="pymatgen.io.zeopp.ZeoCssr">
 <em class="property">class </em><code class="sig-name descname">ZeoCssr</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/zeopp.html#ZeoCssr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeopp.ZeoCssr" title="Permalink to this definition">¶</a></dt>
@@ -234,6 +287,7 @@ unit cell defined by the lattice of input structure</p>
 </dd></dl>
 
 </div>
+</div>
 
 
           </div>
@@ -241,6 +295,15 @@ unit cell defined by the lattice of input structure</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">pymatgen.io.zeopp module</a><ul>
+<li><a class="reference internal" href="#zeo-installation-steps">Zeo++ Installation Steps:</a></li>
+<li><a class="reference internal" href="#zeo-post-installation-checking">Zeo++ Post-Installation Checking:</a></li>
+</ul>
+</li>
+</ul>
+
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -271,13 +334,13 @@ unit cell defined by the lattice of input structure</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

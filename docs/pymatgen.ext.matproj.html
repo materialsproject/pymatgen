@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.ext.matproj module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.ext.matproj module &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +43,12 @@
             
   <div class="section" id="module-pymatgen.ext.matproj">
 <span id="pymatgen-ext-matproj-module"></span><h1>pymatgen.ext.matproj module<a class="headerlink" href="#module-pymatgen.ext.matproj" title="Permalink to this headline">¶</a></h1>
+<p>This module provides classes to interface with the Materials Project REST
+API v2 to enable the creation of data structures and pymatgen objects using
+Materials Project data.</p>
+<p>To make use of the Materials API, you need to be a registered user of the
+Materials Project, and obtain an API key by going to your dashboard at
+<a class="reference external" href="https://www.materialsproject.org/dashboard">https://www.materialsproject.org/dashboard</a>.</p>
 <dl class="exception">
 <dt id="pymatgen.ext.matproj.MPRestError">
 <em class="property">exception </em><code class="sig-name descname">MPRestError</code><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRestError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRestError" title="Permalink to this definition">¶</a></dt>
@@ -626,7 +631,7 @@ matching area.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>material_id</strong> (<em>str</em>) – Materials Project material_id, e.g. ‘mp-123’.</p></li>
 <li><p><strong>orient</strong> (<em>list</em>) – substrate orientation to look for</p></li>
-<li><p><strong>number</strong> (<em>int</em>) – number of substrates to return;
+<li><p><strong>number</strong> (<em>int</em>) – number of substrates to return
 n=0 returns all available matches</p></li>
 </ul>
 </dd>
@@ -773,13 +778,13 @@ up to MAX_TRIES_PER_CHUNK times.</p>
 mongo-style dict.</p>
 <p>If string, it supports a powerful but simple string criteria.
 E.g., “Fe2O3” means search for materials with reduced_formula
-Fe2O3. Wild cards are also supported. E.g., “*2O” means get
-all materials whose formula can be formed as *2O, e.g.,
+Fe2O3. Wild cards are also supported. E.g., “\*2O” means get
+all materials whose formula can be formed as \*2O, e.g.,
 Li2O, K2O, etc.</p>
 <p>Other syntax examples:
 mp-1234: Interpreted as a Materials ID.
-Fe2O3 or *2O3: Interpreted as reduced formulas.
-Li-Fe-O or *-Fe-O: Interpreted as chemical systems.</p>
+Fe2O3 or <a href="#id9"><span class="problematic" id="id10">*</span></a>2O3: Interpreted as reduced formulas.
+Li-Fe-O or <a href="#id11"><span class="problematic" id="id12">*</span></a>-Fe-O: Interpreted as chemical systems.</p>
 <p>You can mix and match with spaces, which are interpreted as
 “OR”. E.g. “mp-1234 FeO” means query for all compounds with
 reduced formula FeO or with materials_id mp-1234.</p>
@@ -993,13 +998,13 @@ assimilate. Defaults to None, which means serial.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

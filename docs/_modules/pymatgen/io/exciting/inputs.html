@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.exciting.inputs &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.io.exciting.inputs &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -48,6 +47,10 @@
 <span></span><span class="c1"># coding: utf-8</span>
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Classes for reading/manipulating/writing exciting input files.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
@@ -65,10 +68,6 @@
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.bandstructure</span> <span class="k">import</span> <span class="n">HighSymmKpath</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Classes for reading/manipulating/writing exciting input files.</span>
-<span class="sd">&quot;&quot;&quot;</span>
-
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Christian Vorwerk&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2016&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
@@ -80,31 +79,32 @@
 
 <div class="viewcode-block" id="ExcitingInput"><a class="viewcode-back" href="../../../../pymatgen.io.exciting.inputs.html#pymatgen.io.exciting.inputs.ExcitingInput">[docs]</a><span class="k">class</span> <span class="nc">ExcitingInput</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Object for representing the data stored in the structure part of the</span>
-<span class="sd">        exciting input.</span>
+<span class="sd">    Object for representing the data stored in the structure part of the</span>
+<span class="sd">    exciting input.</span>
 
+<span class="sd">    .. attribute:: structure</span>
+
+<span class="sd">        Associated Structure.</span>
+
+<span class="sd">    .. attribute:: title</span>
+
+<span class="sd">        Optional title string.</span>
+
+<span class="sd">    .. attribute:: lockxyz</span>
+
+<span class="sd">        Lockxyz attribute for each site if available. A Nx3 array of</span>
+<span class="sd">        booleans.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lockxyz</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            structure (Structure):  Structure object.</span>
 <span class="sd">            title (str): Optional title for exciting input. Defaults to unit</span>
 <span class="sd">                cell formula of structure. Defaults to None.</span>
 <span class="sd">            lockxyz (Nx3 array): bool values for selective dynamics,</span>
 <span class="sd">                where N is number of sites. Defaults to None.</span>
-
-<span class="sd">        .. attribute:: structure</span>
-
-<span class="sd">            Associated Structure.</span>
-
-<span class="sd">        .. attribute:: title</span>
-
-<span class="sd">            Optional title string.</span>
-
-<span class="sd">        .. attribute:: lockxyz</span>
-
-<span class="sd">            Lockxyz attribute for each site if available. A Nx3 array of</span>
-<span class="sd">            booleans.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lockxyz</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">structure</span><span class="o">.</span><span class="n">is_ordered</span><span class="p">:</span>
             <span class="n">site_properties</span> <span class="o">=</span> <span class="p">{}</span>
@@ -121,6 +121,9 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">lockxyz</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Selective dynamics site properties.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">site_properties</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;selective_dynamics&quot;</span><span class="p">)</span>
 
     <span class="nd">@lockxyz</span><span class="o">.</span><span class="n">setter</span>
@@ -204,11 +207,23 @@
 
 <div class="viewcode-block" id="ExcitingInput.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.exciting.inputs.html#pymatgen.io.exciting.inputs.ExcitingInput.from_file">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param filename: Filename</span>
+<span class="sd">        :return: ExcitingInput</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;rt&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ExcitingInput</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ExcitingInput.write_etree"><a class="viewcode-back" href="../../../../pymatgen.io.exciting.inputs.html#pymatgen.io.exciting.inputs.ExcitingInput.write_etree">[docs]</a>    <span class="k">def</span> <span class="nf">write_etree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">celltype</span><span class="p">,</span> <span class="n">cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">bandstr</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param celltype:</span>
+<span class="sd">        :param cartesian:</span>
+<span class="sd">        :param bandstr:</span>
+<span class="sd">        :param symprec:</span>
+<span class="sd">        :param angle_tolerance:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">root</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s1">&#39;input&#39;</span><span class="p">)</span>
         <span class="n">root</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation&#39;</span><span class="p">,</span>
                  <span class="s1">&#39;http://xml.exciting-code.org/excitinginput.xsd&#39;</span><span class="p">)</span>
@@ -242,7 +257,7 @@
                                                       <span class="n">basis</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span>
         <span class="c1"># write atomic positions for each species</span>
         <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">new_struct</span><span class="o">.</span><span class="n">types_of_specie</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">new_struct</span><span class="o">.</span><span class="n">types_of_specie</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">el</span><span class="p">:</span> <span class="n">el</span><span class="o">.</span><span class="n">X</span><span class="p">):</span>
             <span class="n">species</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="s1">&#39;species&#39;</span><span class="p">,</span> <span class="n">speciesfile</span><span class="o">=</span><span class="n">i</span><span class="o">.</span><span class="n">symbol</span> <span class="o">+</span> <span class="s1">&#39;.xml&#39;</span><span class="p">)</span>
             <span class="n">sites</span> <span class="o">=</span> <span class="n">new_struct</span><span class="o">.</span><span class="n">indices_from_symbol</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">symbol</span><span class="p">)</span>
 
@@ -264,7 +279,7 @@
 
                 <span class="c1"># write atomic positions</span>
                 <span class="n">index</span> <span class="o">=</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span>
-                <span class="n">atom</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="s1">&#39;atom&#39;</span><span class="p">,</span> <span class="n">coord</span><span class="o">=</span><span class="n">coord</span><span class="p">)</span>
+                <span class="n">_</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="s1">&#39;atom&#39;</span><span class="p">,</span> <span class="n">coord</span><span class="o">=</span><span class="n">coord</span><span class="p">)</span>
         <span class="c1"># write bandstructure if needed</span>
         <span class="k">if</span> <span class="n">bandstr</span> <span class="ow">and</span> <span class="n">celltype</span> <span class="o">==</span> <span class="s1">&#39;primitive&#39;</span><span class="p">:</span>
             <span class="n">kpath</span> <span class="o">=</span> <span class="n">HighSymmKpath</span><span class="p">(</span><span class="n">new_struct</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="n">symprec</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="o">=</span><span class="n">angle_tolerance</span><span class="p">)</span>
@@ -281,13 +296,23 @@
                                                       <span class="n">coords</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
                     <span class="k">if</span> <span class="n">symbol</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">Gamma&#39;</span><span class="p">:</span>
                         <span class="n">symbol</span> <span class="o">=</span> <span class="s1">&#39;GAMMA&#39;</span>
-                    <span class="n">pt</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;point&#39;</span><span class="p">,</span> <span class="n">coord</span><span class="o">=</span><span class="n">coord</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">symbol</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">bandstr</span> <span class="ow">and</span> <span class="n">celltype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="s1">&#39;primitive&#39;</span><span class="p">:</span>
+                    <span class="n">_</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;point&#39;</span><span class="p">,</span> <span class="n">coord</span><span class="o">=</span><span class="n">coord</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">symbol</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">bandstr</span> <span class="ow">and</span> <span class="n">celltype</span> <span class="o">!=</span> <span class="s1">&#39;primitive&#39;</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Bandstructure is only implemented for the </span><span class="se">\</span>
 <span class="s2">                              standard primitive unit cell!&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">root</span></div>
 
 <div class="viewcode-block" id="ExcitingInput.write_string"><a class="viewcode-back" href="../../../../pymatgen.io.exciting.inputs.html#pymatgen.io.exciting.inputs.ExcitingInput.write_string">[docs]</a>    <span class="k">def</span> <span class="nf">write_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">celltype</span><span class="p">,</span> <span class="n">cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">bandstr</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Writes to a string.</span>
+
+<span class="sd">        :param celltype:</span>
+<span class="sd">        :param cartesian:</span>
+<span class="sd">        :param bandstr:</span>
+<span class="sd">        :param symprec:</span>
+<span class="sd">        :param angle_tolerance:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_etree</span><span class="p">(</span><span class="n">celltype</span><span class="p">,</span> <span class="n">cartesian</span><span class="p">,</span> <span class="n">bandstr</span><span class="p">,</span> <span class="n">symprec</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">indent</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
@@ -298,6 +323,17 @@
         <span class="k">return</span> <span class="n">string</span></div>
 
 <div class="viewcode-block" id="ExcitingInput.write_file"><a class="viewcode-back" href="../../../../pymatgen.io.exciting.inputs.html#pymatgen.io.exciting.inputs.ExcitingInput.write_file">[docs]</a>    <span class="k">def</span> <span class="nf">write_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">celltype</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">bandstr</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write to a file.</span>
+
+<span class="sd">        :param celltype:</span>
+<span class="sd">        :param filename:</span>
+<span class="sd">        :param cartesian:</span>
+<span class="sd">        :param bandstr:</span>
+<span class="sd">        :param symprec:</span>
+<span class="sd">        :param angle_tolerance:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_etree</span><span class="p">(</span><span class="n">celltype</span><span class="p">,</span> <span class="n">cartesian</span><span class="p">,</span> <span class="n">bandstr</span><span class="p">,</span> <span class="n">symprec</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">indent</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
@@ -310,6 +346,13 @@
     <span class="c1"># Missing PrerryPrint option in the current version of xml.etree.cElementTree</span>
 <div class="viewcode-block" id="ExcitingInput.indent"><a class="viewcode-back" href="../../../../pymatgen.io.exciting.inputs.html#pymatgen.io.exciting.inputs.ExcitingInput.indent">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">indent</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper method to indent elements.</span>
+
+<span class="sd">        :param elem:</span>
+<span class="sd">        :param level:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">i</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">level</span> <span class="o">*</span> <span class="s2">&quot;  &quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">elem</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">text</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
@@ -353,7 +396,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -361,7 +404,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

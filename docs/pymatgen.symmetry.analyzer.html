@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.symmetry.analyzer module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.symmetry.analyzer module &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +43,15 @@
             
   <div class="section" id="module-pymatgen.symmetry.analyzer">
 <span id="pymatgen-symmetry-analyzer-module"></span><h1>pymatgen.symmetry.analyzer module<a class="headerlink" href="#module-pymatgen.symmetry.analyzer" title="Permalink to this headline">¶</a></h1>
+<p>An interface to the excellent spglib library by Atsushi Togo
+(<a class="reference external" href="http://spglib.sourceforge.net/">http://spglib.sourceforge.net/</a>) for pymatgen.</p>
+<p>v1.0 - Now works with both ordered and disordered structure.
+v2.0 - Updated for spglib 1.6.
+v3.0 - pymatgen no longer ships with spglib. Instead, spglib (the python</p>
+<blockquote>
+<div><p>version) is now a dependency and the SpacegroupAnalyzer merely serves
+as an interface to spglib for pymatgen Structures.</p>
+</div></blockquote>
 <dl class="class">
 <dt id="pymatgen.symmetry.analyzer.PointGroupAnalyzer">
 <em class="property">class </em><code class="sig-name descname">PointGroupAnalyzer</code><span class="sig-paren">(</span><em class="sig-param">mol</em>, <em class="sig-param">tolerance=0.3</em>, <em class="sig-param">eigen_tolerance=0.01</em>, <em class="sig-param">matrix_tol=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/analyzer.html#PointGroupAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.PointGroupAnalyzer" title="Permalink to this definition">¶</a></dt>
@@ -203,6 +211,12 @@ that maps atom <code class="docutils literal notranslate"><span class="pre">i</s
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
 <p>Defines a point group, which is essentially a sequence of symmetry
 operations.</p>
+<dl class="attribute">
+<dt id="pymatgen.symmetry.analyzer.PointGroupOperations.sch_symbol">
+<code class="sig-name descname">sch_symbol</code><a class="headerlink" href="#pymatgen.symmetry.analyzer.PointGroupOperations.sch_symbol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Schoenflies symbol of the point group.</p>
+</dd></dl>
+
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -215,12 +229,6 @@ operations.</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="attribute">
-<dt id="pymatgen.symmetry.analyzer.PointGroupOperations.sch_symbol">
-<code class="sig-name descname">sch_symbol</code><a class="headerlink" href="#pymatgen.symmetry.analyzer.PointGroupOperations.sch_symbol" title="Permalink to this definition">¶</a></dt>
-<dd><p>Schoenflies symbol of the point group.</p>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="class">
@@ -228,7 +236,7 @@ operations.</p></li>
 <em class="property">class </em><code class="sig-name descname">SpacegroupAnalyzer</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">symprec=0.01</em>, <em class="sig-param">angle_tolerance=5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/analyzer.html#SpacegroupAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Takes a pymatgen.core.structure.Structure object and a symprec.
-Uses pyspglib to perform various symmetry finding operations.</p>
+Uses spglib to perform various symmetry finding operations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -709,13 +717,13 @@ that maps atom <code class="docutils literal notranslate"><span class="pre">i</s
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

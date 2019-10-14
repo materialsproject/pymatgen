@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.phonon.bandstructure &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.phonon.bandstructure &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -49,6 +48,9 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides classes to define a phonon band structure.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">collections</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -57,10 +59,6 @@
 <span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="k">import</span> <span class="n">Lattice</span>
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.bandstructure</span> <span class="k">import</span> <span class="n">Kpoint</span>
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
-
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This module provides classes to define a phonon band structure.</span>
-<span class="sd">&quot;&quot;&quot;</span>
 
 
 <div class="viewcode-block" id="get_reasonable_repetitions"><a class="viewcode-back" href="../../../pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.get_reasonable_repetitions">[docs]</a><span class="k">def</span> <span class="nf">get_reasonable_repetitions</span><span class="p">(</span><span class="n">natoms</span><span class="p">):</span>
@@ -286,6 +284,9 @@
         <span class="k">return</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="PhononBandStructure.as_dict"><a class="viewcode-back" href="../../../pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructure.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: MSONable dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
              <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
              <span class="s2">&quot;lattice_rec&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice_rec</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
@@ -312,6 +313,10 @@
 
 <div class="viewcode-block" id="PhononBandStructure.from_dict"><a class="viewcode-back" href="../../../pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructure.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param d: Dict representation</span>
+<span class="sd">        :return: PhononBandStructure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">lattice_rec</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;lattice_rec&#39;</span><span class="p">][</span><span class="s1">&#39;matrix&#39;</span><span class="p">])</span>
         <span class="n">eigendisplacements</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;eigendisplacements&#39;</span><span class="p">][</span><span class="s1">&#39;real&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;eigendisplacements&#39;</span><span class="p">][</span><span class="s1">&#39;imag&#39;</span><span class="p">])</span> <span class="o">*</span> <span class="mi">1</span><span class="n">j</span>
         <span class="n">nac_eigendisplacements</span> <span class="o">=</span> <span class="p">[(</span><span class="n">direction</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;real&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;imag&#39;</span><span class="p">])</span> <span class="o">*</span> <span class="mi">1</span><span class="n">j</span><span class="p">)</span>
@@ -323,7 +328,7 @@
 
 
 <div class="viewcode-block" id="PhononBandStructureSymmLine"><a class="viewcode-back" href="../../../pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine">[docs]</a><span class="k">class</span> <span class="nc">PhononBandStructureSymmLine</span><span class="p">(</span><span class="n">PhononBandStructure</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This object stores phonon band structures along selected (symmetry) lines in the</span>
 <span class="sd">    Brillouin zone. We call the different symmetry lines (ex: \\Gamma to Z)</span>
 <span class="sd">    &quot;branches&quot;.</span>
@@ -446,7 +451,7 @@
         <span class="k">return</span> <span class="n">list_index_qpoints</span></div>
 
 <div class="viewcode-block" id="PhononBandStructureSymmLine.get_branch"><a class="viewcode-back" href="../../../pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.get_branch">[docs]</a>    <span class="k">def</span> <span class="nf">get_branch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns in what branch(es) is the qpoint. There can be several</span>
 <span class="sd">        branches.</span>
 
@@ -476,7 +481,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">import</span> <span class="nn">json</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">phononwebsite_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">as_phononwebsite</span><span class="p">(),</span> <span class="n">f</span><span class="p">)</span></div>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">as_phononwebsite</span><span class="p">(),</span> <span class="n">f</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PhononBandStructureSymmLine.as_phononwebsite"><a class="viewcode-back" href="../../../pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.as_phononwebsite">[docs]</a>    <span class="k">def</span> <span class="nf">as_phononwebsite</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -588,6 +593,9 @@
             <span class="n">eig</span><span class="p">[:,</span> <span class="n">nq</span><span class="p">]</span> <span class="o">=</span> <span class="n">eigq</span><span class="p">[</span><span class="n">order</span><span class="p">[</span><span class="n">nq</span><span class="p">]]</span></div>
 
 <div class="viewcode-block" id="PhononBandStructureSymmLine.as_dict"><a class="viewcode-back" href="../../../pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: MSONable dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">d</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
         <span class="c1"># remove nac_frequencies and nac_eigendisplacements as they are reconstructed</span>
         <span class="c1"># in the __init__ when the dict is deserialized</span>
@@ -598,6 +606,10 @@
 
 <div class="viewcode-block" id="PhononBandStructureSymmLine.from_dict"><a class="viewcode-back" href="../../../pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param d: Dict representation</span>
+<span class="sd">        :return: PhononBandStructureSummLine</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">lattice_rec</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;lattice_rec&#39;</span><span class="p">][</span><span class="s1">&#39;matrix&#39;</span><span class="p">])</span>
         <span class="n">eigendisplacements</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;eigendisplacements&#39;</span><span class="p">][</span><span class="s1">&#39;real&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;eigendisplacements&#39;</span><span class="p">][</span><span class="s1">&#39;imag&#39;</span><span class="p">])</span> <span class="o">*</span> <span class="mi">1</span><span class="n">j</span>
         <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;structure&#39;</span><span class="p">])</span> <span class="k">if</span> <span class="s1">&#39;structure&#39;</span> <span class="ow">in</span> <span class="n">d</span> <span class="k">else</span> <span class="kc">None</span>
@@ -633,7 +645,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -641,7 +653,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

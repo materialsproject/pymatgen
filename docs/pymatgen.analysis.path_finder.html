@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.path_finder module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.analysis.path_finder module &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -112,7 +111,7 @@ from 0 to 1</p></li>
 
 <dl class="class">
 <dt id="pymatgen.analysis.path_finder.NEBPathfinder">
-<em class="property">class </em><code class="sig-name descname">NEBPathfinder</code><span class="sig-paren">(</span><em class="sig-param">start_struct</em>, <em class="sig-param">end_struct</em>, <em class="sig-param">relax_sites</em>, <em class="sig-param">v</em>, <em class="sig-param">n_images=20</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/path_finder.html#NEBPathfinder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.path_finder.NEBPathfinder" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">NEBPathfinder</code><span class="sig-paren">(</span><em class="sig-param">start_struct</em>, <em class="sig-param">end_struct</em>, <em class="sig-param">relax_sites</em>, <em class="sig-param">v</em>, <em class="sig-param">n_images=20</em>, <em class="sig-param">mid_struct=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/path_finder.html#NEBPathfinder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.path_finder.NEBPathfinder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>General pathfinder for interpolating between two structures, where the
 interpolating path is calculated with the elastic band method with
@@ -126,6 +125,7 @@ in relax_sites, and is linear otherwise.</p>
 be relaxed</p></li>
 <li><p><strong>v</strong> – Static potential field to use for the elastic band relaxation</p></li>
 <li><p><strong>n_images</strong> – Number of interpolation images to generate</p></li>
+<li><p><strong>mid_struct</strong> – (optional) additional structure between the start and end structures to help</p></li>
 </ul>
 </dd>
 </dl>
@@ -144,6 +144,8 @@ for the ones given in relax_sites, the interpolation is linear (as in
 pymatgen.core.structure.interpolate), and for the site indices given
 in relax_sites, the path is relaxed by the elastic band method within
 the static potential V.</p>
+<p>If a mid point is defined we will interpolate from s1–&gt; mid –&gt;s2
+The final number of images will still be n_images.</p>
 </dd></dl>
 
 <dl class="method">
@@ -198,6 +200,14 @@ CHGCARs.</p></li>
 <p>Defines a general static potential for diffusion calculations. Implements
 grid-rescaling and smearing for the potential grid. Also provides a
 function to normalize the potential from 0 to 1 (recommended).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>struct</strong> – atomic structure of the potential</p></li>
+<li><p><strong>pot</strong> – volumentric data to be used as a potential</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.analysis.path_finder.StaticPotential.gaussian_smear">
 <code class="sig-name descname">gaussian_smear</code><span class="sig-paren">(</span><em class="sig-param">r</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/path_finder.html#StaticPotential.gaussian_smear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.path_finder.StaticPotential.gaussian_smear" title="Permalink to this definition">¶</a></dt>
@@ -281,13 +291,13 @@ are on different grids.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

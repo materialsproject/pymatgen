@@ -2,33 +2,25 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""Module contains classes presenting Element and Specie (Element + oxidation state) and PeriodicTable."""
+
 import re
 import json
 import warnings
-import numpy as np
 from io import open
 from pathlib import Path
 from enum import Enum
+from typing import Optional, Callable
+from itertools import product, \
+    combinations
+from collections import Counter
 
-from pymatgen.core.units import Mass, Length, unitized, FloatWithUnit, Unit, \
+import numpy as np
+
+from pymatgen.core.units import Mass, Length, FloatWithUnit, Unit, \
     SUPPORTED_UNIT_NAMES
 from pymatgen.util.string import formula_double_format
 from monty.json import MSONable
-from itertools import product, combinations
-from collections import Counter
-
-"""
-Module contains classes presenting Element and Specie (Element + oxidation
-state) and PeriodicTable.
-"""
-
-__author__ = "Shyue Ping Ong, Michael Kocher"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "2.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Production"
-__date__ = "Sep 23, 2011"
 
 # Loads element data from json file
 with open(str(Path(__file__).absolute().parent / "periodic_table.json"), "rt") as f:
@@ -38,260 +30,7 @@ _pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
 
 
 class Element(Enum):
-    """
-    Basic immutable element object with all relevant properties.
-    Only one instance of Element for each symbol is stored after creation,
-    ensuring that a particular element behaves like a singleton. For all
-    attributes, missing data (i.e., data for which is not available) is
-    represented by a None unless otherwise stated.
-
-    Args:
-        symbol (str): Element symbol, e.g., "H", "Fe"
-
-    .. attribute:: Z
-
-        Atomic number
-
-    .. attribute:: symbol
-
-        Element symbol
-
-    .. attribute:: X
-
-        Pauling electronegativity. Elements without an electronegativity
-        number are assigned a value of zero by default.
-
-    .. attribute:: number
-
-        Alternative attribute for atomic number
-
-    .. attribute:: max_oxidation_state
-
-        Maximum oxidation state for element
-
-    .. attribute:: min_oxidation_state
-
-        Minimum oxidation state for element
-
-    .. attribute:: oxidation_states
-
-        Tuple of all known oxidation states
-
-    .. attribute:: common_oxidation_states
-
-        Tuple of all common oxidation states
-
-    .. attribute:: full_electronic_structure
-
-        Full electronic structure as tuple.
-        E.g., The electronic structure for Fe is represented as:
-        [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
-        (3, "d", 6), (4, "s", 2)]
-
-    .. attribute:: row
-
-        Returns the periodic table row of the element.
-
-    .. attribute:: group
-
-        Returns the periodic table group of the element.
-
-    .. attribute:: block
-
-        Return the block character "s,p,d,f"
-
-    .. attribute:: is_noble_gas
-
-        True if element is noble gas.
-
-    .. attribute:: is_transition_metal
-
-        True if element is a transition metal.
-
-    .. attribute:: is_post_transition_metal
-
-        True if element is a post transition metal.
-
-    .. attribute:: is_rare_earth_metal
-
-        True if element is a rare earth metal.
-
-    .. attribute:: is_metalloid
-
-        True if element is a metalloid.
-
-    .. attribute:: is_alkali
-
-        True if element is an alkali metal.
-
-    .. attribute:: is_alkaline
-
-        True if element is an alkaline earth metal (group II).
-
-    .. attribute:: is_halogen
-
-        True if element is a halogen.
-
-    .. attribute:: is_lanthanoid
-
-        True if element is a lanthanoid.
-
-    .. attribute:: is_actinoid
-
-        True if element is a actinoid.
-
-    .. attribute:: iupac_ordering
-
-        Ordering according to Table VI of "Nomenclature of Inorganic Chemistry
-        (IUPAC Recommendations 2005)". This ordering effectively follows the
-        groups and rows of the periodic table, except the Lanthanides, Actanides
-        and hydrogen.
-
-    .. attribute:: long_name
-
-       Long name for element. E.g., "Hydrogen".
-
-    .. attribute:: atomic_mass
-
-        Atomic mass for the element.
-
-    .. attribute:: atomic_radius
-
-        Atomic radius for the element. This is the empirical value. Data is
-        obtained from
-        http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page).
-
-    .. attribute:: atomic_radius_calculated
-
-        Calculated atomic radius for the element. This is the empirical value.
-        Data is obtained from
-        http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page).
-
-    .. attribute:: van_der_waals_radius
-
-        Van der Waals radius for the element. This is the empirical
-        value. Data is obtained from
-        http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page).
-
-    .. attribute:: mendeleev_no
-
-        Mendeleev number
-
-    .. attribute:: electrical_resistivity
-
-        Electrical resistivity
-
-    .. attribute:: velocity_of_sound
-
-        Velocity of sound
-
-    .. attribute:: reflectivity
-
-        Reflectivity
-
-    .. attribute:: refractive_index
-
-        Refractice index
-
-    .. attribute:: poissons_ratio
-
-        Poisson's ratio
-
-    .. attribute:: molar_volume
-
-        Molar volume
-
-    .. attribute:: electronic_structure
-
-        Electronic structure. Simplified form with HTML formatting.
-        E.g., The electronic structure for Fe is represented as
-        [Ar].3d<sup>6</sup>.4s<sup>2</sup>
-
-    .. attribute:: atomic_orbitals
-
-        Atomic Orbitals. Energy of the atomic orbitals as a dict.
-        E.g., The orbitals energies in eV are represented as
-        {'1s': -1.0, '2s': -0.1}
-        Data is obtained from
-        https://www.nist.gov/pml/data/atomic-reference-data-electronic-structure-calculations
-        The LDA values for neutral atoms are used
-
-    .. attribute:: thermal_conductivity
-
-        Thermal conductivity
-
-    .. attribute:: boiling_point
-
-        Boiling point
-
-    .. attribute:: melting_point
-
-        Melting point
-
-    .. attribute:: critical_temperature
-
-        Critical temperature
-
-    .. attribute:: superconduction_temperature
-
-        Superconduction temperature
-
-    .. attribute:: liquid_range
-
-        Liquid range
-
-    .. attribute:: bulk_modulus
-
-        Bulk modulus
-
-    .. attribute:: youngs_modulus
-
-        Young's modulus
-
-    .. attribute:: brinell_hardness
-
-        Brinell hardness
-
-    .. attribute:: rigidity_modulus
-
-        Rigidity modulus
-
-    .. attribute:: mineral_hardness
-
-        Mineral hardness
-
-    .. attribute:: vickers_hardness
-
-        Vicker's hardness
-
-    .. attribute:: density_of_solid
-
-        Density of solid phase
-
-    .. attribute:: coefficient_of_linear_thermal_expansion
-
-        Coefficient of linear thermal expansion
-
-    .. attribute:: average_ionic_radius
-
-        Average ionic radius for element in ang. The average is taken over all
-        oxidation states of the element for which data is present.
-
-    .. attribute:: average_cationic_radius
-
-        Average cationic radius for element in ang. The average is taken over all
-        positive oxidation states of the element for which data is present.
-
-    .. attribute:: average_anionic_radius
-
-        Average ionic radius for element in ang. The average is taken over all
-        negative oxidation states of the element for which data is present.
-
-    .. attribute:: ionic_radii
-
-        All ionic radii of the element as a dict of
-        {oxidation state: ionic radii}. Radii are given in ang.
-    """
+    """Enum representing an element in the periodic table."""
 
     # This name = value convention is redundant and dumb, but unfortunately is
     # necessary to preserve backwards compatibility with a time when Element is
@@ -401,6 +140,261 @@ class Element(Enum):
     Lr = "Lr"
 
     def __init__(self, symbol: str):
+        """
+        Basic immutable element object with all relevant properties.
+
+        Only one instance of Element for each symbol is stored after creation,
+        ensuring that a particular element behaves like a singleton. For all
+        attributes, missing data (i.e., data for which is not available) is
+        represented by a None unless otherwise stated.
+
+        Args:
+            symbol (str): Element symbol, e.g., "H", "Fe"
+
+        .. attribute:: Z
+
+            Atomic number
+
+        .. attribute:: symbol
+
+            Element symbol
+
+        .. attribute:: X
+
+            Pauling electronegativity. Elements without an electronegativity
+            number are assigned a value of zero by default.
+
+        .. attribute:: number
+
+            Alternative attribute for atomic number
+
+        .. attribute:: max_oxidation_state
+
+            Maximum oxidation state for element
+
+        .. attribute:: min_oxidation_state
+
+            Minimum oxidation state for element
+
+        .. attribute:: oxidation_states
+
+            Tuple of all known oxidation states
+
+        .. attribute:: common_oxidation_states
+
+            Tuple of all common oxidation states
+
+        .. attribute:: full_electronic_structure
+
+            Full electronic structure as tuple.
+            E.g., The electronic structure for Fe is represented as:
+            [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
+            (3, "d", 6), (4, "s", 2)]
+
+        .. attribute:: row
+
+            Returns the periodic table row of the element.
+
+        .. attribute:: group
+
+            Returns the periodic table group of the element.
+
+        .. attribute:: block
+
+            Return the block character "s,p,d,f"
+
+        .. attribute:: is_noble_gas
+
+            True if element is noble gas.
+
+        .. attribute:: is_transition_metal
+
+            True if element is a transition metal.
+
+        .. attribute:: is_post_transition_metal
+
+            True if element is a post transition metal.
+
+        .. attribute:: is_rare_earth_metal
+
+            True if element is a rare earth metal.
+
+        .. attribute:: is_metalloid
+
+            True if element is a metalloid.
+
+        .. attribute:: is_alkali
+
+            True if element is an alkali metal.
+
+        .. attribute:: is_alkaline
+
+            True if element is an alkaline earth metal (group II).
+
+        .. attribute:: is_halogen
+
+            True if element is a halogen.
+
+        .. attribute:: is_lanthanoid
+
+            True if element is a lanthanoid.
+
+        .. attribute:: is_actinoid
+
+            True if element is a actinoid.
+
+        .. attribute:: iupac_ordering
+
+            Ordering according to Table VI of "Nomenclature of Inorganic Chemistry
+            (IUPAC Recommendations 2005)". This ordering effectively follows the
+            groups and rows of the periodic table, except the Lanthanides, Actanides
+            and hydrogen.
+
+        .. attribute:: long_name
+
+           Long name for element. E.g., "Hydrogen".
+
+        .. attribute:: atomic_mass
+
+            Atomic mass for the element.
+
+        .. attribute:: atomic_radius
+
+            Atomic radius for the element. This is the empirical value. Data is
+            obtained from
+            http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page).
+
+        .. attribute:: atomic_radius_calculated
+
+            Calculated atomic radius for the element. This is the empirical value.
+            Data is obtained from
+            http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page).
+
+        .. attribute:: van_der_waals_radius
+
+            Van der Waals radius for the element. This is the empirical
+            value. Data is obtained from
+            http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page).
+
+        .. attribute:: mendeleev_no
+
+            Mendeleev number
+
+        .. attribute:: electrical_resistivity
+
+            Electrical resistivity
+
+        .. attribute:: velocity_of_sound
+
+            Velocity of sound
+
+        .. attribute:: reflectivity
+
+            Reflectivity
+
+        .. attribute:: refractive_index
+
+            Refractice index
+
+        .. attribute:: poissons_ratio
+
+            Poisson's ratio
+
+        .. attribute:: molar_volume
+
+            Molar volume
+
+        .. attribute:: electronic_structure
+
+            Electronic structure. Simplified form with HTML formatting.
+            E.g., The electronic structure for Fe is represented as
+            [Ar].3d<sup>6</sup>.4s<sup>2</sup>
+
+        .. attribute:: atomic_orbitals
+
+            Atomic Orbitals. Energy of the atomic orbitals as a dict.
+            E.g., The orbitals energies in eV are represented as
+            {'1s': -1.0, '2s': -0.1}
+            Data is obtained from
+            https://www.nist.gov/pml/data/atomic-reference-data-electronic-structure-calculations
+            The LDA values for neutral atoms are used
+
+        .. attribute:: thermal_conductivity
+
+            Thermal conductivity
+
+        .. attribute:: boiling_point
+
+            Boiling point
+
+        .. attribute:: melting_point
+
+            Melting point
+
+        .. attribute:: critical_temperature
+
+            Critical temperature
+
+        .. attribute:: superconduction_temperature
+
+            Superconduction temperature
+
+        .. attribute:: liquid_range
+
+            Liquid range
+
+        .. attribute:: bulk_modulus
+
+            Bulk modulus
+
+        .. attribute:: youngs_modulus
+
+            Young's modulus
+
+        .. attribute:: brinell_hardness
+
+            Brinell hardness
+
+        .. attribute:: rigidity_modulus
+
+            Rigidity modulus
+
+        .. attribute:: mineral_hardness
+
+            Mineral hardness
+
+        .. attribute:: vickers_hardness
+
+            Vicker's hardness
+
+        .. attribute:: density_of_solid
+
+            Density of solid phase
+
+        .. attribute:: coefficient_of_linear_thermal_expansion
+
+            Coefficient of linear thermal expansion
+
+        .. attribute:: average_ionic_radius
+
+            Average ionic radius for element in ang. The average is taken over all
+            oxidation states of the element for which data is present.
+
+        .. attribute:: average_cationic_radius
+
+            Average cationic radius for element in ang. The average is taken over all
+            positive oxidation states of the element for which data is present.
+
+        .. attribute:: average_anionic_radius
+
+            Average ionic radius for element in ang. The average is taken over all
+            negative oxidation states of the element for which data is present.
+
+        .. attribute:: ionic_radii
+
+            All ionic radii of the element as a dict of
+            {oxidation state: ionic radii}. Radii are given in ang.
+        """
         self.symbol = "%s" % symbol
         d = _pt_data[symbol]
 
@@ -418,14 +412,17 @@ class Element(Enum):
 
     @property
     def X(self):
+        """
+        :return: Electronegativity of element. Note that if an element does not
+            have an electronegativity, a NaN float is returned.
+        """
         if "X" in self._data:
             return self._data["X"]
-        else:
-            warnings.warn("No electronegativity for %s. Setting to NaN. "
-                          "This has no physical meaning, and is mainly done to "
-                          "avoid errors caused by the code expecting a float."
-                          % self.symbol)
-            return float("NaN")
+        warnings.warn("No electronegativity for %s. Setting to NaN. "
+                      "This has no physical meaning, and is mainly done to "
+                      "avoid errors caused by the code expecting a float."
+                      % self.symbol)
+        return float("NaN")
 
     @property
     def atomic_radius(self):
@@ -459,7 +456,7 @@ class Element(Enum):
             val = self._data.get(kstr, None)
             if str(val).startswith("no data"):
                 val = None
-            elif type(val) == dict:
+            elif isinstance(val, dict):
                 pass
             else:
                 try:
@@ -504,7 +501,6 @@ class Element(Enum):
         return self._data.copy()
 
     @property
-    @unitized("ang")
     def average_ionic_radius(self):
         """
         Average ionic radius for element (with units). The average is taken
@@ -512,12 +508,12 @@ class Element(Enum):
         """
         if "Ionic radii" in self._data:
             radii = self._data["Ionic radii"]
-            return sum(radii.values()) / len(radii)
+            radius = sum(radii.values()) / len(radii)
         else:
-            return 0
+            radius = 0.0
+        return FloatWithUnit(radius, "ang")
 
     @property
-    @unitized("ang")
     def average_cationic_radius(self):
         """
         Average cationic radius for element (with units). The average is
@@ -528,11 +524,10 @@ class Element(Enum):
             radii = [v for k, v in self._data["Ionic radii"].items()
                      if int(k) > 0]
             if radii:
-                return sum(radii) / len(radii)
-        return 0
+                return FloatWithUnit(sum(radii) / len(radii), "ang")
+        return FloatWithUnit(0.0, "ang")
 
     @property
-    @unitized("ang")
     def average_anionic_radius(self):
         """
         Average anionic radius for element (with units). The average is
@@ -543,20 +538,18 @@ class Element(Enum):
             radii = [v for k, v in self._data["Ionic radii"].items()
                      if int(k) < 0]
             if radii:
-                return sum(radii) / len(radii)
-        return 0
+                return FloatWithUnit(sum(radii) / len(radii), "ang")
+        return FloatWithUnit(0.0, "ang")
 
     @property
-    @unitized("ang")
     def ionic_radii(self):
         """
         All ionic radii of the element as a dict of
         {oxidation state: ionic radii}. Radii are given in ang.
         """
         if "Ionic radii" in self._data:
-            return {int(k): v for k, v in self._data["Ionic radii"].items()}
-        else:
-            return {}
+            return {int(k): FloatWithUnit(v, "ang") for k, v in self._data["Ionic radii"].items()}
+        return {}
 
     @property
     def number(self):
@@ -594,12 +587,11 @@ class Element(Enum):
         return tuple(self._data.get("ICSD oxidation states", list()))
 
     @property
-    @unitized("ang")
     def metallic_radius(self):
         """
         Metallic radius of the element. Radius is given in ang.
         """
-        return self._data["Metallic radius"]
+        return FloatWithUnit(self._data["Metallic radius"], "ang")
 
     @property
     def full_electronic_structure(self):
@@ -731,8 +723,7 @@ class Element(Enum):
         L, v_e = self.valence
         if v_e <= (2 * L + 1):
             return J_sorted_terms[0][0]
-        else:
-            return J_sorted_terms[-1][0]
+        return J_sorted_terms[-1][0]
 
     def __eq__(self, other):
         return isinstance(other, Element) and self.Z == other.Z
@@ -759,10 +750,10 @@ class Element(Enum):
         x2 = float("inf") if other.X != other.X else other.X
         if x1 != x2:
             return x1 < x2
-        else:
-            # There are cases where the electronegativity are exactly equal.
-            # We then sort by symbol.
-            return self.symbol < other.symbol
+
+        # There are cases where the electronegativity are exactly equal.
+        # We then sort by symbol.
+        return self.symbol < other.symbol
 
     @staticmethod
     def from_Z(z: int):
@@ -810,11 +801,7 @@ class Element(Enum):
             True if symbol is a valid element (e.g., "H"). False otherwise
             (e.g., "Zebra").
         """
-        try:
-            Element(symbol)
-            return True
-        except Exception:
-            return False
+        return symbol in Element.__members__
 
     @property
     def row(self):
@@ -825,11 +812,10 @@ class Element(Enum):
         total = 0
         if 57 <= z <= 71:
             return 8
-        elif 89 <= z <= 103:
+        if 89 <= z <= 103:
             return 9
-
-        for i in range(len(_pt_row_sizes)):
-            total += _pt_row_sizes[i]
+        for i, size in enumerate(_pt_row_sizes):
+            total += size
             if total >= z:
                 return i + 1
         return 8
@@ -847,23 +833,20 @@ class Element(Enum):
         if 3 <= z <= 18:
             if (z - 2) % 8 == 0:
                 return 18
-            elif (z - 2) % 8 <= 2:
+            if (z - 2) % 8 <= 2:
                 return (z - 2) % 8
-            else:
-                return 10 + (z - 2) % 8
+            return 10 + (z - 2) % 8
 
         if 19 <= z <= 54:
             if (z - 18) % 18 == 0:
                 return 18
-            else:
-                return (z - 18) % 18
+            return (z - 18) % 18
 
         if (z - 54) % 32 == 0:
             return 18
-        elif (z - 54) % 32 >= 18:
+        if (z - 54) % 32 >= 18:
             return (z - 54) % 32 - 14
-        else:
-            return (z - 54) % 32
+        return (z - 54) % 32
 
     @property
     def block(self):
@@ -872,13 +855,13 @@ class Element(Enum):
         """
         if (self.is_actinoid or self.is_lanthanoid) and self.Z not in [71, 103]:
             return "f"
-        elif self.is_actinoid or self.is_lanthanoid:
+        if self.is_actinoid or self.is_lanthanoid:
             return "d"
-        elif self.group in [1, 2]:
+        if self.group in [1, 2]:
             return "s"
-        elif self.group in range(13, 19):
+        if self.group in range(13, 19):
             return "p"
-        elif self.group in range(3, 13):
+        if self.group in range(3, 13):
             return "d"
         raise ValueError("unable to determine block")
 
@@ -910,34 +893,37 @@ class Element(Enum):
         return self.symbol in ("Al", "Ga", "In", "Tl", "Sn", "Pb", "Bi")
 
     @property
-    def is_rare_earth_metal(self):
+    def is_rare_earth_metal(self) -> bool:
         """
         True if element is a rare earth metal.
         """
         return self.is_lanthanoid or self.is_actinoid
 
     @property
-    def is_metal(self):
+    def is_metal(self) -> bool:
+        """
+        :return: True if is a metal.
+        """
         return (self.is_alkali or self.is_alkaline or
                 self.is_post_transition_metal or self.is_transition_metal or
                 self.is_lanthanoid or self.is_actinoid)
 
     @property
-    def is_metalloid(self):
+    def is_metalloid(self) -> bool:
         """
         True if element is a metalloid.
         """
         return self.symbol in ("B", "Si", "Ge", "As", "Sb", "Te", "Po")
 
     @property
-    def is_alkali(self):
+    def is_alkali(self) -> bool:
         """
         True if element is an alkali metal.
         """
         return self.Z in (3, 11, 19, 37, 55, 87)
 
     @property
-    def is_alkaline(self):
+    def is_alkaline(self) -> bool:
         """
         True if element is an alkaline earth metal (group II).
         """
@@ -1018,7 +1004,7 @@ class Element(Enum):
                 "element": self.symbol}
 
     @staticmethod
-    def print_periodic_table(filter_function: callable = None):
+    def print_periodic_table(filter_function: Optional[Callable] = None):
         """
         A pretty ASCII printer for the periodic table, based on some
         filter_function.
@@ -1051,32 +1037,35 @@ class Specie(MSONable):
     assigned an idealized spin of +5, but an actual Fe2+ site may be
     calculated to have a magmom of +4.5. Calculated properties should be
     assigned to Site objects, and not Specie.
-
-    Args:
-        symbol (str): Element symbol, e.g., Fe
-        oxidation_state (float): Oxidation state of element, e.g., 2 or -2
-        properties: Properties associated with the Specie, e.g.,
-            {"spin": 5}. Defaults to None. Properties must be one of the
-            Specie supported_properties.
-
-    .. attribute:: oxi_state
-
-        Oxidation state associated with Specie
-
-    .. attribute:: ionic_radius
-
-        Ionic radius of Specie (with specific oxidation state).
-
-    .. versionchanged:: 2.6.7
-
-        Properties are now checked when comparing two Species for equality.
     """
 
     supported_properties = ("spin",)
 
     def __init__(self, symbol: str,
-                 oxidation_state: float = None,
+                 oxidation_state: float = 0.0,
                  properties: dict = None):
+        """
+        Initializes a Specie.
+
+        Args:
+            symbol (str): Element symbol, e.g., Fe
+            oxidation_state (float): Oxidation state of element, e.g., 2 or -2
+            properties: Properties associated with the Specie, e.g.,
+                {"spin": 5}. Defaults to None. Properties must be one of the
+                Specie supported_properties.
+
+        .. attribute:: oxi_state
+
+            Oxidation state associated with Specie
+
+        .. attribute:: ionic_radius
+
+            Ionic radius of Specie (with specific oxidation state).
+
+        .. versionchanged:: 2.6.7
+
+            Properties are now checked when comparing two Species for equality.
+        """
         self._el = Element(symbol)
         self._oxi_state = oxidation_state
         self._properties = properties if properties else {}
@@ -1097,9 +1086,9 @@ class Specie(MSONable):
         Specie is equal to other only if element and oxidation states are
         exactly the same.
         """
-        return isinstance(other, Specie) and self.symbol == other.symbol \
-            and self.oxi_state == other.oxi_state \
-            and self._properties == other._properties
+        return (isinstance(other, Specie) and self.symbol == other.symbol
+                and self.oxi_state == other.oxi_state
+                and self._properties == other._properties)
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -1121,19 +1110,18 @@ class Specie(MSONable):
         x2 = float("inf") if other.X != other.X else other.X
         if x1 != x2:
             return x1 < x2
-        elif self.symbol != other.symbol:
+        if self.symbol != other.symbol:
             # There are cases where the electronegativity are exactly equal.
             # We then sort by symbol.
             return self.symbol < other.symbol
-        elif self.oxi_state:
+        if self.oxi_state:
             other_oxi = 0 if (isinstance(other, Element)
                               or other.oxi_state is None) else other.oxi_state
             return self.oxi_state < other_oxi
-        elif getattr(self, "spin", False):
+        if getattr(self, "spin", False):
             other_spin = getattr(other, "spin", 0)
             return self.spin < other_spin
-        else:
-            return False
+        return False
 
     @property
     def element(self):
@@ -1156,7 +1144,7 @@ class Specie(MSONable):
             warnings.warn("No default ionic radius for %s. Using hs data." %
                           self)
             return d["Ionic radii hs"][oxstr]
-        elif oxstr in d.get("Ionic radii ls", {}):
+        if oxstr in d.get("Ionic radii ls", {}):
             warnings.warn("No default ionic radius for %s. Using ls data." %
                           self)
             return d["Ionic radii ls"][oxstr]
@@ -1195,8 +1183,7 @@ class Specie(MSONable):
                 toks = m.group(4).replace(",", "").split("=")
                 properties = {toks[0]: float(toks[1])}
             return Specie(sym, oxi, properties)
-        else:
-            raise ValueError("Invalid Species String")
+        raise ValueError("Invalid Species String")
 
     def __repr__(self):
         return "Specie " + self.__str__()
@@ -1224,18 +1211,18 @@ class Specie(MSONable):
 
         quad_mom = self._el.nmr_quadrupole_moment
 
-        if len(quad_mom) == 0:
+        if not quad_mom:
             return 0.0
 
         if isotope is None:
             isotopes = list(quad_mom.keys())
             isotopes.sort(key=lambda x: int(x.split("-")[1]), reverse=False)
             return quad_mom.get(isotopes[0], 0.0)
-        else:
-            if isotope not in quad_mom:
-                raise ValueError("No quadrupole moment for isotope {}".format(
-                    isotope))
-            return quad_mom.get(isotope, 0.0)
+
+        if isotope not in quad_mom:
+            raise ValueError("No quadrupole moment for isotope {}".format(
+                isotope))
+        return quad_mom.get(isotope, 0.0)
 
     def get_shannon_radius(self, cn: str, spin: str = "",
                            radius_type: str = "ionic"):
@@ -1256,29 +1243,9 @@ class Specie(MSONable):
             Shannon radius for specie in the specified environment.
         """
         radii = self._el.data["Shannon radii"]
-        # if cn == 1:
-        #     cn_str = "I"
-        # elif cn == 2:
-        #     cn_str = "II"
-        # elif cn == 3:
-        #     cn_str = "III"
-        # elif cn == 4:
-        #     cn_str = "IV"
-        # elif cn == 5:
-        #     cn_str = "V"
-        # elif cn == 6:
-        #     cn_str = "VI"
-        # elif cn == 7:
-        #     cn_str = "VII"
-        # elif cn == 8:
-        #     cn_str = "VIII"
-        # elif cn == 9:
-        #     cn_str = "IX"
-        # else:
-        #     raise ValueError("Invalid coordination number")
-
-        if len(radii[str(int(self._oxi_state))][cn]) == 1:
-            k, data = list(radii[str(int(self._oxi_state))][cn].items())[0]
+        radii = radii[str(int(self._oxi_state))][cn]  # type: ignore
+        if len(radii) == 1:  # type: ignore
+            k, data = list(radii.items())[0]  # type: ignore
             if k != spin:
                 warnings.warn(
                     "Specified spin state of %s not consistent with database "
@@ -1286,7 +1253,7 @@ class Specie(MSONable):
                     "that value is returned." % (spin, k)
                 )
         else:
-            data = radii[str(int(self._oxi_state))][cn][spin]
+            data = radii[spin]
         return data["%s_radius" % radius_type]
 
     def get_crystal_field_spin(self, coordination: str = "oct",
@@ -1307,45 +1274,46 @@ class Specie(MSONable):
             an invalid oxidation state.
             ValueError if invalid coordination or spin_config.
         """
-        if coordination not in ("oct", "tet") or \
-                spin_config not in ("high", "low"):
+        if coordination not in ("oct", "tet") or spin_config not in ("high", "low"):
             raise ValueError("Invalid coordination or spin config.")
         elec = self.full_electronic_structure
         if len(elec) < 4 or elec[-1][1] != "s" or elec[-2][1] != "d":
             raise AttributeError(
-                "Invalid element {} for crystal field calculation.".format(
-                    self.symbol))
+                "Invalid element {} for crystal field calculation.".format(self.symbol))
         nelectrons = elec[-1][2] + elec[-2][2] - self.oxi_state
         if nelectrons < 0 or nelectrons > 10:
             raise AttributeError(
-                "Invalid oxidation state {} for element {}"
-                .format(self.oxi_state, self.symbol))
+                "Invalid oxidation state {} for element {}".format(self.oxi_state, self.symbol))
         if spin_config == "high":
-            return nelectrons if nelectrons <= 5 else 10 - nelectrons
-        elif spin_config == "low":
+            if nelectrons <= 5:
+                return nelectrons
+            return 10 - nelectrons
+        if spin_config == "low":
             if coordination == "oct":
                 if nelectrons <= 3:
                     return nelectrons
-                elif nelectrons <= 6:
+                if nelectrons <= 6:
                     return 6 - nelectrons
-                elif nelectrons <= 8:
+                if nelectrons <= 8:
                     return nelectrons - 6
-                else:
-                    return 10 - nelectrons
-            elif coordination == "tet":
+                return 10 - nelectrons
+            if coordination == "tet":
                 if nelectrons <= 2:
                     return nelectrons
-                elif nelectrons <= 4:
+                if nelectrons <= 4:
                     return 4 - nelectrons
-                elif nelectrons <= 7:
+                if nelectrons <= 7:
                     return nelectrons - 4
-                else:
-                    return 10 - nelectrons
+                return 10 - nelectrons
+        raise RuntimeError()
 
     def __deepcopy__(self, memo):
         return Specie(self.symbol, self.oxi_state, self._properties)
 
     def as_dict(self):
+        """
+        :return: Json-able dictionary representation.
+        """
         d = {"@module": self.__class__.__module__,
              "@class": self.__class__.__name__,
              "element": self.symbol,
@@ -1356,6 +1324,10 @@ class Specie(MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        :param d: Dict representation.
+        :return: Specie.
+        """
         return cls(d["element"], d["oxidation_state"],
                    d.get("properties", None))
 
@@ -1365,20 +1337,6 @@ class DummySpecie(Specie):
     A special specie for representing non-traditional elements or species. For
     example, representation of vacancies (charged or otherwise), or special
     sites, etc.
-
-    Args:
-        symbol (str): An assigned symbol for the dummy specie. Strict
-            rules are applied to the choice of the symbol. The dummy
-            symbol cannot have any part of first two letters that will
-            constitute an Element symbol. Otherwise, a composition may
-            be parsed wrongly. E.g., "X" is fine, but "Vac" is not
-            because Vac contains V, a valid Element.
-        oxidation_state (float): Oxidation state for dummy specie.
-            Defaults to zero.
-
-    .. attribute:: symbol
-
-        Symbol for the DummySpecie.
 
     .. attribute:: oxi_state
 
@@ -1397,8 +1355,21 @@ class DummySpecie(Specie):
         DummySpecie is always assigned an electronegativity of 0.
     """
 
-    def __init__(self, symbol: str = "X",
-                 oxidation_state: float = 0, properties: dict = None):
+    def __init__(self,
+                 symbol: str = "X",
+                 oxidation_state: float = 0,
+                 properties: dict = None):
+        """
+        Args:
+            symbol (str): An assigned symbol for the dummy specie. Strict
+                rules are applied to the choice of the symbol. The dummy
+                symbol cannot have any part of first two letters that will
+                constitute an Element symbol. Otherwise, a composition may
+                be parsed wrongly. E.g., "X" is fine, but "Vac" is not
+                because Vac contains V, a valid Element.
+            oxidation_state (float): Oxidation state for dummy specie.
+                Defaults to zero.
+        """
         for i in range(1, min(2, len(symbol)) + 1):
             if Element.is_valid_symbol(symbol[:i]):
                 raise ValueError("{} contains {}, which is a valid element "
@@ -1431,9 +1402,10 @@ class DummySpecie(Specie):
         """
         if not isinstance(other, DummySpecie):
             return False
-        return isinstance(other, Specie) and self.symbol == other.symbol \
-            and self.oxi_state == other.oxi_state \
-            and self._properties == other._properties
+        return (isinstance(other, Specie) and
+                self.symbol == other.symbol and
+                self.oxi_state == other.oxi_state and
+                self._properties == other._properties)
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -1445,16 +1417,15 @@ class DummySpecie(Specie):
         """
         if self.X != other.X:
             return self.X < other.X
-        elif self.symbol != other.symbol:
+        if self.symbol != other.symbol:
             # There are cases where the electronegativity are exactly equal.
             # We then sort by symbol.
             return self.symbol < other.symbol
-        else:
-            other_oxi = 0 if isinstance(other, Element) else other.oxi_state
-            return self.oxi_state < other_oxi
+        other_oxi = 0 if isinstance(other, Element) else other.oxi_state
+        return self.oxi_state < other_oxi
 
     @property
-    def Z(self):
+    def Z(self) -> int:
         """
         DummySpecie is always assigned an atomic number equal to the hash of
         the symbol. The expectation is that someone would be an actual dummy
@@ -1463,22 +1434,25 @@ class DummySpecie(Specie):
         return self.symbol.__hash__()
 
     @property
-    def oxi_state(self):
+    def oxi_state(self) -> float:
         """
         Oxidation state associated with DummySpecie
         """
         return self._oxi_state
 
     @property
-    def X(self):
+    def X(self) -> float:
         """
         DummySpecie is always assigned an electronegativity of 0. The effect of
         this is that DummySpecie are always sorted in front of actual Specie.
         """
-        return 0
+        return 0.0
 
     @property
-    def symbol(self):
+    def symbol(self) -> str:
+        """
+        :return: Symbol for DummySpecie.
+        """
         return self._symbol
 
     def __deepcopy__(self, memo):
@@ -1503,9 +1477,9 @@ class DummySpecie(Specie):
         if m:
             sym = m.group(1)
             if m.group(2) == "" and m.group(3) == "":
-                oxi = 0
+                oxi = 0.0
             else:
-                oxi = 1 if m.group(2) == "" else float(m.group(2))
+                oxi = 1.0 if m.group(2) == "" else float(m.group(2))
                 oxi = -oxi if m.group(3) == "-" else oxi
             properties = None
             if m.group(4):
@@ -1514,24 +1488,10 @@ class DummySpecie(Specie):
             return DummySpecie(sym, oxi, properties)
         raise ValueError("Invalid DummySpecies String")
 
-    @classmethod
-    def safe_from_composition(cls, comp: "Composition",
-                              oxidation_state: float = 0):
-        """
-        Returns a DummySpecie object that can be safely used
-        with (i.e. not present in) a given composition
-        """
-        # We don't want to add a DummySpecie with the same
-        # symbol as anything in the composition, even if the
-        # oxidation state is different
-        els = comp.element_composition.elements
-        for c in 'abcdfghijklmnopqrstuvwxyz':
-            if DummySpecie('X' + c) not in els:
-                return DummySpecie('X' + c, oxidation_state)
-        raise ValueError("All attempted DummySpecies already "
-                         "present in {}".format(comp))
-
     def as_dict(self):
+        """
+        :return: MSONAble dict representation.
+        """
         d = {"@module": self.__class__.__module__,
              "@class": self.__class__.__name__,
              "element": self.symbol,
@@ -1542,6 +1502,10 @@ class DummySpecie(Specie):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        :param d: Dict representation
+        :return: DummySpecie
+        """
         return cls(d["element"], d["oxidation_state"],
                    d.get("properties", None))
 

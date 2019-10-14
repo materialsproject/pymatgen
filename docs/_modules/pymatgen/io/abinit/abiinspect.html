@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.abinit.abiinspect &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.io.abinit.abiinspect &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -83,7 +82,7 @@
 
 <span class="sd">        The parser is very fragile and should be replaced by YAML.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1">#Example (SCF cycle, similar format is used for phonons):</span>
+    <span class="c1"># Example (SCF cycle, similar format is used for phonons):</span>
     <span class="c1">#</span>
     <span class="c1">#  iter   Etot(hartree)      deltaE(h)  residm     vres2</span>
     <span class="c1">#  ETOT  1  -8.8604027880849    -8.860E+00 2.458E-02 3.748E+00</span>
@@ -99,13 +98,14 @@
             <span class="n">fields</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="p">[])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">fields</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="c1">#print(line)</span>
+            <span class="c1"># print(line)</span>
             <span class="n">in_doc</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="k">if</span> <span class="n">in_doc</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="k">continue</span>
 
             <span class="c1"># End of the section.</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="p">:</span> <span class="k">break</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="p">:</span>
+                <span class="k">break</span>
 
             <span class="n">tokens</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">:]))</span>
             <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span>
@@ -127,23 +127,24 @@
     <span class="c1"># TODO</span>
     <span class="c1"># Figure out how to detect the type of calculations</span>
     <span class="c1"># without having to parse the input. Possible approach: YAML doc</span>
-    <span class="c1">#with YamlTokenizer(filepath) as r:</span>
+    <span class="c1"># with YamlTokenizer(filepath) as r:</span>
     <span class="c1">#    doc = r.next_doc_with_tag(&quot;!CalculationType&quot;)</span>
     <span class="c1">#    d = yaml.safe_load(doc.text_notag)</span>
     <span class="c1">#    calc_type = d[&quot;calculation_type&quot;]</span>
 
-    <span class="c1">#ctype2class = {</span>
+    <span class="c1"># ctype2class = {</span>
     <span class="c1">#    &quot;Ground State&quot;: GroundStateScfCycle,</span>
     <span class="c1">#    &quot;Phonon&quot;: PhononScfCycle,</span>
     <span class="c1">#    &quot;Relaxation&quot;: Relaxation,</span>
-    <span class="c1">#}</span>
-    <span class="c1">#obj = ctype2class.get(calc_type, None)</span>
+    <span class="c1"># }</span>
+    <span class="c1"># obj = ctype2class.get(calc_type, None)</span>
 
     <span class="n">obj</span> <span class="o">=</span> <span class="n">GroundStateScfCycle</span>
     <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span></div>
+
 
 <span class="c1"># Use log scale for these variables.</span>
 <span class="n">_VARS_SUPPORTING_LOGSCALE</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s2">&quot;residm&quot;</span><span class="p">,</span> <span class="s2">&quot;vres2&quot;</span><span class="p">,</span> <span class="s2">&quot;nres2&quot;</span><span class="p">])</span>
@@ -154,6 +155,7 @@
     <span class="s2">&quot;deltaE(Ha)&quot;</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="mf">1e-3</span><span class="p">,</span> <span class="o">+</span><span class="mf">1e-3</span><span class="p">),</span>
 <span class="p">}</span>
 
+
 <div class="viewcode-block" id="ScfCycle"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiinspect.html#pymatgen.io.abinit.abiinspect.ScfCycle">[docs]</a><span class="k">class</span> <span class="nc">ScfCycle</span><span class="p">(</span><span class="n">Mapping</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    It essentially consists of a dictionary mapping string</span>
@@ -163,6 +165,7 @@
 
 <span class="sd">        num_iterations: Number of iterations performed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fields</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="o">=</span> <span class="n">fields</span>
         <span class="n">all_lens</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">)</span> <span class="k">for</span> <span class="n">lst</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
@@ -356,6 +359,7 @@
 <span class="sd">        during the structural relaxation. A more powerful and detailed analysis</span>
 <span class="sd">        can be obtained by using the HIST.nc file.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cycles</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cycles</span> <span class="o">=</span> <span class="n">cycles</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num_iterations</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cycles</span><span class="p">)</span>
@@ -397,7 +401,8 @@
         <span class="n">cycles</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">scf_cycle</span> <span class="o">=</span> <span class="n">GroundStateScfCycle</span><span class="o">.</span><span class="n">from_stream</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">scf_cycle</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="k">break</span>
+            <span class="k">if</span> <span class="n">scf_cycle</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">break</span>
             <span class="n">cycles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">scf_cycle</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">cycles</span><span class="p">)</span> <span class="k">if</span> <span class="n">cycles</span> <span class="k">else</span> <span class="kc">None</span></div>
@@ -496,8 +501,9 @@
 
         <span class="k">return</span> <span class="n">fig</span></div></div>
 
+
 <span class="c1"># TODO</span>
-<span class="c1">#class HaydockIterations(Iterable):</span>
+<span class="c1"># class HaydockIterations(Iterable):</span>
 <span class="c1">#    &quot;&quot;&quot;This object collects info on the different steps of the Haydock technique used in the Bethe-Salpeter code&quot;&quot;&quot;</span>
 <span class="c1">#    @classmethod</span>
 <span class="c1">#    def from_file(cls, filepath):</span>
@@ -541,9 +547,8 @@
 <span class="c1">#        return fig</span>
 
 
-
 <span class="c1">##################</span>
-<span class="c1">## Yaml parsers.</span>
+<span class="c1"># Yaml parsers.</span>
 <span class="c1">##################</span>
 
 <div class="viewcode-block" id="YamlTokenizerError"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiinspect.html#pymatgen.io.abinit.abiinspect.YamlTokenizerError">[docs]</a><span class="k">class</span> <span class="nc">YamlTokenizerError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
@@ -626,7 +631,7 @@
 
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">linepos</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="c1">#print(i, line)</span>
+            <span class="c1"># print(i, line)</span>
 
             <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;---&quot;</span><span class="p">):</span>
                 <span class="c1"># Include only lines in the form:</span>
@@ -717,7 +722,7 @@
         <span class="n">d</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">text_notag</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="p">[</span><span class="n">AttrDict</span><span class="p">(</span><span class="o">**</span><span class="n">pert</span><span class="p">)</span> <span class="k">for</span> <span class="n">pert</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;irred_perts&quot;</span><span class="p">]]</span></div>
-        <span class="c1">#return d[&quot;irred_perts&quot;]</span>
+        <span class="c1"># return d[&quot;irred_perts&quot;]</span>
 
 
 <div class="viewcode-block" id="YamlDoc"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiinspect.html#pymatgen.io.abinit.abiinspect.YamlDoc">[docs]</a><span class="k">class</span> <span class="nc">YamlDoc</span><span class="p">:</span>
@@ -752,7 +757,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">text</span>
 
     <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">text</span> <span class="ow">and</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">lineno</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">lineno</span> <span class="ow">and</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">tag</span><span class="p">)</span>
@@ -805,7 +811,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -813,7 +819,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

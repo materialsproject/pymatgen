@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.abinit.pseudos &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.io.abinit.pseudos &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -63,7 +62,7 @@
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">defaultdict</span><span class="p">,</span> <span class="n">namedtuple</span>
 <span class="kn">from</span> <span class="nn">monty.collections</span> <span class="k">import</span> <span class="n">AttrDict</span><span class="p">,</span> <span class="n">Namespace</span>
 <span class="kn">from</span> <span class="nn">tabulate</span> <span class="k">import</span> <span class="n">tabulate</span>
-<span class="c1">#from monty.dev import deprecated</span>
+<span class="c1"># from monty.dev import deprecated</span>
 <span class="kn">from</span> <span class="nn">monty.functools</span> <span class="k">import</span> <span class="n">lazy_property</span>
 <span class="kn">from</span> <span class="nn">monty.itertools</span> <span class="k">import</span> <span class="n">iterator_from_slice</span>
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span><span class="p">,</span> <span class="n">MontyDecoder</span>
@@ -76,7 +75,6 @@
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;Pseudo&quot;</span><span class="p">,</span>
     <span class="s2">&quot;PseudoTable&quot;</span><span class="p">,</span>
@@ -85,6 +83,7 @@
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Matteo Giantomassi&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Matteo Giantomassi&quot;</span>
+
 
 <span class="c1"># Tools and helper functions.</span>
 
@@ -106,9 +105,11 @@
     <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fh</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">lineno</span> <span class="o">==</span> <span class="n">nlines</span><span class="p">:</span> <span class="k">break</span>
+            <span class="k">if</span> <span class="n">lineno</span> <span class="o">==</span> <span class="n">nlines</span><span class="p">:</span>
+                <span class="k">break</span>
             <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">lines</span>
+
 
 <span class="n">_l2str</span> <span class="o">=</span> <span class="p">{</span>
     <span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;s&quot;</span><span class="p">,</span>
@@ -162,12 +163,13 @@
         <span class="k">return</span> <span class="n">PseudoParser</span><span class="p">()</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">md5</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">md5</span> <span class="ow">and</span>
                 <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="vm">__class__</span> <span class="ow">and</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">Z</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">Z</span> <span class="ow">and</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">Z_val</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">Z_val</span> <span class="ow">and</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">l_max</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">l_max</span> <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">l_max</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">l_max</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
@@ -268,7 +270,7 @@
 <div class="viewcode-block" id="Pseudo.md5"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.md5">[docs]</a>    <span class="nd">@lazy_property</span>
     <span class="k">def</span> <span class="nf">md5</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;MD5 hash value.&quot;&quot;&quot;</span>
-        <span class="c1">#if self.has_dojo_report and &quot;md5&quot; in self.dojo_report: return self.dojo_report[&quot;md5&quot;]</span>
+        <span class="c1"># if self.has_dojo_report and &quot;md5&quot; in self.dojo_report: return self.dojo_report[&quot;md5&quot;]</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_md5</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Pseudo.compute_md5"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.compute_md5">[docs]</a>    <span class="k">def</span> <span class="nf">compute_md5</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -298,7 +300,7 @@
             <span class="n">l_max</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">l_max</span><span class="p">,</span>
             <span class="n">md5</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">md5</span><span class="p">,</span>
             <span class="n">filepath</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">,</span>
-            <span class="c1">#xc=self.xc.as_dict(),</span>
+            <span class="c1"># xc=self.xc.as_dict(),</span>
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="Pseudo.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
@@ -308,7 +310,7 @@
         <span class="c1"># Consistency test based on md5</span>
         <span class="k">if</span> <span class="s2">&quot;md5&quot;</span> <span class="ow">in</span> <span class="n">d</span> <span class="ow">and</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;md5&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">new</span><span class="o">.</span><span class="n">md5</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The md5 found in file does not agree with the one in dict</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="s2">&quot;Received </span><span class="si">%s</span><span class="se">\n</span><span class="s2">Computed </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;md5&quot;</span><span class="p">],</span> <span class="n">new</span><span class="o">.</span><span class="n">md5</span><span class="p">))</span>
+                             <span class="s2">&quot;Received </span><span class="si">%s</span><span class="se">\n</span><span class="s2">Computed </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;md5&quot;</span><span class="p">],</span> <span class="n">new</span><span class="o">.</span><span class="n">md5</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="n">new</span></div>
 
@@ -321,7 +323,8 @@
 <span class="sd">            tmpdir: If None, a new temporary directory is created and files are copied here</span>
 <span class="sd">                else tmpdir is used.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">import</span> <span class="nn">tempfile</span><span class="o">,</span> <span class="nn">shutil</span>
+        <span class="kn">import</span> <span class="nn">tempfile</span>
+        <span class="kn">import</span> <span class="nn">shutil</span>
         <span class="n">tmpdir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">()</span> <span class="k">if</span> <span class="n">tmpdir</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">tmpdir</span>
         <span class="n">new_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">basename</span><span class="p">)</span>
         <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">,</span> <span class="n">new_path</span><span class="p">)</span>
@@ -334,7 +337,8 @@
 
         <span class="c1"># Build new object and copy dojo_report if present.</span>
         <span class="n">new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">new_path</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_dojo_report</span><span class="p">:</span> <span class="n">new</span><span class="o">.</span><span class="n">dojo_report</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dojo_report</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_dojo_report</span><span class="p">:</span>
+            <span class="n">new</span><span class="o">.</span><span class="n">dojo_report</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dojo_report</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="n">new</span></div>
 
@@ -349,8 +353,8 @@
         <span class="n">root</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">root</span> <span class="o">+</span> <span class="s2">&quot;.djrepo&quot;</span>
         <span class="k">return</span> <span class="n">path</span>
-        <span class="c1">#if os.path.exists(path): return path</span>
-        <span class="c1">#return None</span>
+        <span class="c1"># if os.path.exists(path): return path</span>
+        <span class="c1"># return None</span>
 
 <div class="viewcode-block" id="Pseudo.hint_for_accuracy"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.hint_for_accuracy">[docs]</a>    <span class="k">def</span> <span class="nf">hint_for_accuracy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="s2">&quot;normal&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -403,7 +407,8 @@
         <span class="n">lattice</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
         <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">element</span><span class="p">],</span> <span class="n">coords</span><span class="o">=</span><span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ispaw</span> <span class="ow">and</span> <span class="n">pawecutdg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="n">pawecutdg</span> <span class="o">=</span> <span class="n">ecut</span> <span class="o">*</span> <span class="mi">4</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ispaw</span> <span class="ow">and</span> <span class="n">pawecutdg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">pawecutdg</span> <span class="o">=</span> <span class="n">ecut</span> <span class="o">*</span> <span class="mi">4</span>
         <span class="n">inp</span> <span class="o">=</span> <span class="n">gs_input</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">pseudos</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="p">],</span> <span class="n">ecut</span><span class="o">=</span><span class="n">ecut</span><span class="p">,</span> <span class="n">pawecutdg</span><span class="o">=</span><span class="n">pawecutdg</span><span class="p">,</span>
                        <span class="n">spin_mode</span><span class="o">=</span><span class="s2">&quot;unpolarized&quot;</span><span class="p">,</span> <span class="n">kppa</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="c1"># Add prtpsps = -1 to make Abinit print the PSPS.nc file and stop.</span>
@@ -460,7 +465,7 @@
 <span class="sd">    by the concrete classes representing PAW pseudopotentials.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1">#def nlcc_radius(self):</span>
+    <span class="c1"># def nlcc_radius(self):</span>
     <span class="c1">#    &quot;&quot;&quot;</span>
     <span class="c1">#    Radius at which the core charge vanish (i.e. cut-off in a.u.).</span>
     <span class="c1">#    Returns 0.0 if nlcc is not used.</span>
@@ -468,8 +473,8 @@
     <span class="c1">#    return 0.0</span>
     <span class="c1">#</span>
 
-    <span class="c1">#@property</span>
-    <span class="c1">#def has_nlcc(self):</span>
+    <span class="c1"># @property</span>
+    <span class="c1"># def has_nlcc(self):</span>
     <span class="c1">#    &quot;&quot;&quot;True if the pseudo is generated with non-linear core correction.&quot;&quot;&quot;</span>
     <span class="c1">#    return True</span>
 
@@ -488,6 +493,7 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An AbinitPseudo is a pseudopotential whose file contains an abinit header.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">header</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
@@ -533,8 +539,10 @@
         <span class="c1"># Treate ONCVPSP pseudos</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pspcod</span> <span class="o">==</span> <span class="mi">8</span><span class="p">:</span>
             <span class="n">switch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;extension_switch&quot;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">switch</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span> <span class="k">return</span> <span class="kc">False</span>
-            <span class="k">if</span> <span class="n">switch</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span> <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">switch</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="n">switch</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">True</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Don&#39;t know how to handle extension_switch: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">switch</span><span class="p">)</span>
 
         <span class="c1"># TODO Treat HGH HGHK pseudos</span>
@@ -545,6 +553,7 @@
 
 <span class="k">class</span> <span class="nc">NcAbinitPseudo</span><span class="p">(</span><span class="n">NcPseudo</span><span class="p">,</span> <span class="n">AbinitPseudo</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Norm-conserving pseudopotential in the Abinit format.&quot;&quot;&quot;</span>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">summary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_summary</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
@@ -578,7 +587,7 @@
     <span class="k">def</span> <span class="nf">paw_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_r_cut</span>
 
-    <span class="c1">#def orbitals(self):</span>
+    <span class="c1"># def orbitals(self):</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">supports_soc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -590,6 +599,7 @@
 <span class="sd">    Suggested value for the cutoff energy [Hartree units]</span>
 <span class="sd">    and the cutoff energy for the dense grid (only for PAW pseudos).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ecut</span><span class="p">,</span> <span class="n">pawecutdg</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ecut</span> <span class="o">=</span> <span class="n">ecut</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pawecutdg</span> <span class="o">=</span> <span class="n">ecut</span> <span class="k">if</span> <span class="n">pawecutdg</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">pawecutdg</span>
@@ -638,7 +648,8 @@
     <span class="n">kwargs</span> <span class="o">=</span> <span class="n">Namespace</span><span class="p">()</span>
 
     <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">nk</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">key_nums</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">nk</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">nk</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">continue</span>
         <span class="n">line</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
 
         <span class="n">tokens</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
@@ -664,6 +675,7 @@
 
 <span class="k">class</span> <span class="nc">AbinitHeader</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Dictionary whose keys can be also accessed as attributes.&quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="c1"># Default behaviour</span>
@@ -710,9 +722,9 @@
         <span class="s2">&quot;r2well&quot;</span><span class="p">:</span> <span class="n">_attr_desc</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
         <span class="s2">&quot;mmax&quot;</span><span class="p">:</span> <span class="n">_attr_desc</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
         <span class="c1"># Optional variables for non linear-core correction. HGH does not have it.</span>
-        <span class="s2">&quot;rchrg&quot;</span><span class="p">:</span> <span class="n">_attr_desc</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span>  <span class="nb">float</span><span class="p">),</span>  <span class="c1"># radius at which the core charge vanish (i.e. cut-off in a.u.)</span>
-        <span class="s2">&quot;fchrg&quot;</span><span class="p">:</span> <span class="n">_attr_desc</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span>  <span class="nb">float</span><span class="p">),</span>
-        <span class="s2">&quot;qchrg&quot;</span><span class="p">:</span> <span class="n">_attr_desc</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span>  <span class="nb">float</span><span class="p">),</span>
+        <span class="s2">&quot;rchrg&quot;</span><span class="p">:</span> <span class="n">_attr_desc</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>  <span class="c1"># radius at which the core charge vanish (i.e. cut-off in a.u.)</span>
+        <span class="s2">&quot;fchrg&quot;</span><span class="p">:</span> <span class="n">_attr_desc</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+        <span class="s2">&quot;qchrg&quot;</span><span class="p">:</span> <span class="n">_attr_desc</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
     <span class="p">}</span>
     <span class="k">del</span> <span class="n">_attr_desc</span>
 
@@ -860,7 +872,7 @@
                 <span class="n">tokens</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
                 <span class="n">pspcod</span><span class="p">,</span> <span class="n">pspxc</span><span class="p">,</span> <span class="n">lmax</span><span class="p">,</span> <span class="n">lloc</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">tokens</span><span class="p">[:</span><span class="mi">4</span><span class="p">])</span>
                 <span class="n">mmax</span><span class="p">,</span> <span class="n">r2well</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">tokens</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">6</span><span class="p">])</span>
-                <span class="c1">#if tokens[-1].strip() != &quot;pspcod,pspxc,lmax,lloc,mmax,r2well&quot;:</span>
+                <span class="c1"># if tokens[-1].strip() != &quot;pspcod,pspxc,lmax,lloc,mmax,r2well&quot;:</span>
                 <span class="c1">#    raise RuntimeError(&quot;%s: Invalid line\n %s&quot;  % (filename, line))</span>
 
                 <span class="n">lines</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span>
@@ -868,22 +880,23 @@
 
         <span class="c1"># TODO</span>
         <span class="c1"># Parse the section with the projectors.</span>
-        <span class="c1">#0   4.085   6.246    0   2.8786493        l,e99.0,e99.9,nproj,rcpsp</span>
-        <span class="c1">#.00000000    .0000000000    .0000000000    .00000000   rms,ekb1,ekb2,epsatm</span>
+        <span class="c1"># 0   4.085   6.246    0   2.8786493        l,e99.0,e99.9,nproj,rcpsp</span>
+        <span class="c1"># .00000000    .0000000000    .0000000000    .00000000   rms,ekb1,ekb2,epsatm</span>
         <span class="n">projectors</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">lmax</span><span class="o">+</span><span class="mi">1</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)):</span>
             <span class="n">line</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">idx</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="n">proj_info</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="p">,]</span>
+            <span class="k">if</span> <span class="n">idx</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">proj_info</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="p">,</span> <span class="p">]</span>
             <span class="k">if</span> <span class="n">idx</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">proj_info</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-                <span class="n">d</span> <span class="o">=</span> <span class="n">_dict_from_lines</span><span class="p">(</span><span class="n">proj_info</span><span class="p">,</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="n">_dict_from_lines</span><span class="p">(</span><span class="n">proj_info</span><span class="p">,</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>
                 <span class="n">projectors</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;l&quot;</span><span class="p">])]</span> <span class="o">=</span> <span class="n">d</span>
 
         <span class="c1"># Add the last line with info on nlcc.</span>
-        <span class="n">header</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">header</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
         <span class="n">summary</span> <span class="o">=</span> <span class="n">header</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-        <span class="n">header</span> <span class="o">=</span> <span class="n">_dict_from_lines</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="n">_dict_from_lines</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
 
         <span class="k">return</span> <span class="n">NcAbinitHeader</span><span class="p">(</span><span class="n">summary</span><span class="p">,</span> <span class="o">**</span><span class="n">header</span><span class="p">)</span>
 
@@ -908,7 +921,7 @@
         <span class="s2">&quot;lmn_size&quot;</span><span class="p">:</span> <span class="n">_attr_desc</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
         <span class="s2">&quot;orbitals&quot;</span><span class="p">:</span> <span class="n">_attr_desc</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="nb">list</span><span class="p">),</span>
         <span class="s2">&quot;number_of_meshes&quot;</span><span class="p">:</span> <span class="n">_attr_desc</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
-        <span class="s2">&quot;r_cut&quot;</span><span class="p">:</span> <span class="n">_attr_desc</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="c1"># r_cut(PAW) in the header</span>
+        <span class="s2">&quot;r_cut&quot;</span><span class="p">:</span> <span class="n">_attr_desc</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>  <span class="c1"># r_cut(PAW) in the header</span>
         <span class="s2">&quot;shape_type&quot;</span><span class="p">:</span> <span class="n">_attr_desc</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
         <span class="s2">&quot;rshape&quot;</span><span class="p">:</span> <span class="n">_attr_desc</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
     <span class="p">}</span>
@@ -1005,19 +1018,19 @@
         <span class="c1"># Parse orbitals and number of meshes.</span>
         <span class="n">header</span><span class="p">[</span><span class="s2">&quot;orbitals&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
         <span class="n">header</span><span class="p">[</span><span class="s2">&quot;number_of_meshes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">num_meshes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="c1">#print filename, header</span>
+        <span class="c1"># print filename, header</span>
 
         <span class="c1"># Skip meshes =</span>
-        <span class="n">lines</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">2</span><span class="o">+</span><span class="n">num_meshes</span><span class="p">:]</span>
-        <span class="c1">#for midx in range(num_meshes):</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">2</span> <span class="o">+</span> <span class="n">num_meshes</span><span class="p">:]</span>
+        <span class="c1"># for midx in range(num_meshes):</span>
         <span class="c1">#    l = midx + 1</span>
 
-        <span class="c1">#print lines[0]</span>
+        <span class="c1"># print lines[0]</span>
         <span class="n">header</span><span class="p">[</span><span class="s2">&quot;r_cut&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="c1">#print lines[1]</span>
+        <span class="c1"># print lines[1]</span>
         <span class="n">header</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_dict_from_lines</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;:&quot;</span><span class="p">))</span>
 
-        <span class="c1">#print(&quot;PAW header\n&quot;, header)</span>
+        <span class="c1"># print(&quot;PAW header\n&quot;, header)</span>
         <span class="k">return</span> <span class="n">PawAbinitHeader</span><span class="p">(</span><span class="n">summary</span><span class="p">,</span> <span class="o">**</span><span class="n">header</span><span class="p">)</span>
 
 
@@ -1039,20 +1052,21 @@
     <span class="n">ppdesc</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;ppdesc&quot;</span><span class="p">,</span> <span class="s2">&quot;pspcod name psp_type format&quot;</span><span class="p">)</span>
 
     <span class="c1"># TODO Recheck</span>
-    <span class="n">_PSPCODES</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span> <span class="p">{</span>
+    <span class="n">_PSPCODES</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">({</span>
         <span class="mi">1</span><span class="p">:</span> <span class="n">ppdesc</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;TM&quot;</span><span class="p">,</span> <span class="s2">&quot;NC&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
         <span class="mi">2</span><span class="p">:</span> <span class="n">ppdesc</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;GTH&quot;</span><span class="p">,</span> <span class="s2">&quot;NC&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
         <span class="mi">3</span><span class="p">:</span> <span class="n">ppdesc</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;HGH&quot;</span><span class="p">,</span> <span class="s2">&quot;NC&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
         <span class="mi">4</span><span class="p">:</span> <span class="n">ppdesc</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;Teter&quot;</span><span class="p">,</span> <span class="s2">&quot;NC&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-        <span class="c1">#5: ppdesc(5, &quot;NC&quot;,     , None),</span>
+        <span class="c1"># 5: ppdesc(5, &quot;NC&quot;,     , None),</span>
         <span class="mi">6</span><span class="p">:</span> <span class="n">ppdesc</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="s2">&quot;FHI&quot;</span><span class="p">,</span> <span class="s2">&quot;NC&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
         <span class="mi">7</span><span class="p">:</span> <span class="n">ppdesc</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="s2">&quot;PAW_abinit_text&quot;</span><span class="p">,</span> <span class="s2">&quot;PAW&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
         <span class="mi">8</span><span class="p">:</span> <span class="n">ppdesc</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="s2">&quot;ONCVPSP&quot;</span><span class="p">,</span> <span class="s2">&quot;NC&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-       <span class="mi">10</span><span class="p">:</span> <span class="n">ppdesc</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;HGHK&quot;</span><span class="p">,</span> <span class="s2">&quot;NC&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+        <span class="mi">10</span><span class="p">:</span> <span class="n">ppdesc</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;HGHK&quot;</span><span class="p">,</span> <span class="s2">&quot;NC&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
     <span class="p">})</span>
     <span class="k">del</span> <span class="n">ppdesc</span>
+
     <span class="c1"># renumber functionals from oncvpsp todo confrim that 3 is 2</span>
-    <span class="c1">#_FUNCTIONALS = {1: {&#39;n&#39;: 4, &#39;name&#39;: &#39;Wigner&#39;},</span>
+    <span class="c1"># _FUNCTIONALS = {1: {&#39;n&#39;: 4, &#39;name&#39;: &#39;Wigner&#39;},</span>
     <span class="c1">#                2: {&#39;n&#39;: 5, &#39;name&#39;: &#39;HL&#39;},</span>
     <span class="c1">#                3: {&#39;n&#39;: 2, &#39;name&#39;: &#39;PWCA&#39;},</span>
     <span class="c1">#                4: {&#39;n&#39;: 11, &#39;name&#39;: &#39;PBE&#39;}}</span>
@@ -1062,7 +1076,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_parsed_paths</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="c1"># List of files that could not been parsed.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_wrong_paths</span>  <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wrong_paths</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">def</span> <span class="nf">scan_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">exclude_exts</span><span class="o">=</span><span class="p">(),</span> <span class="n">exclude_fnames</span><span class="o">=</span><span class="p">()):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1078,7 +1092,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ext</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">exclude_exts</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">ext</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">):</span>
-                <span class="n">exclude_exts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span>  <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">ext</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="n">exclude_exts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">ext</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
 
         <span class="c1"># Exclude files depending on the extension.</span>
         <span class="n">paths</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1086,7 +1100,8 @@
             <span class="n">root</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
             <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">ext</span> <span class="ow">in</span> <span class="n">exclude_exts</span> <span class="ow">or</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">exclude_fnames</span> <span class="ow">or</span>
-                <span class="n">fname</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path</span><span class="p">)):</span> <span class="k">continue</span>
+                    <span class="n">fname</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path</span><span class="p">)):</span>
+                <span class="k">continue</span>
             <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
         <span class="n">pseudos</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1133,7 +1148,7 @@
                         <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
                         <span class="k">return</span> <span class="kc">None</span>
 
-                    <span class="c1">#if tokens[-1].strip().replace(&quot; &quot;,&quot;&quot;) not in [&quot;pspcod,pspxc,lmax,lloc,mmax,r2well&quot;,</span>
+                    <span class="c1"># if tokens[-1].strip().replace(&quot; &quot;,&quot;&quot;) not in [&quot;pspcod,pspxc,lmax,lloc,mmax,r2well&quot;,</span>
                     <span class="c1">#                              &quot;pspcod,pspxc,lmax,llocal,mmax,r2well&quot;]:</span>
                     <span class="c1">#    raise self.Error(&quot;%s: Invalid line\n %s&quot;  % (filename, line))</span>
                     <span class="c1">#    return None</span>
@@ -1145,13 +1160,13 @@
 
                     <span class="k">if</span> <span class="n">pspcod</span> <span class="o">==</span> <span class="mi">7</span><span class="p">:</span>
                         <span class="c1"># PAW -&gt; need to know the format pspfmt</span>
-                        <span class="n">tokens</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">lineno</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                        <span class="n">tokens</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">lineno</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
                         <span class="n">pspfmt</span><span class="p">,</span> <span class="n">creatorID</span> <span class="o">=</span> <span class="n">tokens</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
-                        <span class="c1">#if tokens[-1].strip() != &quot;pspfmt,creatorID&quot;:</span>
+                        <span class="c1"># if tokens[-1].strip() != &quot;pspfmt,creatorID&quot;:</span>
                         <span class="c1">#    raise self.Error(&quot;%s: Invalid line\n %s&quot; % (filename, line))</span>
                         <span class="c1">#    return None</span>
 
-                        <span class="n">ppdesc</span> <span class="o">=</span> <span class="n">ppdesc</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="nb">format</span> <span class="o">=</span> <span class="n">pspfmt</span><span class="p">)</span>
+                        <span class="n">ppdesc</span> <span class="o">=</span> <span class="n">ppdesc</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="n">pspfmt</span><span class="p">)</span>
 
                     <span class="k">return</span> <span class="n">ppdesc</span>
 
@@ -1204,7 +1219,7 @@
         <span class="k">return</span> <span class="n">pseudo</span>
 
 
-<span class="c1">#TODO use RadialFunction from pseudo_dojo.</span>
+<span class="c1"># TODO use RadialFunction from pseudo_dojo.</span>
 <span class="k">class</span> <span class="nc">RadialFunction</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;RadialFunction&quot;</span><span class="p">,</span> <span class="s2">&quot;mesh values&quot;</span><span class="p">)):</span>
     <span class="k">pass</span>
 
@@ -1222,7 +1237,7 @@
         <span class="c1"># Info on the atom.</span>
         <span class="n">atom_attrib</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;atom&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">attrib</span>
 
-        <span class="c1">#self._symbol = atom_attrib[&quot;symbol&quot;]</span>
+        <span class="c1"># self._symbol = atom_attrib[&quot;symbol&quot;]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_zatom</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">atom_attrib</span><span class="p">[</span><span class="s2">&quot;Z&quot;</span><span class="p">]))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">core</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">valence</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="p">[</span><span class="n">atom_attrib</span><span class="p">[</span><span class="s2">&quot;core&quot;</span><span class="p">],</span> <span class="n">atom_attrib</span><span class="p">[</span><span class="s2">&quot;valence&quot;</span><span class="p">]])</span>
 
@@ -1232,21 +1247,21 @@
 
         <span class="c1"># Old XML files do not define this field!</span>
         <span class="c1"># In this case we set the PAW radius to None.</span>
-        <span class="c1">#self._paw_radius = float(root.find(&quot;PAW_radius&quot;).attrib[&quot;rpaw&quot;])</span>
+        <span class="c1"># self._paw_radius = float(root.find(&quot;PAW_radius&quot;).attrib[&quot;rpaw&quot;])</span>
 
-        <span class="c1">#self.ae_energy = {k: float(v) for k,v in root.find(&quot;ae_energy&quot;).attrib.items()}</span>
+        <span class="c1"># self.ae_energy = {k: float(v) for k,v in root.find(&quot;ae_energy&quot;).attrib.items()}</span>
         <span class="n">pawr_element</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;PAW_radius&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_paw_radius</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">pawr_element</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_paw_radius</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">pawr_element</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;rpaw&quot;</span><span class="p">])</span>
 
-        <span class="c1">#&lt;valence_states&gt;</span>
+        <span class="c1"># &lt;valence_states&gt;</span>
         <span class="c1">#  &lt;state n=&quot;2&quot; l=&quot;0&quot; f=&quot;2&quot;  rc=&quot;1.10&quot; e=&quot;-0.6766&quot; id=&quot;N-2s&quot;/&gt;</span>
         <span class="c1">#  &lt;state n=&quot;2&quot; l=&quot;1&quot; f=&quot;3&quot;  rc=&quot;1.10&quot; e=&quot;-0.2660&quot; id=&quot;N-2p&quot;/&gt;</span>
         <span class="c1">#  &lt;state       l=&quot;0&quot;        rc=&quot;1.10&quot; e=&quot; 0.3234&quot; id=&quot;N-s1&quot;/&gt;</span>
         <span class="c1">#  &lt;state       l=&quot;1&quot;        rc=&quot;1.10&quot; e=&quot; 0.7340&quot; id=&quot;N-p1&quot;/&gt;</span>
         <span class="c1">#  &lt;state       l=&quot;2&quot;        rc=&quot;1.10&quot; e=&quot; 0.0000&quot; id=&quot;N-d1&quot;/&gt;</span>
-        <span class="c1">#&lt;/valence_states&gt;</span>
+        <span class="c1"># &lt;/valence_states&gt;</span>
         <span class="c1">#</span>
         <span class="c1"># The valence_states element contains several state elements.</span>
         <span class="c1"># For this setup, the first two lines describe bound eigenstates</span>
@@ -1260,7 +1275,7 @@
             <span class="n">attrib</span> <span class="o">=</span> <span class="n">AttrDict</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">attrib</span><span class="p">)</span>
             <span class="k">assert</span> <span class="n">attrib</span><span class="o">.</span><span class="n">id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">valence_states</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">valence_states</span><span class="p">[</span><span class="n">attrib</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">attrib</span>
-        <span class="c1">#print(self.valence_states)</span>
+        <span class="c1"># print(self.valence_states)</span>
 
         <span class="c1"># Parse the radial grids</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rad_grids</span> <span class="o">=</span> <span class="p">{}</span>
@@ -1329,7 +1344,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">eq</span> <span class="o">=</span> <span class="n">grid_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;eq&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="n">istart</span><span class="p">,</span> <span class="n">iend</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">grid_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;istart&quot;</span><span class="p">)),</span> <span class="nb">int</span><span class="p">(</span><span class="n">grid_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;iend&quot;</span><span class="p">))</span>
-        <span class="n">indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">istart</span><span class="p">,</span> <span class="n">iend</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">istart</span><span class="p">,</span> <span class="n">iend</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="n">eq</span> <span class="o">==</span> <span class="s1">&#39;r=a*exp(d*i)&#39;</span><span class="p">:</span>
             <span class="n">a</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">grid_params</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">grid_params</span><span class="p">[</span><span class="s1">&#39;d&#39;</span><span class="p">])</span>
@@ -1349,7 +1364,7 @@
 
         <span class="k">elif</span> <span class="n">eq</span> <span class="o">==</span> <span class="s1">&#39;r=(i/n+a)^5/a-a^4&#39;</span><span class="p">:</span>
             <span class="n">a</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">grid_params</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">grid_params</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">])</span>
-            <span class="n">mesh</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span> <span class="o">/</span> <span class="n">n</span> <span class="o">+</span> <span class="n">a</span><span class="p">)</span><span class="o">**</span><span class="mi">5</span> <span class="o">/</span> <span class="n">a</span> <span class="o">-</span> <span class="n">a</span><span class="o">**</span><span class="mi">4</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">]</span>
+            <span class="n">mesh</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span> <span class="o">/</span> <span class="n">n</span> <span class="o">+</span> <span class="n">a</span><span class="p">)</span> <span class="o">**</span> <span class="mi">5</span> <span class="o">/</span> <span class="n">a</span> <span class="o">-</span> <span class="n">a</span> <span class="o">**</span> <span class="mi">4</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">]</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Unknown grid type: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">eq</span><span class="p">)</span>
@@ -1390,7 +1405,7 @@
         <span class="n">ae_partial_waves</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">attrib</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_all_radfuncs</span><span class="p">(</span><span class="s2">&quot;ae_partial_wave&quot;</span><span class="p">):</span>
             <span class="n">state</span> <span class="o">=</span> <span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span>
-            <span class="c1">#val_state = self.valence_states[state]</span>
+            <span class="c1"># val_state = self.valence_states[state]</span>
             <span class="n">ae_partial_waves</span><span class="p">[</span><span class="n">state</span><span class="p">]</span> <span class="o">=</span> <span class="n">RadialFunction</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">ae_partial_waves</span>
@@ -1401,7 +1416,7 @@
         <span class="n">pseudo_partial_waves</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
         <span class="k">for</span> <span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">attrib</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_all_radfuncs</span><span class="p">(</span><span class="s2">&quot;pseudo_partial_wave&quot;</span><span class="p">):</span>
             <span class="n">state</span> <span class="o">=</span> <span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span>
-            <span class="c1">#val_state = self.valence_states[state]</span>
+            <span class="c1"># val_state = self.valence_states[state]</span>
             <span class="n">pseudo_partial_waves</span><span class="p">[</span><span class="n">state</span><span class="p">]</span> <span class="o">=</span> <span class="n">RadialFunction</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">pseudo_partial_waves</span>
@@ -1412,7 +1427,7 @@
         <span class="n">projector_functions</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
         <span class="k">for</span> <span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">attrib</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_all_radfuncs</span><span class="p">(</span><span class="s2">&quot;projector_function&quot;</span><span class="p">):</span>
             <span class="n">state</span> <span class="o">=</span> <span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span>
-            <span class="c1">#val_state = self.valence_states[state]</span>
+            <span class="c1"># val_state = self.valence_states[state]</span>
             <span class="n">projector_functions</span><span class="p">[</span><span class="n">state</span><span class="p">]</span> <span class="o">=</span> <span class="n">RadialFunction</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">projector_functions</span>
@@ -1424,7 +1439,7 @@
         <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_densities</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;PAW densities&quot;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_waves</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;PAW waves&quot;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_projectors</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;PAW projectors&quot;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="c1">#yield self.plot_potentials(title=&quot;potentials&quot;, show=False)</span>
+        <span class="c1"># yield self.plot_potentials(title=&quot;potentials&quot;, show=False)</span>
 
     <span class="nd">@add_fig_kwargs</span>
     <span class="k">def</span> <span class="nf">plot_densities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -1441,7 +1456,7 @@
 
         <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;r [Bohr]&#39;</span><span class="p">)</span>
-        <span class="c1">#ax.set_ylabel(&#39;density&#39;)</span>
+        <span class="c1"># ax.set_ylabel(&#39;density&#39;)</span>
 
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">den_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="s2">&quot;ae_core_density&quot;</span><span class="p">,</span> <span class="s2">&quot;pseudo_core_density&quot;</span><span class="p">]):</span>
             <span class="n">rden</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">den_name</span><span class="p">)</span>
@@ -1469,8 +1484,8 @@
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;r [Bohr]&quot;</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$r\phi,\, r\tilde\phi\, [Bohr]^{-\frac</span><span class="si">{1}{2}</span><span class="s2">}$&quot;</span><span class="p">)</span>
 
-        <span class="c1">#ax.axvline(x=self.paw_radius, linewidth=2, color=&#39;k&#39;, linestyle=&quot;--&quot;)</span>
-        <span class="c1">#ax.annotate(&quot;$r_c$&quot;, xy=(self.paw_radius + 0.1, 0.1))</span>
+        <span class="c1"># ax.axvline(x=self.paw_radius, linewidth=2, color=&#39;k&#39;, linestyle=&quot;--&quot;)</span>
+        <span class="c1"># ax.annotate(&quot;$r_c$&quot;, xy=(self.paw_radius + 0.1, 0.1))</span>
 
         <span class="k">for</span> <span class="n">state</span><span class="p">,</span> <span class="n">rfunc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pseudo_partial_waves</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rfunc</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="n">rfunc</span><span class="o">.</span><span class="n">mesh</span> <span class="o">*</span> <span class="n">rfunc</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;PS-WAVE: &quot;</span> <span class="o">+</span> <span class="n">state</span><span class="p">)</span>
@@ -1498,8 +1513,8 @@
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;r [Bohr]&#39;</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$r\tilde p\, [Bohr]^{-\frac</span><span class="si">{1}{2}</span><span class="s2">}$&quot;</span><span class="p">)</span>
 
-        <span class="c1">#ax.axvline(x=self.paw_radius, linewidth=2, color=&#39;k&#39;, linestyle=&quot;--&quot;)</span>
-        <span class="c1">#ax.annotate(&quot;$r_c$&quot;, xy=(self.paw_radius + 0.1, 0.1))</span>
+        <span class="c1"># ax.axvline(x=self.paw_radius, linewidth=2, color=&#39;k&#39;, linestyle=&quot;--&quot;)</span>
+        <span class="c1"># ax.annotate(&quot;$r_c$&quot;, xy=(self.paw_radius + 0.1, 0.1))</span>
 
         <span class="k">for</span> <span class="n">state</span><span class="p">,</span> <span class="n">rfunc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">projector_functions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rfunc</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="n">rfunc</span><span class="o">.</span><span class="n">mesh</span> <span class="o">*</span> <span class="n">rfunc</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;TPROJ: &quot;</span> <span class="o">+</span> <span class="n">state</span><span class="p">)</span>
@@ -1508,8 +1523,8 @@
 
         <span class="k">return</span> <span class="n">fig</span>
 
-    <span class="c1">#@add_fig_kwargs</span>
-    <span class="c1">#def plot_potentials(self, **kwargs):</span>
+    <span class="c1"># @add_fig_kwargs</span>
+    <span class="c1"># def plot_potentials(self, **kwargs):</span>
     <span class="c1">#    &quot;&quot;&quot;</span>
     <span class="c1">#        ================  ==============================================================</span>
     <span class="c1">#        kwargs            Meaning</span>
@@ -1566,12 +1581,14 @@
 <span class="sd">    print elements.isotope(&#39;Fe&#39;)</span>
 <span class="sd">    Fe</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="PseudoTable.as_table"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.as_table">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">as_table</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">items</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return an instance of :class:`PseudoTable` from the iterable items.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="bp">cls</span><span class="p">):</span> <span class="k">return</span> <span class="n">items</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="bp">cls</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">items</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">items</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PseudoTable.from_dir"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.from_dir">[docs]</a>    <span class="nd">@classmethod</span>
@@ -1606,7 +1623,8 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Creating PseudoTable with </span><span class="si">%i</span><span class="s1"> pseudopotentials&#39;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">pseudos</span><span class="p">))</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">exts</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="n">exts</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;psp8&quot;</span><span class="p">,)</span>
+            <span class="k">if</span> <span class="n">exts</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">exts</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;psp8&quot;</span><span class="p">,)</span>
 
             <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">find_exts</span><span class="p">(</span><span class="n">top</span><span class="p">,</span> <span class="n">exts</span><span class="p">,</span> <span class="n">exclude_dirs</span><span class="o">=</span><span class="n">exclude_dirs</span><span class="p">):</span>
                 <span class="k">try</span><span class="p">:</span>
@@ -1690,8 +1708,8 @@
         <span class="sd">&quot;&quot;&quot;Ordered list with the atomic numbers available in the table.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pseudos_with_z</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
 
-    <span class="c1">#def max_ecut_pawecutdg(self, accuracy):</span>
-    <span class="c1">#&quot;&quot;&quot;Return the maximum value of ecut and pawecutdg based on the hints available in the pseudos.&quot;&quot;&quot;</span>
+    <span class="c1"># def max_ecut_pawecutdg(self, accuracy):</span>
+    <span class="c1"># &quot;&quot;&quot;Return the maximum value of ecut and pawecutdg based on the hints available in the pseudos.&quot;&quot;&quot;</span>
     <span class="c1">#    ecut = max(p.hint_for_accuracy(accuracy=accuracy).ecut for p in self)</span>
     <span class="c1">#    pawecutdg = max(p.hint_for_accuracy(accuracy=accuracy).pawecutdg for p in self)</span>
     <span class="c1">#    return ecut, pawecutdg</span>
@@ -1724,7 +1742,8 @@
 <span class="sd">        True if table is complete i.e. all elements with Z &lt; zmax have at least on pseudopotential</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">z</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">zmax</span><span class="p">):</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="p">[</span><span class="n">z</span><span class="p">]:</span> <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="p">[</span><span class="n">z</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="kc">True</span></div>
 
 <div class="viewcode-block" id="PseudoTable.all_combinations_for_elements"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.all_combinations_for_elements">[docs]</a>    <span class="k">def</span> <span class="nf">all_combinations_for_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element_symbols</span><span class="p">):</span>
@@ -1806,9 +1825,11 @@
         <span class="n">pseudos</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">exclude</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">symbol</span> <span class="ow">in</span> <span class="n">symbols</span><span class="p">:</span> <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">symbol</span> <span class="ow">in</span> <span class="n">symbols</span><span class="p">:</span>
+                    <span class="k">continue</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">symbol</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">symbols</span><span class="p">:</span> <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">symbol</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">symbols</span><span class="p">:</span>
+                    <span class="k">continue</span>
 
             <span class="n">pseudos</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
 
@@ -1847,9 +1868,10 @@
         <span class="sd">&quot;&quot;&quot;Return string with data in tabular form.&quot;&quot;&quot;</span>
         <span class="n">table</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">filter_function</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">filter_function</span><span class="p">(</span><span class="n">p</span><span class="p">):</span> <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">filter_function</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">filter_function</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+                <span class="k">continue</span>
             <span class="n">table</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">p</span><span class="o">.</span><span class="n">basename</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">Z_val</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">l_max</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">l_local</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">xc</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">type</span><span class="p">])</span>
-        <span class="k">return</span> <span class="n">tabulate</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span> <span class="p">[</span><span class="s2">&quot;basename&quot;</span><span class="p">,</span> <span class="s2">&quot;symbol&quot;</span><span class="p">,</span> <span class="s2">&quot;Z_val&quot;</span><span class="p">,</span> <span class="s2">&quot;l_max&quot;</span><span class="p">,</span> <span class="s2">&quot;l_local&quot;</span><span class="p">,</span> <span class="s2">&quot;XC&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">],</span>
+        <span class="k">return</span> <span class="n">tabulate</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;basename&quot;</span><span class="p">,</span> <span class="s2">&quot;symbol&quot;</span><span class="p">,</span> <span class="s2">&quot;Z_val&quot;</span><span class="p">,</span> <span class="s2">&quot;l_max&quot;</span><span class="p">,</span> <span class="s2">&quot;l_local&quot;</span><span class="p">,</span> <span class="s2">&quot;XC&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">],</span>
                         <span class="n">tablefmt</span><span class="o">=</span><span class="s2">&quot;grid&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PseudoTable.sorted"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.sorted">[docs]</a>    <span class="k">def</span> <span class="nf">sorted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attrname</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -1894,7 +1916,8 @@
 <span class="sd">        Return new class:`PseudoTable` object with pseudos in the given rows of the periodic table.</span>
 <span class="sd">        rows can be either a int or a list of integers.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span> <span class="n">rows</span> <span class="o">=</span> <span class="p">[</span><span class="n">rows</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="n">rows</span> <span class="o">=</span> <span class="p">[</span><span class="n">rows</span><span class="p">]</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">([</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="PseudoTable.select_family"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.select_family">[docs]</a>    <span class="k">def</span> <span class="nf">select_family</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">family</span><span class="p">):</span>
@@ -1930,7 +1953,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1938,7 +1961,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

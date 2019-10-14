@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.ext.cod module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.ext.cod module &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -75,6 +74,7 @@ stipulated by the COD developers):</p>
 <em class="property">class </em><code class="sig-name descname">COD</code><a class="reference internal" href="_modules/pymatgen/ext/cod.html#COD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.cod.COD" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>An interface to the Crystallography Open Database.</p>
+<p>Blank __init__. No args required.</p>
 <dl class="method">
 <dt id="pymatgen.ext.cod.COD.get_cod_ids">
 <code class="sig-name descname">get_cod_ids</code><span class="sig-paren">(</span><em class="sig-param">formula</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/cod.html#COD.get_cod_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.cod.COD.get_cod_ids" title="Permalink to this definition">¶</a></dt>
@@ -130,8 +130,17 @@ be in the path.</p>
 
 <dl class="method">
 <dt id="pymatgen.ext.cod.COD.query">
-<code class="sig-name descname">query</code><span class="sig-paren">(</span><em class="sig-param">sql</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/cod.html#COD.query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.cod.COD.query" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">query</code><span class="sig-paren">(</span><em class="sig-param">sql: str</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/pymatgen/ext/cod.html#COD.query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.cod.COD.query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a query.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>sql</strong> – SQL string</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Response from SQL query.</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -173,13 +182,13 @@ be in the path.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

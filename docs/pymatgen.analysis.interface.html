@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.interface module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.analysis.interface module &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +43,7 @@
             
   <div class="section" id="module-pymatgen.analysis.interface">
 <span id="pymatgen-analysis-interface-module"></span><h1>pymatgen.analysis.interface module<a class="headerlink" href="#module-pymatgen.analysis.interface" title="Permalink to this headline">¶</a></h1>
+<p>This module provides classes to store, generate, and manipulate material interfaces.</p>
 <dl class="class">
 <dt id="pymatgen.analysis.interface.Interface">
 <em class="property">class </em><code class="sig-name descname">Interface</code><span class="sig-paren">(</span><em class="sig-param">lattice</em>, <em class="sig-param">species</em>, <em class="sig-param">coords</em>, <em class="sig-param">sub_plane</em>, <em class="sig-param">film_plane</em>, <em class="sig-param">sub_init_cell</em>, <em class="sig-param">film_init_cell</em>, <em class="sig-param">modified_sub_structure</em>, <em class="sig-param">modified_film_structure</em>, <em class="sig-param">strained_sub_structure</em>, <em class="sig-param">strained_film_structure</em>, <em class="sig-param">validate_proximity=False</em>, <em class="sig-param">coords_are_cartesian=False</em>, <em class="sig-param">init_inplane_shift=None</em>, <em class="sig-param">charge=None</em>, <em class="sig-param">site_properties=None</em>, <em class="sig-param">to_unit_cell=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface.html#Interface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface.Interface" title="Permalink to this definition">¶</a></dt>
@@ -112,25 +112,9 @@ is a * (first lattice vector) + b * (second lattice vector).</p>
 <dl class="method">
 <dt id="pymatgen.analysis.interface.Interface.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface.html#Interface.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface.Interface.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Dict representation of Structure.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>verbosity</strong> (<em>int</em>) – Verbosity level. Default of 1 includes both
-direct and cartesian coordinates for all sites, lattice
-parameters, etc. Useful for reading and for insertion into a
-database. Set to 0 for an extremely lightweight version
-that only includes sufficient information to reconstruct the
-object.</p></li>
-<li><p><strong>fmt</strong> (<em>str</em>) – Specifies a format for the dict. Defaults to None,
-which is the default format used in pymatgen. Other options
-include “abivars”.</p></li>
-<li><p><strong>**kwargs</strong> – Allow passing of other kwargs needed for certain</p></li>
-<li><p><strong>e.g.</strong><strong>, </strong><strong>&quot;abivars&quot;.</strong> (<em>formats</em><em>,</em>) – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>JSON serializable dict representation.</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>MSONable dict</p>
 </dd>
 </dl>
 </dd></dl>
@@ -173,14 +157,12 @@ site properties.</p>
 <dl class="method">
 <dt id="pymatgen.analysis.interface.Interface.from_dict">
 <em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface.html#Interface.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface.Interface.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reconstitute a Structure object from a dict representation of Structure
-created using as_dict().</p>
-<dl class="field-list simple">
+<dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dict representation of structure.</p>
+<dd class="field-odd"><p><strong>d</strong> – Dict representation</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Structure object</p>
+<dd class="field-even"><p>Interface</p>
 </dd>
 </dl>
 </dd></dl>
@@ -618,13 +600,13 @@ that matches a supercel of the film.)</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

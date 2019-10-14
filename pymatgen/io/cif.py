@@ -2,6 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Wrapper classes for Cif input and output from Structures.
+"""
 
 import math
 import re
@@ -29,10 +32,6 @@ from pymatgen.electronic_structure.core import Magmom
 from pymatgen.core.operations import MagSymmOp
 from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 
-"""
-Wrapper classes for Cif input and output from Structures.
-"""
-
 __author__ = "Shyue Ping Ong, Will Richards, Matthew Horton"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "4.0"
@@ -43,11 +42,9 @@ __date__ = "Sep 23, 2011"
 
 sub_spgrp = partial(re.sub, r"[\s_]", "")
 
-space_groups = {sub_spgrp(k): k
-                for k in SYMM_DATA['space_group_encoding'].keys()}
+space_groups = {sub_spgrp(k): k for k in SYMM_DATA['space_group_encoding'].keys()}  # type: ignore
 
-space_groups.update({sub_spgrp(k): k
-                     for k in SYMM_DATA['space_group_encoding'].keys()})
+space_groups.update({sub_spgrp(k): k for k in SYMM_DATA['space_group_encoding'].keys()})  # type: ignore
 
 _COD_DATA = None
 
@@ -66,15 +63,16 @@ def _get_cod_data():
 
 
 class CifBlock:
+    """
+    Object for storing cif data. All data is stored in a single dictionary.
+    Data inside loops are stored in lists in the data dictionary, and
+    information on which keys are grouped together are stored in the loops
+    attribute.
+    """
     maxlen = 70  # not quite 80 so we can deal with semicolons and things
 
     def __init__(self, data, loops, header):
         """
-        Object for storing cif data. All data is stored in a single dictionary.
-        Data inside loops are stored in lists in the data dictionary, and
-        information on which keys are grouped together are stored in the loops
-        attribute.
-
         Args:
             data: dict or OrderedDict of data to go into the cif. Values should
                     be convertible to string, or lists of these if the key is
@@ -199,6 +197,12 @@ class CifBlock:
 
     @classmethod
     def from_string(cls, string):
+        """
+        Reads CifBlock from string.
+
+        :param string: String representation.
+        :return: CifBlock
+        """
         q = cls._process_string(string)
         header = q.popleft()[0][5:]
         data = OrderedDict()
@@ -260,6 +264,12 @@ class CifFile:
 
     @classmethod
     def from_string(cls, string):
+        """
+        Reads CifFile from a string.
+
+        :param string: String representation.
+        :return: CifFile
+        """
         d = OrderedDict()
         for x in re.split(r"^\s*data_", "x\n" + string,
                           flags=re.MULTILINE | re.DOTALL)[1:]:
@@ -277,6 +287,12 @@ class CifFile:
 
     @classmethod
     def from_file(cls, filename):
+        """
+        Reads CifFile from a filename.
+
+        :param filename: Filename
+        :return: CifFile
+        """
         with zopen(str(filename), "rt", errors="replace") as f:
             return cls.from_string(f.read())
 
@@ -286,17 +302,18 @@ class CifParser:
     Parses a CIF file. Attempts to fix CIFs that are out-of-spec, but will
     issue warnings if corrections applied. These are also stored in the
     CifParser's errors attribute.
-
-    Args:
-        filename (str): CIF filename, bzipped or gzipped CIF files are fine too.
-        occupancy_tolerance (float): If total occupancy of a site is between 1
-            and occupancy_tolerance, the occupancies will be scaled down to 1.
-        site_tolerance (float): This tolerance is used to determine if two
-            sites are sitting in the same position, in which case they will be
-            combined to a single disordered site. Defaults to 1e-4.
     """
 
     def __init__(self, filename, occupancy_tolerance=1., site_tolerance=1e-4):
+        """
+        Args:
+            filename (str): CIF filename, bzipped or gzipped CIF files are fine too.
+            occupancy_tolerance (float): If total occupancy of a site is between 1
+                and occupancy_tolerance, the occupancies will be scaled down to 1.
+            site_tolerance (float): This tolerance is used to determine if two
+                sites are sitting in the same position, in which case they will be
+                combined to a single disordered site. Defaults to 1e-4.
+        """
         self._occupancy_tolerance = occupancy_tolerance
         self._site_tolerance = site_tolerance
         if isinstance(filename, (str, Path)):
@@ -616,7 +633,7 @@ class CifParser:
             angles = [str2float(data["_cell_angle_" + i])
                       for i in angle_strings]
             if not lattice_type:
-                return Lattice.from_lengths_and_angles(lengths, angles)
+                return Lattice.from_parameters(*lengths, *angles)
 
             else:
                 return getattr(Lattice, lattice_type)(*(lengths + angles))
@@ -712,7 +729,7 @@ class CifParser:
                                 warnings.warn(msg)
                                 self.warnings.append(msg)
                                 break
-                    except Exception as ex:
+                    except Exception:
                         continue
 
                     if symops:
@@ -1167,6 +1184,9 @@ class CifParser:
         return BibliographyData(entries).to_string(bib_format='bibtex')
 
     def as_dict(self):
+        """
+        :return: MSONable dict
+        """
         d = OrderedDict()
         for k, v in self._cif.data.items():
             d[k] = {}
@@ -1176,14 +1196,18 @@ class CifParser:
 
     @property
     def has_errors(self):
+        """
+        :return: Whether there are errors/warnings detected in CIF parsing.
+        """
         return len(self.warnings) > 0
 
 
 class CifWriter:
+    """
+    A wrapper around CifFile to write CIF files from pymatgen structures.
+    """
     def __init__(self, struct, symprec=None, write_magmoms=False):
         """
-        A wrapper around CifFile to write CIF files from pymatgen structures.
-
         Args:
             struct (Structure): structure to write
             symprec (float): If not none, finds the symmetry of the structure

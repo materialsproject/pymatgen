@@ -39,12 +39,12 @@ from .launcher import ScriptEditor
 from .qjobs import QueueJob
 
 import logging
+
 logger = logging.getLogger(__name__)
 
 __all__ = [
     "make_qadapter",
 ]
-
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -69,6 +69,7 @@ class MpiRunner:
     by the different MPI libraries. It's main task is handling the
     different syntax and options supported by the different mpirunners.
     """
+
     def __init__(self, name, type=None, options=""):
         """
         Args:
@@ -112,14 +113,14 @@ class MpiRunner:
                 raise NotImplementedError("type %s is not supported!" % self.type)
 
         elif basename == "runjob":
-            #runjob --ranks-per-node 2 --exp-env OMP_NUM_THREADS --exe $ABINIT < $STDIN > $STDOUT 2> $STDERR
-            #runjob -n 2 --exp-env=OMP_NUM_THREADS --exe $ABINIT < $STDIN > $STDOUT 2> $STDERR
+            # runjob --ranks-per-node 2 --exp-env OMP_NUM_THREADS --exe $ABINIT < $STDIN > $STDOUT 2> $STDERR
+            # runjob -n 2 --exp-env=OMP_NUM_THREADS --exe $ABINIT < $STDIN > $STDOUT 2> $STDERR
             # exe must be absolute path or relative to cwd.
             bg_size, rpn = qad.bgsize_rankspernode()
-            #num_opt = "-n " + str(qad.mpi_procs)
+            # num_opt = "-n " + str(qad.mpi_procs)
             num_opt = "--ranks-per-node " + str(rpn)
             cmd = " ".join([self.name, self.options, num_opt, "--exp-env OMP_NUM_THREADS",
-                           "--exe `which " + executable + "` ", stdin, stdout, stderr])
+                            "--exe `which " + executable + "` ", stdin, stdout, stderr])
         else:
             if qad.mpi_procs != 1:
                 raise ValueError("Cannot use mpi_procs > when mpi_runner basename=%s" % basename)
@@ -127,8 +128,8 @@ class MpiRunner:
 
         return cmd
 
-    #@property
-    #def has_mpirun(self):
+    # @property
+    # def has_mpirun(self):
     #    """True if we are running via mpirun, mpiexec ..."""
     #    return self.name in ("mpirun", "mpiexec", "srun", "runjob")
 
@@ -155,8 +156,10 @@ class OmpEnv(AttrDict):
     @classmethod
     def as_ompenv(cls, obj):
         """Convert an object into a OmpEnv"""
-        if isinstance(obj, cls): return obj
-        if obj is None: return cls()
+        if isinstance(obj, cls):
+            return obj
+        if obj is None:
+            return cls()
         return cls(**obj)
 
     def __init__(self, *args, **kwargs):
@@ -199,6 +202,7 @@ class Hardware:
           Each cpu core will be able to service a number of cpu threads, each having an independent instruction stream
           but sharing the cores memory controller and other logical units.
     """
+
     def __init__(self, **kwargs):
         self.num_nodes = int(kwargs.pop("num_nodes"))
         self.sockets_per_node = int(kwargs.pop("sockets_per_node"))
@@ -269,7 +273,8 @@ class _ExcludeNodesFile:
 
     def __init__(self):
         if not os.path.exists(self.FILEPATH):
-            if not os.path.exists(self.DIRPATH): os.makedirs(self.DIRPATH)
+            if not os.path.exists(self.DIRPATH):
+                os.makedirs(self.DIRPATH)
             with FileLock(self.FILEPATH):
                 with open(self.FILEPATH, "w") as fh:
                     json.dump({}, fh)
@@ -290,13 +295,15 @@ class _ExcludeNodesFile:
                     d["qname"] = nodes
                 json.dump(d, fh)
 
+
 _EXCL_NODES_FILE = _ExcludeNodesFile()
 
 
 def show_qparams(qtype, stream=sys.stdout):
     """Print to the given stream the template of the :class:`QueueAdapter` of type `qtype`."""
     for cls in all_subclasses(QueueAdapter):
-        if cls.QTYPE == qtype: return stream.write(cls.QTEMPLATE)
+        if cls.QTYPE == qtype:
+            return stream.write(cls.QTEMPLATE)
 
     raise ValueError("Cannot find class associated to qtype %s" % qtype)
 
@@ -471,7 +478,7 @@ limits:
                 try to run jobs on the qadapter with the highest priority if possible
         """
         # TODO
-        #task_classes
+        # task_classes
 
         # Make defensive copies so that we can change the values at runtime.
         kwargs = copy.deepcopy(kwargs)
@@ -560,7 +567,8 @@ limits:
             `ValueError` if errors.
         """
         # No validation for ShellAdapter.
-        if isinstance(self, ShellAdapter): return
+        if isinstance(self, ShellAdapter):
+            return
 
         # Parse the template so that we know the list of supported options.
         err_msg = ""
@@ -577,7 +585,7 @@ limits:
     def _parse_limits(self, d):
         # Time limits.
         self.set_timelimit(qu.timelimit_parser(d.pop("timelimit")))
-        tl_hard = d.pop("timelimit_hard",None)
+        tl_hard = d.pop("timelimit_hard", None)
         tl_hard = qu.timelimit_parser(tl_hard) if tl_hard is not None else self.timelimit
         self.set_timelimit_hard(tl_hard)
 
@@ -606,14 +614,16 @@ limits:
 
     def _parse_job(self, d):
         setup = d.pop("setup", None)
-        if is_string(setup): setup = [setup]
+        if is_string(setup):
+            setup = [setup]
         self.setup = setup[:] if setup is not None else []
 
         omp_env = d.pop("omp_env", None)
         self.omp_env = omp_env.copy() if omp_env is not None else {}
 
         modules = d.pop("modules", None)
-        if is_string(modules): modules = [modules]
+        if is_string(modules):
+            modules = [modules]
         self.modules = modules[:] if modules is not None else []
 
         shell_env = d.pop("shell_env", None)
@@ -630,11 +640,13 @@ limits:
             self.shell_runner = MpiRunner(self.shell_runner, options=shell_runner_options)
 
         pre_run = d.pop("pre_run", None)
-        if is_string(pre_run): pre_run = [pre_run]
+        if is_string(pre_run):
+            pre_run = [pre_run]
         self.pre_run = pre_run[:] if pre_run is not None else []
 
         post_run = d.pop("post_run", None)
-        if is_string(post_run): post_run = [post_run]
+        if is_string(post_run):
+            post_run = [post_run]
         self.post_run = post_run[:] if post_run is not None else []
 
         if d:
@@ -657,8 +669,9 @@ limits:
         lines = ["%s:%s" % (self.__class__.__name__, self.qname)]
         app = lines.append
         app("Hardware:\n" + str(self.hw))
-        #lines.extend(["qparams:\n", str(self.qparams)])
-        if self.has_omp: app(str(self.omp_env))
+        # lines.extend(["qparams:\n", str(self.qparams)])
+        if self.has_omp:
+            app(str(self.omp_env))
 
         return "\n".join(lines)
 
@@ -723,7 +736,7 @@ limits:
         """Deep copy of the object."""
         return copy.deepcopy(self)
 
-    def record_launch(self, queue_id): # retcode):
+    def record_launch(self, queue_id):  # retcode):
         """Save submission"""
         self.launches.append(
             AttrDict(queue_id=queue_id, mpi_procs=self.mpi_procs, omp_threads=self.omp_threads,
@@ -836,7 +849,7 @@ limits:
         # methods of TaskManager. Moreover, this hack should be performed somewhere else (this part should be
         # independent of abinit ... and if we want to have less memory than the average memory available per node, we
         # have to allow it!)
-        #if mem_mb <= self.min_mem_per_proc: mem_mb = self.min_mem_per_proc
+        # if mem_mb <= self.min_mem_per_proc: mem_mb = self.min_mem_per_proc
         self._mem_per_proc = int(mem_mb)
 
     def set_master_mem_overhead(self, mem_mb):
@@ -866,9 +879,12 @@ limits:
 
     def can_run_pconf(self, pconf):
         """True if the qadapter in principle is able to run the :class:`ParalConf` pconf"""
-        if not self.hint_cores >= pconf.num_cores >= self.min_cores: return False
-        if not self.hw.can_use_omp_threads(self.omp_threads): return False
-        if pconf.mem_per_proc > self.hw.mem_per_node: return False
+        if not self.hint_cores >= pconf.num_cores >= self.min_cores:
+            return False
+        if not self.hw.can_use_omp_threads(self.omp_threads):
+            return False
+        if pconf.mem_per_proc > self.hw.mem_per_node:
+            return False
         if self.allocation == "force_nodes" and pconf.num_cores % self.hw.cores_per_node != 0:
             return False
 
@@ -885,12 +901,13 @@ limits:
         in tight loops attempting to make message passing progress, effectively causing other processes to not get
         any CPU cycles (and therefore never make any progress)
         """
+
         class Distrib(namedtuple("Distrib", "num_nodes mpi_per_node exact")):
             pass
-            #@property
-            #def mem_per_node
+            # @property
+            # def mem_per_node
             #    return self.mpi_per_node * mem_per_proc
-            #def set_nodes(self, nodes):
+            # def set_nodes(self, nodes):
 
         hw = self.hw
 
@@ -902,7 +919,7 @@ limits:
         if mem_per_proc > hw.mem_per_node:
             raise self.Error(
                 "mem_per_proc > mem_per_node.\n Cannot distribute mpi_procs %d, omp_threads %d, mem_per_proc %s" %
-                             (mpi_procs, omp_threads, mem_per_proc))
+                (mpi_procs, omp_threads, mem_per_proc))
 
         # Try to use all then cores in the node.
         num_nodes, rest_cores = hw.divmod_node(mpi_procs, omp_threads)
@@ -911,13 +928,14 @@ limits:
             # One node is enough
             return Distrib(num_nodes=1, mpi_per_node=mpi_procs, exact=True)
 
-        if num_nodes == 0: num_nodes = 2
+        if num_nodes == 0:
+            num_nodes = 2
         mpi_per_node = mpi_procs // num_nodes
         if mpi_per_node * mem_per_proc <= hw.mem_per_node and rest_cores == 0:
             # Commensurate with nodes.
             return Distrib(num_nodes=num_nodes, mpi_per_node=mpi_per_node, exact=True)
 
-        #if mode == "block", "cyclic"
+        # if mode == "block", "cyclic"
 
         # Try first to pack MPI processors in a node as much as possible
         mpi_per_node = int(hw.mem_per_node / mem_per_proc)
@@ -931,20 +949,21 @@ limits:
         if (mpi_procs * omp_threads) % mpi_per_node != 0:
             # Have to reduce the number of MPI procs per node
             for mpi_per_node in reversed(range(1, mpi_per_node)):
-                if mpi_per_node > hw.cores_per_node: continue
+                if mpi_per_node > hw.cores_per_node:
+                    continue
                 num_nodes = (mpi_procs * omp_threads) // mpi_per_node
                 if (mpi_procs * omp_threads) % mpi_per_node == 0 and mpi_per_node * mem_per_proc <= hw.mem_per_node:
                     return Distrib(num_nodes=num_nodes, mpi_per_node=mpi_per_node, exact=False)
         else:
             raise self.Error("Cannot distribute mpi_procs %d, omp_threads %d, mem_per_proc %s" %
-                            (mpi_procs, omp_threads, mem_per_proc))
+                             (mpi_procs, omp_threads, mem_per_proc))
 
     def optimize_params(self, qnodes=None):
         """
         This method is called in get_subs_dict. Return a dict with parameters to be added to qparams
         Subclasses may provide a specialized version.
         """
-        #logger.debug("optimize_params of baseclass --> no optimization available!!!")
+        # logger.debug("optimize_params of baseclass --> no optimization available!!!")
         return {}
 
     def get_subs_dict(self, qnodes=None):
@@ -952,12 +971,12 @@ limits:
         Return substitution dict for replacements into the template
         Subclasses may want to customize this method.
         """
-        #d = self.qparams.copy()
+        # d = self.qparams.copy()
         d = self.qparams
         d.update(self.optimize_params(qnodes=qnodes))
         # clean null values
         subs_dict = {k: v for k, v in d.items() if v is not None}
-        #print("subs_dict:", subs_dict)
+        # print("subs_dict:", subs_dict)
         return subs_dict
 
     def _make_qheader(self, job_name, qout_path, qerr_path):
@@ -1069,7 +1088,8 @@ limits:
             raise self.Error('Cannot find script file located at: {}'.format(script_file))
 
         if self.num_launches == self.max_num_launches:
-            raise self.MaxNumLaunchesError("num_launches %s == max_num_launches %s" % (self.num_launches, self.max_num_launches))
+            raise self.MaxNumLaunchesError(
+                "num_launches %s == max_num_launches %s" % (self.num_launches, self.max_num_launches))
 
         # Call the concrete implementation.
         s = self._submit_to_queue(script_file)
@@ -1077,7 +1097,7 @@ limits:
 
         if s.qid is None:
             raise self.Error("Error in job submission with %s. file %s \n" %
-                            (self.__class__.__name__, script_file) +
+                             (self.__class__.__name__, script_file) +
                              "The error response reads:\n %s \n " % s.err +
                              "The out response reads:\n %s \n" % s.out)
 
@@ -1105,7 +1125,8 @@ limits:
         Args:
             username: (str) the username of the jobs to count (default is to autodetect)
         """
-        if username is None: username = getpass.getuser()
+        if username is None:
+            username = getpass.getuser()
         njobs, process = self._get_njobs_in_queue(username=username)
 
         if process is not None and process.returncode != 0:
@@ -1143,7 +1164,7 @@ limits:
         """
         base_increase = 2000
         old_mem = self.mem_per_proc
-        new_mem = old_mem + factor*base_increase
+        new_mem = old_mem + factor * base_increase
 
         if new_mem < self.hw.mem_per_node:
             self.set_mem_per_proc(new_mem)
@@ -1171,9 +1192,9 @@ limits:
         """
         # TODO : find a formula that works for all max_cores
         if self.max_cores > 40:
-          base_increase = 4 * int(self.max_cores / 40)
+            base_increase = 4 * int(self.max_cores / 40)
         else:
-          base_increase = 4
+            base_increase = 4
 
         new_cores = self.hint_cores + factor * base_increase
 
@@ -1189,7 +1210,7 @@ limits:
         """
         base_increase = int(self.timelimit_hard / 10)
 
-        new_time = self.timelimit + base_increase*factor
+        new_time = self.timelimit + base_increase * factor
         print('qadapter: trying to increase time')
         if new_time < self.timelimit_hard:
             self.set_timelimit(new_time)
@@ -1199,6 +1220,7 @@ limits:
         self.priority = -1
 
         raise self.Error("increasing time is not possible, the hard limit has been reached")
+
 
 ####################
 # Concrete classes #
@@ -1220,7 +1242,8 @@ $${qverbatim}
     def _submit_to_queue(self, script_file):
         # submit the job, return process and pid.
         process = Popen(("/bin/bash", script_file), stderr=PIPE)
-        return SubmitResults(qid=process.pid, out='no out in shell submission', err='no err in shell submission', process=process)
+        return SubmitResults(qid=process.pid, out='no out in shell submission', err='no err in shell submission',
+                             process=process)
 
     def _get_njobs_in_queue(self, username):
         return None, None
@@ -1282,7 +1305,7 @@ $${qverbatim}
         super().set_mem_per_proc(mem_mb)
         self.qparams["mem_per_cpu"] = self.mem_per_proc
         # Remove mem if it's defined.
-        #self.qparams.pop("mem", None)
+        # self.qparams.pop("mem", None)
 
     def set_timelimit(self, timelimit):
         super().set_timelimit(timelimit)
@@ -1299,10 +1322,10 @@ $${qverbatim}
                                   int(math.ceil(self.total_mem / self.hw.mem_per_node)))
         return params
 
-        #dist = self.distribute(self.mpi_procs, self.omp_threads, self.mem_per_proc)
-        ##print(dist)
+        # dist = self.distribute(self.mpi_procs, self.omp_threads, self.mem_per_proc)
+        # print(dist)
 
-        #if False and dist.exact:
+        # if False and dist.exact:
         #    # Can optimize parameters
         #    self.qparams["nodes"] = dist.num_nodes
         #    self.qparams.pop("ntasks", None)
@@ -1310,7 +1333,7 @@ $${qverbatim}
         #    self.qparams["cpus_per_task"] = self.omp_threads
         #    self.qparams["mem"] = dist.mpi_per_node * self.mem_per_proc
         #    self.qparams.pop("mem_per_cpu", None)
-        #else:
+        # else:
         #    # Delegate to slurm.
         #    self.qparams["ntasks"] = self.mpi_procs
         #    self.qparams.pop("nodes", None)
@@ -1318,7 +1341,7 @@ $${qverbatim}
         #    self.qparams["cpus_per_task"] = self.omp_threads
         #    self.qparams["mem_per_cpu"] = self.mem_per_proc
         #    self.qparams.pop("mem", None)
-        #return {}
+        # return {}
 
     def _submit_to_queue(self, script_file):
         """Submit a job script to the queue."""
@@ -1381,8 +1404,8 @@ class PbsProAdapter(QueueAdapter):
     """Adapter for PbsPro"""
     QTYPE = "pbspro"
 
-#PBS -l select=$${select}:ncpus=$${ncpus}:mem=$${mem}mb:mpiprocs=$${mpiprocs}:ompthreads=$${ompthreads}
-#PBS -l select=$${select}:ncpus=1:mem=$${mem}mb:mpiprocs=1:ompthreads=$${ompthreads}
+    # PBS -l select=$${select}:ncpus=$${ncpus}:mem=$${mem}mb:mpiprocs=$${mpiprocs}:ompthreads=$${ompthreads}
+    # PBS -l select=$${select}:ncpus=1:mem=$${mem}mb:mpiprocs=1:ompthreads=$${ompthreads}
 
     QTEMPLATE = """\
 #!/bin/bash
@@ -1414,7 +1437,7 @@ $${qverbatim}
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in megabytes"""
         super().set_mem_per_proc(mem_mb)
-        #self.qparams["mem"] = self.mem_per_proc
+        # self.qparams["mem"] = self.mem_per_proc
 
     def cancel(self, job_id):
         return os.system("qdel %d" % job_id)
@@ -1430,7 +1453,7 @@ $${qverbatim}
             * https://portal.ivec.org/docs/Supercomputers/PBS_Pro
         """
         hw, mem_per_proc = self.hw, int(self.mem_per_proc)
-        #dist = self.distribute(self.mpi_procs, self.omp_threads, mem_per_proc)
+        # dist = self.distribute(self.mpi_procs, self.omp_threads, mem_per_proc)
         """
         if self.pure_mpi:
             num_nodes, rest_cores = hw.divmod_node(self.mpi_procs, self.omp_threads)
@@ -1529,7 +1552,7 @@ $${qverbatim}
             raise ValueError("Wrong value of qnodes parameter : {}".format(self.qnodes))
 
     def _get_select_with_master_mem_overhead_shared(self, ret_dict=False, memory_policy='mem'):
-        chunk_master, ncpus_master, vmem_master, mpiprocs_master = 1, 1, self.mem_per_proc+self.master_mem_overhead, 1
+        chunk_master, ncpus_master, vmem_master, mpiprocs_master = 1, 1, self.mem_per_proc + self.master_mem_overhead, 1
         if self.mpi_procs > 1:
             chunks_slaves, ncpus_slaves, vmem_slaves, mpiprocs_slaves = self.mpi_procs - 1, 1, self.mem_per_proc, 1
             select_params = AttrDict(chunk_master=chunk_master, ncpus_master=ncpus_master,
@@ -1544,7 +1567,7 @@ $${qverbatim}
                 s = "{chunk_master}:ncpus={ncpus_master}:mem={vmem_master}mb:mpiprocs={mpiprocs_master}+" \
                     "{chunks_slaves}:ncpus={ncpus_slaves}:mem={vmem_slaves}mb:" \
                     "mpiprocs={mpiprocs_slaves}".format(**select_params)
-            tot_ncpus = chunk_master*ncpus_master + chunks_slaves*ncpus_slaves
+            tot_ncpus = chunk_master * ncpus_master + chunks_slaves * ncpus_slaves
             if tot_ncpus != self.mpi_procs:
                 raise ValueError('Total number of cpus is different from mpi_procs ...')
         else:
@@ -1562,7 +1585,7 @@ $${qverbatim}
 
     def _get_select_with_master_mem_overhead_exclusive(self, ret_dict=False, memory_policy='mem'):
         max_ncpus_master = min(self.hw.cores_per_node,
-                               int((self.hw.mem_per_node-self.mem_per_proc-self.master_mem_overhead)
+                               int((self.hw.mem_per_node - self.mem_per_proc - self.master_mem_overhead)
                                    / self.mem_per_proc) + 1)
         if max_ncpus_master >= self.mpi_procs:
             chunk, ncpus, mem, mpiprocs = 1, self.mpi_procs, self.hw.mem_per_node, self.mpi_procs
@@ -1572,11 +1595,11 @@ $${qverbatim}
             elif memory_policy == 'mem':
                 select_params = AttrDict(chunks=chunk, ncpus=ncpus, mpiprocs=mpiprocs, mem=int(mem))
                 s = "{chunks}:ncpus={ncpus}:mem={mem}mb:mpiprocs={mpiprocs}".format(**select_params)
-            tot_ncpus = chunk*ncpus
+            tot_ncpus = chunk * ncpus
         else:
-            ncpus_left = self.mpi_procs-max_ncpus_master
-            max_ncpus_per_slave_node = min(self.hw.cores_per_node, int(self.hw.mem_per_node/self.mem_per_proc))
-            nslaves_float = float(ncpus_left)/float(max_ncpus_per_slave_node)
+            ncpus_left = self.mpi_procs - max_ncpus_master
+            max_ncpus_per_slave_node = min(self.hw.cores_per_node, int(self.hw.mem_per_node / self.mem_per_proc))
+            nslaves_float = float(ncpus_left) / float(max_ncpus_per_slave_node)
             ncpus_per_slave = max_ncpus_per_slave_node
             mpiprocs_slaves = max_ncpus_per_slave_node
             chunk_master = 1
@@ -1585,17 +1608,17 @@ $${qverbatim}
             chunk_last_slave, ncpus_last_slave, mem_last_slave, mpiprocs_last_slave = None, None, None, None
             if nslaves_float > int(nslaves_float):
                 chunks_slaves = int(nslaves_float) + 1
-                pot_ncpus_all_slaves = chunks_slaves*ncpus_per_slave
-                if pot_ncpus_all_slaves >= self.mpi_procs-1:
+                pot_ncpus_all_slaves = chunks_slaves * ncpus_per_slave
+                if pot_ncpus_all_slaves >= self.mpi_procs - 1:
                     explicit_last_slave = True
-                    chunks_slaves = chunks_slaves-1
+                    chunks_slaves = chunks_slaves - 1
                     chunk_last_slave = 1
                     ncpus_master = 1
-                    ncpus_last_slave = self.mpi_procs - 1 - chunks_slaves*ncpus_per_slave
+                    ncpus_last_slave = self.mpi_procs - 1 - chunks_slaves * ncpus_per_slave
                     mem_last_slave = self.hw.mem_per_node
                     mpiprocs_last_slave = ncpus_last_slave
                 else:
-                    ncpus_master = self.mpi_procs-pot_ncpus_all_slaves
+                    ncpus_master = self.mpi_procs - pot_ncpus_all_slaves
                 if ncpus_master > max_ncpus_master:
                     raise ValueError('ncpus for the master node exceeds the maximum ncpus for the master ... this'
                                      'should not happen ...')
@@ -1632,7 +1655,8 @@ $${qverbatim}
                         "{chunks_slaves}:ncpus={ncpus_per_slave}:mem={mem_slaves}mb:mpiprocs={mpiprocs_slaves}+" \
                         "{chunk_last_slave}:ncpus={ncpus_last_slave}:mem={mem_last_slave}mb:" \
                         "mpiprocs={mpiprocs_last_slave}".format(**select_params)
-                tot_ncpus = chunk_master*ncpus_master+chunks_slaves*ncpus_per_slave+chunk_last_slave*ncpus_last_slave
+                tot_ncpus = chunk_master * ncpus_master + chunks_slaves * ncpus_per_slave + chunk_last_slave * \
+                    ncpus_last_slave
             else:
                 if memory_policy == 'vmem':
                     select_params = AttrDict(chunk_master=chunk_master, ncpus_master=ncpus_master,
@@ -1650,7 +1674,7 @@ $${qverbatim}
                     s = "{chunk_master}:ncpus={ncpus_master}:mem={mem_master}mb:mpiprocs={mpiprocs_master}+" \
                         "{chunks_slaves}:ncpus={ncpus_per_slave}:mem={mem_slaves}mb:" \
                         "mpiprocs={mpiprocs_slaves}".format(**select_params)
-                tot_ncpus = chunk_master*ncpus_master + chunks_slaves*ncpus_per_slave
+                tot_ncpus = chunk_master * ncpus_master + chunks_slaves * ncpus_per_slave
 
         if tot_ncpus != self.mpi_procs:
             raise ValueError('Total number of cpus is different from mpi_procs ...')
@@ -1668,11 +1692,13 @@ $${qverbatim}
                 select_params = AttrDict(chunks=chunks, ncpus=ncpus, mpiprocs=mpiprocs, mem=int(mem))
                 s = "{chunks}:ncpus={ncpus}:mem={mem}mb:mpiprocs={mpiprocs}".format(**select_params)
         else:
-            chunks, ncpus, mem, mpiprocs, ompthreads = self.mpi_procs, self.omp_threads, self.mem_per_proc, 1, self.omp_threads
+            chunks, ncpus, mem, mpiprocs, ompthreads = self.mpi_procs, self.omp_threads, self.mem_per_proc, 1, \
+                self.omp_threads
             if memory_policy == 'vmem':
                 select_params = AttrDict(chunks=chunks, ncpus=ncpus, mpiprocs=mpiprocs, vmem=int(mem),
                                          ompthreads=ompthreads)
-                s = "{chunks}:ncpus={ncpus}:vmem={vmem}mb:mpiprocs={mpiprocs}:ompthreads={ompthreads}".format(**select_params)
+                s = "{chunks}:ncpus={ncpus}:vmem={vmem}mb:mpiprocs={mpiprocs}:ompthreads={ompthreads}".format(
+                    **select_params)
             elif memory_policy == 'mem':
                 select_params = AttrDict(chunks=chunks, ncpus=ncpus, mpiprocs=mpiprocs, mem=int(mem),
                                          ompthreads=ompthreads)
@@ -1756,7 +1782,7 @@ $${qverbatim}
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in megabytes"""
         QueueAdapter.set_mem_per_proc(self, mem_mb)
-        #self.qparams["mem"] = self.mem_per_proc
+        # self.qparams["mem"] = self.mem_per_proc
 
     def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
@@ -1810,6 +1836,7 @@ class SGEAdapter(QueueAdapter):
 #$ -o $${_qout_path}
 $${qverbatim}
 """
+
     def set_qname(self, qname):
         super().set_qname(qname)
         if qname:
@@ -1923,8 +1950,8 @@ $${qverbatim}
 
     def set_mem_per_proc(self, mem_mb):
         super().set_mem_per_proc(mem_mb)
-        #TODO
-        #raise NotImplementedError("set_mem_per_cpu")
+        # TODO
+        # raise NotImplementedError("set_mem_per_cpu")
 
     def exclude_nodes(self, nodes):
         raise self.Error('qadapter failed to exclude nodes, not implemented yet in moad')
@@ -1965,11 +1992,11 @@ $${qverbatim}
         if process.returncode == 0:
             # parse the result
             # lines should have this form:
-            ##
-            ## active jobs: N  eligible jobs: M  blocked jobs: P
-            ##
-            ## Total job:  1
-            ##
+            #
+            # active jobs: N  eligible jobs: M  blocked jobs: P
+            #
+            # Total job:  1
+            #
             # Split the output string and return the last element.
             out = out.splitlines()[-1]
             njobs = int(out.split()[-1])
@@ -2010,16 +2037,16 @@ $${qverbatim}
         if qname:
             self.qparams["class"] = qname
 
-    #def set_mpi_procs(self, mpi_procs):
+    # def set_mpi_procs(self, mpi_procs):
     #    """Set the number of CPUs used for MPI."""
     #    super().set_mpi_procs(mpi_procs)
     #    #self.qparams["ntasks"] = mpi_procs
 
-    #def set_omp_threads(self, omp_threads):
+    # def set_omp_threads(self, omp_threads):
     #    super().set_omp_threads(omp_threads)
     #    #self.qparams["cpus_per_task"] = omp_threads
 
-    #def set_mem_per_proc(self, mem_mb):
+    # def set_mem_per_proc(self, mem_mb):
     #    """Set the memory per process in megabytes"""
     #    super().set_mem_per_proc(mem_mb)
     #    #self.qparams["mem_per_cpu"] = self.mem_per_proc
@@ -2033,19 +2060,19 @@ $${qverbatim}
         return os.system("llcancel %d" % job_id)
 
     def bgsize_rankspernode(self):
-	    """Return (bg_size, ranks_per_node) from mpi_procs and omp_threads."""
-	    bg_size = int(math.ceil((self.mpi_procs * self.omp_threads)/ self.hw.cores_per_node))
-	    bg_size = max(bg_size, 32) # TODO hardcoded
-	    ranks_per_node = int(math.ceil(self.mpi_procs / bg_size))
+        """Return (bg_size, ranks_per_node) from mpi_procs and omp_threads."""
+        bg_size = int(math.ceil((self.mpi_procs * self.omp_threads) / self.hw.cores_per_node))
+        bg_size = max(bg_size, 32)  # TODO hardcoded
+        ranks_per_node = int(math.ceil(self.mpi_procs / bg_size))
 
-	    return bg_size, ranks_per_node
+        return bg_size, ranks_per_node
 
     def optimize_params(self, qnodes=None):
         params = {}
         bg_size, rpn = self.bgsize_rankspernode()
         print("in optimize params")
-        print("mpi_procs:", self.mpi_procs, "omp_threads:",self.omp_threads)
-        print("bg_size:",bg_size,"ranks_per_node",rpn)
+        print("mpi_procs:", self.mpi_procs, "omp_threads:", self.omp_threads)
+        print("bg_size:", bg_size, "ranks_per_node", rpn)
 
         return {"bg_size": bg_size}
 
@@ -2063,7 +2090,7 @@ $${qverbatim}
         if process.returncode == 0:
             try:
                 # on JUQUEEN, output should of the form
-                #llsubmit: The job "juqueen1c1.zam.kfa-juelich.de.281506" has been submitted.
+                # llsubmit: The job "juqueen1c1.zam.kfa-juelich.de.281506" has been submitted.
                 token = out.split()[3]
                 s = token.split(".")[-1].replace('"', "")
                 queue_id = int(s)

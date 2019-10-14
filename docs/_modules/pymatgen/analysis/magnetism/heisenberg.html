@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.magnetism.heisenberg &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.analysis.magnetism.heisenberg &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -49,10 +48,15 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module implements a simple algorithm for extracting nearest neighbor</span>
+<span class="sd">exchange parameters by mapping low energy magnetic orderings to a Heisenberg</span>
+<span class="sd">model.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.magnetism</span> <span class="k">import</span> <span class="n">CollinearMagneticStructureAnalyzer</span><span class="p">,</span> <span class="n">Ordering</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.graphs</span> <span class="k">import</span> <span class="n">StructureGraph</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.local_env</span> <span class="k">import</span> <span class="n">MinimumDistanceNN</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="k">import</span> <span class="n">ElementComparator</span><span class="p">,</span> <span class="n">StructureMatcher</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
 
 <span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="k">import</span> <span class="n">dumpfn</span>
@@ -63,12 +67,7 @@
 
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">sys</span>
-
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This module implements a simple algorithm for extracting nearest neighbor</span>
-<span class="sd">exchange parameters by mapping low energy magnetic orderings to a Heisenberg</span>
-<span class="sd">model.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;ncfrey&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
@@ -79,9 +78,11 @@
 
 
 <div class="viewcode-block" id="HeisenbergMapper"><a class="viewcode-back" href="../../../../pymatgen.analysis.magnetism.heisenberg.html#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper">[docs]</a><span class="k">class</span> <span class="nc">HeisenbergMapper</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class to compute exchange parameters from low energy magnetic orderings.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ordered_structures</span><span class="p">,</span> <span class="n">energies</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.02</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Compute exchange parameters from low energy magnetic orderings.</span>
-
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Exchange parameters are computed by mapping to a classical Heisenberg</span>
 <span class="sd">        model. Strategy is the scheme for generating neighbors. Currently only</span>
 <span class="sd">        MinimumDistanceNN is implemented.</span>
@@ -420,7 +421,6 @@
             <span class="n">zeros</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="p">(</span><span class="n">ex_mat</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)]</span>
             <span class="k">if</span> <span class="kc">True</span> <span class="ow">in</span> <span class="n">zeros</span><span class="p">:</span>
                 <span class="n">c</span> <span class="o">=</span> <span class="n">ex_mat</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">zeros</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="kc">True</span><span class="p">)]</span>
-                <span class="n">len_zeros</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
                 <span class="n">ex_mat</span> <span class="o">=</span> <span class="n">ex_mat</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                 <span class="c1"># ex_mat = ex_mat.drop(ex_mat.tail(len_zeros).index)</span>
 
@@ -484,7 +484,6 @@
         <span class="n">mag_max</span> <span class="o">=</span> <span class="mf">0.001</span>
         <span class="n">fm_e_min</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">afm_e_min</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">afm_threshold</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># total magnetization &lt; threshold -&gt; AFM, not FiM</span>
 
         <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ordered_structures</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">):</span>
 
@@ -562,10 +561,8 @@
         <span class="c1"># afm_e *= n</span>
 
         <span class="n">magmoms</span> <span class="o">=</span> <span class="n">fm_struct</span><span class="o">.</span><span class="n">site_properties</span><span class="p">[</span><span class="s2">&quot;magmom&quot;</span><span class="p">]</span>
-        <span class="n">afm_magmoms</span> <span class="o">=</span> <span class="n">afm_struct</span><span class="o">.</span><span class="n">site_properties</span><span class="p">[</span><span class="s2">&quot;magmom&quot;</span><span class="p">]</span>
 
         <span class="n">m_avg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">m</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">magmoms</span><span class="p">])</span>
-        <span class="n">afm_m_avg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">m</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">afm_magmoms</span><span class="p">])</span>
 
         <span class="c1"># If m_avg for FM config is &lt; 1 we won&#39;t get sensibile results.</span>
         <span class="k">if</span> <span class="n">m_avg</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
@@ -642,9 +639,6 @@
 
         <span class="n">structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ordered_structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">sgraph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sgraphs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">unique_site_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unique_site_ids</span>
-        <span class="n">dists</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dists</span>
-        <span class="n">tol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span>
 
         <span class="n">igraph</span> <span class="o">=</span> <span class="n">StructureGraph</span><span class="o">.</span><span class="n">with_empty_graph</span><span class="p">(</span>
             <span class="n">structure</span><span class="p">,</span> <span class="n">edge_weight_name</span><span class="o">=</span><span class="s2">&quot;exchange_constant&quot;</span><span class="p">,</span> <span class="n">edge_weight_units</span><span class="o">=</span><span class="s2">&quot;meV&quot;</span>
@@ -662,9 +656,6 @@
             <span class="n">connections</span> <span class="o">=</span> <span class="n">sgraph</span><span class="o">.</span><span class="n">get_connected_sites</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">connections</span><span class="p">:</span>
                 <span class="n">jimage</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># relative integer coordinates of atom j</span>
-                <span class="n">dx</span> <span class="o">=</span> <span class="n">jimage</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">dy</span> <span class="o">=</span> <span class="n">jimage</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-                <span class="n">dz</span> <span class="o">=</span> <span class="n">jimage</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
                 <span class="n">j</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>  <span class="c1"># index of neighbor</span>
                 <span class="n">dist</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># i &lt;-&gt; j distance</span>
 
@@ -733,11 +724,14 @@
 
 
 <div class="viewcode-block" id="HeisenbergScreener"><a class="viewcode-back" href="../../../../pymatgen.analysis.magnetism.heisenberg.html#pymatgen.analysis.magnetism.heisenberg.HeisenbergScreener">[docs]</a><span class="k">class</span> <span class="nc">HeisenbergScreener</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class to clean and screen magnetic orderings.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structures</span><span class="p">,</span> <span class="n">energies</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Clean and screen magnetic orderings.</span>
-
-<span class="sd">        This class pre-processes magnetic orderings and energies for HeisenbergMapper. It prioritizes low-energy</span>
-<span class="sd">        orderings with large and localized magnetic moments.</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This class pre-processes magnetic orderings and energies for</span>
+<span class="sd">        HeisenbergMapper. It prioritizes low-energy orderings with large and</span>
+<span class="sd">        localized magnetic moments.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            structures (list): Structure objects with magnetic moments.</span>
@@ -746,7 +740,6 @@
 <span class="sd">        Attributes:</span>
 <span class="sd">            screened_structures (list): Sorted structures.</span>
 <span class="sd">            screened_energies (list): Sorted energies.</span>
-
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Cleanup</span>
@@ -843,9 +836,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">magmoms</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">site_properties</span><span class="p">[</span><span class="s2">&quot;magmom&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">structures</span><span class="p">]</span>
-        <span class="n">mean_mm</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="nb">abs</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">ms</span><span class="p">])</span> <span class="k">for</span> <span class="n">ms</span> <span class="ow">in</span> <span class="n">magmoms</span><span class="p">]</span>
-        <span class="n">max_mm</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">([</span><span class="nb">abs</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">ms</span><span class="p">])</span> <span class="k">for</span> <span class="n">ms</span> <span class="ow">in</span> <span class="n">magmoms</span><span class="p">]</span>
-        <span class="n">min_mm</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="nb">abs</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">ms</span><span class="p">])</span> <span class="k">for</span> <span class="n">ms</span> <span class="ow">in</span> <span class="n">magmoms</span><span class="p">]</span>
         <span class="n">n_below_1ub</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">([</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">ms</span> <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">ms</span> <span class="ow">in</span> <span class="n">magmoms</span><span class="p">]</span>
 
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
@@ -903,7 +893,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -911,7 +901,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

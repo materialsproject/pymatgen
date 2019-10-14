@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.molecular_orbitals &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.core.molecular_orbitals &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -49,15 +48,15 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module implements a MolecularOrbital class to represent band character in</span>
+<span class="sd">solids. Usefull for predicting PDOS character from structural information.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">chain</span><span class="p">,</span> <span class="n">combinations</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="k">import</span> <span class="n">Composition</span>
-
-<span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">This module implements a MolecularOrbital class to represent band character in</span>
-<span class="sd">solids. Usefull for predicting PDOS character from structural information.</span>
-<span class="sd">&#39;&#39;&#39;</span>
 
 
 <div class="viewcode-block" id="MolecularOrbitals"><a class="viewcode-back" href="../../../pymatgen.core.molecular_orbitals.html#pymatgen.core.molecular_orbitals.MolecularOrbitals">[docs]</a><span class="k">class</span> <span class="nc">MolecularOrbitals</span><span class="p">:</span>
@@ -110,9 +109,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">band_edges</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">obtain_band_edges</span><span class="p">()</span>
 
 <div class="viewcode-block" id="MolecularOrbitals.max_electronegativity"><a class="viewcode-back" href="../../../pymatgen.core.molecular_orbitals.html#pymatgen.core.molecular_orbitals.MolecularOrbitals.max_electronegativity">[docs]</a>    <span class="k">def</span> <span class="nf">max_electronegativity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        returns the maximum pairwise electronegativity difference</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">maximum</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">e1</span><span class="p">,</span> <span class="n">e2</span> <span class="ow">in</span> <span class="n">combinations</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
             <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">Element</span><span class="p">(</span><span class="n">e1</span><span class="p">)</span><span class="o">.</span><span class="n">X</span> <span class="o">-</span> <span class="n">Element</span><span class="p">(</span><span class="n">e2</span><span class="p">)</span><span class="o">.</span><span class="n">X</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">maximum</span><span class="p">:</span>
@@ -120,18 +119,18 @@
         <span class="k">return</span> <span class="n">maximum</span></div>
 
 <div class="viewcode-block" id="MolecularOrbitals.aos_as_list"><a class="viewcode-back" href="../../../pymatgen.core.molecular_orbitals.html#pymatgen.core.molecular_orbitals.MolecularOrbitals.aos_as_list">[docs]</a>    <span class="k">def</span> <span class="nf">aos_as_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a list of atomic orbitals, sorted from lowest to highest energy</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span>
             <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">aos</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">el</span><span class="p">])</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">]</span>
         <span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="MolecularOrbitals.obtain_band_edges"><a class="viewcode-back" href="../../../pymatgen.core.molecular_orbitals.html#pymatgen.core.molecular_orbitals.MolecularOrbitals.obtain_band_edges">[docs]</a>    <span class="k">def</span> <span class="nf">obtain_band_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Fill up the atomic orbitals with available electrons.</span>
 <span class="sd">        Return HOMO, LUMO, and whether it&#39;s a metal.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">orbitals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aos_as_list</span><span class="p">()</span>
         <span class="n">electrons</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">composition</span><span class="p">)</span><span class="o">.</span><span class="n">total_electrons</span>
         <span class="n">partial_filled</span> <span class="o">=</span> <span class="p">[]</span>
@@ -158,12 +157,7 @@
             <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                 <span class="n">lumo</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="k">if</span> <span class="n">homo</span> <span class="o">==</span> <span class="n">lumo</span><span class="p">:</span>
-            <span class="n">metal</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">metal</span> <span class="o">=</span> <span class="kc">False</span>
-
-        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;HOMO&#39;</span><span class="p">:</span> <span class="n">homo</span><span class="p">,</span> <span class="s1">&#39;LUMO&#39;</span><span class="p">:</span> <span class="n">lumo</span><span class="p">,</span> <span class="s1">&#39;metal&#39;</span><span class="p">:</span> <span class="n">metal</span><span class="p">}</span></div></div>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;HOMO&#39;</span><span class="p">:</span> <span class="n">homo</span><span class="p">,</span> <span class="s1">&#39;LUMO&#39;</span><span class="p">:</span> <span class="n">lumo</span><span class="p">,</span> <span class="s1">&#39;metal&#39;</span><span class="p">:</span> <span class="n">homo</span> <span class="o">==</span> <span class="n">lumo</span><span class="p">}</span></div></div>
 </pre></div>
 
           </div>
@@ -194,7 +188,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -202,7 +196,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

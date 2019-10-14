@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.electronic_structure.bandstructure module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.electronic_structure.bandstructure module &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +43,7 @@
             
   <div class="section" id="module-pymatgen.electronic_structure.bandstructure">
 <span id="pymatgen-electronic-structure-bandstructure-module"></span><h1>pymatgen.electronic_structure.bandstructure module<a class="headerlink" href="#module-pymatgen.electronic_structure.bandstructure" title="Permalink to this headline">¶</a></h1>
+<p>This module provides classes to define everything related to band structures.</p>
 <dl class="class">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructure">
 <em class="property">class </em><code class="sig-name descname">BandStructure</code><span class="sig-paren">(</span><em class="sig-param">kpoints</em>, <em class="sig-param">eigenvals</em>, <em class="sig-param">lattice</em>, <em class="sig-param">efermi</em>, <em class="sig-param">labels_dict=None</em>, <em class="sig-param">coords_are_cartesian=False</em>, <em class="sig-param">structure=None</em>, <em class="sig-param">projections=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure" title="Permalink to this definition">¶</a></dt>
@@ -175,7 +175,7 @@ object.</p>
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>“energy”: band gap energy
 “direct”: A boolean telling if the gap is direct or not
-“transition”: kpoint labels of the transition (e.g., “Gamma-X”)</p>
+“transition”: kpoint labels of the transition (e.g., “\Gamma-X”)</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p>A dict {“energy”,”direct”,”transition”}</p>
@@ -357,7 +357,7 @@ level crosses a band.</p>
 <em class="property">class </em><code class="sig-name descname">BandStructureSymmLine</code><span class="sig-paren">(</span><em class="sig-param">kpoints</em>, <em class="sig-param">eigenvals</em>, <em class="sig-param">lattice</em>, <em class="sig-param">efermi</em>, <em class="sig-param">labels_dict</em>, <em class="sig-param">coords_are_cartesian=False</em>, <em class="sig-param">structure=None</em>, <em class="sig-param">projections=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructureSymmLine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructureSymmLine" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.electronic_structure.bandstructure.BandStructure" title="pymatgen.electronic_structure.bandstructure.BandStructure"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.electronic_structure.bandstructure.BandStructure</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>This object stores band structures along selected (symmetry) lines in the
-Brillouin zone. We call the different symmetry lines (ex: Gamma to Z)
+Brillouin zone. We call the different symmetry lines (ex: \Gamma to Z)
 “branches”.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -449,7 +449,7 @@ branches.</p>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A list of dictionaries [{“name”,”start_index”,”end_index”,”index”}]
 indicating all branches in which the k_point is. It takes into
-account the fact that one kpoint (e.g., Gamma) can be in several
+account the fact that one kpoint (e.g., \Gamma) can be in several
 branches</p>
 </dd>
 </dl>
@@ -551,6 +551,35 @@ pymatgen.core.lattice.Lattice object</p>
 <dt id="pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine">
 <em class="property">class </em><code class="sig-name descname">LobsterBandStructureSymmLine</code><span class="sig-paren">(</span><em class="sig-param">kpoints</em>, <em class="sig-param">eigenvals</em>, <em class="sig-param">lattice</em>, <em class="sig-param">efermi</em>, <em class="sig-param">labels_dict</em>, <em class="sig-param">coords_are_cartesian=False</em>, <em class="sig-param">structure=None</em>, <em class="sig-param">projections=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#LobsterBandStructureSymmLine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.electronic_structure.bandstructure.BandStructureSymmLine" title="pymatgen.electronic_structure.bandstructure.BandStructureSymmLine"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.electronic_structure.bandstructure.BandStructureSymmLine</span></code></a></p>
+<p>Lobster subclass of BandStructure with customized functions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>kpoints</strong> – list of kpoint as numpy arrays, in frac_coords of the
+given lattice by default</p></li>
+<li><p><strong>eigenvals</strong> – dict of energies for spin up and spin down
+{Spin.up:[][],Spin.down:[][]}, the first index of the array
+[][] refers to the band and the second to the index of the
+kpoint. The kpoints are ordered according to the order of the
+kpoints array. If the band structure is not spin polarized, we
+only store one data set under Spin.up.</p></li>
+<li><p><strong>lattice</strong> – The reciprocal lattice.
+Pymatgen uses the physics convention of reciprocal lattice vectors
+WITH a 2*pi coefficient</p></li>
+<li><p><strong>efermi</strong> – fermi energy</p></li>
+<li><p><strong>label_dict</strong> – (dict) of {} this link a kpoint (in frac coords or
+cartesian coordinates depending on the coords).</p></li>
+<li><p><strong>coords_are_cartesian</strong> – Whether coordinates are cartesian.</p></li>
+<li><p><strong>structure</strong> – The crystal structure (as a pymatgen Structure object)
+associated with the band structure. This is needed if we
+provide projections to the band structure.</p></li>
+<li><p><strong>projections</strong> – dict of orbital projections as {spin: ndarray}. The
+indices of the ndarrayare [band_index, kpoint_index, orbital_index,
+ion_index].If the band structure is not spin polarized, we only
+store one data set under Spin.up.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine.apply_scissor">
 <code class="sig-name descname">apply_scissor</code><span class="sig-paren">(</span><em class="sig-param">new_band_gap</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#LobsterBandStructureSymmLine.apply_scissor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine.apply_scissor" title="Permalink to this definition">¶</a></dt>
@@ -704,13 +733,13 @@ the type of the list_bs objects)</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

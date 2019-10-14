@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.electronic_structure.plotter module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.electronic_structure.plotter module &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +43,7 @@
             
   <div class="section" id="module-pymatgen.electronic_structure.plotter">
 <span id="pymatgen-electronic-structure-plotter-module"></span><h1>pymatgen.electronic_structure.plotter module<a class="headerlink" href="#module-pymatgen.electronic_structure.plotter" title="Permalink to this headline">¶</a></h1>
+<p>This module implements plotter for DOS and band structure.</p>
 <dl class="class">
 <dt id="pymatgen.electronic_structure.plotter.BSDOSPlotter">
 <em class="property">class </em><code class="sig-name descname">BSDOSPlotter</code><span class="sig-paren">(</span><em class="sig-param">bs_projection='elements'</em>, <em class="sig-param">dos_projection='elements'</em>, <em class="sig-param">vb_energy_range=4</em>, <em class="sig-param">cb_energy_range=4</em>, <em class="sig-param">fixed_cb_energy=False</em>, <em class="sig-param">egrid_interval=1</em>, <em class="sig-param">font='Times New Roman'</em>, <em class="sig-param">axis_fontsize=20</em>, <em class="sig-param">tick_fontsize=15</em>, <em class="sig-param">legend_fontsize=14</em>, <em class="sig-param">bs_legend='best'</em>, <em class="sig-param">dos_legend='best'</em>, <em class="sig-param">rgb_legend=True</em>, <em class="sig-param">fig_size=(11</em>, <em class="sig-param">8.5)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/plotter.html#BSDOSPlotter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.BSDOSPlotter" title="Permalink to this definition">¶</a></dt>
@@ -792,13 +792,14 @@ with ‘eigs’ you get all the three directions.</p></li>
 <p>Class for plotting crystal orbital Hamilton populations (COHPs) or
 crystal orbital overlap populations (COOPs). It is modeled after the
 DosPlotter object.</p>
-<dl class="simple">
-<dt>Args/attributes:</dt><dd><dl class="simple">
-<dt>zero_at_efermi: Whether to shift all populations to have zero</dt><dd><p>energy at the Fermi level. Defaults to True.</p>
-</dd>
-<dt>are_coops: Switch to indicate that these are COOPs, not COHPs.</dt><dd><p>Defaults to False for COHPs.</p>
-</dd>
-</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>zero_at_efermi</strong> – Whether to shift all populations to have zero
+energy at the Fermi level. Defaults to True.</p></li>
+<li><p><strong>are_coops</strong> – Switch to indicate that these are COOPs, not COHPs.
+Defaults to False for COHPs.</p></li>
+</ul>
 </dd>
 </dl>
 <dl class="method">
@@ -1429,13 +1430,13 @@ and linewidth to 1.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

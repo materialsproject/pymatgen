@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.entries.compatibility &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.entries.compatibility &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -48,14 +47,17 @@
 <span></span><span class="c1"># coding: utf-8</span>
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
-
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module implements Compatibility corrections for mixing runs of different</span>
+<span class="sd">functionals.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">abc</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
-
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Sequence</span>
 <span class="kn">from</span> <span class="nn">monty.design_patterns</span> <span class="k">import</span> <span class="n">cached_class</span>
 <span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="k">import</span> <span class="n">loadfn</span>
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
@@ -64,10 +66,6 @@
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_analyzer</span> <span class="k">import</span> <span class="n">oxide_type</span><span class="p">,</span> <span class="n">sulfide_type</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This module implements Compatibility corrections for mixing runs of different</span>
-<span class="sd">functionals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">MODULE_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
 
@@ -84,12 +82,7 @@
 <span class="sd">    Exception class for Compatibility. Raised by attempting correction</span>
 <span class="sd">    on incompatible calculation</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span>
-
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">msg</span></div>
+    <span class="k">pass</span></div>
 
 
 <div class="viewcode-block" id="Correction"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Correction">[docs]</a><span class="k">class</span> <span class="nc">Correction</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
@@ -144,21 +137,22 @@
 <span class="sd">    using Materials Project parameters, this would look like</span>
 <span class="sd">    entry.parameters[&quot;potcar_symbols&quot;] = [&#39;PAW_PBE Fe_pv 06Sep2000&#39;,</span>
 <span class="sd">    &#39;PAW_PBE O 08Apr2002&#39;].</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        input_set: InputSet object used to generate the runs (used to check</span>
-<span class="sd">            for correct potcar symbols)</span>
-
-<span class="sd">        check_hash (bool): If true, uses the potcar hash to check for valid</span>
-<span class="sd">            potcars. If false, uses the potcar symbol (Less reliable).</span>
-<span class="sd">            Defaults to True</span>
-
-<span class="sd">    Raises:</span>
-<span class="sd">        ValueError if entry do not contain &quot;potcar_symbols&quot; key.</span>
-<span class="sd">        CombatibilityError if wrong potcar symbols</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_set</span><span class="p">,</span> <span class="n">check_hash</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            input_set: InputSet object used to generate the runs (used to check</span>
+<span class="sd">                for correct potcar symbols)</span>
+
+<span class="sd">            check_hash (bool): If true, uses the potcar hash to check for valid</span>
+<span class="sd">                potcars. If false, uses the potcar symbol (Less reliable).</span>
+<span class="sd">                Defaults to True</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError if entry do not contain &quot;potcar_symbols&quot; key.</span>
+<span class="sd">            CombatibilityError if wrong potcar symbols</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">potcar_settings</span> <span class="o">=</span> <span class="n">input_set</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">[</span><span class="s2">&quot;POTCAR&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">potcar_settings</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
                       <span class="nb">dict</span><span class="p">):</span>
@@ -179,8 +173,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">input_set</span> <span class="o">=</span> <span class="n">input_set</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_hash</span> <span class="o">=</span> <span class="n">check_hash</span>
 
-<div class="viewcode-block" id="PotcarCorrection.get_correction"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.PotcarCorrection.get_correction">[docs]</a>    <span class="k">def</span> <span class="nf">get_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
-
+<div class="viewcode-block" id="PotcarCorrection.get_correction"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.PotcarCorrection.get_correction">[docs]</a>    <span class="k">def</span> <span class="nf">get_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param entry: A ComputedEntry/ComputedStructureEntry</span>
+<span class="sd">        :return: Correction.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_hash</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;potcar_spec&quot;</span><span class="p">):</span>
                 <span class="n">psp_settings</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;hash&quot;</span><span class="p">)</span>
@@ -213,17 +210,22 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Correct gas energies to obtain the right formation energies. Note that</span>
 <span class="sd">    this depends on calculations being run within the same input set.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        config_file: Path to the selected compatibility.yaml config file.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            config_file: Path to the selected compatibility.yaml config file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;Name&#39;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cpd_energies</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;Advanced&#39;</span><span class="p">][</span><span class="s1">&#39;CompoundEnergies&#39;</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">get_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param entry: A ComputedEntry/ComputedStructureEntry</span>
+<span class="sd">        :return: Correction.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">comp</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">composition</span>
 
         <span class="n">rform</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span>
@@ -242,14 +244,15 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Correct anion energies to obtain the right formation energies. Note that</span>
 <span class="sd">    this depends on calculations being run within the same input set.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        config_file: Path to the selected compatibility.yaml config file.</span>
-<span class="sd">        correct_peroxide: Specify whether peroxide/superoxide/ozonide</span>
-<span class="sd">            corrections are to be applied or not.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_file</span><span class="p">,</span> <span class="n">correct_peroxide</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            config_file: Path to the selected compatibility.yaml config file.</span>
+<span class="sd">            correct_peroxide: Specify whether peroxide/superoxide/ozonide</span>
+<span class="sd">                corrections are to be applied or not.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">oxide_correction</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;OxideCorrections&#39;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sulfide_correction</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;SulfideCorrections&#39;</span><span class="p">,</span> <span class="n">defaultdict</span><span class="p">(</span>
@@ -257,7 +260,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;Name&#39;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">correct_peroxide</span> <span class="o">=</span> <span class="n">correct_peroxide</span>
 
-    <span class="k">def</span> <span class="nf">get_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param entry: A ComputedEntry/ComputedStructureEntry</span>
+<span class="sd">        :return: Correction.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">comp</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">composition</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">comp</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># Skip element entry</span>
             <span class="k">return</span> <span class="mi">0</span>
@@ -328,17 +335,22 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class implements aqueous phase compound corrections for elements</span>
 <span class="sd">    and H2O.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        config_file: Path to the selected compatibility.yaml config file.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            config_file: Path to the selected compatibility.yaml config file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cpd_energies</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;AqueousCompoundEnergies&#39;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;Name&quot;</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">get_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param entry: A ComputedEntry/ComputedStructureEntry</span>
+<span class="sd">        :return: Correction.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">comp</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">composition</span>
         <span class="n">rform</span> <span class="o">=</span> <span class="n">comp</span><span class="o">.</span><span class="n">reduced_formula</span>
         <span class="n">cpdenergies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cpd_energies</span>
@@ -371,17 +383,6 @@
 <span class="sd">    pymatgen.apps.borg package and obtained via the MaterialsProject REST</span>
 <span class="sd">    interface using the pymatgen.matproj.rest package will automatically have</span>
 <span class="sd">    these fields populated.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        config_file: Path to the selected compatibility.yaml config file.</span>
-<span class="sd">        input_set: InputSet object (to check for the +U settings)</span>
-<span class="sd">        compat_type: Two options, GGA or Advanced.  GGA means all GGA+U</span>
-<span class="sd">            entries are excluded.  Advanced means mixing scheme is</span>
-<span class="sd">            implemented to make entries compatible with each other,</span>
-<span class="sd">            but entries which are supposed to be done in GGA+U will have the</span>
-<span class="sd">            equivalent GGA entries excluded. For example, Fe oxides should</span>
-<span class="sd">            have a U value under the Advanced scheme. A GGA Fe oxide run</span>
-<span class="sd">            will therefore be excluded under the scheme.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">common_peroxides</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Li2O2&quot;</span><span class="p">,</span> <span class="s2">&quot;Na2O2&quot;</span><span class="p">,</span> <span class="s2">&quot;K2O2&quot;</span><span class="p">,</span> <span class="s2">&quot;Cs2O2&quot;</span><span class="p">,</span> <span class="s2">&quot;Rb2O2&quot;</span><span class="p">,</span> <span class="s2">&quot;BeO2&quot;</span><span class="p">,</span>
                         <span class="s2">&quot;MgO2&quot;</span><span class="p">,</span> <span class="s2">&quot;CaO2&quot;</span><span class="p">,</span> <span class="s2">&quot;SrO2&quot;</span><span class="p">,</span> <span class="s2">&quot;BaO2&quot;</span><span class="p">]</span>
@@ -389,6 +390,18 @@
     <span class="n">ozonides</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;LiO3&quot;</span><span class="p">,</span> <span class="s2">&quot;NaO3&quot;</span><span class="p">,</span> <span class="s2">&quot;KO3&quot;</span><span class="p">,</span> <span class="s2">&quot;NaO5&quot;</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_file</span><span class="p">,</span> <span class="n">input_set</span><span class="p">,</span> <span class="n">compat_type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            config_file: Path to the selected compatibility.yaml config file.</span>
+<span class="sd">            input_set: InputSet object (to check for the +U settings)</span>
+<span class="sd">            compat_type: Two options, GGA or Advanced.  GGA means all GGA+U</span>
+<span class="sd">                entries are excluded.  Advanced means mixing scheme is</span>
+<span class="sd">                implemented to make entries compatible with each other,</span>
+<span class="sd">                but entries which are supposed to be done in GGA+U will have the</span>
+<span class="sd">                equivalent GGA entries excluded. For example, Fe oxides should</span>
+<span class="sd">                have a U value under the Advanced scheme. A GGA Fe oxide run</span>
+<span class="sd">                will therefore be excluded under the scheme.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">compat_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;GGA&#39;</span><span class="p">,</span> <span class="s1">&#39;Advanced&#39;</span><span class="p">]:</span>
             <span class="k">raise</span> <span class="n">CompatibilityError</span><span class="p">(</span><span class="s2">&quot;Invalid compat_type </span><span class="si">{}</span><span class="s2">&quot;</span>
                                      <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">compat_type</span><span class="p">))</span>
@@ -406,7 +419,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;Name&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">compat_type</span> <span class="o">=</span> <span class="n">compat_type</span>
 
-    <span class="k">def</span> <span class="nf">get_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param entry: A ComputedEntry/ComputedStructureEntry</span>
+<span class="sd">        :return: Correction.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;run_type&quot;</span><span class="p">,</span> <span class="s2">&quot;GGA&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;HF&quot;</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">CompatibilityError</span><span class="p">(</span><span class="s1">&#39;Invalid run type&#39;</span><span class="p">)</span>
 
@@ -445,12 +462,13 @@
 <span class="sd">    with PotcarCorrection(&quot;MP&quot;) (similarly with &quot;MIT&quot;). Typically,</span>
 <span class="sd">    you should use the specific MaterialsProjectCompatibility and</span>
 <span class="sd">    MITCompatibility subclasses instead.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        corrections: List of corrections to apply.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">corrections</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">corrections</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            corrections: List of corrections to apply.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">corrections</span> <span class="o">=</span> <span class="n">corrections</span>
 
 <div class="viewcode-block" id="Compatibility.process_entry"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Compatibility.process_entry">[docs]</a>    <span class="k">def</span> <span class="nf">process_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
@@ -570,22 +588,23 @@
 <span class="sd">    MaterialsProject parameters (see pymatgen.io.vaspio_set.MPVaspInputSet).</span>
 <span class="sd">    Using this compatibility scheme on runs with different parameters is not</span>
 <span class="sd">    valid.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        compat_type: Two options, GGA or Advanced.  GGA means all GGA+U</span>
-<span class="sd">            entries are excluded.  Advanced means mixing scheme is</span>
-<span class="sd">            implemented to make entries compatible with each other,</span>
-<span class="sd">            but entries which are supposed to be done in GGA+U will have the</span>
-<span class="sd">            equivalent GGA entries excluded. For example, Fe oxides should</span>
-<span class="sd">            have a U value under the Advanced scheme. A GGA Fe oxide run</span>
-<span class="sd">            will therefore be excluded under the scheme.</span>
-<span class="sd">        correct_peroxide: Specify whether peroxide/superoxide/ozonide</span>
-<span class="sd">            corrections are to be applied or not.</span>
-<span class="sd">        check_potcar_hash (bool): Use potcar hash to verify potcars are correct.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compat_type</span><span class="o">=</span><span class="s2">&quot;Advanced&quot;</span><span class="p">,</span> <span class="n">correct_peroxide</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">check_potcar_hash</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            compat_type: Two options, GGA or Advanced.  GGA means all GGA+U</span>
+<span class="sd">                entries are excluded.  Advanced means mixing scheme is</span>
+<span class="sd">                implemented to make entries compatible with each other,</span>
+<span class="sd">                but entries which are supposed to be done in GGA+U will have the</span>
+<span class="sd">                equivalent GGA entries excluded. For example, Fe oxides should</span>
+<span class="sd">                have a U value under the Advanced scheme. A GGA Fe oxide run</span>
+<span class="sd">                will therefore be excluded under the scheme.</span>
+<span class="sd">            correct_peroxide: Specify whether peroxide/superoxide/ozonide</span>
+<span class="sd">                corrections are to be applied or not.</span>
+<span class="sd">            check_potcar_hash (bool): Use potcar hash to verify potcars are correct.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">compat_type</span> <span class="o">=</span> <span class="n">compat_type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">correct_peroxide</span> <span class="o">=</span> <span class="n">correct_peroxide</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_potcar_hash</span> <span class="o">=</span> <span class="n">check_potcar_hash</span>
@@ -603,22 +622,23 @@
 <span class="sd">    entries. Note that this should only be used for VASP calculations using the</span>
 <span class="sd">    MIT parameters (see pymatgen.io.vaspio_set MITVaspInputSet). Using</span>
 <span class="sd">    this compatibility scheme on runs with different parameters is not valid.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        compat_type: Two options, GGA or Advanced.  GGA means all GGA+U</span>
-<span class="sd">            entries are excluded.  Advanced means mixing scheme is</span>
-<span class="sd">            implemented to make entries compatible with each other,</span>
-<span class="sd">            but entries which are supposed to be done in GGA+U will have the</span>
-<span class="sd">            equivalent GGA entries excluded. For example, Fe oxides should</span>
-<span class="sd">            have a U value under the Advanced scheme. A GGA Fe oxide run</span>
-<span class="sd">            will therefore be excluded under the scheme.</span>
-<span class="sd">        correct_peroxide: Specify whether peroxide/superoxide/ozonide</span>
-<span class="sd">            corrections are to be applied or not.</span>
-<span class="sd">        check_potcar_hash (bool): Use potcar hash to verify potcars are correct.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compat_type</span><span class="o">=</span><span class="s2">&quot;Advanced&quot;</span><span class="p">,</span> <span class="n">correct_peroxide</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">check_potcar_hash</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            compat_type: Two options, GGA or Advanced.  GGA means all GGA+U</span>
+<span class="sd">                entries are excluded.  Advanced means mixing scheme is</span>
+<span class="sd">                implemented to make entries compatible with each other,</span>
+<span class="sd">                but entries which are supposed to be done in GGA+U will have the</span>
+<span class="sd">                equivalent GGA entries excluded. For example, Fe oxides should</span>
+<span class="sd">                have a U value under the Advanced scheme. A GGA Fe oxide run</span>
+<span class="sd">                will therefore be excluded under the scheme.</span>
+<span class="sd">            correct_peroxide: Specify whether peroxide/superoxide/ozonide</span>
+<span class="sd">                corrections are to be applied or not.</span>
+<span class="sd">            check_potcar_hash (bool): Use potcar hash to verify potcars are correct.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">compat_type</span> <span class="o">=</span> <span class="n">compat_type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">correct_peroxide</span> <span class="o">=</span> <span class="n">correct_peroxide</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_potcar_hash</span> <span class="o">=</span> <span class="n">check_potcar_hash</span>
@@ -636,22 +656,23 @@
 <span class="sd">    entries. Note that this should only be used for VASP calculations using the</span>
 <span class="sd">    MIT parameters (see pymatgen.io.vaspio_set MITVaspInputSet). Using</span>
 <span class="sd">    this compatibility scheme on runs with different parameters is not valid.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        compat_type: Two options, GGA or Advanced.  GGA means all GGA+U</span>
-<span class="sd">            entries are excluded.  Advanced means mixing scheme is</span>
-<span class="sd">            implemented to make entries compatible with each other,</span>
-<span class="sd">            but entries which are supposed to be done in GGA+U will have the</span>
-<span class="sd">            equivalent GGA entries excluded. For example, Fe oxides should</span>
-<span class="sd">            have a U value under the Advanced scheme. A GGA Fe oxide run</span>
-<span class="sd">            will therefore be excluded under the scheme.</span>
-<span class="sd">        correct_peroxide: Specify whether peroxide/superoxide/ozonide</span>
-<span class="sd">            corrections are to be applied or not.</span>
-<span class="sd">        check_potcar_hash (bool): Use potcar hash to verify potcars are correct.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compat_type</span><span class="o">=</span><span class="s2">&quot;Advanced&quot;</span><span class="p">,</span> <span class="n">correct_peroxide</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">check_potcar_hash</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            compat_type: Two options, GGA or Advanced.  GGA means all GGA+U</span>
+<span class="sd">                entries are excluded.  Advanced means mixing scheme is</span>
+<span class="sd">                implemented to make entries compatible with each other,</span>
+<span class="sd">                but entries which are supposed to be done in GGA+U will have the</span>
+<span class="sd">                equivalent GGA entries excluded. For example, Fe oxides should</span>
+<span class="sd">                have a U value under the Advanced scheme. A GGA Fe oxide run</span>
+<span class="sd">                will therefore be excluded under the scheme.</span>
+<span class="sd">            correct_peroxide: Specify whether peroxide/superoxide/ozonide</span>
+<span class="sd">                corrections are to be applied or not.</span>
+<span class="sd">            check_potcar_hash (bool): Use potcar hash to verify potcars are correct.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">compat_type</span> <span class="o">=</span> <span class="n">compat_type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">correct_peroxide</span> <span class="o">=</span> <span class="n">correct_peroxide</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_potcar_hash</span> <span class="o">=</span> <span class="n">check_potcar_hash</span>
@@ -670,22 +691,23 @@
 <span class="sd">    MaterialsProject parameters (see pymatgen.io.vaspio_set.MPVaspInputSet).</span>
 <span class="sd">    Using this compatibility scheme on runs with different parameters is not</span>
 <span class="sd">    valid.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        compat_type: Two options, GGA or Advanced.  GGA means all GGA+U</span>
-<span class="sd">            entries are excluded.  Advanced means mixing scheme is</span>
-<span class="sd">            implemented to make entries compatible with each other,</span>
-<span class="sd">            but entries which are supposed to be done in GGA+U will have the</span>
-<span class="sd">            equivalent GGA entries excluded. For example, Fe oxides should</span>
-<span class="sd">            have a U value under the Advanced scheme. A GGA Fe oxide run</span>
-<span class="sd">            will therefore be excluded under the scheme.</span>
-<span class="sd">        correct_peroxide: Specify whether peroxide/superoxide/ozonide</span>
-<span class="sd">            corrections are to be applied or not.</span>
-<span class="sd">        check_potcar_hash (bool): Use potcar hash to verify potcars are correct.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compat_type</span><span class="o">=</span><span class="s2">&quot;Advanced&quot;</span><span class="p">,</span> <span class="n">correct_peroxide</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">check_potcar_hash</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            compat_type: Two options, GGA or Advanced.  GGA means all GGA+U</span>
+<span class="sd">                entries are excluded.  Advanced means mixing scheme is</span>
+<span class="sd">                implemented to make entries compatible with each other,</span>
+<span class="sd">                but entries which are supposed to be done in GGA+U will have the</span>
+<span class="sd">                equivalent GGA entries excluded. For example, Fe oxides should</span>
+<span class="sd">                have a U value under the Advanced scheme. A GGA Fe oxide run</span>
+<span class="sd">                will therefore be excluded under the scheme.</span>
+<span class="sd">            correct_peroxide: Specify whether peroxide/superoxide/ozonide</span>
+<span class="sd">                corrections are to be applied or not.</span>
+<span class="sd">            check_potcar_hash (bool): Use potcar hash to verify potcars are correct.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">compat_type</span> <span class="o">=</span> <span class="n">compat_type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">correct_peroxide</span> <span class="o">=</span> <span class="n">correct_peroxide</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_potcar_hash</span> <span class="o">=</span> <span class="n">check_potcar_hash</span>
@@ -725,7 +747,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -733,7 +755,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

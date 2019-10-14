@@ -22,14 +22,12 @@ from pymatgen.core.structure import Molecule, Structure
 Created on Mar 9, 2012
 """
 
-
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 9, 2012"
-
 
 test_dir_mol = Path(__file__).parent / ".." / ".." / ".." / 'test_files' / "molecules"
 
@@ -101,27 +99,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertEqual(self.disordered_sg.get_point_group_symbol(), '4/mmm')
 
     def test_get_symmetry_operations(self):
-        coordinates = np.array([[0.5, 0.0, 0.0],
-                                [0.0, 0.5, 0.0],
-                                [0.5, 1.0, 0.0],
-                                [1.0, 0.5, 0.0]])
-        species = ['H'] * len(coordinates)
-        molecule = Molecule(species,coordinates)
-        so = PointGroupAnalyzer(molecule, 0.3).get_symmetry_operations()
-        self.assertEqual(len(so), 16) # D4h contains 16 symmetry elements
-        for o in so:
-            self.assertEqual(isinstance(o,SymmOp), True)
- 
-    def test_get_symmetry_dataset(self):
-        ds = self.sg.get_symmetry_dataset()
-        self.assertEqual(ds['international'], 'Pnma')
 
-    def test_get_crystal_system(self):
-        crystal_system = self.sg.get_crystal_system()
-        self.assertEqual('orthorhombic', crystal_system)
-        self.assertEqual('tetragonal', self.disordered_sg.get_crystal_system())
-
-    def test_get_symmetry_operations(self):
         for sg, structure in [(self.sg, self.structure),
                               (self.sg4, self.structure4)]:
 
@@ -159,6 +137,15 @@ class SpacegroupAnalyzerTest(PymatgenTest):
                 self.assertTrue(np.allclose(latt.get_fractional_coords(newcart),
                                             newfrac))
 
+    def test_get_symmetry_dataset(self):
+        ds = self.sg.get_symmetry_dataset()
+        self.assertEqual(ds['international'], 'Pnma')
+
+    def test_get_crystal_system(self):
+        crystal_system = self.sg.get_crystal_system()
+        self.assertEqual('orthorhombic', crystal_system)
+        self.assertEqual('tetragonal', self.disordered_sg.get_crystal_system())
+
     def test_get_refined_structure(self):
         for a in self.sg.get_refined_structure().lattice.angles:
             self.assertEqual(a, 90)
@@ -179,13 +166,16 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         symm_struct = self.disordered_sg.get_symmetrized_structure()
         self.assertEqual(len(symm_struct.equivalent_sites), 8)
         self.assertEqual([len(i) for i in symm_struct.equivalent_sites],
-                         [16,4,8,4,2,8,8,8])
+                         [16, 4, 8, 4, 2, 8, 8, 8])
         s1 = symm_struct.equivalent_sites[1][1]
         s2 = symm_struct[symm_struct.equivalent_indices[1][1]]
         self.assertEqual(s1, s2)
         self.assertEqual(self.sg4.get_symmetrized_structure()[0].magmom, 0.1)
         self.assertEqual(symm_struct.wyckoff_symbols[0], '16h')
         # self.assertEqual(symm_struct[0].wyckoff, "16h")
+
+        # Check copying
+        self.assertEqual(symm_struct.copy(), symm_struct)
 
     def test_find_primitive(self):
         """
@@ -443,10 +433,10 @@ BF3 = Molecule(["B", "F", "F", "F"],
                 [0.8121, 0.4689, 0], [-0.8121, 0.4689, 0]])
 
 CH4 = Molecule(["C", "H", "H", "H", "H"], [[0.000000, 0.000000, 0.000000],
-               [0.000000, 0.000000, 1.08],
-               [1.026719, 0.000000, -0.363000],
-               [-0.513360, -0.889165, -0.363000],
-               [-0.513360, 0.889165, -0.363000]])
+                                           [0.000000, 0.000000, 1.08],
+                                           [1.026719, 0.000000, -0.363000],
+                                           [-0.513360, -0.889165, -0.363000],
+                                           [-0.513360, 0.889165, -0.363000]])
 
 PF6 = Molecule(["P", "F", "F", "F", "F", "F", "F"],
                [[0, 0, 0], [0, 0, 1], [0, 0, -1], [0, 1, 0], [0, -1, 0],
@@ -568,8 +558,6 @@ class PointGroupAnalyzerTest(PymatgenTest):
         eq = iterative_symmetrize(dist_mol, tolerance=0.3)
         PA3 = PointGroupAnalyzer(eq['sym_mol'], tolerance=0.1)
         self.assertTrue(PA3.get_pointgroup().sch_symbol == 'Ci')
-
-
 
     def test_get_kpoint_weights(self):
         for name in ["SrTiO3", "LiFePO4", "Graphite"]:

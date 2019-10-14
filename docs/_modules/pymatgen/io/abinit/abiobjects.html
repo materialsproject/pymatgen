@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.abinit.abiobjects &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.io.abinit.abiobjects &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -94,7 +93,7 @@
     <span class="k">if</span> <span class="n">rprim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">angdeg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;angdeg and rprimd are mutually exclusive&quot;</span><span class="p">)</span>
-        <span class="n">rprim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">rprim</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+        <span class="n">rprim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">rprim</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
         <span class="n">rprimd</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">acell</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">*</span> <span class="n">rprim</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
         <span class="c1"># Call pymatgen constructors (note that pymatgen uses Angstrom instead of Bohr).</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">ArrayWithUnit</span><span class="p">(</span><span class="n">rprimd</span><span class="p">,</span> <span class="s2">&quot;bohr&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;ang&quot;</span><span class="p">))</span>
@@ -111,26 +110,32 @@
         <span class="c1"># See also http://www.abinit.org/doc/helpfiles/for-v7.8/input_variables/varbas.html#angdeg</span>
         <span class="n">tol12</span> <span class="o">=</span> <span class="mf">1e-12</span>
         <span class="n">pi</span><span class="p">,</span> <span class="n">sin</span><span class="p">,</span> <span class="n">cos</span><span class="p">,</span> <span class="n">sqrt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span>
-        <span class="n">rprim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
-        <span class="k">if</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">angdeg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span><span class="n">angdeg</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">tol12</span> <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="n">angdeg</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">angdeg</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">tol12</span> <span class="ow">and</span>
-            <span class="nb">abs</span><span class="p">(</span><span class="n">angdeg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="mf">90.</span><span class="p">)</span> <span class="o">+</span> <span class="nb">abs</span><span class="p">(</span><span class="n">angdeg</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="mf">90.</span><span class="p">)</span> <span class="o">+</span> <span class="nb">abs</span><span class="p">(</span><span class="n">angdeg</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span><span class="mi">90</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">tol12</span><span class="p">):</span>
+        <span class="n">rprim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">angdeg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">angdeg</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">tol12</span> <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="n">angdeg</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">angdeg</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">tol12</span> <span class="ow">and</span>
+                <span class="nb">abs</span><span class="p">(</span><span class="n">angdeg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mf">90.</span><span class="p">)</span> <span class="o">+</span> <span class="nb">abs</span><span class="p">(</span><span class="n">angdeg</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mf">90.</span><span class="p">)</span> <span class="o">+</span> <span class="nb">abs</span><span class="p">(</span><span class="n">angdeg</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="mi">90</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">tol12</span><span class="p">):</span>
             <span class="c1"># Treat the case of equal angles (except all right angles):</span>
             <span class="c1"># generates trigonal symmetry wrt third axis</span>
-            <span class="n">cosang</span> <span class="o">=</span> <span class="n">cos</span><span class="p">(</span><span class="n">pi</span> <span class="o">*</span> <span class="n">angdeg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="mf">180.0</span><span class="p">)</span>
-            <span class="n">a2</span> <span class="o">=</span> <span class="mf">2.0</span><span class="o">/</span><span class="mf">3.0</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">cosang</span><span class="p">)</span>
+            <span class="n">cosang</span> <span class="o">=</span> <span class="n">cos</span><span class="p">(</span><span class="n">pi</span> <span class="o">*</span> <span class="n">angdeg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mf">180.0</span><span class="p">)</span>
+            <span class="n">a2</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">/</span> <span class="mf">3.0</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">cosang</span><span class="p">)</span>
             <span class="n">aa</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">a2</span><span class="p">)</span>
-            <span class="n">cc</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">a2</span><span class="p">)</span>
-            <span class="n">rprim</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">aa</span>     <span class="p">;</span> <span class="n">rprim</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>              <span class="p">;</span> <span class="n">rprim</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">cc</span>
-            <span class="n">rprim</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.5</span><span class="o">*</span><span class="n">aa</span><span class="p">;</span> <span class="n">rprim</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="mf">3.0</span><span class="p">)</span><span class="o">*</span><span class="mf">0.5</span><span class="o">*</span><span class="n">aa</span> <span class="p">;</span> <span class="n">rprim</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">cc</span>
-            <span class="n">rprim</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.5</span><span class="o">*</span><span class="n">aa</span><span class="p">;</span> <span class="n">rprim</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">3.0</span><span class="p">)</span><span class="o">*</span><span class="mf">0.5</span><span class="o">*</span><span class="n">aa</span><span class="p">;</span> <span class="n">rprim</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">cc</span>
+            <span class="n">cc</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">a2</span><span class="p">)</span>
+            <span class="n">rprim</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">aa</span>
+            <span class="n">rprim</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">rprim</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">cc</span>
+            <span class="n">rprim</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">aa</span>
+            <span class="n">rprim</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="mf">3.0</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">aa</span>
+            <span class="n">rprim</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">cc</span>
+            <span class="n">rprim</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">aa</span>
+            <span class="n">rprim</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">3.0</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">aa</span>
+            <span class="n">rprim</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">cc</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Treat all the other cases</span>
-            <span class="n">rprim</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
-            <span class="n">rprim</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">cos</span><span class="p">(</span><span class="n">pi</span><span class="o">*</span><span class="n">angdeg</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">/</span><span class="mf">180.</span><span class="p">)</span>
-            <span class="n">rprim</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">sin</span><span class="p">(</span><span class="n">pi</span><span class="o">*</span><span class="n">angdeg</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">/</span><span class="mf">180.</span><span class="p">)</span>
-            <span class="n">rprim</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">cos</span><span class="p">(</span><span class="n">pi</span><span class="o">*</span><span class="n">angdeg</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="mf">180.</span><span class="p">)</span>
-            <span class="n">rprim</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">cos</span><span class="p">(</span><span class="n">pi</span><span class="o">*</span><span class="n">angdeg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="mf">180.0</span><span class="p">)</span><span class="o">-</span><span class="n">rprim</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">rprim</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="n">rprim</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">rprim</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">rprim</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="o">-</span><span class="n">rprim</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">rprim</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+            <span class="n">rprim</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">cos</span><span class="p">(</span><span class="n">pi</span> <span class="o">*</span> <span class="n">angdeg</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="mf">180.</span><span class="p">)</span>
+            <span class="n">rprim</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">sin</span><span class="p">(</span><span class="n">pi</span> <span class="o">*</span> <span class="n">angdeg</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="mf">180.</span><span class="p">)</span>
+            <span class="n">rprim</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">cos</span><span class="p">(</span><span class="n">pi</span> <span class="o">*</span> <span class="n">angdeg</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mf">180.</span><span class="p">)</span>
+            <span class="n">rprim</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">cos</span><span class="p">(</span><span class="n">pi</span> <span class="o">*</span> <span class="n">angdeg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mf">180.0</span><span class="p">)</span> <span class="o">-</span> <span class="n">rprim</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">rprim</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">rprim</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">rprim</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">rprim</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">rprim</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
 
         <span class="c1"># Call pymatgen constructors (note that pymatgen uses Angstrom instead of Bohr).</span>
         <span class="n">rprimd</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">acell</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">*</span> <span class="n">rprim</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
@@ -166,7 +171,7 @@
 
     <span class="bp">cls</span> <span class="o">=</span> <span class="n">Structure</span> <span class="k">if</span> <span class="bp">cls</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">cls</span>
 
-    <span class="c1">#lattice = Lattice.from_dict(d, fmt=&quot;abivars&quot;)</span>
+    <span class="c1"># lattice = Lattice.from_dict(d, fmt=&quot;abivars&quot;)</span>
     <span class="n">lattice</span> <span class="o">=</span> <span class="n">lattice_from_abivars</span><span class="p">(</span><span class="o">**</span><span class="n">d</span><span class="p">)</span>
     <span class="n">coords</span><span class="p">,</span> <span class="n">coords_are_cartesian</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;xred&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="kc">False</span>
 
@@ -183,7 +188,7 @@
     <span class="k">if</span> <span class="n">coords</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot extract coordinates from:</span><span class="se">\n</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">d</span><span class="p">))</span>
 
-    <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
 
     <span class="n">znucl_type</span><span class="p">,</span> <span class="n">typat</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;znucl&quot;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;typat&quot;</span><span class="p">]</span>
 
@@ -198,7 +203,7 @@
 
     <span class="c1"># Note conversion to int and Fortran --&gt; C indexing</span>
     <span class="n">typat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">typat</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
-    <span class="n">species</span> <span class="o">=</span> <span class="p">[</span><span class="n">znucl_type</span><span class="p">[</span><span class="n">typ</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">typ</span> <span class="ow">in</span> <span class="n">typat</span><span class="p">]</span>
+    <span class="n">species</span> <span class="o">=</span> <span class="p">[</span><span class="n">znucl_type</span><span class="p">[</span><span class="n">typ</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">typ</span> <span class="ow">in</span> <span class="n">typat</span><span class="p">]</span>
 
     <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">validate_proximity</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="n">coords_are_cartesian</span><span class="p">)</span></div>
@@ -247,7 +252,7 @@
     <span class="n">geomode</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;geomode&quot;</span><span class="p">,</span> <span class="s2">&quot;rprim&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">geomode</span> <span class="o">==</span> <span class="s2">&quot;automatic&quot;</span><span class="p">:</span>
         <span class="n">geomode</span> <span class="o">=</span> <span class="s2">&quot;rprim&quot;</span>
-        <span class="k">if</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">is_hexagonal</span><span class="p">:</span> <span class="c1"># or structure.lattice.is_rhombohedral</span>
+        <span class="k">if</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">is_hexagonal</span><span class="p">:</span>  <span class="c1"># or structure.lattice.is_rhombohedral</span>
             <span class="n">geomode</span> <span class="o">=</span> <span class="s2">&quot;angdeg&quot;</span>
             <span class="n">angdeg</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">angles</span>
             <span class="c1"># Here one could polish a bit the numerical values if they are not exact.</span>
@@ -276,7 +281,8 @@
 <span class="sd">    &gt;&gt;&gt; assert contract(&quot;1 1 1 2 2 3&quot;) == &quot;3*1 2*2 1*3&quot;</span>
 <span class="sd">    &gt;&gt;&gt; assert contract(&quot;1 1 3 2 3&quot;) == &quot;2*1 1*3 1*2 1*3&quot;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">s</span><span class="p">:</span> <span class="k">return</span> <span class="n">s</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">s</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">s</span>
 
     <span class="n">tokens</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
     <span class="n">old</span> <span class="o">=</span> <span class="n">tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -302,8 +308,8 @@
     <span class="k">def</span> <span class="nf">to_abivars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a dictionary with the abinit variables.&quot;&quot;&quot;</span></div>
 
-    <span class="c1">#@abc.abstractmethod</span>
-    <span class="c1">#def from_abivars(cls, vars):</span>
+    <span class="c1"># @abc.abstractmethod</span>
+    <span class="c1"># def from_abivars(cls, vars):</span>
     <span class="c1">#    &quot;&quot;&quot;Build the object from a dictionary with Abinit variables.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -325,6 +331,7 @@
 <span class="k">class</span> <span class="nc">DefaultVariable</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Singleton used to tag variables that will have the default value&quot;&quot;&quot;</span>
 
+
 <span class="n">MANDATORY</span> <span class="o">=</span> <span class="n">MandatoryVariable</span><span class="p">()</span>
 <span class="n">DEFAULT</span> <span class="o">=</span> <span class="n">DefaultVariable</span><span class="p">()</span>
 
@@ -341,6 +348,7 @@
 <span class="sd">        - spinor (non-collinear magnetism)</span>
 <span class="sd">        - spinor_nomag (non-collinear, no magnetism)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="SpinMode.as_spinmode"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.SpinMode.as_spinmode">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">as_spinmode</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Converts obj into a `SpinMode` instance&quot;&quot;&quot;</span>
@@ -463,7 +471,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;nosmearing&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;occopt&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;tsmear&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">}</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;occopt&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">occopt</span><span class="p">,</span> <span class="s2">&quot;tsmear&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tsmear</span><span class="p">,}</span></div>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;occopt&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">occopt</span><span class="p">,</span> <span class="s2">&quot;tsmear&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tsmear</span><span class="p">,</span> <span class="p">}</span></div>
 
 <div class="viewcode-block" id="Smearing.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Smearing.as_dict">[docs]</a>    <span class="nd">@pmg_serialize</span>
     <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -507,6 +515,7 @@
 
 <div class="viewcode-block" id="Electrons"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Electrons">[docs]</a><span class="k">class</span> <span class="nc">Electrons</span><span class="p">(</span><span class="n">AbivarAble</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The electronic degrees of freedom&quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spin_mode</span><span class="o">=</span><span class="s2">&quot;polarized&quot;</span><span class="p">,</span> <span class="n">smearing</span><span class="o">=</span><span class="s2">&quot;fermi_dirac:0.1 eV&quot;</span><span class="p">,</span>
                  <span class="n">algorithm</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nband</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fband</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># occupancies=None,</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -567,9 +576,9 @@
         <span class="n">abivars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin_mode</span><span class="o">.</span><span class="n">to_abivars</span><span class="p">()</span>
 
         <span class="n">abivars</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
-            <span class="s2">&quot;nband&quot;</span>  <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nband</span><span class="p">,</span>
-            <span class="s2">&quot;fband&quot;</span>  <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fband</span><span class="p">,</span>
-            <span class="s2">&quot;charge&quot;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">,</span>
+            <span class="s2">&quot;nband&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nband</span><span class="p">,</span>
+            <span class="s2">&quot;fband&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fband</span><span class="p">,</span>
+            <span class="s2">&quot;charge&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">,</span>
         <span class="p">})</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">smearing</span><span class="p">:</span>
@@ -578,8 +587,9 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span><span class="p">:</span>
             <span class="n">abivars</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span><span class="p">)</span>
 
-        <span class="c1">#abivars[&quot;#comment&quot;] = self.comment</span>
+        <span class="c1"># abivars[&quot;#comment&quot;] = self.comment</span>
         <span class="k">return</span> <span class="n">abivars</span></div></div>
+
 
 <div class="viewcode-block" id="KSamplingModes"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSamplingModes">[docs]</a><span class="k">class</span> <span class="nc">KSamplingModes</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
     <span class="n">monkhorst</span> <span class="o">=</span> <span class="mi">1</span>
@@ -592,7 +602,7 @@
 <span class="sd">    Input variables defining the K-point sampling.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">KSamplingModes</span><span class="o">.</span><span class="n">monkhorst</span><span class="p">,</span> <span class="n">num_kpts</span><span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">KSamplingModes</span><span class="o">.</span><span class="n">monkhorst</span><span class="p">,</span> <span class="n">num_kpts</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                  <span class="n">kpts</span><span class="o">=</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),),</span>
                  <span class="n">kpt_shifts</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
                  <span class="n">kpts_weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">use_symmetries</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_time_reversal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">chksymbreak</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -652,19 +662,23 @@
 
         <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">KSamplingModes</span><span class="o">.</span><span class="n">monkhorst</span><span class="p">:</span>
             <span class="k">assert</span> <span class="n">num_kpts</span> <span class="o">==</span> <span class="mi">0</span>
-            <span class="n">ngkpt</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">kpts</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
-            <span class="n">shiftk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">kpt_shifts</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+            <span class="n">ngkpt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">kpts</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="n">shiftk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">kpt_shifts</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
 
-            <span class="k">if</span> <span class="n">use_symmetries</span> <span class="ow">and</span> <span class="n">use_time_reversal</span><span class="p">:</span> <span class="n">kptopt</span> <span class="o">=</span> <span class="mi">1</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">use_symmetries</span> <span class="ow">and</span> <span class="n">use_time_reversal</span><span class="p">:</span> <span class="n">kptopt</span> <span class="o">=</span> <span class="mi">2</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">use_symmetries</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">use_time_reversal</span><span class="p">:</span> <span class="n">kptopt</span> <span class="o">=</span> <span class="mi">3</span>
-            <span class="k">if</span> <span class="n">use_symmetries</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">use_time_reversal</span><span class="p">:</span> <span class="n">kptopt</span> <span class="o">=</span> <span class="mi">4</span>
+            <span class="k">if</span> <span class="n">use_symmetries</span> <span class="ow">and</span> <span class="n">use_time_reversal</span><span class="p">:</span>
+                <span class="n">kptopt</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">use_symmetries</span> <span class="ow">and</span> <span class="n">use_time_reversal</span><span class="p">:</span>
+                <span class="n">kptopt</span> <span class="o">=</span> <span class="mi">2</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">use_symmetries</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">use_time_reversal</span><span class="p">:</span>
+                <span class="n">kptopt</span> <span class="o">=</span> <span class="mi">3</span>
+            <span class="k">if</span> <span class="n">use_symmetries</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">use_time_reversal</span><span class="p">:</span>
+                <span class="n">kptopt</span> <span class="o">=</span> <span class="mi">4</span>
 
             <span class="n">abivars</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
-                <span class="s2">&quot;ngkpt&quot;</span>      <span class="p">:</span> <span class="n">ngkpt</span><span class="p">,</span>
-                <span class="s2">&quot;shiftk&quot;</span>     <span class="p">:</span> <span class="n">shiftk</span><span class="p">,</span>
-                <span class="s2">&quot;nshiftk&quot;</span>    <span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">shiftk</span><span class="p">),</span>
-                <span class="s2">&quot;kptopt&quot;</span>     <span class="p">:</span> <span class="n">kptopt</span><span class="p">,</span>
+                <span class="s2">&quot;ngkpt&quot;</span><span class="p">:</span> <span class="n">ngkpt</span><span class="p">,</span>
+                <span class="s2">&quot;shiftk&quot;</span><span class="p">:</span> <span class="n">shiftk</span><span class="p">,</span>
+                <span class="s2">&quot;nshiftk&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">shiftk</span><span class="p">),</span>
+                <span class="s2">&quot;kptopt&quot;</span><span class="p">:</span> <span class="n">kptopt</span><span class="p">,</span>
                 <span class="s2">&quot;chksymbreak&quot;</span><span class="p">:</span> <span class="n">chksymbreak</span><span class="p">,</span>
             <span class="p">})</span>
 
@@ -672,26 +686,26 @@
             <span class="k">if</span> <span class="n">num_kpts</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;For Path mode, num_kpts must be specified and &gt;0&quot;</span><span class="p">)</span>
 
-            <span class="n">kptbounds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">kpts</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
-            <span class="c1">#print(&quot;in path with kptbound: %s &quot; % kptbounds)</span>
+            <span class="n">kptbounds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">kpts</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+            <span class="c1"># print(&quot;in path with kptbound: %s &quot; % kptbounds)</span>
 
             <span class="n">abivars</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
-                <span class="s2">&quot;ndivsm&quot;</span>   <span class="p">:</span> <span class="n">num_kpts</span><span class="p">,</span>
+                <span class="s2">&quot;ndivsm&quot;</span><span class="p">:</span> <span class="n">num_kpts</span><span class="p">,</span>
                 <span class="s2">&quot;kptbounds&quot;</span><span class="p">:</span> <span class="n">kptbounds</span><span class="p">,</span>
-                <span class="s2">&quot;kptopt&quot;</span>   <span class="p">:</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">kptbounds</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span>
+                <span class="s2">&quot;kptopt&quot;</span><span class="p">:</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">kptbounds</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
             <span class="p">})</span>
 
         <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">KSamplingModes</span><span class="o">.</span><span class="n">automatic</span><span class="p">:</span>
-            <span class="n">kpts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">kpts</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+            <span class="n">kpts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">kpts</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">kpts</span><span class="p">)</span> <span class="o">!=</span> <span class="n">num_kpts</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;For Automatic mode, num_kpts must be specified.&quot;</span><span class="p">)</span>
 
             <span class="n">abivars</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
-                <span class="s2">&quot;kptopt&quot;</span>     <span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-                <span class="s2">&quot;kpt&quot;</span>        <span class="p">:</span> <span class="n">kpts</span><span class="p">,</span>
-                <span class="s2">&quot;nkpt&quot;</span>       <span class="p">:</span> <span class="n">num_kpts</span><span class="p">,</span>
-                <span class="s2">&quot;kptnrm&quot;</span>     <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">num_kpts</span><span class="p">),</span>
-                <span class="s2">&quot;wtk&quot;</span>        <span class="p">:</span> <span class="n">kpts_weights</span><span class="p">,</span>  <span class="c1"># for iscf/=-2, wtk.</span>
+                <span class="s2">&quot;kptopt&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s2">&quot;kpt&quot;</span><span class="p">:</span> <span class="n">kpts</span><span class="p">,</span>
+                <span class="s2">&quot;nkpt&quot;</span><span class="p">:</span> <span class="n">num_kpts</span><span class="p">,</span>
+                <span class="s2">&quot;kptnrm&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">num_kpts</span><span class="p">),</span>
+                <span class="s2">&quot;wtk&quot;</span><span class="p">:</span> <span class="n">kpts_weights</span><span class="p">,</span>  <span class="c1"># for iscf/=-2, wtk.</span>
                 <span class="s2">&quot;chksymbreak&quot;</span><span class="p">:</span> <span class="n">chksymbreak</span><span class="p">,</span>
             <span class="p">})</span>
 
@@ -699,7 +713,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown mode </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">mode</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">abivars</span> <span class="o">=</span> <span class="n">abivars</span>
-        <span class="c1">#self.abivars[&quot;#comment&quot;] = comment</span>
+        <span class="c1"># self.abivars[&quot;#comment&quot;] = comment</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_homogeneous</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -708,7 +722,7 @@
 <div class="viewcode-block" id="KSampling.gamma_only"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSampling.gamma_only">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">gamma_only</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Gamma-only sampling&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">kpt_shifts</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span><span class="mf">0.0</span><span class="p">,</span><span class="mf">0.0</span><span class="p">),</span> <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Gamma-only sampling&quot;</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">kpt_shifts</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Gamma-only sampling&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="KSampling.gamma_centered"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSampling.gamma_centered">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">gamma_centered</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">kpts</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">use_symmetries</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_time_reversal</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -765,16 +779,16 @@
 <span class="sd">            :class:`KSampling` object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">sg</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
-        <span class="c1">#sg.get_crystal_system()</span>
-        <span class="c1">#sg.get_point_group_symbol()</span>
+        <span class="c1"># sg.get_crystal_system()</span>
+        <span class="c1"># sg.get_point_group_symbol()</span>
         <span class="c1"># TODO</span>
         <span class="n">nshiftk</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="c1">#shiftk = 3*(0.5,) # this is the default</span>
-        <span class="n">shiftk</span> <span class="o">=</span> <span class="mi">3</span><span class="o">*</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,)</span>
+        <span class="c1"># shiftk = 3*(0.5,) # this is the default</span>
+        <span class="n">shiftk</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,)</span>
 
-        <span class="c1">#if lattice.ishexagonal:</span>
-        <span class="c1">#elif lattice.isbcc</span>
-        <span class="c1">#elif lattice.isfcc</span>
+        <span class="c1"># if lattice.ishexagonal:</span>
+        <span class="c1"># elif lattice.isbcc</span>
+        <span class="c1"># elif lattice.isfcc</span>
 
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">monkhorst</span><span class="p">(</span>
             <span class="n">ngkpt</span><span class="p">,</span> <span class="n">shiftk</span><span class="o">=</span><span class="n">shiftk</span><span class="p">,</span> <span class="n">use_symmetries</span><span class="o">=</span><span class="n">use_symmetries</span><span class="p">,</span> <span class="n">use_time_reversal</span><span class="o">=</span><span class="n">use_time_reversal</span><span class="p">,</span>
@@ -807,7 +821,7 @@
             <span class="n">kpath_bounds</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">kpath_labels</span><span class="p">:</span>
                 <span class="n">red_coord</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">kpath</span><span class="p">[</span><span class="s2">&quot;kpoints&quot;</span><span class="p">][</span><span class="n">label</span><span class="p">]</span>
-                <span class="c1">#print(&quot;label %s, red_coord %s&quot; % (label, red_coord))</span>
+                <span class="c1"># print(&quot;label %s, red_coord %s&quot; % (label, red_coord))</span>
                 <span class="n">kpath_bounds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">red_coord</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">KSamplingModes</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">num_kpts</span><span class="o">=</span><span class="n">ndivsm</span><span class="p">,</span> <span class="n">kpts</span><span class="o">=</span><span class="n">kpath_bounds</span><span class="p">,</span>
@@ -816,7 +830,7 @@
 <div class="viewcode-block" id="KSampling.path_from_structure"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSampling.path_from_structure">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">path_from_structure</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ndivsm</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;See _path for the meaning of the variables&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_path</span><span class="p">(</span><span class="n">ndivsm</span><span class="p">,</span>  <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;K-path generated automatically from structure&quot;</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_path</span><span class="p">(</span><span class="n">ndivsm</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;K-path generated automatically from structure&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="KSampling.explicit_path"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.KSampling.explicit_path">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">explicit_path</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ndivsm</span><span class="p">,</span> <span class="n">kpath_bounds</span><span class="p">):</span>
@@ -850,7 +864,7 @@
         <span class="n">num_div</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">num_div</span><span class="p">]</span>
 
         <span class="n">angles</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">angles</span>
-        <span class="n">hex_angle_tol</span> <span class="o">=</span> <span class="mi">5</span>      <span class="c1"># in degrees</span>
+        <span class="n">hex_angle_tol</span> <span class="o">=</span> <span class="mi">5</span>  <span class="c1"># in degrees</span>
         <span class="n">hex_length_tol</span> <span class="o">=</span> <span class="mf">0.01</span>  <span class="c1"># in angstroms</span>
 
         <span class="n">right_angles</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">angles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mi">90</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">hex_angle_tol</span><span class="p">]</span>
@@ -863,8 +877,8 @@
                         <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="n">lengths</span><span class="p">[</span><span class="n">right_angles</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">-</span>
                                 <span class="n">lengths</span><span class="p">[</span><span class="n">right_angles</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span> <span class="o">&lt;</span> <span class="n">hex_length_tol</span><span class="p">)</span>
 
-        <span class="c1">#style = KSamplingModes.gamma</span>
-        <span class="c1">#if not is_hexagonal:</span>
+        <span class="c1"># style = KSamplingModes.gamma</span>
+        <span class="c1"># if not is_hexagonal:</span>
         <span class="c1">#    num_div = [i + i % 2 for i in num_div]</span>
         <span class="c1">#    style = KSamplingModes.monkhorst</span>
 
@@ -899,6 +913,7 @@
 
 <div class="viewcode-block" id="Constraints"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Constraints">[docs]</a><span class="k">class</span> <span class="nc">Constraints</span><span class="p">(</span><span class="n">AbivarAble</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;This object defines the constraints for structural relaxation&quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="Constraints.to_abivars"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Constraints.to_abivars">[docs]</a>    <span class="k">def</span> <span class="nf">to_abivars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span></div></div>
 
@@ -912,16 +927,16 @@
 <span class="sd">    be modified by passing them to the constructor.</span>
 <span class="sd">    The set of variables are constructed in to_abivars depending on ionmov and optcell.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">_default_vars</span> <span class="o">=</span>  <span class="p">{</span>
-        <span class="s2">&quot;ionmov&quot;</span>           <span class="p">:</span> <span class="n">MANDATORY</span><span class="p">,</span>
-        <span class="s2">&quot;optcell&quot;</span>          <span class="p">:</span> <span class="n">MANDATORY</span><span class="p">,</span>
-        <span class="s2">&quot;ntime&quot;</span>            <span class="p">:</span> <span class="mi">80</span><span class="p">,</span>
-        <span class="s2">&quot;dilatmx&quot;</span>          <span class="p">:</span> <span class="mf">1.05</span><span class="p">,</span>
-        <span class="s2">&quot;ecutsm&quot;</span>           <span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
-        <span class="s2">&quot;strfact&quot;</span>          <span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;tolmxf&quot;</span>           <span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;strtarget&quot;</span>        <span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;atoms_constraints&quot;</span><span class="p">:</span> <span class="p">{},</span> <span class="c1"># Constraints are stored in a dictionary. {} means if no constraint is enforced.</span>
+    <span class="n">_default_vars</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;ionmov&quot;</span><span class="p">:</span> <span class="n">MANDATORY</span><span class="p">,</span>
+        <span class="s2">&quot;optcell&quot;</span><span class="p">:</span> <span class="n">MANDATORY</span><span class="p">,</span>
+        <span class="s2">&quot;ntime&quot;</span><span class="p">:</span> <span class="mi">80</span><span class="p">,</span>
+        <span class="s2">&quot;dilatmx&quot;</span><span class="p">:</span> <span class="mf">1.05</span><span class="p">,</span>
+        <span class="s2">&quot;ecutsm&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+        <span class="s2">&quot;strfact&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;tolmxf&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;strtarget&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;atoms_constraints&quot;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># Constraints are stored in a dictionary. {} means if no constraint is enforced.</span>
     <span class="p">}</span>
 
     <span class="n">IONMOV_DEFAULT</span> <span class="o">=</span> <span class="mi">3</span>
@@ -974,9 +989,9 @@
         <span class="sd">&quot;&quot;&quot;Returns a dictionary with the abinit variables&quot;&quot;&quot;</span>
         <span class="c1"># These variables are always present.</span>
         <span class="n">out_vars</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;ionmov&quot;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">abivars</span><span class="o">.</span><span class="n">ionmov</span><span class="p">,</span>
+            <span class="s2">&quot;ionmov&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">abivars</span><span class="o">.</span><span class="n">ionmov</span><span class="p">,</span>
             <span class="s2">&quot;optcell&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">abivars</span><span class="o">.</span><span class="n">optcell</span><span class="p">,</span>
-            <span class="s2">&quot;ntime&quot;</span>  <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">abivars</span><span class="o">.</span><span class="n">ntime</span><span class="p">,</span>
+            <span class="s2">&quot;ntime&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">abivars</span><span class="o">.</span><span class="n">ntime</span><span class="p">,</span>
         <span class="p">}</span>
 
         <span class="c1"># Atom relaxation.</span>
@@ -993,9 +1008,9 @@
         <span class="c1"># Cell relaxation.</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">move_cell</span><span class="p">:</span>
             <span class="n">out_vars</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
-                <span class="s2">&quot;dilatmx&quot;</span>  <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">abivars</span><span class="o">.</span><span class="n">dilatmx</span><span class="p">,</span>
-                <span class="s2">&quot;ecutsm&quot;</span>   <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">abivars</span><span class="o">.</span><span class="n">ecutsm</span><span class="p">,</span>
-                <span class="s2">&quot;strfact&quot;</span>  <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">abivars</span><span class="o">.</span><span class="n">strfact</span><span class="p">,</span>
+                <span class="s2">&quot;dilatmx&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">abivars</span><span class="o">.</span><span class="n">dilatmx</span><span class="p">,</span>
+                <span class="s2">&quot;ecutsm&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">abivars</span><span class="o">.</span><span class="n">ecutsm</span><span class="p">,</span>
+                <span class="s2">&quot;strfact&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">abivars</span><span class="o">.</span><span class="n">strfact</span><span class="p">,</span>
                 <span class="s2">&quot;strtarget&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">abivars</span><span class="o">.</span><span class="n">strtarget</span><span class="p">,</span>
             <span class="p">})</span>
 
@@ -1114,6 +1129,7 @@
 <span class="sd">    i.e. the parameters defining the frequency mesh used for the spectral function</span>
 <span class="sd">    and the frequency mesh used for the polarizability</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nomegasf</span><span class="p">,</span> <span class="n">domegasf</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">spmeth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">nfreqre</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">freqremax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nfreqim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">freqremin</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
@@ -1139,28 +1155,30 @@
 <div class="viewcode-block" id="HilbertTransform.to_abivars"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.HilbertTransform.to_abivars">[docs]</a>    <span class="k">def</span> <span class="nf">to_abivars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a dictionary with the abinit variables&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span>
-                <span class="c1"># Spectral function</span>
-                <span class="s2">&quot;nomegasf&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nomegasf</span><span class="p">,</span>
-                <span class="s2">&quot;domegasf&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">domegasf</span><span class="p">,</span>
-                <span class="s2">&quot;spmeth&quot;</span>  <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">spmeth</span><span class="p">,</span>
-                 <span class="c1"># Frequency mesh for the polarizability</span>
-                <span class="s2">&quot;nfreqre&quot;</span>  <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nfreqre</span><span class="p">,</span>
-                <span class="s2">&quot;freqremax&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">freqremax</span><span class="p">,</span>
-                <span class="s2">&quot;nfreqim&quot;</span>  <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nfreqim</span><span class="p">,</span>
-                <span class="s2">&quot;freqremin&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">freqremin</span><span class="p">,</span>
-                <span class="p">}</span></div></div>
+            <span class="c1"># Spectral function</span>
+            <span class="s2">&quot;nomegasf&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nomegasf</span><span class="p">,</span>
+            <span class="s2">&quot;domegasf&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">domegasf</span><span class="p">,</span>
+            <span class="s2">&quot;spmeth&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">spmeth</span><span class="p">,</span>
+            <span class="c1"># Frequency mesh for the polarizability</span>
+            <span class="s2">&quot;nfreqre&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nfreqre</span><span class="p">,</span>
+            <span class="s2">&quot;freqremax&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">freqremax</span><span class="p">,</span>
+            <span class="s2">&quot;nfreqim&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nfreqim</span><span class="p">,</span>
+            <span class="s2">&quot;freqremin&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">freqremin</span><span class="p">,</span>
+        <span class="p">}</span></div></div>
 
 
 <div class="viewcode-block" id="ModelDielectricFunction"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.ModelDielectricFunction">[docs]</a><span class="k">class</span> <span class="nc">ModelDielectricFunction</span><span class="p">(</span><span class="n">AbivarAble</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Model dielectric function used for BSE calculation&quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mdf_epsinf</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mdf_epsinf</span> <span class="o">=</span> <span class="n">mdf_epsinf</span>
 
 <div class="viewcode-block" id="ModelDielectricFunction.to_abivars"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.ModelDielectricFunction.to_abivars">[docs]</a>    <span class="k">def</span> <span class="nf">to_abivars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;mdf_epsinf&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mdf_epsinf</span><span class="p">}</span></div></div>
 
+
 <span class="c1">##########################################################################################</span>
-<span class="c1">#################################  WORK IN PROGRESS ######################################</span>
+<span class="c1"># WORK IN PROGRESS ######################################</span>
 <span class="c1">##########################################################################################</span>
 
 
@@ -1176,8 +1194,8 @@
 
     <span class="c1"># Self-consistecy modes</span>
     <span class="n">_SC_MODES</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;one_shot&quot;</span>     <span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="s2">&quot;energy_only&quot;</span>  <span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;one_shot&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">&quot;energy_only&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
         <span class="s2">&quot;wavefunctions&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
     <span class="p">}</span>
 
@@ -1212,9 +1230,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">hilbert</span> <span class="o">=</span> <span class="n">hilbert</span>
 
         <span class="c1"># Default values (equivalent to those used in Abinit8)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">gwpara</span><span class="o">=</span><span class="mi">2</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">awtr</span>  <span class="o">=</span><span class="mi">1</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">symchi</span><span class="o">=</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gwpara</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">awtr</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">symchi</span> <span class="o">=</span> <span class="mi">1</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">optdriver</span> <span class="o">=</span> <span class="mi">3</span>
 
@@ -1222,8 +1240,8 @@
     <span class="k">def</span> <span class="nf">use_hilbert</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;hilbert&quot;</span><span class="p">)</span>
 
-    <span class="c1">#@property</span>
-    <span class="c1">#def gwcalctyp(self):</span>
+    <span class="c1"># @property</span>
+    <span class="c1"># def gwcalctyp(self):</span>
     <span class="c1">#    &quot;Return the value of the gwcalctyp input variable&quot;</span>
     <span class="c1">#    dig0 = str(self._SIGMA_TYPES[self.type])</span>
     <span class="c1">#    dig1 = str(self._SC_MODES[self.sc_mode]</span>
@@ -1232,16 +1250,16 @@
 <div class="viewcode-block" id="Screening.to_abivars"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiobjects.html#pymatgen.io.abinit.abiobjects.Screening.to_abivars">[docs]</a>    <span class="k">def</span> <span class="nf">to_abivars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a dictionary with the abinit variables&quot;&quot;&quot;</span>
         <span class="n">abivars</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;ecuteps&quot;</span>   <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ecuteps</span><span class="p">,</span>
-            <span class="s2">&quot;ecutwfn&quot;</span>   <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ecutwfn</span><span class="p">,</span>
-            <span class="s2">&quot;inclvkb&quot;</span>   <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">inclvkb</span><span class="p">,</span>
-            <span class="s2">&quot;gwpara&quot;</span>    <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">gwpara</span><span class="p">,</span>
-            <span class="s2">&quot;awtr&quot;</span>      <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">awtr</span><span class="p">,</span>
-            <span class="s2">&quot;symchi&quot;</span>    <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">symchi</span><span class="p">,</span>
-            <span class="s2">&quot;nband&quot;</span>     <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nband</span><span class="p">,</span>
-            <span class="c1">#&quot;gwcalctyp&quot;: self.gwcalctyp,</span>
-            <span class="c1">#&quot;fftgw&quot;    : self.fftgw,</span>
-            <span class="s2">&quot;optdriver&quot;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">optdriver</span><span class="p">,</span>
+            <span class="s2">&quot;ecuteps&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ecuteps</span><span class="p">,</span>
+            <span class="s2">&quot;ecutwfn&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ecutwfn</span><span class="p">,</span>
+            <span class="s2">&quot;inclvkb&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">inclvkb</span><span class="p">,</span>
+            <span class="s2">&quot;gwpara&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">gwpara</span><span class="p">,</span>
+            <span class="s2">&quot;awtr&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">awtr</span><span class="p">,</span>
+            <span class="s2">&quot;symchi&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">symchi</span><span class="p">,</span>
+            <span class="s2">&quot;nband&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nband</span><span class="p">,</span>
+            <span class="c1"># &quot;gwcalctyp&quot;: self.gwcalctyp,</span>
+            <span class="c1"># &quot;fftgw&quot;    : self.fftgw,</span>
+            <span class="s2">&quot;optdriver&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">optdriver</span><span class="p">,</span>
         <span class="p">}</span>
 
         <span class="c1"># Variables for the Hilber transform.</span>
@@ -1256,17 +1274,17 @@
 <span class="sd">    This object defines the parameters used for the computation of the self-energy.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_SIGMA_TYPES</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;gw&quot;</span>          <span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">&quot;gw&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
         <span class="s2">&quot;hartree_fock&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
-        <span class="s2">&quot;sex&quot;</span>         <span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
-        <span class="s2">&quot;cohsex&quot;</span>      <span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+        <span class="s2">&quot;sex&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+        <span class="s2">&quot;cohsex&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
         <span class="s2">&quot;model_gw_ppm&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
-        <span class="s2">&quot;model_gw_cd&quot;</span> <span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
+        <span class="s2">&quot;model_gw_cd&quot;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="n">_SC_MODES</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;one_shot&quot;</span>     <span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="s2">&quot;energy_only&quot;</span>  <span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;one_shot&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">&quot;energy_only&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
         <span class="s2">&quot;wavefunctions&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
     <span class="p">}</span>
 
@@ -1308,28 +1326,28 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">ecutwfn</span> <span class="o">=</span> <span class="n">ecutwfn</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">optdriver</span> <span class="o">=</span> <span class="mi">4</span>
 
-        <span class="c1">#band_mode in [&quot;gap&quot;, &quot;full&quot;]</span>
+        <span class="c1"># band_mode in [&quot;gap&quot;, &quot;full&quot;]</span>
 
-        <span class="c1">#if isinstance(kptgw, str) and kptgw == &quot;all&quot;:</span>
+        <span class="c1"># if isinstance(kptgw, str) and kptgw == &quot;all&quot;:</span>
         <span class="c1">#    self.kptgw = None</span>
         <span class="c1">#    self.nkptgw = None</span>
-        <span class="c1">#else:</span>
+        <span class="c1"># else:</span>
         <span class="c1">#    self.kptgw = np.reshape(kptgw, (-1,3))</span>
         <span class="c1">#    self.nkptgw =  len(self.kptgw)</span>
 
-        <span class="c1">#if bdgw is None:</span>
+        <span class="c1"># if bdgw is None:</span>
         <span class="c1">#    raise ValueError(&quot;bdgw must be specified&quot;)</span>
 
-        <span class="c1">#if isinstance(bdgw, str):</span>
+        <span class="c1"># if isinstance(bdgw, str):</span>
         <span class="c1">#    # TODO add new variable in Abinit so that we can specify</span>
         <span class="c1">#    # an energy interval around the KS gap.</span>
         <span class="c1">#    homo = float(nele) / 2.0</span>
         <span class="c1">#    #self.bdgw =</span>
 
-        <span class="c1">#else:</span>
+        <span class="c1"># else:</span>
         <span class="c1">#    self.bdgw = np.reshape(bdgw, (-1,2))</span>
 
-        <span class="c1">#self.freq_int = freq_int</span>
+        <span class="c1"># self.freq_int = freq_int</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">use_ppmodel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1359,14 +1377,14 @@
             <span class="n">gwpara</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gwpara</span><span class="p">,</span>
             <span class="n">optdriver</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">optdriver</span><span class="p">,</span>
             <span class="n">nband</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nband</span>
-            <span class="c1">#&quot;ecutwfn&quot;  : self.ecutwfn,</span>
-            <span class="c1">#&quot;kptgw&quot;    : self.kptgw,</span>
-            <span class="c1">#&quot;nkptgw&quot;   : self.nkptgw,</span>
-            <span class="c1">#&quot;bdgw&quot;     : self.bdgw,</span>
+            <span class="c1"># &quot;ecutwfn&quot;  : self.ecutwfn,</span>
+            <span class="c1"># &quot;kptgw&quot;    : self.kptgw,</span>
+            <span class="c1"># &quot;nkptgw&quot;   : self.nkptgw,</span>
+            <span class="c1"># &quot;bdgw&quot;     : self.bdgw,</span>
         <span class="p">)</span>
 
         <span class="c1"># FIXME: problem with the spin</span>
-        <span class="c1">#assert len(self.bdgw) == self.nkptgw</span>
+        <span class="c1"># assert len(self.bdgw) == self.nkptgw</span>
 
         <span class="c1"># ppmodel variables</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_ppmodel</span><span class="p">:</span>
@@ -1379,16 +1397,16 @@
     <span class="sd">&quot;&quot;&quot;This object contains the parameters for the solution of the Bethe-Salpeter equation.&quot;&quot;&quot;</span>
     <span class="c1"># Types of excitonic Hamiltonian.</span>
     <span class="n">_EXC_TYPES</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;TDA&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>          <span class="c1"># Tamm-Dancoff approximation.</span>
-        <span class="s2">&quot;coupling&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>     <span class="c1"># Calculation with coupling.</span>
+        <span class="s2">&quot;TDA&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>  <span class="c1"># Tamm-Dancoff approximation.</span>
+        <span class="s2">&quot;coupling&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>  <span class="c1"># Calculation with coupling.</span>
     <span class="p">}</span>
 
     <span class="c1"># Algorithms used to compute the macroscopic dielectric function</span>
     <span class="c1"># and/or the exciton wavefunctions.</span>
     <span class="n">_ALGO2VAR</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;direct_diago&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="s2">&quot;haydock&quot;</span>     <span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
-        <span class="s2">&quot;cg&quot;</span>          <span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="s2">&quot;haydock&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="s2">&quot;cg&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="c1"># Options specifying the treatment of the Coulomb term.</span>
@@ -1396,7 +1414,7 @@
         <span class="s2">&quot;diago&quot;</span><span class="p">,</span>
         <span class="s2">&quot;full&quot;</span><span class="p">,</span>
         <span class="s2">&quot;model_df&quot;</span>
-        <span class="p">]</span>
+    <span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bs_loband</span><span class="p">,</span> <span class="n">nband</span><span class="p">,</span> <span class="n">mbpt_sciss</span><span class="p">,</span> <span class="n">coulomb_mode</span><span class="p">,</span> <span class="n">ecuteps</span><span class="p">,</span> <span class="n">spin_mode</span><span class="o">=</span><span class="s2">&quot;polarized&quot;</span><span class="p">,</span> <span class="n">mdf_epsinf</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">exc_type</span><span class="o">=</span><span class="s2">&quot;TDA&quot;</span><span class="p">,</span> <span class="n">algo</span><span class="o">=</span><span class="s2">&quot;haydock&quot;</span><span class="p">,</span> <span class="n">with_lf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bs_freq_mesh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">zcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -1426,7 +1444,7 @@
             <span class="n">bs_loband</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">spin_mode</span><span class="o">.</span><span class="n">nsppol</span> <span class="o">*</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">bs_loband</span><span class="p">)])</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">bs_loband</span> <span class="o">=</span> <span class="n">bs_loband</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">nband</span>  <span class="o">=</span> <span class="n">nband</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nband</span> <span class="o">=</span> <span class="n">nband</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mbpt_sciss</span> <span class="o">=</span> <span class="n">mbpt_sciss</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">coulomb_mode</span> <span class="o">=</span> <span class="n">coulomb_mode</span>
         <span class="k">assert</span> <span class="n">coulomb_mode</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_COULOMB_MODES</span>
@@ -1446,7 +1464,7 @@
 
         <span class="c1"># Extra options.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
-        <span class="c1">#if &quot;chksymbreak&quot; not in self.kwargs:</span>
+        <span class="c1"># if &quot;chksymbreak&quot; not in self.kwargs:</span>
         <span class="c1">#    self.kwargs[&quot;chksymbreak&quot;] = 0</span>
 
         <span class="c1"># Consistency check</span>
@@ -1480,7 +1498,7 @@
         <span class="n">abivars</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
             <span class="n">bs_calctype</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="n">bs_loband</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bs_loband</span><span class="p">,</span>
-            <span class="c1">#nband=self.nband,</span>
+            <span class="c1"># nband=self.nband,</span>
             <span class="n">mbpt_sciss</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mbpt_sciss</span><span class="p">,</span>
             <span class="n">ecuteps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ecuteps</span><span class="p">,</span>
             <span class="n">bs_algorithm</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_ALGO2VAR</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">algo</span><span class="p">],</span>
@@ -1497,8 +1515,8 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_haydock</span><span class="p">:</span>
             <span class="c1"># FIXME</span>
             <span class="n">abivars</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-                <span class="n">bs_haydock_niter</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>      <span class="c1"># No. of iterations for Haydock</span>
-                <span class="n">bs_hayd_term</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>            <span class="c1"># No terminator</span>
+                <span class="n">bs_haydock_niter</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>  <span class="c1"># No. of iterations for Haydock</span>
+                <span class="n">bs_hayd_term</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>  <span class="c1"># No terminator</span>
                 <span class="n">bs_haydock_tol</span><span class="o">=</span><span class="p">[</span><span class="mf">0.05</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>  <span class="c1"># Stopping criteria</span>
             <span class="p">)</span>
 
@@ -1545,7 +1563,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1553,7 +1571,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

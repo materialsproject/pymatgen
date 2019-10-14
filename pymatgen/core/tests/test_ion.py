@@ -35,8 +35,8 @@ class IonTest(unittest.TestCase):
         self.assertEqual("S2 O3 -2", Ion(Composition(S=2, O=3), -2).formula)
 
     def test_formula(self):
-        correct_formulas = ['Li1 +1', 'Mn1 O4 -1', 'Mn1 +2', 'P1 O3 -2',\
-                            'Fe1 C6 N6 -3', 'Fe1 C6 N6 -4', \
+        correct_formulas = ['Li1 +1', 'Mn1 O4 -1', 'Mn1 +2', 'P1 O3 -2',
+                            'Fe1 C6 N6 -3', 'Fe1 C6 N6 -4',
                             'Fe2 P6 C10 O54 -3', 'Ca1 +2', 'Na1 H1 O1']
         all_formulas = [c.formula for c in self.comp]
         self.assertEqual(all_formulas, correct_formulas)
@@ -49,8 +49,8 @@ class IonTest(unittest.TestCase):
         self.assertEqual(comp.formula, "Li8 Fe6")
 
     def test_alphabetical_formula(self):
-        correct_formulas = ['Li1 +1', 'Mn1 O4 -1', 'Mn1 +2', 'O3 P1 -2',\
-                            'C6 Fe1 N6 -3', 'C6 Fe1 N6 -4', \
+        correct_formulas = ['Li1 +1', 'Mn1 O4 -1', 'Mn1 +2', 'O3 P1 -2',
+                            'C6 Fe1 N6 -3', 'C6 Fe1 N6 -4',
                             'C10 Fe2 O54 P6 -3', 'Ca1 +2', "H1 Na1 O1"]
         all_formulas = [c.alphabetical_formula for c in self.comp]
         self.assertEqual(all_formulas, correct_formulas)
@@ -115,6 +115,7 @@ class IonTest(unittest.TestCase):
 
     def test_len(self):
         self.assertEqual(len(self.comp[1]), 2, "Lengths are not equal!")
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.vasp.outputs &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.io.vasp.outputs &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -49,6 +48,9 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Classes for reading/manipulating/writing VASP ouput files.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">glob</span>
@@ -86,11 +88,7 @@
 <span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="k">import</span> <span class="n">Incar</span><span class="p">,</span> <span class="n">Kpoints</span><span class="p">,</span> <span class="n">Poscar</span><span class="p">,</span> <span class="n">Potcar</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.io_utils</span> <span class="k">import</span> <span class="n">clean_lines</span><span class="p">,</span> <span class="n">micro_pyawk</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.num</span> <span class="k">import</span> <span class="n">make_symmetric_matrix_from_upper_tri</span>
-<span class="kn">from</span> <span class="nn">scipy.io</span> <span class="k">import</span> <span class="n">FortranFile</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Classes for reading/manipulating/writing VASP ouput files.</span>
-<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, &quot;</span> <span class="o">+</span> \
              <span class="s2">&quot;Vincent L Chevrier, Ioannis Petousis, Stephen Dacek, Mark Turiansky&quot;</span>
@@ -125,7 +123,7 @@
 
 
 <span class="k">def</span> <span class="nf">_parse_v_parameters</span><span class="p">(</span><span class="n">val_type</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">param_name</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Helper function to convert a Vasprun array-type parameter into the proper</span>
 <span class="sd">    type. Boolean, int and float types are converted.</span>
 
@@ -133,7 +131,7 @@
 <span class="sd">        val_type: Value type parsed from vasprun.xml.</span>
 <span class="sd">        val: Actual string value parsed for vasprun.xml.</span>
 <span class="sd">        filename: Fullpath of vasprun.xml. Used for robust error handling.</span>
-<span class="sd">            E.g., if vasprun.xml contains \\*\\*\\* for some Incar parameters,</span>
+<span class="sd">            E.g., if vasprun.xml contains *** for some Incar parameters,</span>
 <span class="sd">            the code will try to read from an INCAR file present in the same</span>
 <span class="sd">            directory.</span>
 <span class="sd">        param_name: Name of parameter.</span>
@@ -212,47 +210,6 @@
 <span class="sd">    Speedup over Dom is at least 2x for smallish files (~1Mb) to orders of</span>
 <span class="sd">    magnitude for larger files (~10Mb).</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        filename (str): Filename to parse</span>
-<span class="sd">        ionic_step_skip (int): If ionic_step_skip is a number &gt; 1,</span>
-<span class="sd">            only every ionic_step_skip ionic steps will be read for</span>
-<span class="sd">            structure and energies. This is very useful if you are parsing</span>
-<span class="sd">            very large vasprun.xml files and you are not interested in every</span>
-<span class="sd">            single ionic step. Note that the final energies may not be the</span>
-<span class="sd">            actual final energy in the vasprun.</span>
-<span class="sd">        ionic_step_offset (int): Used together with ionic_step_skip. If set,</span>
-<span class="sd">            the first ionic step read will be offset by the amount of</span>
-<span class="sd">            ionic_step_offset. For example, if you want to start reading</span>
-<span class="sd">            every 10th structure but only from the 3rd structure onwards,</span>
-<span class="sd">            set ionic_step_skip to 10 and ionic_step_offset to 3. Main use</span>
-<span class="sd">            case is when doing statistical structure analysis with</span>
-<span class="sd">            extremely long time scale multiple VASP calculations of</span>
-<span class="sd">            varying numbers of steps.</span>
-<span class="sd">        parse_dos (bool): Whether to parse the dos. Defaults to True. Set</span>
-<span class="sd">            to False to shave off significant time from the parsing if you</span>
-<span class="sd">            are not interested in getting those data.</span>
-<span class="sd">        parse_eigen (bool): Whether to parse the eigenvalues. Defaults to</span>
-<span class="sd">            True. Set to False to shave off significant time from the</span>
-<span class="sd">            parsing if you are not interested in getting those data.</span>
-<span class="sd">        parse_projected_eigen (bool): Whether to parse the projected</span>
-<span class="sd">            eigenvalues. Defaults to False. Set to True to obtain projected</span>
-<span class="sd">            eigenvalues. **Note that this can take an extreme amount of time</span>
-<span class="sd">            and memory.** So use this wisely.</span>
-<span class="sd">        parse_potcar_file (bool/str): Whether to parse the potcar file to read</span>
-<span class="sd">            the potcar hashes for the potcar_spec attribute. Defaults to True,</span>
-<span class="sd">            where no hashes will be determined and the potcar_spec dictionaries</span>
-<span class="sd">            will read {&quot;symbol&quot;: ElSymbol, &quot;hash&quot;: None}. By Default, looks in</span>
-<span class="sd">            the same directory as the vasprun.xml, with same extensions as</span>
-<span class="sd">             Vasprun.xml. If a string is provided, looks at that filepath.</span>
-<span class="sd">        occu_tol (float): Sets the minimum tol for the determination of the</span>
-<span class="sd">            vbm and cbm. Usually the default of 1e-8 works well enough,</span>
-<span class="sd">            but there may be pathological cases.</span>
-<span class="sd">        exception_on_bad_xml (bool): Whether to throw a ParseException if a</span>
-<span class="sd">            malformed XML is detected. Default to True, which ensures only</span>
-<span class="sd">            proper vasprun.xml are parsed. You can set to False if you want</span>
-<span class="sd">            partial results (e.g., if you are monitoring a calculation during a</span>
-<span class="sd">            run), but use the results with care. A warning is issued.</span>
-
 <span class="sd">    **Vasp results**</span>
 
 <span class="sd">    .. attribute:: ionic_steps</span>
@@ -261,10 +218,6 @@
 <span class="sd">        {&quot;structure&quot;: structure at end of run,</span>
 <span class="sd">        &quot;electronic_steps&quot;: {All electronic step data in vasprun file},</span>
 <span class="sd">        &quot;stresses&quot;: stress matrix}</span>
-
-<span class="sd">    .. attribute:: structures</span>
-
-<span class="sd">        List of Structure objects for the structure at each ionic step.</span>
 
 <span class="sd">    .. attribute:: tdos</span>
 
@@ -300,16 +253,6 @@
 <span class="sd">        kpoint, band and atom indices are 0-based (unlike the 1-based indexing</span>
 <span class="sd">        in VASP).</span>
 
-<span class="sd">    .. attribute:: dielectric</span>
-
-<span class="sd">        The real and imaginary part of the dielectric constant (e.g., computed</span>
-<span class="sd">        by RPA) in function of the energy (frequency). Optical properties (e.g.</span>
-<span class="sd">        absorption coefficient) can be obtained through this.</span>
-<span class="sd">        The data is given as a tuple of 3 values containing each of them</span>
-<span class="sd">        the energy, the real part tensor, and the imaginary part tensor</span>
-<span class="sd">        ([energies],[[real_partxx,real_partyy,real_partzz,real_partxy,</span>
-<span class="sd">        real_partyz,real_partxz]],[[imag_partxx,imag_partyy,imag_partzz,</span>
-<span class="sd">        imag_partxy, imag_partyz, imag_partxz]])</span>
 
 <span class="sd">    .. attribute:: other_dielectric</span>
 
@@ -322,21 +265,6 @@
 <span class="sd">        ([energies],[[real_partxx,real_partyy,real_partzz,real_partxy,</span>
 <span class="sd">        real_partyz,real_partxz]],[[imag_partxx,imag_partyy,imag_partzz,</span>
 <span class="sd">        imag_partxy, imag_partyz, imag_partxz]])</span>
-
-<span class="sd">    .. attribute:: epsilon_static</span>
-
-<span class="sd">        The static part of the dielectric constant. Present when it&#39;s a DFPT run</span>
-<span class="sd">        (LEPSILON=TRUE)</span>
-
-<span class="sd">    .. attribute:: epsilon_static_wolfe</span>
-
-<span class="sd">        The static part of the dielectric constant without any local field</span>
-<span class="sd">        effects. Present when it&#39;s a DFPT run (LEPSILON=TRUE)</span>
-
-<span class="sd">    .. attribute:: epsilon_ionic</span>
-
-<span class="sd">        The ionic part of the static dielectric constant. Present when it&#39;s a</span>
-<span class="sd">        DFPT run (LEPSILON=TRUE) and IBRION=5, 6, 7 or 8</span>
 
 <span class="sd">    .. attribute:: nionic_steps</span>
 
@@ -402,6 +330,48 @@
                  <span class="n">parse_eigen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parse_projected_eigen</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">parse_potcar_file</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">occu_tol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span>
                  <span class="n">exception_on_bad_xml</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            filename (str): Filename to parse</span>
+<span class="sd">            ionic_step_skip (int): If ionic_step_skip is a number &gt; 1,</span>
+<span class="sd">                only every ionic_step_skip ionic steps will be read for</span>
+<span class="sd">                structure and energies. This is very useful if you are parsing</span>
+<span class="sd">                very large vasprun.xml files and you are not interested in every</span>
+<span class="sd">                single ionic step. Note that the final energies may not be the</span>
+<span class="sd">                actual final energy in the vasprun.</span>
+<span class="sd">            ionic_step_offset (int): Used together with ionic_step_skip. If set,</span>
+<span class="sd">                the first ionic step read will be offset by the amount of</span>
+<span class="sd">                ionic_step_offset. For example, if you want to start reading</span>
+<span class="sd">                every 10th structure but only from the 3rd structure onwards,</span>
+<span class="sd">                set ionic_step_skip to 10 and ionic_step_offset to 3. Main use</span>
+<span class="sd">                case is when doing statistical structure analysis with</span>
+<span class="sd">                extremely long time scale multiple VASP calculations of</span>
+<span class="sd">                varying numbers of steps.</span>
+<span class="sd">            parse_dos (bool): Whether to parse the dos. Defaults to True. Set</span>
+<span class="sd">                to False to shave off significant time from the parsing if you</span>
+<span class="sd">                are not interested in getting those data.</span>
+<span class="sd">            parse_eigen (bool): Whether to parse the eigenvalues. Defaults to</span>
+<span class="sd">                True. Set to False to shave off significant time from the</span>
+<span class="sd">                parsing if you are not interested in getting those data.</span>
+<span class="sd">            parse_projected_eigen (bool): Whether to parse the projected</span>
+<span class="sd">                eigenvalues. Defaults to False. Set to True to obtain projected</span>
+<span class="sd">                eigenvalues. **Note that this can take an extreme amount of time</span>
+<span class="sd">                and memory.** So use this wisely.</span>
+<span class="sd">            parse_potcar_file (bool/str): Whether to parse the potcar file to read</span>
+<span class="sd">                the potcar hashes for the potcar_spec attribute. Defaults to True,</span>
+<span class="sd">                where no hashes will be determined and the potcar_spec dictionaries</span>
+<span class="sd">                will read {&quot;symbol&quot;: ElSymbol, &quot;hash&quot;: None}. By Default, looks in</span>
+<span class="sd">                the same directory as the vasprun.xml, with same extensions as</span>
+<span class="sd">                 Vasprun.xml. If a string is provided, looks at that filepath.</span>
+<span class="sd">            occu_tol (float): Sets the minimum tol for the determination of the</span>
+<span class="sd">                vbm and cbm. Usually the default of 1e-8 works well enough,</span>
+<span class="sd">                but there may be pathological cases.</span>
+<span class="sd">            exception_on_bad_xml (bool): Whether to throw a ParseException if a</span>
+<span class="sd">                malformed XML is detected. Default to True, which ensures only</span>
+<span class="sd">                proper vasprun.xml are parsed. You can set to False if you want</span>
+<span class="sd">                partial results (e.g., if you are monitoring a calculation during a</span>
+<span class="sd">                run), but use the results with care. A warning is issued.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ionic_step_skip</span> <span class="o">=</span> <span class="n">ionic_step_skip</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ionic_step_offset</span> <span class="o">=</span> <span class="n">ionic_step_offset</span>
@@ -483,7 +453,7 @@
                         <span class="bp">self</span><span class="o">.</span><span class="n">tdos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">idos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_dos</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tdos</span><span class="o">.</span><span class="n">efermi</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">dos_has_errors</span> <span class="o">=</span> <span class="kc">False</span>
-                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+                    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">dos_has_errors</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="k">elif</span> <span class="n">parse_eigen</span> <span class="ow">and</span> <span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;eigenvalues&quot;</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">eigenvalues</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_eigen</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
@@ -551,12 +521,20 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">structures</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">             List of Structure objects for the structure at each ionic step.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">step</span><span class="p">[</span><span class="s2">&quot;structure&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ionic_steps</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">epsilon_static</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Property only available for DFPT calculations.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The static part of the dielectric constant. Present when it&#39;s a DFPT run</span>
+<span class="sd">            (LEPSILON=TRUE)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ionic_steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;epsilon&quot;</span><span class="p">,</span> <span class="p">[])</span>
 
@@ -564,6 +542,10 @@
     <span class="k">def</span> <span class="nf">epsilon_static_wolfe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Property only available for DFPT calculations.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The static part of the dielectric constant without any local field</span>
+<span class="sd">            effects. Present when it&#39;s a DFPT run (LEPSILON=TRUE)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ionic_steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;epsilon_rpa&quot;</span><span class="p">,</span> <span class="p">[])</span>
 
@@ -571,11 +553,27 @@
     <span class="k">def</span> <span class="nf">epsilon_ionic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Property only available for DFPT calculations and when IBRION=5, 6, 7 or 8.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The ionic part of the static dielectric constant. Present when it&#39;s a</span>
+<span class="sd">            DFPT run (LEPSILON=TRUE) and IBRION=5, 6, 7 or 8</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ionic_steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;epsilon_ion&quot;</span><span class="p">,</span> <span class="p">[])</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">dielectric</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            The real and imaginary part of the dielectric constant (e.g., computed</span>
+<span class="sd">            by RPA) in function of the energy (frequency). Optical properties (e.g.</span>
+<span class="sd">            absorption coefficient) can be obtained through this.</span>
+<span class="sd">            The data is given as a tuple of 3 values containing each of them</span>
+<span class="sd">            the energy, the real part tensor, and the imaginary part tensor</span>
+<span class="sd">            ([energies],[[real_partxx,real_partyy,real_partzz,real_partxy,</span>
+<span class="sd">            real_partyz,real_partxz]],[[imag_partxx,imag_partyy,imag_partzz,</span>
+<span class="sd">            imag_partxy, imag_partyz, imag_partxz]])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dielectric_data</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">]</span>
 
     <span class="nd">@property</span>
@@ -607,18 +605,11 @@
         <span class="k">return</span> <span class="n">absorption_coeff</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">lattice</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_structure</span><span class="o">.</span><span class="n">lattice</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">lattice_rec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">reciprocal_lattice</span>
-
-    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">converged_electronic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Checks that electronic step convergence has been reached in the final</span>
-<span class="sd">        ionic step</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            True if electronic step convergence has been reached in the final</span>
+<span class="sd">            ionic step</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">final_esteps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ionic_steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;electronic_steps&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="s1">&#39;LEPSILON&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar</span><span class="p">[</span><span class="s1">&#39;LEPSILON&#39;</span><span class="p">]:</span>
@@ -632,8 +623,9 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">converged_ionic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Checks that ionic step convergence has been reached, i.e. that vasp</span>
-<span class="sd">        exited before reaching the max ionic steps for a relaxation run</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            True if ionic step convergence has been reached, i.e. that vasp</span>
+<span class="sd">            exited before reaching the max ionic steps for a relaxation run</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">nsw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;NSW&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">nsw</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ionic_steps</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">nsw</span>
@@ -641,11 +633,13 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">converged</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns true if a relaxation run is converged.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            True if a relaxation run is converged both ionically and</span>
+<span class="sd">            electronically.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">converged_electronic</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">converged_ionic</span>
 
-    <span class="nd">@property</span>
+    <span class="nd">@property</span>  <span class="c1"># type: ignore</span>
     <span class="nd">@unitized</span><span class="p">(</span><span class="s2">&quot;eV&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">final_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -837,7 +831,7 @@
         <span class="n">kpoint_file</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">kpoints_filename</span><span class="p">):</span>
             <span class="n">kpoint_file</span> <span class="o">=</span> <span class="n">Kpoints</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">kpoints_filename</span><span class="p">)</span>
-        <span class="n">lattice_new</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice_rec</span><span class="o">.</span><span class="n">matrix</span><span class="p">)</span>
+        <span class="n">lattice_new</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">final_structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">reciprocal_lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">)</span>
 
         <span class="n">kpoints</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">actual_kpoints</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">actual_kpoints</span><span class="p">))]</span>
@@ -846,9 +840,6 @@
         <span class="n">eigenvals</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
 
         <span class="n">nkpts</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">kpoints</span><span class="p">)</span>
-
-        <span class="n">neigenvalues</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">eigenvalues</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">]]</span>
-        <span class="n">min_eigenvalues</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">neigenvalues</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">spin</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">eigenvalues</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -949,6 +940,10 @@
         <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">cbm</span> <span class="o">-</span> <span class="n">vbm</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">cbm</span><span class="p">,</span> <span class="n">vbm</span><span class="p">,</span> <span class="n">vbm_kpoint</span> <span class="o">==</span> <span class="n">cbm_kpoint</span>
 
 <div class="viewcode-block" id="Vasprun.get_potcars"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Vasprun.get_potcars">[docs]</a>    <span class="k">def</span> <span class="nf">get_potcars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param path: Path to search for POTCARs</span>
+<span class="sd">        :return: Potcar from path.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">def</span> <span class="nf">get_potcar_in_path</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">p</span><span class="p">)):</span>
                 <span class="k">if</span> <span class="n">fn</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;POTCAR&#39;</span><span class="p">):</span>
@@ -976,6 +971,10 @@
         <span class="k">return</span> <span class="n">potcar</span></div>
 
 <div class="viewcode-block" id="Vasprun.update_potcar_spec"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Vasprun.update_potcar_spec">[docs]</a>    <span class="k">def</span> <span class="nf">update_potcar_spec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param path: Path to search for POTCARs</span>
+<span class="sd">        :return: Potcar spec from path.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">potcar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_potcars</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">potcar</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">potcar_spec</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;titel&quot;</span><span class="p">:</span> <span class="n">sym</span><span class="p">,</span> <span class="s2">&quot;hash&quot;</span><span class="p">:</span> <span class="n">ps</span><span class="o">.</span><span class="n">get_potcar_hash</span><span class="p">()}</span>
@@ -984,6 +983,11 @@
                                 <span class="n">ps</span><span class="o">.</span><span class="n">symbol</span> <span class="o">==</span> <span class="n">sym</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">]]</span></div>
 
 <div class="viewcode-block" id="Vasprun.update_charge_from_potcar"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Vasprun.update_charge_from_potcar">[docs]</a>    <span class="k">def</span> <span class="nf">update_charge_from_potcar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the charge of a structure based on the POTCARs found.</span>
+
+<span class="sd">        :param path: Path to search for POTCARs</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">potcar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_potcars</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">potcar</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ALGO&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;GW0&quot;</span><span class="p">,</span> <span class="s2">&quot;G0W0&quot;</span><span class="p">,</span> <span class="s2">&quot;GW&quot;</span><span class="p">,</span> <span class="s2">&quot;BSE&quot;</span><span class="p">]:</span>
@@ -1037,7 +1041,7 @@
         <span class="n">vin</span><span class="p">[</span><span class="s2">&quot;potcar_spec&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">potcar_spec</span>
         <span class="n">vin</span><span class="p">[</span><span class="s2">&quot;potcar_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">potcar_symbols</span><span class="p">]</span>
         <span class="n">vin</span><span class="p">[</span><span class="s2">&quot;parameters&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
-        <span class="n">vin</span><span class="p">[</span><span class="s2">&quot;lattice_rec&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice_rec</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+        <span class="n">vin</span><span class="p">[</span><span class="s2">&quot;lattice_rec&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">reciprocal_lattice</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
         <span class="n">d</span><span class="p">[</span><span class="s2">&quot;input&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">vin</span>
 
         <span class="n">nsites</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">final_structure</span><span class="p">)</span>
@@ -1328,6 +1332,23 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">parse_projected_eigen</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">parse_potcar_file</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">occu_tol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            filename (str): Filename to parse</span>
+<span class="sd">            parse_projected_eigen (bool): Whether to parse the projected</span>
+<span class="sd">                eigenvalues. Defaults to False. Set to True to obtain projected</span>
+<span class="sd">                eigenvalues. **Note that this can take an extreme amount of time</span>
+<span class="sd">                and memory.** So use this wisely.</span>
+<span class="sd">            parse_potcar_file (bool/str): Whether to parse the potcar file to read</span>
+<span class="sd">                the potcar hashes for the potcar_spec attribute. Defaults to True,</span>
+<span class="sd">                where no hashes will be determined and the potcar_spec dictionaries</span>
+<span class="sd">                will read {&quot;symbol&quot;: ElSymbol, &quot;hash&quot;: None}. By Default, looks in</span>
+<span class="sd">                the same directory as the vasprun.xml, with same extensions as</span>
+<span class="sd">                 Vasprun.xml. If a string is provided, looks at that filepath.</span>
+<span class="sd">            occu_tol (float): Sets the minimum tol for the determination of the</span>
+<span class="sd">                vbm and cbm. Usually the default of 1e-8 works well enough,</span>
+<span class="sd">                but there may be pathological cases.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">occu_tol</span> <span class="o">=</span> <span class="n">occu_tol</span>
 
@@ -1398,7 +1419,7 @@
         <span class="n">vin</span><span class="p">[</span><span class="s2">&quot;potcar_spec&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">potcar_spec</span>
         <span class="n">vin</span><span class="p">[</span><span class="s2">&quot;potcar_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">potcar_symbols</span><span class="p">]</span>
         <span class="n">vin</span><span class="p">[</span><span class="s2">&quot;parameters&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
-        <span class="n">vin</span><span class="p">[</span><span class="s2">&quot;lattice_rec&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice_rec</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+        <span class="n">vin</span><span class="p">[</span><span class="s2">&quot;lattice_rec&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">reciprocal_lattice</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
         <span class="n">d</span><span class="p">[</span><span class="s2">&quot;input&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">vin</span>
 
         <span class="n">vout</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;crystal&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_structure</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
@@ -1438,9 +1459,6 @@
 
 <span class="sd">    Creating the OUTCAR class with a filename reads &quot;regular parameters&quot; that</span>
 <span class="sd">    are always present.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        filename (str): OUTCAR filename to parse.</span>
 
 <span class="sd">    .. attribute:: magnetization</span>
 
@@ -1535,6 +1553,10 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            filename (str): OUTCAR filename to parse.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_stopped</span> <span class="o">=</span> <span class="kc">False</span>
 
@@ -1762,7 +1784,7 @@
 
 <div class="viewcode-block" id="Outcar.read_pattern"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Outcar.read_pattern">[docs]</a>    <span class="k">def</span> <span class="nf">read_pattern</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">patterns</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">terminate_on_match</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                      <span class="n">postprocess</span><span class="o">=</span><span class="nb">str</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        General pattern reading. Uses monty&#39;s regrep method. Takes the same</span>
 <span class="sd">        arguments.</span>
 
@@ -1793,7 +1815,7 @@
 <div class="viewcode-block" id="Outcar.read_table_pattern"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Outcar.read_table_pattern">[docs]</a>    <span class="k">def</span> <span class="nf">read_table_pattern</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">header_pattern</span><span class="p">,</span> <span class="n">row_pattern</span><span class="p">,</span> <span class="n">footer_pattern</span><span class="p">,</span>
                            <span class="n">postprocess</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">attribute_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                            <span class="n">last_one_only</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parse table-like data. A table composes of three parts: header,</span>
 <span class="sd">        main body, footer. All the data matches &quot;row pattern&quot; in the main body</span>
 <span class="sd">        will be returned.</span>
@@ -1930,9 +1952,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">dielectric_energies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">energies</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dielectric_tensor_function</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;REAL&quot;</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;IMAGINARY&quot;</span><span class="p">])</span></div>
 
-    <span class="nd">@property</span>
+    <span class="nd">@property</span>  <span class="c1"># type: ignore</span>
     <span class="nd">@deprecated</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;frequencies has been renamed to dielectric_energies.&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">frequencies</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Renamed to dielectric energies.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dielectric_energies</span>
 
 <div class="viewcode-block" id="Outcar.read_chemical_shielding"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Outcar.read_chemical_shielding">[docs]</a>    <span class="k">def</span> <span class="nf">read_chemical_shielding</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1971,9 +1996,9 @@
 
 <div class="viewcode-block" id="Outcar.read_cs_g0_contribution"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Outcar.read_cs_g0_contribution">[docs]</a>    <span class="k">def</span> <span class="nf">read_cs_g0_contribution</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Parse the  G0 contribution of NMR chemical shielding.</span>
+<span class="sd">        Parse the  G0 contribution of NMR chemical shielding.</span>
 
-<span class="sd">            Returns:</span>
+<span class="sd">        Returns:</span>
 <span class="sd">            G0 contribution matrix as list of list.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">header_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;^\s+G\=0 CONTRIBUTION TO CHEMICAL SHIFT \(field along BDIR\)\s+$\n&#39;</span> \
@@ -2009,7 +2034,7 @@
 <span class="sd">        Parse the matrix form of NMR tensor before corrected to table.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">        nsymmetrized tensors list in the order of atoms.</span>
+<span class="sd">            nsymmetrized tensors list in the order of atoms.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">header_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s+-{50,}\s+&quot;</span> \
                          <span class="sa">r</span><span class="s2">&quot;\s+Absolute Chemical Shift tensors\s+&quot;</span> \
@@ -2152,6 +2177,13 @@
         <span class="p">]</span></div>
 
 <div class="viewcode-block" id="Outcar.read_corrections"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Outcar.read_corrections">[docs]</a>    <span class="k">def</span> <span class="nf">read_corrections</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">terminate_on_match</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reads the dipol qudropol corrections into the</span>
+<span class="sd">        Outcar.data[&quot;dipol_quadrupol_correction&quot;].</span>
+
+<span class="sd">        :param reverse: Whether to start from end of OUTCAR.</span>
+<span class="sd">        :param terminate_on_match: Whether to terminate once match is found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">patterns</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;dipol_quadrupol_correction&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;dipol\+quadrupol energy &quot;</span>
                                           <span class="sa">r</span><span class="s2">&quot;correction\s+([\d\-\.]+)&quot;</span>
@@ -2347,7 +2379,11 @@
         <span class="n">micro_pyawk</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">search</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Outcar.read_lepsilon"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Outcar.read_lepsilon">[docs]</a>    <span class="k">def</span> <span class="nf">read_lepsilon</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># variables to be filled</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reads an LEPSILON run.</span>
+
+<span class="sd">        # TODO: Document the actual variables.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">search</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -2427,8 +2463,7 @@
             <span class="k">def</span> <span class="nf">born_section_start</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">match</span><span class="p">):</span>
                 <span class="n">results</span><span class="o">.</span><span class="n">born_ion</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 
-            <span class="n">search</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="sa">r</span><span class="s2">&quot;BORN EFFECTIVE CHARGES &quot;</span> <span class="o">+</span>
-                           <span class="sa">r</span><span class="s2">&quot;\(in e, cummulative output\)&quot;</span><span class="p">,</span>
+            <span class="n">search</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="sa">r</span><span class="s2">&quot;BORN EFFECTIVE CHARGES &quot;</span><span class="p">,</span>
                            <span class="kc">None</span><span class="p">,</span> <span class="n">born_section_start</span><span class="p">])</span>
 
             <span class="k">def</span> <span class="nf">born_ion</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">match</span><span class="p">):</span>
@@ -2472,7 +2507,11 @@
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;LEPSILON OUTCAR could not be parsed.&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Outcar.read_lepsilon_ionic"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Outcar.read_lepsilon_ionic">[docs]</a>    <span class="k">def</span> <span class="nf">read_lepsilon_ionic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># variables to be filled</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reads an LEPSILON run, the ionic component.</span>
+
+<span class="sd">        # TODO: Document the actual variables.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">search</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -2561,7 +2600,11 @@
                 <span class="s2">&quot;ionic part of LEPSILON OUTCAR could not be parsed.&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Outcar.read_lcalcpol"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Outcar.read_lcalcpol">[docs]</a>    <span class="k">def</span> <span class="nf">read_lcalcpol</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># variables to be filled</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reads the lcalpol.</span>
+
+<span class="sd">        # TODO: Document the actual variables.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">p_elec</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">p_sp1</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">p_sp2</span> <span class="o">=</span> <span class="kc">None</span>
@@ -2703,7 +2746,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">def</span> <span class="nf">pairwise</span><span class="p">(</span><span class="n">iterable</span><span class="p">):</span>
-            <span class="s2">&quot;s -&gt; (s0,s1), (s1,s2), (s2, s3), ...&quot;</span>
+            <span class="sd">&quot;&quot;&quot;s -&gt; (s0,s1), (s1,s2), (s2, s3), ...&quot;&quot;&quot;</span>
             <span class="n">a</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">iterable</span><span class="p">)</span>
             <span class="k">return</span> <span class="nb">zip</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
 
@@ -2730,6 +2773,9 @@
         <span class="k">return</span> <span class="n">aps</span></div>
 
 <div class="viewcode-block" id="Outcar.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Outcar.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: MSONAble dict.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
              <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="s2">&quot;efermi&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span><span class="p">,</span>
              <span class="s2">&quot;run_stats&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_stats</span><span class="p">,</span> <span class="s2">&quot;magnetization&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">magnetization</span><span class="p">,</span>
@@ -2780,7 +2826,7 @@
         <span class="k">return</span> <span class="n">d</span></div>
 
 <div class="viewcode-block" id="Outcar.read_fermi_contact_shift"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Outcar.read_fermi_contact_shift">[docs]</a>    <span class="k">def</span> <span class="nf">read_fermi_contact_shift</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        output example:</span>
 <span class="sd">        Fermi contact (isotropic) hyperfine coupling parameter (MHz)</span>
 <span class="sd">        -------------------------------------------------------------</span>
@@ -2794,7 +2840,7 @@
 <span class="sd">        [[-0.002, -0.002, -0.051, 0.0, -0.052],</span>
 <span class="sd">         [-0.002, -0.002, -0.051, 0.0, -0.052],</span>
 <span class="sd">         [0.056, 0.056, 0.321, -0.048, 0.321]] from &#39;fch&#39; data</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Fermi contact (isotropic) hyperfine coupling parameter (MHz)</span>
         <span class="n">header_pattern1</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*Fermi contact \(isotropic\) hyperfine coupling parameter \(MHz\)\s+&quot;</span> \
@@ -2922,6 +2968,17 @@
     <span class="k">def</span> <span class="nf">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear_add</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">)</span>
 
+<div class="viewcode-block" id="VolumetricData.copy"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.VolumetricData.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Copy of Volumetric object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">VolumetricData</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span>
+            <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span>
+            <span class="n">distance_matrix</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_distance_matrix</span><span class="p">,</span>
+            <span class="n">data_aug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_aug</span>
+        <span class="p">)</span></div>
+
 <div class="viewcode-block" id="VolumetricData.linear_add"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.VolumetricData.linear_add">[docs]</a>    <span class="k">def</span> <span class="nf">linear_add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Method to do a linear sum of volumetric objects. Used by + and -</span>
@@ -2936,9 +2993,12 @@
 <span class="sd">            VolumetricData corresponding to self + scale_factor * other.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">structure</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Adding or subtraction operations can only be &quot;</span>
-                             <span class="s2">&quot;performed for volumetric data with the exact &quot;</span>
-                             <span class="s2">&quot;same structure.&quot;</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Structures are different. Make sure you know what &quot;</span>
+                          <span class="s2">&quot;you are doing...&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Data have different keys! Maybe one is spin-&quot;</span>
+                             <span class="s2">&quot;polarized and the other is not?&quot;</span><span class="p">)</span>
+
         <span class="c1"># To add checks</span>
         <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -3237,6 +3297,12 @@
 
 <div class="viewcode-block" id="VolumetricData.from_hdf5"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.VolumetricData.from_hdf5">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_hdf5</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reads VolumetricData from HDF5 file.</span>
+
+<span class="sd">        :param filename: Filename</span>
+<span class="sd">        :return: VolumetricData</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">import</span> <span class="nn">h5py</span>
         <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">f</span><span class="p">[</span><span class="s2">&quot;vdata&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
@@ -3247,18 +3313,25 @@
 <div class="viewcode-block" id="Locpot"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Locpot">[docs]</a><span class="k">class</span> <span class="nc">Locpot</span><span class="p">(</span><span class="n">VolumetricData</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Simple object for reading a LOCPOT file.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        poscar (Poscar): Poscar object containing structure.</span>
-<span class="sd">        data: Actual data.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">poscar</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            poscar (Poscar): Poscar object containing structure.</span>
+<span class="sd">            data: Actual data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">poscar</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">poscar</span><span class="o">.</span><span class="n">comment</span>
 
 <div class="viewcode-block" id="Locpot.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Locpot.from_file">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reads a LOCPOT file.</span>
+
+<span class="sd">        :param filename: Filename</span>
+<span class="sd">        :return: Locpot</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="p">(</span><span class="n">poscar</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">data_aug</span><span class="p">)</span> <span class="o">=</span> <span class="n">VolumetricData</span><span class="o">.</span><span class="n">parse_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Locpot</span><span class="p">(</span><span class="n">poscar</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div></div>
 
@@ -3266,13 +3339,14 @@
 <div class="viewcode-block" id="Chgcar"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Chgcar">[docs]</a><span class="k">class</span> <span class="nc">Chgcar</span><span class="p">(</span><span class="n">VolumetricData</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Simple object for reading a CHGCAR file.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        poscar (Poscar): Poscar object containing structure.</span>
-<span class="sd">        data: Actual data.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">poscar</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">data_aug</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            poscar (Poscar): Poscar object containing structure.</span>
+<span class="sd">            data: Actual data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">poscar</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">data_aug</span><span class="o">=</span><span class="n">data_aug</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">poscar</span> <span class="o">=</span> <span class="n">poscar</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">poscar</span><span class="o">.</span><span class="n">comment</span>
@@ -3280,11 +3354,20 @@
 
 <div class="viewcode-block" id="Chgcar.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Chgcar.from_file">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reads a CHGCAR file.</span>
+
+<span class="sd">        :param filename: Filename</span>
+<span class="sd">        :return: Chgcar</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="p">(</span><span class="n">poscar</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">data_aug</span><span class="p">)</span> <span class="o">=</span> <span class="n">VolumetricData</span><span class="o">.</span><span class="n">parse_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Chgcar</span><span class="p">(</span><span class="n">poscar</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">data_aug</span><span class="o">=</span><span class="n">data_aug</span><span class="p">)</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">net_magnetization</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Net magnetization from Chgcar</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_spin_polarized</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;diff&#39;</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
@@ -3302,6 +3385,11 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">poscar</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            poscar (Poscar): Poscar object containing structure.</span>
+<span class="sd">            data: Actual data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">poscar</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
         <span class="c1"># TODO: modify VolumetricData so that the correct keys can be used.</span>
         <span class="c1"># for ELF, instead of &quot;total&quot; and &quot;diff&quot; keys we have</span>
@@ -3311,6 +3399,12 @@
 
 <div class="viewcode-block" id="Elfcar.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Elfcar.from_file">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reads a ELFCAR file.</span>
+
+<span class="sd">        :param filename: Filename</span>
+<span class="sd">        :return: Elfcar</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="p">(</span><span class="n">poscar</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">data_aug</span><span class="p">)</span> <span class="o">=</span> <span class="n">VolumetricData</span><span class="o">.</span><span class="n">parse_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">poscar</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
 
@@ -3331,8 +3425,6 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Object for reading a PROCAR file.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        filename: Name of file containing PROCAR.</span>
 
 <span class="sd">    .. attribute:: data</span>
 
@@ -3371,6 +3463,10 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            filename: Name of file containing PROCAR.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">headers</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -3385,6 +3481,7 @@
             <span class="n">current_band</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="n">done</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="n">spin</span> <span class="o">=</span> <span class="n">Spin</span><span class="o">.</span><span class="n">down</span>
+            <span class="n">weights</span> <span class="o">=</span> <span class="kc">None</span>
 
             <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">l</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
@@ -3507,9 +3604,6 @@
 <span class="sd">    recommend that you use the Vasprun parser instead, which gives far richer</span>
 <span class="sd">    information about a run.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        filename (str): Filename of file to parse</span>
-
 <span class="sd">    .. attribute:: electronic_steps</span>
 
 <span class="sd">            All electronic steps as a list of list of dict. e.g.,</span>
@@ -3530,6 +3624,10 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            filename (str): Filename of file to parse</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">electronic_steps</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">ionic_steps</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">ionic_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(\d+)\s+F=\s*([\d\-\.E\+]+)\s+&quot;</span>
@@ -3610,7 +3708,7 @@
             <span class="n">all_energies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">energies</span><span class="p">))</span>
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">all_energies</span><span class="p">)</span>
 
-    <span class="nd">@property</span>
+    <span class="nd">@property</span>  <span class="c1"># type: ignore</span>
     <span class="nd">@unitized</span><span class="p">(</span><span class="s2">&quot;eV&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">final_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -3619,6 +3717,9 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ionic_steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;E0&quot;</span><span class="p">]</span>
 
 <div class="viewcode-block" id="Oszicar.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Oszicar.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: MSONable dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;electronic_steps&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">electronic_steps</span><span class="p">,</span>
                 <span class="s2">&quot;ionic_steps&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ionic_steps</span><span class="p">}</span></div></div>
 
@@ -3844,17 +3945,16 @@
                    <span class="n">ionicstep_end</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                    <span class="n">significant_figures</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Write  Xdatcar class into a file</span>
+<span class="sd">        Write  Xdatcar class to a string.</span>
+
 <span class="sd">        Args:</span>
-<span class="sd">            filename (str): Filename of output XDATCAR file.</span>
 <span class="sd">            ionicstep_start (int): Starting number of ionic step.</span>
 <span class="sd">            ionicstep_end (int): Ending number of ionic step.</span>
+<span class="sd">            significant_figures (int): Number of significant figures.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.io.vasp</span> <span class="k">import</span> <span class="n">Poscar</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">ionicstep_start</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">ionicstep_start</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Start ionic step cannot be less than 1&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">ionicstep_end</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span>
-                <span class="n">ionicstep_start</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">ionicstep_end</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ionicstep_end</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;End ionic step cannot be less than 1&#39;</span><span class="p">)</span>
         <span class="n">latt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lattice</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">latt</span><span class="o">.</span><span class="n">matrix</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -3890,6 +3990,7 @@
 <div class="viewcode-block" id="Xdatcar.write_file"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Xdatcar.write_file">[docs]</a>    <span class="k">def</span> <span class="nf">write_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write  Xdatcar class into a file.</span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            filename (str): Filename of output XDATCAR file.</span>
 <span class="sd">            The supported kwargs are the same as those for the</span>
@@ -3906,9 +4007,6 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Object for reading a DYNMAT file.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        filename: Name of file containing DYNMAT.</span>
-
 <span class="sd">    .. attribute:: data</span>
 
 <span class="sd">        A nested dict containing the DYNMAT data of the form::</span>
@@ -3921,6 +4019,10 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            filename: Name of file containing DYNMAT</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">lines</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">clean_lines</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_nspecs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_natoms</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ndisps</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">lines</span><span class="p">[</span>
@@ -4451,9 +4553,6 @@
 <span class="sd">    recompiled after uncommenting the line that calls</span>
 <span class="sd">    WRT_CDER_BETWEEN_STATES_FORMATTED in linear_optics.F</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        filename: Name of file containing WAVEDERF.</span>
-
 <span class="sd">    .. attribute:: data</span>
 
 <span class="sd">        A numpy array containing the WAVEDERF data of the form below. It should</span>
@@ -4480,9 +4579,12 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            filename: Name of file containing WAVEDERF.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">header</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-            <span class="n">ispin</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
             <span class="n">nb_kpoints</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
             <span class="n">nb_bands</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nb_kpoints</span><span class="p">,</span> <span class="n">nb_bands</span><span class="p">,</span> <span class="n">nb_bands</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
@@ -4542,12 +4644,13 @@
 <span class="sd">    The LOPTICS tag produces a WAVEDER file.</span>
 <span class="sd">    The WAVEDER contains the derivative of the orbitals with respect to k.</span>
 <span class="sd">    Author: Kamal Choudhary, NIST</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        filename: Name of file containing WAVEDER.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">gamma_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            filename: Name of file containing WAVEDER.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
             <span class="k">def</span> <span class="nf">readData</span><span class="p">(</span><span class="n">dtype</span><span class="p">):</span>
                 <span class="sd">&quot;&quot;&quot; Read records from Fortran binary file and convert to</span>
@@ -4565,11 +4668,8 @@
                 <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
 
             <span class="n">nbands</span><span class="p">,</span> <span class="n">nelect</span><span class="p">,</span> <span class="n">nk</span><span class="p">,</span> <span class="n">ispin</span> <span class="o">=</span> <span class="n">readData</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
-
-            <span class="n">nodes_in_dielectric_function</span> <span class="o">=</span> <span class="n">readData</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
-
-            <span class="n">wplasmon</span> <span class="o">=</span> <span class="n">readData</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
-
+            <span class="n">_</span> <span class="o">=</span> <span class="n">readData</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>  <span class="c1"># nodes_in_dielectric_function</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">readData</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>  <span class="c1"># wplasmon</span>
             <span class="k">if</span> <span class="n">gamma_only</span><span class="p">:</span>
                 <span class="n">cder</span> <span class="o">=</span> <span class="n">readData</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
@@ -4670,7 +4770,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -4678,7 +4778,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

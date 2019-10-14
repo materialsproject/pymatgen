@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.abinit.qadapters &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.io.abinit.qadapters &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -86,12 +85,12 @@
 <span class="kn">from</span> <span class="nn">.qjobs</span> <span class="k">import</span> <span class="n">QueueJob</span>
 
 <span class="kn">import</span> <span class="nn">logging</span>
+
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;make_qadapter&quot;</span><span class="p">,</span>
 <span class="p">]</span>
-
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Matteo Giantomassi&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2013, The Materials Project&quot;</span>
@@ -116,6 +115,7 @@
 <span class="sd">    by the different MPI libraries. It&#39;s main task is handling the</span>
 <span class="sd">    different syntax and options supported by the different mpirunners.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
@@ -159,14 +159,14 @@
                 <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;type </span><span class="si">%s</span><span class="s2"> is not supported!&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
 
         <span class="k">elif</span> <span class="n">basename</span> <span class="o">==</span> <span class="s2">&quot;runjob&quot;</span><span class="p">:</span>
-            <span class="c1">#runjob --ranks-per-node 2 --exp-env OMP_NUM_THREADS --exe $ABINIT &lt; $STDIN &gt; $STDOUT 2&gt; $STDERR</span>
-            <span class="c1">#runjob -n 2 --exp-env=OMP_NUM_THREADS --exe $ABINIT &lt; $STDIN &gt; $STDOUT 2&gt; $STDERR</span>
+            <span class="c1"># runjob --ranks-per-node 2 --exp-env OMP_NUM_THREADS --exe $ABINIT &lt; $STDIN &gt; $STDOUT 2&gt; $STDERR</span>
+            <span class="c1"># runjob -n 2 --exp-env=OMP_NUM_THREADS --exe $ABINIT &lt; $STDIN &gt; $STDOUT 2&gt; $STDERR</span>
             <span class="c1"># exe must be absolute path or relative to cwd.</span>
             <span class="n">bg_size</span><span class="p">,</span> <span class="n">rpn</span> <span class="o">=</span> <span class="n">qad</span><span class="o">.</span><span class="n">bgsize_rankspernode</span><span class="p">()</span>
-            <span class="c1">#num_opt = &quot;-n &quot; + str(qad.mpi_procs)</span>
+            <span class="c1"># num_opt = &quot;-n &quot; + str(qad.mpi_procs)</span>
             <span class="n">num_opt</span> <span class="o">=</span> <span class="s2">&quot;--ranks-per-node &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">rpn</span><span class="p">)</span>
             <span class="n">cmd</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">,</span> <span class="n">num_opt</span><span class="p">,</span> <span class="s2">&quot;--exp-env OMP_NUM_THREADS&quot;</span><span class="p">,</span>
-                           <span class="s2">&quot;--exe `which &quot;</span> <span class="o">+</span> <span class="n">executable</span> <span class="o">+</span> <span class="s2">&quot;` &quot;</span><span class="p">,</span> <span class="n">stdin</span><span class="p">,</span> <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span><span class="p">])</span>
+                            <span class="s2">&quot;--exe `which &quot;</span> <span class="o">+</span> <span class="n">executable</span> <span class="o">+</span> <span class="s2">&quot;` &quot;</span><span class="p">,</span> <span class="n">stdin</span><span class="p">,</span> <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">qad</span><span class="o">.</span><span class="n">mpi_procs</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot use mpi_procs &gt; when mpi_runner basename=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">basename</span><span class="p">)</span>
@@ -174,8 +174,8 @@
 
         <span class="k">return</span> <span class="n">cmd</span>
 
-    <span class="c1">#@property</span>
-    <span class="c1">#def has_mpirun(self):</span>
+    <span class="c1"># @property</span>
+    <span class="c1"># def has_mpirun(self):</span>
     <span class="c1">#    &quot;&quot;&quot;True if we are running via mpirun, mpiexec ...&quot;&quot;&quot;</span>
     <span class="c1">#    return self.name in (&quot;mpirun&quot;, &quot;mpiexec&quot;, &quot;srun&quot;, &quot;runjob&quot;)</span>
 
@@ -202,8 +202,10 @@
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">as_ompenv</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Convert an object into a OmpEnv&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">cls</span><span class="p">):</span> <span class="k">return</span> <span class="n">obj</span>
-        <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="k">return</span> <span class="bp">cls</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">cls</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">obj</span>
+        <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">obj</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -246,6 +248,7 @@
 <span class="sd">          Each cpu core will be able to service a number of cpu threads, each having an independent instruction stream</span>
 <span class="sd">          but sharing the cores memory controller and other logical units.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num_nodes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;num_nodes&quot;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sockets_per_node</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;sockets_per_node&quot;</span><span class="p">))</span>
@@ -316,7 +319,8 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">FILEPATH</span><span class="p">):</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">DIRPATH</span><span class="p">):</span> <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">DIRPATH</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">DIRPATH</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">DIRPATH</span><span class="p">)</span>
             <span class="k">with</span> <span class="n">FileLock</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">FILEPATH</span><span class="p">):</span>
                 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">FILEPATH</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
                     <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">({},</span> <span class="n">fh</span><span class="p">)</span>
@@ -337,13 +341,15 @@
                     <span class="n">d</span><span class="p">[</span><span class="s2">&quot;qname&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nodes</span>
                 <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">fh</span><span class="p">)</span>
 
+
 <span class="n">_EXCL_NODES_FILE</span> <span class="o">=</span> <span class="n">_ExcludeNodesFile</span><span class="p">()</span>
 
 
 <span class="k">def</span> <span class="nf">show_qparams</span><span class="p">(</span><span class="n">qtype</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Print to the given stream the template of the :class:`QueueAdapter` of type `qtype`.&quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="bp">cls</span> <span class="ow">in</span> <span class="n">all_subclasses</span><span class="p">(</span><span class="n">QueueAdapter</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">QTYPE</span> <span class="o">==</span> <span class="n">qtype</span><span class="p">:</span> <span class="k">return</span> <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">QTEMPLATE</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">QTYPE</span> <span class="o">==</span> <span class="n">qtype</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">QTEMPLATE</span><span class="p">)</span>
 
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot find class associated to qtype </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">qtype</span><span class="p">)</span>
 
@@ -518,7 +524,7 @@
 <span class="sd">                try to run jobs on the qadapter with the highest priority if possible</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># TODO</span>
-        <span class="c1">#task_classes</span>
+        <span class="c1"># task_classes</span>
 
         <span class="c1"># Make defensive copies so that we can change the values at runtime.</span>
         <span class="n">kwargs</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
@@ -607,7 +613,8 @@
 <span class="sd">            `ValueError` if errors.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># No validation for ShellAdapter.</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ShellAdapter</span><span class="p">):</span> <span class="k">return</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ShellAdapter</span><span class="p">):</span>
+            <span class="k">return</span>
 
         <span class="c1"># Parse the template so that we know the list of supported options.</span>
         <span class="n">err_msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
@@ -624,7 +631,7 @@
     <span class="k">def</span> <span class="nf">_parse_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="c1"># Time limits.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_timelimit</span><span class="p">(</span><span class="n">qu</span><span class="o">.</span><span class="n">timelimit_parser</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;timelimit&quot;</span><span class="p">)))</span>
-        <span class="n">tl_hard</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;timelimit_hard&quot;</span><span class="p">,</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">tl_hard</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;timelimit_hard&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">tl_hard</span> <span class="o">=</span> <span class="n">qu</span><span class="o">.</span><span class="n">timelimit_parser</span><span class="p">(</span><span class="n">tl_hard</span><span class="p">)</span> <span class="k">if</span> <span class="n">tl_hard</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">timelimit</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_timelimit_hard</span><span class="p">(</span><span class="n">tl_hard</span><span class="p">)</span>
 
@@ -653,14 +660,16 @@
 
     <span class="k">def</span> <span class="nf">_parse_job</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="n">setup</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;setup&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">is_string</span><span class="p">(</span><span class="n">setup</span><span class="p">):</span> <span class="n">setup</span> <span class="o">=</span> <span class="p">[</span><span class="n">setup</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">is_string</span><span class="p">(</span><span class="n">setup</span><span class="p">):</span>
+            <span class="n">setup</span> <span class="o">=</span> <span class="p">[</span><span class="n">setup</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setup</span> <span class="o">=</span> <span class="n">setup</span><span class="p">[:]</span> <span class="k">if</span> <span class="n">setup</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
 
         <span class="n">omp_env</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;omp_env&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">omp_env</span> <span class="o">=</span> <span class="n">omp_env</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">if</span> <span class="n">omp_env</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}</span>
 
         <span class="n">modules</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;modules&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">is_string</span><span class="p">(</span><span class="n">modules</span><span class="p">):</span> <span class="n">modules</span> <span class="o">=</span> <span class="p">[</span><span class="n">modules</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">is_string</span><span class="p">(</span><span class="n">modules</span><span class="p">):</span>
+            <span class="n">modules</span> <span class="o">=</span> <span class="p">[</span><span class="n">modules</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">modules</span> <span class="o">=</span> <span class="n">modules</span><span class="p">[:]</span> <span class="k">if</span> <span class="n">modules</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
 
         <span class="n">shell_env</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;shell_env&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -677,11 +686,13 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">shell_runner</span> <span class="o">=</span> <span class="n">MpiRunner</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shell_runner</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">shell_runner_options</span><span class="p">)</span>
 
         <span class="n">pre_run</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;pre_run&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">is_string</span><span class="p">(</span><span class="n">pre_run</span><span class="p">):</span> <span class="n">pre_run</span> <span class="o">=</span> <span class="p">[</span><span class="n">pre_run</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">is_string</span><span class="p">(</span><span class="n">pre_run</span><span class="p">):</span>
+            <span class="n">pre_run</span> <span class="o">=</span> <span class="p">[</span><span class="n">pre_run</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pre_run</span> <span class="o">=</span> <span class="n">pre_run</span><span class="p">[:]</span> <span class="k">if</span> <span class="n">pre_run</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
 
         <span class="n">post_run</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;post_run&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">is_string</span><span class="p">(</span><span class="n">post_run</span><span class="p">):</span> <span class="n">post_run</span> <span class="o">=</span> <span class="p">[</span><span class="n">post_run</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">is_string</span><span class="p">(</span><span class="n">post_run</span><span class="p">):</span>
+            <span class="n">post_run</span> <span class="o">=</span> <span class="p">[</span><span class="n">post_run</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">post_run</span> <span class="o">=</span> <span class="n">post_run</span><span class="p">[:]</span> <span class="k">if</span> <span class="n">post_run</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
 
         <span class="k">if</span> <span class="n">d</span><span class="p">:</span>
@@ -704,8 +715,9 @@
         <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qname</span><span class="p">)]</span>
         <span class="n">app</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">append</span>
         <span class="n">app</span><span class="p">(</span><span class="s2">&quot;Hardware:</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hw</span><span class="p">))</span>
-        <span class="c1">#lines.extend([&quot;qparams:\n&quot;, str(self.qparams)])</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_omp</span><span class="p">:</span> <span class="n">app</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">omp_env</span><span class="p">))</span>
+        <span class="c1"># lines.extend([&quot;qparams:\n&quot;, str(self.qparams)])</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_omp</span><span class="p">:</span>
+            <span class="n">app</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">omp_env</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
 
@@ -770,7 +782,7 @@
         <span class="sd">&quot;&quot;&quot;Deep copy of the object.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">record_launch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queue_id</span><span class="p">):</span> <span class="c1"># retcode):</span>
+    <span class="k">def</span> <span class="nf">record_launch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queue_id</span><span class="p">):</span>  <span class="c1"># retcode):</span>
         <span class="sd">&quot;&quot;&quot;Save submission&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">launches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="n">AttrDict</span><span class="p">(</span><span class="n">queue_id</span><span class="o">=</span><span class="n">queue_id</span><span class="p">,</span> <span class="n">mpi_procs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mpi_procs</span><span class="p">,</span> <span class="n">omp_threads</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">omp_threads</span><span class="p">,</span>
@@ -883,7 +895,7 @@
         <span class="c1"># methods of TaskManager. Moreover, this hack should be performed somewhere else (this part should be</span>
         <span class="c1"># independent of abinit ... and if we want to have less memory than the average memory available per node, we</span>
         <span class="c1"># have to allow it!)</span>
-        <span class="c1">#if mem_mb &lt;= self.min_mem_per_proc: mem_mb = self.min_mem_per_proc</span>
+        <span class="c1"># if mem_mb &lt;= self.min_mem_per_proc: mem_mb = self.min_mem_per_proc</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mem_per_proc</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">mem_mb</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">set_master_mem_overhead</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mem_mb</span><span class="p">):</span>
@@ -913,9 +925,12 @@
 
     <span class="k">def</span> <span class="nf">can_run_pconf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pconf</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;True if the qadapter in principle is able to run the :class:`ParalConf` pconf&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">hint_cores</span> <span class="o">&gt;=</span> <span class="n">pconf</span><span class="o">.</span><span class="n">num_cores</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_cores</span><span class="p">:</span> <span class="k">return</span> <span class="kc">False</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">hw</span><span class="o">.</span><span class="n">can_use_omp_threads</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">omp_threads</span><span class="p">):</span> <span class="k">return</span> <span class="kc">False</span>
-        <span class="k">if</span> <span class="n">pconf</span><span class="o">.</span><span class="n">mem_per_proc</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">hw</span><span class="o">.</span><span class="n">mem_per_node</span><span class="p">:</span> <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">hint_cores</span> <span class="o">&gt;=</span> <span class="n">pconf</span><span class="o">.</span><span class="n">num_cores</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_cores</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">hw</span><span class="o">.</span><span class="n">can_use_omp_threads</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">omp_threads</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">pconf</span><span class="o">.</span><span class="n">mem_per_proc</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">hw</span><span class="o">.</span><span class="n">mem_per_node</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">allocation</span> <span class="o">==</span> <span class="s2">&quot;force_nodes&quot;</span> <span class="ow">and</span> <span class="n">pconf</span><span class="o">.</span><span class="n">num_cores</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">hw</span><span class="o">.</span><span class="n">cores_per_node</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
 
@@ -932,12 +947,13 @@
 <span class="sd">        in tight loops attempting to make message passing progress, effectively causing other processes to not get</span>
 <span class="sd">        any CPU cycles (and therefore never make any progress)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">class</span> <span class="nc">Distrib</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;Distrib&quot;</span><span class="p">,</span> <span class="s2">&quot;num_nodes mpi_per_node exact&quot;</span><span class="p">)):</span>
             <span class="k">pass</span>
-            <span class="c1">#@property</span>
-            <span class="c1">#def mem_per_node</span>
+            <span class="c1"># @property</span>
+            <span class="c1"># def mem_per_node</span>
             <span class="c1">#    return self.mpi_per_node * mem_per_proc</span>
-            <span class="c1">#def set_nodes(self, nodes):</span>
+            <span class="c1"># def set_nodes(self, nodes):</span>
 
         <span class="n">hw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hw</span>
 
@@ -949,7 +965,7 @@
         <span class="k">if</span> <span class="n">mem_per_proc</span> <span class="o">&gt;</span> <span class="n">hw</span><span class="o">.</span><span class="n">mem_per_node</span><span class="p">:</span>
             <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span>
                 <span class="s2">&quot;mem_per_proc &gt; mem_per_node.</span><span class="se">\n</span><span class="s2"> Cannot distribute mpi_procs </span><span class="si">%d</span><span class="s2">, omp_threads </span><span class="si">%d</span><span class="s2">, mem_per_proc </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
-                             <span class="p">(</span><span class="n">mpi_procs</span><span class="p">,</span> <span class="n">omp_threads</span><span class="p">,</span> <span class="n">mem_per_proc</span><span class="p">))</span>
+                <span class="p">(</span><span class="n">mpi_procs</span><span class="p">,</span> <span class="n">omp_threads</span><span class="p">,</span> <span class="n">mem_per_proc</span><span class="p">))</span>
 
         <span class="c1"># Try to use all then cores in the node.</span>
         <span class="n">num_nodes</span><span class="p">,</span> <span class="n">rest_cores</span> <span class="o">=</span> <span class="n">hw</span><span class="o">.</span><span class="n">divmod_node</span><span class="p">(</span><span class="n">mpi_procs</span><span class="p">,</span> <span class="n">omp_threads</span><span class="p">)</span>
@@ -958,13 +974,14 @@
             <span class="c1"># One node is enough</span>
             <span class="k">return</span> <span class="n">Distrib</span><span class="p">(</span><span class="n">num_nodes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">mpi_per_node</span><span class="o">=</span><span class="n">mpi_procs</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">num_nodes</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="n">num_nodes</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="k">if</span> <span class="n">num_nodes</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">num_nodes</span> <span class="o">=</span> <span class="mi">2</span>
         <span class="n">mpi_per_node</span> <span class="o">=</span> <span class="n">mpi_procs</span> <span class="o">//</span> <span class="n">num_nodes</span>
         <span class="k">if</span> <span class="n">mpi_per_node</span> <span class="o">*</span> <span class="n">mem_per_proc</span> <span class="o">&lt;=</span> <span class="n">hw</span><span class="o">.</span><span class="n">mem_per_node</span> <span class="ow">and</span> <span class="n">rest_cores</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="c1"># Commensurate with nodes.</span>
             <span class="k">return</span> <span class="n">Distrib</span><span class="p">(</span><span class="n">num_nodes</span><span class="o">=</span><span class="n">num_nodes</span><span class="p">,</span> <span class="n">mpi_per_node</span><span class="o">=</span><span class="n">mpi_per_node</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="c1">#if mode == &quot;block&quot;, &quot;cyclic&quot;</span>
+        <span class="c1"># if mode == &quot;block&quot;, &quot;cyclic&quot;</span>
 
         <span class="c1"># Try first to pack MPI processors in a node as much as possible</span>
         <span class="n">mpi_per_node</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">hw</span><span class="o">.</span><span class="n">mem_per_node</span> <span class="o">/</span> <span class="n">mem_per_proc</span><span class="p">)</span>
@@ -978,20 +995,21 @@
         <span class="k">if</span> <span class="p">(</span><span class="n">mpi_procs</span> <span class="o">*</span> <span class="n">omp_threads</span><span class="p">)</span> <span class="o">%</span> <span class="n">mpi_per_node</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="c1"># Have to reduce the number of MPI procs per node</span>
             <span class="k">for</span> <span class="n">mpi_per_node</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">mpi_per_node</span><span class="p">)):</span>
-                <span class="k">if</span> <span class="n">mpi_per_node</span> <span class="o">&gt;</span> <span class="n">hw</span><span class="o">.</span><span class="n">cores_per_node</span><span class="p">:</span> <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">mpi_per_node</span> <span class="o">&gt;</span> <span class="n">hw</span><span class="o">.</span><span class="n">cores_per_node</span><span class="p">:</span>
+                    <span class="k">continue</span>
                 <span class="n">num_nodes</span> <span class="o">=</span> <span class="p">(</span><span class="n">mpi_procs</span> <span class="o">*</span> <span class="n">omp_threads</span><span class="p">)</span> <span class="o">//</span> <span class="n">mpi_per_node</span>
                 <span class="k">if</span> <span class="p">(</span><span class="n">mpi_procs</span> <span class="o">*</span> <span class="n">omp_threads</span><span class="p">)</span> <span class="o">%</span> <span class="n">mpi_per_node</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">mpi_per_node</span> <span class="o">*</span> <span class="n">mem_per_proc</span> <span class="o">&lt;=</span> <span class="n">hw</span><span class="o">.</span><span class="n">mem_per_node</span><span class="p">:</span>
                     <span class="k">return</span> <span class="n">Distrib</span><span class="p">(</span><span class="n">num_nodes</span><span class="o">=</span><span class="n">num_nodes</span><span class="p">,</span> <span class="n">mpi_per_node</span><span class="o">=</span><span class="n">mpi_per_node</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="s2">&quot;Cannot distribute mpi_procs </span><span class="si">%d</span><span class="s2">, omp_threads </span><span class="si">%d</span><span class="s2">, mem_per_proc </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
-                            <span class="p">(</span><span class="n">mpi_procs</span><span class="p">,</span> <span class="n">omp_threads</span><span class="p">,</span> <span class="n">mem_per_proc</span><span class="p">))</span>
+                             <span class="p">(</span><span class="n">mpi_procs</span><span class="p">,</span> <span class="n">omp_threads</span><span class="p">,</span> <span class="n">mem_per_proc</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">optimize_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qnodes</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This method is called in get_subs_dict. Return a dict with parameters to be added to qparams</span>
 <span class="sd">        Subclasses may provide a specialized version.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1">#logger.debug(&quot;optimize_params of baseclass --&gt; no optimization available!!!&quot;)</span>
+        <span class="c1"># logger.debug(&quot;optimize_params of baseclass --&gt; no optimization available!!!&quot;)</span>
         <span class="k">return</span> <span class="p">{}</span>
 
     <span class="k">def</span> <span class="nf">get_subs_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qnodes</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -999,12 +1017,12 @@
 <span class="sd">        Return substitution dict for replacements into the template</span>
 <span class="sd">        Subclasses may want to customize this method.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1">#d = self.qparams.copy()</span>
+        <span class="c1"># d = self.qparams.copy()</span>
         <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span>
         <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optimize_params</span><span class="p">(</span><span class="n">qnodes</span><span class="o">=</span><span class="n">qnodes</span><span class="p">))</span>
         <span class="c1"># clean null values</span>
         <span class="n">subs_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">}</span>
-        <span class="c1">#print(&quot;subs_dict:&quot;, subs_dict)</span>
+        <span class="c1"># print(&quot;subs_dict:&quot;, subs_dict)</span>
         <span class="k">return</span> <span class="n">subs_dict</span>
 
     <span class="k">def</span> <span class="nf">_make_qheader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_name</span><span class="p">,</span> <span class="n">qout_path</span><span class="p">,</span> <span class="n">qerr_path</span><span class="p">):</span>
@@ -1116,7 +1134,8 @@
             <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="s1">&#39;Cannot find script file located at: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">script_file</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_launches</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_num_launches</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">MaxNumLaunchesError</span><span class="p">(</span><span class="s2">&quot;num_launches </span><span class="si">%s</span><span class="s2"> == max_num_launches </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_launches</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_num_launches</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">MaxNumLaunchesError</span><span class="p">(</span>
+                <span class="s2">&quot;num_launches </span><span class="si">%s</span><span class="s2"> == max_num_launches </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_launches</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_num_launches</span><span class="p">))</span>
 
         <span class="c1"># Call the concrete implementation.</span>
         <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_submit_to_queue</span><span class="p">(</span><span class="n">script_file</span><span class="p">)</span>
@@ -1124,7 +1143,7 @@
 
         <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">qid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="s2">&quot;Error in job submission with </span><span class="si">%s</span><span class="s2">. file </span><span class="si">%s</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span>
-                            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">script_file</span><span class="p">)</span> <span class="o">+</span>
+                             <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">script_file</span><span class="p">)</span> <span class="o">+</span>
                              <span class="s2">&quot;The error response reads:</span><span class="se">\n</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="se">\n</span><span class="s2"> &quot;</span> <span class="o">%</span> <span class="n">s</span><span class="o">.</span><span class="n">err</span> <span class="o">+</span>
                              <span class="s2">&quot;The out response reads:</span><span class="se">\n</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">s</span><span class="o">.</span><span class="n">out</span><span class="p">)</span>
 
@@ -1152,7 +1171,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            username: (str) the username of the jobs to count (default is to autodetect)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">username</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="n">username</span> <span class="o">=</span> <span class="n">getpass</span><span class="o">.</span><span class="n">getuser</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">username</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">username</span> <span class="o">=</span> <span class="n">getpass</span><span class="o">.</span><span class="n">getuser</span><span class="p">()</span>
         <span class="n">njobs</span><span class="p">,</span> <span class="n">process</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_njobs_in_queue</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">process</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">process</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
@@ -1190,7 +1210,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">base_increase</span> <span class="o">=</span> <span class="mi">2000</span>
         <span class="n">old_mem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mem_per_proc</span>
-        <span class="n">new_mem</span> <span class="o">=</span> <span class="n">old_mem</span> <span class="o">+</span> <span class="n">factor</span><span class="o">*</span><span class="n">base_increase</span>
+        <span class="n">new_mem</span> <span class="o">=</span> <span class="n">old_mem</span> <span class="o">+</span> <span class="n">factor</span> <span class="o">*</span> <span class="n">base_increase</span>
 
         <span class="k">if</span> <span class="n">new_mem</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">hw</span><span class="o">.</span><span class="n">mem_per_node</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_mem_per_proc</span><span class="p">(</span><span class="n">new_mem</span><span class="p">)</span>
@@ -1218,9 +1238,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># TODO : find a formula that works for all max_cores</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_cores</span> <span class="o">&gt;</span> <span class="mi">40</span><span class="p">:</span>
-          <span class="n">base_increase</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_cores</span> <span class="o">/</span> <span class="mi">40</span><span class="p">)</span>
+            <span class="n">base_increase</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_cores</span> <span class="o">/</span> <span class="mi">40</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-          <span class="n">base_increase</span> <span class="o">=</span> <span class="mi">4</span>
+            <span class="n">base_increase</span> <span class="o">=</span> <span class="mi">4</span>
 
         <span class="n">new_cores</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hint_cores</span> <span class="o">+</span> <span class="n">factor</span> <span class="o">*</span> <span class="n">base_increase</span>
 
@@ -1236,7 +1256,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">base_increase</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timelimit_hard</span> <span class="o">/</span> <span class="mi">10</span><span class="p">)</span>
 
-        <span class="n">new_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timelimit</span> <span class="o">+</span> <span class="n">base_increase</span><span class="o">*</span><span class="n">factor</span>
+        <span class="n">new_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timelimit</span> <span class="o">+</span> <span class="n">base_increase</span> <span class="o">*</span> <span class="n">factor</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;qadapter: trying to increase time&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">new_time</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">timelimit_hard</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_timelimit</span><span class="p">(</span><span class="n">new_time</span><span class="p">)</span>
@@ -1246,6 +1266,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">priority</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 
         <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="s2">&quot;increasing time is not possible, the hard limit has been reached&quot;</span><span class="p">)</span>
+
 
 <span class="c1">####################</span>
 <span class="c1"># Concrete classes #</span>
@@ -1267,7 +1288,8 @@
     <span class="k">def</span> <span class="nf">_submit_to_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script_file</span><span class="p">):</span>
         <span class="c1"># submit the job, return process and pid.</span>
         <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">((</span><span class="s2">&quot;/bin/bash&quot;</span><span class="p">,</span> <span class="n">script_file</span><span class="p">),</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">SubmitResults</span><span class="p">(</span><span class="n">qid</span><span class="o">=</span><span class="n">process</span><span class="o">.</span><span class="n">pid</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="s1">&#39;no out in shell submission&#39;</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="s1">&#39;no err in shell submission&#39;</span><span class="p">,</span> <span class="n">process</span><span class="o">=</span><span class="n">process</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">SubmitResults</span><span class="p">(</span><span class="n">qid</span><span class="o">=</span><span class="n">process</span><span class="o">.</span><span class="n">pid</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="s1">&#39;no out in shell submission&#39;</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="s1">&#39;no err in shell submission&#39;</span><span class="p">,</span>
+                             <span class="n">process</span><span class="o">=</span><span class="n">process</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_njobs_in_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
@@ -1329,7 +1351,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_mem_per_proc</span><span class="p">(</span><span class="n">mem_mb</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="p">[</span><span class="s2">&quot;mem_per_cpu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mem_per_proc</span>
         <span class="c1"># Remove mem if it&#39;s defined.</span>
-        <span class="c1">#self.qparams.pop(&quot;mem&quot;, None)</span>
+        <span class="c1"># self.qparams.pop(&quot;mem&quot;, None)</span>
 
     <span class="k">def</span> <span class="nf">set_timelimit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timelimit</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_timelimit</span><span class="p">(</span><span class="n">timelimit</span><span class="p">)</span>
@@ -1346,10 +1368,10 @@
                                   <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_mem</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">hw</span><span class="o">.</span><span class="n">mem_per_node</span><span class="p">)))</span>
         <span class="k">return</span> <span class="n">params</span>
 
-        <span class="c1">#dist = self.distribute(self.mpi_procs, self.omp_threads, self.mem_per_proc)</span>
-        <span class="c1">##print(dist)</span>
+        <span class="c1"># dist = self.distribute(self.mpi_procs, self.omp_threads, self.mem_per_proc)</span>
+        <span class="c1"># print(dist)</span>
 
-        <span class="c1">#if False and dist.exact:</span>
+        <span class="c1"># if False and dist.exact:</span>
         <span class="c1">#    # Can optimize parameters</span>
         <span class="c1">#    self.qparams[&quot;nodes&quot;] = dist.num_nodes</span>
         <span class="c1">#    self.qparams.pop(&quot;ntasks&quot;, None)</span>
@@ -1357,7 +1379,7 @@
         <span class="c1">#    self.qparams[&quot;cpus_per_task&quot;] = self.omp_threads</span>
         <span class="c1">#    self.qparams[&quot;mem&quot;] = dist.mpi_per_node * self.mem_per_proc</span>
         <span class="c1">#    self.qparams.pop(&quot;mem_per_cpu&quot;, None)</span>
-        <span class="c1">#else:</span>
+        <span class="c1"># else:</span>
         <span class="c1">#    # Delegate to slurm.</span>
         <span class="c1">#    self.qparams[&quot;ntasks&quot;] = self.mpi_procs</span>
         <span class="c1">#    self.qparams.pop(&quot;nodes&quot;, None)</span>
@@ -1365,7 +1387,7 @@
         <span class="c1">#    self.qparams[&quot;cpus_per_task&quot;] = self.omp_threads</span>
         <span class="c1">#    self.qparams[&quot;mem_per_cpu&quot;] = self.mem_per_proc</span>
         <span class="c1">#    self.qparams.pop(&quot;mem&quot;, None)</span>
-        <span class="c1">#return {}</span>
+        <span class="c1"># return {}</span>
 
     <span class="k">def</span> <span class="nf">_submit_to_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script_file</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Submit a job script to the queue.&quot;&quot;&quot;</span>
@@ -1428,8 +1450,8 @@
     <span class="sd">&quot;&quot;&quot;Adapter for PbsPro&quot;&quot;&quot;</span>
     <span class="n">QTYPE</span> <span class="o">=</span> <span class="s2">&quot;pbspro&quot;</span>
 
-<span class="c1">#PBS -l select=$${select}:ncpus=$${ncpus}:mem=$${mem}mb:mpiprocs=$${mpiprocs}:ompthreads=$${ompthreads}</span>
-<span class="c1">#PBS -l select=$${select}:ncpus=1:mem=$${mem}mb:mpiprocs=1:ompthreads=$${ompthreads}</span>
+    <span class="c1"># PBS -l select=$${select}:ncpus=$${ncpus}:mem=$${mem}mb:mpiprocs=$${mpiprocs}:ompthreads=$${ompthreads}</span>
+    <span class="c1"># PBS -l select=$${select}:ncpus=1:mem=$${mem}mb:mpiprocs=1:ompthreads=$${ompthreads}</span>
 
     <span class="n">QTEMPLATE</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
 <span class="s2">#!/bin/bash</span>
@@ -1461,7 +1483,7 @@
     <span class="k">def</span> <span class="nf">set_mem_per_proc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mem_mb</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the memory per process in megabytes&quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_mem_per_proc</span><span class="p">(</span><span class="n">mem_mb</span><span class="p">)</span>
-        <span class="c1">#self.qparams[&quot;mem&quot;] = self.mem_per_proc</span>
+        <span class="c1"># self.qparams[&quot;mem&quot;] = self.mem_per_proc</span>
 
     <span class="k">def</span> <span class="nf">cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_id</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s2">&quot;qdel </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">job_id</span><span class="p">)</span>
@@ -1477,7 +1499,7 @@
 <span class="sd">            * https://portal.ivec.org/docs/Supercomputers/PBS_Pro</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">hw</span><span class="p">,</span> <span class="n">mem_per_proc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hw</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mem_per_proc</span><span class="p">)</span>
-        <span class="c1">#dist = self.distribute(self.mpi_procs, self.omp_threads, mem_per_proc)</span>
+        <span class="c1"># dist = self.distribute(self.mpi_procs, self.omp_threads, mem_per_proc)</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        if self.pure_mpi:</span>
 <span class="sd">            num_nodes, rest_cores = hw.divmod_node(self.mpi_procs, self.omp_threads)</span>
@@ -1576,7 +1598,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Wrong value of qnodes parameter : </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">qnodes</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_get_select_with_master_mem_overhead_shared</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ret_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">memory_policy</span><span class="o">=</span><span class="s1">&#39;mem&#39;</span><span class="p">):</span>
-        <span class="n">chunk_master</span><span class="p">,</span> <span class="n">ncpus_master</span><span class="p">,</span> <span class="n">vmem_master</span><span class="p">,</span> <span class="n">mpiprocs_master</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mem_per_proc</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">master_mem_overhead</span><span class="p">,</span> <span class="mi">1</span>
+        <span class="n">chunk_master</span><span class="p">,</span> <span class="n">ncpus_master</span><span class="p">,</span> <span class="n">vmem_master</span><span class="p">,</span> <span class="n">mpiprocs_master</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mem_per_proc</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">master_mem_overhead</span><span class="p">,</span> <span class="mi">1</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpi_procs</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">chunks_slaves</span><span class="p">,</span> <span class="n">ncpus_slaves</span><span class="p">,</span> <span class="n">vmem_slaves</span><span class="p">,</span> <span class="n">mpiprocs_slaves</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpi_procs</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mem_per_proc</span><span class="p">,</span> <span class="mi">1</span>
             <span class="n">select_params</span> <span class="o">=</span> <span class="n">AttrDict</span><span class="p">(</span><span class="n">chunk_master</span><span class="o">=</span><span class="n">chunk_master</span><span class="p">,</span> <span class="n">ncpus_master</span><span class="o">=</span><span class="n">ncpus_master</span><span class="p">,</span>
@@ -1591,7 +1613,7 @@
                 <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{chunk_master}</span><span class="s2">:ncpus=</span><span class="si">{ncpus_master}</span><span class="s2">:mem=</span><span class="si">{vmem_master}</span><span class="s2">mb:mpiprocs=</span><span class="si">{mpiprocs_master}</span><span class="s2">+&quot;</span> \
                     <span class="s2">&quot;</span><span class="si">{chunks_slaves}</span><span class="s2">:ncpus=</span><span class="si">{ncpus_slaves}</span><span class="s2">:mem=</span><span class="si">{vmem_slaves}</span><span class="s2">mb:&quot;</span> \
                     <span class="s2">&quot;mpiprocs=</span><span class="si">{mpiprocs_slaves}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">select_params</span><span class="p">)</span>
-            <span class="n">tot_ncpus</span> <span class="o">=</span> <span class="n">chunk_master</span><span class="o">*</span><span class="n">ncpus_master</span> <span class="o">+</span> <span class="n">chunks_slaves</span><span class="o">*</span><span class="n">ncpus_slaves</span>
+            <span class="n">tot_ncpus</span> <span class="o">=</span> <span class="n">chunk_master</span> <span class="o">*</span> <span class="n">ncpus_master</span> <span class="o">+</span> <span class="n">chunks_slaves</span> <span class="o">*</span> <span class="n">ncpus_slaves</span>
             <span class="k">if</span> <span class="n">tot_ncpus</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpi_procs</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Total number of cpus is different from mpi_procs ...&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1609,7 +1631,7 @@
 
     <span class="k">def</span> <span class="nf">_get_select_with_master_mem_overhead_exclusive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ret_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">memory_policy</span><span class="o">=</span><span class="s1">&#39;mem&#39;</span><span class="p">):</span>
         <span class="n">max_ncpus_master</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hw</span><span class="o">.</span><span class="n">cores_per_node</span><span class="p">,</span>
-                               <span class="nb">int</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">hw</span><span class="o">.</span><span class="n">mem_per_node</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">mem_per_proc</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">master_mem_overhead</span><span class="p">)</span>
+                               <span class="nb">int</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">hw</span><span class="o">.</span><span class="n">mem_per_node</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">mem_per_proc</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">master_mem_overhead</span><span class="p">)</span>
                                    <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">mem_per_proc</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">max_ncpus_master</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpi_procs</span><span class="p">:</span>
             <span class="n">chunk</span><span class="p">,</span> <span class="n">ncpus</span><span class="p">,</span> <span class="n">mem</span><span class="p">,</span> <span class="n">mpiprocs</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpi_procs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hw</span><span class="o">.</span><span class="n">mem_per_node</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpi_procs</span>
@@ -1619,11 +1641,11 @@
             <span class="k">elif</span> <span class="n">memory_policy</span> <span class="o">==</span> <span class="s1">&#39;mem&#39;</span><span class="p">:</span>
                 <span class="n">select_params</span> <span class="o">=</span> <span class="n">AttrDict</span><span class="p">(</span><span class="n">chunks</span><span class="o">=</span><span class="n">chunk</span><span class="p">,</span> <span class="n">ncpus</span><span class="o">=</span><span class="n">ncpus</span><span class="p">,</span> <span class="n">mpiprocs</span><span class="o">=</span><span class="n">mpiprocs</span><span class="p">,</span> <span class="n">mem</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">mem</span><span class="p">))</span>
                 <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{chunks}</span><span class="s2">:ncpus=</span><span class="si">{ncpus}</span><span class="s2">:mem=</span><span class="si">{mem}</span><span class="s2">mb:mpiprocs=</span><span class="si">{mpiprocs}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">select_params</span><span class="p">)</span>
-            <span class="n">tot_ncpus</span> <span class="o">=</span> <span class="n">chunk</span><span class="o">*</span><span class="n">ncpus</span>
+            <span class="n">tot_ncpus</span> <span class="o">=</span> <span class="n">chunk</span> <span class="o">*</span> <span class="n">ncpus</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">ncpus_left</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpi_procs</span><span class="o">-</span><span class="n">max_ncpus_master</span>
-            <span class="n">max_ncpus_per_slave_node</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hw</span><span class="o">.</span><span class="n">cores_per_node</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hw</span><span class="o">.</span><span class="n">mem_per_node</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">mem_per_proc</span><span class="p">))</span>
-            <span class="n">nslaves_float</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ncpus_left</span><span class="p">)</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">max_ncpus_per_slave_node</span><span class="p">)</span>
+            <span class="n">ncpus_left</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpi_procs</span> <span class="o">-</span> <span class="n">max_ncpus_master</span>
+            <span class="n">max_ncpus_per_slave_node</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hw</span><span class="o">.</span><span class="n">cores_per_node</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hw</span><span class="o">.</span><span class="n">mem_per_node</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">mem_per_proc</span><span class="p">))</span>
+            <span class="n">nslaves_float</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ncpus_left</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">max_ncpus_per_slave_node</span><span class="p">)</span>
             <span class="n">ncpus_per_slave</span> <span class="o">=</span> <span class="n">max_ncpus_per_slave_node</span>
             <span class="n">mpiprocs_slaves</span> <span class="o">=</span> <span class="n">max_ncpus_per_slave_node</span>
             <span class="n">chunk_master</span> <span class="o">=</span> <span class="mi">1</span>
@@ -1632,17 +1654,17 @@
             <span class="n">chunk_last_slave</span><span class="p">,</span> <span class="n">ncpus_last_slave</span><span class="p">,</span> <span class="n">mem_last_slave</span><span class="p">,</span> <span class="n">mpiprocs_last_slave</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="n">nslaves_float</span> <span class="o">&gt;</span> <span class="nb">int</span><span class="p">(</span><span class="n">nslaves_float</span><span class="p">):</span>
                 <span class="n">chunks_slaves</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">nslaves_float</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
-                <span class="n">pot_ncpus_all_slaves</span> <span class="o">=</span> <span class="n">chunks_slaves</span><span class="o">*</span><span class="n">ncpus_per_slave</span>
-                <span class="k">if</span> <span class="n">pot_ncpus_all_slaves</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpi_procs</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">pot_ncpus_all_slaves</span> <span class="o">=</span> <span class="n">chunks_slaves</span> <span class="o">*</span> <span class="n">ncpus_per_slave</span>
+                <span class="k">if</span> <span class="n">pot_ncpus_all_slaves</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpi_procs</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
                     <span class="n">explicit_last_slave</span> <span class="o">=</span> <span class="kc">True</span>
-                    <span class="n">chunks_slaves</span> <span class="o">=</span> <span class="n">chunks_slaves</span><span class="o">-</span><span class="mi">1</span>
+                    <span class="n">chunks_slaves</span> <span class="o">=</span> <span class="n">chunks_slaves</span> <span class="o">-</span> <span class="mi">1</span>
                     <span class="n">chunk_last_slave</span> <span class="o">=</span> <span class="mi">1</span>
                     <span class="n">ncpus_master</span> <span class="o">=</span> <span class="mi">1</span>
-                    <span class="n">ncpus_last_slave</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpi_procs</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">chunks_slaves</span><span class="o">*</span><span class="n">ncpus_per_slave</span>
+                    <span class="n">ncpus_last_slave</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpi_procs</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">chunks_slaves</span> <span class="o">*</span> <span class="n">ncpus_per_slave</span>
                     <span class="n">mem_last_slave</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hw</span><span class="o">.</span><span class="n">mem_per_node</span>
                     <span class="n">mpiprocs_last_slave</span> <span class="o">=</span> <span class="n">ncpus_last_slave</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">ncpus_master</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpi_procs</span><span class="o">-</span><span class="n">pot_ncpus_all_slaves</span>
+                    <span class="n">ncpus_master</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpi_procs</span> <span class="o">-</span> <span class="n">pot_ncpus_all_slaves</span>
                 <span class="k">if</span> <span class="n">ncpus_master</span> <span class="o">&gt;</span> <span class="n">max_ncpus_master</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;ncpus for the master node exceeds the maximum ncpus for the master ... this&#39;</span>
                                      <span class="s1">&#39;should not happen ...&#39;</span><span class="p">)</span>
@@ -1679,7 +1701,8 @@
                         <span class="s2">&quot;</span><span class="si">{chunks_slaves}</span><span class="s2">:ncpus=</span><span class="si">{ncpus_per_slave}</span><span class="s2">:mem=</span><span class="si">{mem_slaves}</span><span class="s2">mb:mpiprocs=</span><span class="si">{mpiprocs_slaves}</span><span class="s2">+&quot;</span> \
                         <span class="s2">&quot;</span><span class="si">{chunk_last_slave}</span><span class="s2">:ncpus=</span><span class="si">{ncpus_last_slave}</span><span class="s2">:mem=</span><span class="si">{mem_last_slave}</span><span class="s2">mb:&quot;</span> \
                         <span class="s2">&quot;mpiprocs=</span><span class="si">{mpiprocs_last_slave}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">select_params</span><span class="p">)</span>
-                <span class="n">tot_ncpus</span> <span class="o">=</span> <span class="n">chunk_master</span><span class="o">*</span><span class="n">ncpus_master</span><span class="o">+</span><span class="n">chunks_slaves</span><span class="o">*</span><span class="n">ncpus_per_slave</span><span class="o">+</span><span class="n">chunk_last_slave</span><span class="o">*</span><span class="n">ncpus_last_slave</span>
+                <span class="n">tot_ncpus</span> <span class="o">=</span> <span class="n">chunk_master</span> <span class="o">*</span> <span class="n">ncpus_master</span> <span class="o">+</span> <span class="n">chunks_slaves</span> <span class="o">*</span> <span class="n">ncpus_per_slave</span> <span class="o">+</span> <span class="n">chunk_last_slave</span> <span class="o">*</span> \
+                    <span class="n">ncpus_last_slave</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">memory_policy</span> <span class="o">==</span> <span class="s1">&#39;vmem&#39;</span><span class="p">:</span>
                     <span class="n">select_params</span> <span class="o">=</span> <span class="n">AttrDict</span><span class="p">(</span><span class="n">chunk_master</span><span class="o">=</span><span class="n">chunk_master</span><span class="p">,</span> <span class="n">ncpus_master</span><span class="o">=</span><span class="n">ncpus_master</span><span class="p">,</span>
@@ -1697,7 +1720,7 @@
                     <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{chunk_master}</span><span class="s2">:ncpus=</span><span class="si">{ncpus_master}</span><span class="s2">:mem=</span><span class="si">{mem_master}</span><span class="s2">mb:mpiprocs=</span><span class="si">{mpiprocs_master}</span><span class="s2">+&quot;</span> \
                         <span class="s2">&quot;</span><span class="si">{chunks_slaves}</span><span class="s2">:ncpus=</span><span class="si">{ncpus_per_slave}</span><span class="s2">:mem=</span><span class="si">{mem_slaves}</span><span class="s2">mb:&quot;</span> \
                         <span class="s2">&quot;mpiprocs=</span><span class="si">{mpiprocs_slaves}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">select_params</span><span class="p">)</span>
-                <span class="n">tot_ncpus</span> <span class="o">=</span> <span class="n">chunk_master</span><span class="o">*</span><span class="n">ncpus_master</span> <span class="o">+</span> <span class="n">chunks_slaves</span><span class="o">*</span><span class="n">ncpus_per_slave</span>
+                <span class="n">tot_ncpus</span> <span class="o">=</span> <span class="n">chunk_master</span> <span class="o">*</span> <span class="n">ncpus_master</span> <span class="o">+</span> <span class="n">chunks_slaves</span> <span class="o">*</span> <span class="n">ncpus_per_slave</span>
 
         <span class="k">if</span> <span class="n">tot_ncpus</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpi_procs</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Total number of cpus is different from mpi_procs ...&#39;</span><span class="p">)</span>
@@ -1715,11 +1738,13 @@
                 <span class="n">select_params</span> <span class="o">=</span> <span class="n">AttrDict</span><span class="p">(</span><span class="n">chunks</span><span class="o">=</span><span class="n">chunks</span><span class="p">,</span> <span class="n">ncpus</span><span class="o">=</span><span class="n">ncpus</span><span class="p">,</span> <span class="n">mpiprocs</span><span class="o">=</span><span class="n">mpiprocs</span><span class="p">,</span> <span class="n">mem</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">mem</span><span class="p">))</span>
                 <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{chunks}</span><span class="s2">:ncpus=</span><span class="si">{ncpus}</span><span class="s2">:mem=</span><span class="si">{mem}</span><span class="s2">mb:mpiprocs=</span><span class="si">{mpiprocs}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">select_params</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">chunks</span><span class="p">,</span> <span class="n">ncpus</span><span class="p">,</span> <span class="n">mem</span><span class="p">,</span> <span class="n">mpiprocs</span><span class="p">,</span> <span class="n">ompthreads</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpi_procs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">omp_threads</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mem_per_proc</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">omp_threads</span>
+            <span class="n">chunks</span><span class="p">,</span> <span class="n">ncpus</span><span class="p">,</span> <span class="n">mem</span><span class="p">,</span> <span class="n">mpiprocs</span><span class="p">,</span> <span class="n">ompthreads</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpi_procs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">omp_threads</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mem_per_proc</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">omp_threads</span>
             <span class="k">if</span> <span class="n">memory_policy</span> <span class="o">==</span> <span class="s1">&#39;vmem&#39;</span><span class="p">:</span>
                 <span class="n">select_params</span> <span class="o">=</span> <span class="n">AttrDict</span><span class="p">(</span><span class="n">chunks</span><span class="o">=</span><span class="n">chunks</span><span class="p">,</span> <span class="n">ncpus</span><span class="o">=</span><span class="n">ncpus</span><span class="p">,</span> <span class="n">mpiprocs</span><span class="o">=</span><span class="n">mpiprocs</span><span class="p">,</span> <span class="n">vmem</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">mem</span><span class="p">),</span>
                                          <span class="n">ompthreads</span><span class="o">=</span><span class="n">ompthreads</span><span class="p">)</span>
-                <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{chunks}</span><span class="s2">:ncpus=</span><span class="si">{ncpus}</span><span class="s2">:vmem=</span><span class="si">{vmem}</span><span class="s2">mb:mpiprocs=</span><span class="si">{mpiprocs}</span><span class="s2">:ompthreads=</span><span class="si">{ompthreads}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">select_params</span><span class="p">)</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{chunks}</span><span class="s2">:ncpus=</span><span class="si">{ncpus}</span><span class="s2">:vmem=</span><span class="si">{vmem}</span><span class="s2">mb:mpiprocs=</span><span class="si">{mpiprocs}</span><span class="s2">:ompthreads=</span><span class="si">{ompthreads}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="o">**</span><span class="n">select_params</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">memory_policy</span> <span class="o">==</span> <span class="s1">&#39;mem&#39;</span><span class="p">:</span>
                 <span class="n">select_params</span> <span class="o">=</span> <span class="n">AttrDict</span><span class="p">(</span><span class="n">chunks</span><span class="o">=</span><span class="n">chunks</span><span class="p">,</span> <span class="n">ncpus</span><span class="o">=</span><span class="n">ncpus</span><span class="p">,</span> <span class="n">mpiprocs</span><span class="o">=</span><span class="n">mpiprocs</span><span class="p">,</span> <span class="n">mem</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">mem</span><span class="p">),</span>
                                          <span class="n">ompthreads</span><span class="o">=</span><span class="n">ompthreads</span><span class="p">)</span>
@@ -1803,7 +1828,7 @@
     <span class="k">def</span> <span class="nf">set_mem_per_proc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mem_mb</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the memory per process in megabytes&quot;&quot;&quot;</span>
         <span class="n">QueueAdapter</span><span class="o">.</span><span class="n">set_mem_per_proc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mem_mb</span><span class="p">)</span>
-        <span class="c1">#self.qparams[&quot;mem&quot;] = self.mem_per_proc</span>
+        <span class="c1"># self.qparams[&quot;mem&quot;] = self.mem_per_proc</span>
 
     <span class="k">def</span> <span class="nf">set_mpi_procs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mpi_procs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the number of CPUs used for MPI.&quot;&quot;&quot;</span>
@@ -1857,6 +1882,7 @@
 <span class="s2">#$ -o $$</span><span class="si">{_qout_path}</span><span class="s2"></span>
 <span class="s2">$$</span><span class="si">{qverbatim}</span><span class="s2"></span>
 <span class="s2">&quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">set_qname</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qname</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_qname</span><span class="p">(</span><span class="n">qname</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">qname</span><span class="p">:</span>
@@ -1970,8 +1996,8 @@
 
     <span class="k">def</span> <span class="nf">set_mem_per_proc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mem_mb</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_mem_per_proc</span><span class="p">(</span><span class="n">mem_mb</span><span class="p">)</span>
-        <span class="c1">#TODO</span>
-        <span class="c1">#raise NotImplementedError(&quot;set_mem_per_cpu&quot;)</span>
+        <span class="c1"># TODO</span>
+        <span class="c1"># raise NotImplementedError(&quot;set_mem_per_cpu&quot;)</span>
 
     <span class="k">def</span> <span class="nf">exclude_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="p">):</span>
         <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="s1">&#39;qadapter failed to exclude nodes, not implemented yet in moad&#39;</span><span class="p">)</span>
@@ -2012,11 +2038,11 @@
         <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="c1"># parse the result</span>
             <span class="c1"># lines should have this form:</span>
-            <span class="c1">##</span>
-            <span class="c1">## active jobs: N  eligible jobs: M  blocked jobs: P</span>
-            <span class="c1">##</span>
-            <span class="c1">## Total job:  1</span>
-            <span class="c1">##</span>
+            <span class="c1">#</span>
+            <span class="c1"># active jobs: N  eligible jobs: M  blocked jobs: P</span>
+            <span class="c1">#</span>
+            <span class="c1"># Total job:  1</span>
+            <span class="c1">#</span>
             <span class="c1"># Split the output string and return the last element.</span>
             <span class="n">out</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
             <span class="n">njobs</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
@@ -2057,16 +2083,16 @@
         <span class="k">if</span> <span class="n">qname</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">qname</span>
 
-    <span class="c1">#def set_mpi_procs(self, mpi_procs):</span>
+    <span class="c1"># def set_mpi_procs(self, mpi_procs):</span>
     <span class="c1">#    &quot;&quot;&quot;Set the number of CPUs used for MPI.&quot;&quot;&quot;</span>
     <span class="c1">#    super().set_mpi_procs(mpi_procs)</span>
     <span class="c1">#    #self.qparams[&quot;ntasks&quot;] = mpi_procs</span>
 
-    <span class="c1">#def set_omp_threads(self, omp_threads):</span>
+    <span class="c1"># def set_omp_threads(self, omp_threads):</span>
     <span class="c1">#    super().set_omp_threads(omp_threads)</span>
     <span class="c1">#    #self.qparams[&quot;cpus_per_task&quot;] = omp_threads</span>
 
-    <span class="c1">#def set_mem_per_proc(self, mem_mb):</span>
+    <span class="c1"># def set_mem_per_proc(self, mem_mb):</span>
     <span class="c1">#    &quot;&quot;&quot;Set the memory per process in megabytes&quot;&quot;&quot;</span>
     <span class="c1">#    super().set_mem_per_proc(mem_mb)</span>
     <span class="c1">#    #self.qparams[&quot;mem_per_cpu&quot;] = self.mem_per_proc</span>
@@ -2080,19 +2106,19 @@
         <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s2">&quot;llcancel </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">job_id</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">bgsize_rankspernode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-	    <span class="sd">&quot;&quot;&quot;Return (bg_size, ranks_per_node) from mpi_procs and omp_threads.&quot;&quot;&quot;</span>
-	    <span class="n">bg_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">mpi_procs</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">omp_threads</span><span class="p">)</span><span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">hw</span><span class="o">.</span><span class="n">cores_per_node</span><span class="p">))</span>
-	    <span class="n">bg_size</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">bg_size</span><span class="p">,</span> <span class="mi">32</span><span class="p">)</span> <span class="c1"># TODO hardcoded</span>
-	    <span class="n">ranks_per_node</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mpi_procs</span> <span class="o">/</span> <span class="n">bg_size</span><span class="p">))</span>
+        <span class="sd">&quot;&quot;&quot;Return (bg_size, ranks_per_node) from mpi_procs and omp_threads.&quot;&quot;&quot;</span>
+        <span class="n">bg_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">mpi_procs</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">omp_threads</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">hw</span><span class="o">.</span><span class="n">cores_per_node</span><span class="p">))</span>
+        <span class="n">bg_size</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">bg_size</span><span class="p">,</span> <span class="mi">32</span><span class="p">)</span>  <span class="c1"># TODO hardcoded</span>
+        <span class="n">ranks_per_node</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mpi_procs</span> <span class="o">/</span> <span class="n">bg_size</span><span class="p">))</span>
 
-	    <span class="k">return</span> <span class="n">bg_size</span><span class="p">,</span> <span class="n">ranks_per_node</span>
+        <span class="k">return</span> <span class="n">bg_size</span><span class="p">,</span> <span class="n">ranks_per_node</span>
 
     <span class="k">def</span> <span class="nf">optimize_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qnodes</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">bg_size</span><span class="p">,</span> <span class="n">rpn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bgsize_rankspernode</span><span class="p">()</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;in optimize params&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;mpi_procs:&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpi_procs</span><span class="p">,</span> <span class="s2">&quot;omp_threads:&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">omp_threads</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;bg_size:&quot;</span><span class="p">,</span><span class="n">bg_size</span><span class="p">,</span><span class="s2">&quot;ranks_per_node&quot;</span><span class="p">,</span><span class="n">rpn</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;mpi_procs:&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpi_procs</span><span class="p">,</span> <span class="s2">&quot;omp_threads:&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">omp_threads</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;bg_size:&quot;</span><span class="p">,</span> <span class="n">bg_size</span><span class="p">,</span> <span class="s2">&quot;ranks_per_node&quot;</span><span class="p">,</span> <span class="n">rpn</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;bg_size&quot;</span><span class="p">:</span> <span class="n">bg_size</span><span class="p">}</span>
 
@@ -2110,7 +2136,7 @@
         <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="c1"># on JUQUEEN, output should of the form</span>
-                <span class="c1">#llsubmit: The job &quot;juqueen1c1.zam.kfa-juelich.de.281506&quot; has been submitted.</span>
+                <span class="c1"># llsubmit: The job &quot;juqueen1c1.zam.kfa-juelich.de.281506&quot; has been submitted.</span>
                 <span class="n">token</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">3</span><span class="p">]</span>
                 <span class="n">s</span> <span class="o">=</span> <span class="n">token</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
                 <span class="n">queue_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
@@ -2176,7 +2202,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -2184,7 +2210,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

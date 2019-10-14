@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.electronic_structure.boltztrap &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.electronic_structure.boltztrap &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -47,6 +46,24 @@
   <h1>Source code for pymatgen.electronic_structure.boltztrap</h1><div class="highlight"><pre>
 <span></span><span class="c1"># coding: utf-8</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides classes to run and analyze boltztrap on pymatgen band</span>
+<span class="sd">structure objects. Boltztrap is a software interpolating band structures and</span>
+<span class="sd">computing materials properties from this band structure using Boltzmann</span>
+<span class="sd">semi-classical transport theory.</span>
+
+<span class="sd">Boltztrap has been developed by Georg Madsen.</span>
+
+<span class="sd">http://www.icams.de/content/research/software-development/boltztrap/</span>
+
+<span class="sd">You need version 1.2.3 or higher</span>
+
+<span class="sd">References are::</span>
+
+<span class="sd">    Madsen, G. K. H., and Singh, D. J. (2006).</span>
+<span class="sd">    BoltzTraP. A code for calculating band-structure dependent quantities.</span>
+<span class="sd">    Computer Physics Communications, 175, 67-71</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">math</span>
@@ -72,24 +89,6 @@
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.bandstructure</span> <span class="k">import</span> <span class="n">HighSymmKpath</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This module provides classes to run and analyze boltztrap on pymatgen band</span>
-<span class="sd">structure objects. Boltztrap is a software interpolating band structures and</span>
-<span class="sd">computing materials properties from this band structure using Boltzmann</span>
-<span class="sd">semi-classical transport theory.</span>
-
-<span class="sd">Boltztrap has been developed by Georg Madsen.</span>
-
-<span class="sd">http://www.icams.de/content/research/software-development/boltztrap/</span>
-
-<span class="sd">You need version 1.2.3 or higher</span>
-
-<span class="sd">References are::</span>
-
-<span class="sd">    Madsen, G. K. H., and Singh, D. J. (2006).</span>
-<span class="sd">    BoltzTraP. A code for calculating band-structure dependent quantities.</span>
-<span class="sd">    Computer Physics Communications, 175, 67-71</span>
-<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Geoffroy Hautier, Zachary Gibbs, Francesco Ricci, Anubhav Jain&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2013, The Materials Project&quot;</span>
@@ -103,8 +102,21 @@
 <div class="viewcode-block" id="BoltztrapRunner"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.BoltztrapRunner">[docs]</a><span class="k">class</span> <span class="nc">BoltztrapRunner</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class is used to run Boltztrap on a band structure object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-<span class="sd">    Args:</span>
+    <span class="nd">@requires</span><span class="p">(</span><span class="n">which</span><span class="p">(</span><span class="s1">&#39;x_trans&#39;</span><span class="p">),</span>
+              <span class="s2">&quot;BoltztrapRunner requires the executables &#39;x_trans&#39; to be in &quot;</span>
+              <span class="s2">&quot;the path. Please download the Boltztrap at http://&quot;</span>
+              <span class="s2">&quot;www.icams.de/content/research/software-development/boltztrap/ &quot;</span>
+              <span class="s2">&quot;and follow the instructions in the README to compile &quot;</span>
+              <span class="s2">&quot;Bolztrap accordingly. Then add x_trans to your path&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bs</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">dos_type</span><span class="o">=</span><span class="s2">&quot;HISTO&quot;</span><span class="p">,</span> <span class="n">energy_grid</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span>
+                 <span class="n">lpfac</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">run_type</span><span class="o">=</span><span class="s2">&quot;BOLTZ&quot;</span><span class="p">,</span> <span class="n">band_nb</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tauref</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">tauexp</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                 <span class="n">tauen</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">soc</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">doping</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">energy_span_around_fermi</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
+                 <span class="n">scissor</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">kpt_line</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cond_band</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">tmax</span><span class="o">=</span><span class="mi">1300</span><span class="p">,</span> <span class="n">tgrid</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">cb_cut</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">7200</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
 <span class="sd">            bs:</span>
 <span class="sd">                A band structure object</span>
 <span class="sd">            nelec:</span>
@@ -188,19 +200,7 @@
 <span class="sd">                that are removed.</span>
 <span class="sd">            timeout: overall time limit (in seconds): mainly to avoid infinite</span>
 <span class="sd">                loop when trying to find Fermi levels.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="nd">@requires</span><span class="p">(</span><span class="n">which</span><span class="p">(</span><span class="s1">&#39;x_trans&#39;</span><span class="p">),</span>
-              <span class="s2">&quot;BoltztrapRunner requires the executables &#39;x_trans&#39; to be in &quot;</span>
-              <span class="s2">&quot;the path. Please download the Boltztrap at http://&quot;</span>
-              <span class="s2">&quot;www.icams.de/content/research/software-development/boltztrap/ &quot;</span>
-              <span class="s2">&quot;and follow the instructions in the README to compile &quot;</span>
-              <span class="s2">&quot;Bolztrap accordingly. Then add x_trans to your path&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bs</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">dos_type</span><span class="o">=</span><span class="s2">&quot;HISTO&quot;</span><span class="p">,</span> <span class="n">energy_grid</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span>
-                 <span class="n">lpfac</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">run_type</span><span class="o">=</span><span class="s2">&quot;BOLTZ&quot;</span><span class="p">,</span> <span class="n">band_nb</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tauref</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">tauexp</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-                 <span class="n">tauen</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">soc</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">doping</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">energy_span_around_fermi</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
-                 <span class="n">scissor</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">kpt_line</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cond_band</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                 <span class="n">tmax</span><span class="o">=</span><span class="mi">1300</span><span class="p">,</span> <span class="n">tgrid</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">cb_cut</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">7200</span><span class="p">):</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lpfac</span> <span class="o">=</span> <span class="n">lpfac</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_bs</span> <span class="o">=</span> <span class="n">bs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_nelec</span> <span class="o">=</span> <span class="n">nelec</span>
@@ -270,13 +270,24 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">bs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: The BandStructure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bs</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">nelec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Number of electrons</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nelec</span>
 
 <div class="viewcode-block" id="BoltztrapRunner.write_energy"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.BoltztrapRunner.write_energy">[docs]</a>    <span class="k">def</span> <span class="nf">write_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Writes the energy to an output file.</span>
+
+<span class="sd">        :param output_file: Filename</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;test</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">kpoints</span><span class="p">)))</span>
@@ -329,6 +340,11 @@
                         <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%18.8f</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">eigs</span><span class="p">[</span><span class="n">j</span><span class="p">])))</span></div>
 
 <div class="viewcode-block" id="BoltztrapRunner.write_struct"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.BoltztrapRunner.write_struct">[docs]</a>    <span class="k">def</span> <span class="nf">write_struct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Writes the structure to an output file.</span>
+
+<span class="sd">        :param output_file: Filename</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_symprec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">sym</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_symprec</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_symprec</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -357,6 +373,11 @@
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">row</span><span class="p">)))</span></div>
 
 <div class="viewcode-block" id="BoltztrapRunner.write_def"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.BoltztrapRunner.write_def">[docs]</a>    <span class="k">def</span> <span class="nf">write_def</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Writes the def to an output file.</span>
+
+<span class="sd">        :param output_file: Filename</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># This function is useless in std version of BoltzTraP code</span>
         <span class="c1"># because x_trans script overwrite BoltzTraP.def</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -387,6 +408,11 @@
                     <span class="s2">&quot;&#39;formatted&#39;,0</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="BoltztrapRunner.write_proj"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.BoltztrapRunner.write_proj">[docs]</a>    <span class="k">def</span> <span class="nf">write_proj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_file_proj</span><span class="p">,</span> <span class="n">output_file_def</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Writes the projections to an output file.</span>
+
+<span class="sd">        :param output_file: Filename</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># This function is useless in std version of BoltzTraP code</span>
         <span class="c1"># because x_trans script overwrite BoltzTraP.def</span>
         <span class="k">for</span> <span class="n">oi</span><span class="p">,</span> <span class="n">o</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">Orbital</span><span class="p">):</span>
@@ -456,6 +482,11 @@
                         <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span></div>
 
 <div class="viewcode-block" id="BoltztrapRunner.write_intrans"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.BoltztrapRunner.write_intrans">[docs]</a>    <span class="k">def</span> <span class="nf">write_intrans</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Writes the intrans to an output file.</span>
+
+<span class="sd">        :param output_file: Filename</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">setgap</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scissor</span> <span class="o">&gt;</span> <span class="mf">0.0001</span> <span class="k">else</span> <span class="mi">0</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_type</span> <span class="o">==</span> <span class="s2">&quot;BOLTZ&quot;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_type</span> <span class="o">==</span> <span class="s2">&quot;DOS&quot;</span><span class="p">:</span>
@@ -562,6 +593,11 @@
                     <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="BoltztrapRunner.write_input"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.BoltztrapRunner.write_input">[docs]</a>    <span class="k">def</span> <span class="nf">write_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Writes the input files.</span>
+
+<span class="sd">        :param output_dir: Directory to write the input files.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">is_spin_polarized</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">soc</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">write_energy</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;boltztrap.energyso&quot;</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
@@ -740,6 +776,9 @@
             <span class="k">return</span> <span class="n">path_dir</span></div>
 
 <div class="viewcode-block" id="BoltztrapRunner.as_dict"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.BoltztrapRunner.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: MSONable dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">results</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
                    <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
                    <span class="s2">&quot;lpfac&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lpfac</span><span class="p">,</span>
@@ -770,13 +809,7 @@
 <span class="sd">    Exception class for boltztrap.</span>
 <span class="sd">    Raised when the boltztrap gives an error</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">msg</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s2">&quot;BoltztrapError : &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">msg</span></div>
+    <span class="k">pass</span></div>
 
 
 <div class="viewcode-block" id="BoltztrapAnalyzer"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer">[docs]</a><span class="k">class</span> <span class="nc">BoltztrapAnalyzer</span><span class="p">:</span>
@@ -1733,6 +1766,10 @@
         <span class="k">return</span> <span class="n">CompleteDos</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">total_dos</span><span class="o">=</span><span class="n">tdos</span><span class="p">,</span> <span class="n">pdoss</span><span class="o">=</span><span class="n">pdoss</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="BoltztrapAnalyzer.get_mu_bounds"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_mu_bounds">[docs]</a>    <span class="k">def</span> <span class="nf">get_mu_bounds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temp</span><span class="o">=</span><span class="mi">300</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param temp: Temperature.</span>
+<span class="sd">        :return: The chemical potential bounds at that temperature.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mu_doping</span><span class="p">[</span><span class="s1">&#39;p&#39;</span><span class="p">][</span><span class="n">temp</span><span class="p">]),</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mu_doping</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">][</span><span class="n">temp</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="BoltztrapAnalyzer.get_carrier_concentration"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_carrier_concentration">[docs]</a>    <span class="k">def</span> <span class="nf">get_carrier_concentration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1832,7 +1869,6 @@
                     <span class="n">data_dos</span><span class="p">[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                         <span class="p">[</span><span class="n">Energy</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]),</span> <span class="s2">&quot;Ry&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;eV&quot;</span><span class="p">),</span>
                          <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">])])</span>
-                    <span class="n">total_elec</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">2</span><span class="p">])</span>
 
         <span class="n">lw_l</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">hg_l</span> <span class="o">=</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">data_dos</span><span class="p">[</span><span class="s1">&#39;total&#39;</span><span class="p">])</span>
@@ -1992,7 +2028,6 @@
         <span class="n">kappa</span> <span class="o">=</span> <span class="p">{</span><span class="n">t</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">t_steps</span><span class="p">}</span>
         <span class="n">hall</span> <span class="o">=</span> <span class="p">{</span><span class="n">t</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">t_steps</span><span class="p">}</span>
         <span class="n">carrier_conc</span> <span class="o">=</span> <span class="p">{</span><span class="n">t</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">t_steps</span><span class="p">}</span>
-        <span class="n">dos_full</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;energy&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;density&#39;</span><span class="p">:</span> <span class="p">[]}</span>
 
         <span class="n">mu_doping</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;p&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">t</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">t_steps</span><span class="p">},</span>
                      <span class="s1">&#39;n&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">t</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">t_steps</span><span class="p">}}</span>
@@ -2121,7 +2156,9 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Run type: </span><span class="si">{}</span><span class="s2"> not recognized!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run_type</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="BoltztrapAnalyzer.as_dict"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: MSONable dict.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">results</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;gap&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">gap</span><span class="p">,</span>
                    <span class="s1">&#39;mu_steps&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mu_steps</span><span class="p">,</span>
                    <span class="s1">&#39;intrans&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">intrans</span><span class="p">,</span>
@@ -2144,6 +2181,10 @@
 
 <div class="viewcode-block" id="BoltztrapAnalyzer.from_dict"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.from_dict">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param data: Dict representation.</span>
+<span class="sd">        :return: BoltztrapAnalyzer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">def</span> <span class="nf">_make_float_array</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
             <span class="n">res</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]]</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
@@ -2154,7 +2195,6 @@
         <span class="k">def</span> <span class="nf">_make_float_hall</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
             <span class="k">return</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">a</span><span class="p">[:</span><span class="mi">27</span><span class="p">]]</span>
 
-        <span class="n">intrans</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;intrans&#39;</span><span class="p">)</span>
         <span class="n">gap</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;gap&#39;</span><span class="p">)</span>
         <span class="n">mu_steps</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;mu_steps&#39;</span><span class="p">]]</span> <span class="k">if</span> \
             <span class="s1">&#39;mu_steps&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">else</span> <span class="kc">None</span>
@@ -2227,6 +2267,10 @@
 
 
 <div class="viewcode-block" id="read_cube_file"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.read_cube_file">[docs]</a><span class="k">def</span> <span class="nf">read_cube_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :param filename: Cube filename</span>
+<span class="sd">    :return: Energy data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;rt&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">natoms</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">count_line</span> <span class="o">=</span> <span class="mi">0</span>
@@ -2237,21 +2281,16 @@
 
             <span class="k">if</span> <span class="n">count_line</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
                 <span class="n">tokens</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-                <span class="n">origin</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)]</span>
                 <span class="n">natoms</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
             <span class="k">if</span> <span class="n">count_line</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
                 <span class="n">tokens</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-                <span class="n">a1</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)]</span>
                 <span class="n">n1</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
             <span class="k">elif</span> <span class="n">count_line</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
                 <span class="n">tokens</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-                <span class="n">a2</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)]</span>
                 <span class="n">n2</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
             <span class="k">elif</span> <span class="n">count_line</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
                 <span class="n">tokens</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-                <span class="n">a3</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)]</span>
                 <span class="n">n3</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-                <span class="c1"># kpoints=[[[0 for i in range(0,n1)] for j in range(0,n2)] for l in range(0,n3)]</span>
             <span class="k">elif</span> <span class="n">count_line</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">:</span>
                 <span class="k">break</span>
 
@@ -2277,7 +2316,6 @@
 <span class="sd">    squared (%) if nb is specified.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">nkpt</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">bands_obj</span><span class="o">.</span><span class="n">kpoints</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">bands_ref_obj</span><span class="o">.</span><span class="n">is_spin_polarized</span><span class="p">:</span>
         <span class="n">nbands</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">bands_obj</span><span class="o">.</span><span class="n">nb_bands</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">bands_ref_obj</span><span class="o">.</span><span class="n">nb_bands</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -2369,20 +2407,8 @@
 
 <div class="viewcode-block" id="seebeck_eff_mass_from_carr"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.seebeck_eff_mass_from_carr">[docs]</a><span class="k">def</span> <span class="nf">seebeck_eff_mass_from_carr</span><span class="p">(</span><span class="n">eta</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">Lambda</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculate seebeck effective mass at a certain carrier concentration</span>
-<span class="sd">        eta in kB*T units, n in cm-3, T in K, returns mass in m0 units</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span> <span class="nn">fdint</span> <span class="k">import</span> <span class="n">fdk</span>
-
-    <span class="k">return</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">*</span> <span class="mi">10</span> <span class="o">**</span> <span class="mi">6</span> <span class="o">/</span> <span class="p">(</span><span class="n">fdk</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">eta</span><span class="p">)))</span> <span class="o">**</span> <span class="p">(</span><span class="mf">2.</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span> <span class="o">/</span> \
-           <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">constants</span><span class="o">.</span><span class="n">m_e</span> <span class="o">*</span> <span class="n">constants</span><span class="o">.</span><span class="n">k</span> <span class="o">*</span> <span class="n">T</span> <span class="o">/</span> <span class="p">(</span><span class="n">constants</span><span class="o">.</span><span class="n">h</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="seebeck_eff_mass_from_seebeck_carr"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.seebeck_eff_mass_from_seebeck_carr">[docs]</a><span class="k">def</span> <span class="nf">seebeck_eff_mass_from_seebeck_carr</span><span class="p">(</span><span class="n">seeb</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">Lambda</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Find the chemical potential where analytic and calculated seebeck are identical</span>
-<span class="sd">        and then calculate the seebeck effective mass at that chemical potential and</span>
-<span class="sd">        a certain carrier concentration n</span>
+<span class="sd">    Calculate seebeck effective mass at a certain carrier concentration</span>
+<span class="sd">    eta in kB*T units, n in cm-3, T in K, returns mass in m0 units</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">fdint</span> <span class="k">import</span> <span class="n">fdk</span>
@@ -2390,6 +2416,16 @@
         <span class="k">raise</span> <span class="n">BoltztrapError</span><span class="p">(</span><span class="s2">&quot;fdint module not found. Please, install it.</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span>
                              <span class="s2">&quot;It is needed to calculate Fermi integral quickly.&quot;</span><span class="p">)</span>
 
+    <span class="k">return</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">*</span> <span class="mi">10</span> <span class="o">**</span> <span class="mi">6</span> <span class="o">/</span> <span class="p">(</span><span class="n">fdk</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">eta</span><span class="p">)))</span> <span class="o">**</span> <span class="p">(</span><span class="mf">2.</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span> <span class="o">/</span> \
+           <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">constants</span><span class="o">.</span><span class="n">m_e</span> <span class="o">*</span> <span class="n">constants</span><span class="o">.</span><span class="n">k</span> <span class="o">*</span> <span class="n">T</span> <span class="o">/</span> <span class="p">(</span><span class="n">constants</span><span class="o">.</span><span class="n">h</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="seebeck_eff_mass_from_seebeck_carr"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.seebeck_eff_mass_from_seebeck_carr">[docs]</a><span class="k">def</span> <span class="nf">seebeck_eff_mass_from_seebeck_carr</span><span class="p">(</span><span class="n">seeb</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">Lambda</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find the chemical potential where analytic and calculated seebeck are identical</span>
+<span class="sd">    and then calculate the seebeck effective mass at that chemical potential and</span>
+<span class="sd">    a certain carrier concentration n</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">eta</span> <span class="o">=</span> <span class="n">eta_from_seebeck</span><span class="p">(</span><span class="n">seeb</span><span class="p">,</span> <span class="n">Lambda</span><span class="p">)</span>
     <span class="n">mass</span> <span class="o">=</span> <span class="n">seebeck_eff_mass_from_carr</span><span class="p">(</span><span class="n">eta</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">Lambda</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">mass</span></div>
@@ -2423,7 +2459,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -2431,7 +2467,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

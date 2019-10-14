@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -1438,7 +1437,7 @@
                                   <span class="n">local_plane</span><span class="o">=</span><span class="n">local_plane</span><span class="p">,</span>
                                   <span class="n">points_perfect</span><span class="o">=</span><span class="n">points_perfect</span><span class="p">,</span>
                                   <span class="n">separation_indices</span><span class="o">=</span><span class="n">npsep</span><span class="p">)</span>
-                <span class="n">csm</span><span class="p">,</span> <span class="n">perm</span><span class="p">,</span> <span class="n">algo</span><span class="p">,</span> <span class="n">cgsm_stop_search</span> <span class="o">=</span> <span class="n">cgsm</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cgsm</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">cgsm</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">cgsm</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+                <span class="n">csm</span><span class="p">,</span> <span class="n">perm</span><span class="p">,</span> <span class="n">algo</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">cgsm</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cgsm</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">cgsm</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">cgsm</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
                 <span class="n">permutations_symmetry_measures</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">csm</span><span class="p">)</span>
                 <span class="n">permutations</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">perm</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">thisperm</span> <span class="ow">in</span> <span class="n">perm</span><span class="p">:</span>
@@ -1517,7 +1516,7 @@
                                       <span class="n">local_plane</span><span class="o">=</span><span class="n">plane</span><span class="p">,</span>
                                       <span class="n">points_perfect</span><span class="o">=</span><span class="n">points_perfect</span><span class="p">,</span>
                                       <span class="n">separation_indices</span><span class="o">=</span><span class="n">separation_indices</span><span class="p">)</span>
-                    <span class="n">csm</span><span class="p">,</span> <span class="n">perm</span><span class="p">,</span> <span class="n">algo</span><span class="p">,</span> <span class="n">cgsm_stop_search</span> <span class="o">=</span> <span class="n">cgsm</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cgsm</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">cgsm</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">cgsm</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+                    <span class="n">csm</span><span class="p">,</span> <span class="n">perm</span><span class="p">,</span> <span class="n">algo</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">cgsm</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cgsm</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">cgsm</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">cgsm</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
                     <span class="n">permutations_symmetry_measures</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">csm</span><span class="p">)</span>
                     <span class="n">permutations</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">perm</span><span class="p">)</span>
                     <span class="k">for</span> <span class="n">thisperm</span> <span class="ow">in</span> <span class="n">perm</span><span class="p">:</span>
@@ -1860,7 +1859,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1868,7 +1867,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

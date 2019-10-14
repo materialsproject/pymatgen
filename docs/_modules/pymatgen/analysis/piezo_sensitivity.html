@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.piezo_sensitivity &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.analysis.piezo_sensitivity &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -45,9 +44,11 @@
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.analysis.piezo_sensitivity</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">pymatgen.core.tensors</span> <span class="k">import</span> <span class="n">Tensor</span>
-<span class="kn">from</span> <span class="nn">pymatgen.symmetry</span> <span class="k">import</span> <span class="n">site_symmetries</span> <span class="k">as</span> <span class="n">ss</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.piezo</span> <span class="k">import</span> <span class="n">PiezoTensor</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Piezo sensitivity analysis module.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.tensors</span> <span class="k">import</span> <span class="n">Tensor</span>
 <span class="kn">import</span> <span class="nn">pymatgen.io.phonopy</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -57,7 +58,6 @@
 
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">phonopy</span> <span class="k">import</span> <span class="n">Phonopy</span>
-    <span class="kn">from</span> <span class="nn">phonopy.structure.atoms</span> <span class="k">import</span> <span class="n">PhonopyAtoms</span>
     <span class="kn">from</span> <span class="nn">phonopy.harmonic</span> <span class="k">import</span> <span class="n">dynmat_to_fc</span> <span class="k">as</span> <span class="n">dyntofc</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="n">Phonopy</span> <span class="o">=</span> <span class="kc">None</span>
@@ -147,11 +147,9 @@
                 <span class="n">passed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">site</span><span class="p">,</span> <span class="n">neweig</span><span class="p">])</span>
         <span class="n">BEC_operations</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">relations</span><span class="p">)):</span>
-            <span class="n">good</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="n">BEC_operations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">relations</span><span class="p">[</span><span class="n">atom</span><span class="p">])</span>
             <span class="n">BEC_operations</span><span class="p">[</span><span class="n">atom</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
 
-            <span class="n">good</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">uniquepointops</span><span class="p">:</span>
                 <span class="n">new</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">transform_tensor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bec</span><span class="p">[</span><span class="n">relations</span><span class="p">[</span><span class="n">atom</span><span class="p">][</span><span class="mi">1</span><span class="p">]])</span>
 
@@ -179,7 +177,6 @@
 
         <span class="n">l</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">struc</span><span class="p">)</span>
         <span class="n">BEC</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">l</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
-        <span class="n">primsites</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">BEC_operations</span><span class="p">)):</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">BEC_operations</span><span class="p">[</span><span class="n">atom</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">BEC_operations</span><span class="p">[</span><span class="n">atom</span><span class="p">][</span><span class="mi">1</span><span class="p">]:</span>
                 <span class="n">temp_tensor</span> <span class="o">=</span> <span class="n">Tensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span>
@@ -537,7 +534,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">operations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">FCM_operations</span>
-        <span class="n">numsites</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
         <span class="n">D</span> <span class="o">=</span> <span class="n">unsymmetrized_fcm</span>
         <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">operations</span><span class="p">:</span>
             <span class="n">same</span> <span class="o">=</span> <span class="mi">0</span>
@@ -615,7 +611,6 @@
 <span class="sd">            3Nx3N numpy array representing the force constant matrix</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">numsites</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
         <span class="n">check</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">while</span> <span class="n">check</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -673,7 +668,6 @@
         <span class="n">D</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="n">numsites</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span> <span class="n">numsites</span> <span class="o">*</span> <span class="mi">3</span><span class="p">])</span>
         <span class="k">for</span> <span class="n">num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numiter</span><span class="p">):</span>
             <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">fcm</span><span class="p">)</span>
-            <span class="n">passed</span> <span class="o">=</span> <span class="p">[]</span>
 
             <span class="c1"># symmetry operations</span>
             <span class="n">pastrow</span> <span class="o">=</span> <span class="mi">0</span>
@@ -839,7 +833,6 @@
     <span class="n">numsites</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">BEC</span><span class="p">)</span>
     <span class="n">temp_fcm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="n">FCM</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="n">numsites</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span> <span class="n">numsites</span> <span class="o">*</span> <span class="mi">3</span><span class="p">))</span>
 
-    <span class="n">piezo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
     <span class="n">eigs</span><span class="p">,</span> <span class="n">vecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">temp_fcm</span><span class="p">)</span>
     <span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span>
         <span class="o">-</span><span class="n">temp_fcm</span><span class="p">,</span>
@@ -870,7 +863,6 @@
 <span class="sd">        list in the form of [Nx3x3 random born effective charge tenosr,</span>
 <span class="sd">        Nx3x3x3 random internal strain tensor, NxNx3x3 random force constant matrix, 3x3x3 piezo tensor]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">numsites</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">struc</span><span class="o">.</span><span class="n">sites</span><span class="p">)</span>
     <span class="n">bec</span> <span class="o">=</span> <span class="n">BornEffectiveCharge</span><span class="p">(</span><span class="n">struc</span><span class="p">,</span> <span class="n">BEC</span><span class="p">,</span> <span class="n">pointops</span><span class="p">)</span>
     <span class="n">bec</span><span class="o">.</span><span class="n">get_BEC_operations</span><span class="p">()</span>
     <span class="n">rand_BEC</span> <span class="o">=</span> <span class="n">bec</span><span class="o">.</span><span class="n">get_rand_BEC</span><span class="p">()</span>
@@ -916,7 +908,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -924,7 +916,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

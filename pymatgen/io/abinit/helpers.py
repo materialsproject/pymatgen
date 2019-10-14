@@ -98,7 +98,8 @@ def expand(tests, level):
             else:
                 print('new nb wedge')
                 # odd level of grid extension > new nb wedge
-                extension = tuple(range(ec_range[-1] + ec_step, ec_range[-1] + (1 + int((level - 1) / 2)) * ec_step, ec_step))
+                extension = tuple(
+                    range(ec_range[-1] + ec_step, ec_range[-1] + (1 + int((level - 1) / 2)) * ec_step, ec_step))
                 new_ec_range = ec_range + extension
             new_tests[ec].update({'test_range': new_ec_range})
         if test in get_all_nbands():
@@ -125,8 +126,8 @@ def print_gnuplot_header(filename, title='', mode='convplot', filetype='jpeg'):
     if mode == 'convplot':
         f = open(filename, mode='a')
         if filetype is not None:
-            f.write('set terminal '+filetype+'\n')
-        f.write('set title "'+title+'"\n')
+            f.write('set terminal ' + filetype + '\n')
+        f.write('set title "' + title + '"\n')
         f.write(xl)
         f.write(yl)
         f.write(zl)
@@ -159,7 +160,7 @@ def is_converged(hartree_parameters, structure, return_values=False):
         converged = True if True in conv_res['control'].values() else False
     except (IOError, OSError, ValueError):
         if return_values:
-            print('Inputfile ', filename, ' not found, the convergence calculation did not finish properly' \
+            print('Inputfile ', filename, ' not found, the convergence calculation did not finish properly'
                                           ' or was not parsed ...')
         converged = False
         return converged
@@ -185,10 +186,10 @@ def store_conv_results(name, folder):
     print("| Storing results for %s" % name)
     if not os.path.isdir(folder):
         os.mkdir(folder)
-    shutil.copy(name+'.full_res', os.path.join(folder, name+'.full_res'))
+    shutil.copy(name + '.full_res', os.path.join(folder, name + '.full_res'))
     for data_file in ['conv_res', 'log', 'conv.log', 'str', 'fitdat', 'convdat', 'data']:
         try:
-            os.rename(name+'.'+data_file, os.path.join(folder, name+'.'+data_file))
+            os.rename(name + '.' + data_file, os.path.join(folder, name + '.' + data_file))
         except OSError:
             pass
 

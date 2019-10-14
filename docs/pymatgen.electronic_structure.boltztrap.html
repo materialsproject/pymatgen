@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.electronic_structure.boltztrap module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.electronic_structure.boltztrap module &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +43,19 @@
             
   <div class="section" id="module-pymatgen.electronic_structure.boltztrap">
 <span id="pymatgen-electronic-structure-boltztrap-module"></span><h1>pymatgen.electronic_structure.boltztrap module<a class="headerlink" href="#module-pymatgen.electronic_structure.boltztrap" title="Permalink to this headline">¶</a></h1>
+<p>This module provides classes to run and analyze boltztrap on pymatgen band
+structure objects. Boltztrap is a software interpolating band structures and
+computing materials properties from this band structure using Boltzmann
+semi-classical transport theory.</p>
+<p>Boltztrap has been developed by Georg Madsen.</p>
+<p><a class="reference external" href="http://www.icams.de/content/research/software-development/boltztrap/">http://www.icams.de/content/research/software-development/boltztrap/</a></p>
+<p>You need version 1.2.3 or higher</p>
+<p>References are:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Madsen</span><span class="p">,</span> <span class="n">G</span><span class="o">.</span> <span class="n">K</span><span class="o">.</span> <span class="n">H</span><span class="o">.</span><span class="p">,</span> <span class="ow">and</span> <span class="n">Singh</span><span class="p">,</span> <span class="n">D</span><span class="o">.</span> <span class="n">J</span><span class="o">.</span> <span class="p">(</span><span class="mi">2006</span><span class="p">)</span><span class="o">.</span>
+<span class="n">BoltzTraP</span><span class="o">.</span> <span class="n">A</span> <span class="n">code</span> <span class="k">for</span> <span class="n">calculating</span> <span class="n">band</span><span class="o">-</span><span class="n">structure</span> <span class="n">dependent</span> <span class="n">quantities</span><span class="o">.</span>
+<span class="n">Computer</span> <span class="n">Physics</span> <span class="n">Communications</span><span class="p">,</span> <span class="mi">175</span><span class="p">,</span> <span class="mi">67</span><span class="o">-</span><span class="mi">71</span>
+</pre></div>
+</div>
 <dl class="class">
 <dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer">
 <em class="property">class </em><code class="sig-name descname">BoltztrapAnalyzer</code><span class="sig-paren">(</span><em class="sig-param">gap=None</em>, <em class="sig-param">mu_steps=None</em>, <em class="sig-param">cond=None</em>, <em class="sig-param">seebeck=None</em>, <em class="sig-param">kappa=None</em>, <em class="sig-param">hall=None</em>, <em class="sig-param">doping=None</em>, <em class="sig-param">mu_doping=None</em>, <em class="sig-param">seebeck_doping=None</em>, <em class="sig-param">cond_doping=None</em>, <em class="sig-param">kappa_doping=None</em>, <em class="sig-param">hall_doping=None</em>, <em class="sig-param">intrans=None</em>, <em class="sig-param">dos=None</em>, <em class="sig-param">dos_partial=None</em>, <em class="sig-param">carrier_conc=None</em>, <em class="sig-param">vol=None</em>, <em class="sig-param">warning=None</em>, <em class="sig-param">bz_bands=None</em>, <em class="sig-param">bz_kpoints=None</em>, <em class="sig-param">fermi_surface_data=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer" title="Permalink to this definition">¶</a></dt>
@@ -135,7 +147,12 @@ output .cube file.</p></li>
 <dl class="method">
 <dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapAnalyzer.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>MSONable dict.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.check_acc_bzt_bands">
@@ -177,7 +194,15 @@ True if the avg_dist &gt; warn_thr[1]</p>
 <dl class="method">
 <dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.from_dict">
 <em class="property">static </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapAnalyzer.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> – Dict representation.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>BoltztrapAnalyzer</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.from_files">
@@ -407,7 +432,15 @@ electron chemical potential</p>
 <dl class="method">
 <dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_mu_bounds">
 <code class="sig-name descname">get_mu_bounds</code><span class="sig-paren">(</span><em class="sig-param">temp=300</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapAnalyzer.get_mu_bounds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_mu_bounds" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>temp</strong> – Temperature.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The chemical potential bounds at that temperature.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_power_factor">
@@ -705,7 +738,7 @@ to the bands or some other inputs</p>
 
 <dl class="exception">
 <dt id="pymatgen.electronic_structure.boltztrap.BoltztrapError">
-<em class="property">exception </em><code class="sig-name descname">BoltztrapError</code><span class="sig-paren">(</span><em class="sig-param">msg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapError" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="sig-name descname">BoltztrapError</code><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Exception class for boltztrap.
 Raised when the boltztrap gives an error</p>
@@ -789,18 +822,34 @@ loop when trying to find Fermi levels.</p></li>
 <dl class="method">
 <dt id="pymatgen.electronic_structure.boltztrap.BoltztrapRunner.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapRunner.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapRunner.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A JSON serializable dict representation of an object.</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>MSONable dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.boltztrap.BoltztrapRunner.bs">
 <em class="property">property </em><code class="sig-name descname">bs</code><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapRunner.bs" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>The BandStructure</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.boltztrap.BoltztrapRunner.nelec">
 <em class="property">property </em><code class="sig-name descname">nelec</code><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapRunner.nelec" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Number of electrons</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.boltztrap.BoltztrapRunner.run">
@@ -833,32 +882,68 @@ convergence mode</p></li>
 <dl class="method">
 <dt id="pymatgen.electronic_structure.boltztrap.BoltztrapRunner.write_def">
 <code class="sig-name descname">write_def</code><span class="sig-paren">(</span><em class="sig-param">output_file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapRunner.write_def"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapRunner.write_def" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Writes the def to an output file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>output_file</strong> – Filename</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.boltztrap.BoltztrapRunner.write_energy">
 <code class="sig-name descname">write_energy</code><span class="sig-paren">(</span><em class="sig-param">output_file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapRunner.write_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapRunner.write_energy" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Writes the energy to an output file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>output_file</strong> – Filename</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.boltztrap.BoltztrapRunner.write_input">
 <code class="sig-name descname">write_input</code><span class="sig-paren">(</span><em class="sig-param">output_dir</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapRunner.write_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapRunner.write_input" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Writes the input files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>output_dir</strong> – Directory to write the input files.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.boltztrap.BoltztrapRunner.write_intrans">
 <code class="sig-name descname">write_intrans</code><span class="sig-paren">(</span><em class="sig-param">output_file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapRunner.write_intrans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapRunner.write_intrans" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Writes the intrans to an output file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>output_file</strong> – Filename</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.boltztrap.BoltztrapRunner.write_proj">
 <code class="sig-name descname">write_proj</code><span class="sig-paren">(</span><em class="sig-param">output_file_proj</em>, <em class="sig-param">output_file_def</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapRunner.write_proj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapRunner.write_proj" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Writes the projections to an output file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>output_file</strong> – Filename</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.electronic_structure.boltztrap.BoltztrapRunner.write_struct">
 <code class="sig-name descname">write_struct</code><span class="sig-paren">(</span><em class="sig-param">output_file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapRunner.write_struct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapRunner.write_struct" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Writes the structure to an output file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>output_file</strong> – Filename</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -881,7 +966,15 @@ Returns: eta where the two seebeck coefficients are equal
 <dl class="function">
 <dt id="pymatgen.electronic_structure.boltztrap.read_cube_file">
 <code class="sig-name descname">read_cube_file</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#read_cube_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.read_cube_file" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> – Cube filename</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Energy data.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.electronic_structure.boltztrap.seebeck_eff_mass_from_carr">
@@ -942,13 +1035,13 @@ a certain carrier concentration n</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

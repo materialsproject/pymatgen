@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.cif module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.io.cif module &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +43,7 @@
             
   <div class="section" id="module-pymatgen.io.cif">
 <span id="pymatgen-io-cif-module"></span><h1>pymatgen.io.cif module<a class="headerlink" href="#module-pymatgen.io.cif" title="Permalink to this headline">¶</a></h1>
+<p>Wrapper classes for Cif input and output from Structures.</p>
 <dl class="class">
 <dt id="pymatgen.io.cif.CifBlock">
 <em class="property">class </em><code class="sig-name descname">CifBlock</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">loops</em>, <em class="sig-param">header</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/cif.html#CifBlock"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifBlock" title="Permalink to this definition">¶</a></dt>
@@ -68,7 +68,16 @@ line)</p></li>
 <dl class="method">
 <dt id="pymatgen.io.cif.CifBlock.from_string">
 <em class="property">classmethod </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param">string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/cif.html#CifBlock.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifBlock.from_string" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Reads CifBlock from string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>string</strong> – String representation.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>CifBlock</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.cif.CifBlock.maxlen">
@@ -94,12 +103,30 @@ line)</p></li>
 <dl class="method">
 <dt id="pymatgen.io.cif.CifFile.from_file">
 <em class="property">classmethod </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/cif.html#CifFile.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifFile.from_file" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Reads CifFile from a filename.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> – Filename</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>CifFile</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.cif.CifFile.from_string">
 <em class="property">classmethod </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param">string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/cif.html#CifFile.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifFile.from_string" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Reads CifFile from a string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>string</strong> – String representation.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>CifFile</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -125,7 +152,12 @@ combined to a single disordered site. Defaults to 1e-4.</p></li>
 <dl class="method">
 <dt id="pymatgen.io.cif.CifParser.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/cif.html#CifParser.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>MSONable dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.cif.CifParser.from_string">
@@ -198,7 +230,13 @@ group symbol is parsed, and symops are generated.</p>
 <dl class="method">
 <dt id="pymatgen.io.cif.CifParser.has_errors">
 <em class="property">property </em><code class="sig-name descname">has_errors</code><a class="headerlink" href="#pymatgen.io.cif.CifParser.has_errors" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Whether there are errors/warnings detected in CIF parsing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.cif.CifParser.parse_magmoms">
@@ -294,13 +332,13 @@ a replacement string to be used.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

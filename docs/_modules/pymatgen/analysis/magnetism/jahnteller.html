@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.magnetism.jahnteller &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.analysis.magnetism.jahnteller &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -53,85 +52,102 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.local_env</span> <span class="k">import</span> <span class="n">LocalStructOrderParams</span><span class="p">,</span> <span class="n">get_neighbors_of_site_with_index</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.local_env</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">LocalStructOrderParams</span><span class="p">,</span>
+    <span class="n">get_neighbors_of_site_with_index</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.bond_valence</span> <span class="k">import</span> <span class="n">BVAnalyzer</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">get_el_sp</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Any</span>
+
 <span class="n">MODULE_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
 
 
 <div class="viewcode-block" id="JahnTellerAnalyzer"><a class="viewcode-back" href="../../../../pymatgen.analysis.magnetism.jahnteller.html#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer">[docs]</a><span class="k">class</span> <span class="nc">JahnTellerAnalyzer</span><span class="p">:</span>
-
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Will attempt to classify if structure *may* be Jahn-Teller active.</span>
-
+        <span class="sd">&quot;&quot;&quot;Will attempt to classify if structure *may* be Jahn-Teller active.</span>
 <span class="sd">        Class currently uses datafile of hard-coded common Jahn-Teller</span>
 <span class="sd">        active ions.</span>
-
 <span class="sd">        If structure is annotated with magnetic moments, will estimate</span>
 <span class="sd">        if structure may be high-spin or low-spin.</span>
-
 <span class="sd">        Class aims for more false-positives than false-negatives.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">spin_configs</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;oct&quot;</span><span class="p">:</span>
-                <span class="p">{</span>  <span class="c1"># key is number of d electrons</span>
-                    <span class="mi">0</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e_g&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;t_2g&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>
-                    <span class="mi">1</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e_g&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;t_2g&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>  <span class="c1"># weak J-T</span>
-                    <span class="mi">2</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e_g&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;t_2g&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>  <span class="c1"># weak</span>
-                    <span class="mi">3</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e_g&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;t_2g&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>  <span class="c1"># no J-T</span>
-                    <span class="mi">4</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e_g&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;t_2g&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span> <span class="s2">&quot;low&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e_g&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;t_2g&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">},</span>
-                        <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>  <span class="c1"># strong high, weak low</span>
-                    <span class="mi">5</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e_g&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;t_2g&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span> <span class="s2">&quot;low&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e_g&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;t_2g&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">},</span>
-                        <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;low&quot;</span><span class="p">},</span>  <span class="c1"># no high, weak low</span>
-                    <span class="mi">6</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e_g&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;t_2g&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">},</span> <span class="s2">&quot;low&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e_g&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;t_2g&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span>
-                        <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>  <span class="c1"># weak high, no low</span>
-                    <span class="mi">7</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e_g&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;t_2g&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">},</span> <span class="s2">&quot;low&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e_g&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;t_2g&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span>
-                        <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;low&quot;</span><span class="p">},</span>  <span class="c1"># weak high, strong low</span>
-                    <span class="mi">8</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e_g&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;t_2g&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>  <span class="c1"># no</span>
-                    <span class="mi">9</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e_g&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;t_2g&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>  <span class="c1"># strong</span>
-                    <span class="mi">10</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e_g&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;t_2g&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">}</span>
-                <span class="p">},</span>
-            <span class="s2">&quot;tet&quot;</span><span class="p">:</span>
-                <span class="p">{</span>  <span class="c1"># no low spin observed experimentally in tetrahedral, all weak J-T</span>
-                    <span class="mi">0</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;t_2&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>
-                    <span class="mi">1</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;t_2&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>
-                    <span class="mi">2</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;t_2&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>
-                    <span class="mi">3</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;t_2&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>
-                    <span class="mi">4</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;t_2&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>
-                    <span class="mi">5</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;t_2&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>
-                    <span class="mi">6</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;t_2&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>
-                    <span class="mi">7</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;t_2&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>
-                    <span class="mi">8</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;t_2&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>
-                    <span class="mi">9</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;t_2&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>
-                    <span class="mi">10</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;t_2&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">}</span>
-                <span class="p">}</span>
+            <span class="s2">&quot;oct&quot;</span><span class="p">:</span> <span class="p">{</span>  <span class="c1"># key is number of d electrons</span>
+                <span class="mi">0</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e_g&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;t_2g&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>
+                <span class="mi">1</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e_g&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;t_2g&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>  <span class="c1"># weak J-T</span>
+                <span class="mi">2</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e_g&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;t_2g&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>  <span class="c1"># weak</span>
+                <span class="mi">3</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e_g&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;t_2g&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>  <span class="c1"># no J-T</span>
+                <span class="mi">4</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e_g&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;t_2g&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
+                    <span class="s2">&quot;low&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e_g&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;t_2g&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">},</span>
+                    <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">,</span>
+                <span class="p">},</span>  <span class="c1"># strong high, weak low</span>
+                <span class="mi">5</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e_g&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;t_2g&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
+                    <span class="s2">&quot;low&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e_g&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;t_2g&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">},</span>
+                    <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;low&quot;</span><span class="p">,</span>
+                <span class="p">},</span>  <span class="c1"># no high, weak low</span>
+                <span class="mi">6</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e_g&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;t_2g&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">},</span>
+                    <span class="s2">&quot;low&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e_g&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;t_2g&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span>
+                    <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">,</span>
+                <span class="p">},</span>  <span class="c1"># weak high, no low</span>
+                <span class="mi">7</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e_g&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;t_2g&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">},</span>
+                    <span class="s2">&quot;low&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e_g&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;t_2g&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span>
+                    <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;low&quot;</span><span class="p">,</span>
+                <span class="p">},</span>  <span class="c1"># weak high, strong low</span>
+                <span class="mi">8</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e_g&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;t_2g&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>  <span class="c1"># no</span>
+                <span class="mi">9</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e_g&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;t_2g&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>  <span class="c1"># strong</span>
+                <span class="mi">10</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e_g&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;t_2g&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;tet&quot;</span><span class="p">:</span> <span class="p">{</span>  <span class="c1"># no low spin observed experimentally in tetrahedral, all weak J-T</span>
+                <span class="mi">0</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;t_2&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>
+                <span class="mi">1</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;t_2&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>
+                <span class="mi">2</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;t_2&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>
+                <span class="mi">3</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;t_2&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>
+                <span class="mi">4</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;t_2&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>
+                <span class="mi">5</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;t_2&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>
+                <span class="mi">6</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;t_2&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>
+                <span class="mi">7</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;t_2&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>
+                <span class="mi">8</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;t_2&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>
+                <span class="mi">9</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;t_2&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>
+                <span class="mi">10</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;e&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;t_2&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>
+            <span class="p">},</span>
         <span class="p">}</span>
 
-<div class="viewcode-block" id="JahnTellerAnalyzer.get_analysis_and_structure"><a class="viewcode-back" href="../../../../pymatgen.analysis.magnetism.jahnteller.html#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_analysis_and_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_analysis_and_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                                   <span class="n">structure</span><span class="p">,</span>
-                                   <span class="n">calculate_valences</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                                   <span class="n">guesstimate_spin</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                                   <span class="n">op_threshold</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Obtain an analysis of a given structure and if it may be Jahn-Teller</span>
+<div class="viewcode-block" id="JahnTellerAnalyzer.get_analysis_and_structure"><a class="viewcode-back" href="../../../../pymatgen.analysis.magnetism.jahnteller.html#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_analysis_and_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_analysis_and_structure</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">structure</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span>
+        <span class="n">calculate_valences</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">guesstimate_spin</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">op_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Dict</span><span class="p">,</span> <span class="n">Structure</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Obtain an analysis of a given structure and if it may be Jahn-Teller</span>
 <span class="sd">        active or not. This is a heuristic, and may give false positives and</span>
 <span class="sd">        false negatives (false positives are preferred).</span>
 
-<span class="sd">        :param structure: input structure</span>
-<span class="sd">        :param calculate_valences (bool): whether to attempt to calculate valences or not, structure</span>
-<span class="sd">            should have oxidation states to perform analysis</span>
-<span class="sd">        :param guesstimate_spin (bool): whether to guesstimate spin state from magnetic moments</span>
-<span class="sd">            or not, use with caution</span>
-<span class="sd">        :param op_threshold (float): threshold for order parameter above which to consider site</span>
-<span class="sd">            to match an octahedral or tetrahedral motif, since Jahn-Teller structures can often be</span>
-<span class="sd">            quite distorted, this threshold is smaller than one might expect</span>
-<span class="sd">        :return (dict): analysis of structure, with key &#39;strength&#39; which may be &#39;none&#39;, &#39;strong&#39;,</span>
-<span class="sd">            &#39;weak&#39;, or &#39;unknown&#39;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure: input structure</span>
+<span class="sd">            calculate_valences: whether to attempt to calculate valences or not, structure</span>
+<span class="sd">                should have oxidation states to perform analysis (Default value = True)</span>
+<span class="sd">            guesstimate_spin: whether to guesstimate spin state from magnetic moments</span>
+<span class="sd">                or not, use with caution (Default value = False)</span>
+<span class="sd">            op_threshold: threshold for order parameter above which to consider site</span>
+<span class="sd">                to match an octahedral or tetrahedral motif, since Jahn-Teller structures</span>
+<span class="sd">                can often be</span>
+<span class="sd">                quite distorted, this threshold is smaller than one might expect</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            analysis of structure, with key &#39;strength&#39; which may be &#39;none&#39;, &#39;strong&#39;,</span>
+<span class="sd">            &#39;weak&#39;, or &#39;unknown&#39; (Default value = 0.1) and decorated structure</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_primitive_structure</span><span class="p">()</span>
@@ -142,10 +158,12 @@
 
         <span class="c1"># no point testing multiple equivalent sites, doesn&#39;t make any difference to analysis</span>
         <span class="c1"># but makes returned</span>
-        <span class="n">symmetrized_structure</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span><span class="o">.</span><span class="n">get_symmetrized_structure</span><span class="p">()</span>
+        <span class="n">symmetrized_structure</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span>
+            <span class="n">structure</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">get_symmetrized_structure</span><span class="p">()</span>
 
         <span class="c1"># to detect structural motifs of a given site</span>
-        <span class="n">op</span> <span class="o">=</span> <span class="n">LocalStructOrderParams</span><span class="p">([</span><span class="s1">&#39;oct&#39;</span><span class="p">,</span> <span class="s1">&#39;tet&#39;</span><span class="p">])</span>
+        <span class="n">op</span> <span class="o">=</span> <span class="n">LocalStructOrderParams</span><span class="p">([</span><span class="s2">&quot;oct&quot;</span><span class="p">,</span> <span class="s2">&quot;tet&quot;</span><span class="p">])</span>
 
         <span class="c1"># dict of site index to the Jahn-Teller analysis of that site</span>
         <span class="n">jt_sites</span> <span class="o">=</span> <span class="p">[]</span>
@@ -157,127 +175,259 @@
             <span class="n">site</span> <span class="o">=</span> <span class="n">symmetrized_structure</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
 
             <span class="c1"># only interested in sites with oxidation states</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">Specie</span><span class="p">)</span> <span class="ow">and</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">is_transition_metal</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="nb">isinstance</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">Specie</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">is_transition_metal</span>
+            <span class="p">):</span>
 
                 <span class="c1"># get motif around site</span>
                 <span class="n">order_params</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">get_order_parameters</span><span class="p">(</span><span class="n">symmetrized_structure</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="n">order_params</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">order_params</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">and</span> <span class="n">order_params</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">op_threshold</span><span class="p">:</span>
-                    <span class="n">motif</span> <span class="o">=</span> <span class="s1">&#39;oct&#39;</span>
+                    <span class="n">motif</span> <span class="o">=</span> <span class="s2">&quot;oct&quot;</span>
                     <span class="n">motif_order_parameter</span> <span class="o">=</span> <span class="n">order_params</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="k">elif</span> <span class="n">order_params</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">op_threshold</span><span class="p">:</span>
-                    <span class="n">motif</span> <span class="o">=</span> <span class="s1">&#39;tet&#39;</span>
+                    <span class="n">motif</span> <span class="o">=</span> <span class="s2">&quot;tet&quot;</span>
                     <span class="n">motif_order_parameter</span> <span class="o">=</span> <span class="n">order_params</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">motif</span> <span class="o">=</span> <span class="s1">&#39;unknown&#39;</span>
+                    <span class="n">motif</span> <span class="o">=</span> <span class="s2">&quot;unknown&quot;</span>
                     <span class="n">motif_order_parameter</span> <span class="o">=</span> <span class="kc">None</span>
 
                 <span class="k">if</span> <span class="n">motif</span> <span class="o">==</span> <span class="s2">&quot;oct&quot;</span> <span class="ow">or</span> <span class="n">motif</span> <span class="o">==</span> <span class="s2">&quot;tet&quot;</span><span class="p">:</span>
 
                     <span class="c1"># guess spin of metal ion</span>
-                    <span class="k">if</span> <span class="n">guesstimate_spin</span> <span class="ow">and</span> <span class="s1">&#39;magmom&#39;</span> <span class="ow">in</span> <span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">guesstimate_spin</span> <span class="ow">and</span> <span class="s2">&quot;magmom&quot;</span> <span class="ow">in</span> <span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">:</span>
 
                         <span class="c1"># estimate if high spin or low spin</span>
-                        <span class="n">magmom</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s1">&#39;magmom&#39;</span><span class="p">]</span>
-                        <span class="n">spin_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_estimate_spin_state</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">motif</span><span class="p">,</span> <span class="n">magmom</span><span class="p">)</span>
+                        <span class="n">magmom</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;magmom&quot;</span><span class="p">]</span>
+                        <span class="n">spin_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_estimate_spin_state</span><span class="p">(</span>
+                            <span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">motif</span><span class="p">,</span> <span class="n">magmom</span>
+                        <span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">spin_state</span> <span class="o">=</span> <span class="s2">&quot;unknown&quot;</span>
 
-                    <span class="n">magnitude</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_magnitude_of_effect_from_species</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span>
-                                                                          <span class="n">spin_state</span><span class="p">,</span>
-                                                                          <span class="n">motif</span><span class="p">)</span>
+                    <span class="n">magnitude</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_magnitude_of_effect_from_species</span><span class="p">(</span>
+                        <span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">spin_state</span><span class="p">,</span> <span class="n">motif</span>
+                    <span class="p">)</span>
 
                     <span class="k">if</span> <span class="n">magnitude</span> <span class="o">!=</span> <span class="s2">&quot;none&quot;</span><span class="p">:</span>
 
-                        <span class="n">ligands</span> <span class="o">=</span> <span class="n">get_neighbors_of_site_with_index</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span>
-                                                                   <span class="n">approach</span><span class="o">=</span><span class="s2">&quot;min_dist&quot;</span><span class="p">,</span>
-                                                                   <span class="n">delta</span><span class="o">=</span><span class="mf">0.15</span><span class="p">)</span>
-                        <span class="n">ligand_bond_lengths</span> <span class="o">=</span> <span class="p">[</span><span class="n">ligand</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">structure</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
-                                               <span class="k">for</span> <span class="n">ligand</span> <span class="ow">in</span> <span class="n">ligands</span><span class="p">]</span>
-                        <span class="n">ligands_species</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">ligand</span><span class="o">.</span><span class="n">specie</span><span class="p">)</span> <span class="k">for</span> <span class="n">ligand</span> <span class="ow">in</span> <span class="n">ligands</span><span class="p">]))</span>
-                        <span class="n">ligand_bond_length_spread</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">ligand_bond_lengths</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">ligand_bond_lengths</span><span class="p">)</span>
+                        <span class="n">ligands</span> <span class="o">=</span> <span class="n">get_neighbors_of_site_with_index</span><span class="p">(</span>
+                            <span class="n">structure</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">approach</span><span class="o">=</span><span class="s2">&quot;min_dist&quot;</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="mf">0.15</span>
+                        <span class="p">)</span>
+                        <span class="n">ligand_bond_lengths</span> <span class="o">=</span> <span class="p">[</span>
+                            <span class="n">ligand</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">structure</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span> <span class="k">for</span> <span class="n">ligand</span> <span class="ow">in</span> <span class="n">ligands</span>
+                        <span class="p">]</span>
+                        <span class="n">ligands_species</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+                            <span class="nb">set</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">ligand</span><span class="o">.</span><span class="n">specie</span><span class="p">)</span> <span class="k">for</span> <span class="n">ligand</span> <span class="ow">in</span> <span class="n">ligands</span><span class="p">])</span>
+                        <span class="p">)</span>
+                        <span class="n">ligand_bond_length_spread</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">ligand_bond_lengths</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span>
+                            <span class="n">ligand_bond_lengths</span>
+                        <span class="p">)</span>
 
                         <span class="k">def</span> <span class="nf">trim</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
-                            <span class="c1"># avoid storing to unreasonable precision, hurts readability</span>
+                            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">                            Avoid storing to unreasonable precision, hurts readability.</span>
+<span class="sd">                            &quot;&quot;&quot;</span>
                             <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:.4f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">f</span><span class="p">))</span>
 
                         <span class="c1"># to be Jahn-Teller active, all ligands have to be the same</span>
                         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ligands_species</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                            <span class="n">jt_sites</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;strength&#39;</span><span class="p">:</span> <span class="n">magnitude</span><span class="p">,</span>
-                                             <span class="s1">&#39;motif&#39;</span><span class="p">:</span> <span class="n">motif</span><span class="p">,</span>
-                                             <span class="s1">&#39;motif_order_parameter&#39;</span><span class="p">:</span> <span class="n">trim</span><span class="p">(</span><span class="n">motif_order_parameter</span><span class="p">),</span>
-                                             <span class="s1">&#39;spin_state&#39;</span><span class="p">:</span> <span class="n">spin_state</span><span class="p">,</span>
-                                             <span class="s1">&#39;species&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">),</span>
-                                             <span class="s1">&#39;ligand&#39;</span><span class="p">:</span> <span class="n">ligands_species</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                                             <span class="s1">&#39;ligand_bond_lengths&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">trim</span><span class="p">(</span><span class="n">length</span><span class="p">)</span> <span class="k">for</span> <span class="n">length</span> <span class="ow">in</span>
-                                                                     <span class="n">ligand_bond_lengths</span><span class="p">],</span>
-                                             <span class="s1">&#39;ligand_bond_length_spread&#39;</span><span class="p">:</span>
-                                                 <span class="n">trim</span><span class="p">(</span><span class="n">ligand_bond_length_spread</span><span class="p">),</span>
-                                             <span class="s1">&#39;site_indices&#39;</span><span class="p">:</span> <span class="n">indices</span><span class="p">})</span>
+                            <span class="n">jt_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                <span class="p">{</span>
+                                    <span class="s2">&quot;strength&quot;</span><span class="p">:</span> <span class="n">magnitude</span><span class="p">,</span>
+                                    <span class="s2">&quot;motif&quot;</span><span class="p">:</span> <span class="n">motif</span><span class="p">,</span>
+                                    <span class="s2">&quot;motif_order_parameter&quot;</span><span class="p">:</span> <span class="n">trim</span><span class="p">(</span>
+                                        <span class="n">motif_order_parameter</span>
+                                    <span class="p">),</span>
+                                    <span class="s2">&quot;spin_state&quot;</span><span class="p">:</span> <span class="n">spin_state</span><span class="p">,</span>
+                                    <span class="s2">&quot;species&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">),</span>
+                                    <span class="s2">&quot;ligand&quot;</span><span class="p">:</span> <span class="n">ligands_species</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                    <span class="s2">&quot;ligand_bond_lengths&quot;</span><span class="p">:</span> <span class="p">[</span>
+                                        <span class="n">trim</span><span class="p">(</span><span class="n">length</span><span class="p">)</span> <span class="k">for</span> <span class="n">length</span> <span class="ow">in</span> <span class="n">ligand_bond_lengths</span>
+                                    <span class="p">],</span>
+                                    <span class="s2">&quot;ligand_bond_length_spread&quot;</span><span class="p">:</span> <span class="n">trim</span><span class="p">(</span>
+                                        <span class="n">ligand_bond_length_spread</span>
+                                    <span class="p">),</span>
+                                    <span class="s2">&quot;site_indices&quot;</span><span class="p">:</span> <span class="n">indices</span><span class="p">,</span>
+                                <span class="p">}</span>
+                            <span class="p">)</span>
 
                     <span class="c1"># store reasons for not being J-T active</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="n">non_jt_sites</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site_indices&#39;</span><span class="p">:</span> <span class="n">indices</span><span class="p">,</span>
-                                             <span class="s1">&#39;strength&#39;</span><span class="p">:</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span>
-                                             <span class="s1">&#39;reason&#39;</span><span class="p">:</span> <span class="s2">&quot;Not Jahn-Teller active for this &quot;</span>
-                                                       <span class="s2">&quot;electronic configuration.&quot;</span><span class="p">})</span>
+                        <span class="n">non_jt_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="p">{</span>
+                                <span class="s2">&quot;site_indices&quot;</span><span class="p">:</span> <span class="n">indices</span><span class="p">,</span>
+                                <span class="s2">&quot;strength&quot;</span><span class="p">:</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="s2">&quot;Not Jahn-Teller active for this &quot;</span>
+                                <span class="s2">&quot;electronic configuration.&quot;</span><span class="p">,</span>
+                            <span class="p">}</span>
+                        <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">non_jt_sites</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site_indices&#39;</span><span class="p">:</span> <span class="n">indices</span><span class="p">,</span>
-                                         <span class="s1">&#39;strength&#39;</span><span class="p">:</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span>
-                                         <span class="s1">&#39;reason&#39;</span><span class="p">:</span> <span class="s2">&quot;motif is </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">motif</span><span class="p">)})</span>
+                    <span class="n">non_jt_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;site_indices&quot;</span><span class="p">:</span> <span class="n">indices</span><span class="p">,</span>
+                            <span class="s2">&quot;strength&quot;</span><span class="p">:</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="s2">&quot;motif is </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">motif</span><span class="p">),</span>
+                        <span class="p">}</span>
+                    <span class="p">)</span>
 
         <span class="c1"># perform aggregation of all sites</span>
         <span class="k">if</span> <span class="n">jt_sites</span><span class="p">:</span>
-            <span class="n">analysis</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;active&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+            <span class="n">analysis</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>  <span class="c1"># type: Dict[str, Any]</span>
             <span class="c1"># if any site could exhibit &#39;strong&#39; Jahn-Teller effect</span>
             <span class="c1"># then mark whole structure as strong</span>
-            <span class="n">strong_magnitudes</span> <span class="o">=</span> <span class="p">[</span><span class="n">site</span><span class="p">[</span><span class="s1">&#39;strength&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;strong&quot;</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">jt_sites</span><span class="p">]</span>
+            <span class="n">strong_magnitudes</span> <span class="o">=</span> <span class="p">[</span><span class="n">site</span><span class="p">[</span><span class="s2">&quot;strength&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;strong&quot;</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">jt_sites</span><span class="p">]</span>
             <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">strong_magnitudes</span><span class="p">):</span>
-                <span class="n">analysis</span><span class="p">[</span><span class="s1">&#39;strength&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;strong&quot;</span>
+                <span class="n">analysis</span><span class="p">[</span><span class="s2">&quot;strength&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;strong&quot;</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">analysis</span><span class="p">[</span><span class="s1">&#39;strength&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;weak&quot;</span>
-            <span class="n">analysis</span><span class="p">[</span><span class="s1">&#39;sites&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">jt_sites</span>
+                <span class="n">analysis</span><span class="p">[</span><span class="s2">&quot;strength&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;weak&quot;</span>
+            <span class="n">analysis</span><span class="p">[</span><span class="s2">&quot;sites&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">jt_sites</span>
             <span class="k">return</span> <span class="n">analysis</span><span class="p">,</span> <span class="n">structure</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;active&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;sites&#39;</span><span class="p">:</span> <span class="n">non_jt_sites</span><span class="p">},</span> <span class="n">structure</span></div>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;sites&quot;</span><span class="p">:</span> <span class="n">non_jt_sites</span><span class="p">},</span> <span class="n">structure</span></div>
 
-<div class="viewcode-block" id="JahnTellerAnalyzer.get_analysis"><a class="viewcode-back" href="../../../../pymatgen.analysis.magnetism.jahnteller.html#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_analysis">[docs]</a>    <span class="k">def</span> <span class="nf">get_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                     <span class="n">structure</span><span class="p">,</span>
-                     <span class="n">calculate_valences</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                     <span class="n">guesstimate_spin</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_analysis_and_structure</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span>
-                                               <span class="n">calculate_valences</span><span class="o">=</span><span class="n">calculate_valences</span><span class="p">,</span>
-                                               <span class="n">guesstimate_spin</span><span class="o">=</span><span class="n">guesstimate_spin</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
+<div class="viewcode-block" id="JahnTellerAnalyzer.get_analysis"><a class="viewcode-back" href="../../../../pymatgen.analysis.magnetism.jahnteller.html#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_analysis">[docs]</a>    <span class="k">def</span> <span class="nf">get_analysis</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">structure</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span>
+        <span class="n">calculate_valences</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">guesstimate_spin</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">op_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convenience method, uses get_analysis_and_structure method.</span>
 
-<div class="viewcode-block" id="JahnTellerAnalyzer.is_jahn_teller_active"><a class="viewcode-back" href="../../../../pymatgen.analysis.magnetism.jahnteller.html#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.is_jahn_teller_active">[docs]</a>    <span class="k">def</span> <span class="nf">is_jahn_teller_active</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">calculate_valences</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="sd">        Obtain an analysis of a given structure and if it may be Jahn-Teller</span>
+<span class="sd">        active or not. This is a heuristic, and may give false positives and</span>
+<span class="sd">        false negatives (false positives are preferred).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure: input structure</span>
+<span class="sd">            calculate_valences: whether to attempt to calculate valences or not, structure</span>
+<span class="sd">                should have oxidation states to perform analysis (Default value = True)</span>
+<span class="sd">            guesstimate_spin: whether to guesstimate spin state from magnetic moments</span>
+<span class="sd">                or not, use with caution (Default value = False)</span>
+<span class="sd">            op_threshold: threshold for order parameter above which to consider site</span>
+<span class="sd">                to match an octahedral or tetrahedral motif, since Jahn-Teller structures</span>
+<span class="sd">                can often be</span>
+<span class="sd">                quite distorted, this threshold is smaller than one might expect</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            analysis of structure, with key &#39;strength&#39; which may be &#39;none&#39;, &#39;strong&#39;,</span>
+<span class="sd">            &#39;weak&#39;, or &#39;unknown&#39; (Default value = 0.1)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_analysis_and_structure</span><span class="p">(</span>
+            <span class="n">structure</span><span class="p">,</span>
+            <span class="n">calculate_valences</span><span class="o">=</span><span class="n">calculate_valences</span><span class="p">,</span>
+            <span class="n">guesstimate_spin</span><span class="o">=</span><span class="n">guesstimate_spin</span><span class="p">,</span>
+            <span class="n">op_threshold</span><span class="o">=</span><span class="n">op_threshold</span><span class="p">,</span>
+        <span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="JahnTellerAnalyzer.is_jahn_teller_active"><a class="viewcode-back" href="../../../../pymatgen.analysis.magnetism.jahnteller.html#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.is_jahn_teller_active">[docs]</a>    <span class="k">def</span> <span class="nf">is_jahn_teller_active</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">structure</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span>
+        <span class="n">calculate_valences</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">guesstimate_spin</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">op_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convenience method, uses get_analysis_and_structure method.</span>
+<span class="sd">        Check if a given structure and if it may be Jahn-Teller</span>
+<span class="sd">        active or not. This is a heuristic, and may give false positives and</span>
+<span class="sd">        false negatives (false positives are preferred).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure: input structure</span>
+<span class="sd">            calculate_valences: whether to attempt to calculate valences or not, structure</span>
+<span class="sd">                should have oxidation states to perform analysis (Default value = True)</span>
+<span class="sd">            guesstimate_spin: whether to guesstimate spin state from magnetic moments</span>
+<span class="sd">                or not, use with caution (Default value = False)</span>
+<span class="sd">            op_threshold: threshold for order parameter above which to consider site</span>
+<span class="sd">                to match an octahedral or tetrahedral motif, since Jahn-Teller structures</span>
+<span class="sd">                can often be</span>
+<span class="sd">                quite distorted, this threshold is smaller than one might expect</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            boolean, True if might be Jahn-Teller active, False if not</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">active</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">analysis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_analysis</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span>
-                                         <span class="n">calculate_valences</span><span class="o">=</span><span class="n">calculate_valences</span><span class="p">)</span>
-            <span class="n">active</span> <span class="o">=</span> <span class="n">analysis</span><span class="p">[</span><span class="s1">&#39;active&#39;</span><span class="p">]</span>
+            <span class="n">analysis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_analysis</span><span class="p">(</span>
+                <span class="n">structure</span><span class="p">,</span>
+                <span class="n">calculate_valences</span><span class="o">=</span><span class="n">calculate_valences</span><span class="p">,</span>
+                <span class="n">guesstimate_spin</span><span class="o">=</span><span class="n">guesstimate_spin</span><span class="p">,</span>
+                <span class="n">op_threshold</span><span class="o">=</span><span class="n">op_threshold</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">active</span> <span class="o">=</span> <span class="n">analysis</span><span class="p">[</span><span class="s2">&quot;active&quot;</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Error analyzing </span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Error analyzing </span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">,</span> <span class="n">e</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">active</span></div>
 
-<div class="viewcode-block" id="JahnTellerAnalyzer.tag_structure"><a class="viewcode-back" href="../../../../pymatgen.analysis.magnetism.jahnteller.html#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.tag_structure">[docs]</a>    <span class="k">def</span> <span class="nf">tag_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+<div class="viewcode-block" id="JahnTellerAnalyzer.tag_structure"><a class="viewcode-back" href="../../../../pymatgen.analysis.magnetism.jahnteller.html#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.tag_structure">[docs]</a>    <span class="k">def</span> <span class="nf">tag_structure</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">structure</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span>
+        <span class="n">calculate_valences</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">guesstimate_spin</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">op_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Structure</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convenience method, uses get_analysis_and_structure method.</span>
+<span class="sd">        Add a &quot;possible_jt_active&quot; site property on Structure.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure: input structure</span>
+<span class="sd">            calculate_valences: whether to attempt to calculate valences or not, structure</span>
+<span class="sd">                should have oxidation states to perform analysis (Default value = True)</span>
+<span class="sd">            guesstimate_spin: whether to guesstimate spin state from magnetic moments</span>
+<span class="sd">                or not, use with caution (Default value = False)</span>
+<span class="sd">            op_threshold: threshold for order parameter above which to consider site</span>
+<span class="sd">                to match an octahedral or tetrahedral motif, since Jahn-Teller structures</span>
+<span class="sd">                can often be</span>
+<span class="sd">                quite distorted, this threshold is smaller than one might expect</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Decorated Structure, will be in primitive setting.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">analysis</span><span class="p">,</span> <span class="n">structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_analysis_and_structure</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+            <span class="n">analysis</span><span class="p">,</span> <span class="n">structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_analysis_and_structure</span><span class="p">(</span>
+                <span class="n">structure</span><span class="p">,</span>
+                <span class="n">calculate_valences</span><span class="o">=</span><span class="n">calculate_valences</span><span class="p">,</span>
+                <span class="n">guesstimate_spin</span><span class="o">=</span><span class="n">guesstimate_spin</span><span class="p">,</span>
+                <span class="n">op_threshold</span><span class="o">=</span><span class="n">op_threshold</span><span class="p">,</span>
+            <span class="p">)</span>
             <span class="n">jt_sites</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">analysis</span><span class="p">[</span><span class="s1">&#39;active&#39;</span><span class="p">]:</span>
-                <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">analysis</span><span class="p">[</span><span class="s1">&#39;sites&#39;</span><span class="p">]:</span>
-                    <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">site</span><span class="p">[</span><span class="s1">&#39;site_indices&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">analysis</span><span class="p">[</span><span class="s2">&quot;active&quot;</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">analysis</span><span class="p">[</span><span class="s2">&quot;sites&quot;</span><span class="p">]:</span>
+                    <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">site</span><span class="p">[</span><span class="s2">&quot;site_indices&quot;</span><span class="p">]:</span>
                         <span class="n">jt_sites</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-                        <span class="n">structure</span><span class="o">.</span><span class="n">add_site_property</span><span class="p">(</span><span class="s1">&#39;possible_jt_active&#39;</span><span class="p">,</span> <span class="n">jt_sites</span><span class="p">)</span>
+                        <span class="n">structure</span><span class="o">.</span><span class="n">add_site_property</span><span class="p">(</span><span class="s2">&quot;possible_jt_active&quot;</span><span class="p">,</span> <span class="n">jt_sites</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">structure</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Error analyzing </span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Error analyzing </span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">,</span> <span class="n">e</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
             <span class="k">return</span> <span class="n">structure</span></div>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_get_number_of_d_electrons</span><span class="p">(</span><span class="n">species</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_get_number_of_d_electrons</span><span class="p">(</span><span class="n">species</span><span class="p">:</span> <span class="n">Specie</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get number of d electrons of a species.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          species: Specie object</span>
+
+<span class="sd">        Returns: Number of d electrons.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># TODO: replace with more generic Hund&#39;s rule algorithm?</span>
 
@@ -285,24 +435,33 @@
         <span class="n">elec</span> <span class="o">=</span> <span class="n">species</span><span class="o">.</span><span class="n">full_electronic_structure</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">elec</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">4</span> <span class="ow">or</span> <span class="n">elec</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;s&quot;</span> <span class="ow">or</span> <span class="n">elec</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;d&quot;</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
-                <span class="s2">&quot;Invalid element </span><span class="si">{}</span><span class="s2"> for crystal field calculation.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">species</span><span class="o">.</span><span class="n">symbol</span><span class="p">))</span>
+                <span class="s2">&quot;Invalid element </span><span class="si">{}</span><span class="s2"> for crystal field calculation.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">species</span><span class="o">.</span><span class="n">symbol</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
         <span class="n">nelectrons</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">elec</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">elec</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">species</span><span class="o">.</span><span class="n">oxi_state</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">nelectrons</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">nelectrons</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
-                <span class="s2">&quot;Invalid oxidation state </span><span class="si">{}</span><span class="s2"> for element </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">species</span><span class="o">.</span><span class="n">oxi_state</span><span class="p">,</span>
-                                                                   <span class="n">species</span><span class="o">.</span><span class="n">symbol</span><span class="p">))</span>
+                <span class="s2">&quot;Invalid oxidation state </span><span class="si">{}</span><span class="s2"> for element </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">species</span><span class="o">.</span><span class="n">oxi_state</span><span class="p">,</span> <span class="n">species</span><span class="o">.</span><span class="n">symbol</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">nelectrons</span>
 
-<div class="viewcode-block" id="JahnTellerAnalyzer.get_magnitude_of_effect_from_species"><a class="viewcode-back" href="../../../../pymatgen.analysis.magnetism.jahnteller.html#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_magnitude_of_effect_from_species">[docs]</a>    <span class="k">def</span> <span class="nf">get_magnitude_of_effect_from_species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">spin_state</span><span class="p">,</span> <span class="n">motif</span><span class="p">):</span>
+<div class="viewcode-block" id="JahnTellerAnalyzer.get_magnitude_of_effect_from_species"><a class="viewcode-back" href="../../../../pymatgen.analysis.magnetism.jahnteller.html#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_magnitude_of_effect_from_species">[docs]</a>    <span class="k">def</span> <span class="nf">get_magnitude_of_effect_from_species</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Specie</span><span class="p">],</span> <span class="n">spin_state</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">motif</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get magnitude of Jahn-Teller effect from provided species, spin state and motife.</span>
+<span class="sd">        Get magnitude of Jahn-Teller effect from provided species, spin state and motif.</span>
 
-<span class="sd">        :param species: e.g. Fe2+</span>
-<span class="sd">        :param spin_state (str): &quot;high&quot; or &quot;low&quot;</span>
-<span class="sd">        :param motif (str): &quot;oct&quot; or &quot;tet&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">          species: e.g. Fe2+</span>
+<span class="sd">          spin_state: &quot;high&quot; or &quot;low&quot;</span>
+<span class="sd">          motif: &quot;oct&quot; or &quot;tet&quot;</span>
 
-<span class="sd">        :return (str):</span>
+<span class="sd">        Returns: &quot;none&quot;, &quot;weak&quot; or &quot;strong</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">magnitude</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span>
@@ -316,26 +475,33 @@
 
             <span class="k">if</span> <span class="n">motif</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin_configs</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">spin_state</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin_configs</span><span class="p">[</span><span class="n">motif</span><span class="p">][</span><span class="n">d_electrons</span><span class="p">]:</span>
-                    <span class="n">spin_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin_configs</span><span class="p">[</span><span class="n">motif</span><span class="p">][</span><span class="n">d_electrons</span><span class="p">][</span><span class="s1">&#39;default&#39;</span><span class="p">]</span>
+                    <span class="n">spin_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin_configs</span><span class="p">[</span><span class="n">motif</span><span class="p">][</span><span class="n">d_electrons</span><span class="p">][</span><span class="s2">&quot;default&quot;</span><span class="p">]</span>
                 <span class="n">spin_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin_configs</span><span class="p">[</span><span class="n">motif</span><span class="p">][</span><span class="n">d_electrons</span><span class="p">][</span><span class="n">spin_state</span><span class="p">]</span>
-                <span class="n">magnitude</span> <span class="o">=</span> <span class="n">JahnTellerAnalyzer</span><span class="o">.</span><span class="n">get_magnitude_of_effect_from_spin_config</span><span class="p">(</span><span class="n">motif</span><span class="p">,</span>
-                                                                                        <span class="n">spin_config</span><span class="p">)</span>
+                <span class="n">magnitude</span> <span class="o">=</span> <span class="n">JahnTellerAnalyzer</span><span class="o">.</span><span class="n">get_magnitude_of_effect_from_spin_config</span><span class="p">(</span>
+                    <span class="n">motif</span><span class="p">,</span> <span class="n">spin_config</span>
+                <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;No data for this species.&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">magnitude</span></div>
 
 <div class="viewcode-block" id="JahnTellerAnalyzer.get_magnitude_of_effect_from_spin_config"><a class="viewcode-back" href="../../../../pymatgen.analysis.magnetism.jahnteller.html#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_magnitude_of_effect_from_spin_config">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_magnitude_of_effect_from_spin_config</span><span class="p">(</span><span class="n">motif</span><span class="p">,</span> <span class="n">spin_config</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_magnitude_of_effect_from_spin_config</span><span class="p">(</span>
+        <span class="n">motif</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">spin_config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Roughly, the magnitude of Jahn-Teller distortion will be:</span>
 <span class="sd">        * in octahedral environments, strong if e_g orbitals</span>
 <span class="sd">        unevenly occupied but weak if t_2g orbitals unevenly</span>
 <span class="sd">        occupied</span>
 <span class="sd">        * in tetrahedral environments always weaker</span>
-<span class="sd">        :param motif (str): &quot;oct&quot; or &quot;tet&quot;</span>
-<span class="sd">        :param spin_config (dict): dict of &#39;e&#39; (e_g) and &#39;t&#39; (t2_g)</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          motif: &quot;oct&quot; or &quot;tet&quot;</span>
+<span class="sd">          spin_config: dict of &#39;e&#39; (e_g) and &#39;t&#39; (t2_g)</span>
 <span class="sd">            with number of electrons in each state</span>
+
+<span class="sd">        Returns:  &quot;none&quot;, &quot;weak&quot; or &quot;strong&quot;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">magnitude</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span>
         <span class="k">if</span> <span class="n">motif</span> <span class="o">==</span> <span class="s2">&quot;oct&quot;</span><span class="p">:</span>
@@ -353,18 +519,22 @@
         <span class="k">return</span> <span class="n">magnitude</span></div>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_estimate_spin_state</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="n">motif</span><span class="p">,</span> <span class="n">known_magmom</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Simple heuristic to estimate spin state. If magnetic moment</span>
+    <span class="k">def</span> <span class="nf">_estimate_spin_state</span><span class="p">(</span>
+        <span class="n">species</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Specie</span><span class="p">],</span> <span class="n">motif</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">known_magmom</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Simple heuristic to estimate spin state. If magnetic moment</span>
 <span class="sd">        is sufficiently close to that predicted for a given spin state,</span>
 <span class="sd">        we assign it that state. If we only have data for one spin</span>
 <span class="sd">        state then that&#39;s the one we use (e.g. we assume all tetrahedral</span>
 <span class="sd">        complexes are high-spin, since this is typically the case).</span>
 
-<span class="sd">        :param species: str or Species</span>
-<span class="sd">        :param motif (str): &quot;oct&quot; or &quot;tet&quot;</span>
-<span class="sd">        :param known_magmom (float):</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Args:</span>
+<span class="sd">          species: str or Species</span>
+<span class="sd">          motif: &quot;oct&quot; or &quot;tet&quot;</span>
+<span class="sd">          known_magmom: magnetic moment in Bohr magnetons</span>
+
+<span class="sd">        Returns: &quot;undefined&quot; (if only one spin state possible), &quot;low&quot;,</span>
+<span class="sd">        &quot;high&quot; or &quot;unknown&quot;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">mu_so_high</span> <span class="o">=</span> <span class="n">JahnTellerAnalyzer</span><span class="o">.</span><span class="n">mu_so</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="n">motif</span><span class="o">=</span><span class="n">motif</span><span class="p">,</span> <span class="n">spin_state</span><span class="o">=</span><span class="s2">&quot;high&quot;</span><span class="p">)</span>
         <span class="n">mu_so_low</span> <span class="o">=</span> <span class="n">JahnTellerAnalyzer</span><span class="o">.</span><span class="n">mu_so</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="n">motif</span><span class="o">=</span><span class="n">motif</span><span class="p">,</span> <span class="n">spin_state</span><span class="o">=</span><span class="s2">&quot;low&quot;</span><span class="p">)</span>
@@ -379,23 +549,33 @@
             <span class="c1"># WARNING! this heuristic has not been robustly tested or benchmarked</span>
             <span class="c1"># using &#39;diff*0.25&#39; as arbitrary measure, if known magmom is</span>
             <span class="c1"># too far away from expected value, we don&#39;t try to classify it</span>
-            <span class="k">if</span> <span class="n">known_magmom</span> <span class="o">&gt;</span> <span class="n">mu_so_high</span> <span class="ow">or</span> <span class="nb">abs</span><span class="p">(</span><span class="n">mu_so_high</span> <span class="o">-</span> <span class="n">known_magmom</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">diff</span> <span class="o">*</span> <span class="mf">0.25</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">known_magmom</span> <span class="o">&gt;</span> <span class="n">mu_so_high</span>
+                <span class="ow">or</span> <span class="nb">abs</span><span class="p">(</span><span class="n">mu_so_high</span> <span class="o">-</span> <span class="n">known_magmom</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">diff</span> <span class="o">*</span> <span class="mf">0.25</span>
+            <span class="p">):</span>
                 <span class="k">return</span> <span class="s2">&quot;high&quot;</span>
-            <span class="k">elif</span> <span class="n">known_magmom</span> <span class="o">&lt;</span> <span class="n">mu_so_low</span> <span class="ow">or</span> <span class="nb">abs</span><span class="p">(</span><span class="n">mu_so_low</span> <span class="o">-</span> <span class="n">known_magmom</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">diff</span> <span class="o">*</span> <span class="mf">0.25</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="p">(</span>
+                <span class="n">known_magmom</span> <span class="o">&lt;</span> <span class="n">mu_so_low</span> <span class="ow">or</span> <span class="nb">abs</span><span class="p">(</span><span class="n">mu_so_low</span> <span class="o">-</span> <span class="n">known_magmom</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">diff</span> <span class="o">*</span> <span class="mf">0.25</span>
+            <span class="p">):</span>
                 <span class="k">return</span> <span class="s2">&quot;low&quot;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="s2">&quot;unknown&quot;</span>
 
 <div class="viewcode-block" id="JahnTellerAnalyzer.mu_so"><a class="viewcode-back" href="../../../../pymatgen.analysis.magnetism.jahnteller.html#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.mu_so">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">mu_so</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="n">motif</span><span class="p">,</span> <span class="n">spin_state</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculates the spin-only magnetic moment for a</span>
+    <span class="k">def</span> <span class="nf">mu_so</span><span class="p">(</span>
+        <span class="n">species</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Specie</span><span class="p">],</span> <span class="n">motif</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">spin_state</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Calculates the spin-only magnetic moment for a</span>
 <span class="sd">        given species. Only supports transition metals.</span>
 
-<span class="sd">        :param species: str or Species</span>
-<span class="sd">        :param motif: &quot;oct&quot; or &quot;tet&quot;</span>
-<span class="sd">        :param spin_state: &quot;high&quot; or &quot;low&quot;</span>
-<span class="sd">        :return: spin-only magnetic moment in Bohr magnetons</span>
+<span class="sd">        Args:</span>
+<span class="sd">          species: Species</span>
+<span class="sd">          motif: &quot;oct&quot; or &quot;tet&quot;</span>
+<span class="sd">          spin_state: &quot;high&quot; or &quot;low&quot;</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">          Spin-only magnetic moment in Bohr magnetons or None if</span>
+<span class="sd">          species crystal field not defined</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">sp</span> <span class="o">=</span> <span class="n">get_el_sp</span><span class="p">(</span><span class="n">species</span><span class="p">)</span>
@@ -434,7 +614,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -442,7 +622,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

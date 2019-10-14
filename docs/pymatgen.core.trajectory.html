@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.trajectory module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.core.trajectory module &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,25 +43,30 @@
             
   <div class="section" id="module-pymatgen.core.trajectory">
 <span id="pymatgen-core-trajectory-module"></span><h1>pymatgen.core.trajectory module<a class="headerlink" href="#module-pymatgen.core.trajectory" title="Permalink to this headline">¶</a></h1>
+<p>This module provides classes used to define a MD trajectory.</p>
 <dl class="class">
 <dt id="pymatgen.core.trajectory.Trajectory">
-<em class="property">class </em><code class="sig-name descname">Trajectory</code><span class="sig-paren">(</span><em class="sig-param">lattice</em>, <em class="sig-param">species</em>, <em class="sig-param">frac_coords</em>, <em class="sig-param">time_step=2</em>, <em class="sig-param">site_properties=None</em>, <em class="sig-param">constant_lattice=True</em>, <em class="sig-param">coords_are_displacement=False</em>, <em class="sig-param">base_positions=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/trajectory.html#Trajectory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Trajectory</code><span class="sig-paren">(</span><em class="sig-param">lattice: Union[List, numpy.ndarray, pymatgen.core.lattice.Lattice], species: List[Union[str, pymatgen.core.periodic_table.Element, pymatgen.core.periodic_table.Specie, pymatgen.core.periodic_table.DummySpecie, pymatgen.core.composition.Composition]], frac_coords: List[Sequence[Sequence[float]]], time_step: float = 2, site_properties: dict = None, frame_properties: dict = None, constant_lattice: bool = True, coords_are_displacement: bool = False, base_positions: Sequence[Sequence[float]] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/trajectory.html#Trajectory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Trajectory object that stores structural information related to a MD simulation.
 Provides basic functions such as slicing trajectory or obtaining displacements.</p>
-<p>Create a trajectory object</p>
+<p>Create a trajectory object
+:param lattice: The lattice as any 2D array. Each row should correspond to a lattice</p>
+<blockquote>
+<div><p>vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
+lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].</p>
+</div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lattice</strong> – The lattice as any 2D array. Each row should correspond to a lattice
-vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
-lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].</p></li>
 <li><p><strong>species</strong> – <p>List of species on each site. Can take in flexible input,
-including:</p>
-<ol class="lowerroman simple">
-<li><p>A sequence of element / specie specified either as string
-symbols, e.g. [“Li”, “Fe2+”, “P”, …] or atomic numbers,
-e.g., (3, 56, …) or actual Element or Specie objects.</p></li>
+including:
+i.  A sequence of element / specie specified either as string</p>
+<blockquote>
+<div><p>symbols, e.g. [“Li”, “Fe2+”, “P”, …] or atomic numbers,
+e.g., (3, 56, …) or actual Element or Specie objects.</p>
+</div></blockquote>
+<ol class="lowerroman simple" start="2">
 <li><p>List of dict of elements/species and occupancies, e.g.,
 [{“Fe” : 0.5, “Mn”:0.5}, …]. This allows the setup of
 disordered structures.</p></li>
@@ -76,6 +80,8 @@ dicts of sequences, e.g., [{“magmom”:[5,5,5,5]}, {“magmom”:[5,5,5,5]}]. 
 have to be the same length as the atomic species and fractional_coords. Number of supplied
 dicts should match number of frames in trajectory
 Defaults to None for no properties.</p></li>
+<li><p><strong>frame_properties</strong> (<em>dict</em>) – Properties of the trajectory such as energy, pressure, etc. each property should
+have a length equal to the trajectory length. eg: {‘energy’: [#, #, #, #], ‘pressure’: [0, 0.1, 0 0.02]}</p></li>
 <li><p><strong>constant_lattice</strong> (<em>bool</em>) – Whether the lattice changes during the simulation, such as in an NPT MD simulation.</p></li>
 <li><p><strong>coords_are_displacement</strong> (<em>bool</em>) – Whether supplied coordinates are given in displacements (True) or
 positions (False)</p></li>
@@ -88,39 +94,44 @@ coords_are_displacement=True. Defaults to first index of frac_coords if coords_a
 <dl class="method">
 <dt id="pymatgen.core.trajectory.Trajectory.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/trajectory.html#Trajectory.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A JSON serializable dict representation of an object.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.core.trajectory.Trajectory.copy">
-<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/trajectory.html#Trajectory.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.copy" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.core.trajectory.Trajectory.extend">
-<code class="sig-name descname">extend</code><span class="sig-paren">(</span><em class="sig-param">trajectory</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/trajectory.html#Trajectory.extend"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.extend" title="Permalink to this definition">¶</a></dt>
-<dd><p>Concatenate another trajectory</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>trajectory</strong> (<a class="reference internal" href="#pymatgen.core.trajectory.Trajectory" title="pymatgen.core.trajectory.Trajectory"><em>Trajectory</em></a>) – Trajectory to add</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>MSONAble dict.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
+<dt id="pymatgen.core.trajectory.Trajectory.copy">
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/trajectory.html#Trajectory.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.copy" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Copy of Trajectory.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.trajectory.Trajectory.extend">
+<code class="sig-name descname">extend</code><span class="sig-paren">(</span><em class="sig-param">trajectory</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/trajectory.html#Trajectory.extend"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.extend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Concatenate another trajectory
+:param trajectory: Trajectory to add
+:type trajectory: Trajectory</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.core.trajectory.Trajectory.from_file">
 <em class="property">classmethod </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param">filename</em>, <em class="sig-param">constant_lattice=True</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/trajectory.html#Trajectory.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.from_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convenience constructor to obtain trajectory from XDATCAR or vasprun.xml file</p>
+<dd><p>Convenience constructor to obtain trajectory from XDATCAR or vasprun.xml file
+:param filename: The filename to read from.
+:type filename: str
+:param constant_lattice: Whether the lattice changes during the simulation, such as in an NPT MD</p>
+<blockquote>
+<div><p>simulation. True results in</p>
+</div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>filename</strong> (<em>str</em>) – The filename to read from.</p></li>
-<li><p><strong>constant_lattice</strong> (<em>bool</em>) – Whether the lattice changes during the simulation, such as in an NPT MD
-simulation. True results in</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>(Trajectory)</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(Trajectory)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -169,6 +180,23 @@ simulation. True results in</p></li>
 <dd><p>Converts fractional coordinates of trajectory into positions</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="pymatgen.core.trajectory.Trajectory.write_Xdatcar">
+<code class="sig-name descname">write_Xdatcar</code><span class="sig-paren">(</span><em class="sig-param">filename='XDATCAR'</em>, <em class="sig-param">system=None</em>, <em class="sig-param">significant_figures=6</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/trajectory.html#Trajectory.write_Xdatcar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.write_Xdatcar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes Xdatcar to a file. The supported kwargs are the same as those for
+the Xdatcar_from_structs.get_string method and are passed through directly.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – name of file (It’s prudent to end the filename with ‘XDATCAR’,
+as most visualization and analysis software require this for autodetection)</p></li>
+<li><p><strong>system</strong> (<em>str</em>) – Description of system</p></li>
+<li><p><strong>significant_figures</strong> (<em>int</em>) – Significant figures in the output file</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -209,13 +237,13 @@ simulation. True results in</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

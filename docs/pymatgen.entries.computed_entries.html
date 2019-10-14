@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.entries.computed_entries module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.entries.computed_entries module &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +43,11 @@
             
   <div class="section" id="module-pymatgen.entries.computed_entries">
 <span id="pymatgen-entries-computed-entries-module"></span><h1>pymatgen.entries.computed_entries module<a class="headerlink" href="#module-pymatgen.entries.computed_entries" title="Permalink to this headline">¶</a></h1>
+<p>This module implements equivalents of the basic ComputedEntry objects, which
+is the basic entity that can be used to perform many analyses. ComputedEntries
+contain calculated information, typically from VASP or other electronic
+structure codes. For example, ComputedEntries can be used as inputs for phase
+diagram analysis.</p>
 <dl class="class">
 <dt id="pymatgen.entries.computed_entries.ComputedEntry">
 <em class="property">class </em><code class="sig-name descname">ComputedEntry</code><span class="sig-paren">(</span><em class="sig-param">composition: pymatgen.core.composition.Composition</em>, <em class="sig-param">energy: float</em>, <em class="sig-param">correction: float = 0.0</em>, <em class="sig-param">parameters: dict = None</em>, <em class="sig-param">data: dict = None</em>, <em class="sig-param">entry_id: object = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/entries/computed_entries.html#ComputedEntry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry" title="Permalink to this definition">¶</a></dt>
@@ -77,29 +81,58 @@ with the entry. Defaults to None.</p></li>
 <dl class="method">
 <dt id="pymatgen.entries.computed_entries.ComputedEntry.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; dict<a class="reference internal" href="_modules/pymatgen/entries/computed_entries.html#ComputedEntry.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A JSON serializable dict representation of an object.</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>MSONable dict.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.entries.computed_entries.ComputedEntry.energy">
 <em class="property">property </em><code class="sig-name descname">energy</code><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry.energy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the <em>corrected</em> energy of the entry.</p>
+<dd><p>the <em>corrected</em> energy of the entry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.entries.computed_entries.ComputedEntry.energy_per_atom">
 <em class="property">property </em><code class="sig-name descname">energy_per_atom</code><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry.energy_per_atom" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>the <em>corrected</em> energy per atom of the entry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.entries.computed_entries.ComputedEntry.from_dict">
-<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/entries/computed_entries.html#ComputedEntry.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span> &#x2192; pymatgen.entries.computed_entries.ComputedEntry<a class="reference internal" href="_modules/pymatgen/entries/computed_entries.html#ComputedEntry.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> – Dict representation.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>ComputedEntry</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.entries.computed_entries.ComputedEntry.is_element">
 <em class="property">property </em><code class="sig-name descname">is_element</code><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry.is_element" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Whether composition of entry is an element.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.entries.computed_entries.ComputedEntry.normalize">
@@ -144,13 +177,25 @@ with the entry. Defaults to None.</p></li>
 <dl class="method">
 <dt id="pymatgen.entries.computed_entries.ComputedStructureEntry.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; dict<a class="reference internal" href="_modules/pymatgen/entries/computed_entries.html#ComputedStructureEntry.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedStructureEntry.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A JSON serializable dict representation of an object.</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>MSONAble dict.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.entries.computed_entries.ComputedStructureEntry.from_dict">
-<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/entries/computed_entries.html#ComputedStructureEntry.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedStructureEntry.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span> &#x2192; pymatgen.entries.computed_entries.ComputedStructureEntry<a class="reference internal" href="_modules/pymatgen/entries/computed_entries.html#ComputedStructureEntry.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedStructureEntry.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> – Dict representation.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>ComputedStructureEntry</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -192,13 +237,13 @@ with the entry. Defaults to None.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

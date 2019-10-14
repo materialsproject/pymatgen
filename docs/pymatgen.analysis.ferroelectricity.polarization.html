@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.ferroelectricity.polarization module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.analysis.ferroelectricity.polarization module &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,10 +43,53 @@
             
   <div class="section" id="module-pymatgen.analysis.ferroelectricity.polarization">
 <span id="pymatgen-analysis-ferroelectricity-polarization-module"></span><h1>pymatgen.analysis.ferroelectricity.polarization module<a class="headerlink" href="#module-pymatgen.analysis.ferroelectricity.polarization" title="Permalink to this headline">¶</a></h1>
+<p>This module contains classes useful for analyzing ferroelectric candidates.
+The Polarization class can recover the spontaneous polarization using
+multiple calculations along a nonpolar to polar ferroelectric distortion.
+The EnergyTrend class is useful for assessing the trend in energy across
+the distortion.</p>
+<p>See Nicola Spaldin’s “A beginner’s guide to the modern theory of polarization”
+(<a class="reference external" href="https://arxiv.org/abs/1202.1831">https://arxiv.org/abs/1202.1831</a>) for an introduction to crystal polarization.</p>
+<p>VASP reports dipole moment values (used to derive polarization) along Cartesian
+directions (see pead.F around line 970 in the VASP source to confirm this).
+However, it is most convenient to perform the adjustments necessary to recover
+a same branch polarization by expressing the polarization along lattice directions.
+For this reason, calc_ionic calculates ionic contributions to the polarization
+along lattice directions. We provide the means to convert Cartesian direction
+polarizations to lattice direction polarizations in the Polarization class.</p>
+<p>We recommend using our calc_ionic function for calculating the ionic
+polarization rather than the values from OUTCAR. We find that the ionic
+dipole moment reported in OUTCAR differ from the naive calculation of
+\sum_i Z_i r_i where i is the index of the atom, Z_i is the ZVAL from the
+pseudopotential file, and r is the distance in Angstroms along the lattice vectors.
+Note, this difference is not simply due to VASP using Cartesian directions and
+calc_ionic using lattice direction but rather how the ionic polarization is
+computed. Compare calc_ionic to VASP SUBROUTINE POINT_CHARGE_DIPOL in dipol.F in
+the VASP source to see the differences. We are able to recover a smooth same
+branch polarization more frequently using the naive calculation in calc_ionic
+than using the ionic dipole moment reported in the OUTCAR.</p>
+<p>Some defintions of terms used in the comments below:</p>
+<p>A polar structure belongs to a polar space group. A polar space group has a
+one of the 10 polar point group:</p>
+<blockquote>
+<div><p>(1, 2, m, mm2, 4, 4mm, 3, 3m, 6, 6m)</p>
+</div></blockquote>
+<p>Being nonpolar is not equivalent to being centrosymmetric (having inversion
+symmetry). For example, any space group with point group 222 is nonpolar but
+not centrosymmetric.</p>
+<p>By symmetry the polarization of a nonpolar material modulo the quantum
+of polarization can only be zero or 1/2. We use a nonpolar structure to help
+determine the spontaneous polarization because it serves as a reference point.</p>
 <dl class="class">
 <dt id="pymatgen.analysis.ferroelectricity.polarization.EnergyTrend">
 <em class="property">class </em><code class="sig-name descname">EnergyTrend</code><span class="sig-paren">(</span><em class="sig-param">energies</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/ferroelectricity/polarization.html#EnergyTrend"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.EnergyTrend" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class for fitting trends to energies.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>energies</strong> – Energies</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.analysis.ferroelectricity.polarization.EnergyTrend.endpoints_minima">
 <code class="sig-name descname">endpoints_minima</code><span class="sig-paren">(</span><em class="sig-param">slope_cutoff=0.005</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/ferroelectricity/polarization.html#EnergyTrend.endpoints_minima"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.EnergyTrend.endpoints_minima" title="Permalink to this definition">¶</a></dt>
@@ -149,14 +191,14 @@ or polarization for given polarization data (convert_to_muC_per_cm2=True).</p>
 <p>Polarization is a lattice vector, meaning it is only defined modulo the
 quantum of polarization:</p>
 <blockquote>
-<div><p>P = P_0 + sum_i frac{n_i e R_i}{Omega}</p>
+<div><p>P = P_0 + \sum_i \frac{n_i e R_i}{\Omega}</p>
 </div></blockquote>
 <p>where n_i is an integer, e is the charge of the electron in microCoulombs,
-R_i is a lattice vector, and Omega is the unit cell volume in cm**3
+R_i is a lattice vector, and \Omega is the unit cell volume in cm**3
 (giving polarization units of microCoulomb per centimeter**2).</p>
 <p>The quantum of the dipole moment in electron Angstroms (as given by VASP) is:</p>
 <blockquote>
-<div><p>sum_i n_i e R_i</p>
+<div><p>\sum_i n_i e R_i</p>
 </div></blockquote>
 <p>where e, the electron charge, is 1 and R_i is a lattice vector, and n_i is an integer.</p>
 <p>Given N polarization calculations in order from nonpolar to polar, this algorithm
@@ -201,8 +243,9 @@ in the same branch polarizaiton.</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.ferroelectricity.polarization.PolarizationLattice">
-<em class="property">class </em><code class="sig-name descname">PolarizationLattice</code><span class="sig-paren">(</span><em class="sig-param">lattice: pymatgen.core.lattice.Lattice</em>, <em class="sig-param">species: list</em>, <em class="sig-param">coords: numpy.ndarray</em>, <em class="sig-param">charge: float = None</em>, <em class="sig-param">validate_proximity: bool = False</em>, <em class="sig-param">to_unit_cell: bool = False</em>, <em class="sig-param">coords_are_cartesian: bool = False</em>, <em class="sig-param">site_properties: dict = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/ferroelectricity/polarization.html#PolarizationLattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.PolarizationLattice" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">PolarizationLattice</code><span class="sig-paren">(</span><em class="sig-param">lattice: Union[List, numpy.ndarray, pymatgen.core.lattice.Lattice], species: Sequence[Union[str, pymatgen.core.periodic_table.Element, pymatgen.core.periodic_table.Specie, pymatgen.core.periodic_table.DummySpecie, pymatgen.core.composition.Composition]], coords: Sequence[Sequence[float]], charge: float = None, validate_proximity: bool = False, to_unit_cell: bool = False, coords_are_cartesian: bool = False, site_properties: dict = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/ferroelectricity/polarization.html#PolarizationLattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.PolarizationLattice" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.structure.Structure</span></code></a></p>
+<p>Why is a Lattice inheriting a structure? This is ridiculous.</p>
 <p>Create a periodic structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -323,13 +366,13 @@ Potcar object</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

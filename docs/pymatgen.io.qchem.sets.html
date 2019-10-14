@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.qchem.sets module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.io.qchem.sets module &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -49,6 +48,22 @@
 <em class="property">class </em><code class="sig-name descname">FreqSet</code><span class="sig-paren">(</span><em class="sig-param">molecule</em>, <em class="sig-param">dft_rung=3</em>, <em class="sig-param">basis_set='def2-tzvppd'</em>, <em class="sig-param">pcm_dielectric=None</em>, <em class="sig-param">smd_solvent=None</em>, <em class="sig-param">custom_smd=None</em>, <em class="sig-param">scf_algorithm='diis'</em>, <em class="sig-param">max_scf_cycles=200</em>, <em class="sig-param">overwrite_inputs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/sets.html#FreqSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.sets.FreqSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.qchem.sets.QChemDictSet" title="pymatgen.io.qchem.sets.QChemDictSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.qchem.sets.QChemDictSet</span></code></a></p>
 <p>QChemDictSet for a single point calculation</p>
+<p>Args:
+molecule (Pymatgen molecule object)
+job_type (str)
+basis_set (str)
+scf_algorithm (str)
+dft_rung (int)
+pcm_dielectric (str)
+max_scf_cycles (int)
+geom_opt_max_cycles (int)
+overwrite_inputs (dict): This is dictionary of QChem input sections to add or overwrite variables,
+the available sections are currently rem, pcm, and solvent. So the accepted keys are rem, pcm, or solvent
+and the value is a dictionary of key value pairs relevant to the section. An example would be adding a
+new variable to the rem section that sets symmetry to false.
+ex. overwrite_inputs = {“rem”: {“symmetry”: “false”}}
+<strong>*It should be noted that if something like basis is added to the rem dict it will overwrite
+the default basis.*</strong></p>
 </dd></dl>
 
 <dl class="class">
@@ -56,6 +71,22 @@
 <em class="property">class </em><code class="sig-name descname">OptSet</code><span class="sig-paren">(</span><em class="sig-param">molecule</em>, <em class="sig-param">dft_rung=3</em>, <em class="sig-param">basis_set='def2-tzvppd'</em>, <em class="sig-param">pcm_dielectric=None</em>, <em class="sig-param">smd_solvent=None</em>, <em class="sig-param">custom_smd=None</em>, <em class="sig-param">scf_algorithm='diis'</em>, <em class="sig-param">max_scf_cycles=200</em>, <em class="sig-param">geom_opt_max_cycles=200</em>, <em class="sig-param">overwrite_inputs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/sets.html#OptSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.sets.OptSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.qchem.sets.QChemDictSet" title="pymatgen.io.qchem.sets.QChemDictSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.qchem.sets.QChemDictSet</span></code></a></p>
 <p>QChemDictSet for a geometry optimization</p>
+<p>Args:
+molecule (Pymatgen molecule object)
+job_type (str)
+basis_set (str)
+scf_algorithm (str)
+dft_rung (int)
+pcm_dielectric (str)
+max_scf_cycles (int)
+geom_opt_max_cycles (int)
+overwrite_inputs (dict): This is dictionary of QChem input sections to add or overwrite variables,
+the available sections are currently rem, pcm, and solvent. So the accepted keys are rem, pcm, or solvent
+and the value is a dictionary of key value pairs relevant to the section. An example would be adding a
+new variable to the rem section that sets symmetry to false.
+ex. overwrite_inputs = {“rem”: {“symmetry”: “false”}}
+<strong>*It should be noted that if something like basis is added to the rem dict it will overwrite
+the default basis.*</strong></p>
 </dd></dl>
 
 <dl class="class">
@@ -96,6 +127,22 @@
 <em class="property">class </em><code class="sig-name descname">SinglePointSet</code><span class="sig-paren">(</span><em class="sig-param">molecule</em>, <em class="sig-param">dft_rung=3</em>, <em class="sig-param">basis_set='def2-tzvppd'</em>, <em class="sig-param">pcm_dielectric=None</em>, <em class="sig-param">smd_solvent=None</em>, <em class="sig-param">custom_smd=None</em>, <em class="sig-param">scf_algorithm='diis'</em>, <em class="sig-param">max_scf_cycles=200</em>, <em class="sig-param">overwrite_inputs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/sets.html#SinglePointSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.sets.SinglePointSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.qchem.sets.QChemDictSet" title="pymatgen.io.qchem.sets.QChemDictSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.qchem.sets.QChemDictSet</span></code></a></p>
 <p>QChemDictSet for a single point calculation</p>
+<p>Args:
+molecule (Pymatgen molecule object)
+job_type (str)
+basis_set (str)
+scf_algorithm (str)
+dft_rung (int)
+pcm_dielectric (str)
+max_scf_cycles (int)
+geom_opt_max_cycles (int)
+overwrite_inputs (dict): This is dictionary of QChem input sections to add or overwrite variables,
+the available sections are currently rem, pcm, and solvent. So the accepted keys are rem, pcm, or solvent
+and the value is a dictionary of key value pairs relevant to the section. An example would be adding a
+new variable to the rem section that sets symmetry to false.
+ex. overwrite_inputs = {“rem”: {“symmetry”: “false”}}
+<strong>*It should be noted that if something like basis is added to the rem dict it will overwrite
+the default basis.*</strong></p>
 </dd></dl>
 
 </div>
@@ -136,13 +183,13 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

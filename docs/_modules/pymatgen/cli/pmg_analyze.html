@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.cli.pmg_analyze &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.cli.pmg_analyze &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -76,7 +75,7 @@
 <span class="n">SAVE_FILE</span> <span class="o">=</span> <span class="s2">&quot;vasp_data.gz&quot;</span>
 
 
-<div class="viewcode-block" id="get_energies"><a class="viewcode-back" href="../../../pymatgen.cli.pmg_analyze.html#pymatgen.cli.pmg_analyze.get_energies">[docs]</a><span class="k">def</span> <span class="nf">get_energies</span><span class="p">(</span><span class="n">rootdir</span><span class="p">,</span> <span class="n">reanalyze</span><span class="p">,</span> <span class="n">verbose</span><span class="p">,</span> <span class="n">detailed</span><span class="p">,</span> <span class="n">sort</span><span class="p">,</span> <span class="n">fmt</span><span class="p">):</span>
+<div class="viewcode-block" id="get_energies"><a class="viewcode-back" href="../../../pymatgen.cli.pmg_analyze.html#pymatgen.cli.pmg_analyze.get_energies">[docs]</a><span class="k">def</span> <span class="nf">get_energies</span><span class="p">(</span><span class="n">rootdir</span><span class="p">,</span> <span class="n">reanalyze</span><span class="p">,</span> <span class="n">verbose</span><span class="p">,</span> <span class="n">quick</span><span class="p">,</span> <span class="n">sort</span><span class="p">,</span> <span class="n">fmt</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Doc string.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -84,7 +83,7 @@
         <span class="n">logformat</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%(relativeCreated)d</span><span class="s2"> msecs : </span><span class="si">%(message)s</span><span class="s2">&quot;</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">logformat</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">detailed</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">quick</span><span class="p">:</span>
         <span class="n">drone</span> <span class="o">=</span> <span class="n">SimpleVaspToComputedEntryDrone</span><span class="p">(</span><span class="n">inc_structure</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">drone</span> <span class="o">=</span> <span class="n">VaspToComputedEntryDrone</span><span class="p">(</span><span class="n">inc_structure</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -115,8 +114,8 @@
 
     <span class="n">all_data</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">detailed</span><span class="p">:</span>
-            <span class="n">delta_vol</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;delta_volume&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">quick</span><span class="p">:</span>
+            <span class="n">delta_vol</span> <span class="o">=</span> <span class="s2">&quot;NA&quot;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">delta_vol</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">volume</span> <span class="o">/</span> \
                         <span class="n">e</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;initial_structure&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">volume</span> <span class="o">-</span> <span class="mi">1</span>
@@ -175,7 +174,7 @@
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">get_energies</span> <span class="ow">or</span> <span class="n">default_energies</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">directories</span><span class="p">:</span>
             <span class="n">get_energies</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">reanalyze</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">,</span>
-                         <span class="n">args</span><span class="o">.</span><span class="n">detailed</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">sort</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">format</span><span class="p">)</span>
+                         <span class="n">args</span><span class="o">.</span><span class="n">quick</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">sort</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">format</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">ion_list</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">ion_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;All&quot;</span><span class="p">:</span>
             <span class="n">ion_list</span> <span class="o">=</span> <span class="kc">None</span>
@@ -214,7 +213,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -222,7 +221,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

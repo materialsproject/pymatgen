@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.electronic_structure.boltztrap2 &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.electronic_structure.boltztrap2 &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -45,7 +44,36 @@
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.electronic_structure.boltztrap2</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">BoltzTraT2 is a python software interpolating band structures and</span>
+<span class="sd">computing materials properties from dft band structure using Boltzmann</span>
+<span class="sd">semi-classical transport theory.</span>
+<span class="sd">This module provides a pymatgen interface to BoltzTraT2.</span>
+<span class="sd">Some of the code is written following the examples provided in BoltzTraP2</span>
+
+<span class="sd">BoltzTraT2 has been developed by Georg Madsen, Jesús Carrete, Matthieu J. Verstraete.</span>
+
+<span class="sd">https://gitlab.com/sousaw/BoltzTraP2</span>
+<span class="sd">https://www.sciencedirect.com/science/article/pii/S0010465518301632</span>
+
+<span class="sd">References are:</span>
+
+<span class="sd">    Georg K.H.Madsen, Jesús Carrete, Matthieu J.Verstraete</span>
+<span class="sd">    BoltzTraP2, a program for interpolating band structures and</span>
+<span class="sd">    calculating semi-classical transport coefficients</span>
+<span class="sd">    Computer Physics Communications 231, 140-145, 2018</span>
+
+<span class="sd">    Madsen, G. K. H., and Singh, D. J. (2006).</span>
+<span class="sd">    BoltzTraP. A code for calculating band-structure dependent quantities.</span>
+<span class="sd">    Computer Physics Communications, 175, 67-71</span>
+
+<span class="sd">TODO:</span>
+<span class="sd">- spin polarized bands</span>
+<span class="sd">- read first derivative of the eigenvalues from vasprun.xml (mommat)</span>
+<span class="sd">- handle magnetic moments (magmom)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="k">import</span> <span class="n">dumpfn</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.bandstructure</span> <span class="k">import</span> <span class="n">HighSymmKpath</span>
@@ -65,35 +93,6 @@
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="k">raise</span> <span class="n">BoltztrapError</span><span class="p">(</span><span class="s2">&quot;BoltzTraP2 has to be installed and working&quot;</span><span class="p">)</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">BoltzTraT2 is a python software interpolating band structures and</span>
-<span class="sd">computing materials properties from dft band structure using Boltzmann</span>
-<span class="sd">semi-classical transport theory.</span>
-<span class="sd">This module provides a pymatgen interface to BoltzTraT2.</span>
-<span class="sd">Some of the code is written following the examples provided in BoltzTraP2</span>
-
-<span class="sd">BoltzTraT2 has been developed by Georg Madsen, Jesús Carrete, Matthieu J. Verstraete.</span>
-
-<span class="sd">https://gitlab.com/sousaw/BoltzTraP2</span>
-<span class="sd">https://www.sciencedirect.com/science/article/pii/S0010465518301632</span>
-
-<span class="sd">References are:</span>
-
-<span class="sd">    Georg K.H.Madsen, Jesús Carrete, Matthieu J.Verstraete;</span>
-<span class="sd">    BoltzTraP2, a program for interpolating band structures and</span>
-<span class="sd">    calculating semi-classical transport coefficients</span>
-<span class="sd">    Computer Physics Communications 231, 140-145, 2018</span>
-
-<span class="sd">    Madsen, G. K. H., and Singh, D. J. (2006).</span>
-<span class="sd">    BoltzTraP. A code for calculating band-structure dependent quantities.</span>
-<span class="sd">    Computer Physics Communications, 175, 67-71</span>
-
-<span class="sd">TODO:</span>
-<span class="sd">- spin polarized bands</span>
-<span class="sd">- read first derivative of the eigenvalues from vasprun.xml (mommat)</span>
-<span class="sd">- handle magnetic moments (magmom)</span>
-<span class="sd">&quot;&quot;&quot;</span>
-
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Francesco Ricci&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2018, The Materials Project&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
@@ -108,8 +107,10 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bs_obj</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nelect</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Structure and nelect is needed to be provide.</span>
-<span class="sd">            spin must be select if bs is spin-polarized.</span>
+<span class="sd">        :param bs_obj:</span>
+<span class="sd">        :param structure:</span>
+<span class="sd">        :param nelect:</span>
+<span class="sd">        :param spin:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">kp</span><span class="o">.</span><span class="n">frac_coords</span> <span class="k">for</span> <span class="n">kp</span> <span class="ow">in</span> <span class="n">bs_obj</span><span class="o">.</span><span class="n">kpoints</span><span class="p">])</span>
 
@@ -153,6 +154,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">cbm_idx</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">bs_obj</span><span class="o">.</span><span class="n">get_cbm</span><span class="p">()[</span><span class="s1">&#39;band_index&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
 
 <div class="viewcode-block" id="BandstructureLoader.get_lattvec"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap2.html#pymatgen.electronic_structure.boltztrap2.BandstructureLoader.get_lattvec">[docs]</a>    <span class="k">def</span> <span class="nf">get_lattvec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: The lattice vectors.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">lattvec</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
@@ -198,6 +202,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">proj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">proj_lower</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="p">,</span> <span class="n">proj_upper</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="BandstructureLoader.get_volume"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap2.html#pymatgen.electronic_structure.boltztrap2.BandstructureLoader.get_volume">[docs]</a>    <span class="k">def</span> <span class="nf">get_volume</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Volume</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">UCvol</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
@@ -210,6 +217,9 @@
     <span class="sd">&quot;&quot;&quot;Loader for Vasprun object&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vrun_obj</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param vrun_obj: Vasprun object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">vrun_obj</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">vrun_obj</span><span class="o">.</span><span class="n">actual_kpoints</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">vrun_obj</span><span class="o">.</span><span class="n">final_structure</span>
@@ -241,6 +251,9 @@
         <span class="k">return</span> <span class="n">VasprunLoader</span><span class="p">(</span><span class="n">vrun_obj</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="VasprunLoader.get_lattvec"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap2.html#pymatgen.electronic_structure.boltztrap2.VasprunLoader.get_lattvec">[docs]</a>    <span class="k">def</span> <span class="nf">get_lattvec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Lattice vectors</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">lattvec</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
@@ -272,6 +285,9 @@
         <span class="k">return</span> <span class="n">nemin</span><span class="p">,</span> <span class="n">nemax</span></div>
 
 <div class="viewcode-block" id="VasprunLoader.get_volume"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap2.html#pymatgen.electronic_structure.boltztrap2.VasprunLoader.get_volume">[docs]</a>    <span class="k">def</span> <span class="nf">get_volume</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Volume of cell</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">UCvol</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
@@ -282,8 +298,11 @@
 
 <div class="viewcode-block" id="BztInterpolator"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap2.html#pymatgen.electronic_structure.boltztrap2.BztInterpolator">[docs]</a><span class="k">class</span> <span class="nc">BztInterpolator</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Interpolate the dft band structures</span>
+<span class="sd">    Interpolate the dft band structures</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">lpfac</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">energy_range</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">curvature</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            data: A loader</span>
 <span class="sd">            lpfac: the number of interpolation points in the real space. By</span>
@@ -299,10 +318,7 @@
 <span class="sd">        Example:</span>
 <span class="sd">            data = VasprunLoader().from_file(&#39;vasprun.xml&#39;)</span>
 <span class="sd">            bztInterp = BztInterpolator(data)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">lpfac</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">energy_range</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">curvature</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
         <span class="n">num_kpts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">kpoints</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">fermi</span>
@@ -412,11 +428,15 @@
 
 <div class="viewcode-block" id="BztTransportProperties"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap2.html#pymatgen.electronic_structure.boltztrap2.BztTransportProperties">[docs]</a><span class="k">class</span> <span class="nc">BztTransportProperties</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Compute Seebeck, Conductivity, Electrical part of thermal conductivity</span>
-<span class="sd">        and Hall coefficient, conductivity effective mass, Power Factor tensors</span>
-<span class="sd">        w.r.t. the chemical potential and temperatures, from dft band structure via</span>
-<span class="sd">        interpolation.</span>
+<span class="sd">    Compute Seebeck, Conductivity, Electrical part of thermal conductivity</span>
+<span class="sd">    and Hall coefficient, conductivity effective mass, Power Factor tensors</span>
+<span class="sd">    w.r.t. the chemical potential and temperatures, from dft band structure via</span>
+<span class="sd">    interpolation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">BztInterpolator</span><span class="p">,</span> <span class="n">temp_r</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">1400</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
+                 <span class="n">doping</span><span class="o">=</span><span class="mf">10.</span> <span class="o">**</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">23</span><span class="p">),</span> <span class="n">npts_mu</span><span class="o">=</span><span class="mi">4000</span><span class="p">,</span> <span class="n">CRTA</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">,</span> <span class="n">margin</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            BztInterpolator: a BztInterpolator previously generated</span>
 <span class="sd">            temp_r: numpy array of temperatures at which to calculate trasport properties</span>
@@ -438,16 +458,12 @@
 
 <span class="sd">        Example:</span>
 <span class="sd">            bztTransp = BztTransportProperties(bztInterp,temp_r = np.arange(100,1400,100))</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">BztInterpolator</span><span class="p">,</span> <span class="n">temp_r</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">1400</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
-                 <span class="n">doping</span><span class="o">=</span><span class="mf">10.</span> <span class="o">**</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">23</span><span class="p">),</span> <span class="n">npts_mu</span><span class="o">=</span><span class="mi">4000</span><span class="p">,</span> <span class="n">CRTA</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">,</span> <span class="n">margin</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">CRTA</span> <span class="o">=</span> <span class="n">CRTA</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">temp_r</span> <span class="o">=</span> <span class="n">temp_r</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">doping</span> <span class="o">=</span> <span class="n">doping</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dosweight</span> <span class="o">=</span> <span class="n">BztInterpolator</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">dosweight</span>
-        <span class="n">lattvec</span> <span class="o">=</span> <span class="n">BztInterpolator</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get_lattvec</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">epsilon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vvdos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cdos</span> <span class="o">=</span> <span class="n">BL</span><span class="o">.</span><span class="n">BTPDOS</span><span class="p">(</span><span class="n">BztInterpolator</span><span class="o">.</span><span class="n">eband</span><span class="p">,</span> <span class="n">BztInterpolator</span><span class="o">.</span><span class="n">vvband</span><span class="p">,</span>
                                                                   <span class="n">npts</span><span class="o">=</span><span class="n">npts_mu</span><span class="p">,</span> <span class="n">cband</span><span class="o">=</span><span class="n">BztInterpolator</span><span class="o">.</span><span class="n">cband</span><span class="p">)</span>
@@ -569,6 +585,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">mu_doping_eV</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="o">/</span> <span class="n">units</span><span class="o">.</span><span class="n">eV</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">mu_doping</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span></div>
 
 <div class="viewcode-block" id="BztTransportProperties.find_mu_doping"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap2.html#pymatgen.electronic_structure.boltztrap2.BztTransportProperties.find_mu_doping">[docs]</a>    <span class="k">def</span> <span class="nf">find_mu_doping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">,</span> <span class="n">dos</span><span class="p">,</span> <span class="n">N0</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">dosweight</span><span class="o">=</span><span class="mf">2.</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find the mu.</span>
+
+<span class="sd">        :param epsilon:</span>
+<span class="sd">        :param dos:</span>
+<span class="sd">        :param N0:</span>
+<span class="sd">        :param T:</span>
+<span class="sd">        :param dosweight:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">delta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">epsilon</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">epsilon</span><span class="p">):</span>
             <span class="n">delta</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">BL</span><span class="o">.</span><span class="n">calc_N</span><span class="p">(</span><span class="n">epsilon</span><span class="p">,</span> <span class="n">dos</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">dosweight</span><span class="p">)</span> <span class="o">+</span> <span class="n">N0</span>
@@ -578,6 +604,9 @@
         <span class="k">return</span> <span class="n">epsilon</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="BztTransportProperties.props_as_dict"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap2.html#pymatgen.electronic_structure.boltztrap2.BztTransportProperties.props_as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">props_as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Get the properties as a dict.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">props</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Conductivity&quot;</span><span class="p">,</span> <span class="s2">&quot;Seebeck&quot;</span><span class="p">,</span> <span class="s2">&quot;Kappa&quot;</span><span class="p">)</span>  <span class="c1"># ,&quot;Hall&quot;</span>
         <span class="n">props_unit</span> <span class="o">=</span> <span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\mathrm{kS\,m^{-1}}$&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;$\mu$V/K&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
 
@@ -597,19 +626,28 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">props_dict</span> <span class="o">=</span> <span class="n">p_dict</span></div>
 
 <div class="viewcode-block" id="BztTransportProperties.save"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap2.html#pymatgen.electronic_structure.boltztrap2.BztTransportProperties.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="s2">&quot;Transport_Properties.json&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Writes the properties to a json file.</span>
+
+<span class="sd">        :param fname: Filename</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">dumpfn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">props_dict</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="BztPlotter"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap2.html#pymatgen.electronic_structure.boltztrap2.BztPlotter">[docs]</a><span class="k">class</span> <span class="nc">BztPlotter</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Plotter to plot transport properties, interpolated bands along some high</span>
-<span class="sd">        symmetry k-path, and fermisurface</span>
+<span class="sd">    Plotter to plot transport properties, interpolated bands along some high</span>
+<span class="sd">    symmetry k-path, and fermisurface</span>
 
-<span class="sd">        Example:</span>
-<span class="sd">            bztPlotter = BztPlotter(bztTransp,bztInterp)</span>
+<span class="sd">    Example:</span>
+<span class="sd">        bztPlotter = BztPlotter(bztTransp,bztInterp)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bzt_transP</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bzt_interp</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param bzt_transP:</span>
+<span class="sd">        :param bzt_interp:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bzt_transP</span> <span class="o">=</span> <span class="n">bzt_transP</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bzt_interp</span> <span class="o">=</span> <span class="n">bzt_interp</span>
 
@@ -673,7 +711,7 @@
             <span class="n">p_array</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="s2">&quot;self.bzt_transP.&quot;</span> <span class="o">+</span> <span class="n">props</span><span class="p">[</span><span class="n">idx_prop</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">prop_x</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
 
         <span class="n">temps_all</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bzt_transP</span><span class="o">.</span><span class="n">temp_r</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">temps</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -774,6 +812,12 @@
 
 
 <div class="viewcode-block" id="merge_up_down_doses"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.boltztrap2.html#pymatgen.electronic_structure.boltztrap2.merge_up_down_doses">[docs]</a><span class="k">def</span> <span class="nf">merge_up_down_doses</span><span class="p">(</span><span class="n">dos_up</span><span class="p">,</span> <span class="n">dos_dn</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Merge the up and down DOSs.</span>
+<span class="sd">    :param dos_up: Up DOS.</span>
+<span class="sd">    :param dos_dn: Down DOS</span>
+<span class="sd">    :return: CompleteDos.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">cdos</span> <span class="o">=</span> <span class="n">Dos</span><span class="p">(</span><span class="n">dos_up</span><span class="o">.</span><span class="n">efermi</span><span class="p">,</span> <span class="n">dos_up</span><span class="o">.</span><span class="n">energies</span><span class="p">,</span>
                <span class="p">{</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">:</span> <span class="n">dos_up</span><span class="o">.</span><span class="n">densities</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">],</span> <span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">:</span> <span class="n">dos_dn</span><span class="o">.</span><span class="n">densities</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">]})</span>
 
@@ -819,7 +863,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -827,7 +871,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

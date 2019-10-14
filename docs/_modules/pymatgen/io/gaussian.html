@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.gaussian &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.io.gaussian &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -49,6 +48,10 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module implements input and output processing from Gaussian.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
 <span class="kn">import</span> <span class="nn">re</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -62,9 +65,6 @@
 <span class="kn">import</span> <span class="nn">scipy.constants</span> <span class="k">as</span> <span class="nn">cst</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="k">import</span> <span class="n">Spin</span>
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This module implements input and output processing from Gaussian.</span>
-<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Shyue Ping Ong, Germain  Salvato-Vallverdu, Xin Chen&#39;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s1">&#39;Copyright 2013, The Materials Virtual Lab&#39;</span>
@@ -133,30 +133,6 @@
 <div class="viewcode-block" id="GaussianInput"><a class="viewcode-back" href="../../../pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianInput">[docs]</a><span class="k">class</span> <span class="nc">GaussianInput</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An object representing a Gaussian input file.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        mol: Input molecule. If molecule is a single string, it is used as a</span>
-<span class="sd">            direct input to the geometry section of the Gaussian input</span>
-<span class="sd">            file.</span>
-<span class="sd">        charge: Charge of the molecule. If None, charge on molecule is used.</span>
-<span class="sd">            Defaults to None. This allows the input file to be set a</span>
-<span class="sd">            charge independently from the molecule itself.</span>
-<span class="sd">        spin_multiplicity: Spin multiplicity of molecule. Defaults to None,</span>
-<span class="sd">            which means that the spin multiplicity is set to 1 if the</span>
-<span class="sd">            molecule has no unpaired electrons and to 2 if there are</span>
-<span class="sd">            unpaired electrons.</span>
-<span class="sd">        title: Title for run. Defaults to formula of molecule if None.</span>
-<span class="sd">        functional: Functional for run.</span>
-<span class="sd">        basis_set: Basis set for run.</span>
-<span class="sd">        route_parameters: Additional route parameters as a dict. For example,</span>
-<span class="sd">            {&#39;SP&#39;:&quot;&quot;, &quot;SCF&quot;:&quot;Tight&quot;}</span>
-<span class="sd">        input_parameters: Additional input parameters for run as a dict. Used</span>
-<span class="sd">            for example, in PCM calculations.  E.g., {&quot;EPS&quot;:12}</span>
-<span class="sd">        link0_parameters: Link0 parameters as a dict. E.g., {&quot;%mem&quot;: &quot;1000MW&quot;}</span>
-<span class="sd">        dieze_tag: # preceding the route line. E.g. &quot;#p&quot;</span>
-<span class="sd">        gen_basis: allows a user-specified basis set to be used in a Gaussian</span>
-<span class="sd">            calculation. If this is not None, the attribute ``basis_set`` will</span>
-<span class="sd">            be set to &quot;Gen&quot;.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Commonly used regex patterns</span>
@@ -168,6 +144,31 @@
                  <span class="n">functional</span><span class="o">=</span><span class="s2">&quot;HF&quot;</span><span class="p">,</span> <span class="n">basis_set</span><span class="o">=</span><span class="s2">&quot;6-31G(d)&quot;</span><span class="p">,</span> <span class="n">route_parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">input_parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">link0_parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dieze_tag</span><span class="o">=</span><span class="s2">&quot;#P&quot;</span><span class="p">,</span>
                  <span class="n">gen_basis</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            mol: Input molecule. If molecule is a single string, it is used as a</span>
+<span class="sd">                direct input to the geometry section of the Gaussian input</span>
+<span class="sd">                file.</span>
+<span class="sd">            charge: Charge of the molecule. If None, charge on molecule is used.</span>
+<span class="sd">                Defaults to None. This allows the input file to be set a</span>
+<span class="sd">                charge independently from the molecule itself.</span>
+<span class="sd">            spin_multiplicity: Spin multiplicity of molecule. Defaults to None,</span>
+<span class="sd">                which means that the spin multiplicity is set to 1 if the</span>
+<span class="sd">                molecule has no unpaired electrons and to 2 if there are</span>
+<span class="sd">                unpaired electrons.</span>
+<span class="sd">            title: Title for run. Defaults to formula of molecule if None.</span>
+<span class="sd">            functional: Functional for run.</span>
+<span class="sd">            basis_set: Basis set for run.</span>
+<span class="sd">            route_parameters: Additional route parameters as a dict. For example,</span>
+<span class="sd">                {&#39;SP&#39;:&quot;&quot;, &quot;SCF&quot;:&quot;Tight&quot;}</span>
+<span class="sd">            input_parameters: Additional input parameters for run as a dict. Used</span>
+<span class="sd">                for example, in PCM calculations.  E.g., {&quot;EPS&quot;:12}</span>
+<span class="sd">            link0_parameters: Link0 parameters as a dict. E.g., {&quot;%mem&quot;: &quot;1000MW&quot;}</span>
+<span class="sd">            dieze_tag: # preceding the route line. E.g. &quot;#p&quot;</span>
+<span class="sd">            gen_basis: allows a user-specified basis set to be used in a Gaussian</span>
+<span class="sd">                calculation. If this is not None, the attribute ``basis_set`` will</span>
+<span class="sd">                be set to &quot;Gen&quot;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span> <span class="o">=</span> <span class="n">mol</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">=</span> <span class="n">charge</span> <span class="k">if</span> <span class="n">charge</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">mol</span><span class="o">.</span><span class="n">charge</span>
         <span class="n">nelectrons</span> <span class="o">=</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">+</span> <span class="n">mol</span><span class="o">.</span><span class="n">charge</span> <span class="o">+</span> <span class="n">mol</span><span class="o">.</span><span class="n">nelectrons</span>
@@ -348,7 +349,7 @@
         <span class="n">title</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
         <span class="n">ind</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="n">toks</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[,\s]+&quot;</span><span class="p">,</span> <span class="n">lines</span><span class="p">[</span><span class="n">route_index</span> <span class="o">+</span> <span class="n">ind</span><span class="p">])</span>
-        <span class="n">charge</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">toks</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">charge</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">toks</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
         <span class="n">spin_mult</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">toks</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
         <span class="n">coord_lines</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">spaces</span> <span class="o">=</span> <span class="mi">0</span>
@@ -482,7 +483,7 @@
         <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
         <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-        <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin_multiplicity</span><span class="p">))</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin_multiplicity</span><span class="p">))</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="p">,</span> <span class="n">Molecule</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">cart_coords</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
                 <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_cart_coords</span><span class="p">())</span>
@@ -507,6 +508,9 @@
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">cart_coords</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="GaussianInput.as_dict"><a class="viewcode-back" href="../../../pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianInput.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: MSONable dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
                 <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
                 <span class="s2">&quot;molecule&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
@@ -522,6 +526,10 @@
 
 <div class="viewcode-block" id="GaussianInput.from_dict"><a class="viewcode-back" href="../../../pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianInput.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param d: dict</span>
+<span class="sd">        :return: GaussianInput</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">GaussianInput</span><span class="p">(</span><span class="n">mol</span><span class="o">=</span><span class="n">Molecule</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;molecule&quot;</span><span class="p">]),</span>
                              <span class="n">functional</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;functional&quot;</span><span class="p">],</span>
                              <span class="n">basis_set</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;basis_set&quot;</span><span class="p">],</span>
@@ -536,9 +544,6 @@
 <div class="viewcode-block" id="GaussianOutput"><a class="viewcode-back" href="../../../pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianOutput">[docs]</a><span class="k">class</span> <span class="nc">GaussianOutput</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parser for Gaussian output files.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        filename: Filename of Gaussian output file.</span>
 
 <span class="sd">    .. note::</span>
 
@@ -730,15 +735,25 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            filename: Filename of Gaussian output file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_parse</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">final_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Final energy in Gaussian output.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">final_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Final structure in Gaussian output.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">_parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
@@ -765,7 +780,6 @@
             <span class="sa">r</span><span class="s1">&#39;(Sum of Mulliken )(.*)(charges)\s*=\s*(\D)&#39;</span><span class="p">)</span>
         <span class="n">std_orientation_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Standard orientation&quot;</span><span class="p">)</span>
         <span class="n">input_orientation_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Input orientation&quot;</span><span class="p">)</span>
-        <span class="n">end_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;--+&quot;</span><span class="p">)</span>
         <span class="n">orbital_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(Alpha|Beta)\s*\S+\s*eigenvalues --(.*)&quot;</span><span class="p">)</span>
         <span class="n">thermo_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(Zero-point|Thermal) correction(.*)=&quot;</span>
                                  <span class="sa">r</span><span class="s2">&quot;\s+([\d\.-]+)&quot;</span><span class="p">)</span>
@@ -777,7 +791,6 @@
 
         <span class="n">freq_on_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
             <span class="sa">r</span><span class="s2">&quot;Harmonic\sfrequencies\s+\(cm\*\*-1\),\sIR\sintensities.*Raman.*&quot;</span><span class="p">)</span>
-        <span class="n">freq_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Frequencies\s--\s+(.*)&quot;</span><span class="p">)</span>
 
         <span class="n">normal_mode_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
             <span class="sa">r</span><span class="s2">&quot;\s+(\d+)\s+(\d+)\s+([0-9\.-]{4,5})\s+([0-9\.-]{4,5}).*&quot;</span><span class="p">)</span>
@@ -809,7 +822,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bond_orders</span> <span class="o">=</span> <span class="p">{}</span>
 
-        <span class="n">coord_txt</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">read_coord</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">read_mulliken</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">read_eigen</span> <span class="o">=</span> <span class="kc">False</span>
@@ -828,6 +840,7 @@
         <span class="n">parse_bond_order</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">input_structures</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="n">std_structures</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="n">geom_orientation</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
@@ -1112,12 +1125,10 @@
                         <span class="n">m</span> <span class="o">=</span> <span class="n">scf_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
                     <span class="k">elif</span> <span class="n">std_orientation_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
-                        <span class="n">coord_txt</span> <span class="o">=</span> <span class="p">[]</span>
                         <span class="n">standard_orientation</span> <span class="o">=</span> <span class="kc">True</span>
                         <span class="n">geom_orientation</span> <span class="o">=</span> <span class="s2">&quot;standard&quot;</span>
                         <span class="n">read_coord</span> <span class="o">=</span> <span class="kc">True</span>
                     <span class="k">elif</span> <span class="n">input_orientation_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
-                        <span class="n">coord_txt</span> <span class="o">=</span> <span class="p">[]</span>
                         <span class="n">geom_orientation</span> <span class="o">=</span> <span class="s2">&quot;input&quot;</span>
                         <span class="n">read_coord</span> <span class="o">=</span> <span class="kc">True</span>
                     <span class="k">elif</span> <span class="ow">not</span> <span class="n">read_eigen</span> <span class="ow">and</span> <span class="n">orbital_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
@@ -1523,7 +1534,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1531,7 +1542,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

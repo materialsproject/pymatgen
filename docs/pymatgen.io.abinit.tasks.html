@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.abinit.tasks module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.io.abinit.tasks module &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -52,9 +51,16 @@
 <p>A <cite>TaskManager</cite> is responsible for the generation of the job script and the submission
 of the task, as well as for the specification of the parameters passed to the resource manager
 (e.g. Slurm, PBS …) and/or the run-time specification of the ABINIT variables governing the parallel execution.
-A <cite>TaskManager</cite> delegates the generation of the submission script and the submission of the task to the <code class="xref py py-class docutils literal notranslate"><span class="pre">QueueAdapter</span></code>.
-A <cite>TaskManager</cite> has a <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskPolicy</span></code> that governs the specification of the parameters for the parallel executions.
-Ideally, the TaskManager should be the <strong>main entry point</strong> used by the task to deal with job submission/optimization</p>
+A <cite>TaskManager</cite> delegates the generation of the submission script and the submission of the task to the</p>
+<blockquote>
+<div><p><code class="xref py py-class docutils literal notranslate"><span class="pre">QueueAdapter</span></code>.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>A <cite>TaskManager</cite> has a <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskPolicy</span></code> that governs the specification of the parameters for the parallel</dt><dd><p>executions.</p>
+</dd>
+</dl>
+<p>Ideally, the TaskManager should be the <strong>main entry point</strong> used by the task to deal with job
+submission/optimization</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1261,7 +1267,8 @@ to change the input when we connect this task</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>anaddb_input</strong> – string with the anaddb variables.</p></li>
 <li><p><strong>ddb_node</strong> – The node that will produce the DDB file. Accept <code class="xref py py-class docutils literal notranslate"><span class="pre">Task</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Work</span></code> or filepath.</p></li>
-<li><p><strong>gkk_node</strong> – The node that will produce the GKK file (optional). Accept <code class="xref py py-class docutils literal notranslate"><span class="pre">Task</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Work</span></code> or filepath.</p></li>
+<li><p><strong>gkk_node</strong> – The node that will produce the GKK file (optional). Accept <code class="xref py py-class docutils literal notranslate"><span class="pre">Task</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Work</span></code> or
+filepath.</p></li>
 <li><p><strong>md_node</strong> – The node that will produce the MD file (optional). Accept <cite>Task</cite>, <cite>Work</cite> or filepath.</p></li>
 <li><p><strong>gkk_node</strong> – The node that will produce the GKK file (optional). Accept <cite>Task</cite>, <cite>Work</cite> or filepath.</p></li>
 <li><p><strong>workdir</strong> – Path to the working directory (optional).</p></li>
@@ -1406,13 +1413,13 @@ the shell with 1 MPI proc. Mainly used for post-processing the DDB files.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

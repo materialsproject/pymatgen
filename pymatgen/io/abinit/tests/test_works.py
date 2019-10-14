@@ -11,13 +11,14 @@ from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinit import *
 
 _test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
-                        'test_files', "abinit")
+                         'test_files', "abinit")
+
 
 def ref_file(filename):
     return os.path.join(_test_dir, filename)
 
 
-#class WorkTestCase(PymatgenTest):
+# class WorkTestCase(PymatgenTest):
 #
 #    def test_pseudoconvergence(self):
 #        workdir = mkdtemp(prefix="test_pseudoconvergence")
@@ -25,7 +26,7 @@ def ref_file(filename):
 #        pseudo = ref_file("14si.pspnc")
 #        ecut_list = range(10, 40, 2)
 #
-#        pptest_wf = PseudoConvergence(pseudo, ecut_list, atols_mev=(10, 1, 0.1), 
+#        pptest_wf = PseudoConvergence(pseudo, ecut_list, atols_mev=(10, 1, 0.1),
 #                                      workdir=workdir, manager=manager)
 #        pptest_wf.allocate()
 #
@@ -45,4 +46,5 @@ def ref_file(filename):
 
 if __name__ == "__main__":
     import unittest
+
     unittest.main()

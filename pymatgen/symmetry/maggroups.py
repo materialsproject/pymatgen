@@ -2,6 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Magnetic space groups.
+"""
+
 import os
 from fractions import Fraction
 import numpy as np
@@ -9,7 +13,6 @@ from monty.design_patterns import cached_class
 
 import textwrap
 
-from pymatgen.core import Lattice
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.groups import SymmetryGroup, in_array_list
 from pymatgen.core.operations import MagSymmOp
@@ -31,7 +34,9 @@ MAGSYMM_DATA = os.path.join(os.path.dirname(__file__), "symm_data_magnetic.sqlit
 
 @cached_class
 class MagneticSpaceGroup(SymmetryGroup):
-
+    """
+    Representation of a magnetic space group.
+    """
     def __init__(self, id):
         """
         Initializes a MagneticSpaceGroup from its Belov, Neronova and
@@ -123,7 +128,7 @@ class MagneticSpaceGroup(SymmetryGroup):
         self._data['og_label'] = raw_data[7]  # can differ from BNS_label
 
         def _get_point_operator(idx):
-            '''Retrieve information on point operator (rotation matrix and Seitz label).'''
+            """Retrieve information on point operator (rotation matrix and Seitz label)."""
             hex = self._data['bns_number'][0] >= 143 and self._data['bns_number'][0] <= 194
             c.execute('SELECT symbol, matrix FROM point_operators WHERE idx=? AND hex=?;', (idx - 1, hex))
             op = c.fetchone()
@@ -131,7 +136,7 @@ class MagneticSpaceGroup(SymmetryGroup):
             return op
 
         def _parse_operators(b):
-            '''Parses compact binary representation into list of MagSymmOps.'''
+            """Parses compact binary representation into list of MagSymmOps."""
             if len(b) == 0:  # e.g. if magtype != 4, OG setting == BNS setting, and b == [] for OG symmops
                 return None
             raw_symops = [b[i:i + 6] for i in range(0, len(b), 6)]
@@ -157,7 +162,7 @@ class MagneticSpaceGroup(SymmetryGroup):
             return symops
 
         def _parse_wyckoff(b):
-            '''Parses compact binary representation into list of Wyckoff sites.'''
+            """Parses compact binary representation into list of Wyckoff sites."""
             if len(b) == 0:
                 return None
 
@@ -203,7 +208,7 @@ class MagneticSpaceGroup(SymmetryGroup):
             return wyckoff_sites
 
         def _parse_lattice(b):
-            '''Parses compact binary representation into list of lattice vectors/centerings.'''
+            """Parses compact binary representation into list of lattice vectors/centerings."""
             if len(b) == 0:
                 return None
             raw_lattice = [b[i:i + 4] for i in range(0, len(b), 4)]
@@ -219,7 +224,7 @@ class MagneticSpaceGroup(SymmetryGroup):
             return lattice
 
         def _parse_transformation(b):
-            '''Parses compact binary representation into transformation between OG and BNS settings.'''
+            """Parses compact binary representation into transformation between OG and BNS settings."""
             if len(b) == 0:
                 return None
             # capital letters used here by convention,
@@ -278,6 +283,9 @@ class MagneticSpaceGroup(SymmetryGroup):
 
     @property
     def crystal_system(self):
+        """
+        :return: Crystal system, e.g., cubic, hexagonal, etc.
+        """
         i = self._data["bns_number"][0]
         if i <= 2:
             return "triclinic"
@@ -296,6 +304,9 @@ class MagneticSpaceGroup(SymmetryGroup):
 
     @property
     def sg_symbol(self):
+        """
+        :return: Space group symbol
+        """
         return self._data["bns_label"]
 
     @property
@@ -364,7 +375,8 @@ class MagneticSpaceGroup(SymmetryGroup):
                 in degrees.
         """
         # function from pymatgen.symmetry.groups.SpaceGroup
-        abc, angles = lattice.lengths_and_angles
+        abc = lattice.lengths
+        angles = lattice.angles
         crys_system = self.crystal_system
 
         def check(param, ref, tolerance):
@@ -453,7 +465,6 @@ class MagneticSpaceGroup(SymmetryGroup):
                                             for wyckoff_data in self._data['og_wyckoff']])
 
             og_operators_prefix = "Operators (OG): "
-            og_wyckoff_prefix = "Wyckoff Positions (OG): "
 
             # apply textwrap on long lines
             desc['og_operators'] = textwrap.fill(desc['og_operators'],

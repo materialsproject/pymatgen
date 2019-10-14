@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.defects.dilute_solution_model module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.analysis.defects.dilute_solution_model module &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,11 +43,12 @@
             
   <div class="section" id="module-pymatgen.analysis.defects.dilute_solution_model">
 <span id="pymatgen-analysis-defects-dilute-solution-model-module"></span><h1>pymatgen.analysis.defects.dilute_solution_model module<a class="headerlink" href="#module-pymatgen.analysis.defects.dilute_solution_model" title="Permalink to this headline">¶</a></h1>
-<dl class="function">
-<dt id="pymatgen.analysis.defects.dilute_solution_model.check_input">
-<code class="sig-name descname">check_input</code><span class="sig-paren">(</span><em class="sig-param">def_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/dilute_solution_model.html#check_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.dilute_solution_model.check_input" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<p>Evaluate the defect concentration based on composition, temperature,
+and defect energies using “Dilute Solution Model”
+Reference: Phys Rev B, 63, 094103, 2001,
+“Density of constitutional and thermal point defects in L12 Al3Sc”,
+C. Woodward, M. Asta, G. Kresse and J. Hafner.
+Manual and citation for the code, DOI: 10.1016/j.cpc.2015.03.015</p>
 <dl class="function">
 <dt id="pymatgen.analysis.defects.dilute_solution_model.compute_defect_density">
 <code class="sig-name descname">compute_defect_density</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">e0</em>, <em class="sig-param">vac_defs</em>, <em class="sig-param">antisite_defs</em>, <em class="sig-param">T=800</em>, <em class="sig-param">trial_chem_pot=None</em>, <em class="sig-param">plot_style='highcharts'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/dilute_solution_model.html#compute_defect_density"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.dilute_solution_model.compute_defect_density" title="Permalink to this definition">¶</a></dt>
@@ -207,13 +207,13 @@ generation. Format is {el1:mu1,…}</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

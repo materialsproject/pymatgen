@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.composition module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.core.composition module &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +43,8 @@
             
   <div class="section" id="module-pymatgen.core.composition">
 <span id="pymatgen-core-composition-module"></span><h1>pymatgen.core.composition module<a class="headerlink" href="#module-pymatgen.core.composition" title="Permalink to this headline">¶</a></h1>
+<p>This module implements a Composition class to represent compositions,
+and a ChemicalPotential class to represent potentials.</p>
 <dl class="class">
 <dt id="pymatgen.core.composition.ChemicalPotential">
 <em class="property">class </em><code class="sig-name descname">ChemicalPotential</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#ChemicalPotential"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.ChemicalPotential" title="Permalink to this definition">¶</a></dt>
@@ -126,7 +127,7 @@ of these. E.g., {Element(“Li”):2 ,Element(“O”):1},
 <li><p><strong>as an input formula. E.g.</strong><strong>, </strong><strong>Composition</strong> (<em>string</em>) – </p></li>
 <li><p><strong>strict</strong> – Only allow valid Elements and Species in the Composition.</p></li>
 <li><p><strong>allow_negative</strong> – Whether to allow negative compositions. This
-argument must be popped from the **kwargs due to *args
+argument must be popped from the <a href="#id3"><span class="problematic" id="id4">**</span></a>kwargs due to <a href="#id5"><span class="problematic" id="id6">*</span></a>args
 ambiguity.</p></li>
 </ul>
 </dd>
@@ -193,9 +194,7 @@ e.g., Fe4 Li4 O16 P4.</p>
 <dl class="attribute">
 <dt id="pymatgen.core.composition.Composition.amount_tolerance">
 <code class="sig-name descname">amount_tolerance</code><em class="property"> = 1e-08</em><a class="headerlink" href="#pymatgen.core.composition.Composition.amount_tolerance" title="Permalink to this definition">¶</a></dt>
-<dd><p>Special formula handling for peroxides and certain elements. This is so
-that formula output does not write LiO instead of Li2O2 for example.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.composition.Composition.anonymized_formula">
@@ -220,7 +219,13 @@ anonymized_formula ABC3.</p>
 <dl class="method">
 <dt id="pymatgen.core.composition.Composition.average_electroneg">
 <em class="property">property </em><code class="sig-name descname">average_electroneg</code><a class="headerlink" href="#pymatgen.core.composition.Composition.average_electroneg" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Average electronegativity of the composition.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.composition.Composition.chemical_system">
@@ -253,7 +258,12 @@ in database keys.</p>
 <dl class="method">
 <dt id="pymatgen.core.composition.Composition.copy">
 <code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.copy" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A copy of the composition.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.composition.Composition.element_composition">
@@ -355,7 +365,7 @@ Li0.5O0.25 returns (Li2O, 0.25). O0.25 returns (O2, 0.125)</p>
 
 <dl class="method">
 <dt id="pymatgen.core.composition.Composition.get_reduced_composition_and_factor">
-<code class="sig-name descname">get_reduced_composition_and_factor</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.get_reduced_composition_and_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.get_reduced_composition_and_factor" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_reduced_composition_and_factor</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Tuple[pymatgen.core.composition.Composition, float]<a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.get_reduced_composition_and_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.get_reduced_composition_and_factor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates a reduced composition and factor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -367,7 +377,7 @@ Li4Fe4P4O16 returns (Composition(“LiFePO4”), 4).</p>
 
 <dl class="method">
 <dt id="pymatgen.core.composition.Composition.get_reduced_formula_and_factor">
-<code class="sig-name descname">get_reduced_formula_and_factor</code><span class="sig-paren">(</span><em class="sig-param">iupac_ordering=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.get_reduced_formula_and_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.get_reduced_formula_and_factor" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_reduced_formula_and_factor</code><span class="sig-paren">(</span><em class="sig-param">iupac_ordering=False</em><span class="sig-paren">)</span> &#x2192; Tuple[str, float]<a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.get_reduced_formula_and_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.get_reduced_formula_and_factor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates a reduced formula and factor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -404,7 +414,20 @@ Li4Fe4P4O16 returns (LiFePO4, 4).</p>
 <dl class="method">
 <dt id="pymatgen.core.composition.Composition.hill_formula">
 <em class="property">property </em><code class="sig-name descname">hill_formula</code><a class="headerlink" href="#pymatgen.core.composition.Composition.hill_formula" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Hill formula. The Hill system (or Hill notation) is a system
+of writing empirical chemical formulas, molecular chemical formulas and
+components of a condensed formula such that the number of carbon atoms
+in a molecule is indicated first, the number of hydrogen atoms next,
+and then the number of all other chemical elements subsequently, in
+alphabetical order of the chemical symbols. When the formula contains
+no carbon, all the elements, including hydrogen, are listed
+alphabetically.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.composition.Composition.is_element">
@@ -553,7 +576,13 @@ Dict with element symbol and reduced amount e.g.,
 <dl class="method">
 <dt id="pymatgen.core.composition.Composition.total_electrons">
 <em class="property">property </em><code class="sig-name descname">total_electrons</code><a class="headerlink" href="#pymatgen.core.composition.Composition.total_electrons" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Total number of electrons in composition.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.composition.Composition.valid">
@@ -565,7 +594,8 @@ False if the Composition contains any dummy species.</p>
 <dl class="method">
 <dt id="pymatgen.core.composition.Composition.weight">
 <em class="property">property </em><code class="sig-name descname">weight</code><a class="headerlink" href="#pymatgen.core.composition.Composition.weight" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Total molecular weight of Composition</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -638,13 +668,13 @@ the elements.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

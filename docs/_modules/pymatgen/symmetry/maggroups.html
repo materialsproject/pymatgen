@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.symmetry.maggroups &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.symmetry.maggroups &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -49,6 +48,10 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Magnetic space groups.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">fractions</span> <span class="k">import</span> <span class="n">Fraction</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -56,7 +59,6 @@
 
 <span class="kn">import</span> <span class="nn">textwrap</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="k">import</span> <span class="n">Lattice</span>
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="k">import</span> <span class="n">Magmom</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.groups</span> <span class="k">import</span> <span class="n">SymmetryGroup</span><span class="p">,</span> <span class="n">in_array_list</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.operations</span> <span class="k">import</span> <span class="n">MagSymmOp</span>
@@ -78,7 +80,9 @@
 
 <div class="viewcode-block" id="MagneticSpaceGroup"><a class="viewcode-back" href="../../../pymatgen.symmetry.maggroups.html#pymatgen.symmetry.maggroups.MagneticSpaceGroup">[docs]</a><span class="nd">@cached_class</span>
 <span class="k">class</span> <span class="nc">MagneticSpaceGroup</span><span class="p">(</span><span class="n">SymmetryGroup</span><span class="p">):</span>
-
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Representation of a magnetic space group.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initializes a MagneticSpaceGroup from its Belov, Neronova and</span>
@@ -170,7 +174,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;og_label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">raw_data</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span>  <span class="c1"># can differ from BNS_label</span>
 
         <span class="k">def</span> <span class="nf">_get_point_operator</span><span class="p">(</span><span class="n">idx</span><span class="p">):</span>
-            <span class="sd">&#39;&#39;&#39;Retrieve information on point operator (rotation matrix and Seitz label).&#39;&#39;&#39;</span>
+            <span class="sd">&quot;&quot;&quot;Retrieve information on point operator (rotation matrix and Seitz label).&quot;&quot;&quot;</span>
             <span class="nb">hex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;bns_number&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">143</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;bns_number&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">194</span>
             <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;SELECT symbol, matrix FROM point_operators WHERE idx=? AND hex=?;&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">hex</span><span class="p">))</span>
             <span class="n">op</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
@@ -178,7 +182,7 @@
             <span class="k">return</span> <span class="n">op</span>
 
         <span class="k">def</span> <span class="nf">_parse_operators</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
-            <span class="sd">&#39;&#39;&#39;Parses compact binary representation into list of MagSymmOps.&#39;&#39;&#39;</span>
+            <span class="sd">&quot;&quot;&quot;Parses compact binary representation into list of MagSymmOps.&quot;&quot;&quot;</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># e.g. if magtype != 4, OG setting == BNS setting, and b == [] for OG symmops</span>
                 <span class="k">return</span> <span class="kc">None</span>
             <span class="n">raw_symops</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="mi">6</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">),</span> <span class="mi">6</span><span class="p">)]</span>
@@ -204,7 +208,7 @@
             <span class="k">return</span> <span class="n">symops</span>
 
         <span class="k">def</span> <span class="nf">_parse_wyckoff</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
-            <span class="sd">&#39;&#39;&#39;Parses compact binary representation into list of Wyckoff sites.&#39;&#39;&#39;</span>
+            <span class="sd">&quot;&quot;&quot;Parses compact binary representation into list of Wyckoff sites.&quot;&quot;&quot;</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">None</span>
 
@@ -250,7 +254,7 @@
             <span class="k">return</span> <span class="n">wyckoff_sites</span>
 
         <span class="k">def</span> <span class="nf">_parse_lattice</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
-            <span class="sd">&#39;&#39;&#39;Parses compact binary representation into list of lattice vectors/centerings.&#39;&#39;&#39;</span>
+            <span class="sd">&quot;&quot;&quot;Parses compact binary representation into list of lattice vectors/centerings.&quot;&quot;&quot;</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">None</span>
             <span class="n">raw_lattice</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="mi">4</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">),</span> <span class="mi">4</span><span class="p">)]</span>
@@ -266,7 +270,7 @@
             <span class="k">return</span> <span class="n">lattice</span>
 
         <span class="k">def</span> <span class="nf">_parse_transformation</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
-            <span class="sd">&#39;&#39;&#39;Parses compact binary representation into transformation between OG and BNS settings.&#39;&#39;&#39;</span>
+            <span class="sd">&quot;&quot;&quot;Parses compact binary representation into transformation between OG and BNS settings.&quot;&quot;&quot;</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">None</span>
             <span class="c1"># capital letters used here by convention,</span>
@@ -325,6 +329,9 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">crystal_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Crystal system, e.g., cubic, hexagonal, etc.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s2">&quot;bns_number&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
             <span class="k">return</span> <span class="s2">&quot;triclinic&quot;</span>
@@ -343,6 +350,9 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">sg_symbol</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Space group symbol</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s2">&quot;bns_label&quot;</span><span class="p">]</span>
 
     <span class="nd">@property</span>
@@ -411,7 +421,8 @@
 <span class="sd">                in degrees.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># function from pymatgen.symmetry.groups.SpaceGroup</span>
-        <span class="n">abc</span><span class="p">,</span> <span class="n">angles</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">lengths_and_angles</span>
+        <span class="n">abc</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">lengths</span>
+        <span class="n">angles</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">angles</span>
         <span class="n">crys_system</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">crystal_system</span>
 
         <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">ref</span><span class="p">,</span> <span class="n">tolerance</span><span class="p">):</span>
@@ -500,7 +511,6 @@
                                             <span class="k">for</span> <span class="n">wyckoff_data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;og_wyckoff&#39;</span><span class="p">]])</span>
 
             <span class="n">og_operators_prefix</span> <span class="o">=</span> <span class="s2">&quot;Operators (OG): &quot;</span>
-            <span class="n">og_wyckoff_prefix</span> <span class="o">=</span> <span class="s2">&quot;Wyckoff Positions (OG): &quot;</span>
 
             <span class="c1"># apply textwrap on long lines</span>
             <span class="n">desc</span><span class="p">[</span><span class="s1">&#39;og_operators&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">textwrap</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">desc</span><span class="p">[</span><span class="s1">&#39;og_operators&#39;</span><span class="p">],</span>
@@ -575,7 +585,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -583,7 +593,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

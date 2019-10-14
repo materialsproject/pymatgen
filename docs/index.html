@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Introduction &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>Introduction &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Requirements" href="installation.html" />
@@ -37,7 +36,7 @@
         <li class="right" >
           <a href="installation.html" title="Requirements"
              accesskey="N">next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -51,7 +50,7 @@
 <h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
 <img alt="https://circleci.com/gh/materialsproject/pymatgen.svg?style=shield&amp;circle-token=:circle-token" src="https://circleci.com/gh/materialsproject/pymatgen.svg?style=shield&amp;circle-token=:circle-token" />
 <img alt="https://ci.appveyor.com/api/projects/status/akdyke5jxg6gps45?svg=true" src="https://ci.appveyor.com/api/projects/status/akdyke5jxg6gps45?svg=true" />
-<img alt="https://anaconda.org/matsci/pymatgen/badges/downloads.svg" src="https://anaconda.org/matsci/pymatgen/badges/downloads.svg" /><img alt="https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master" src="https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master" />
+<img alt="https://anaconda.org/conda-forge/pymatgen/badges/downloads.svg" src="https://anaconda.org/conda-forge/pymatgen/badges/downloads.svg" /><img alt="https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master" src="https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master" />
 <p>Pymatgen (Python Materials Genomics) is a robust, open-source Python library
 for materials analysis. These are some of the main features:</p>
 <ol class="arabic simple">
@@ -165,15 +164,9 @@ other research groups.</p></li>
 </div>
 <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li><p>pycodestyle now enforced, except on tests. Developers should install
-pycodestyle and the pre-commit hook (copy pre-commit to .git/hooks)
-provided in the repo to check before commits. CI now checks for code style
-and PRs must pass pycodestyle.</p></li>
-<li><p>chemsys str input now allowed in get_entries_in_chemsys (&#64;rkingsbury)</p></li>
-<li><p>ComputedEntry and subclasses now support a normalize().</p></li>
-<li><p>Speed improvements in fragmeter using igraph. (&#64;samblau)</p></li>
-</ul>
+<ol class="arabic simple">
+<li><p>Fix compile args.</p></li>
+</ol>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </div>
 <div class="section" id="getting-pymatgen">
@@ -181,12 +174,10 @@ and PRs must pass pycodestyle.</p></li>
 <div class="section" id="via-conda-recommended">
 <h2>Via conda (recommended)<a class="headerlink" href="#via-conda-recommended" title="Permalink to this headline">¶</a></h2>
 <p>If you are absolutely new to Python and/or are using Windows, the easiest
-installation process is using <a class="reference external" href="http://conda.pydata.org">conda</a>. The
-<a class="reference external" href="http://www.materialsvirtuallab.org">Materials Virtual Lab</a> has started <a class="reference external" href="http://materials.sh">materials.sh</a>,
-a community initiative to build a comprehensive collection of materials science
-software, where pymatgen is available. If you already have conda installed,
-pymatgen can be installed from the <a class="reference external" href="https://anaconda.org/matsci">matsci channel on Anaconda cloud</a> using the following one line command:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">--</span><span class="n">channel</span> <span class="n">matsci</span> <span class="n">pymatgen</span>
+installation process is using <a class="reference external" href="http://conda.pydata.org">conda</a>. If you
+already have conda installed, pymatgen can be installed from the <a class="reference external" href="https://anaconda.org/conda-forge">conda-forge
+channel</a> using the following command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">--</span><span class="n">channel</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span> <span class="n">pymatgen</span>
 </pre></div>
 </div>
 <p>Pymatgen is under active development, and new features are added regularly. To
@@ -199,24 +190,6 @@ upgrade pymatgen to the latest version, use the following command:</p>
 </div>
 <div class="section" id="via-pip">
 <h2>Via pip<a class="headerlink" href="#via-pip" title="Permalink to this headline">¶</a></h2>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Preparation</p>
-<p>Before installing pymatgen, you may need to first install a few critical
-dependencies manually.</p>
-<ol class="arabic simple">
-<li><p>It is highly recommended that you use Python&gt;=2.7.9 or latest 3.x. In
-fact, unless you are very sure you have dependencies that require Python
-2, it is highly recommended that you use latest Python 3.x.</p></li>
-<li><p>Installation has been tested to be most successful with gcc. Use gcc
-where possible and do “export CC=gcc” prior to installation.</p></li>
-<li><p>Numpy’s distutils is needed to compile the spglib and pyhull
-dependencies. Numpy should be the first thing you install.</p></li>
-<li><p>One of the best things you can do is to use conda to manage all this.
-The instructions for <a class="reference internal" href="#shared-cluster-installation">Shared cluster installation</a> pretty much
-applies to any machine as well.</p></li>
-</ol>
-</div>
 <p>The version at the Python Package Index (PyPI) is always the latest stable
 release that is relatively bug-free. The easiest way to install pymatgen on
 any system is to use pip:</p>
@@ -282,9 +255,7 @@ interface usage, setup for developers, etc.are given on this
 <p>If you are installing pymatgen on shared computing clusters, e.g., the XSEDE
 or NERSC resources in the US, the best way is to use conda to perform a local
 install. This guarantees the right version of python and all dependencies:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># Here, Python 3.6+ is assumed.
-# You can change the following to Miniconda2 if you prefer Python 2.7
-wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
 bash Miniconda3-latest-Linux-x86_64.sh -b
 
 # Reload bash profile.
@@ -293,7 +264,7 @@ source $HOME/.bash_profile
 
 # Install numpy and other pydata stack packages via conda.
 conda install --yes numpy scipy pandas
-conda install --yes --channel matsci pymatgen
+conda install --yes --channel conda-forge pymatgen
 </pre></div>
 </div>
 </div>
@@ -732,13 +703,13 @@ to indicate the copyright and license terms:</p>
         <li class="right" >
           <a href="installation.html" title="Requirements"
              >next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

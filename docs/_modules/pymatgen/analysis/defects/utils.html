@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.defects.utils &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.analysis.defects.utils &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -49,6 +48,9 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Utilities for defects module.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">math</span>
 
@@ -100,7 +102,7 @@
 <span class="n">kumagai_to_V</span> <span class="o">=</span> <span class="mf">1.809512739e2</span>  <span class="c1"># = Electron charge * 1e10 / VacuumPermittivity Constant</span>
 
 <span class="n">motif_cn_op</span> <span class="o">=</span> <span class="p">{}</span>
-<span class="k">for</span> <span class="n">cn</span><span class="p">,</span> <span class="n">di</span> <span class="ow">in</span> <span class="n">cn_opt_params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+<span class="k">for</span> <span class="n">cn</span><span class="p">,</span> <span class="n">di</span> <span class="ow">in</span> <span class="n">cn_opt_params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>  <span class="c1"># type: ignore</span>
     <span class="k">for</span> <span class="n">mot</span><span class="p">,</span> <span class="n">li</span> <span class="ow">in</span> <span class="n">di</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">motif_cn_op</span><span class="p">[</span><span class="n">mot</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cn&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">cn</span><span class="p">),</span> <span class="s1">&#39;optype&#39;</span><span class="p">:</span> <span class="n">li</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>
         <span class="n">motif_cn_op</span><span class="p">[</span><span class="n">mot</span><span class="p">][</span><span class="s1">&#39;params&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">li</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">li</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">None</span>
@@ -767,8 +769,10 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">check_volume</span><span class="p">()</span>
 
 <div class="viewcode-block" id="TopographyAnalyzer.check_volume"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.TopographyAnalyzer.check_volume">[docs]</a>    <span class="k">def</span> <span class="nf">check_volume</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># Basic check for volume of all voronoi poly sum to unit cell volume</span>
-        <span class="c1"># Note that this does not apply after poly combination.</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Basic check for volume of all voronoi poly sum to unit cell volume</span>
+<span class="sd">        Note that this does not apply after poly combination.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">vol</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">((</span><span class="n">v</span><span class="o">.</span><span class="n">volume</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vnodes</span><span class="p">))</span> <span class="o">+</span> <span class="nb">sum</span><span class="p">(</span>
             <span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">volume</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cation_vnodes</span><span class="p">))</span>
         <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">vol</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">volume</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1e-8</span><span class="p">:</span>
@@ -848,7 +852,9 @@
         <span class="k">return</span> <span class="n">new_s</span></div>
 
 <div class="viewcode-block" id="TopographyAnalyzer.print_stats"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.TopographyAnalyzer.print_stats">[docs]</a>    <span class="k">def</span> <span class="nf">print_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Print stats such as the MSE dist.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">latt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span>
 
         <span class="k">def</span> <span class="nf">get_min_dist</span><span class="p">(</span><span class="n">fcoords</span><span class="p">):</span>
@@ -873,12 +879,21 @@
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;MSE dist voro = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">get_non_framework_dist</span><span class="p">(</span><span class="n">voro</span><span class="p">)))</span></div>
 
 <div class="viewcode-block" id="TopographyAnalyzer.write_topology"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.TopographyAnalyzer.write_topology">[docs]</a>    <span class="k">def</span> <span class="nf">write_topology</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="s2">&quot;Topo.cif&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write topology to a file.</span>
+
+<span class="sd">        :param fname: Filename</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">new_s</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vnodes</span><span class="p">:</span>
             <span class="n">new_s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Mg&quot;</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
         <span class="n">new_s</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">fname</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TopographyAnalyzer.analyze_symmetry"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.TopographyAnalyzer.analyze_symmetry">[docs]</a>    <span class="k">def</span> <span class="nf">analyze_symmetry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param tol: Tolerance for SpaceGroupAnalyzer</span>
+<span class="sd">        :return: List</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">framework</span><span class="p">)</span>
         <span class="n">site_to_vindex</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vnodes</span><span class="p">):</span>
@@ -896,6 +911,9 @@
                 <span class="k">if</span> <span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span> <span class="o">==</span> <span class="s2">&quot;Li&quot;</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="TopographyAnalyzer.vtk"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.TopographyAnalyzer.vtk">[docs]</a>    <span class="k">def</span> <span class="nf">vtk</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Show VTK visualization.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">StructureVis</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;vtk must be present to view.&quot;</span><span class="p">)</span>
         <span class="n">lattice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span>
@@ -920,6 +938,13 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">frac_coords</span><span class="p">,</span> <span class="n">polyhedron_indices</span><span class="p">,</span> <span class="n">all_coords</span><span class="p">,</span>
                  <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param lattice:</span>
+<span class="sd">        :param frac_coords:</span>
+<span class="sd">        :param polyhedron_indices:</span>
+<span class="sd">        :param all_coords:</span>
+<span class="sd">        :param name:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span> <span class="o">=</span> <span class="n">lattice</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span> <span class="o">=</span> <span class="n">frac_coords</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">polyhedron_indices</span> <span class="o">=</span> <span class="n">polyhedron_indices</span>
@@ -927,6 +952,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
 
 <div class="viewcode-block" id="VoronoiPolyhedron.is_image"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.VoronoiPolyhedron.is_image">[docs]</a>    <span class="k">def</span> <span class="nf">is_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">poly</span><span class="p">,</span> <span class="n">tol</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param poly: VoronoiPolyhedron</span>
+<span class="sd">        :param tol: Coordinate tolerance.</span>
+<span class="sd">        :return: Whether a poly is an image of the current one.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">frac_diff</span> <span class="o">=</span> <span class="n">pbc_diff</span><span class="p">(</span><span class="n">poly</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">frac_diff</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">atol</span><span class="o">=</span><span class="n">tol</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">False</span>
@@ -944,10 +974,16 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">coordination</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Coordination number</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">polyhedron_indices</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">volume</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Volume</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">calculate_vol</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">polyhedron_coords</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -976,11 +1012,20 @@
 
 <div class="viewcode-block" id="ChargeDensityAnalyzer.from_file"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.ChargeDensityAnalyzer.from_file">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">chgcar_filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Init from a CHGCAR.</span>
+
+<span class="sd">        :param chgcar_filename:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">chgcar</span> <span class="o">=</span> <span class="n">Chgcar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">chgcar_filename</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">chgcar</span><span class="o">=</span><span class="n">chgcar</span><span class="p">)</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">charge_distribution_df</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Charge distribution.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_charge_distribution_df</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_charge_distribution_df</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
@@ -988,6 +1033,9 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">extrema_df</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: The extrema in charge density.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extrema_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                 <span class="s2">&quot;Please run ChargeDensityAnalyzer.get_local_extrema first!&quot;</span><span class="p">)</span>
@@ -1300,6 +1348,12 @@
 
 
 <div class="viewcode-block" id="calculate_vol"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.calculate_vol">[docs]</a><span class="k">def</span> <span class="nf">calculate_vol</span><span class="p">(</span><span class="n">coords</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate volume given a set of coords.</span>
+
+<span class="sd">    :param coords: List of coords.</span>
+<span class="sd">    :return: Volume</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
         <span class="n">coords_affine</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
         <span class="n">coords_affine</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
@@ -1466,7 +1520,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1474,7 +1528,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

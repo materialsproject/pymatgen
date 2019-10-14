@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.operations module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.core.operations module &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +43,7 @@
             
   <div class="section" id="module-pymatgen.core.operations">
 <span id="pymatgen-core-operations-module"></span><h1>pymatgen.core.operations module<a class="headerlink" href="#module-pymatgen.core.operations" title="Permalink to this headline">¶</a></h1>
+<p>This module provides classes that operate on points or vectors in 3D space.</p>
 <dl class="class">
 <dt id="pymatgen.core.operations.MagSymmOp">
 <em class="property">class </em><code class="sig-name descname">MagSymmOp</code><span class="sig-paren">(</span><em class="sig-param">affine_transformation_matrix</em>, <em class="sig-param">time_reversal</em>, <em class="sig-param">tol=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#MagSymmOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.MagSymmOp" title="Permalink to this definition">¶</a></dt>
@@ -71,7 +71,11 @@ affine transformation.</p></li>
 <dl class="method">
 <dt id="pymatgen.core.operations.MagSymmOp.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#MagSymmOp.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.MagSymmOp.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A JSON serializable dict representation of an object.</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>MSONABle dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -84,7 +88,15 @@ affine transformation.</p></li>
 <dl class="method">
 <dt id="pymatgen.core.operations.MagSymmOp.from_dict">
 <em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#MagSymmOp.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.MagSymmOp.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> – dict</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>MagneticSymmOp from dict representation.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.operations.MagSymmOp.from_rotation_and_translation_and_time_reversal">
@@ -218,7 +230,11 @@ translation vector.</p>
 <dl class="method">
 <dt id="pymatgen.core.operations.SymmOp.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A JSON serializable dict representation of an object.</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>MSONAble dict.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -252,7 +268,15 @@ radians. Or else, units of degrees are assumed.</p></li>
 <dl class="method">
 <dt id="pymatgen.core.operations.SymmOp.from_dict">
 <em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> – dict</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>SymmOp from dict representation.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.operations.SymmOp.from_origin_axis_angle">
@@ -463,13 +487,13 @@ full form, not the Voigt form.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

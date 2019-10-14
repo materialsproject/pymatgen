@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.alchemy.materials &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.alchemy.materials &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -49,12 +48,16 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides various representations of transformed structures. A</span>
+<span class="sd">TransformedStructure is a structure that has been modified by undergoing a</span>
+<span class="sd">series of transformations.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">datetime</span>
-<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
 
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MontyDecoder</span><span class="p">,</span> <span class="n">jsanitize</span>
 
@@ -66,12 +69,6 @@
 <span class="kn">from</span> <span class="nn">pymatgen.io.vasp.sets</span> <span class="k">import</span> <span class="n">MPRelaxSet</span>
 
 <span class="kn">from</span> <span class="nn">warnings</span> <span class="k">import</span> <span class="n">warn</span>
-
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This module provides various representations of transformed structures. A</span>
-<span class="sd">TransformedStructure is a structure that has been modified by undergoing a</span>
-<span class="sd">series of transformations.</span>
-<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong, Will Richards&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
@@ -250,7 +247,7 @@
 
 <div class="viewcode-block" id="TransformedStructure.write_vasp_input"><a class="viewcode-back" href="../../../pymatgen.alchemy.materials.html#pymatgen.alchemy.materials.TransformedStructure.write_vasp_input">[docs]</a>    <span class="k">def</span> <span class="nf">write_vasp_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vasp_input_set</span><span class="o">=</span><span class="n">MPRelaxSet</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span>
                          <span class="n">create_directory</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Writes VASP input to an output_dir.</span>
 
 <span class="sd">        Args:</span>
@@ -260,7 +257,7 @@
 <span class="sd">            output_dir: Directory to output files</span>
 <span class="sd">            create_directory: Create the directory if not present. Defaults to</span>
 <span class="sd">                True.</span>
-<span class="sd">            \\*\\*kwargs: All keyword args supported by the VASP input set.</span>
+<span class="sd">            **kwargs: All keyword args supported by the VASP input set.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">vasp_input_set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">final_structure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">write_input</span><span class="p">(</span>
             <span class="n">output_dir</span><span class="p">,</span> <span class="n">make_dir_if_not_present</span><span class="o">=</span><span class="n">create_directory</span><span class="p">)</span>
@@ -281,6 +278,12 @@
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
 
 <div class="viewcode-block" id="TransformedStructure.set_parameter"><a class="viewcode-back" href="../../../pymatgen.alchemy.materials.html#pymatgen.alchemy.materials.TransformedStructure.set_parameter">[docs]</a>    <span class="k">def</span> <span class="nf">set_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set a parameter</span>
+
+<span class="sd">        :param key: The string key</span>
+<span class="sd">        :param value: The value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">other_parameters</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span></div>
 
     <span class="nd">@property</span>
@@ -386,8 +389,14 @@
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">history</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;history&quot;</span><span class="p">],</span>
                    <span class="n">other_parameters</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;other_parameters&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="TransformedStructure.to_snl"><a class="viewcode-back" href="../../../pymatgen.alchemy.materials.html#pymatgen.alchemy.materials.TransformedStructure.to_snl">[docs]</a>    <span class="k">def</span> <span class="nf">to_snl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">authors</span><span class="p">,</span> <span class="n">projects</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">references</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">remarks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">created_at</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="TransformedStructure.to_snl"><a class="viewcode-back" href="../../../pymatgen.alchemy.materials.html#pymatgen.alchemy.materials.TransformedStructure.to_snl">[docs]</a>    <span class="k">def</span> <span class="nf">to_snl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">authors</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate SNL from TransformedStructure.</span>
+
+<span class="sd">        :param authors: List of authors</span>
+<span class="sd">        :param **kwargs: All kwargs supported by StructureNL.</span>
+<span class="sd">        :return: StructureNL</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">other_parameters</span><span class="p">:</span>
             <span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Data in TransformedStructure.other_parameters discarded &#39;</span>
                  <span class="s1">&#39;during type conversion to SNL&#39;</span><span class="p">)</span>
@@ -399,8 +408,7 @@
                              <span class="s1">&#39;url&#39;</span><span class="p">,</span> <span class="s1">&#39;http://pypi.python.org/pypi/pymatgen&#39;</span><span class="p">),</span>
                          <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="n">h</span><span class="p">})</span>
         <span class="kn">from</span> <span class="nn">pymatgen.util.provenance</span> <span class="k">import</span> <span class="n">StructureNL</span>
-        <span class="k">return</span> <span class="n">StructureNL</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">final_structure</span><span class="p">,</span> <span class="n">authors</span><span class="p">,</span> <span class="n">projects</span><span class="p">,</span> <span class="n">references</span><span class="p">,</span>
-                           <span class="n">remarks</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">hist</span><span class="p">,</span> <span class="n">created_at</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">StructureNL</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">final_structure</span><span class="p">,</span> <span class="n">authors</span><span class="p">,</span> <span class="n">history</span><span class="o">=</span><span class="n">hist</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TransformedStructure.from_snl"><a class="viewcode-back" href="../../../pymatgen.alchemy.materials.html#pymatgen.alchemy.materials.TransformedStructure.from_snl">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_snl</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">snl</span><span class="p">):</span>
@@ -449,7 +457,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -457,7 +465,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

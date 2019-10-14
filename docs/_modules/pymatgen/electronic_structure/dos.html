@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.electronic_structure.dos &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.electronic_structure.dos &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -49,6 +48,10 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module defines classes to represent the density of states, etc.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">functools</span>
@@ -59,10 +62,6 @@
 <span class="kn">from</span> <span class="nn">pymatgen.core.spectrum</span> <span class="k">import</span> <span class="n">Spectrum</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="k">import</span> <span class="n">get_linear_interpolated_value</span>
 <span class="kn">from</span> <span class="nn">scipy.constants.codata</span> <span class="k">import</span> <span class="n">value</span> <span class="k">as</span> <span class="n">_cd</span>
-
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This module defines classes to represent the density of states, etc.</span>
-<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
@@ -76,14 +75,6 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Replacement basic DOS object. All other DOS objects are extended versions</span>
 <span class="sd">    of this object. Work in progress.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        energies: A sequence of energies</span>
-<span class="sd">        densities (ndarray): Either a Nx1 or a Nx2 array. If former, it is</span>
-<span class="sd">            interpreted as a Spin.up only density. Otherwise, the first column</span>
-<span class="sd">            is interpreted as Spin.up and the other is Spin.down.</span>
-<span class="sd">        efermi: Fermi level energy.</span>
-
 
 <span class="sd">    .. attribute: energies</span>
 
@@ -101,6 +92,14 @@
     <span class="n">YLABEL</span> <span class="o">=</span> <span class="s2">&quot;Density&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energies</span><span class="p">,</span> <span class="n">densities</span><span class="p">,</span> <span class="n">efermi</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            energies: A sequence of energies</span>
+<span class="sd">            densities (ndarray): Either a Nx1 or a Nx2 array. If former, it is</span>
+<span class="sd">                interpreted as a Spin.up only density. Otherwise, the first column</span>
+<span class="sd">                is interpreted as Spin.up and the other is Spin.down.</span>
+<span class="sd">            efermi: Fermi level energy.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">densities</span><span class="p">,</span> <span class="n">efermi</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span> <span class="o">=</span> <span class="n">efermi</span>
 
@@ -229,12 +228,6 @@
 <span class="sd">    Basic DOS object. All other DOS objects are extended versions of this</span>
 <span class="sd">    object.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        efermi: Fermi level energy</span>
-<span class="sd">        energies: A sequences of energies</span>
-<span class="sd">        densities ({Spin: np.array}): representing the density of states</span>
-<span class="sd">            for each Spin.</span>
-
 <span class="sd">    .. attribute: energies</span>
 
 <span class="sd">        The sequence of energies</span>
@@ -249,6 +242,13 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">efermi</span><span class="p">,</span> <span class="n">energies</span><span class="p">,</span> <span class="n">densities</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            efermi: Fermi level energy</span>
+<span class="sd">            energies: A sequences of energies</span>
+<span class="sd">            densities ({Spin: np.array}): representing the density of states</span>
+<span class="sd">                for each Spin.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span> <span class="o">=</span> <span class="n">efermi</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">energies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">energies</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">densities</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">densities</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
@@ -467,21 +467,22 @@
 <span class="sd">    doping concentration indicates the majority carriers are electrons</span>
 <span class="sd">    (n-type doping); a positive doping concentration indicates holes are the</span>
 <span class="sd">    majority carriers (p-type doping).</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        dos: Pymatgen Dos object.</span>
-<span class="sd">        structure: A structure. If not provided, the structure</span>
-<span class="sd">            of the dos object will be used. If the dos does not have an</span>
-<span class="sd">            associated structure object, an error will be thrown.</span>
-<span class="sd">        nelecs: The number of electrons included in the energy range of</span>
-<span class="sd">            dos. It is used for normalizing the densities. Default is the total</span>
-<span class="sd">            number of electrons in the structure.</span>
-<span class="sd">        bandgap: If set, the energy values are scissored so that the electronic</span>
-<span class="sd">            band gap matches this value.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dos</span><span class="p">:</span> <span class="n">Dos</span><span class="p">,</span> <span class="n">structure</span><span class="p">:</span> <span class="n">Structure</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">nelecs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">bandgap</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            dos: Pymatgen Dos object.</span>
+<span class="sd">            structure: A structure. If not provided, the structure</span>
+<span class="sd">                of the dos object will be used. If the dos does not have an</span>
+<span class="sd">                associated structure object, an error will be thrown.</span>
+<span class="sd">            nelecs: The number of electrons included in the energy range of</span>
+<span class="sd">                dos. It is used for normalizing the densities. Default is the total</span>
+<span class="sd">                number of electrons in the structure.</span>
+<span class="sd">            bandgap: If set, the energy values are scissored so that the electronic</span>
+<span class="sd">                band gap matches this value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">dos</span><span class="o">.</span><span class="n">efermi</span><span class="p">,</span> <span class="n">energies</span><span class="o">=</span><span class="n">dos</span><span class="o">.</span><span class="n">energies</span><span class="p">,</span>
                          <span class="n">densities</span><span class="o">=</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span>
                                     <span class="n">dos</span><span class="o">.</span><span class="n">densities</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
@@ -637,12 +638,12 @@
 <span class="sd">            dos.efermi.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">fermi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span>  <span class="c1"># initialize target fermi</span>
-        <span class="n">relative_error</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
+        <span class="n">relative_error</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)]</span>
         <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">precision</span><span class="p">):</span>
             <span class="n">frange</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">nstep</span><span class="p">,</span> <span class="n">nstep</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">step</span> <span class="o">+</span> <span class="n">fermi</span>
             <span class="n">calc_doping</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">get_doping</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">temperature</span><span class="p">)</span>
                                     <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">frange</span><span class="p">])</span>
-            <span class="n">relative_error</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">calc_doping</span> <span class="o">/</span> <span class="n">concentration</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span>
+            <span class="n">relative_error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">calc_doping</span> <span class="o">/</span> <span class="n">concentration</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span>
             <span class="n">fermi</span> <span class="o">=</span> <span class="n">frange</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">relative_error</span><span class="p">)]</span>
             <span class="n">step</span> <span class="o">/=</span> <span class="mf">10.0</span>
 
@@ -681,12 +682,6 @@
 <span class="sd">    a vasprun.xml file. You are unlikely to try to generate this object</span>
 <span class="sd">    manually.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        structure: Structure associated with this particular DOS.</span>
-<span class="sd">        total_dos: total Dos for structure</span>
-<span class="sd">        pdoss: The pdoss are supplied as an {Site:{Orbital:{</span>
-<span class="sd">            Spin:Densities}}}</span>
-
 <span class="sd">    .. attribute:: structure</span>
 
 <span class="sd">        Structure associated with the CompleteDos.</span>
@@ -697,6 +692,13 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">total_dos</span><span class="p">,</span> <span class="n">pdoss</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure: Structure associated with this particular DOS.</span>
+<span class="sd">            total_dos: total Dos for structure</span>
+<span class="sd">            pdoss: The pdoss are supplied as an {Site:{Orbital:{</span>
+<span class="sd">                Spin:Densities}}}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">total_dos</span><span class="o">.</span><span class="n">efermi</span><span class="p">,</span> <span class="n">energies</span><span class="o">=</span><span class="n">total_dos</span><span class="o">.</span><span class="n">energies</span><span class="p">,</span>
             <span class="n">densities</span><span class="o">=</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">total_dos</span><span class="o">.</span><span class="n">densities</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
@@ -1124,7 +1126,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1132,7 +1134,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

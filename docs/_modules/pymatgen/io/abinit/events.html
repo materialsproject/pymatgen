@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.abinit.events &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.io.abinit.events &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -146,7 +145,7 @@
 <span class="sd">            src_file: String with the name of the Fortran file where the event is raised.</span>
 <span class="sd">            src_line Integer giving the line number in src_file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1">#print(&quot;src_file&quot;, src_file, &quot;src_line&quot;, src_line)</span>
+        <span class="c1"># print(&quot;src_file&quot;, src_file, &quot;src_line&quot;, src_line)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">src_file</span> <span class="o">=</span> <span class="n">src_file</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">src_line</span> <span class="o">=</span> <span class="n">src_line</span>
@@ -178,7 +177,8 @@
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">message</span>
 
     <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
@@ -257,6 +257,7 @@
 <span class="sd">    Raised if the YAML parser cannot parse the document and the doc tas is a Warning.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+
 <span class="c1">###############################</span>
 <span class="c1"># Warnings triggering restart #</span>
 <span class="c1">###############################</span>
@@ -277,7 +278,7 @@
 
 
 <span class="c1"># TODO: for the time being we don&#39;t discern between GS and PhononCalculations.</span>
-<span class="c1">#class PhononConvergenceWarning(AbinitCriticalWarning):</span>
+<span class="c1"># class PhononConvergenceWarning(AbinitCriticalWarning):</span>
 <span class="c1">#    &quot;&quot;&quot;Warning raised when the phonon calculation did not converge.&quot;&quot;&quot;</span>
 <span class="c1">#    yaml_tag = u&#39;!PhononConvergenceWarning&#39;</span>
 
@@ -311,6 +312,7 @@
 
 <span class="sd">        stat: information about a file as returned by os.stat</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        List of ABINIT events.</span>
@@ -340,7 +342,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">[</span><span class="nb">slice</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1">#has_colours = stream_has_colours(stream)</span>
+        <span class="c1"># has_colours = stream_has_colours(stream)</span>
         <span class="n">has_colours</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
@@ -349,10 +351,10 @@
         <span class="n">app</span><span class="p">(</span><span class="s2">&quot;Events found in </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">event</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">has_colours</span><span class="p">:</span>
-                <span class="n">app</span><span class="p">(</span><span class="s2">&quot;[</span><span class="si">%d</span><span class="s2">] </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">colored</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">header</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">event</span><span class="o">.</span><span class="n">color</span><span class="p">)))</span>
+                <span class="n">app</span><span class="p">(</span><span class="s2">&quot;[</span><span class="si">%d</span><span class="s2">] </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">colored</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">header</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">event</span><span class="o">.</span><span class="n">color</span><span class="p">)))</span>
                 <span class="n">app</span><span class="p">(</span><span class="n">indent</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">app</span><span class="p">(</span><span class="s2">&quot;[</span><span class="si">%d</span><span class="s2">] </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">event</span><span class="p">)))</span>
+                <span class="n">app</span><span class="p">(</span><span class="s2">&quot;[</span><span class="si">%d</span><span class="s2">] </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">event</span><span class="p">)))</span>
 
         <span class="n">app</span><span class="p">(</span><span class="s2">&quot;num_errors: </span><span class="si">%s</span><span class="s2">, num_warnings: </span><span class="si">%s</span><span class="s2">, num_comments: </span><span class="si">%s</span><span class="s2">, completed: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">num_errors</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_warnings</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_comments</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_completed</span><span class="p">))</span>
@@ -434,7 +436,8 @@
     <span class="k">def</span> <span class="nf">filter_types</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_types</span><span class="p">):</span>
         <span class="n">events</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">ev</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">ev</span><span class="p">)</span> <span class="ow">in</span> <span class="n">event_types</span><span class="p">:</span> <span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ev</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">ev</span><span class="p">)</span> <span class="ow">in</span> <span class="n">event_types</span><span class="p">:</span>
+                <span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ev</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="n">events</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">get_events_of_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_class</span><span class="p">):</span>
@@ -474,14 +477,14 @@
         <span class="k">with</span> <span class="n">YamlTokenizer</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">tokens</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">w</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">tag</span><span class="p">):</span>
-                    <span class="c1">#print(&quot;got doc.tag&quot;, doc.tag,&quot;--&quot;)</span>
+                    <span class="c1"># print(&quot;got doc.tag&quot;, doc.tag,&quot;--&quot;)</span>
                     <span class="k">try</span><span class="p">:</span>
-                        <span class="c1">#print(doc.text)</span>
-                        <span class="n">event</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>   <span class="c1"># Can&#39;t use ruamel safe_load!</span>
-                        <span class="c1">#yaml.load(doc.text, Loader=ruamel.yaml.Loader)</span>
-                        <span class="c1">#print(event.yaml_tag, type(event))</span>
+                        <span class="c1"># print(doc.text)</span>
+                        <span class="n">event</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>  <span class="c1"># Can&#39;t use ruamel safe_load!</span>
+                        <span class="c1"># yaml.load(doc.text, Loader=ruamel.yaml.Loader)</span>
+                        <span class="c1"># print(event.yaml_tag, type(event))</span>
                     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                        <span class="c1">#raise</span>
+                        <span class="c1"># raise</span>
                         <span class="c1"># Wrong YAML doc. Check tha doc tag and instantiate the proper event.</span>
                         <span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Malformatted YAML document at line: </span><span class="si">%d</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">doc</span><span class="o">.</span><span class="n">lineno</span>
                         <span class="n">message</span> <span class="o">+=</span> <span class="n">doc</span><span class="o">.</span><span class="n">text</span>
@@ -501,10 +504,10 @@
 
                 <span class="c1"># Check whether the calculation completed.</span>
                 <span class="k">if</span> <span class="n">doc</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;!FinalSummary&quot;</span><span class="p">:</span>
-                    <span class="c1">#print(doc)</span>
+                    <span class="c1"># print(doc)</span>
                     <span class="n">run_completed</span> <span class="o">=</span> <span class="kc">True</span>
                     <span class="n">d</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
-                    <span class="c1">#print(d)</span>
+                    <span class="c1"># print(d)</span>
                     <span class="n">start_datetime</span><span class="p">,</span> <span class="n">end_datetime</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;start_datetime&quot;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;end_datetime&quot;</span><span class="p">]</span>
 
         <span class="n">report</span><span class="o">.</span><span class="n">set_run_completed</span><span class="p">(</span><span class="n">run_completed</span><span class="p">,</span> <span class="n">start_datetime</span><span class="p">,</span> <span class="n">end_datetime</span><span class="p">)</span>
@@ -558,7 +561,7 @@
     <span class="n">event_class</span> <span class="o">=</span> <span class="n">AbinitEvent</span>
     <span class="sd">&quot;&quot;&quot;AbinitEvent subclass associated to this handler.&quot;&quot;&quot;</span>
 
-    <span class="c1">#can_change_physics</span>
+    <span class="c1"># can_change_physics</span>
 
     <span class="n">FIXED</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">NOT_FIXED</span> <span class="o">=</span> <span class="mi">0</span>
@@ -636,7 +639,8 @@
 <span class="sd">            &quot;&quot;&quot;</span>
             <span class="n">new_d</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span> <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
                 <span class="n">new_d</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
 
             <span class="k">return</span> <span class="n">new_d</span>
@@ -687,11 +691,11 @@
                    <span class="n">event</span><span class="o">=</span><span class="n">dec</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">]),</span> <span class="n">reset</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;reset&#39;</span><span class="p">])</span></div></div>
 
 
-<span class="c1">#class WarningHandler(EventHandler):</span>
+<span class="c1"># class WarningHandler(EventHandler):</span>
 <span class="c1">#    &quot;&quot;&quot;Base class for handlers associated to ABINIT warnings.&quot;&quot;&quot;</span>
 <span class="c1">#    event_class = AbinitWarning</span>
 <span class="c1">#</span>
-<span class="c1">#class BugHandler(EventHandler):</span>
+<span class="c1"># class BugHandler(EventHandler):</span>
 <span class="c1">#    &quot;&quot;&quot;Base class for handlers associated to ABINIT bugs.&quot;&quot;&quot;</span>
 <span class="c1">#    event_class = AbinitBug</span>
 
@@ -700,7 +704,8 @@
     <span class="sd">&quot;&quot;&quot;Base class for handlers associated to ABINIT errors.&quot;&quot;&quot;</span>
     <span class="n">event_class</span> <span class="o">=</span> <span class="n">AbinitError</span>
 
-<span class="n">_ABC_EVHANDLER_CLASSES</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">ErrorHandler</span><span class="p">,])</span>
+
+<span class="n">_ABC_EVHANDLER_CLASSES</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">ErrorHandler</span><span class="p">,</span> <span class="p">])</span>
 
 
 <span class="c1"># Public API</span>
@@ -711,7 +716,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="bp">cls</span> <span class="ow">in</span> <span class="n">all_subclasses</span><span class="p">(</span><span class="n">EventHandler</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">cls</span> <span class="ow">in</span> <span class="n">_ABC_EVHANDLER_CLASSES</span><span class="p">:</span> <span class="k">continue</span>
+        <span class="k">if</span> <span class="bp">cls</span> <span class="ow">in</span> <span class="n">_ABC_EVHANDLER_CLASSES</span><span class="p">:</span>
+            <span class="k">continue</span>
         <span class="n">event_class</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">event_class</span>
         <span class="n">lines</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">cls2str</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">))</span>
 
@@ -736,7 +742,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">is_string</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">all_subclasses</span><span class="p">(</span><span class="n">AbinitEvent</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="n">obj</span> <span class="ow">or</span> <span class="n">c</span><span class="o">.</span><span class="n">yaml_tag</span> <span class="o">==</span> <span class="n">obj</span><span class="p">:</span> <span class="k">return</span> <span class="n">c</span>
+            <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="n">obj</span> <span class="ow">or</span> <span class="n">c</span><span class="o">.</span><span class="n">yaml_tag</span> <span class="o">==</span> <span class="n">obj</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">c</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot find event class associated to </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">obj</span><span class="p">)</span>
 
     <span class="c1"># Assume class.</span>
@@ -745,7 +752,7 @@
 
 
 <span class="c1">############################################</span>
-<span class="c1">########## Concrete classes ################</span>
+<span class="c1"># Concrete classes ################</span>
 <span class="c1">############################################</span>
 
 <div class="viewcode-block" id="DilatmxError"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.events.html#pymatgen.io.abinit.events.DilatmxError">[docs]</a><span class="k">class</span> <span class="nc">DilatmxError</span><span class="p">(</span><span class="n">AbinitError</span><span class="p">):</span>
@@ -783,13 +790,15 @@
 
         <span class="n">task</span><span class="o">.</span><span class="n">_change_structure</span><span class="p">(</span><span class="n">last_structure</span><span class="p">)</span>
 
-        <span class="c1">#read the suggested dilatmx</span>
+        <span class="c1"># read the suggested dilatmx</span>
         <span class="c1"># new_dilatmx = 1.05</span>
         <span class="c1"># if new_dilatmx &gt; self.max_dilatmx:</span>
-        <span class="c1">#     msg = &quot;Suggested dilatmx ({}) exceeds maximux configured value ({}).&quot;.format(new_dilatmx, self.max_dilatmx)</span>
+        <span class="c1">#     msg = &quot;Suggested dilatmx ({}) exceeds maximux configured value ({}).&quot;.format(new_dilatmx,</span>
+        <span class="c1">#     self.max_dilatmx)</span>
         <span class="c1">#     return self.NOT_FIXED</span>
         <span class="c1"># task.strategy.abinit_input.set_vars(dilatmx=new_dilatmx)</span>
-        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Take last structure from DILATMX_STRUCT.nc, will try to restart with dilatmx </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">task</span><span class="o">.</span><span class="n">get_inpvar</span><span class="p">(</span><span class="s2">&quot;dilatmx&quot;</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Take last structure from DILATMX_STRUCT.nc, will try to restart with dilatmx </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">task</span><span class="o">.</span><span class="n">get_inpvar</span><span class="p">(</span>
+            <span class="s2">&quot;dilatmx&quot;</span><span class="p">)</span>
         <span class="n">task</span><span class="o">.</span><span class="n">log_correction</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
         <span class="c1"># Note that we change the structure but we don&#39;t try restart from the previous WFK|DEN file</span>
         <span class="c1"># because Abinit called mpi_abort and therefore no final WFK|DEN file has been produced.</span>
@@ -803,7 +812,7 @@
             <span class="n">filepath</span> <span class="o">=</span> <span class="n">outdir</span><span class="o">.</span><span class="n">has_abiext</span><span class="p">(</span><span class="s2">&quot;DILATMX_STRUCT.nc&quot;</span><span class="p">)</span>
             <span class="n">last_structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
             <span class="n">abiinput</span><span class="o">.</span><span class="n">set_structure</span><span class="p">(</span><span class="n">last_structure</span><span class="p">)</span>
-            <span class="c1">#FIXME restart from DEN files not always working with interpolation</span>
+            <span class="c1"># FIXME restart from DEN files not always working with interpolation</span>
             <span class="k">return</span> <span class="n">Correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">compare_inputs</span><span class="p">(</span><span class="n">abiinput</span><span class="p">,</span> <span class="n">old_abiinput</span><span class="p">),</span> <span class="n">event</span><span class="p">,</span> <span class="n">reset</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="c1"># return Correction(self, self.compare_inputs(abiinput, old_abiinput), event, event=False)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
@@ -913,15 +922,14 @@
     <span class="n">can_change_physics</span> <span class="o">=</span> <span class="kc">False</span>
 
     <span class="k">def</span> <span class="nf">handle_task_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-
-      <span class="n">task</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">increase_resources</span><span class="p">()</span>
-      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">FIXED</span>
+        <span class="n">task</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">increase_resources</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">FIXED</span>
 
     <span class="k">def</span> <span class="nf">handle_input_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">abiinput</span><span class="p">,</span> <span class="n">outdir</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-      <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">      Shouldn&#39;t do anything on the input</span>
-<span class="sd">      &quot;&quot;&quot;</span>
-      <span class="k">return</span> <span class="kc">None</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Shouldn&#39;t do anything on the input</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">None</span>
 </pre></div>
 
           </div>
@@ -952,7 +960,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -960,7 +968,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

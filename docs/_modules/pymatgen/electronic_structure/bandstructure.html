@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.electronic_structure.bandstructure &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.electronic_structure.bandstructure &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -49,6 +48,9 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides classes to define everything related to band structures.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">re</span>
@@ -65,10 +67,6 @@
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="k">import</span> <span class="n">pbc_diff</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This module provides classes to define everything related to band structures.</span>
-<span class="sd">&quot;&quot;&quot;</span>
-
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Geoffroy Hautier, Shyue Ping Ong, Michael Kocher&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
@@ -83,21 +81,22 @@
 <span class="sd">    Class to store kpoint objects. A kpoint is defined with a lattice and frac</span>
 <span class="sd">    or cartesian coordinates syntax similar than the site object in</span>
 <span class="sd">    pymatgen.core.structure.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        coords: coordinate of the kpoint as a numpy array</span>
-<span class="sd">        lattice: A pymatgen.core.lattice.Lattice lattice object representing</span>
-<span class="sd">            the reciprocal lattice of the kpoint</span>
-<span class="sd">        to_unit_cell: Translates fractional coordinate to the basic unit</span>
-<span class="sd">            cell, i.e., all fractional coordinates satisfy 0 &lt;= a &lt; 1.</span>
-<span class="sd">            Defaults to False.</span>
-<span class="sd">        coords_are_cartesian: Boolean indicating if the coordinates given are</span>
-<span class="sd">            in cartesian or fractional coordinates (by default fractional)</span>
-<span class="sd">        label: the label of the kpoint if any (None by default)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            coords: coordinate of the kpoint as a numpy array</span>
+<span class="sd">            lattice: A pymatgen.core.lattice.Lattice lattice object representing</span>
+<span class="sd">                the reciprocal lattice of the kpoint</span>
+<span class="sd">            to_unit_cell: Translates fractional coordinate to the basic unit</span>
+<span class="sd">                cell, i.e., all fractional coordinates satisfy 0 &lt;= a &lt; 1.</span>
+<span class="sd">                Defaults to False.</span>
+<span class="sd">            coords_are_cartesian: Boolean indicating if the coordinates given are</span>
+<span class="sd">                in cartesian or fractional coordinates (by default fractional)</span>
+<span class="sd">            label: the label of the kpoint if any (None by default)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span> <span class="o">=</span> <span class="n">lattice</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_fcoords</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_fractional_coords</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span> \
             <span class="k">if</span> <span class="n">coords_are_cartesian</span> <span class="k">else</span> <span class="n">coords</span>
@@ -218,34 +217,35 @@
 <span class="sd">        ndarray is necessary for computational as well as memory efficiency</span>
 <span class="sd">        due to the large amount of numerical data. The indices of the ndarray</span>
 <span class="sd">        are [band_index, kpoint_index, orbital_index, ion_index].</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        kpoints: list of kpoint as numpy arrays, in frac_coords of the</span>
-<span class="sd">            given lattice by default</span>
-<span class="sd">        eigenvals: dict of energies for spin up and spin down</span>
-<span class="sd">            {Spin.up:[][],Spin.down:[][]}, the first index of the array</span>
-<span class="sd">            [][] refers to the band and the second to the index of the</span>
-<span class="sd">            kpoint. The kpoints are ordered according to the order of the</span>
-<span class="sd">            kpoints array. If the band structure is not spin polarized, we</span>
-<span class="sd">            only store one data set under Spin.up</span>
-<span class="sd">        lattice: The reciprocal lattice as a pymatgen Lattice object.</span>
-<span class="sd">            Pymatgen uses the physics convention of reciprocal lattice vectors</span>
-<span class="sd">            WITH a 2*pi coefficient</span>
-<span class="sd">        efermi: fermi energy</span>
-<span class="sd">        labels_dict: (dict) of {} this links a kpoint (in frac coords or</span>
-<span class="sd">            cartesian coordinates depending on the coords) to a label.</span>
-<span class="sd">        coords_are_cartesian: Whether coordinates are cartesian.</span>
-<span class="sd">        structure: The crystal structure (as a pymatgen Structure object)</span>
-<span class="sd">            associated with the band structure. This is needed if we</span>
-<span class="sd">            provide projections to the band structure</span>
-<span class="sd">        projections: dict of orbital projections as {spin: ndarray}. The</span>
-<span class="sd">            indices of the ndarrayare [band_index, kpoint_index, orbital_index,</span>
-<span class="sd">            ion_index].If the band structure is not spin polarized, we only</span>
-<span class="sd">            store one data set under Spin.up.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kpoints</span><span class="p">,</span> <span class="n">eigenvals</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">efermi</span><span class="p">,</span> <span class="n">labels_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">projections</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            kpoints: list of kpoint as numpy arrays, in frac_coords of the</span>
+<span class="sd">                given lattice by default</span>
+<span class="sd">            eigenvals: dict of energies for spin up and spin down</span>
+<span class="sd">                {Spin.up:[][],Spin.down:[][]}, the first index of the array</span>
+<span class="sd">                [][] refers to the band and the second to the index of the</span>
+<span class="sd">                kpoint. The kpoints are ordered according to the order of the</span>
+<span class="sd">                kpoints array. If the band structure is not spin polarized, we</span>
+<span class="sd">                only store one data set under Spin.up</span>
+<span class="sd">            lattice: The reciprocal lattice as a pymatgen Lattice object.</span>
+<span class="sd">                Pymatgen uses the physics convention of reciprocal lattice vectors</span>
+<span class="sd">                WITH a 2*pi coefficient</span>
+<span class="sd">            efermi: fermi energy</span>
+<span class="sd">            labels_dict: (dict) of {} this links a kpoint (in frac coords or</span>
+<span class="sd">                cartesian coordinates depending on the coords) to a label.</span>
+<span class="sd">            coords_are_cartesian: Whether coordinates are cartesian.</span>
+<span class="sd">            structure: The crystal structure (as a pymatgen Structure object)</span>
+<span class="sd">                associated with the band structure. This is needed if we</span>
+<span class="sd">                provide projections to the band structure</span>
+<span class="sd">            projections: dict of orbital projections as {spin: ndarray}. The</span>
+<span class="sd">                indices of the ndarrayare [band_index, kpoint_index, orbital_index,</span>
+<span class="sd">                ion_index].If the band structure is not spin polarized, we only</span>
+<span class="sd">                store one data set under Spin.up.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span> <span class="o">=</span> <span class="n">efermi</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lattice_rec</span> <span class="o">=</span> <span class="n">lattice</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span> <span class="o">=</span> <span class="p">[]</span>
@@ -473,7 +473,7 @@
                 <span class="s1">&#39;projections&#39;</span><span class="p">:</span> <span class="n">proj</span><span class="p">}</span></div>
 
 <div class="viewcode-block" id="BandStructure.get_band_gap"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.bandstructure.html#pymatgen.electronic_structure.bandstructure.BandStructure.get_band_gap">[docs]</a>    <span class="k">def</span> <span class="nf">get_band_gap</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns band gap data.</span>
 
 <span class="sd">        Returns:</span>
@@ -696,39 +696,40 @@
 
 
 <div class="viewcode-block" id="BandStructureSymmLine"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.bandstructure.html#pymatgen.electronic_structure.bandstructure.BandStructureSymmLine">[docs]</a><span class="k">class</span> <span class="nc">BandStructureSymmLine</span><span class="p">(</span><span class="n">BandStructure</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This object stores band structures along selected (symmetry) lines in the</span>
 <span class="sd">    Brillouin zone. We call the different symmetry lines (ex: \\Gamma to Z)</span>
 <span class="sd">    &quot;branches&quot;.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        kpoints: list of kpoint as numpy arrays, in frac_coords of the</span>
-<span class="sd">            given lattice by default</span>
-<span class="sd">        eigenvals: dict of energies for spin up and spin down</span>
-<span class="sd">            {Spin.up:[][],Spin.down:[][]}, the first index of the array</span>
-<span class="sd">            [][] refers to the band and the second to the index of the</span>
-<span class="sd">            kpoint. The kpoints are ordered according to the order of the</span>
-<span class="sd">            kpoints array. If the band structure is not spin polarized, we</span>
-<span class="sd">            only store one data set under Spin.up.</span>
-<span class="sd">        lattice: The reciprocal lattice.</span>
-<span class="sd">            Pymatgen uses the physics convention of reciprocal lattice vectors</span>
-<span class="sd">            WITH a 2*pi coefficient</span>
-<span class="sd">        efermi: fermi energy</span>
-<span class="sd">        label_dict: (dict) of {} this link a kpoint (in frac coords or</span>
-<span class="sd">            cartesian coordinates depending on the coords).</span>
-<span class="sd">        coords_are_cartesian: Whether coordinates are cartesian.</span>
-<span class="sd">        structure: The crystal structure (as a pymatgen Structure object)</span>
-<span class="sd">            associated with the band structure. This is needed if we</span>
-<span class="sd">            provide projections to the band structure.</span>
-<span class="sd">        projections: dict of orbital projections as {spin: ndarray}. The</span>
-<span class="sd">            indices of the ndarrayare [band_index, kpoint_index, orbital_index,</span>
-<span class="sd">            ion_index].If the band structure is not spin polarized, we only</span>
-<span class="sd">            store one data set under Spin.up.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kpoints</span><span class="p">,</span> <span class="n">eigenvals</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">efermi</span><span class="p">,</span> <span class="n">labels_dict</span><span class="p">,</span>
                  <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">projections</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            kpoints: list of kpoint as numpy arrays, in frac_coords of the</span>
+<span class="sd">                given lattice by default</span>
+<span class="sd">            eigenvals: dict of energies for spin up and spin down</span>
+<span class="sd">                {Spin.up:[][],Spin.down:[][]}, the first index of the array</span>
+<span class="sd">                [][] refers to the band and the second to the index of the</span>
+<span class="sd">                kpoint. The kpoints are ordered according to the order of the</span>
+<span class="sd">                kpoints array. If the band structure is not spin polarized, we</span>
+<span class="sd">                only store one data set under Spin.up.</span>
+<span class="sd">            lattice: The reciprocal lattice.</span>
+<span class="sd">                Pymatgen uses the physics convention of reciprocal lattice vectors</span>
+<span class="sd">                WITH a 2*pi coefficient</span>
+<span class="sd">            efermi: fermi energy</span>
+<span class="sd">            label_dict: (dict) of {} this link a kpoint (in frac coords or</span>
+<span class="sd">                cartesian coordinates depending on the coords).</span>
+<span class="sd">            coords_are_cartesian: Whether coordinates are cartesian.</span>
+<span class="sd">            structure: The crystal structure (as a pymatgen Structure object)</span>
+<span class="sd">                associated with the band structure. This is needed if we</span>
+<span class="sd">                provide projections to the band structure.</span>
+<span class="sd">            projections: dict of orbital projections as {spin: ndarray}. The</span>
+<span class="sd">                indices of the ndarrayare [band_index, kpoint_index, orbital_index,</span>
+<span class="sd">                ion_index].If the band structure is not spin polarized, we only</span>
+<span class="sd">                store one data set under Spin.up.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">kpoints</span><span class="p">,</span> <span class="n">eigenvals</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">efermi</span><span class="p">,</span> <span class="n">labels_dict</span><span class="p">,</span>
             <span class="n">coords_are_cartesian</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">projections</span><span class="p">)</span>
@@ -799,7 +800,7 @@
         <span class="k">return</span> <span class="n">list_index_kpoints</span></div>
 
 <div class="viewcode-block" id="BandStructureSymmLine.get_branch"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.bandstructure.html#pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.get_branch">[docs]</a>    <span class="k">def</span> <span class="nf">get_branch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns in what branch(es) is the kpoint. There can be several</span>
 <span class="sd">        branches.</span>
 
@@ -1006,6 +1007,9 @@
 
 
 <div class="viewcode-block" id="LobsterBandStructureSymmLine"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.bandstructure.html#pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine">[docs]</a><span class="k">class</span> <span class="nc">LobsterBandStructureSymmLine</span><span class="p">(</span><span class="n">BandStructureSymmLine</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Lobster subclass of BandStructure with customized functions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="LobsterBandStructureSymmLine.apply_scissor"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.bandstructure.html#pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine.apply_scissor">[docs]</a>    <span class="k">def</span> <span class="nf">apply_scissor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_band_gap</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1172,7 +1176,6 @@
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;projections&#39;</span><span class="p">][</span><span class="n">spin</span><span class="p">])):</span>
                     <span class="n">ddd</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;projections&#39;</span><span class="p">][</span><span class="n">spin</span><span class="p">][</span><span class="n">i</span><span class="p">])):</span>
-                        <span class="n">dddd</span> <span class="o">=</span> <span class="p">[]</span>
                         <span class="n">ddd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;projections&#39;</span><span class="p">][</span><span class="n">spin</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span>
                     <span class="n">dd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ddd</span><span class="p">))</span>
                 <span class="n">projections</span><span class="p">[</span><span class="n">Spin</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">spin</span><span class="p">))]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dd</span><span class="p">)</span>
@@ -1195,7 +1198,6 @@
 <span class="sd">            returns an empty dict</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span>
         <span class="k">for</span> <span class="n">spin</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">projections</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">result</span><span class="p">[</span><span class="n">spin</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[</span><span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
                              <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span><span class="p">))]</span>
@@ -1226,7 +1228,6 @@
 <span class="sd">            dict.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span>
         <span class="n">el_orb_spec</span> <span class="o">=</span> <span class="p">{</span><span class="n">get_el_sp</span><span class="p">(</span><span class="n">el</span><span class="p">):</span> <span class="n">orbs</span> <span class="k">for</span> <span class="n">el</span><span class="p">,</span> <span class="n">orbs</span> <span class="ow">in</span> <span class="n">el_orb_spec</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
         <span class="k">for</span> <span class="n">spin</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">projections</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">result</span><span class="p">[</span><span class="n">spin</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">):</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
@@ -1333,7 +1334,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1341,7 +1342,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

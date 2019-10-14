@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.structure_prediction.volume_predictor module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.analysis.structure_prediction.volume_predictor module &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +43,7 @@
             
   <div class="section" id="module-pymatgen.analysis.structure_prediction.volume_predictor">
 <span id="pymatgen-analysis-structure-prediction-volume-predictor-module"></span><h1>pymatgen.analysis.structure_prediction.volume_predictor module<a class="headerlink" href="#module-pymatgen.analysis.structure_prediction.volume_predictor" title="Permalink to this headline">¶</a></h1>
+<p>Predict volumes of crystal structures.</p>
 <dl class="class">
 <dt id="pymatgen.analysis.structure_prediction.volume_predictor.DLSVolumePredictor">
 <em class="property">class </em><code class="sig-name descname">DLSVolumePredictor</code><span class="sig-paren">(</span><em class="sig-param">cutoff=4.0</em>, <em class="sig-param">min_scaling=0.5</em>, <em class="sig-param">max_scaling=1.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/volume_predictor.html#DLSVolumePredictor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.volume_predictor.DLSVolumePredictor" title="Permalink to this definition">¶</a></dt>
@@ -146,26 +146,22 @@ volume.
 <dl class="method">
 <dt id="pymatgen.analysis.structure_prediction.volume_predictor.RLSVolumePredictor.predict">
 <code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">ref_structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/volume_predictor.html#RLSVolumePredictor.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.volume_predictor.RLSVolumePredictor.predict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Given a structure, returns the predicted volume.
-:param structure: structure w/unknown volume
-:type structure: Structure
-:param ref_structure: A reference structure with a similar</p>
-<blockquote>
-<div><p>structure but different species.</p>
-</div></blockquote>
+<dd><p>Given a structure, returns the predicted volume.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>a float value of the predicted volume</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – structure w/unknown volume</p></li>
+<li><p><strong>ref_structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – A reference structure with a similar
+structure but different species.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a float value of the predicted volume</p>
 </dd>
 </dl>
 </dd></dl>
 
 </dd></dl>
-
-<dl class="function">
-<dt id="pymatgen.analysis.structure_prediction.volume_predictor.is_ox">
-<code class="sig-name descname">is_ox</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/volume_predictor.html#is_ox"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.volume_predictor.is_ox" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 </div>
 
@@ -205,13 +201,13 @@ volume.
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

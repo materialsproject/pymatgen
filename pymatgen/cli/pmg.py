@@ -18,17 +18,11 @@ from pymatgen.cli.pmg_potcar import generate_potcar
 from pymatgen.cli.pmg_plot import plot
 from pymatgen.cli.pmg_structure import analyze_structures
 from pymatgen.cli.pmg_query import do_query
+from pymatgen import __version__
 
 """
 A master convenience script with many tools for vasp and structure analysis.
 """
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "5.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "ongsp@ucsd.edu"
-__date__ = "Sep 19 2016"
 
 
 def parse_view(args):
@@ -66,15 +60,14 @@ def diff_incar(args):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="""
+    parser = argparse.ArgumentParser(
+        description="""
     pmg is a convenient script that uses pymatgen to perform many
     analyses, plotting and format conversions. This script works based on
     several sub-commands with their own options. To see the options for the
     sub-commands, type "pmg sub-command -h".""",
-                                     epilog="""
-    Author: Shyue Ping Ong
-    Version: {}
-    Last updated: {}""".format(__version__, __date__))
+        epilog="""Version: {}""".format(__version__)
+    )
 
     subparsers = parser.add_subparsers()
 
@@ -131,9 +124,8 @@ def main():
         "-v", "--verbose", dest="verbose", action="store_true",
         help="Verbose mode. Provides detailed output on progress.")
     parser_analyze.add_argument(
-        "-d", "--detailed", dest="detailed", action="store_true",
-        help="Detailed, but slower mode. Parses vasprun.xml instead of "
-             "separate vasp outputs.")
+        "-q", "--quick", dest="quick", action="store_true",
+        help="Faster mode, but less detailed information. Parses individual vasp files.")
     parser_analyze.add_argument(
         "-s", "--sort", dest="sort", choices=["energy_per_atom", "filename"],
         default="energy_per_atom",

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.abinit.nodes module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.io.abinit.nodes module &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -200,6 +199,14 @@ input file in order to connect this <a class="reference internal" href="#pymatge
 <em class="property">class </em><code class="sig-name descname">GridFsFile</code><span class="sig-paren">(</span><em class="sig-param">path</em>, <em class="sig-param">fs_id=None</em>, <em class="sig-param">mode='b'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/nodes.html#GridFsFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.nodes.GridFsFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.collections.AttrDict</span></code></p>
 <p>Information on a file that will stored in the MongoDb gridfs collection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>args</strong> – Passthrough arguments for standard dict.</p></li>
+<li><p><strong>kwargs</strong> – Passthrough keyword arguments for standard dict.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="class">
@@ -310,7 +317,7 @@ implemented by the nodes of the calculation.</p>
 <p>Nodes are hashable and can be tested for equality</p>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.ALL_STATUS">
-<code class="sig-name descname">ALL_STATUS</code><em class="property"> = [&lt;Status: Initialized, at 120985518160&gt;, &lt;Status: Locked, at 120985518240&gt;, &lt;Status: Ready, at 120985519120&gt;, &lt;Status: Submitted, at 120985520400&gt;, &lt;Status: Running, at 120985520480&gt;, &lt;Status: Done, at 120985520320&gt;, &lt;Status: AbiCritical, at 120985521520&gt;, &lt;Status: QCritical, at 120985521440&gt;, &lt;Status: Unconverged, at 120985521680&gt;, &lt;Status: Error, at 120985518640&gt;, &lt;Status: Completed, at 120985519280&gt;]</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.ALL_STATUS" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ALL_STATUS</code><em class="property"> = [&lt;Status: Initialized, at 120877207296&gt;, &lt;Status: Locked, at 120877204016&gt;, &lt;Status: Ready, at 120877206656&gt;, &lt;Status: Submitted, at 120877205856&gt;, &lt;Status: Running, at 120877205216&gt;, &lt;Status: Done, at 120877204976&gt;, &lt;Status: AbiCritical, at 120877206256&gt;, &lt;Status: QCritical, at 120877206016&gt;, &lt;Status: Unconverged, at 120896701936&gt;, &lt;Status: Error, at 120896701696&gt;, &lt;Status: Completed, at 120896703936&gt;]</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.ALL_STATUS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -327,57 +334,57 @@ implemented by the nodes of the calculation.</p>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.S_ABICRITICAL">
-<code class="sig-name descname">S_ABICRITICAL</code><em class="property"> = &lt;Status: AbiCritical, at 120985521520&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_ABICRITICAL" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">S_ABICRITICAL</code><em class="property"> = &lt;Status: AbiCritical, at 120877206256&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_ABICRITICAL" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.S_DONE">
-<code class="sig-name descname">S_DONE</code><em class="property"> = &lt;Status: Done, at 120985520320&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_DONE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">S_DONE</code><em class="property"> = &lt;Status: Done, at 120877204976&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_DONE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.S_ERROR">
-<code class="sig-name descname">S_ERROR</code><em class="property"> = &lt;Status: Error, at 120985518640&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_ERROR" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">S_ERROR</code><em class="property"> = &lt;Status: Error, at 120896701696&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_ERROR" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.S_INIT">
-<code class="sig-name descname">S_INIT</code><em class="property"> = &lt;Status: Initialized, at 120985518160&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_INIT" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">S_INIT</code><em class="property"> = &lt;Status: Initialized, at 120877207296&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_INIT" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.S_LOCKED">
-<code class="sig-name descname">S_LOCKED</code><em class="property"> = &lt;Status: Locked, at 120985518240&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_LOCKED" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">S_LOCKED</code><em class="property"> = &lt;Status: Locked, at 120877204016&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_LOCKED" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.S_OK">
-<code class="sig-name descname">S_OK</code><em class="property"> = &lt;Status: Completed, at 120985519280&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_OK" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">S_OK</code><em class="property"> = &lt;Status: Completed, at 120896703936&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_OK" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.S_QCRITICAL">
-<code class="sig-name descname">S_QCRITICAL</code><em class="property"> = &lt;Status: QCritical, at 120985521440&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_QCRITICAL" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">S_QCRITICAL</code><em class="property"> = &lt;Status: QCritical, at 120877206016&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_QCRITICAL" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.S_READY">
-<code class="sig-name descname">S_READY</code><em class="property"> = &lt;Status: Ready, at 120985519120&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_READY" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">S_READY</code><em class="property"> = &lt;Status: Ready, at 120877206656&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_READY" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.S_RUN">
-<code class="sig-name descname">S_RUN</code><em class="property"> = &lt;Status: Running, at 120985520480&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_RUN" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">S_RUN</code><em class="property"> = &lt;Status: Running, at 120877205216&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_RUN" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.S_SUB">
-<code class="sig-name descname">S_SUB</code><em class="property"> = &lt;Status: Submitted, at 120985520400&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_SUB" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">S_SUB</code><em class="property"> = &lt;Status: Submitted, at 120877205856&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_SUB" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.nodes.Node.S_UNCONVERGED">
-<code class="sig-name descname">S_UNCONVERGED</code><em class="property"> = &lt;Status: Unconverged, at 120985521680&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_UNCONVERGED" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">S_UNCONVERGED</code><em class="property"> = &lt;Status: Unconverged, at 120896701936&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.nodes.Node.S_UNCONVERGED" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -742,7 +749,15 @@ possible to not have all receivers called if a raises an error.</p>
 <dl class="method">
 <dt id="pymatgen.io.abinit.nodes.NodeResults.from_dict">
 <em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/nodes.html#NodeResults.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.nodes.NodeResults.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> – Dict representation.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>MSONable class.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.nodes.NodeResults.from_node">
@@ -944,13 +959,13 @@ and we are calling a method with side effects.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.surface module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.core.surface module &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +43,19 @@
             
   <div class="section" id="module-pymatgen.core.surface">
 <span id="pymatgen-core-surface-module"></span><h1>pymatgen.core.surface module<a class="headerlink" href="#module-pymatgen.core.surface" title="Permalink to this headline">¶</a></h1>
+<p>This module implements representations of slabs and surfaces, as well as
+algorithms for generating them. If you use this module, please consider
+citing the following work:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">R</span><span class="o">.</span> <span class="n">Tran</span><span class="p">,</span> <span class="n">Z</span><span class="o">.</span> <span class="n">Xu</span><span class="p">,</span> <span class="n">B</span><span class="o">.</span> <span class="n">Radhakrishnan</span><span class="p">,</span> <span class="n">D</span><span class="o">.</span> <span class="n">Winston</span><span class="p">,</span> <span class="n">W</span><span class="o">.</span> <span class="n">Sun</span><span class="p">,</span> <span class="n">K</span><span class="o">.</span> <span class="n">A</span><span class="o">.</span> <span class="n">Persson</span><span class="p">,</span>
+<span class="n">S</span><span class="o">.</span> <span class="n">P</span><span class="o">.</span> <span class="n">Ong</span><span class="p">,</span> <span class="s2">&quot;Surface Energies of Elemental Crystals&quot;</span><span class="p">,</span> <span class="n">Scientific</span> <span class="n">Data</span><span class="p">,</span>
+<span class="mi">2016</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span><span class="mi">160080</span><span class="p">,</span> <span class="n">doi</span><span class="p">:</span> <span class="mf">10.1038</span><span class="o">/</span><span class="n">sdata</span><span class="o">.</span><span class="mf">2016.80</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>as well as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Sun, W.; Ceder, G. Efficient creation and convergence of surface slabs,
+Surface Science, 2013, 617, 53–59, doi:10.1016/j.susc.2013.05.016.
+</pre></div>
+</div>
 <dl class="class">
 <dt id="pymatgen.core.surface.ReconstructionGenerator">
 <em class="property">class </em><code class="sig-name descname">ReconstructionGenerator</code><span class="sig-paren">(</span><em class="sig-param">initial_structure</em>, <em class="sig-param">min_slab_size</em>, <em class="sig-param">min_vacuum_size</em>, <em class="sig-param">reconstruction_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#ReconstructionGenerator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.ReconstructionGenerator" title="Permalink to this definition">¶</a></dt>
@@ -301,25 +313,9 @@ given site in Angstroms.</p></li>
 <dl class="method">
 <dt id="pymatgen.core.surface.Slab.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#Slab.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Dict representation of Structure.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>verbosity</strong> (<em>int</em>) – Verbosity level. Default of 1 includes both
-direct and cartesian coordinates for all sites, lattice
-parameters, etc. Useful for reading and for insertion into a
-database. Set to 0 for an extremely lightweight version
-that only includes sufficient information to reconstruct the
-object.</p></li>
-<li><p><strong>fmt</strong> (<em>str</em>) – Specifies a format for the dict. Defaults to None,
-which is the default format used in pymatgen. Other options
-include “abivars”.</p></li>
-<li><p><strong>**kwargs</strong> – Allow passing of other kwargs needed for certain</p></li>
-<li><p><strong>e.g.</strong><strong>, </strong><strong>&quot;abivars&quot;.</strong> (<em>formats</em><em>,</em>) – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>JSON serializable dict representation.</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>MSONAble dict</p>
 </dd>
 </dl>
 </dd></dl>
@@ -369,14 +365,12 @@ to work properly. Otherwise, the Slab will always have a dipole of 0.</p>
 <dl class="method">
 <dt id="pymatgen.core.surface.Slab.from_dict">
 <em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#Slab.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reconstitute a Structure object from a dict representation of Structure
-created using as_dict().</p>
-<dl class="field-list simple">
+<dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dict representation of structure.</p>
+<dd class="field-odd"><p><strong>d</strong> – dict</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Structure object</p>
+<dd class="field-even"><p>Creates slab from dict.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1042,11 +1036,6 @@ miller index to.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="function">
-<dt id="pymatgen.core.surface.reduce_vector">
-<code class="sig-name descname">reduce_vector</code><span class="sig-paren">(</span><em class="sig-param">vector</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#reduce_vector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.reduce_vector" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </div>
 
 
@@ -1085,13 +1074,13 @@ miller index to.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.defects.dilute_solution_model &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.analysis.defects.dilute_solution_model &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -49,15 +48,6 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
-<span class="kn">import</span> <span class="nn">math</span>
-<span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-
-<span class="kn">from</span> <span class="nn">monty.fractions</span> <span class="k">import</span> <span class="n">gcd</span>
-<span class="kn">from</span> <span class="nn">sympy</span> <span class="k">import</span> <span class="n">Symbol</span><span class="p">,</span> <span class="n">nsolve</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">Float</span><span class="p">,</span> <span class="n">Matrix</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span> <span class="n">solve</span><span class="p">,</span> <span class="n">Eq</span>
-
-<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">deprecated</span>
-
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Evaluate the defect concentration based on composition, temperature,</span>
 <span class="sd">and defect energies using &quot;Dilute Solution Model&quot;</span>
@@ -66,6 +56,16 @@
 <span class="sd">C. Woodward, M. Asta, G. Kresse and J. Hafner.</span>
 <span class="sd">Manual and citation for the code, DOI: 10.1016/j.cpc.2015.03.015</span>
 <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">monty.fractions</span> <span class="k">import</span> <span class="n">gcd</span>
+<span class="kn">from</span> <span class="nn">sympy</span> <span class="k">import</span> <span class="n">Symbol</span><span class="p">,</span> <span class="n">nsolve</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">Float</span><span class="p">,</span> <span class="n">Matrix</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span> <span class="n">solve</span>
+
+<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">deprecated</span>
+
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Bharat Medasani&#39;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.2&quot;</span>
@@ -79,13 +79,13 @@
 
 
 <span class="c1"># Check the inputs</span>
-<div class="viewcode-block" id="check_input"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.dilute_solution_model.html#pymatgen.analysis.defects.dilute_solution_model.check_input">[docs]</a><span class="k">def</span> <span class="nf">check_input</span><span class="p">(</span><span class="n">def_list</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_check_input</span><span class="p">(</span><span class="n">def_list</span><span class="p">):</span>
     <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">for</span> <span class="n">defect</span> <span class="ow">in</span> <span class="n">def_list</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">defect</span><span class="p">:</span>
             <span class="n">flag</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="k">break</span>
-    <span class="k">return</span> <span class="n">flag</span></div>
+    <span class="k">return</span> <span class="n">flag</span>
 
 
 <span class="nd">@deprecated</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;Refactoring of the defects module will eventualy remove this function&quot;</span><span class="p">)</span>
@@ -123,9 +123,9 @@
 <span class="sd">        potentials are returned.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">check_input</span><span class="p">(</span><span class="n">vac_defs</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_check_input</span><span class="p">(</span><span class="n">vac_defs</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Vacancy energy is not defined&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">check_input</span><span class="p">(</span><span class="n">antisite_defs</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_check_input</span><span class="p">(</span><span class="n">antisite_defs</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Antisite energy is not defined&#39;</span><span class="p">)</span>
 
     <span class="n">formation_energies</span> <span class="o">=</span> <span class="p">{}</span>
@@ -386,10 +386,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">trial_chem_pot</span><span class="p">:</span>
             <span class="n">mu_vals</span> <span class="o">=</span> <span class="n">compute_mus_by_search</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">mu_vals</span> <span class="o">=</span> <span class="p">[</span><span class="n">trial_chem_pot</span><span class="p">[</span><span class="n">element</span><span class="p">]</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">specie_order</span><span class="p">]</span>
-            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                <span class="n">mu_vals</span> <span class="o">=</span> <span class="n">compute_mus</span><span class="p">()</span>
+            <span class="n">mu_vals</span> <span class="o">=</span> <span class="p">[</span><span class="n">trial_chem_pot</span><span class="p">[</span><span class="n">element</span><span class="p">]</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">specie_order</span><span class="p">]</span>
 
         <span class="n">formation_energies</span> <span class="o">=</span> <span class="n">compute_def_formation_energies</span><span class="p">()</span>
         <span class="n">mu_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">specie_order</span><span class="p">,</span> <span class="n">mu_vals</span><span class="p">))</span>
@@ -454,7 +451,6 @@
     <span class="c1"># +/- 1% from the stoichiometry</span>
     <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">len_y</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">yvals</span><span class="p">)</span>
     <span class="n">failed_y</span><span class="p">,</span> <span class="n">failed_i</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">yvals</span><span class="p">:</span>
         <span class="n">vector_func</span> <span class="o">=</span> <span class="p">[</span><span class="n">y</span> <span class="o">-</span> <span class="n">c_ratio</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
@@ -554,7 +550,6 @@
         <span class="c1"># Concentration of first element/over total concen</span>
         <span class="n">res1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">total_c_val</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="n">total_c_val</span><span class="p">)))</span>
         <span class="n">new_mu_dict</span><span class="p">[</span><span class="n">res1</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">mu_val</span>
-        <span class="n">sum_c0</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">c0</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)])</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">j</span><span class="p">:</span>  <span class="c1"># Vacancy</span>
@@ -681,8 +676,6 @@
         <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">en_res</span><span class="p">]</span>
         <span class="n">site_specie</span> <span class="o">=</span> <span class="n">as_def</span><span class="p">[</span><span class="s1">&#39;site_specie&#39;</span><span class="p">]</span>
         <span class="n">sub_specie</span> <span class="o">=</span> <span class="n">as_def</span><span class="p">[</span><span class="s1">&#39;substitution_specie&#39;</span><span class="p">]</span>
-        <span class="n">ind1</span> <span class="o">=</span> <span class="n">specie_order</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">site_specie</span><span class="p">)</span>
-        <span class="n">ind2</span> <span class="o">=</span> <span class="n">specie_order</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">sub_specie</span><span class="p">)</span>
         <span class="n">specie_ind</span> <span class="o">=</span> <span class="n">site_mu_map</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
         <span class="n">indices</span> <span class="o">=</span> <span class="n">specie_site_index_map</span><span class="p">[</span><span class="n">specie_ind</span><span class="p">]</span>
         <span class="n">specie_ind_del</span> <span class="o">=</span> <span class="n">indices</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -831,9 +824,9 @@
 <span class="sd">        plot_data: The data for plotting the solute defect concentration.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">check_input</span><span class="p">(</span><span class="n">vac_defs</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_check_input</span><span class="p">(</span><span class="n">vac_defs</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Vacancy energy is not defined&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">check_input</span><span class="p">(</span><span class="n">antisite_defs</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_check_input</span><span class="p">(</span><span class="n">antisite_defs</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Antisite energy is not defined&#39;</span><span class="p">)</span>
 
     <span class="n">formation_energies</span> <span class="o">=</span> <span class="p">{}</span>
@@ -1059,8 +1052,6 @@
 
     <span class="k">def</span> <span class="nf">compute_solute_mu_by_lin_search</span><span class="p">(</span><span class="n">host_mu_vals</span><span class="p">):</span>
         <span class="c1"># Compute trial mu</span>
-        <span class="n">mu_red</span> <span class="o">=</span> <span class="n">reduce_mu</span><span class="p">()</span>
-
         <span class="n">mult</span> <span class="o">=</span> <span class="n">multiplicity</span>
         <span class="n">specie_concen</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="n">mult</span><span class="p">[</span><span class="n">ind</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">ind</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span> <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">specie_site_index_map</span><span class="p">]</span>
         <span class="n">max_host_specie_concen</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">solute_concen</span>
@@ -1069,9 +1060,7 @@
         <span class="n">y_vect</span> <span class="o">=</span> <span class="n">host_specie_concen_ratio</span>
         <span class="n">vector_func</span> <span class="o">=</span> <span class="p">[</span><span class="n">y_vect</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">c_ratio</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">)]</span>
         <span class="n">vector_func</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">omega</span><span class="p">)</span>
-        <span class="n">min_diff</span> <span class="o">=</span> <span class="mf">1e10</span>
         <span class="n">mu_vals</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">c_val</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">m1_min</span> <span class="o">=</span> <span class="o">-</span><span class="mf">20.0</span>
         <span class="k">if</span> <span class="n">e0</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">m1_max</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># Search space needs to be modified</span>
@@ -1104,7 +1093,6 @@
         <span class="n">vector_func</span> <span class="o">=</span> <span class="p">[</span><span class="n">y_vect</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">c_ratio</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">)]</span>
         <span class="n">vector_func</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">omega</span><span class="p">)</span>
         <span class="n">mu_vals</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">c_val</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">m_min</span> <span class="o">=</span> <span class="o">-</span><span class="mf">15.0</span>
         <span class="k">if</span> <span class="n">e0</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">m_max</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># Search space needs to be modified</span>
@@ -1213,7 +1201,6 @@
         <span class="n">res1</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">res1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">total_c_val</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="n">total_c_val</span><span class="p">)))</span>
 
-        <span class="n">sum_c0</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">c0</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)])</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">j</span><span class="p">:</span>  <span class="c1"># Vacancy</span>
@@ -1440,7 +1427,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1448,7 +1435,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.exciting.inputs module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.io.exciting.inputs module &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,23 +43,13 @@
             
   <div class="section" id="module-pymatgen.io.exciting.inputs">
 <span id="pymatgen-io-exciting-inputs-module"></span><h1>pymatgen.io.exciting.inputs module<a class="headerlink" href="#module-pymatgen.io.exciting.inputs" title="Permalink to this headline">¶</a></h1>
+<p>Classes for reading/manipulating/writing exciting input files.</p>
 <dl class="class">
 <dt id="pymatgen.io.exciting.inputs.ExcitingInput">
 <em class="property">class </em><code class="sig-name descname">ExcitingInput</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">title=None</em>, <em class="sig-param">lockxyz=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/exciting/inputs.html#ExcitingInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Object for representing the data stored in the structure part of the
 exciting input.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Structure object.</p></li>
-<li><p><strong>title</strong> (<em>str</em>) – Optional title for exciting input. Defaults to unit
-cell formula of structure. Defaults to None.</p></li>
-<li><p><strong>lockxyz</strong> (<em>Nx3 array</em>) – bool values for selective dynamics,
-where N is number of sites. Defaults to None.</p></li>
-</ul>
-</dd>
-</dl>
 <dl class="attribute">
 <dt id="pymatgen.io.exciting.inputs.ExcitingInput.structure">
 <code class="sig-name descname">structure</code><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.structure" title="Permalink to this definition">¶</a></dt>
@@ -80,6 +69,17 @@ where N is number of sites. Defaults to None.</p></li>
 booleans.</p>
 </dd></dl>
 
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Structure object.</p></li>
+<li><p><strong>title</strong> (<em>str</em>) – Optional title for exciting input. Defaults to unit
+cell formula of structure. Defaults to None.</p></li>
+<li><p><strong>lockxyz</strong> (<em>Nx3 array</em>) – bool values for selective dynamics,
+where N is number of sites. Defaults to None.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.io.exciting.inputs.ExcitingInput.bohr2ang">
 <code class="sig-name descname">bohr2ang</code><em class="property"> = 0.5291692995889712</em><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.bohr2ang" title="Permalink to this definition">¶</a></dt>
@@ -88,7 +88,15 @@ booleans.</p>
 <dl class="method">
 <dt id="pymatgen.io.exciting.inputs.ExcitingInput.from_file">
 <em class="property">static </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/exciting/inputs.html#ExcitingInput.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.from_file" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> – Filename</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>ExcitingInput</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.exciting.inputs.ExcitingInput.from_string">
@@ -99,27 +107,90 @@ booleans.</p>
 <dl class="method">
 <dt id="pymatgen.io.exciting.inputs.ExcitingInput.indent">
 <em class="property">static </em><code class="sig-name descname">indent</code><span class="sig-paren">(</span><em class="sig-param">elem</em>, <em class="sig-param">level=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/exciting/inputs.html#ExcitingInput.indent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.indent" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Helper method to indent elements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>elem</strong> – </p></li>
+<li><p><strong>level</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">lockxyz</code></dt>
-<dd></dd></dl>
+<dd><p>Selective dynamics site properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.exciting.inputs.ExcitingInput.write_etree">
 <code class="sig-name descname">write_etree</code><span class="sig-paren">(</span><em class="sig-param">celltype</em>, <em class="sig-param">cartesian=False</em>, <em class="sig-param">bandstr=False</em>, <em class="sig-param">symprec=0.4</em>, <em class="sig-param">angle_tolerance=5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/exciting/inputs.html#ExcitingInput.write_etree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.write_etree" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>celltype</strong> – </p></li>
+<li><p><strong>cartesian</strong> – </p></li>
+<li><p><strong>bandstr</strong> – </p></li>
+<li><p><strong>symprec</strong> – </p></li>
+<li><p><strong>angle_tolerance</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.exciting.inputs.ExcitingInput.write_file">
 <code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param">celltype</em>, <em class="sig-param">filename</em>, <em class="sig-param">cartesian=False</em>, <em class="sig-param">bandstr=False</em>, <em class="sig-param">symprec=0.4</em>, <em class="sig-param">angle_tolerance=5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/exciting/inputs.html#ExcitingInput.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.write_file" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Write to a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>celltype</strong> – </p></li>
+<li><p><strong>filename</strong> – </p></li>
+<li><p><strong>cartesian</strong> – </p></li>
+<li><p><strong>bandstr</strong> – </p></li>
+<li><p><strong>symprec</strong> – </p></li>
+<li><p><strong>angle_tolerance</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.exciting.inputs.ExcitingInput.write_string">
 <code class="sig-name descname">write_string</code><span class="sig-paren">(</span><em class="sig-param">celltype</em>, <em class="sig-param">cartesian=False</em>, <em class="sig-param">bandstr=False</em>, <em class="sig-param">symprec=0.4</em>, <em class="sig-param">angle_tolerance=5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/exciting/inputs.html#ExcitingInput.write_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.write_string" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Writes to a string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>celltype</strong> – </p></li>
+<li><p><strong>cartesian</strong> – </p></li>
+<li><p><strong>bandstr</strong> – </p></li>
+<li><p><strong>symprec</strong> – </p></li>
+<li><p><strong>angle_tolerance</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -161,13 +232,13 @@ booleans.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

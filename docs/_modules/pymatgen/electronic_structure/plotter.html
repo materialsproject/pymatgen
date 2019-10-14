@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.electronic_structure.plotter &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.electronic_structure.plotter &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -48,6 +47,10 @@
 <span></span><span class="c1"># coding: utf-8</span>
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module implements plotter for DOS and band structure.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">math</span>
@@ -65,7 +68,7 @@
     <span class="n">mlab</span> <span class="o">=</span> <span class="kc">None</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span>
-<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="k">import</span> <span class="n">Spin</span><span class="p">,</span> <span class="n">Orbital</span><span class="p">,</span> <span class="n">OrbitalType</span>
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="k">import</span> <span class="n">Spin</span><span class="p">,</span> <span class="n">OrbitalType</span>
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.bandstructure</span> <span class="k">import</span> <span class="n">BandStructureSymmLine</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="k">import</span> <span class="n">pretty_plot</span><span class="p">,</span> \
     <span class="n">add_fig_kwargs</span><span class="p">,</span> <span class="n">get_ax3d_fig_plt</span>
@@ -73,11 +76,6 @@
 <span class="kn">import</span> <span class="nn">copy</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.boltztrap</span> <span class="k">import</span> <span class="n">BoltztrapError</span>
-<span class="kn">from</span> <span class="nn">pymatgen.symmetry.bandstructure</span> <span class="k">import</span> <span class="n">HighSymmKpath</span>
-
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This module implements plotter for DOS and band structure.</span>
-<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong, Geoffroy Hautier, Anubhav Jain&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
@@ -106,18 +104,19 @@
 <span class="sd">        # form returned by CompleteDos.get_spd/element/others_dos().</span>
 <span class="sd">        plotter.add_dos_dict({&quot;dos1&quot;: dos1, &quot;dos2&quot;: dos2})</span>
 <span class="sd">        plotter.add_dos_dict(complete_dos.get_spd_dos())</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        zero_at_efermi: Whether to shift all Dos to have zero energy at the</span>
-<span class="sd">            fermi energy. Defaults to True.</span>
-<span class="sd">        stack: Whether to plot the DOS as a stacked area graph</span>
-<span class="sd">        key_sort_func: function used to sort the dos_dict keys.</span>
-<span class="sd">        sigma: A float specifying a standard deviation for Gaussian smearing</span>
-<span class="sd">            the DOS for nicer looking plots. Defaults to None for no</span>
-<span class="sd">            smearing.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zero_at_efermi</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">stack</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            zero_at_efermi: Whether to shift all Dos to have zero energy at the</span>
+<span class="sd">                fermi energy. Defaults to True.</span>
+<span class="sd">            stack: Whether to plot the DOS as a stacked area graph</span>
+<span class="sd">            key_sort_func: function used to sort the dos_dict keys.</span>
+<span class="sd">            sigma: A float specifying a standard deviation for Gaussian smearing</span>
+<span class="sd">                the DOS for nicer looking plots. Defaults to None for no</span>
+<span class="sd">                smearing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">zero_at_efermi</span> <span class="o">=</span> <span class="n">zero_at_efermi</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stack</span> <span class="o">=</span> <span class="n">stack</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span> <span class="o">=</span> <span class="n">sigma</span>
@@ -295,12 +294,13 @@
 <div class="viewcode-block" id="BSPlotter"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BSPlotter">[docs]</a><span class="k">class</span> <span class="nc">BSPlotter</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class to plot or get data to facilitate the plot of band structure objects.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        bs: A BandStructureSymmLine object.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            bs: A BandStructureSymmLine object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bs</span><span class="p">,</span> <span class="n">BandStructureSymmLine</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;BSPlotter only works with BandStructureSymmLine objects. &quot;</span>
@@ -466,7 +466,6 @@
 <span class="sd">                Default is None such that no tolerance will be used.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">plt</span> <span class="o">=</span> <span class="n">pretty_plot</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
-        <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">rc</span>
         <span class="kn">import</span> <span class="nn">scipy.interpolate</span> <span class="k">as</span> <span class="nn">scint</span>
 
         <span class="c1"># main internal config options</span>
@@ -746,12 +745,13 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class to plot or get data to facilitate the plot of band structure objects</span>
 <span class="sd">    projected along orbitals, elements or sites.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        bs: A BandStructureSymmLine object with projections.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            bs: A BandStructureSymmLine object with projections.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bs</span><span class="o">.</span><span class="n">projections</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;try to plot projections&quot;</span>
                              <span class="s2">&quot; on a band structure without any&quot;</span><span class="p">)</span>
@@ -1459,7 +1459,6 @@
                 <span class="s2">&quot;The number of sub-figures </span><span class="si">%s</span><span class="s2"> might be too manny and the implementation might take a long time.</span><span class="se">\n</span><span class="s2">&quot;</span>
                 <span class="s2">&quot;A smaller number or a plot with selected symmetry lines (selected_branches) might be better.</span><span class="se">\n</span><span class="s2">&quot;</span>
                 <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">number_figs</span><span class="p">))</span>
-        <span class="kn">import</span> <span class="nn">math</span>
         <span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="k">import</span> <span class="n">pretty_plot</span>
         <span class="n">band_linewidth</span> <span class="o">=</span> <span class="mf">0.5</span>
         <span class="n">plt</span> <span class="o">=</span> <span class="n">pretty_plot</span><span class="p">(</span><span class="n">w_h_size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">w_h_size</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
@@ -2580,12 +2579,13 @@
     <span class="c1"># TODO: We need a unittest for this. Come on folks.</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    class containing methods to plot the data from Boltztrap.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        bz: a BoltztrapAnalyzer object</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bz</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            bz: a BoltztrapAnalyzer object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_bz</span> <span class="o">=</span> <span class="n">bz</span>
 
     <span class="k">def</span> <span class="nf">_plot_doping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temp</span><span class="p">):</span>
@@ -2957,7 +2957,6 @@
 <span class="sd">            a matplotlib object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-        <span class="kn">import</span> <span class="nn">matplotlib.ticker</span> <span class="k">as</span> <span class="nn">mtick</span>
 
         <span class="k">if</span> <span class="n">output</span> <span class="o">==</span> <span class="s1">&#39;average&#39;</span><span class="p">:</span>
             <span class="n">cond</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">relaxation_time</span><span class="o">=</span><span class="n">relaxation_time</span><span class="p">,</span>
@@ -3488,17 +3487,16 @@
 <span class="sd">    Class for plotting crystal orbital Hamilton populations (COHPs) or</span>
 <span class="sd">    crystal orbital overlap populations (COOPs). It is modeled after the</span>
 <span class="sd">    DosPlotter object.</span>
-
-<span class="sd">    Args/attributes:</span>
-<span class="sd">        zero_at_efermi: Whether to shift all populations to have zero</span>
-<span class="sd">            energy at the Fermi level. Defaults to True.</span>
-
-<span class="sd">        are_coops: Switch to indicate that these are COOPs, not COHPs.</span>
-<span class="sd">            Defaults to False for COHPs.</span>
-
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zero_at_efermi</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">are_coops</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            zero_at_efermi: Whether to shift all populations to have zero</span>
+<span class="sd">                energy at the Fermi level. Defaults to True.</span>
+<span class="sd">            are_coops: Switch to indicate that these are COOPs, not COHPs.</span>
+<span class="sd">                Defaults to False for COHPs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">zero_at_efermi</span> <span class="o">=</span> <span class="n">zero_at_efermi</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">are_coops</span> <span class="o">=</span> <span class="n">are_coops</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cohps</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
@@ -4261,7 +4259,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -4269,7 +4267,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

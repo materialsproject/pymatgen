@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.abinit.nodes &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.io.abinit.nodes &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -70,10 +69,9 @@
 <span class="kn">from</span> <span class="nn">pymatgen.util.serialization</span> <span class="k">import</span> <span class="n">json_pretty_dump</span><span class="p">,</span> <span class="n">pmg_serialize</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="k">import</span> <span class="n">File</span><span class="p">,</span> <span class="n">Directory</span><span class="p">,</span> <span class="n">Dirviz</span><span class="p">,</span> <span class="n">irdvars_for_ext</span><span class="p">,</span> <span class="n">abi_extensions</span>
 
-
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Matteo Giantomassi&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2013, The Materials Project&quot;</span>
@@ -90,21 +88,27 @@
 
     <span class="c1"># Possible status of the node. See monty.termocolor for the meaning of color, on_color and attrs.</span>
     <span class="n">_STATUS_INFO</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="c1">#(value, name, color, on_color, attrs)</span>
-        <span class="p">(</span><span class="mi">1</span><span class="p">,</span>  <span class="s2">&quot;Initialized&quot;</span><span class="p">,</span>   <span class="kc">None</span>     <span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>         <span class="c1"># Node has been initialized</span>
-        <span class="p">(</span><span class="mi">2</span><span class="p">,</span>  <span class="s2">&quot;Locked&quot;</span><span class="p">,</span>        <span class="s2">&quot;grey&quot;</span>   <span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>         <span class="c1"># Task is locked an must be explicitly unlocked by an external subject (Work).</span>
-        <span class="p">(</span><span class="mi">3</span><span class="p">,</span>  <span class="s2">&quot;Ready&quot;</span><span class="p">,</span>         <span class="kc">None</span>     <span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>         <span class="c1"># Node is ready i.e. all the depencies of the node have status S_OK</span>
-        <span class="p">(</span><span class="mi">4</span><span class="p">,</span>  <span class="s2">&quot;Submitted&quot;</span><span class="p">,</span>     <span class="s2">&quot;blue&quot;</span>   <span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>         <span class="c1"># Node has been submitted (The `Task` is running or we have started to finalize the Work)</span>
-        <span class="p">(</span><span class="mi">5</span><span class="p">,</span>  <span class="s2">&quot;Running&quot;</span><span class="p">,</span>       <span class="s2">&quot;magenta&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>         <span class="c1"># Node is running.</span>
-        <span class="p">(</span><span class="mi">6</span><span class="p">,</span>  <span class="s2">&quot;Done&quot;</span><span class="p">,</span>          <span class="kc">None</span>     <span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>         <span class="c1"># Node done, This does not imply that results are ok or that the calculation completed successfully</span>
-        <span class="p">(</span><span class="mi">7</span><span class="p">,</span>  <span class="s2">&quot;AbiCritical&quot;</span><span class="p">,</span>   <span class="s2">&quot;red&quot;</span>    <span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>         <span class="c1"># Node raised an Error by ABINIT.</span>
-        <span class="p">(</span><span class="mi">8</span><span class="p">,</span>  <span class="s2">&quot;QCritical&quot;</span><span class="p">,</span>     <span class="s2">&quot;red&quot;</span>    <span class="p">,</span> <span class="s2">&quot;on_white&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>   <span class="c1"># Node raised an Error by submitting submission script, or by executing it</span>
-        <span class="p">(</span><span class="mi">9</span><span class="p">,</span>  <span class="s2">&quot;Unconverged&quot;</span><span class="p">,</span>   <span class="s2">&quot;red&quot;</span>    <span class="p">,</span> <span class="s2">&quot;on_yellow&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>  <span class="c1"># This usually means that an iterative algorithm didn&#39;t converge.</span>
-        <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;Error&quot;</span><span class="p">,</span>         <span class="s2">&quot;red&quot;</span>    <span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>         <span class="c1"># Node raised an unrecoverable error, usually raised when an attempt to fix one of other types failed.</span>
-        <span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="s2">&quot;Completed&quot;</span><span class="p">,</span>     <span class="s2">&quot;green&quot;</span>  <span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>         <span class="c1"># Execution completed successfully.</span>
+        <span class="c1"># (value, name, color, on_color, attrs)</span>
+        <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Initialized&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>  <span class="c1"># Node has been initialized</span>
+        <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Locked&quot;</span><span class="p">,</span> <span class="s2">&quot;grey&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+        <span class="c1"># Task is locked an must be explicitly unlocked by an external subject (Work).</span>
+        <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;Ready&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>  <span class="c1"># Node is ready i.e. all the depencies of the node have status S_OK</span>
+        <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;Submitted&quot;</span><span class="p">,</span> <span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+        <span class="c1"># Node has been submitted (The `Task` is running or we have started to finalize the Work)</span>
+        <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;Running&quot;</span><span class="p">,</span> <span class="s2">&quot;magenta&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>  <span class="c1"># Node is running.</span>
+        <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="s2">&quot;Done&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+        <span class="c1"># Node done, This does not imply that results are ok or that the calculation completed successfully</span>
+        <span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="s2">&quot;AbiCritical&quot;</span><span class="p">,</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>  <span class="c1"># Node raised an Error by ABINIT.</span>
+        <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="s2">&quot;QCritical&quot;</span><span class="p">,</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="s2">&quot;on_white&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+        <span class="c1"># Node raised an Error by submitting submission script, or by executing it</span>
+        <span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="s2">&quot;Unconverged&quot;</span><span class="p">,</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="s2">&quot;on_yellow&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>  <span class="c1"># This usually means that an iterative algorithm didn&#39;t converge.</span>
+        <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;Error&quot;</span><span class="p">,</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+        <span class="c1"># Node raised an unrecoverable error, usually raised when an attempt to fix one of other types failed.</span>
+        <span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="s2">&quot;Completed&quot;</span><span class="p">,</span> <span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>  <span class="c1"># Execution completed successfully.</span>
     <span class="p">]</span>
     <span class="n">_STATUS2STR</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">([(</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">_STATUS_INFO</span><span class="p">])</span>
-    <span class="n">_STATUS2COLOR_OPTS</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">([(</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="s2">&quot;on_color&quot;</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="s2">&quot;attrs&quot;</span><span class="p">:</span> <span class="n">_2attrs</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">4</span><span class="p">])})</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">_STATUS_INFO</span><span class="p">])</span>
+    <span class="n">_STATUS2COLOR_OPTS</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">(</span>
+        <span class="p">[(</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="s2">&quot;on_color&quot;</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="s2">&quot;attrs&quot;</span><span class="p">:</span> <span class="n">_2attrs</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">4</span><span class="p">])})</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">_STATUS_INFO</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;&lt;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">, at </span><span class="si">%s</span><span class="s2">&gt;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
@@ -116,7 +120,8 @@
 <div class="viewcode-block" id="Status.as_status"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.Status.as_status">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">as_status</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Convert obj into Status.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">obj</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span> <span class="k">else</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Status.from_string"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.Status.from_string">[docs]</a>    <span class="nd">@classmethod</span>
@@ -164,6 +169,7 @@
 <span class="sd">        # Register the NSCF calculation and its dependency on the SCF run via deps.</span>
 <span class="sd">        nscf_task = work.register(nscf_strategy, deps={scf_task: &quot;DEN&quot;})</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">exts</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
@@ -172,14 +178,15 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_node</span> <span class="o">=</span> <span class="n">Node</span><span class="o">.</span><span class="n">as_node</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">exts</span> <span class="ow">and</span> <span class="n">is_string</span><span class="p">(</span><span class="n">exts</span><span class="p">):</span> <span class="n">exts</span> <span class="o">=</span> <span class="n">exts</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">exts</span> <span class="ow">and</span> <span class="n">is_string</span><span class="p">(</span><span class="n">exts</span><span class="p">):</span>
+            <span class="n">exts</span> <span class="o">=</span> <span class="n">exts</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
 
         <span class="c1"># Extract extensions.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">exts</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">exts</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">e</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;@&quot;</span><span class="p">)]</span>
 
         <span class="c1"># Save getters</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">getters</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">exts</span> <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;@&quot;</span><span class="p">)]</span>
-        <span class="c1">#if self.getters: print(self.getters)</span>
+        <span class="c1"># if self.getters: print(self.getters)</span>
 
     <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_node</span><span class="p">)</span>
@@ -226,7 +233,8 @@
 
 <span class="sd">            - @structure</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">getters</span><span class="p">:</span> <span class="k">return</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">getters</span><span class="p">:</span>
+            <span class="k">return</span>
 
         <span class="k">for</span> <span class="n">getter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">getters</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">getter</span> <span class="o">==</span> <span class="s2">&quot;@structure&quot;</span><span class="p">:</span>
@@ -260,6 +268,7 @@
 <span class="sd">    A product represents an output file produced by ABINIT instance.</span>
 <span class="sd">    This file is needed to start another `Task` or another `Work`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ext</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
@@ -303,6 +312,7 @@
 
 <div class="viewcode-block" id="GridFsFile"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.GridFsFile">[docs]</a><span class="k">class</span> <span class="nc">GridFsFile</span><span class="p">(</span><span class="n">AttrDict</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Information on a file that will stored in the MongoDb gridfs collection.&quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">fs_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;b&quot;</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">fs_id</span><span class="o">=</span><span class="n">fs_id</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span></div>
 
@@ -343,10 +353,14 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">node</span> <span class="o">=</span> <span class="n">node</span>
 
-        <span class="k">if</span> <span class="s2">&quot;in&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span> <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;in&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Namespace</span><span class="p">()</span>
-        <span class="k">if</span> <span class="s2">&quot;out&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span> <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;out&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Namespace</span><span class="p">()</span>
-        <span class="k">if</span> <span class="s2">&quot;exceptions&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span> <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;exceptions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">if</span> <span class="s2">&quot;files&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span> <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;files&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Namespace</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s2">&quot;in&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;in&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Namespace</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s2">&quot;out&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;out&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Namespace</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s2">&quot;exceptions&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;exceptions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="s2">&quot;files&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;files&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Namespace</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">exceptions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -373,7 +387,8 @@
         <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;b&quot;</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span> <span class="n">v</span><span class="p">,</span> <span class="n">mode</span> <span class="o">=</span> <span class="n">v</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+                <span class="n">v</span><span class="p">,</span> <span class="n">mode</span> <span class="o">=</span> <span class="n">v</span>
             <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">GridFsFile</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">v</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;files&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
@@ -383,7 +398,7 @@
         <span class="k">for</span> <span class="n">exc</span> <span class="ow">in</span> <span class="n">exceptions</span><span class="p">:</span>
             <span class="n">newstr</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">newstr</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">exceptions</span><span class="p">:</span>
-                <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;exceptions&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="n">newstr</span><span class="p">,]</span></div>
+                <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;exceptions&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="n">newstr</span><span class="p">,</span> <span class="p">]</span></div>
 
 <div class="viewcode-block" id="NodeResults.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.NodeResults.as_dict">[docs]</a>    <span class="nd">@pmg_serialize</span>
     <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -452,7 +467,7 @@
         <span class="n">doc</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
 
         <span class="n">collection</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span></div></div>
-        <span class="c1">#collection.update({&#39;_id&#39;:mongo_id}, {&quot;$set&quot;: doc}, upsert=False)</span>
+        <span class="c1"># collection.update({&#39;_id&#39;:mongo_id}, {&quot;$set&quot;: doc}, upsert=False)</span>
 
 
 <div class="viewcode-block" id="check_spectator"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.check_spectator">[docs]</a><span class="k">def</span> <span class="nf">check_spectator</span><span class="p">(</span><span class="n">node_method</span><span class="p">):</span>
@@ -464,8 +479,8 @@
     <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">node</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">in_spectator_mode</span><span class="p">:</span>
-            <span class="c1">#raise node.SpectatorError(&quot;You should not call this method when the node in spectator_mode&quot;)</span>
-            <span class="c1">#warnings.warn(&quot;You should not call %s when the node in spectator_mode&quot; % node_method)</span>
+            <span class="c1"># raise node.SpectatorError(&quot;You should not call this method when the node in spectator_mode&quot;)</span>
+            <span class="c1"># warnings.warn(&quot;You should not call %s when the node in spectator_mode&quot; % node_method)</span>
             <span class="kn">import</span> <span class="nn">warnings</span>
 
         <span class="k">return</span> <span class="n">node_method</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -493,7 +508,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">Results</span> <span class="o">=</span> <span class="n">NodeResults</span>
 
-    <span class="n">Error</span>  <span class="o">=</span> <span class="n">NodeError</span>
+    <span class="n">Error</span> <span class="o">=</span> <span class="n">NodeError</span>
     <span class="n">SpectatorError</span> <span class="o">=</span> <span class="n">SpectatorNodeError</span>
 
     <span class="c1"># Possible status of the node.</span>
@@ -506,7 +521,7 @@
     <span class="n">S_ABICRITICAL</span> <span class="o">=</span> <span class="n">Status</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;AbiCritical&quot;</span><span class="p">)</span>
     <span class="n">S_QCRITICAL</span> <span class="o">=</span> <span class="n">Status</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;QCritical&quot;</span><span class="p">)</span>
     <span class="n">S_UNCONVERGED</span> <span class="o">=</span> <span class="n">Status</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;Unconverged&quot;</span><span class="p">)</span>
-    <span class="c1">#S_CANCELLED = Status.from_string(&quot;Cancelled&quot;)</span>
+    <span class="c1"># S_CANCELLED = Status.from_string(&quot;Cancelled&quot;)</span>
     <span class="n">S_ERROR</span> <span class="o">=</span> <span class="n">Status</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;Error&quot;</span><span class="p">)</span>
     <span class="n">S_OK</span> <span class="o">=</span> <span class="n">Status</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;Completed&quot;</span><span class="p">)</span>
 
@@ -520,7 +535,7 @@
         <span class="n">S_ABICRITICAL</span><span class="p">,</span>
         <span class="n">S_QCRITICAL</span><span class="p">,</span>
         <span class="n">S_UNCONVERGED</span><span class="p">,</span>
-        <span class="c1">#S_CANCELLED,</span>
+        <span class="c1"># S_CANCELLED,</span>
         <span class="n">S_ERROR</span><span class="p">,</span>
         <span class="n">S_OK</span><span class="p">,</span>
     <span class="p">]</span>
@@ -550,7 +565,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">S_INIT</span>
 
     <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Node</span><span class="p">):</span> <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Node</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_id</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">node_id</span>
 
     <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
@@ -567,7 +583,7 @@
             <span class="c1"># this usually happens when workdir has not been initialized</span>
             <span class="k">return</span> <span class="s2">&quot;&lt;</span><span class="si">%s</span><span class="s2">, node_id=</span><span class="si">%s</span><span class="s2">, workdir=None&gt;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_id</span><span class="p">)</span>
 
-    <span class="c1">#def __setattr__(self, name, value):</span>
+    <span class="c1"># def __setattr__(self, name, value):</span>
     <span class="c1">#    if self.in_spectator_mode:</span>
     <span class="c1">#        raise RuntimeError(&quot;You should not call __setattr__ in spectator_mode&quot;)</span>
     <span class="c1">#    return super().__setattr__(name,value)</span>
@@ -575,6 +591,7 @@
 <div class="viewcode-block" id="Node.color_hex"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.Node.color_hex">[docs]</a>    <span class="nd">@lazy_property</span>
     <span class="k">def</span> <span class="nf">color_hex</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Node color as Hex Triplet https://en.wikipedia.org/wiki/Web_colors#Hex_triplet&quot;&quot;&quot;</span>
+
         <span class="k">def</span> <span class="nf">clamp</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
             <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="mi">255</span><span class="p">))</span>
 
@@ -674,7 +691,7 @@
     <span class="nd">@in_spectator_mode</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">in_spectator_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_in_spectator_mode</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span>
-        <span class="c1">#self.history.info(&quot;in_spectator_mode set to %s&quot; % mode)</span>
+        <span class="c1"># self.history.info(&quot;in_spectator_mode set to %s&quot; % mode)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">corrections</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -789,6 +806,7 @@
             <span class="c1"># remove the same list of dependencies from the task in the work</span>
             <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
                 <span class="n">task</span><span class="o">.</span><span class="n">remove_deps</span><span class="p">(</span><span class="n">deps</span><span class="p">)</span></div>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">deps_status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a list with the status of the dependencies.&quot;&quot;&quot;</span>
@@ -804,12 +822,12 @@
 <div class="viewcode-block" id="Node.get_parents"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.Node.get_parents">[docs]</a>    <span class="k">def</span> <span class="nf">get_parents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the list of nodes in the :class:`Flow` required by this :class:`Node`&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">d</span><span class="o">.</span><span class="n">node</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">deps</span><span class="p">]</span></div>
-        <span class="c1">#parents = []</span>
-        <span class="c1">#for work in self.flow:</span>
+        <span class="c1"># parents = []</span>
+        <span class="c1"># for work in self.flow:</span>
         <span class="c1">#    if self.depends_on(work): parents.append(work)</span>
         <span class="c1">#    for task in work:</span>
         <span class="c1">#        if self.depends_on(task): parents.append(task)</span>
-        <span class="c1">#return parents</span>
+        <span class="c1"># return parents</span>
 
 <div class="viewcode-block" id="Node.get_children"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.Node.get_children">[docs]</a>    <span class="k">def</span> <span class="nf">get_children</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -826,9 +844,11 @@
         <span class="c1"># Inspect the entire flow to get children.</span>
         <span class="n">children</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">work</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">work</span><span class="o">.</span><span class="n">depends_on</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">work</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">work</span><span class="o">.</span><span class="n">depends_on</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">work</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">work</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">depends_on</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">depends_on</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                    <span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">children</span></div>
 
 <div class="viewcode-block" id="Node.str_deps"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.Node.str_deps">[docs]</a>    <span class="k">def</span> <span class="nf">str_deps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -867,7 +887,7 @@
             <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="c1">#print(&quot;Ignoring node of type: `%s`&quot; % type(self))</span>
+            <span class="c1"># print(&quot;Ignoring node of type: `%s`&quot; % type(self))</span>
             <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="Node.get_graphviz_dirtree"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.Node.get_graphviz_dirtree">[docs]</a>    <span class="k">def</span> <span class="nf">get_graphviz_dirtree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;automatic&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -898,7 +918,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gc</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="c1">#if not self.is_flow and self.flow.gc: return self.flow.gc</span>
+            <span class="c1"># if not self.is_flow and self.flow.gc: return self.flow.gc</span>
             <span class="k">return</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
@@ -973,13 +993,14 @@
 <span class="sd">        through send, terminating the dispatch loop, so it is quite</span>
 <span class="sd">        possible to not have all receivers called if a raises an error.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_spectator_mode</span><span class="p">:</span> <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_spectator_mode</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Node </span><span class="si">%s</span><span class="s2"> broadcasts signal </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signal</span><span class="p">))</span>
         <span class="n">dispatcher</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">signal</span><span class="o">=</span><span class="n">signal</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span></div>
 
-   <span class="c1">##########################</span>
-   <span class="c1">### Abstract protocol ####</span>
-   <span class="c1">##########################</span>
+    <span class="c1">##########################</span>
+    <span class="c1"># Abstract protocol ####</span>
+    <span class="c1">##########################</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -1041,7 +1062,7 @@
 
 <div class="viewcode-block" id="FileNode.get_results"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.FileNode.get_results">[docs]</a>    <span class="k">def</span> <span class="nf">get_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">results</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_results</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="c1">#results.register_gridfs_files(filepath=self.filepath)</span>
+        <span class="c1"># results.register_gridfs_files(filepath=self.filepath)</span>
         <span class="k">return</span> <span class="n">results</span></div>
 
 <div class="viewcode-block" id="FileNode.add_filechild"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.FileNode.add_filechild">[docs]</a>    <span class="k">def</span> <span class="nf">add_filechild</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
@@ -1076,10 +1097,11 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
-        <span class="c1">#try to find file in the same path</span>
+        <span class="c1"># try to find file in the same path</span>
         <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span>
-        <span class="n">glob_result</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span><span class="s2">&quot;*</span><span class="si">%s</span><span class="s2">&quot;</span><span class="o">%</span><span class="n">abiext</span><span class="p">))</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">glob_result</span><span class="p">):</span> <span class="k">return</span> <span class="n">abilab</span><span class="o">.</span><span class="n">abiopen</span><span class="p">(</span><span class="n">glob_result</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">glob_result</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;*</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">abiext</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">glob_result</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">abilab</span><span class="o">.</span><span class="n">abiopen</span><span class="p">(</span><span class="n">glob_result</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">abiopen</span><span class="p">()</span></div>
 
 
@@ -1133,6 +1155,7 @@
 <span class="sd">    .. attribute:: message</span>
 <span class="sd">        The result of record.getMessage(), computed just as the record is emitted</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">pathname</span><span class="p">,</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">exc_info</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize a logging record with interesting information.</span>
@@ -1156,7 +1179,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pathname</span> <span class="o">=</span> <span class="n">pathname</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">levelname</span> <span class="o">=</span> <span class="s2">&quot;FOOBAR&quot;</span> <span class="c1">#getLevelName(level)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">levelname</span> <span class="o">=</span> <span class="s2">&quot;FOOBAR&quot;</span>  <span class="c1"># getLevelName(level)</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">pathname</span><span class="p">)</span>
@@ -1166,14 +1189,15 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">module</span> <span class="o">=</span> <span class="s2">&quot;Unknown module&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">exc_info</span> <span class="o">=</span> <span class="n">exc_info</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">exc_text</span> <span class="o">=</span> <span class="kc">None</span>      <span class="c1"># used to cache the traceback text</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exc_text</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># used to cache the traceback text</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lineno</span> <span class="o">=</span> <span class="n">lineno</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">func_name</span> <span class="o">=</span> <span class="n">func</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">created</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">asctime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">asctime</span><span class="p">()</span>
         <span class="c1"># Remove milliseconds</span>
         <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">asctime</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">asctime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">asctime</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">asctime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">asctime</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s1">&#39;&lt;</span><span class="si">%s</span><span class="s1">, </span><span class="si">%s</span><span class="s1">, </span><span class="si">%s</span><span class="s1">, </span><span class="si">%s</span><span class="s1">,</span><span class="se">\n</span><span class="s1">&quot;</span><span class="si">%s</span><span class="s1">&quot;&gt;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">levelno</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pathname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineno</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">msg</span><span class="p">)</span>
@@ -1196,7 +1220,8 @@
             <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                 <span class="n">msg</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">asctime</span><span class="p">:</span> <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;[&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">asctime</span> <span class="o">+</span> <span class="s2">&quot;] &quot;</span> <span class="o">+</span> <span class="n">msg</span>
+        <span class="k">if</span> <span class="n">asctime</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;[&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">asctime</span> <span class="o">+</span> <span class="s2">&quot;] &quot;</span> <span class="o">+</span> <span class="n">msg</span>
 
         <span class="c1"># Add metadata</span>
         <span class="k">if</span> <span class="n">metadata</span><span class="p">:</span>
@@ -1247,22 +1272,23 @@
 
 <div class="viewcode-block" id="NodeCorrections"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.NodeCorrections">[docs]</a><span class="k">class</span> <span class="nc">NodeCorrections</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Iterable storing the correctios performed by the :class:`EventHandler`&quot;&quot;&quot;</span></div>
-    <span class="c1">#TODO</span>
+    <span class="c1"># TODO</span>
     <span class="c1"># Correction should have a human-readable message</span>
     <span class="c1"># and a list of operatins in JSON format (Modder?) so that</span>
     <span class="c1"># we can read them and re-apply the corrections to another task if needed.</span>
 
-    <span class="c1">#def count_event_class(self, event_class):</span>
+    <span class="c1"># def count_event_class(self, event_class):</span>
     <span class="c1">#    &quot;&quot;&quot;</span>
     <span class="c1">#    Return the number of times the event class has been already fixed.</span>
     <span class="c1">#    &quot;&quot;&quot;</span>
     <span class="c1">#    #return len([c for c in self if c[&quot;event&quot;][&quot;@class&quot;] == str(event_class)])</span>
 
-    <span class="c1">#def _find(self, event_class)</span>
+    <span class="c1"># def _find(self, event_class)</span>
 
 
 <div class="viewcode-block" id="GarbageCollector"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.GarbageCollector">[docs]</a><span class="k">class</span> <span class="nc">GarbageCollector</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;This object stores information on the &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exts</span><span class="p">,</span> <span class="n">policy</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">exts</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">exts</span><span class="p">),</span> <span class="n">policy</span></div>
 
@@ -1289,7 +1315,8 @@
     <span class="k">if</span> <span class="n">_COUNTER</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">_COUNTER_FILE</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
             <span class="n">s</span> <span class="o">=</span> <span class="n">fh</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;-1&quot;</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">s</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;-1&quot;</span>
             <span class="n">_COUNTER</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">)</span></div>
 
 
@@ -1316,12 +1343,6 @@
     <span class="k">with</span> <span class="n">FileLock</span><span class="p">(</span><span class="n">_COUNTER_FILE</span><span class="p">):</span>
         <span class="k">with</span> <span class="n">AtomicFile</span><span class="p">(</span><span class="n">_COUNTER_FILE</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
             <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">_COUNTER</span><span class="p">)</span></div>
-
-
-<span class="c1"># Register function atexit</span>
-<span class="kn">import</span> <span class="nn">atexit</span>
-<span class="n">atexit</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">save_lastnode_id</span><span class="p">)</span>
-
 </pre></div>
 
           </div>
@@ -1352,7 +1373,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1360,7 +1381,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

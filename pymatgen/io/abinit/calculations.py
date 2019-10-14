@@ -12,13 +12,11 @@ import os
 from .abiobjects import KSampling, Screening, SelfEnergy, ExcHamiltonian, HilbertTransform
 from .works import BandStructureWork, G0W0Work, BseMdfWork
 
-
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Matteo Giantomassi"
 __email__ = "gmatteo at gmail.com"
-
 
 
 def g0w0_extended_work(structure, pseudos, kppa, nscf_nband, ecuteps, ecutsigx, scf_nband, accuracy="normal",
@@ -52,14 +50,14 @@ def g0w0_extended_work(structure, pseudos, kppa, nscf_nband, ecuteps, ecutsigx, 
     # TODO: Cannot use istwfk != 1.
 
     # all these too many options are for development only the current idea for the final version is
-    #if gamma:
+    # if gamma:
     #    scf_ksampling = KSampling.automatic_density(structure=structure, kppa=10000, chksymbreak=0, shifts=(0, 0, 0))
     #    nscf_ksampling = KSampling.gamma_centered(kpts=(2, 2, 2))
     #    if kppa <= 13:
     #        nscf_ksampling = KSampling.gamma_centered(kpts=(scf_kppa, scf_kppa, scf_kppa))
     #    else:
     #        nscf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0, shifts=(0, 0, 0))
-    #else:
+    # else:
     #    scf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
     #    nscf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
 
@@ -80,7 +78,7 @@ def g0w0_extended_work(structure, pseudos, kppa, nscf_nband, ecuteps, ecutsigx, 
             scf_ksampling = KSampling.automatic_density(structure, kppa, chksymbreak=0, shifts=(0, 0, 0))
             nscf_ksampling = KSampling.automatic_density(structure, kppa, chksymbreak=0, shifts=(0, 0, 0))
     else:
-        #this is the original behaviour before the devellopment of the gwwrapper
+        # this is the original behaviour before the devellopment of the gwwrapper
         scf_ksampling = KSampling.automatic_density(structure, kppa, chksymbreak=0)
         nscf_ksampling = KSampling.automatic_density(structure, kppa, chksymbreak=0)
 
@@ -92,23 +90,23 @@ def g0w0_extended_work(structure, pseudos, kppa, nscf_nband, ecuteps, ecutsigx, 
 
     scf_inputs = []
     to_add = {}
-    #scf_nband = min(nscf_nband)
-    #print(scf_nband)
+    # scf_nband = min(nscf_nband)
+    # print(scf_nband)
     extra_abivars.update(to_add)
 
     for k in extra_abivars.keys():
         if k[-2:] == '_s':
-            var = k[:len(k)-2]
+            var = k[:len(k) - 2]
             values = extra_abivars.pop(k)
             to_add.update({k: values[-1]})
             for value in values:
                 extra_abivars[var] = value
-                extra_abivars['pawecutdg'] = extra_abivars['ecut']*2
+                extra_abivars['pawecutdg'] = extra_abivars['ecut'] * 2
                 scf_inputs.append(ScfStrategy(structure, pseudos, scf_ksampling, accuracy=accuracy,
-                                                spin_mode=spin_mode, smearing=smearing, charge=charge,
-                                                scf_algorithm=None, nband=scf_nband, **extra_abivars))
+                                              spin_mode=spin_mode, smearing=smearing, charge=charge,
+                                              scf_algorithm=None, nband=scf_nband, **extra_abivars))
 
-    #temporary for testing a new approach ...
+    # temporary for testing a new approach ...
     spread_scr = False if os.path.isfile('no_spread_scr') else True
 
     if len(scf_strategy) == 0:
@@ -116,9 +114,8 @@ def g0w0_extended_work(structure, pseudos, kppa, nscf_nband, ecuteps, ecutsigx, 
                                         smearing=smearing, charge=charge, scf_algorithm=None, nband=scf_nband,
                                         **extra_abivars))
 
-
-    nscf_strategy = NscfStrategy(scf_strategy[-1], nscf_ksampling, int(max(nscf_nband)*1.1)+1,
-                                 nbdbuf=int(0.1*max(nscf_nband)), nstep=200, **extra_abivars)
+    nscf_strategy = NscfStrategy(scf_strategy[-1], nscf_ksampling, int(max(nscf_nband) * 1.1) + 1,
+                                 nbdbuf=int(0.1 * max(nscf_nband)), nstep=200, **extra_abivars)
 
     if scr_nband is None:
         scr_nband = nscf_nband
@@ -153,7 +150,8 @@ def g0w0_extended_work(structure, pseudos, kppa, nscf_nband, ecuteps, ecutsigx, 
                 sigma_strategy.append(SelfEnergyStrategy(scf_strategy[-1], nscf_strategy, scr_strategy, self_energy,
                                                          **extra_abivars))
 
-    if work_class is None: work_class = G0W0Work
+    if work_class is None:
+        work_class = G0W0Work
     print(work_class)
 
     return work_class(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, workdir=workdir, manager=manager,

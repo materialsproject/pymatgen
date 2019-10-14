@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.energy_models module &#8212; pymatgen 2019.8.23 documentation</title>
+    <title>pymatgen.analysis.energy_models module &#8212; pymatgen 2019.10.4 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +43,9 @@
             
   <div class="section" id="module-pymatgen.analysis.energy_models">
 <span id="pymatgen-analysis-energy-models-module"></span><h1>pymatgen.analysis.energy_models module<a class="headerlink" href="#module-pymatgen.analysis.energy_models" title="Permalink to this headline">¶</a></h1>
+<p>This module implements a EnergyModel abstract class and some basic
+implementations. Basically, an EnergyModel is any model that returns an
+“energy” for any given structure.</p>
 <dl class="class">
 <dt id="pymatgen.analysis.energy_models.EnergyModel">
 <em class="property">class </em><code class="sig-name descname">EnergyModel</code><a class="reference internal" href="_modules/pymatgen/analysis/energy_models.html#EnergyModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.EnergyModel" title="Permalink to this definition">¶</a></dt>
@@ -52,13 +54,27 @@
 <dl class="method">
 <dt id="pymatgen.analysis.energy_models.EnergyModel.from_dict">
 <em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/energy_models.html#EnergyModel.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.EnergyModel.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> – Dict representation</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>EnergyModel</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.energy_models.EnergyModel.get_energy">
-<em class="property">abstract </em><code class="sig-name descname">get_energy</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/energy_models.html#EnergyModel.get_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.EnergyModel.get_energy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a boolean for any structure. Structures that return true are
-kept in the Transmuter object during filtering.</p>
+<em class="property">abstract </em><code class="sig-name descname">get_energy</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="_modules/pymatgen/analysis/energy_models.html#EnergyModel.get_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.EnergyModel.get_energy" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>structure</strong> – Structure</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Energy value</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -90,14 +106,24 @@ converged to.</p></li>
 <dl class="method">
 <dt id="pymatgen.analysis.energy_models.EwaldElectrostaticModel.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/energy_models.html#EwaldElectrostaticModel.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.EwaldElectrostaticModel.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A JSON serializable dict representation of an object.</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>MSONable dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.energy_models.EwaldElectrostaticModel.get_energy">
 <code class="sig-name descname">get_energy</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/energy_models.html#EwaldElectrostaticModel.get_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.EwaldElectrostaticModel.get_energy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a boolean for any structure. Structures that return true are
-kept in the Transmuter object during filtering.</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>structure</strong> – Structure</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Energy value</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -118,14 +144,24 @@ kept in the Transmuter object during filtering.</p>
 <dl class="method">
 <dt id="pymatgen.analysis.energy_models.IsingModel.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/energy_models.html#IsingModel.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.IsingModel.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A JSON serializable dict representation of an object.</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>MSONable dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.energy_models.IsingModel.get_energy">
 <code class="sig-name descname">get_energy</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/energy_models.html#IsingModel.get_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.IsingModel.get_energy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a boolean for any structure. Structures that return true are
-kept in the Transmuter object during filtering.</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>structure</strong> – Structure</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Energy value</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -140,14 +176,24 @@ of sites after enumeration.</p>
 <dl class="method">
 <dt id="pymatgen.analysis.energy_models.NsitesModel.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/energy_models.html#NsitesModel.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.NsitesModel.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A JSON serializable dict representation of an object.</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>MSONable dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.energy_models.NsitesModel.get_energy">
 <code class="sig-name descname">get_energy</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/energy_models.html#NsitesModel.get_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.NsitesModel.get_energy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a boolean for any structure. Structures that return true are
-kept in the Transmuter object during filtering.</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>structure</strong> – Structure</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Energy value</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -171,14 +217,24 @@ lower “energy”.</p>
 <dl class="method">
 <dt id="pymatgen.analysis.energy_models.SymmetryModel.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/energy_models.html#SymmetryModel.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.SymmetryModel.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A JSON serializable dict representation of an object.</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>MSONable dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.energy_models.SymmetryModel.get_energy">
 <code class="sig-name descname">get_energy</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/energy_models.html#SymmetryModel.get_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.energy_models.SymmetryModel.get_energy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a boolean for any structure. Structures that return true are
-kept in the Transmuter object during filtering.</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>structure</strong> – Structure</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Energy value</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -221,13 +277,13 @@ kept in the Transmuter object during filtering.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
