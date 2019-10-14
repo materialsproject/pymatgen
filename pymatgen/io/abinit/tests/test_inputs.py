@@ -109,7 +109,6 @@ class AbinitInputTestCase(PymatgenTest):
 
         # Compatible with Pickle and MSONable?
         self.serialize_with_pickle(inp, test_eq=False)
-        #self.assertMSONable(inp)
 
     def test_input_errors(self):
         """Testing typical BasicAbinitInput Error"""
