@@ -1529,8 +1529,6 @@ class MinimumVIRENN(NearNeighbors):
         """
         self.tol = tol
         self.cutoff = cutoff
-        self._structure_hash = None
-        self._vire_cache = None
 
     def get_nn_info(self, structure, n):
         """
