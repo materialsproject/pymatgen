@@ -101,7 +101,7 @@ class NetcdfReader:
         self.ngroups = len(list(self.walk_tree()))
 
         # Always return non-masked numpy arrays.
-        # Slicing a ncvar returns a MaskedArrray and this is really annoying 
+        # Slicing a ncvar returns a MaskedArrray and this is really annoying
         # because it can lead to unexpected behaviour in e.g. calls to np.matmul!
         # See also https://github.com/Unidata/netcdf4-python/issues/785
         self.rootgrp.set_auto_mask(False)

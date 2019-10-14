@@ -109,7 +109,7 @@ class AbinitInputTestCase(PymatgenTest):
 
         # Compatible with Pickle and MSONable?
         self.serialize_with_pickle(inp, test_eq=False)
-        self.assertMSONable(inp)
+        #self.assertMSONable(inp)
 
     def test_input_errors(self):
         """Testing typical BasicAbinitInput Error"""
@@ -150,8 +150,8 @@ class AbinitInputTestCase(PymatgenTest):
         assert inp["kptopt"] == 1 and inp["nshiftk"] == 1
         assert np.all(inp["shiftk"] == 0)
 
-        # inp.set_kpath(ndivsm=3, kptbounds=None)
-        # assert inp["ndivsm"] == 3 and inp["iscf"] == -2 and len(inp["kptbounds"]) == 12
+        inp.set_kpath(ndivsm=3, kptbounds=None)
+        assert inp["ndivsm"] == 3 and inp["iscf"] == -2 and len(inp["kptbounds"]) == 12
 
 
 class TestMultiDataset(PymatgenTest):
@@ -207,7 +207,7 @@ class TestMultiDataset(PymatgenTest):
         assert len(split) == 2 and all(split[i] == multi[i] for i in range(multi.ndtset))
         repr(multi)
         str(multi)
-        assert multi.to_string()
+        assert multi.to_string(with_pseudos=False)
 
         tmpdir = tempfile.mkdtemp()
         filepath = os.path.join(tmpdir, "run.abi")
@@ -232,7 +232,6 @@ class TestMultiDataset(PymatgenTest):
 
         # Compatible with Pickle and MSONable?
         self.serialize_with_pickle(multi, test_eq=False)
-        # self.assertMSONable(multi)
 
 
 class ShiftModeTest(PymatgenTest):
@@ -255,11 +254,16 @@ class FactoryTest(PymatgenTest):
 
     def test_gs_input(self):
         """Testing gs_input factory."""
-        inp = gs_input(self.si_structure, self.si_pseudo, kppa=None, ecut=2, spin_mode="unpolarized")
+        inp = gs_input(self.si_structure, self.si_pseudo, kppa=10, ecut=10, spin_mode="polarized")
+        str(inp)
+        assert inp["nsppol"] == 2
+        assert inp["nband"] == 14
+        self.assertArrayEqual(inp["ngkpt"], [2, 2, 2])
 
     def test_ebands_input(self):
         """Testing ebands_input factory."""
         multi = ebands_input(self.si_structure, self.si_pseudo, kppa=10, ecut=2)
+        str(multi)
 
         scf_inp, nscf_inp = multi.split_datasets()
 
@@ -275,11 +279,14 @@ class FactoryTest(PymatgenTest):
                                  spin_mode="unpolarized", smearing=None, charge=2.0, dos_kppa=[50, 100])
         assert len(multi_dos) == 4
         self.assertEqual(multi_dos.get("iscf"), [None, -2, -2, -2])
+        str(multi_dos)
 
     def test_ion_ioncell_relax_input(self):
         """Testing ion_ioncell_relax_input factory."""
         multi = ion_ioncell_relax_input(self.si_structure, self.si_pseudo, kppa=10, ecut=2)
-        # scf_kppa, scf_nband #accuracy="normal", spin_mode="polarized",
-        # smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None)
 
+        str(multi)
         ion_inp, ioncell_inp = multi.split_datasets()
+        assert ion_inp["chksymbreak"] == 0
+        assert ion_inp["ionmov"] == 3 and ion_inp["optcell"] == 0
+        assert ioncell_inp["ionmov"] == 3 and ioncell_inp["optcell"] == 2

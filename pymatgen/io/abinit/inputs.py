@@ -754,7 +754,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
             raise self.Error("You cannot set the value of a variable associated to the structure.\n"
                              "Use Structure objects to prepare the input file.")
 
-    def to_string(self, post=None, with_structure=True, with_pseudos=True, exclude=None, verbose=0):
+    def to_string(self, post=None, with_structure=True, with_pseudos=True, exclude=None):
         r"""
         String representation.
 
@@ -859,34 +859,26 @@ class BasicAbinitInput(AbstractInput, MSONable):
             kptbounds: k-points defining the path in k-space.
                 If None, we use the default high-symmetry k-path defined in the pymatgen database.
         """
-        #def calc_kptbounds(self):
-        #    kptbounds = [k.frac_coords for k in self.hsym_kpoints]
-        #    return np.reshape(kptbounds, (-1, 3))
-
-        #@lazy_property
-        #def hsym_kpoints(self):
-        #    """|KpointList| object with the high-symmetry K-points."""
-        #    # Get mapping name --> frac_coords for the special k-points in the database.
-        #    name2frac_coords = self.hsym_kpath.kpath["kpoints"]
-        #    kpath = self.hsym_kpath.kpath["path"]
-
-        #    frac_coords, names = [], []
-        #    for segment in kpath:
-        #        for name in segment:
-        #            fc = name2frac_coords[name]
-        #            frac_coords.append(fc)
-        #            names.append(name)
-
-        #    # Build KpointList instance.
-        #    from .kpoints import KpointList
-        #    return KpointList(self.reciprocal_lattice, frac_coords, weights=None, names=names)
 
         if kptbounds is None:
-            kptbounds = self.structure.calc_kptbounds()
+            from pymatgen.symmetry.bandstructure import HighSymmKpath
+            hsym_kpath = HighSymmKpath(self.structure)
+
+            name2frac_coords = hsym_kpath.kpath["kpoints"]
+            kpath = hsym_kpath.kpath["path"]
+
+            frac_coords, names = [], []
+            for segment in kpath:
+                for name in segment:
+                    fc = name2frac_coords[name]
+                    frac_coords.append(fc)
+                    names.append(name)
+            kptbounds = np.array(frac_coords)
+
         kptbounds = np.reshape(kptbounds, (-1, 3))
         # self.pop_vars(["ngkpt", "shiftk"]) ??
 
-        return self.set_vars(kptbounds=kptbounds, kptopt=-(len(kptbounds)-1), ndivsm=ndivsm, iscf=iscf)
+        return self.set_vars(kptbounds=kptbounds, kptopt=-(len(kptbounds) - 1), ndivsm=ndivsm, iscf=iscf)
 
     def set_spin_mode(self, spin_mode):
         """
@@ -1166,7 +1158,7 @@ class BasicMultiDataset(object):
     def __str__(self):
         return self.to_string()
 
-    def to_string(self, verbose=0, with_pseudos=True):
+    def to_string(self,  with_pseudos=True):
         """
         String representation i.e. the input file read by Abinit.
 
@@ -1212,7 +1204,7 @@ class BasicMultiDataset(object):
                 lines.append(w * "#")
                 lines.append("#" + ("STRUCTURE").center(w - 1))
                 lines.append(w * "#")
-                for key, value in self[0].structure.to_abivars().items():
+                for key, value in aobj.structure_to_abivars(self[0].structure).items():
                     vname = key
                     lines.append(str(InputVariable(vname, value)))
 
