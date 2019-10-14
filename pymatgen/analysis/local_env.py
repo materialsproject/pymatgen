@@ -1582,7 +1582,7 @@ def _get_vire(structure: Union[Structure, IStructure]):
         Output of `ValenceIonicRadiusEvaluator(structure)`
     """
     # pymatgen does not hash Structure objects, so we need
-    #  to convert from Structure to the immutable IStructure method
+    # to cast from Structure to the immutable IStructure
     if isinstance(structure, Structure):
         structure = IStructure.from_sites(structure)
 
