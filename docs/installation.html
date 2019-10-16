@@ -165,10 +165,9 @@ create a separate environment for each of your packages. For example:</p>
 </div>
 <div class="section" id="step-3-install-pymatgen">
 <h2>Step 3: Install pymatgen<a class="headerlink" href="#step-3-install-pymatgen" title="Permalink to this headline">¶</a></h2>
-<p>You can install pymatgen via conda as well via the <a class="reference external" href="https://anaconda.org/matsci">matsci channel on
-Anaconda cloud</a> maintained by the Materials
-Virtual Lab:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">--</span><span class="n">channel</span> <span class="n">matsci</span> <span class="n">pymatgen</span>
+<p>You can install pymatgen via conda as well via the conda-forge channel on
+Anaconda cloud:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">--</span><span class="n">channel</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span> <span class="n">pymatgen</span>
 </pre></div>
 </div>
 <p>If the above fails, try using conda to install some critical dependencies and
@@ -182,20 +181,14 @@ then do pip install:</p>
 <h2>Step 4: (Optional) Install enumlib and bader (only for OSX and Linux)<a class="headerlink" href="#step-4-optional-install-enumlib-and-bader-only-for-osx-and-linux" title="Permalink to this headline">¶</a></h2>
 <p>If you would like to use the enumeration capabilities powered by Gus Hart’s
 enumlib or perform Bader charge analysis powered by the Bader analysis code
-of the Henkelmann group, the <a class="reference external" href="https://anaconda.org/matsci">matsci channel on Anaconda cloud</a> has builds for enumlib and bader for OSX and
-Linux (sorry, Windows users, you are on your own as the develpers of these
-packages do not support Windows):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">--</span><span class="n">channel</span> <span class="n">matsci</span> <span class="n">bader</span>
-<span class="n">conda</span> <span class="n">install</span> <span class="o">--</span><span class="n">channel</span> <span class="n">matsci</span> <span class="n">enumlib</span>
-</pre></div>
-</div>
-<p>If the above fails, you can also try installing these from source using the pmg
+of the Henkelmann group, please try installing these from source using the pmg
 command line tool as follows:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pmg</span> <span class="n">config</span> <span class="o">--</span><span class="n">install</span> <span class="n">enumlib</span>
 <span class="n">pmg</span> <span class="n">config</span> <span class="o">--</span><span class="n">install</span> <span class="n">bader</span>
 </pre></div>
 </div>
-<p>Then put these in your PATH somewhere.</p>
+<p>Then put these in your PATH somewhere. You can also download the source of
+these from the official repos and follow the compile instructions.</p>
 </div>
 </div>
 <div class="section" id="potcar-setup">
