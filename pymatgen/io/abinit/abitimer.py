@@ -558,14 +558,14 @@ class ParallelEfficiency(dict):
         return table
 
     def good_sections(self, key="wall_time", criterion="mean", nmax=5):
-        """"
+        """
         Return first `nmax` sections with best value of key `key` using criterion `criterion`.
         """
         good_sections = self._order_by_peff(key, criterion=criterion)
         return good_sections[:nmax]
 
     def bad_sections(self, key="wall_time", criterion="mean", nmax=5):
-        """"
+        """
         Return first `nmax` sections with worst value of key `key` using criterion `criterion`.
         """
         bad_sections = self._order_by_peff(key, criterion=criterion, reverse=False)

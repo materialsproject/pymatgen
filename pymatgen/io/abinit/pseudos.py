@@ -262,7 +262,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
 
     @classmethod
     def from_dict(cls, d):
-        """Build instance from dictionary  (MSONable protocol)."""
+        """Build instance from dictionary (MSONable protocol)."""
         new = cls.from_file(d['filepath'])
 
         # Consistency test based on md5
@@ -1675,6 +1675,7 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
     #    return ecut, pawecutdg
 
     def as_dict(self, **kwargs):
+        """Return dictionary for MSONable protocol."""
         d = {}
         for p in self:
             k, count = p.element.name, 1
@@ -1690,6 +1691,7 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
 
     @classmethod
     def from_dict(cls, d):
+        """Build instance from dictionary (MSONable protocol)."""
         pseudos = []
         dec = MontyDecoder()
         for k, v in d.items():
