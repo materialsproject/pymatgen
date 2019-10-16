@@ -119,11 +119,10 @@ create a separate environment for each of your packages. For example::
 Step 3: Install pymatgen
 ------------------------
 
-You can install pymatgen via conda as well via the `matsci channel on
-Anaconda cloud <https://anaconda.org/matsci>`_ maintained by the Materials
-Virtual Lab::
+You can install pymatgen via conda as well via the conda-forge channel on
+Anaconda cloud::
 
-    conda install --channel matsci pymatgen
+    conda install --channel conda-forge pymatgen
 
 If the above fails, try using conda to install some critical dependencies and
 then do pip install::
@@ -136,21 +135,14 @@ Step 4: (Optional) Install enumlib and bader (only for OSX and Linux)
 
 If you would like to use the enumeration capabilities powered by Gus Hart's
 enumlib or perform Bader charge analysis powered by the Bader analysis code
-of the Henkelmann group, the `matsci channel on Anaconda cloud
-<https://anaconda.org/matsci>`_ has builds for enumlib and bader for OSX and
-Linux (sorry, Windows users, you are on your own as the develpers of these
-packages do not support Windows)::
-
-    conda install --channel matsci bader
-    conda install --channel matsci enumlib
-
-If the above fails, you can also try installing these from source using the pmg
+of the Henkelmann group, please try installing these from source using the pmg
 command line tool as follows::
 
    pmg config --install enumlib
    pmg config --install bader
 
-Then put these in your PATH somewhere.
+Then put these in your PATH somewhere. You can also download the source of
+these from the official repos and follow the compile instructions.
 
 POTCAR Setup
 ============
