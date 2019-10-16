@@ -2081,7 +2081,7 @@ class IStructure(SiteCollection, MSONable):
                 return None
             return yaml.safe_dump(self.as_dict())
         else:
-            raise ValueError("Invalid format.")
+            raise ValueError("Invalid format: `%s`" % str(fmt))
 
         if filename:
             writer.write_file(filename)

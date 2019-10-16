@@ -81,6 +81,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         return parser, paths, okfiles
 
     def __init__(self):
+        """Initialize object."""
         # List of files that have been parsed.
         self._filenames = []
 
@@ -250,8 +251,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         """
         Analyze the parallel efficiency.
 
-        Return:
-            :class:`ParallelEfficiency` object.
+        Return: :class:`ParallelEfficiency` object.
         """
         timers = self.timers()
 
@@ -312,8 +312,8 @@ class AbinitTimerParser(collections.abc.Iterable):
 
         # Compute parallel efficiency (use the run with min number of cpus to normalize).
         i = frame["tot_ncpus"].values.argmin()
-        ref_wtime = frame.ix[i]["wall_time"]
-        ref_ncpus = frame.ix[i]["tot_ncpus"]
+        ref_wtime = frame.iloc[i]["wall_time"]
+        ref_ncpus = frame.iloc[i]["tot_ncpus"]
         frame["peff"] = (ref_ncpus * ref_wtime) / (frame["wall_time"] * frame["tot_ncpus"])
 
         return frame
@@ -497,8 +497,16 @@ class AbinitTimerParser(collections.abc.Iterable):
 
 
 class ParallelEfficiency(dict):
+    """
+    Store results concerning the parallel efficiency of the job.
+    """
 
     def __init__(self, filenames, ref_idx, *args, **kwargs):
+        """
+        Args:
+            filennames: List of filenames
+            ref_idx: Index of the Reference time (calculation done with the smallest number of cpus)
+        """
         self.update(*args, **kwargs)
         self.filenames = filenames
         self._ref_idx = ref_idx
@@ -527,7 +535,16 @@ class ParallelEfficiency(dict):
         return tuple([sect_name for (sect_name, e) in data])
 
     def totable(self, stop=None, reverse=True):
+        """
+        Return table (list of lists) with timing results.
+
+        Args:
+            stop: Include results up to stop. None for all
+            reverse: Put items with highest wall_time in first positions if True.
+        """
         osects = self._order_by_peff("wall_time", criterion="mean", reverse=reverse)
+        if stop is not None:
+            osects = osects[:stop]
 
         n = len(self.filenames)
         table = [["AbinitTimerSection"] + alternate(self.filenames, n * ["%"])]
@@ -541,10 +558,16 @@ class ParallelEfficiency(dict):
         return table
 
     def good_sections(self, key="wall_time", criterion="mean", nmax=5):
+        """
+        Return first `nmax` sections with best value of key `key` using criterion `criterion`.
+        """
         good_sections = self._order_by_peff(key, criterion=criterion)
         return good_sections[:nmax]
 
     def bad_sections(self, key="wall_time", criterion="mean", nmax=5):
+        """
+        Return first `nmax` sections with worst value of key `key` using criterion `criterion`.
+        """
         bad_sections = self._order_by_peff(key, criterion=criterion, reverse=False)
         return bad_sections[:nmax]
 
@@ -568,9 +591,20 @@ class AbinitTimerSection:
 
     @classmethod
     def fake(cls):
+        """Return a fake section. Mainly used to fill missing entries if needed."""
         return AbinitTimerSection("fake", 0.0, 0.0, 0.0, 0.0, -1, 0.0)
 
     def __init__(self, name, cpu_time, cpu_fract, wall_time, wall_fract, ncalls, gflops):
+        """
+        Args:
+            name: Name of the sections.
+            cpu_time: CPU time in seconds.
+            cpu_fract: Percentage of CPU time.
+            wall_time: Wall-time in seconds.
+            wall_fract: Percentage of wall-time.
+            ncalls: Number of calls
+            gflops: Gigaflops.
+        """
         self.name = name.strip()
         self.cpu_time = float(cpu_time)
         self.cpu_fract = float(cpu_fract)
@@ -580,13 +614,15 @@ class AbinitTimerSection:
         self.gflops = float(gflops)
 
     def to_tuple(self):
+        """Convert object to tuple."""
         return tuple([self.__dict__[at] for at in AbinitTimerSection.FIELDS])
 
     def to_dict(self):
+        """Convert object to dictionary."""
         return {at: self.__dict__[at] for at in AbinitTimerSection.FIELDS}
 
     def to_csvline(self, with_header=False):
-        """Return a string with data in CSV format"""
+        """Return a string with data in CSV format. Add header if `with_header`"""
         string = ""
 
         if with_header:
@@ -596,6 +632,7 @@ class AbinitTimerSection:
         return string
 
     def __str__(self):
+        """String representation."""
         string = ""
         for a in AbinitTimerSection.FIELDS:
             string += a + " = " + self.__dict__[a] + ","
@@ -606,7 +643,13 @@ class AbinitTimer:
     """Container class storing the timing results."""
 
     def __init__(self, sections, info, cpu_time, wall_time):
-
+        """
+        Args:
+            sections: List of sections
+            info: Dictionary with extra info.
+            cpu_time: Cpu-time in seconds.
+            wall_time: Wall-time in seconds.
+        """
         # Store sections and names
         self.sections = tuple(sections)
         self.section_names = tuple([s.name for s in self.sections])
@@ -634,6 +677,7 @@ class AbinitTimer:
         return self.mpi_nprocs * self.omp_nthreads
 
     def get_section(self, section_name):
+        """Return section associated to `section_name`."""
         try:
             idx = self.section_names.index(section_name)
         except Exception:
@@ -761,6 +805,7 @@ class AbinitTimer:
         return operator(self.get_values(keys))
 
     def sum_sections(self, keys):
+        """Sum value of keys."""
         return self._reduce_sections(keys, sum)
 
     def order_sections(self, key, reverse=True):
@@ -769,6 +814,14 @@ class AbinitTimer:
 
     @add_fig_kwargs
     def cpuwall_histogram(self, ax=None, **kwargs):
+        """
+        Plot histogram with cpu- and wall-time on axis `ax`.
+
+        Args:
+            ax: matplotlib :class:`Axes` or None if a new figure should be created.
+
+        Returns: `matplotlib` figure
+        """
         ax, fig, plt = get_ax_fig_plt(ax=ax)
 
         nk = len(self.sections)
@@ -784,10 +837,7 @@ class AbinitTimer:
         # Add ylable and title
         ax.set_ylabel('Time (s)')
 
-        # if title:
-        #    plt.title(title)
-        # else:
-        #    plt.title('CPU-time and Wall-time for the different sections of the code')
+        # plt.title('CPU-time and Wall-time for the different sections of the code')
 
         ticks = self.get_values("name")
         ax.set_xticks(ind + width, ticks)
@@ -795,22 +845,6 @@ class AbinitTimer:
         ax.legend((rects1[0], rects2[0]), ('CPU', 'Wall'), loc="best")
 
         return fig
-
-    # def hist2(self, key1="wall_time", key2="cpu_time"):
-    #    labels = self.get_values("name")
-    #    vals1, vals2 = self.get_values([key1, key2])
-    #    N = len(vals1)
-    #    assert N == len(vals2)
-    #    plt.figure(1)
-    #    plt.subplot(2, 1, 1) # 2 rows, 1 column, figure 1
-    #    n1, bins1, patches1 = plt.hist(vals1, N, facecolor="m")
-    #    plt.xlabel(labels)
-    #    plt.ylabel(key1)
-    #    plt.subplot(2, 1, 2)
-    #    n2, bins2, patches2 = plt.hist(vals2, N, facecolor="y")
-    #    plt.xlabel(labels)
-    #    plt.ylabel(key2)
-    #    plt.show()
 
     @add_fig_kwargs
     def pie(self, key="wall_time", minfract=0.05, ax=None, **kwargs):
@@ -822,8 +856,7 @@ class AbinitTimer:
             minfract: Don't show sections whose relative weight is less that minfract.
             ax: matplotlib :class:`Axes` or None if a new figure should be created.
 
-        Returns:
-            `matplotlib` figure
+        Returns: `matplotlib` figure
         """
         ax, fig, plt = get_ax_fig_plt(ax=ax)
         # Set aspect ratio to be equal so that pie is drawn as a circle.
@@ -835,6 +868,14 @@ class AbinitTimer:
 
     @add_fig_kwargs
     def scatter_hist(self, ax=None, **kwargs):
+        """
+        Scatter plot + histogram.
+
+        Args:
+            ax: matplotlib :class:`Axes` or None if a new figure should be created.
+
+        Returns: `matplotlib` figure
+        """
         from mpl_toolkits.axes_grid1 import make_axes_locatable
         ax, fig, plt = get_ax_fig_plt(ax=ax)
 

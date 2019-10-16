@@ -52,6 +52,8 @@ class FloatWithUnitTest(PymatgenTest):
         self.assertAlmostEqual(float(b), 60.0)
         self.assertEqual(str(b.unit), "h")
         self.assertEqual(float(3 * a), 60.0)
+        a = Time(0.5, "d")
+        self.assertAlmostEqual(float(a.to("s")), 3600 * 24 * 0.5)
 
     def test_length(self):
         x = Length(4.2, "ang")

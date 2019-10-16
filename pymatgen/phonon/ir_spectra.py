@@ -1,7 +1,12 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
+"""
+This module provides classes to handle the calculation of the IR spectra
+This implementation is adapted from Abipy
+https://github.com/abinit/abipy
+where it was originally done by Guido Petretto and Matteo Giantomassi
+"""
 from __future__ import unicode_literals
 
 import numpy as np
@@ -12,14 +17,7 @@ from pymatgen.vis.plotters import SpectrumPlotter
 from pymatgen.util.plotting import add_fig_kwargs
 from monty.json import MSONable
 
-"""
-This module provides classes to handle the calculation of the IR spectra
-This implementation is adapted from Abipy
-https://github.com/abinit/abipy
-where it was originally done by Guido Petretto and Matteo Giantomassi
-"""
-
-__author__ = "Henrique Miranda, Guido Pettreto, Matteo Giantomassi"
+__author__ = "Henrique Miranda, Guido Petretto, Matteo Giantomassi"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Henrique Miranda"
