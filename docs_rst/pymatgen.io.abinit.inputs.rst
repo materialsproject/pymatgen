@@ -1,7 +1,7 @@
-pymatgen.io.abinit.events module
+pymatgen.io.abinit.inputs module
 ================================
 
-.. automodule:: pymatgen.io.abinit.events
+.. automodule:: pymatgen.io.abinit.inputs
    :members:
    :undoc-members:
    :show-inheritance:

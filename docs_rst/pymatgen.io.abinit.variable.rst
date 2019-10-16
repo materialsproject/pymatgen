@@ -1,7 +1,7 @@
-pymatgen.io.abinit.wrappers module
+pymatgen.io.abinit.variable module
 ==================================
 
-.. automodule:: pymatgen.io.abinit.wrappers
+.. automodule:: pymatgen.io.abinit.variable
    :members:
    :undoc-members:
    :show-inheritance:
