@@ -68,6 +68,7 @@ def as_ncreader(file):
 
 
 def as_etsfreader(file):
+    """Return an ETSF_Reader. Accepts filename or ETSF_Reader."""
     return _asreader(file, ETSF_Reader)
 
 
@@ -115,6 +116,7 @@ class NetcdfReader:
         self.rootgrp.close()
 
     def close(self):
+        """Close the file."""
         try:
             self.rootgrp.close()
         except Exception as exc:
@@ -135,6 +137,7 @@ class NetcdfReader:
                 yield children
 
     def print_tree(self):
+        """Print all the groups in the file."""
         for children in self.walk_tree():
             for child in children:
                 print(child)
