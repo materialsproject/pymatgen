@@ -1153,6 +1153,8 @@
 </li>
       <li><a href="pymatgen.util.testing.html#pymatgen.util.testing.PymatgenTest.assertMSONable">assertMSONable() (PymatgenTest method)</a>
 </li>
+      <li><a href="pymatgen.util.testing.html#pymatgen.util.testing.PymatgenTest.assertStrContentEqual">assertStrContentEqual() (PymatgenTest static method)</a>
+</li>
       <li><a href="pymatgen.analysis.adsorption.html#pymatgen.analysis.adsorption.AdsorbateSiteFinder.assign_selective_dynamics">assign_selective_dynamics() (AdsorbateSiteFinder method)</a>
 </li>
       <li><a href="pymatgen.analysis.adsorption.html#pymatgen.analysis.adsorption.AdsorbateSiteFinder.assign_site_properties">assign_site_properties() (AdsorbateSiteFinder method)</a>
@@ -1905,10 +1907,10 @@
 </li>
       <li><a href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Compatibility">Compatibility (class in pymatgen.entries.compatibility)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.CompatibilityError">CompatibilityError</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Vasprun.complete_dos">complete_dos() (Vasprun property)</a>
 </li>
       <li><a href="pymatgen.electronic_structure.cohp.html#pymatgen.electronic_structure.cohp.CompleteCohp">CompleteCohp (class in pymatgen.electronic_structure.cohp)</a>
@@ -2139,6 +2141,8 @@
         <li><a href="pymatgen.core.surface.html#pymatgen.core.surface.Slab.copy">(Slab method)</a>
 </li>
         <li><a href="pymatgen.core.spectrum.html#pymatgen.core.spectrum.Spectrum.copy">(Spectrum method)</a>
+</li>
+        <li><a href="pymatgen.symmetry.structure.html#pymatgen.symmetry.structure.SymmetrizedStructure.copy">(SymmetrizedStructure method)</a>
 </li>
         <li><a href="pymatgen.core.trajectory.html#pymatgen.core.trajectory.Trajectory.copy">(Trajectory method)</a>
 </li>
@@ -2733,11 +2737,19 @@
 </li>
       <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Outcar.efg">efg (Outcar attribute)</a>
 </li>
-      <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Vasprun.eigenvalue_band_properties">eigenvalue_band_properties() (Vasprun property)</a>
+      <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Eigenval">Eigenval (class in pymatgen.io.vasp.outputs)</a>
 </li>
-      <li><a href="pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianOutput.eigenvalues">eigenvalues (GaussianOutput attribute)</a>
+      <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Eigenval.eigenvalue_band_properties">eigenvalue_band_properties() (Eigenval property)</a>
 
       <ul>
+        <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Vasprun.eigenvalue_band_properties">(Vasprun property)</a>
+</li>
+      </ul></li>
+      <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Eigenval.eigenvalues">eigenvalues (Eigenval attribute)</a>
+
+      <ul>
+        <li><a href="pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianOutput.eigenvalues">(GaussianOutput attribute)</a>
+</li>
         <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Vasprun.eigenvalues">(Vasprun attribute)</a>
 </li>
       </ul></li>
@@ -2877,12 +2889,12 @@
 </li>
       <li><a href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_hex">enum_sigma_hex() (GrainBoundaryGenerator static method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_ort">enum_sigma_ort() (GrainBoundaryGenerator static method)</a>
 </li>
       <li><a href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_rho">enum_sigma_rho() (GrainBoundaryGenerator static method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundaryGenerator.enum_sigma_tet">enum_sigma_tet() (GrainBoundaryGenerator static method)</a>
 </li>
       <li><a href="pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.StructureMotifInterstitial.enumerate_defectsites">enumerate_defectsites() (StructureMotifInterstitial method)</a>
@@ -3141,9 +3153,11 @@
 </li>
       <li><a href="pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.FileNode.filechildren">filechildren() (FileNode property)</a>
 </li>
-      <li><a href="pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.HistoryRecord.filename">filename (HistoryRecord attribute)</a>
+      <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Eigenval.filename">filename (Eigenval attribute)</a>
 
       <ul>
+        <li><a href="pymatgen.io.abinit.nodes.html#pymatgen.io.abinit.nodes.HistoryRecord.filename">(HistoryRecord attribute)</a>
+</li>
         <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Wavecar.filename">(Wavecar attribute)</a>
 </li>
       </ul></li>
@@ -7195,6 +7209,8 @@
         <li><a href="pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.Work.ispaw">(Work property)</a>
 </li>
       </ul></li>
+      <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Eigenval.ispin">ispin (Eigenval attribute)</a>
+</li>
       <li><a href="pymatgen.core.structure.html#pymatgen.core.structure.IStructure">IStructure (class in pymatgen.core.structure)</a>
 </li>
       <li><a href="pymatgen.io.abinit.abiinspect.html#pymatgen.io.abinit.abiinspect.CyclesPlotter.items">items() (CyclesPlotter method)</a>
@@ -7283,9 +7299,11 @@
 </li>
       <li><a href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Kpoints">Kpoints (class in pymatgen.io.vasp.inputs)</a>
 </li>
-      <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Vasprun.kpoints">kpoints (Vasprun attribute)</a>
+      <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Eigenval.kpoints">kpoints (Eigenval attribute)</a>
 
       <ul>
+        <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Vasprun.kpoints">(Vasprun attribute)</a>
+</li>
         <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Wavecar.kpoints">(Wavecar attribute)</a>
 </li>
       </ul></li>
@@ -7314,6 +7332,8 @@
 </li>
       </ul></li>
       <li><a href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Kpoints_supported_modes">Kpoints_supported_modes (class in pymatgen.io.vasp.inputs)</a>
+</li>
+      <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Eigenval.kpoints_weights">kpoints_weights (Eigenval attribute)</a>
 </li>
       <li><a href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element.Kr">Kr (Element attribute)</a>
 </li>
@@ -8319,6 +8339,8 @@
 </li>
       <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Wavederf.nb_kpoints">nb_kpoints() (Wavederf property)</a>
 </li>
+      <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Eigenval.nbands">nbands (Eigenval attribute)</a>
+</li>
       <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Waveder.nbands">nbands() (Waveder property)</a>
 </li>
       <li><a href="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight">NbSetWeight (class in pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies)</a>
@@ -8383,6 +8405,8 @@
 </li>
       <li><a href="pymatgen.electronic_structure.boltztrap.html#pymatgen.electronic_structure.boltztrap.BoltztrapRunner.nelec">nelec() (BoltztrapRunner property)</a>
 </li>
+      <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Eigenval.nelect">nelect (Eigenval attribute)</a>
+</li>
       <li><a href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.DictSet.nelect">nelect() (DictSet property)</a>
 
       <ul>
@@ -8419,6 +8443,8 @@
 </li>
       <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Waveder.nkpoints">nkpoints() (Waveder property)</a>
 </li>
+      <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Eigenval.nkpt">nkpt (Eigenval attribute)</a>
+</li>
       <li><a href="pymatgen.analysis.magnetism.analyzer.html#pymatgen.analysis.magnetism.analyzer.Ordering.NM">NM (Ordering attribute)</a>
 </li>
       <li><a href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element.nmr_quadrupole_moment">nmr_quadrupole_moment() (Element property)</a>
@@ -8429,12 +8455,12 @@
 </li>
       <li><a href="pymatgen.analysis.chemenv.utils.defs_utils.html#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.NO_AC">NO_AC (AdditionalConditions attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pymatgen.analysis.chemenv.utils.defs_utils.html#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.NO_ADDITIONAL_CONDITION">NO_ADDITIONAL_CONDITION (AdditionalConditions attribute)</a>
 </li>
       <li><a href="pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.NO_DEFAULT">NO_DEFAULT (class in pymatgen.io.abinit.netcdf)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pymatgen.analysis.chemenv.utils.defs_utils.html#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.NO_E2SEB">NO_E2SEB (AdditionalConditions attribute)</a>
 </li>
       <li><a href="pymatgen.analysis.chemenv.utils.defs_utils.html#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.NO_ELEMENT_TO_SAME_ELEMENT_BONDS">NO_ELEMENT_TO_SAME_ELEMENT_BONDS (AdditionalConditions attribute)</a>
@@ -8623,6 +8649,8 @@
 </li>
       <li><a href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Orbital.occ">occ() (Orbital property)</a>
 </li>
+      <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Eigenval.occu_tol">occu_tol (Eigenval attribute)</a>
+</li>
       <li><a href="pymatgen.analysis.structure_matcher.html#pymatgen.analysis.structure_matcher.OccupancyComparator">OccupancyComparator (class in pymatgen.analysis.structure_matcher)</a>
 </li>
       <li><a href="pymatgen.analysis.wulff.html#pymatgen.analysis.wulff.WulffShape.off_color">off_color (WulffShape attribute)</a>
@@ -8721,10 +8749,10 @@
 </li>
       <li><a href="pymatgen.analysis.quasiharmonic.html#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.optimizer">optimizer() (QuasiharmonicDebyeApprox method)</a>
 </li>
-      <li><a href="pymatgen.io.qchem.sets.html#pymatgen.io.qchem.sets.OptSet">OptSet (class in pymatgen.io.qchem.sets)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pymatgen.io.qchem.sets.html#pymatgen.io.qchem.sets.OptSet">OptSet (class in pymatgen.io.qchem.sets)</a>
+</li>
       <li><a href="pymatgen.electronic_structure.core.html#pymatgen.electronic_structure.core.Orbital">Orbital (class in pymatgen.electronic_structure.core)</a>
 
       <ul>
