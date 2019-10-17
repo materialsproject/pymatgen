@@ -5,24 +5,6 @@ All required dependencies should be automatically taken care of if you
 install pymatgen using easy_install or pip. Otherwise, these packages should
 be available on `PyPI <http://pypi.python.org>`_.
 
-1. Python 2.7-3.x supported. **It is highly recommended that you use latest
-   Python 3.x unless you know you need other dependencies that works with
-   Python 2.x only.**
-2. numpy>=1.14
-3. scipy>=1.0.1
-4. matplotlib>=1.5+
-5. monty>=0.9.6
-6. requests>=2.0+
-7. pybtex
-8. pyyaml
-9. tabulate
-10. six
-
-Most of these are fairly easy to install. The well-established numpy and scipy
-should have ready-made installation packages for all platforms. The rest are
-pure/semi-pure Python packages that installs without any issues with pip and
-easy_install.
-
 Optional dependencies
 ---------------------
 
@@ -42,7 +24,7 @@ Optional libraries that are required if you need certain features.
    number of input and output formats supported by OpenBabel.
 5. networkx: For graph analysis associated with critic2 topological analysis
    of electron charge densities, pygraphviz is also required for visualization.
-6. nose - For unittesting. Not optional for developers.
+6. pytest - For unittesting. Not optional for developers.
 
 Optional non-Python programs
 ----------------------------
