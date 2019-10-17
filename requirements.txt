@@ -10,5 +10,5 @@ matplotlib==3.1.1
 palettable==3.3.0
 spglib==1.14.1.post0
 pandas==0.25.1
-networkx==2.3
+networkx==2.4
 dataclasses>=0.6; python_version < '3.7'
