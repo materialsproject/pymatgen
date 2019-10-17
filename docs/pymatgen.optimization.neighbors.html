@@ -43,6 +43,38 @@
             
   <div class="section" id="module-pymatgen.optimization.neighbors">
 <span id="pymatgen-optimization-neighbors-module"></span><h1>pymatgen.optimization.neighbors module<a class="headerlink" href="#module-pymatgen.optimization.neighbors" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="pymatgen.optimization.neighbors.compute_offset_vectors">
+<code class="sig-name descname">compute_offset_vectors</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymatgen.optimization.neighbors.compute_offset_vectors" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.optimization.neighbors.find_points_in_spheres">
+<code class="sig-name descname">find_points_in_spheres</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pymatgen.optimization.neighbors.find_points_in_spheres" title="Permalink to this definition">¶</a></dt>
+<dd><p>For each point in <cite>center_coords</cite>, get all the neighboring points in <cite>all_coords</cite> that are within the
+cutoff radius <cite>r</cite>. All the coordinates should be in cartesian.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>all_coords</strong> – (np.ndarray[double, dim=2]) all available points. When periodic boundary is considered,
+this is all the points in the lattice.</p></li>
+<li><p><strong>center_coords</strong> – (np.ndarray[double, dim=2]) all centering points</p></li>
+<li><p><strong>r</strong> – (float) cutoff radius</p></li>
+<li><p><strong>pbc</strong> – (list of bool) whether to set periodic boundaries</p></li>
+<li><p><strong>lattice</strong> – (np.ndarray[double, dim=2]) 3x3 lattice matrix</p></li>
+<li><p><strong>numerical_tol</strong> – (float) numerical tolerance</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>index1 (n, ), index2 (n, ), offset_vectors (n, 3), distances (n, ). index1 of center_coords, and index2 of all_coords that form the neighbor pair</dt><dd><p>offset_vectors are the periodic image offsets for the all_coords.</p>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 
 
