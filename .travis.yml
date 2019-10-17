@@ -9,7 +9,6 @@ env:
     - PATH=$PATH:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit:`pwd`/cmd_line/boltztrap/Linux_64bit
     - GULP_LIB=`pwd`/cmd_line/gulp/Libraries
     - MPLBACKEND=Agg
-    - PMG_MAPI_ENDPOINT=https://zola.lbl.gov/rest/v2
     - EXCLUDE_TESTS="--ignore=pymatgen/ext/tests/test_matproj.py"
 # command to install dependencies
 sudo: false
