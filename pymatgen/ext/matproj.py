@@ -1304,6 +1304,41 @@ class MPRester:
         return self._make_request("/interface_reactions",
                                   payload=payload, method="POST")
 
+    def get_link_to_raw_data(self, material_ids, task_types=None, files=None):
+        """
+        get a URL to retrieve raw VASP output files from the NoMaD repository
+
+        Args:
+            material_ids (list): list of material identifiers (mp-id's)
+            task_types (list): list of task types to include in download
+            files (list): list of file names to include for each task
+
+        Returns:
+            URL to download zip archive from NoMaD repository
+        """
+        # task_id's correspond to NoMaD external_id's
+        task_ids = []
+        task_types = [t.lower() for t in task_types] if task_types else []
+
+        for doc in self.query({'material_id': {'$in': material_ids}},
+                              ['material_id', 'blessed_tasks']):
+
+            for task_type, task_id in doc['blessed_tasks'].items():
+                tt = task_type.lower()
+                if task_types and not any([
+                    t in tt for t in task_types
+                ]):
+                    continue
+                task_ids.append(task_id)
+
+        if not task_ids:
+            raise ValueError('No tasks found.')
+
+        # TODO return a URL to a NoMaD download containing the list of files for
+        # every external_id in `task_ids`
+
+
+
     @staticmethod
     def parse_criteria(criteria_string):
         """
