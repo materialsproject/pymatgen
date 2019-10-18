@@ -8,6 +8,7 @@ Perform fragmentation of molecules.
 
 import logging
 import copy
+import itertools
 from monty.json import MSONable
 from pymatgen.analysis.graphs import MoleculeGraph, MolGraphSplitError
 from pymatgen.analysis.local_env import OpenBabelNN
@@ -168,40 +169,55 @@ class Fragmenter(MSONable):
         new_frag_dict = {}
         for old_frag_key in old_frag_dict:
             for old_frag in old_frag_dict[old_frag_key]:
+                ring_bonds = []
+                fragments = []
                 for edge in old_frag.graph.edges:
+                    frags = []
                     bond = [(edge[0], edge[1])]
-                    fragments = []
                     try:
-                        fragments = old_frag.split_molecule_subgraphs(bond, allow_reverse=True)
+                        frags = old_frag.split_molecule_subgraphs(bond, allow_reverse=True)
                     except MolGraphSplitError:
                         if self.open_rings:
-                            fragments = [open_ring(old_frag, bond, self.opt_steps)]
-                    for fragment in fragments:
-                        new_frag_key = str(fragment.molecule.composition.alphabetical_formula)+" E"+str(
-                            len(fragment.graph.edges()))
-                        proceed = True
-                        if self.assume_previous_thoroughness and self.prev_unique_frag_dict != {}:
-                            if new_frag_key in self.prev_unique_frag_dict:
-                                for unique_fragment in self.prev_unique_frag_dict[new_frag_key]:
-                                    if unique_fragment.isomorphic_to(fragment):
-                                        proceed = False
-                                        break
-                        if proceed:
-                            if new_frag_key not in self.all_unique_frag_dict:
-                                self.all_unique_frag_dict[new_frag_key] = [fragment]
-                                new_frag_dict[new_frag_key] = [fragment]
-                            else:
-                                found = False
-                                for unique_fragment in self.all_unique_frag_dict[new_frag_key]:
-                                    if unique_fragment.isomorphic_to(fragment):
-                                        found = True
-                                        break
-                                if not found:
-                                    self.all_unique_frag_dict[new_frag_key].append(fragment)
-                                    if new_frag_key in new_frag_dict:
-                                        new_frag_dict[new_frag_key].append(fragment)
-                                    else:
-                                        new_frag_dict[new_frag_key] = [fragment]
+                            frags = [open_ring(old_frag, bond, self.opt_steps)]
+                        else:
+                            ring_bonds.append(bond[0])
+                    for frag in frags:
+                        fragments.append(frag)
+                bond_pairs = itertools.combinations(ring_bonds, 2)
+                for bond_pair in bond_pairs:
+                    frags = []
+                    try:
+                        frags = old_frag.split_molecule_subgraphs(bond_pair, allow_reverse=True)
+                    except MolGraphSplitError:
+                        pass
+                    for frag in frags:
+                        fragments.append(frag)
+                for fragment in fragments:
+                    new_frag_key = str(fragment.molecule.composition.alphabetical_formula)+" E"+str(
+                        len(fragment.graph.edges()))
+                    proceed = True
+                    if self.assume_previous_thoroughness and self.prev_unique_frag_dict != {}:
+                        if new_frag_key in self.prev_unique_frag_dict:
+                            for unique_fragment in self.prev_unique_frag_dict[new_frag_key]:
+                                if unique_fragment.isomorphic_to(fragment):
+                                    proceed = False
+                                    break
+                    if proceed:
+                        if new_frag_key not in self.all_unique_frag_dict:
+                            self.all_unique_frag_dict[new_frag_key] = [fragment]
+                            new_frag_dict[new_frag_key] = [fragment]
+                        else:
+                            found = False
+                            for unique_fragment in self.all_unique_frag_dict[new_frag_key]:
+                                if unique_fragment.isomorphic_to(fragment):
+                                    found = True
+                                    break
+                            if not found:
+                                self.all_unique_frag_dict[new_frag_key].append(fragment)
+                                if new_frag_key in new_frag_dict:
+                                    new_frag_dict[new_frag_key].append(fragment)
+                                else:
+                                    new_frag_dict[new_frag_key] = [fragment]
         return new_frag_dict
 
     def _open_all_rings(self):
