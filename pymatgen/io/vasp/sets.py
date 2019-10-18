@@ -46,9 +46,8 @@ import shutil
 import warnings
 from itertools import chain
 from copy import deepcopy
-from typing import List, Union
 from pathlib import Path
-
+from typing import List, Union
 import numpy as np
 from monty.serialization import loadfn
 from monty.io import zopen
@@ -2122,7 +2121,6 @@ class MVLScanRelaxSet(MPRelaxSet):
 
 
 class LobsterSet(MPRelaxSet):
-
     """
     Input set to prepare VASP runs that can be digested by Lobster (See cohp.de)
     """
@@ -2130,7 +2128,8 @@ class LobsterSet(MPRelaxSet):
     CONFIG = _load_yaml_config("MPRelaxSet")
 
     def __init__(self, structure: Structure, isym: int = -1, ismear: int = -5, reciprocal_density: int = None,
-                 potcar_functional: str = "PBE_54", user_supplied_basis: dict = None, **kwargs):
+                 potcar_functional: str = "PBE_54", address_basis_file: str = None, user_supplied_basis: dict = None,
+                 **kwargs):
         """
         Args:
             structure (Structure): input structure.
@@ -2140,6 +2139,7 @@ class LobsterSet(MPRelaxSet):
             potcar_functional (string): only PBE_54, PBE_52 and PBE are recommended at the moment
             user_supplied_basis (dict): dict including basis functions for all elements in structure,
                 e.g. {"Fe": "3d 3p 4s", "O": "2s 2p"}; if not supplied, a standard basis is used
+            address_basis_file (str): address to a file similar to "BASIS_PBE_54.yaml" in pymatgen.io
             **kwargs: Other kwargs supported by :class:`DictSet`.
         """
         warnings.warn("Make sure that all parameters are okay! This is a brand new implementation.")
@@ -2173,11 +2173,15 @@ class LobsterSet(MPRelaxSet):
         self.isym = isym
         self.ismear = ismear
         self.user_supplied_basis = user_supplied_basis
+        self.address_basis_file = address_basis_file
         # predefined basis! Check if the basis is okay! (charge spilling and bandoverlaps!)
-        if user_supplied_basis is None:
+        if user_supplied_basis is None and address_basis_file is None:
             basis = Lobsterin._get_basis(structure=structure,
                                          potcar_symbols=self.potcar_symbols)
-        else:
+        elif address_basis_file is not None:
+            basis = Lobsterin._get_basis(structure=structure,
+                                         potcar_symbols=self.potcar_symbols, address_basis_file=address_basis_file)
+        elif user_supplied_basis is not None:
             # test if all elements from structure are in user_supplied_basis
             for atomtype in structure.symbol_set:
                 if atomtype not in user_supplied_basis:

@@ -14,6 +14,8 @@ from pymatgen.core.surface import SlabGenerator
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.vasp.outputs import Vasprun
 
+MODULE_DIR = Path(__file__).resolve().parent
+
 dec = MontyDecoder()
 
 
@@ -1146,6 +1148,8 @@ class LobsterSetTest(PymatgenTest):
         self.lobsterset5 = LobsterSet(self.struct, user_supplied_basis={"Fe": "3d 3p 4s", "P": "3p 3s", "O": "2p 2s"})
         with self.assertRaises(ValueError):
             self.lobsterset6 = LobsterSet(self.struct, user_supplied_basis={"Fe": "3d 3p 4s", "P": "3p 3s"})
+        self.lobsterset7 = LobsterSet(self.struct,
+                                      address_basis_file=os.path.join(MODULE_DIR, "../../BASIS_PBE_54.yaml"))
 
     def test_incar(self):
         incar1 = self.lobsterset1.incar
