@@ -47,7 +47,7 @@ import warnings
 from itertools import chain
 from copy import deepcopy
 from pathlib import Path
-
+from typing import List, Union
 import numpy as np
 from monty.serialization import loadfn
 from monty.io import zopen

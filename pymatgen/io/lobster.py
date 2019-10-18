@@ -18,7 +18,7 @@ import fnmatch
 import itertools
 import warnings
 import spglib
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from collections import defaultdict
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.io.vasp.outputs import Vasprun
