@@ -1393,7 +1393,7 @@ class Lobsterin(dict, MSONable):
         incar.write_file(incar_output)
 
     @staticmethod
-    def _get_basis(structure: Structure, potcar_symbols: list):
+    def _get_basis(structure: Structure, potcar_symbols: list, address_basis_file:str=os.path.join(MODULE_DIR, "BASIS_PBE_54.yaml")):
         """
         will get the basis from given potcar_symbols (e.g., ["Fe_pv","Si"]
         #include this in lobsterin class
@@ -1411,7 +1411,7 @@ class Lobsterin(dict, MSONable):
 
         if set(AtomTypes) != set(AtomTypes_Potcar):
             raise IOError("Your POSCAR does not correspond to your POTCAR!")
-        BASIS = loadfn(os.path.join(MODULE_DIR, "BASIS_PBE_54.yaml"))['BASIS']
+        BASIS = loadfn(address_basis_file)['BASIS']
 
         basis_functions = []
         list_forin = []
