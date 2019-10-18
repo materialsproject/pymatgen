@@ -46,7 +46,6 @@ import shutil
 import warnings
 from itertools import chain
 from copy import deepcopy
-from typing import List, Union
 from pathlib import Path
 
 import numpy as np
@@ -2174,7 +2173,7 @@ class LobsterSet(MPRelaxSet):
         self.isym = isym
         self.ismear = ismear
         self.user_supplied_basis = user_supplied_basis
-        self.address_basis_file= address_basis_file
+        self.address_basis_file = address_basis_file
         # predefined basis! Check if the basis is okay! (charge spilling and bandoverlaps!)
         if user_supplied_basis is None and address_basis_file is None:
             basis = Lobsterin._get_basis(structure=structure,

@@ -18,7 +18,7 @@ import fnmatch
 import itertools
 import warnings
 import spglib
-from typing import List, Dict, Any, Optional
+from typing import Dict, Any, Optional
 from collections import defaultdict
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.io.vasp.outputs import Vasprun
@@ -1393,7 +1393,8 @@ class Lobsterin(dict, MSONable):
         incar.write_file(incar_output)
 
     @staticmethod
-    def _get_basis(structure: Structure, potcar_symbols: list, address_basis_file:str=os.path.join(MODULE_DIR, "BASIS_PBE_54.yaml")):
+    def _get_basis(structure: Structure, potcar_symbols: list,
+                   address_basis_file: str = os.path.join(MODULE_DIR, "BASIS_PBE_54.yaml")):
         """
         will get the basis from given potcar_symbols (e.g., ["Fe_pv","Si"]
         #include this in lobsterin class

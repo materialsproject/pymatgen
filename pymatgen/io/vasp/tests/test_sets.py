@@ -1147,6 +1147,7 @@ class LobsterSetTest(PymatgenTest):
         with self.assertRaises(ValueError):
             self.lobsterset6 = LobsterSet(self.struct, user_supplied_basis={"Fe": "3d 3p 4s", "P": "3p 3s"})
         self.lobsterset7 = LobsterSet(self.struct, address_basis_file="../../BASIS_PBE_54.yaml")
+
     def test_incar(self):
         incar1 = self.lobsterset1.incar
         self.assertIn("NBANDS", incar1)
