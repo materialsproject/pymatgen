@@ -347,6 +347,7 @@ class PeriodicSite(Site, MSONable):
             frac_coords = np.mod(frac_coords, 1)
 
         if not skip_checks:
+            frac_coords = np.array(frac_coords)
             if not isinstance(species, Composition):
                 try:
                     species = Composition({get_el_sp(species): 1})
