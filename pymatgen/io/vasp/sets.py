@@ -2178,10 +2178,10 @@ class LobsterSet(MPRelaxSet):
         if user_supplied_basis is None and address_basis_file is None:
             basis = Lobsterin._get_basis(structure=structure,
                                          potcar_symbols=self.potcar_symbols)
-        elif user_supplied_basis is None and address_basis_file is not None:
+        elif address_basis_file is not None:
             basis = Lobsterin._get_basis(structure=structure,
                                          potcar_symbols=self.potcar_symbols, address_basis_file=address_basis_file)
-        else:
+        elif user_supplied_basis is not None:
             # test if all elements from structure are in user_supplied_basis
             for atomtype in structure.symbol_set:
                 if atomtype not in user_supplied_basis:
