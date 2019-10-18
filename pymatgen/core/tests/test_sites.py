@@ -5,6 +5,7 @@
 
 import numpy as np
 import pickle
+import timeit
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.periodic_table import Element, Specie
