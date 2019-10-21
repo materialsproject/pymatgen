@@ -20,10 +20,10 @@ Advanced:
       Cu: 0.08
       Mo: -3.057
 AnionCorrections:
-  F: 0.457
-  Cl: 0.581695
-  N: 0.3398086
-  H: -2.11833
+  F: -0.457
+  Cl: -0.581695
+  N: -0.3398086
+  H: 2.11833
   oxide: -0.731
   peroxide: -0.476
   superoxide: -0.162
