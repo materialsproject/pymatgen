@@ -57,6 +57,7 @@ class VampireCaller:
         mc_timesteps=4000,
         save_inputs=False,
         hm=None,
+        avg=True,
         user_input_settings=None,
     ):
 
@@ -79,6 +80,7 @@ class VampireCaller:
             save_inputs (bool): if True, save scratch dir of vampire input files
             hm (HeisenbergModel): object already fit to low energy
                 magnetic orderings.
+            avg (bool): If True, simply use <J> exchange parameter estimate. If False, attempt to use NN, NNN, etc. interactions.
             user_input_settings (dict): optional commands for VAMPIRE Monte Carlo
 
         Parameters:
@@ -117,7 +119,7 @@ class VampireCaller:
             energies = sorted(energies, reverse=False)
 
             hmapper = HeisenbergMapper(
-                ordered_structures, energies, cutoff=7.5, tol=0.02
+                ordered_structures, energies, cutoff=3.0, tol=0.02
             )
 
             hm = hmapper.get_heisenberg_model()
@@ -131,6 +133,7 @@ class VampireCaller:
         self.dists = hm.dists
         self.tol = hm.tol
         self.ex_params = hm.ex_params
+        self.javg = hm.javg
 
         # Full structure name before reducing to only magnetic ions
         self.mat_name = hm.formula
@@ -251,9 +254,6 @@ class VampireCaller:
             f.write(mat_file)
 
     def _create_input(self):
-        """Todo:
-            * How to determine range and increment of simulation?
-        """
 
         structure = self.structure
         mcbs = self.mc_box_size
@@ -387,7 +387,10 @@ class VampireCaller:
                 dist = round(c[-1], 2)
 
                 # Look up J_ij between the sites
-                j_exc = self.hm._get_j_exc(i, j, dist)
+                if self.avg == True:  # Just use <J> estimate
+                    j_exc = self.hm.javg
+                else:
+                    j_exc = self.hm._get_j_exc(i, j, dist)
 
                 # Convert J_ij from meV to Joules
                 j_exc *= 1.6021766e-22
