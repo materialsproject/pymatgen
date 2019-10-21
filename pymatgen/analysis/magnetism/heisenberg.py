@@ -711,6 +711,7 @@ class HeisenbergMapper:
         # Exchange matrix DataFrame in json format
         hm_em = self.ex_mat.to_json()
         hm_ep = self.get_exchange()
+        hm_javg = self.estimate_exchange()
         hm_igraph = self.get_interaction_graph()
 
         hmodel = HeisenbergModel(
@@ -726,6 +727,7 @@ class HeisenbergMapper:
             hm_d,
             hm_em,
             hm_ep,
+            hm_javg,
             hm_igraph,
         )
 
@@ -889,6 +891,7 @@ class HeisenbergModel(MSONable):
         dists=None,
         ex_mat=None,
         ex_params=None,
+        javg=None,
         igraph=None,
     ):
         """
@@ -910,7 +913,8 @@ class HeisenbergModel(MSONable):
             dists (dict): NN, NNN, and NNNN interaction distances
             ex_mat (DataFrame): Invertible Heisenberg Hamiltonian for each
                 graph.
-            ex_params (dict): Exchange parameter values (meV/atom) 
+            ex_params (dict): Exchange parameter values (meV/atom).
+            javg (float): <J> exchange param (meV/atom). 
             igraph (StructureGraph): Exchange interaction graph.
 
         """
@@ -927,6 +931,7 @@ class HeisenbergModel(MSONable):
         self.dists = dists
         self.ex_mat = ex_mat
         self.ex_params = ex_params
+        self.javg = javg
         self.igraph = igraph
 
     def as_dict(self):
@@ -947,6 +952,7 @@ class HeisenbergModel(MSONable):
         d["dists"] = self.dists
         d["ex_mat"] = self.ex_mat
         d["ex_params"] = self.ex_params
+        d["javg"] = self.javg
         d["igraph"] = self.igraph.as_dict()
 
         # Sanitize tuple & int keys
@@ -1012,6 +1018,7 @@ class HeisenbergModel(MSONable):
             dists=d["dists"],
             ex_mat=ex_mat,
             ex_params=d["ex_params"],
+            javg=d["javg"],
             igraph=igraph,
         )
 
