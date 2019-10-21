@@ -513,12 +513,12 @@ class HeisenbergMapper:
         if any(arg is None for arg in [fm_struct, afm_struct, fm_e, afm_e]):
             fm_struct, afm_struct, fm_e, afm_e = self.get_low_energy_orderings()
 
-        n = max(len(fm_struct), len(afm_struct))  # num of magnetic atoms
-        # fm_e *= n  # eV/ion -> eV
-        # afm_e *= n
-
         magmoms = fm_struct.site_properties["magmom"]
         afm_magmoms = afm_struct.site_properties["magmom"]
+
+        # Normalize energies by number of magnetic ions
+        fm_e = fm_e / len(magmoms)
+        afm_e = afm_e / len(afm_magmoms)
 
         m_avg = np.mean([np.sqrt(m ** 2) for m in magmoms])
         afm_m_avg = np.mean([np.sqrt(m ** 2) for m in afm_magmoms])
@@ -533,7 +533,7 @@ class HeisenbergMapper:
             logging.warning(iamthedanger)
 
         delta_e = afm_e - fm_e  # J > 0 -> FM
-        j_avg = delta_e / (n * m_avg ** 2)  # eV / magnetic ion
+        j_avg = delta_e / (m_avg ** 2)  # eV / magnetic ion
         j_avg *= 1000  # meV / ion
 
         return j_avg
