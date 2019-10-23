@@ -4,8 +4,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.composition &#8212; pymatgen 2019.8.23 documentation</title>
-    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <title>pymatgen.core.composition &#8212; pymatgen 2019.9.16 documentation</title>
+    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -41,6 +41,7 @@
 
     <div class="document">
       <div class="documentwrapper">
+        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.core.composition</h1><div class="highlight"><pre>
@@ -48,6 +49,10 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module implements a Composition class to represent compositions,</span>
+<span class="sd">and a ChemicalPotential class to represent potentials.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">collections</span>
 <span class="kn">import</span> <span class="nn">numbers</span>
@@ -58,7 +63,7 @@
 <span class="kn">import</span> <span class="nn">re</span>
 
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
-
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span>
 <span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="k">import</span> <span class="n">loadfn</span>
 
 <span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">total_ordering</span>
@@ -67,12 +72,7 @@
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">get_el_sp</span><span class="p">,</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">DummySpecie</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.string</span> <span class="k">import</span> <span class="n">formula_double_format</span>
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="k">import</span> <span class="n">unitized</span>
-
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This module implements a Composition class to represent compositions,</span>
-<span class="sd">and a ChemicalPotential class to represent potentials.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="k">import</span> <span class="n">Mass</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2011, The Materials Project&quot;</span>
@@ -142,7 +142,7 @@
     <span class="n">oxi_prob</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># prior probability of oxidation used by oxi_state_guesses</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># allow_negative=False</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Very flexible Composition construction, similar to the built-in Python</span>
 <span class="sd">        dict(). Also extended to allow simple string init.</span>
 
@@ -164,7 +164,7 @@
 <span class="sd">            strict: Only allow valid Elements and Species in the Composition.</span>
 
 <span class="sd">            allow_negative: Whether to allow negative compositions. This</span>
-<span class="sd">                argument must be popped from the \\*\\*kwargs due to \\*args</span>
+<span class="sd">                argument must be popped from the **kwargs due to *args</span>
 <span class="sd">                ambiguity.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">allow_negative</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;allow_negative&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
@@ -299,12 +299,17 @@
         <span class="k">return</span> <span class="n">hashcode</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">average_electroneg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">sum</span><span class="p">((</span><span class="n">el</span><span class="o">.</span><span class="n">X</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">amt</span><span class="p">)</span> <span class="k">for</span> <span class="n">el</span><span class="p">,</span> <span class="n">amt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span> <span class="o">/</span> \
-               <span class="bp">self</span><span class="o">.</span><span class="n">num_atoms</span>
+    <span class="k">def</span> <span class="nf">average_electroneg</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Average electronegativity of the composition.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">((</span><span class="n">el</span><span class="o">.</span><span class="n">X</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">amt</span><span class="p">)</span> <span class="k">for</span> <span class="n">el</span><span class="p">,</span> <span class="n">amt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_atoms</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">total_electrons</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">total_electrons</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Total number of electrons in composition.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">sum</span><span class="p">((</span><span class="n">el</span><span class="o">.</span><span class="n">Z</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">amt</span><span class="p">)</span> <span class="k">for</span> <span class="n">el</span><span class="p">,</span> <span class="n">amt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
 
 <div class="viewcode-block" id="Composition.almost_equals"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition.almost_equals">[docs]</a>    <span class="k">def</span> <span class="nf">almost_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
@@ -326,17 +331,20 @@
         <span class="k">return</span> <span class="kc">True</span></div>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">is_element</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">is_element</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        True if composition is for an element.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
 
 <div class="viewcode-block" id="Composition.copy"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: A copy of the composition.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Composition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">allow_negative</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">allow_negative</span><span class="p">)</span></div>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">formula</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">formula</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a formula string, with elements sorted by electronegativity,</span>
 <span class="sd">        e.g., Li4 Fe4 P4 O16.</span>
@@ -347,7 +355,7 @@
         <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">formula</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">alphabetical_formula</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">alphabetical_formula</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a formula string, with elements sorted by alphabetically</span>
 <span class="sd">        e.g., Fe4 Li4 O16 P4.</span>
@@ -358,7 +366,7 @@
         <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">formula</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">iupac_formula</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">iupac_formula</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a formula string, with elements sorted by the iupac</span>
 <span class="sd">        electronegativity ordering defined in Table VI of &quot;Nomenclature of</span>
@@ -375,7 +383,7 @@
         <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">formula</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">element_composition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">element_composition</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Composition&#39;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the composition replacing any species by the corresponding</span>
 <span class="sd">        element.</span>
@@ -384,7 +392,7 @@
                            <span class="n">allow_negative</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">allow_negative</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">fractional_composition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">fractional_composition</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Composition&#39;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the normalized composition which the number of species sum to</span>
 <span class="sd">        1.</span>
@@ -395,7 +403,7 @@
         <span class="k">return</span> <span class="bp">self</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_natoms</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">reduced_composition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">reduced_composition</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Composition&#39;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the reduced composition,i.e. amounts normalized by greatest</span>
 <span class="sd">        common denominator. e.g., Composition(&quot;FePO4&quot;) for</span>
@@ -403,7 +411,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_reduced_composition_and_factor</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
 
-<div class="viewcode-block" id="Composition.get_reduced_composition_and_factor"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition.get_reduced_composition_and_factor">[docs]</a>    <span class="k">def</span> <span class="nf">get_reduced_composition_and_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Composition.get_reduced_composition_and_factor"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition.get_reduced_composition_and_factor">[docs]</a>    <span class="k">def</span> <span class="nf">get_reduced_composition_and_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="s1">&#39;Composition&#39;</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculates a reduced composition and factor.</span>
 
@@ -414,7 +422,7 @@
         <span class="n">factor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_reduced_formula_and_factor</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">return</span> <span class="bp">self</span> <span class="o">/</span> <span class="n">factor</span><span class="p">,</span> <span class="n">factor</span></div>
 
-<div class="viewcode-block" id="Composition.get_reduced_formula_and_factor"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition.get_reduced_formula_and_factor">[docs]</a>    <span class="k">def</span> <span class="nf">get_reduced_formula_and_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iupac_ordering</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Composition.get_reduced_formula_and_factor"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition.get_reduced_formula_and_factor">[docs]</a>    <span class="k">def</span> <span class="nf">get_reduced_formula_and_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iupac_ordering</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculates a reduced formula and factor.</span>
 
@@ -479,7 +487,7 @@
         <span class="k">return</span> <span class="n">formula</span><span class="p">,</span> <span class="n">factor</span> <span class="o">*</span> <span class="n">g</span></div>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">reduced_formula</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">reduced_formula</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a pretty normalized formula, i.e., LiFePO4 instead of</span>
 <span class="sd">        Li4Fe4P4O16.</span>
@@ -487,7 +495,17 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_reduced_formula_and_factor</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">hill_formula</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">hill_formula</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Hill formula. The Hill system (or Hill notation) is a system</span>
+<span class="sd">        of writing empirical chemical formulas, molecular chemical formulas and</span>
+<span class="sd">        components of a condensed formula such that the number of carbon atoms</span>
+<span class="sd">        in a molecule is indicated first, the number of hydrogen atoms next,</span>
+<span class="sd">        and then the number of all other chemical elements subsequently, in</span>
+<span class="sd">        alphabetical order of the chemical symbols. When the formula contains</span>
+<span class="sd">        no carbon, all the elements, including hydrogen, are listed</span>
+<span class="sd">        alphabetically.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">element_composition</span>
         <span class="n">elements</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">el</span><span class="o">.</span><span class="n">symbol</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">c</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span>
         <span class="k">if</span> <span class="s2">&quot;C&quot;</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">:</span>
@@ -498,7 +516,7 @@
         <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">formula</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">elements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">elements</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Element</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns view of elements in Composition.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -518,13 +536,11 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_natoms</span>
 
     <span class="nd">@property</span>
-    <span class="nd">@unitized</span><span class="p">(</span><span class="s2">&quot;amu&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">weight</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Total molecular weight of Composition</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">sum</span><span class="p">([</span><span class="n">amount</span> <span class="o">*</span> <span class="n">el</span><span class="o">.</span><span class="n">atomic_mass</span>
-                    <span class="k">for</span> <span class="n">el</span><span class="p">,</span> <span class="n">amount</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+        <span class="k">return</span> <span class="n">Mass</span><span class="p">(</span><span class="nb">sum</span><span class="p">([</span><span class="n">amount</span> <span class="o">*</span> <span class="n">el</span><span class="o">.</span><span class="n">atomic_mass</span> <span class="k">for</span> <span class="n">el</span><span class="p">,</span> <span class="n">amount</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()]),</span> <span class="s2">&quot;amu&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Composition.get_atomic_fraction"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition.get_atomic_fraction">[docs]</a>    <span class="k">def</span> <span class="nf">get_atomic_fraction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">el</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -644,7 +660,7 @@
         <span class="k">return</span> <span class="n">anon</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">chemical_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">chemical_system</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the chemical system of a Composition, for example &quot;O-Si&quot; for</span>
 <span class="sd">        SiO2. Chemical system is a string of a list of elements</span>
@@ -1302,6 +1318,21 @@
 </pre></div>
 
           </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -1314,7 +1345,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

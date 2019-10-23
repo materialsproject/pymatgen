@@ -2,6 +2,21 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module implements representations of slabs and surfaces, as well as
+algorithms for generating them. If you use this module, please consider
+citing the following work::
+
+    R. Tran, Z. Xu, B. Radhakrishnan, D. Winston, W. Sun, K. A. Persson,
+    S. P. Ong, "Surface Energies of Elemental Crystals", Scientific Data,
+    2016, 3:160080, doi: 10.1038/sdata.2016.80.
+
+as well as::
+
+    Sun, W.; Ceder, G. Efficient creation and convergence of surface slabs,
+    Surface Science, 2013, 617, 53–59, doi:10.1016/j.susc.2013.05.016.
+"""
+
 from functools import reduce
 from math import gcd
 import math
@@ -26,21 +41,6 @@ from pymatgen.core.sites import PeriodicSite
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list
 from pymatgen.analysis.structure_matcher import StructureMatcher
-
-"""
-This module implements representations of slabs and surfaces, as well as
-algorithms for generating them. If you use this module, please consider
-citing the following work::
-
-    R. Tran, Z. Xu, B. Radhakrishnan, D. Winston, W. Sun, K. A. Persson,
-    S. P. Ong, "Surface Energies of Elemental Crystals", Scientific Data,
-    2016, 3:160080, doi: 10.1038/sdata.2016.80.
-
-as well as::
-
-    Sun, W.; Ceder, G. Efficient creation and convergence of surface slabs,
-    Surface Science, 2013, 617, 53–59, doi:10.1016/j.susc.2013.05.016.
-"""
 
 __author__ = "Richard Tran, Wenhao Sun, Zihan Xu, Shyue Ping Ong"
 __copyright__ = "Copyright 2014, The Materials Virtual Lab"
@@ -435,6 +435,9 @@ class Slab(Structure):
         return "\n".join(outs)
 
     def as_dict(self):
+        """
+        :return: MSONAble dict
+        """
         d = super().as_dict()
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
@@ -448,6 +451,10 @@ class Slab(Structure):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        :param d: dict
+        :return: Creates slab from dict.
+        """
         lattice = Lattice.from_dict(d["lattice"])
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
         s = Structure.from_sites(sites)
@@ -517,7 +524,7 @@ class Slab(Structure):
         surf_sites_dict, properties = {"top": [], "bottom": []}, []
         for i, site in enumerate(self):
             # Determine if site is closer to the top or bottom of the slab
-            top = True if site.frac_coords[2] > self.center_of_mass[2] else False
+            top = site.frac_coords[2] > self.center_of_mass[2]
 
             try:
                 # A site is a surface site, if its environment does
@@ -547,7 +554,7 @@ class Slab(Structure):
         """
 
         # tag the sites as either surface sites or not
-        surf_sites_dict = self.get_surface_sites(tag=True)
+        self.get_surface_sites(tag=True)
 
         a = SpacegroupAnalyzer(self)
         symm_structure = a.get_symmetrized_structure()
@@ -793,7 +800,7 @@ class SlabGenerator:
         initial_structure.add_site_property("bulk_equivalent",
                                             sg.get_symmetry_dataset()['equivalent_atoms'])
         latt = initial_structure.lattice
-        miller_index = reduce_vector(miller_index)
+        miller_index = _reduce_vector(miller_index)
         # Calculate the surface normal using the reciprocal lattice vector.
         recp = latt.reciprocal_lattice_crystallographic
         normal = recp.get_cartesian_coords(miller_index)
@@ -860,7 +867,7 @@ class SlabGenerator:
         # Make sure the slab_scale_factor is reduced to avoid
         # unnecessarily large slabs
 
-        reduced_scale_factor = [reduce_vector(v) for v in slab_scale_factor]
+        reduced_scale_factor = [_reduce_vector(v) for v in slab_scale_factor]
         slab_scale_factor = np.array(reduced_scale_factor)
 
         single = initial_structure.copy()
@@ -1933,7 +1940,7 @@ def center_slab(slab):
     return slab
 
 
-def reduce_vector(vector):
+def _reduce_vector(vector):
     # small function to reduce vectors
 
     d = abs(reduce(gcd, vector))

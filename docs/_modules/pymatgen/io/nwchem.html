@@ -4,8 +4,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.nwchem &#8212; pymatgen 2019.8.23 documentation</title>
-    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <title>pymatgen.io.nwchem &#8212; pymatgen 2019.9.16 documentation</title>
+    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -41,6 +41,7 @@
 
     <div class="document">
       <div class="documentwrapper">
+        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.io.nwchem</h1><div class="highlight"><pre>
@@ -227,7 +228,7 @@
 <span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
 
         <span class="n">output</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span>
-            <span class="n">title</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">),</span>
             <span class="n">spinmult</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">spin_multiplicity</span><span class="p">,</span>
             <span class="n">basis_set_option</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basis_set_option</span><span class="p">,</span>
             <span class="n">bset_spec</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bset_spec</span><span class="p">),</span>
@@ -973,6 +974,21 @@
 </pre></div>
 
           </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -985,7 +1001,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

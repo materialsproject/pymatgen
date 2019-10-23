@@ -63,14 +63,13 @@ class MPResterTest(PymatgenTest):
         self.assertEqual("mp-19017,Li", data['mid_and_el'])
         self.assertAlmostEqual(data['spectrum']['x'][0], 55.178, places=2)
         self.assertAlmostEqual(data['spectrum']['y'][0], 0.0164634, places=2)
-        
+
     def test_get_data(self):
         props = ["energy", "energy_per_atom", "formation_energy_per_atom",
                  "nsites", "unit_cell_formula", "pretty_formula", "is_hubbard",
                  "elements", "nelements", "e_above_hull", "hubbards",
                  "is_compatible", "task_ids",
                  "density", "icsd_ids", "total_magnetization"]
-        # unicode literals have been reintroduced in py>3.2
 
         expected_vals = [-191.3359011, -6.833425039285714, -2.5515769497278913,
                          28, {'P': 4, 'Fe': 4, 'O': 16, 'Li': 4},
@@ -82,13 +81,13 @@ class MPResterTest(PymatgenTest):
                           260571, 92198, 165000, 155580, 38209, 161479, 153699,
                           260569, 260570, 200155, 260572, 181341, 181342,
                           72545, 56291, 97764, 162282, 155635],
-                         15.9996841]
+                         0]
 
         for (i, prop) in enumerate(props):
             if prop not in ['hubbards', 'unit_cell_formula', 'elements',
                             'icsd_ids', 'task_ids']:
                 val = self.rester.get_data("mp-19017", prop=prop)[0][prop]
-                self.assertAlmostEqual(expected_vals[i], val, places=2)
+                self.assertAlmostEqual(expected_vals[i], val, 2, "Failed with property %s" % prop)
             elif prop in ["elements", "icsd_ids", "task_ids"]:
                 upstream_vals = set(
                     self.rester.get_data("mp-19017", prop=prop)[0][prop])
@@ -119,7 +118,6 @@ class MPResterTest(PymatgenTest):
         self.assertRaises(MPRestError, self.rester.get_data, "Fe2O3",
                           "badmethod")
 
-    def test_get_data(self):
         # Test getting supported properties
         self.assertNotEqual(self.rester.get_task_data("mp-30"), [])
         # Test aliasing

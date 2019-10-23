@@ -2,6 +2,15 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module provides classes to interface with the Materials Project REST
+API v2 to enable the creation of data structures and pymatgen objects using
+Materials Project data.
+
+To make use of the Materials API, you need to be a registered user of the
+Materials Project, and obtain an API key by going to your dashboard at
+https://www.materialsproject.org/dashboard.
+"""
 
 import sys
 import itertools
@@ -10,7 +19,7 @@ import platform
 import re
 import warnings
 from time import sleep
-
+import requests
 from monty.json import MontyDecoder, MontyEncoder
 
 from copy import deepcopy
@@ -29,16 +38,6 @@ from pymatgen.entries.exp_entries import ExpEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 from pymatgen.util.sequence import get_chunks, PBar
-
-"""
-This module provides classes to interface with the Materials Project REST
-API v2 to enable the creation of data structures and pymatgen objects using
-Materials Project data.
-
-To make use of the Materials API, you need to be a registered user of the
-Materials Project, and obtain an API key by going to your dashboard at
-https://www.materialsproject.org/dashboard.
-"""
 
 __author__ = "Shyue Ping Ong, Shreyas Cholia"
 __credits__ = "Anubhav Jain"
@@ -63,24 +62,6 @@ class MPRester:
 
     For more advanced uses of the Materials API, please consult the API
     documentation at https://github.com/materialsproject/mapidoc.
-
-    Args:
-        api_key (str): A String API key for accessing the MaterialsProject
-            REST interface. Please obtain your API key at
-            https://www.materialsproject.org/dashboard. If this is None,
-            the code will check if there is a "PMG_MAPI_KEY" setting.
-            If so, it will use that environment variable. This makes
-            easier for heavy users to simply add this environment variable to
-            their setups and MPRester can then be called without any arguments.
-        endpoint (str): Url of endpoint to access the MaterialsProject REST
-            interface. Defaults to the standard Materials Project REST
-            address at "https://materialsproject.org/rest/v2", but
-            can be changed to other urls implementing a similar interface.
-        include_user_agent (bool): If True, will include a user agent with the
-            HTTP request including information on pymatgen and system version
-            making the API request. This helps MP support pymatgen users, and
-            is similar to what most web browsers send with each page request.
-            Set to False to disable the user agent.
     """
 
     supported_properties = ("energy", "energy_per_atom", "volume",
@@ -102,6 +83,25 @@ class MPRester:
                                  "band_gap", "density", "icsd_id", "cif")
 
     def __init__(self, api_key=None, endpoint=None, include_user_agent=True):
+        """
+        Args:
+            api_key (str): A String API key for accessing the MaterialsProject
+                REST interface. Please obtain your API key at
+                https://www.materialsproject.org/dashboard. If this is None,
+                the code will check if there is a "PMG_MAPI_KEY" setting.
+                If so, it will use that environment variable. This makes
+                easier for heavy users to simply add this environment variable to
+                their setups and MPRester can then be called without any arguments.
+            endpoint (str): Url of endpoint to access the MaterialsProject REST
+                interface. Defaults to the standard Materials Project REST
+                address at "https://materialsproject.org/rest/v2", but
+                can be changed to other urls implementing a similar interface.
+            include_user_agent (bool): If True, will include a user agent with the
+                HTTP request including information on pymatgen and system version
+                making the API request. This helps MP support pymatgen users, and
+                is similar to what most web browsers send with each page request.
+                Set to False to disable the user agent.
+        """
         if api_key is not None:
             self.api_key = api_key
         else:
@@ -115,16 +115,6 @@ class MPRester:
         if self.preamble != "https://materialsproject.org/rest/v2":
             warnings.warn("Non-default endpoint used: {}".format(self.preamble))
 
-        import requests
-        if sys.version_info[0] < 3:
-            try:
-                from pybtex import __version__
-            except ImportError:
-                warnings.warn("If you query for structure data encoded using MP's "
-                              "Structure Notation Language (SNL) format and you use "
-                              "`mp_decode=True` (the default) for MPRester queries, "
-                              "you should install dependencies via "
-                              "`pip install pymatgen[matproj.snl]`.")
         self.session = requests.Session()
         self.session.headers = {"x-api-key": self.api_key}
         if include_user_agent:
@@ -502,11 +492,13 @@ class MPRester:
             pbx_entries.append(PourbaixEntry(ion_entry, 'ion-{}'.format(n)))
 
         # Construct the solid pourbaix entries from filtered ion_ref entries
-        extra_elts = set(ion_ref_elts) - {Element(s) for s in chemsys} - {Element('H'), Element('O')}
+        extra_elts = set(ion_ref_elts) - {Element(s) for s in chemsys} \
+            - {Element('H'), Element('O')}
         for entry in ion_ref_entries:
             entry_elts = set(entry.composition.elements)
             # Ensure no OH chemsys or extraneous elements from ion references
-            if not (entry_elts <= {Element('H'), Element('O')} or extra_elts.intersection(entry_elts)):
+            if not (entry_elts <= {Element('H'), Element('O')} or
+                    extra_elts.intersection(entry_elts)):
                 # replace energy with formation energy, use dict to
                 # avoid messing with the ion_ref_pd and to keep all old params
                 form_e = ion_ref_pd.get_form_energy(entry)
@@ -681,19 +673,21 @@ class MPRester:
 
         Returns:
             List of ComputedEntries.
+
         """
-        entries = []
         if isinstance(elements, str):
             elements = elements.split('-')
 
+        all_chemsyses = []
         for i in range(len(elements)):
             for els in itertools.combinations(elements, i + 1):
-                entries.extend(
-                    self.get_entries(
-                        "-".join(els), compatible_only=compatible_only,
-                        inc_structure=inc_structure,
-                        property_data=property_data,
-                        conventional_unit_cell=conventional_unit_cell))
+                all_chemsyses.append('-'.join(sorted(els)))
+
+        entries = self.get_entries({"chemsys": {"$in": all_chemsyses}},
+                                   compatible_only=compatible_only,
+                                   inc_structure=inc_structure,
+                                   property_data=property_data,
+                                   conventional_unit_cell=conventional_unit_cell)
         return entries
 
     def get_exp_thermo_data(self, formula):
@@ -726,7 +720,7 @@ class MPRester:
 
     def query(self, criteria, properties, chunk_size=500, max_tries_per_chunk=5,
               mp_decode=True):
-        """
+        r"""
 
         Performs an advanced query using MongoDB-like syntax for directly
         querying the Materials Project database. This allows one to perform
@@ -760,8 +754,8 @@ class MPRester:
 
                 Other syntax examples:
                 mp-1234: Interpreted as a Materials ID.
-                Fe2O3 or \\*2O3: Interpreted as reduced formulas.
-                Li-Fe-O or \\*-Fe-O: Interpreted as chemical systems.
+                Fe2O3 or *2O3: Interpreted as reduced formulas.
+                Li-Fe-O or *-Fe-O: Interpreted as chemical systems.
 
                 You can mix and match with spaces, which are interpreted as
                 "OR". E.g. "mp-1234 FeO" means query for all compounds with
@@ -1136,7 +1130,7 @@ class MPRester:
         Args:
             material_id (str): Materials Project material_id, e.g. 'mp-123'.
             orient (list) : substrate orientation to look for
-            number (int) : number of substrates to return;
+            number (int) : number of substrates to return
                 n=0 returns all available matches
         Returns:
             list of dicts with substrate matches
@@ -1204,7 +1198,7 @@ class MPRester:
             pymatgen.analysis.wulff.WulffShape
         """
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-        from pymatgen.analysis.wulff import WulffShape, hkl_tuple_to_str
+        from pymatgen.analysis.wulff import WulffShape
 
         structure = self.get_structure_by_material_id(material_id)
         surfaces = self.get_surface_data(material_id)["surfaces"]

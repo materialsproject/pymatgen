@@ -4,8 +4,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.surface &#8212; pymatgen 2019.8.23 documentation</title>
-    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <title>pymatgen.core.surface &#8212; pymatgen 2019.9.16 documentation</title>
+    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -41,12 +41,28 @@
 
     <div class="document">
       <div class="documentwrapper">
+        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.core.surface</h1><div class="highlight"><pre>
 <span></span><span class="c1"># coding: utf-8</span>
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module implements representations of slabs and surfaces, as well as</span>
+<span class="sd">algorithms for generating them. If you use this module, please consider</span>
+<span class="sd">citing the following work::</span>
+
+<span class="sd">    R. Tran, Z. Xu, B. Radhakrishnan, D. Winston, W. Sun, K. A. Persson,</span>
+<span class="sd">    S. P. Ong, &quot;Surface Energies of Elemental Crystals&quot;, Scientific Data,</span>
+<span class="sd">    2016, 3:160080, doi: 10.1038/sdata.2016.80.</span>
+
+<span class="sd">as well as::</span>
+
+<span class="sd">    Sun, W.; Ceder, G. Efficient creation and convergence of surface slabs,</span>
+<span class="sd">    Surface Science, 2013, 617, 53–59, doi:10.1016/j.susc.2013.05.016.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">reduce</span>
 <span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">gcd</span>
@@ -72,21 +88,6 @@
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="k">import</span> <span class="n">in_coord_list</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="k">import</span> <span class="n">StructureMatcher</span>
-
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This module implements representations of slabs and surfaces, as well as</span>
-<span class="sd">algorithms for generating them. If you use this module, please consider</span>
-<span class="sd">citing the following work::</span>
-
-<span class="sd">    R. Tran, Z. Xu, B. Radhakrishnan, D. Winston, W. Sun, K. A. Persson,</span>
-<span class="sd">    S. P. Ong, &quot;Surface Energies of Elemental Crystals&quot;, Scientific Data,</span>
-<span class="sd">    2016, 3:160080, doi: 10.1038/sdata.2016.80.</span>
-
-<span class="sd">as well as::</span>
-
-<span class="sd">    Sun, W.; Ceder, G. Efficient creation and convergence of surface slabs,</span>
-<span class="sd">    Surface Science, 2013, 617, 53–59, doi:10.1016/j.susc.2013.05.016.</span>
-<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Richard Tran, Wenhao Sun, Zihan Xu, Shyue Ping Ong&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2014, The Materials Virtual Lab&quot;</span>
@@ -481,6 +482,9 @@
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outs</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Slab.as_dict"><a class="viewcode-back" href="../../../pymatgen.core.surface.html#pymatgen.core.surface.Slab.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: MSONAble dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">d</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
         <span class="n">d</span><span class="p">[</span><span class="s2">&quot;@module&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span>
         <span class="n">d</span><span class="p">[</span><span class="s2">&quot;@class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
@@ -494,6 +498,10 @@
 
 <div class="viewcode-block" id="Slab.from_dict"><a class="viewcode-back" href="../../../pymatgen.core.surface.html#pymatgen.core.surface.Slab.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param d: dict</span>
+<span class="sd">        :return: Creates slab from dict.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;lattice&quot;</span><span class="p">])</span>
         <span class="n">sites</span> <span class="o">=</span> <span class="p">[</span><span class="n">PeriodicSite</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sd</span><span class="p">,</span> <span class="n">lattice</span><span class="p">)</span> <span class="k">for</span> <span class="n">sd</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;sites&quot;</span><span class="p">]]</span>
         <span class="n">s</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">sites</span><span class="p">)</span>
@@ -593,7 +601,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># tag the sites as either surface sites or not</span>
-        <span class="n">surf_sites_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_surface_sites</span><span class="p">(</span><span class="n">tag</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_surface_sites</span><span class="p">(</span><span class="n">tag</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="n">a</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">symm_structure</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">get_symmetrized_structure</span><span class="p">()</span>
@@ -839,7 +847,7 @@
         <span class="n">initial_structure</span><span class="o">.</span><span class="n">add_site_property</span><span class="p">(</span><span class="s2">&quot;bulk_equivalent&quot;</span><span class="p">,</span>
                                             <span class="n">sg</span><span class="o">.</span><span class="n">get_symmetry_dataset</span><span class="p">()[</span><span class="s1">&#39;equivalent_atoms&#39;</span><span class="p">])</span>
         <span class="n">latt</span> <span class="o">=</span> <span class="n">initial_structure</span><span class="o">.</span><span class="n">lattice</span>
-        <span class="n">miller_index</span> <span class="o">=</span> <span class="n">reduce_vector</span><span class="p">(</span><span class="n">miller_index</span><span class="p">)</span>
+        <span class="n">miller_index</span> <span class="o">=</span> <span class="n">_reduce_vector</span><span class="p">(</span><span class="n">miller_index</span><span class="p">)</span>
         <span class="c1"># Calculate the surface normal using the reciprocal lattice vector.</span>
         <span class="n">recp</span> <span class="o">=</span> <span class="n">latt</span><span class="o">.</span><span class="n">reciprocal_lattice_crystallographic</span>
         <span class="n">normal</span> <span class="o">=</span> <span class="n">recp</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">miller_index</span><span class="p">)</span>
@@ -906,7 +914,7 @@
         <span class="c1"># Make sure the slab_scale_factor is reduced to avoid</span>
         <span class="c1"># unnecessarily large slabs</span>
 
-        <span class="n">reduced_scale_factor</span> <span class="o">=</span> <span class="p">[</span><span class="n">reduce_vector</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">slab_scale_factor</span><span class="p">]</span>
+        <span class="n">reduced_scale_factor</span> <span class="o">=</span> <span class="p">[</span><span class="n">_reduce_vector</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">slab_scale_factor</span><span class="p">]</span>
         <span class="n">slab_scale_factor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">reduced_scale_factor</span><span class="p">)</span>
 
         <span class="n">single</span> <span class="o">=</span> <span class="n">initial_structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -1979,16 +1987,31 @@
     <span class="k">return</span> <span class="n">slab</span></div>
 
 
-<div class="viewcode-block" id="reduce_vector"><a class="viewcode-back" href="../../../pymatgen.core.surface.html#pymatgen.core.surface.reduce_vector">[docs]</a><span class="k">def</span> <span class="nf">reduce_vector</span><span class="p">(</span><span class="n">vector</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_reduce_vector</span><span class="p">(</span><span class="n">vector</span><span class="p">):</span>
     <span class="c1"># small function to reduce vectors</span>
 
     <span class="n">d</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">reduce</span><span class="p">(</span><span class="n">gcd</span><span class="p">,</span> <span class="n">vector</span><span class="p">))</span>
     <span class="n">vector</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span> <span class="o">/</span> <span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">vector</span><span class="p">])</span>
 
-    <span class="k">return</span> <span class="n">vector</span></div>
+    <span class="k">return</span> <span class="n">vector</span>
 </pre></div>
 
           </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -2001,7 +2024,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

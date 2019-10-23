@@ -2,6 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Module for graph representations of crystals.
+"""
 
 import warnings
 import subprocess
@@ -76,7 +79,6 @@ def _isomorphic(frag1, frag2):
     f2_nodes = frag2.nodes(data=True)
     if len(f1_nodes) != len(f2_nodes):
         return False
-    f1_edges = frag1.edges()
     f2_edges = frag2.edges()
     if len(f2_edges) != len(f2_edges):
         return False
@@ -372,7 +374,7 @@ class StructureGraph(MSONable):
                                                                 include_index=True)
             for site, dist, to_index in equiv_sites:
                 to_jimage = np.subtract(site.frac_coords, self.structure[from_index].frac_coords)
-                to_jimage = to_jimage.astype(int)
+                to_jimage = np.round(to_jimage).astype(int)
                 self.add_edge(from_index=from_index, from_jimage=(0, 0, 0),
                               to_jimage=to_jimage, to_index=to_index)
             return
@@ -1512,8 +1514,10 @@ class StructureGraph(MSONable):
 
 
 class MolGraphSplitError(Exception):
-    # Raised when a molecule graph is failed to split into two disconnected
-    # subgraphs
+    """
+    Raised when a molecule graph is failed to split into two disconnected
+    subgraphs
+    """
     pass
 
 

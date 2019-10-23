@@ -4,7 +4,7 @@
 
 
 import itertools
-from pymatgen.core.lattice import Lattice
+from pymatgen.core.lattice import Lattice, get_points_in_spheres
 import numpy as np
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.operations import SymmOp
@@ -244,9 +244,12 @@ class LatticeTestCase(PymatgenTest):
 
         latt = Lattice([1.432950, 0.827314, 4.751000, -1.432950, 0.827314,
                         4.751000, 0.0, -1.654628, 4.751000])
-        ans = [[-1.432950, -2.481942, 0.0],
-               [-2.8659, 0.0, 0.0],
-               [-1.432950, -0.827314, -4.751000]]
+        # ans = [[-1.432950, -2.481942, 0.0],
+        #       [-2.8659, 0.0, 0.0],
+        #       [-1.432950, -0.827314, -4.751000]]
+        ans = [[2.8659, 0., 0.],
+               [1.43295, 2.481942, 0.],
+               [1.43295, 0.827314, 4.751]]
         self.assertArrayAlmostEqual(latt.get_niggli_reduced_lattice().matrix,
                                     ans)
 
@@ -515,6 +518,24 @@ class LatticeTestCase(PymatgenTest):
 
         hkl = m.get_miller_index_from_coords(sites, coords_are_cartesian=False)
         self.assertEqual(hkl, (1, 0, 0))
+
+    def test_points_in_spheres(self):
+        points = [[0, 0, 0], [2, 2, 2]]
+        lattice = Lattice.cubic(3)
+        center_points = [[1.5, 1.5, 1.5]]
+        nns = get_points_in_spheres(all_coords=np.array(points), center_coords=np.array(center_points), r=3, pbc=False)[0]
+        self.assertEqual(len(nns), 2) # two neighbors
+        sorted_nns = sorted(nns, key=lambda x: x[1])
+        self.assertArrayAlmostEqual(sorted_nns[0][0], [2, 2, 2])
+        self.assertArrayAlmostEqual(sorted_nns[1][0], [0, 0, 0])
+
+        nns = get_points_in_spheres(all_coords=np.array(points), center_coords=np.array(center_points), r=3, pbc=True,
+                                    lattice=lattice)[0]
+        self.assertEqual(len(nns), 12)
+
+        nns = get_points_in_spheres(all_coords=np.array(points), center_coords=np.array(center_points), r=3, pbc=[True, False, False],
+                                    lattice=lattice)[0]
+        self.assertEqual(len(nns), 4)
 
 
 if __name__ == '__main__':

@@ -4,8 +4,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.graphs &#8212; pymatgen 2019.8.23 documentation</title>
-    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <title>pymatgen.analysis.graphs &#8212; pymatgen 2019.9.16 documentation</title>
+    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -41,6 +41,7 @@
 
     <div class="document">
       <div class="documentwrapper">
+        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.analysis.graphs</h1><div class="highlight"><pre>
@@ -48,6 +49,9 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module for graph representations of crystals.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">subprocess</span>
@@ -122,7 +126,6 @@
     <span class="n">f2_nodes</span> <span class="o">=</span> <span class="n">frag2</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">f1_nodes</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">f2_nodes</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span>
-    <span class="n">f1_edges</span> <span class="o">=</span> <span class="n">frag1</span><span class="o">.</span><span class="n">edges</span><span class="p">()</span>
     <span class="n">f2_edges</span> <span class="o">=</span> <span class="n">frag2</span><span class="o">.</span><span class="n">edges</span><span class="p">()</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">f2_edges</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">f2_edges</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span>
@@ -1558,8 +1561,10 @@
 
 
 <div class="viewcode-block" id="MolGraphSplitError"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MolGraphSplitError">[docs]</a><span class="k">class</span> <span class="nc">MolGraphSplitError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="c1"># Raised when a molecule graph is failed to split into two disconnected</span>
-    <span class="c1"># subgraphs</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Raised when a molecule graph is failed to split into two disconnected</span>
+<span class="sd">    subgraphs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">pass</span></div>
 
 
@@ -2903,6 +2908,21 @@
 </pre></div>
 
           </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -2915,7 +2935,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

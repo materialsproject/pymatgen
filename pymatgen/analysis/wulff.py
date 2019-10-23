@@ -75,6 +75,15 @@ class WulffFacet:
 
     def __init__(self, normal, e_surf, normal_pt, dual_pt, index, m_ind_orig,
                  miller):
+        """
+        :param normal:
+        :param e_surf:
+        :param normal_pt:
+        :param dual_pt:
+        :param index:
+        :param m_ind_orig:
+        :param miller:
+        """
         self.normal = normal
         self.e_surf = e_surf
         self.normal_pt = normal_pt
@@ -338,12 +347,12 @@ class WulffShape:
         return color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff, e_surf_on_wulff_list
 
     def show(self, *args, **kwargs):
-        """
+        r"""
         Show the Wulff plot.
 
         Args:
-            \\*args: Passed to get_plot.
-            \\*\\*kwargs: Passed to get_plot.
+            *args: Passed to get_plot.
+            **kwargs: Passed to get_plot.
         """
         self.get_plot(*args, **kwargs).show()
 
@@ -473,7 +482,7 @@ class WulffShape:
                 ax1, cmap=cmap, norm=norm, boundaries=[0] + bounds + [10],
                 extend='both', ticks=bounds[:-1], spacing='proportional',
                 orientation='vertical')
-            units = "$J/m^2$" if units_in_JPERM2 else "$eV/\AA^2$"
+            units = "$J/m^2$" if units_in_JPERM2 else r"$eV/\AA^2$"
             cbar.set_label('Surface Energies (%s)' % (units), fontsize=100)
 
         if grid_off:

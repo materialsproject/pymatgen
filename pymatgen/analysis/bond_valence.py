@@ -2,6 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module implements classes to perform bond valence analyses.
+"""
 
 import collections
 import numpy as np
@@ -9,16 +12,11 @@ import operator
 import os
 import functools
 from math import exp, sqrt
-
 from monty.serialization import loadfn
 
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.periodic_table import get_el_sp
-
-"""
-This module implements classes to perform bond valence analyses.
-"""
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -394,10 +392,9 @@ class BVAnalyzer:
                 if max_diff > 2:
                     return
 
-                score = six.moves.reduce(
-                    operator.mul,
-                    [all_prob[attrib[iv]][elements[iv]][vv]
-                     for iv, vv in enumerate(v_set)])
+                score = functools.reduce(operator.mul,
+                                         [all_prob[attrib[iv]][elements[iv]][vv]
+                                          for iv, vv in enumerate(v_set)])
                 if score > self._best_score:
                     self._best_vset = v_set
                     self._best_score = score

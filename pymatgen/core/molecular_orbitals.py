@@ -2,15 +2,15 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module implements a MolecularOrbital class to represent band character in
+solids. Usefull for predicting PDOS character from structural information.
+"""
+
 from itertools import chain, combinations
 
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.composition import Composition
-
-'''
-This module implements a MolecularOrbital class to represent band character in
-solids. Usefull for predicting PDOS character from structural information.
-'''
 
 
 class MolecularOrbitals:
@@ -63,9 +63,9 @@ class MolecularOrbitals:
         self.band_edges = self.obtain_band_edges()
 
     def max_electronegativity(self):
-        '''
+        """
         returns the maximum pairwise electronegativity difference
-        '''
+        """
         maximum = 0
         for e1, e2 in combinations(self.elements, 2):
             if abs(Element(e1).X - Element(e2).X) > maximum:
@@ -73,18 +73,18 @@ class MolecularOrbitals:
         return maximum
 
     def aos_as_list(self):
-        '''
+        """
         Returns a list of atomic orbitals, sorted from lowest to highest energy
-        '''
+        """
         return sorted(chain.from_iterable(
             [self.aos[el] * int(self.composition[el]) for el in self.elements]
         ), key=lambda x: x[2])
 
     def obtain_band_edges(self):
-        '''
+        """
         Fill up the atomic orbitals with available electrons.
         Return HOMO, LUMO, and whether it's a metal.
-        '''
+        """
         orbitals = self.aos_as_list()
         electrons = Composition(self.composition).total_electrons
         partial_filled = []
@@ -111,9 +111,4 @@ class MolecularOrbitals:
             except Exception:
                 lumo = None
 
-        if homo == lumo:
-            metal = True
-        else:
-            metal = False
-
-        return {'HOMO': homo, 'LUMO': lumo, 'metal': metal}
+        return {'HOMO': homo, 'LUMO': lumo, 'metal': homo == lumo}

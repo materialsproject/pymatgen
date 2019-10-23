@@ -15,6 +15,7 @@ __email__ = "mjvansetten@gmail.com"
 __date__ = "May 2014"
 
 from pymatgen.io.abinit.scheduler_error_parsers import get_parser
+
 try:
     from custodian.custodian import ErrorHandler
 except ImportError:
@@ -33,6 +34,7 @@ class SchedulerErrorHandler(ErrorHandler):
       If a application_adapter is also provided and it provides the methods defined in CorrectorProtocolApplication
       problems can also be fixed a the level of the application, e.g. making the application require less memory.
     """
+
     def __init__(self, scheduler_adapter, application_adapter=None, err_file='queue.err', out_file='queue.out',
                  run_err_file='run.err', batch_err_file='batch.err'):
         self.scheduler_adapter = scheduler_adapter

@@ -3,11 +3,12 @@ import numpy as np
 import plotly.graph_objects as go
 from scipy.optimize import curve_fit
 import ruamel.yaml
+import warnings as w
 
+from typing import List, Dict, Tuple
 from monty.serialization import loadfn
 
 from pymatgen import Composition
-from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.analysis.reaction_calculator import ComputedReaction
 
 """
@@ -76,14 +77,16 @@ class CorrectionCalculator:
 
         self.exp_compounds = loadfn(exp_gz)  # experimental data
         self.calc_compounds = loadfn(comp_gz)  # computed entries
-        self.corrections = []
-        self.corrections_std_error = []
-        self.corrections_dict = {}  # {'species': (value, error)}
+        self.corrections: List[float] = []
+        self.corrections_std_error: List[float] = []
+        self.corrections_dict: Dict[
+            str, Tuple[float, float]
+        ] = {}  # {'species': (value, error)}
 
-        # these three lists are just to help the graph_residual_error_per_species() method
-        self.oxides = []
-        self.peroxides = []
-        self.superoxides = []
+        # to help the graph_residual_error_per_species() method differentiate between oxygen containing compounds
+        self.oxides: List[str] = []
+        self.peroxides: List[str] = []
+        self.superoxides: List[str] = []
 
     def compute_corrections(
         self,
@@ -107,12 +110,11 @@ class CorrectionCalculator:
             ValueError: calc_compounds is missing an entry
         """
 
-        self.names = []
-        self.diffs = []
-        self.coeff_mat = []
-        self.exp_uncer = []
+        self.names: List[str] = []
+        self.diffs: List[float] = []
+        self.coeff_mat: List[List[float]] = []
+        self.exp_uncer: List[float] = []
 
-        self.mpids = []
         for cmpd_info in self.exp_compounds:
             name = cmpd_info["formula"]
             warnings = cmpd_info["warnings"]
@@ -125,7 +127,6 @@ class CorrectionCalculator:
                 warnings.pop("unstable", None)
 
             if name in self.calc_compounds and not warnings:
-
                 comp = Composition(name)
                 elems = list(comp.as_dict())
 
@@ -160,22 +161,31 @@ class CorrectionCalculator:
                 self.coeff_mat.append([i / comp.num_atoms for i in coeff])
                 self.exp_uncer.append((cmpd_info["uncertainty"]) / comp.num_atoms)
 
-                self.mpids.append(compound.entry_id)
-
         # for any exp entries with no uncertainty value, assign average uncertainty value
         sigma = np.array(self.exp_uncer)
         sigma[sigma == 0] = np.nan
+
+        w.filterwarnings(
+            "ignore", lineno=169
+        )  # numpy raises warning if the entire array is nan values
         mean_uncer = np.nanmean(sigma)
+
         sigma = np.where(np.isnan(sigma), mean_uncer, sigma)
 
-        popt, pcov = curve_fit(
-            func,
-            self.coeff_mat,
-            self.diffs,
-            p0=np.ones(21),
-            sigma=sigma,
-            absolute_sigma=True,
-        )
+        if np.isnan(mean_uncer):
+            # no uncertainty values for any compounds, don't try to weight
+            popt, pcov = curve_fit(
+                func, self.coeff_mat, self.diffs, p0=np.ones(len(self.species))
+            )
+        else:
+            popt, pcov = curve_fit(
+                func,
+                self.coeff_mat,
+                self.diffs,
+                p0=np.ones(len(self.species)),
+                sigma=sigma,
+                absolute_sigma=True,
+            )
         self.corrections = popt.tolist()
         self.corrections_std_error = np.sqrt(np.diag(pcov)).tolist()
         for i in range(len(self.species)):
@@ -194,7 +204,6 @@ class CorrectionCalculator:
         if len(self.corrections) == 0:
             self.compute_corrections()
 
-        indices = [i for i in range(len(self.diffs))]
         abs_errors = [
             abs(i) for i in (self.diffs - np.dot(self.coeff_mat, self.corrections))
         ]
@@ -315,7 +324,7 @@ class CorrectionCalculator:
             self.compute_corrections()
 
         # from old mpcompatibility
-        aqueous = OrderedDict()
+        aqueous: OrderedDict[str, float] = OrderedDict()
         aqueous["O2"] = -0.316731
         aqueous["N2"] = -0.295729
         aqueous["F2"] = -0.313025
@@ -325,21 +334,21 @@ class CorrectionCalculator:
         aqueous["H2"] = -3.6018845
         aqueous["H2O"] = -4.972
 
-        compatibility = OrderedDict()
-        anion_corr = OrderedDict()
-        advanced = OrderedDict()
-        gas_corr = OrderedDict()
-        u_corr = OrderedDict()
-        o = OrderedDict()
-        f = OrderedDict()
+        compatibility: OrderedDict = OrderedDict()
+        anion_corr: OrderedDict[str, float] = OrderedDict()
+        advanced: OrderedDict[str, OrderedDict] = OrderedDict()
+        gas_corr: OrderedDict[str, float] = OrderedDict()
+        u_corr: OrderedDict[str, OrderedDict] = OrderedDict()
+        o: OrderedDict[str, float] = OrderedDict()
+        f: OrderedDict[str, float] = OrderedDict()
 
-        compatibility_error = OrderedDict()
-        anion_corr_error = OrderedDict()
-        advanced_error = OrderedDict()
-        gas_corr_error = OrderedDict()
-        u_corr_error = OrderedDict()
-        o_error = OrderedDict()
-        f_error = OrderedDict()
+        compatibility_error: OrderedDict = OrderedDict()
+        anion_corr_error: OrderedDict[str, float] = OrderedDict()
+        advanced_error: OrderedDict[str, OrderedDict] = OrderedDict()
+        gas_corr_error: OrderedDict[str, float] = OrderedDict()
+        u_corr_error: OrderedDict[str, OrderedDict] = OrderedDict()
+        o_error: OrderedDict[str, float] = OrderedDict()
+        f_error: OrderedDict[str, float] = OrderedDict()
 
         anion_corr["oxide"] = self.corrections_dict["oxide"][0]
         anion_corr["peroxide"] = self.corrections_dict["peroxide"][0]
@@ -383,7 +392,7 @@ class CorrectionCalculator:
         compatibility["Advanced"] = advanced
         compatibility["GasCorrections"] = gas_corr
         compatibility["AnionCorrections"] = anion_corr
-        compatibility["AqueuousCompoundEnergies"] = aqueous
+        compatibility["AqueousCompoundEnergies"] = aqueous
 
         u_corr_error["O"] = o_error
         u_corr_error["F"] = f_error
@@ -395,17 +404,17 @@ class CorrectionCalculator:
 
         fn = name + "Compatibility.yaml"
 
-        f = open(fn, "w")
+        file = open(fn, "w")
         yaml = ruamel.yaml.YAML()
         yaml.Representer.add_representer(OrderedDict, yaml.Representer.represent_dict)
         yaml.default_flow_style = False
-        yaml.dump(compatibility, f)
-        f.close()
+        yaml.dump(compatibility, file)
+        file.close()
 
         fn = name + "CompatibilityErrors.yaml"
-        f = open(fn, "w")
+        file = open(fn, "w")
         yaml = ruamel.yaml.YAML()
         yaml.Representer.add_representer(OrderedDict, yaml.Representer.represent_dict)
         yaml.default_flow_style = False
-        yaml.dump(compatibility_error, f)
-        f.close()
+        yaml.dump(compatibility_error, file)
+        file.close()

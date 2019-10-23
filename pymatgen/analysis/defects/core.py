@@ -6,7 +6,7 @@ import logging
 import numpy as np
 
 from abc import ABCMeta, abstractmethod
-from monty.json import MSONable, MontyDecoder, jsanitize
+from monty.json import MSONable, MontyDecoder
 from functools import lru_cache
 
 from pymatgen.core.structure import Structure, PeriodicSite
@@ -81,7 +81,7 @@ class Defect(MSONable, metaclass=ABCMeta):
         """
         return self._multiplicity
 
-    @property
+    @property  # type: ignore
     @abstractmethod
     def defect_composition(self):
         """
@@ -98,7 +98,7 @@ class Defect(MSONable, metaclass=ABCMeta):
         """
         return
 
-    @property
+    @property  # type: ignore
     @abstractmethod
     def name(self):
         """
@@ -197,7 +197,7 @@ class Substitution(Defect):
     Subclass of Defect to capture essential information for a single Substitution defect structure.
     """
 
-    @property
+    @property  # type: ignore
     @lru_cache(1)
     def defect_composition(self):
         poss_deflist = sorted(
@@ -260,7 +260,7 @@ class Substitution(Defect):
             equivalent_sites = periodic_struc.find_equivalent_sites(defect_site)
             return len(equivalent_sites)
 
-    @property
+    @property  # type: ignore
     @lru_cache(1)
     def name(self):
         """

@@ -1,53 +1,86 @@
 version: 2
 jobs:
-  py3test:
+  pmglint:
     working_directory: ~/pymatgen
     docker:
       - image: materialsvirtuallab/circle-ci-pmg-py3:3.7.3
-#        environment:
-#          PMG_MAPI_ENDPOINT: https://zola.lbl.gov/rest/v2
-    # parallelism: 4
     steps:
       - checkout
       - run:
           command: |
-            export PATH=$HOME/miniconda3/bin:$PATH
-            conda config --set always_yes yes --set changeps1 no
-            conda update -q conda
-            conda info -a
-            conda create -q -n test-environment python=3.7 numpy scipy matplotlib sympy cython pandas networkx pytest cmake h5py
-            source activate test-environment
-            conda update --quiet numpy scipy matplotlib sympy cython pandas networkx pytest pip cmake h5py
-            conda install --quiet -c openbabel openbabel
-            # conda install --quiet -c clinicalgraphics vtk
-            conda install --quiet -c conda-forge python-igraph
-            pip install --quiet --ignore-installed -r requirements.txt -r requirements-optional.txt
-            export CFLAGS=$CFLAGS" -std=gnu++11"
-            pip install BoltzTraP2
-            export CFLAGS=${CFLAGS%% -std=gnu++11}
-      - run:
-          command: |
-            export PATH=$HOME/miniconda3/bin:$PATH
-            # Add executables and path.
-            for EXEPATH in `pwd`/cmd_line/*/Linux_64bit; do export PATH=$PATH:$EXEPATH; done
-            export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
-            export MPLBACKEND=Agg
-            export LC_ALL=en_US.UTF-8
-            export LANG=en_US.UTF-8
-            # Only do matproj and other ext API tests once every five random runs or so.
-            # The parallelism is 4. If 1/20 we have to run, that measn the probability of a matproj test running is 1-(1-0.05)**4 = 0.18.
-            # if [ "$(( RANDOM % 20 ))" -ne "0" ]; then export EXCLUDE_TESTS="--ignore=pymatgen/ext/tests/test_matproj.py --ignore=pymatgen/analysis/tests/test_pourbaix_diagram.py --ignore=pymatgen/tests/test_init.py"; fi
-            # export EXCLUDE_TESTS="--ignore=pymatgen/ext/tests/test_matproj.py --ignore=pymatgen/analysis/tests/test_pourbaix_diagram.py --ignore=pymatgen/tests/test_init.py"
-            source activate test-environment
-            pip install --quiet -e .
-            pytest --ignore=pymatgen/analysis/tests/test_pourbaix_diagram.py --cov=pymatgen --cov-report html:coverage_reports pymatgen
+            pip install --quiet pycodestyle flake8 mypy pydocstyle pylint
+            echo "Checks will be performed in the order of pycodestyle -> flake8 -> mypy -> pydocstyle "
+            echo "It is highly recommended that you use the pre-commit hook provided in pymatgen."
+            echo "Simply copy pre-commit to .git/hooks to check before pushing your code."
             echo "pycodestyle checks..."
             pycodestyle pymatgen
             echo "--- Done ---"
+            echo "flake8 checks..."
+            flake8 --count --show-source --statistics pymatgen
+            # exit-zero treats all errors as warnings.
+            flake8 --count --exit-zero --max-complexity=20 --statistics pymatgen
+            echo "--- Done ---"
+            echo "mypy checks..."
+            mypy pymatgen
+            echo "--- Done ---"
+            # Docstyle checks are enforced for files that have been modified since the v2019.9.16 tagged release.
+            export MODIFIED_FILES=`git diff --diff-filter=ACMRTUXB --name-only HEAD v2019.9.16 | grep -E 'pymatgen.*\.(py)$' | sed '/test_/d' | tr '\n' ' '`
+            echo "pydocstyle checks for $MODIFIED_FILES..."
+            pydocstyle --count pymatgen/core $MODIFIED_FILES
+            echo "--- Done ---"
+            echo "pylint checks..."
+            pylint --exit-zero pymatgen
+            echo "--- Done ---"
+  py3test:
+    working_directory: ~/pymatgen
+    docker:
+      - image: materialsvirtuallab/circle-ci-pmg-py3:3.7.3
+    environment:
+      GULP_LIB: "/root/pymatgen/cmd_line/gulp/Libraries"
+      MPLBACKEND: "Agg"
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - pmg-v3-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}
+      - run:
+          command: |
+            export PATH=$HOME/miniconda3/bin:$PATH
+            conda config --set always_yes yes --set changeps1 no
+            conda config --system --add channels conda-forge
+            conda config --system --add channels openbabel
+            if [ -e $HOME/miniconda3/envs/test-environment ]; then
+              echo "Conda env already present from the cache."
+            else
+              conda update -q conda
+              conda create -q -n test-environment python=3.7 numpy scipy matplotlib sympy cython pandas networkx pytest pip cmake h5py openbabel python-igraph
+            fi
+            source activate test-environment
+            conda update --quiet numpy scipy matplotlib sympy cython pandas networkx pytest pip cmake h5py openbabel python-igraph
+            # conda install --quiet -c clinicalgraphics vtk
+            pip install --quiet --ignore-installed -r requirements.txt -r requirements-optional.txt
+            export CFLAGS=$CFLAGS" -std=gnu++11"
+            pip install --quiet BoltzTraP2
+            export CFLAGS=${CFLAGS%% -std=gnu++11}
+      - save_cache:
+          key: pmg-v3-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}
+          paths:
+            - /root/miniconda3/envs/test-environment
+      - run:
+          command: |
+            export PATH=$HOME/miniconda3/bin:$PATH
+            source activate test-environment
+            # Add executables and path.
+            for EXEPATH in `pwd`/cmd_line/*/Linux_64bit; do export PATH=$PATH:$EXEPATH; done
+            pip install --quiet -e .
+            pytest --ignore=pymatgen/analysis/tests/test_pourbaix_diagram.py --cov=pymatgen --cov-report html:coverage_reports pymatgen
             # Command line tests
             pmg structure --convert --filenames test_files/Li2O.cif POSCAR.pmg
             pmg structure --convert --filenames POSCAR.pmg pmg.cif
-            pmg analyze -d test_files
+            pmg analyze test_files
+            rm vasp_data.gz
+            rm pmg.cif
+            rm POSCAR.pmg
             if [ "$CI_PULL_REQUEST" == "" ]; then coveralls; fi
           no_output_timeout: 3600
       - store_artifacts:
@@ -55,9 +88,12 @@ jobs:
           destination: tr1
       - store_test_results:
           path: coverage_reports/
+      - store_test_results:
+          path: test-results
 
 workflows:
   version: 2
   build_and_test:
     jobs:
       - py3test
+      - pmglint

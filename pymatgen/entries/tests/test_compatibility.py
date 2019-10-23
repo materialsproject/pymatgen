@@ -972,6 +972,7 @@ class OxideTypeCorrectionTest(unittest.TestCase):
         li2o_entry_corrected = self.compat.process_entry(li2o_entry)
         self.assertAlmostEqual(li2o_entry_corrected.energy, -3.0 - 0.66975, 4)
 
+
 class SulfideTypeCorrectionTest(unittest.TestCase):
     def setUp(self):
         self.compat = MaterialsProjectCompatibility(check_potcar_hash=False)
@@ -985,99 +986,157 @@ class SulfideTypeCorrectionTest(unittest.TestCase):
         # Na2S2, entry mp-2400, with and without structure
         from collections import defaultdict
 
-        entry_struct_as_dict = {'@module': 'pymatgen.entries.computed_entries',
-        '@class': 'ComputedStructureEntry',
-        'energy': -28.42580746,
-        'composition': defaultdict(float, {'Na': 4.0, 'S': 4.0}),
-        'correction': 0,
-        'parameters': {'run_type': 'GGA',
-        'is_hubbard': False,
-        'pseudo_potential': {'functional': 'PBE',
-        'labels': ['Na_pv', 'S'],
-        'pot_type': 'paw'},
-        'hubbards': {},
-        'potcar_symbols': ['PBE Na_pv', 'PBE S'],
-        'oxide_type': 'None'},
-        'data': {'oxide_type': 'None'},
-        'entry_id': 'mp-2400',
-        'structure': {'@module': 'pymatgen.core.structure',
-        '@class': 'Structure',
-        'charge': None,
-        'lattice': {'matrix': [[4.5143094, 0.0, 0.0],
-            [-2.2571547, 3.90950662, 0.0],
-            [0.0, 0.0, 10.28414905]],
-        'a': 4.5143094,
-        'b': 4.514309399183436,
-        'c': 10.28414905,
-        'alpha': 90.0,
-        'beta': 90.0,
-        'gamma': 120.00000000598358,
-        'volume': 181.50209256783256},
-        'sites': [{'species': [{'element': 'Na', 'occu': 1}],
-            'abc': [0.0, 0.0, 0.0],
-            'xyz': [0.0, 0.0, 0.0],
-            'label': 'Na',
-            'properties': {'magmom': 0.0}},
-        {'species': [{'element': 'Na', 'occu': 1}],
-            'abc': [0.0, 0.0, 0.5],
-            'xyz': [0.0, 0.0, 5.142074525],
-            'label': 'Na',
-            'properties': {'magmom': 0.0}},
-        {'species': [{'element': 'Na', 'occu': 1}],
-            'abc': [0.33333333, 0.66666667, 0.25],
-            'xyz': [-2.2571547075855847e-08, 2.6063377596983557, 2.5710372625],
-            'label': 'Na',
-            'properties': {'magmom': 0.0}},
-        {'species': [{'element': 'Na', 'occu': 1}],
-            'abc': [0.66666667, 0.33333333, 0.75],
-            'xyz': [2.2571547225715474, 1.3031688603016447, 7.7131117875],
-            'label': 'Na',
-            'properties': {'magmom': 0.0}},
-        {'species': [{'element': 'S', 'occu': 1}],
-            'abc': [0.33333333, 0.66666667, 0.644551],
-            'xyz': [-2.2571547075855847e-08, 2.6063377596983557, 6.62865855432655],
-            'label': 'S',
-            'properties': {'magmom': 0.0}},
-        {'species': [{'element': 'S', 'occu': 1}],
-            'abc': [0.66666667, 0.33333333, 0.144551],
-            'xyz': [2.2571547225715474, 1.3031688603016447, 1.4865840293265502],
-            'label': 'S',
-            'properties': {'magmom': 0.0}},
-        {'species': [{'element': 'S', 'occu': 1}],
-            'abc': [0.66666667, 0.33333333, 0.355449],
-            'xyz': [2.2571547225715474, 1.3031688603016447, 3.65549049567345],
-            'label': 'S',
-            'properties': {'magmom': 0.0}},
-        {'species': [{'element': 'S', 'occu': 1}],
-            'abc': [0.33333333, 0.66666667, 0.855449],
-            'xyz': [-2.2571547075855847e-08, 2.6063377596983557, 8.79756502067345],
-            'label': 'S',
-            'properties': {'magmom': 0.0}}]}}
+        entry_struct_as_dict = {
+            "@module": "pymatgen.entries.computed_entries",
+            "@class": "ComputedStructureEntry",
+            "energy": -28.42580746,
+            "composition": defaultdict(float, {"Na": 4.0, "S": 4.0}),
+            "correction": 0,
+            "parameters": {
+                "run_type": "GGA",
+                "is_hubbard": False,
+                "pseudo_potential": {
+                    "functional": "PBE",
+                    "labels": ["Na_pv", "S"],
+                    "pot_type": "paw",
+                },
+                "hubbards": {},
+                "potcar_symbols": ["PBE Na_pv", "PBE S"],
+                "oxide_type": "None",
+            },
+            "data": {"oxide_type": "None"},
+            "entry_id": "mp-2400",
+            "structure": {
+                "@module": "pymatgen.core.structure",
+                "@class": "Structure",
+                "charge": None,
+                "lattice": {
+                    "matrix": [
+                        [4.5143094, 0.0, 0.0],
+                        [-2.2571547, 3.90950662, 0.0],
+                        [0.0, 0.0, 10.28414905],
+                    ],
+                    "a": 4.5143094,
+                    "b": 4.514309399183436,
+                    "c": 10.28414905,
+                    "alpha": 90.0,
+                    "beta": 90.0,
+                    "gamma": 120.00000000598358,
+                    "volume": 181.50209256783256,
+                },
+                "sites": [
+                    {
+                        "species": [{"element": "Na", "occu": 1}],
+                        "abc": [0.0, 0.0, 0.0],
+                        "xyz": [0.0, 0.0, 0.0],
+                        "label": "Na",
+                        "properties": {"magmom": 0.0},
+                    },
+                    {
+                        "species": [{"element": "Na", "occu": 1}],
+                        "abc": [0.0, 0.0, 0.5],
+                        "xyz": [0.0, 0.0, 5.142074525],
+                        "label": "Na",
+                        "properties": {"magmom": 0.0},
+                    },
+                    {
+                        "species": [{"element": "Na", "occu": 1}],
+                        "abc": [0.33333333, 0.66666667, 0.25],
+                        "xyz": [
+                            -2.2571547075855847e-08,
+                            2.6063377596983557,
+                            2.5710372625,
+                        ],
+                        "label": "Na",
+                        "properties": {"magmom": 0.0},
+                    },
+                    {
+                        "species": [{"element": "Na", "occu": 1}],
+                        "abc": [0.66666667, 0.33333333, 0.75],
+                        "xyz": [2.2571547225715474, 1.3031688603016447, 7.7131117875],
+                        "label": "Na",
+                        "properties": {"magmom": 0.0},
+                    },
+                    {
+                        "species": [{"element": "S", "occu": 1}],
+                        "abc": [0.33333333, 0.66666667, 0.644551],
+                        "xyz": [
+                            -2.2571547075855847e-08,
+                            2.6063377596983557,
+                            6.62865855432655,
+                        ],
+                        "label": "S",
+                        "properties": {"magmom": 0.0},
+                    },
+                    {
+                        "species": [{"element": "S", "occu": 1}],
+                        "abc": [0.66666667, 0.33333333, 0.144551],
+                        "xyz": [
+                            2.2571547225715474,
+                            1.3031688603016447,
+                            1.4865840293265502,
+                        ],
+                        "label": "S",
+                        "properties": {"magmom": 0.0},
+                    },
+                    {
+                        "species": [{"element": "S", "occu": 1}],
+                        "abc": [0.66666667, 0.33333333, 0.355449],
+                        "xyz": [
+                            2.2571547225715474,
+                            1.3031688603016447,
+                            3.65549049567345,
+                        ],
+                        "label": "S",
+                        "properties": {"magmom": 0.0},
+                    },
+                    {
+                        "species": [{"element": "S", "occu": 1}],
+                        "abc": [0.33333333, 0.66666667, 0.855449],
+                        "xyz": [
+                            -2.2571547075855847e-08,
+                            2.6063377596983557,
+                            8.79756502067345,
+                        ],
+                        "label": "S",
+                        "properties": {"magmom": 0.0},
+                    },
+                ],
+            },
+        }
 
-        entry_no_struct_as_dict = {'@module': 'pymatgen.entries.computed_entries',
-        '@class': 'ComputedEntry',
-        'energy': -28.42580746,
-        'composition': defaultdict(float, {'Na': 4.0, 'S': 4.0}),
-        'correction': -2.65384,
-        'parameters': {'run_type': 'GGA',
-        'is_hubbard': False,
-        'pseudo_potential': {'functional': 'PBE',
-        'labels': ['Na_pv', 'S'],
-        'pot_type': 'paw'},
-        'hubbards': {},
-        'potcar_symbols': ['PBE Na_pv', 'PBE S'],
-        'oxide_type': 'None'},
-        'data': {'oxide_type': 'None'},
-        'entry_id': 'mp-2400'}
+        entry_no_struct_as_dict = {
+            "@module": "pymatgen.entries.computed_entries",
+            "@class": "ComputedEntry",
+            "energy": -28.42580746,
+            "composition": defaultdict(float, {"Na": 4.0, "S": 4.0}),
+            "correction": -2.65384,
+            "parameters": {
+                "run_type": "GGA",
+                "is_hubbard": False,
+                "pseudo_potential": {
+                    "functional": "PBE",
+                    "labels": ["Na_pv", "S"],
+                    "pot_type": "paw",
+                },
+                "hubbards": {},
+                "potcar_symbols": ["PBE Na_pv", "PBE S"],
+                "oxide_type": "None",
+            },
+            "data": {"oxide_type": "None"},
+            "entry_id": "mp-2400",
+        }
 
         na2s2_entry_struct = ComputedStructureEntry.from_dict(entry_struct_as_dict)
         na2s2_entry_nostruct = ComputedEntry.from_dict(entry_no_struct_as_dict)
 
         struct_corrected = self.compat.process_entry(na2s2_entry_struct)
         nostruct_corrected = self.compat.process_entry(na2s2_entry_nostruct)
-        
-        self.assertAlmostEqual(struct_corrected.correction,
-            nostruct_corrected.correction, 4)
+
+        self.assertAlmostEqual(
+            struct_corrected.correction, nostruct_corrected.correction, 4
+        )
+
 
 class OxideTypeCorrectionNoPeroxideCorrTest(unittest.TestCase):
     def setUp(self):
@@ -1195,6 +1254,89 @@ class OxideTypeCorrectionNoPeroxideCorrTest(unittest.TestCase):
 
         lio3_entry_corrected = self.compat.process_entry(lio3_entry)
         self.assertAlmostEqual(lio3_entry_corrected.energy, -3.0 - 3 * 0.66975)
+
+
+class TestMPAqueousCorrection(unittest.TestCase):
+    def setUp(self):
+        module_dir = os.path.dirname(os.path.abspath(__file__))
+        fp = os.path.join(module_dir, os.path.pardir, "MPCompatibility.yaml")
+        self.corr = AqueousCorrection(fp)
+
+        self.compat = MaterialsProjectCompatibility(check_potcar_hash=False)
+        self.aqcompat = MaterialsProjectAqueousCompatibility(check_potcar_hash=False)
+        self.aqcorr = AqueousCorrection(fp)
+
+    def test_compound_energy(self):
+
+        O2_entry = self.corr.correct_entry(
+            ComputedEntry(Composition("O2"), -4.9355 * 2)
+        )
+        H2_entry = self.corr.correct_entry(ComputedEntry(Composition("H2"), 3))
+        H2O_entry = self.corr.correct_entry(ComputedEntry(Composition("H2O"), 3))
+        H2O_formation_energy = H2O_entry.energy - (
+            H2_entry.energy + O2_entry.energy / 2.0
+        )
+        self.assertAlmostEqual(H2O_formation_energy, -2.46, 2)
+
+        entry = ComputedEntry(Composition("H2O"), -16)
+        entry = self.corr.correct_entry(entry)
+        self.assertAlmostEqual(entry.energy, -14.916, 4)
+
+        entry = ComputedEntry(Composition("H2O"), -24)
+        entry = self.corr.correct_entry(entry)
+        self.assertAlmostEqual(entry.energy, -14.916, 4)
+
+        entry = ComputedEntry(Composition("Cl"), -24)
+        entry = self.corr.correct_entry(entry)
+        self.assertAlmostEqual(entry.energy, -24.344373, 4)
+
+    def test_aqueous_compat(self):
+
+        el_li = Element("Li")
+        el_o = Element("O")
+        el_h = Element("H")
+        latt = Lattice.from_parameters(
+            3.565276, 3.565276, 4.384277, 90.000000, 90.000000, 90.000000
+        )
+        elts = [el_h, el_h, el_li, el_li, el_o, el_o]
+        coords = [
+            [0.000000, 0.500000, 0.413969],
+            [0.500000, 0.000000, 0.586031],
+            [0.000000, 0.000000, 0.000000],
+            [0.500000, 0.500000, 0.000000],
+            [0.000000, 0.500000, 0.192672],
+            [0.500000, 0.000000, 0.807328],
+        ]
+        struct = Structure(latt, elts, coords)
+        lioh_entry = ComputedStructureEntry(
+            struct,
+            -3,
+            parameters={
+                "is_hubbard": False,
+                "hubbards": None,
+                "run_type": "GGA",
+                "potcar_spec": [
+                    {
+                        "titel": "PAW_PBE Li_sv 17Jan2003",  # date/hash from mit potcar_spec
+                        "hash": "65e83282d1707ec078c1012afbd05be8",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
+                    {
+                        "titel": "PAW_PBE H 15Jun2001",
+                        "hash": "bb43c666e3d36577264afe07669e9582",
+                    },
+                ],
+            },
+        )
+        lioh_entry_compat = self.compat.process_entry(lioh_entry)
+        lioh_entry_compat_aqcorr = self.aqcorr.correct_entry(lioh_entry_compat)
+        lioh_entry_aqcompat = self.aqcompat.process_entry(lioh_entry)
+        self.assertAlmostEqual(
+            lioh_entry_compat_aqcorr.energy, lioh_entry_aqcompat.energy, 4
+        )
 
 
 class AqueousCorrectionTest(unittest.TestCase):

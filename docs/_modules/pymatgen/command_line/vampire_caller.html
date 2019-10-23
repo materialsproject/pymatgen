@@ -4,8 +4,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.command_line.vampire_caller &#8212; pymatgen 2019.8.23 documentation</title>
-    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <title>pymatgen.command_line.vampire_caller &#8212; pymatgen 2019.9.16 documentation</title>
+    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
@@ -33,7 +33,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -41,24 +41,13 @@
 
     <div class="document">
       <div class="documentwrapper">
+        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.command_line.vampire_caller</h1><div class="highlight"><pre>
 <span></span><span class="c1"># coding: utf-8</span>
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
-
-<span class="kn">import</span> <span class="nn">subprocess</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">os</span>
-
-<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">requires</span>
-<span class="kn">from</span> <span class="nn">monty.os.path</span> <span class="k">import</span> <span class="n">which</span>
-
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.magnetism.heisenberg</span> <span class="k">import</span> <span class="n">HeisenbergMapper</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.magnetism.analyzer</span> <span class="k">import</span> <span class="n">CollinearMagneticStructureAnalyzer</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module implements an interface to the VAMPIRE code for atomistic</span>
@@ -75,6 +64,17 @@
 <span class="sd">and R. W. Chantrell. J. Phys.: Condens. Matter 26, 103202 (2014)</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">requires</span>
+<span class="kn">from</span> <span class="nn">monty.os.path</span> <span class="k">import</span> <span class="n">which</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.magnetism.heisenberg</span> <span class="k">import</span> <span class="n">HeisenbergMapper</span>
+
+
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;ncfrey&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Nathan C. Frey&quot;</span>
@@ -86,6 +86,10 @@
 
 
 <div class="viewcode-block" id="VampireCaller"><a class="viewcode-back" href="../../../pymatgen.command_line.vampire_caller.html#pymatgen.command_line.vampire_caller.VampireCaller">[docs]</a><span class="k">class</span> <span class="nc">VampireCaller</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run Vampire on a material with magnetic ordering and exchange parameter information to compute the critical</span>
+<span class="sd">    temperature with classical Monte Carlo.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="nd">@requires</span><span class="p">(</span>
         <span class="n">VAMPEXE</span><span class="p">,</span>
         <span class="s2">&quot;VampireCaller requires vampire-serial to be in the path.&quot;</span>
@@ -104,9 +108,6 @@
     <span class="p">):</span>
 
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Run Vampire on a material with magnetic ordering and exchange parameter information to compute the critical</span>
-<span class="sd">        temperature with classical Monte Carlo.</span>
-
 <span class="sd">        user_input_settings is a dictionary that can contain:</span>
 <span class="sd">        * start_t (int): Start MC sim at this temp, defaults to 0 K.</span>
 <span class="sd">        * end_t (int): End MC sim at this temp, defaults to 1500 K.</span>
@@ -372,8 +373,6 @@
 
         <span class="n">structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span>
         <span class="n">mat_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mat_name</span>
-        <span class="n">tol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span>
-        <span class="n">dists</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dists</span>
 
         <span class="n">abc</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">abc</span>
         <span class="n">ucx</span><span class="p">,</span> <span class="n">ucy</span><span class="p">,</span> <span class="n">ucz</span> <span class="o">=</span> <span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">abc</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">abc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
@@ -439,11 +438,13 @@
 
 
 <div class="viewcode-block" id="VampireOutput"><a class="viewcode-back" href="../../../pymatgen.command_line.vampire_caller.html#pymatgen.command_line.vampire_caller.VampireOutput">[docs]</a><span class="k">class</span> <span class="nc">VampireOutput</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class processes results from a Vampire Monte Carlo simulation</span>
+<span class="sd">    and returns the critical temperature.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vamp_stdout</span><span class="p">,</span> <span class="n">nmats</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        This class processes results from a Vampire Monte Carlo simulation</span>
-<span class="sd">        and returns the critical temperature.</span>
-
 <span class="sd">        Args:</span>
 <span class="sd">            vamp_stdout (txt file): stdout from running vampire-serial.</span>
 
@@ -474,6 +475,21 @@
 </pre></div>
 
           </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -486,7 +502,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.8.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

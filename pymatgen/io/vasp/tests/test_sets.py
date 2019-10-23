@@ -14,7 +14,6 @@ from pymatgen.core.surface import SlabGenerator
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.vasp.outputs import Vasprun
 
-
 dec = MontyDecoder()
 
 
@@ -884,6 +883,7 @@ class MVLGWSetTest(PymatgenTest):
 
     def tearDown(self):
         warnings.simplefilter("default")
+        shutil.rmtree(self.tmp)
 
     def test_static(self):
         mvlgwsc = MVLGWSet(self.s)
@@ -953,9 +953,6 @@ class MVLGWSetTest(PymatgenTest):
         self.assertEqual(mvlgwgbse1.incar["ANTIRES"], 0)
         self.assertEqual(mvlgwgbse1.incar["NBANDSO"], 20)
         self.assertEqual(mvlgwgbse1.incar["ALGO"], "BSE")
-
-    def tearDown(self):
-        shutil.rmtree(self.tmp)
 
 
 class MPHSEBSTest(PymatgenTest):
@@ -1123,6 +1120,72 @@ class MVLRelax52SetTest(PymatgenTest):
         v = dec.process_decoded(d)
         self.assertEqual(type(v), MVLRelax52Set)
         self.assertEqual(v.incar["NSW"], 500)
+
+
+class LobsterSetTest(PymatgenTest):
+    # TODO: what kind of tests should I write for this?
+
+    def setUp(self):
+        file_path = self.TEST_FILES_DIR / 'POSCAR'
+        poscar = Poscar.from_file(file_path)
+        self.struct = poscar.structure
+        # test for different parameters!
+        self.lobsterset1 = LobsterSet(self.struct, isym=-1, ismear=-5)
+        self.lobsterset2 = LobsterSet(self.struct, isym=0, ismear=0)
+        # only allow isym=-1 and isym=0
+        with self.assertRaises(ValueError):
+            self.lobsterset_new = LobsterSet(self.struct, isym=2, ismear=0)
+        # only allow ismear=-5 and ismear=0
+        with self.assertRaises(ValueError):
+            self.lobsterset_new = LobsterSet(self.struct, isym=-1, ismear=2)
+        # test if one can still hand over grid density of kpoints
+        self.lobsterset3 = LobsterSet(self.struct, isym=0, ismear=0, user_kpoints_settings={"grid_density": 6000})
+        # check if users can overwrite settings in this class with the help of user_incar_settings
+        self.lobsterset4 = LobsterSet(self.struct, user_incar_settings={"ALGO": "Fast"})
+
+    def test_incar(self):
+        incar1 = self.lobsterset1.incar
+        self.assertIn("NBANDS", incar1)
+        self.assertEqual(incar1["NBANDS"], 116)
+        self.assertEqual(incar1["NSW"], 0)
+        self.assertEqual(incar1["NSW"], 0)
+        self.assertEqual(incar1["ISMEAR"], -5)
+        self.assertEqual(incar1["ISYM"], -1)
+        self.assertEqual(incar1["ALGO"], "Normal")
+        incar2 = self.lobsterset2.incar
+        self.assertEqual(incar2["ISYM"], 0)
+        self.assertEqual(incar2["ISMEAR"], 0)
+        incar4 = self.lobsterset4.incar
+        self.assertEqual(incar4["ALGO"], "Fast")
+
+    def test_kpoints(self):
+        kpoints1 = self.lobsterset1.kpoints
+        self.assertTrue(kpoints1.comment.split(" ")[6], 6138)
+        kpoints2 = self.lobsterset2.kpoints
+        self.assertTrue(kpoints2.comment.split(" ")[6], 6138)
+        kpoints3 = self.lobsterset3.kpoints
+        self.assertTrue(kpoints3.comment.split(" ")[6], 6000)
+
+    def test_potcar(self):
+        # PBE_54 is preferred at the moment
+        self.assertEqual(self.lobsterset1.potcar_functional, "PBE_54")
+
+    def test_as_from_dict(self):
+        dict_here = self.lobsterset1.as_dict()
+
+        lobsterset_new = LobsterSet.from_dict(dict_here)
+        # test relevant parts again
+        incar1 = lobsterset_new.incar
+        self.assertIn("NBANDS", incar1)
+        self.assertEqual(incar1["NBANDS"], 116)
+        self.assertEqual(incar1["NSW"], 0)
+        self.assertEqual(incar1["NSW"], 0)
+        self.assertEqual(incar1["ISMEAR"], -5)
+        self.assertEqual(incar1["ISYM"], -1)
+        self.assertEqual(incar1["ALGO"], "Normal")
+        kpoints1 = lobsterset_new.kpoints
+        self.assertTrue(kpoints1.comment.split(" ")[6], 6138)
+        self.assertEqual(lobsterset_new.potcar_functional, "PBE_54")
 
 
 _dummy_structure = Structure([1, 0, 0, 0, 1, 0, 0, 0, 1], ['I'], [[0, 0, 0]],
