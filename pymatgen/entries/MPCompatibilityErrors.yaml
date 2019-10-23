@@ -23,7 +23,7 @@ AnionCorrections:
   F: 0.0025
   Cl: 0.0016
   N: 0.0084
-  H: 0
+  H: 0.0015
   oxide: 0.0017
   peroxide: 0.0187
   superoxide: 0.0075
