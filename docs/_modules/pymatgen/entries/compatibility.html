@@ -239,8 +239,8 @@
         <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Gas Correction&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="AnionCorrection"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.AnionCorrection">[docs]</a><span class="nd">@cached_class</span>
-<span class="k">class</span> <span class="nc">AnionCorrection</span><span class="p">(</span><span class="n">Correction</span><span class="p">):</span>
+<div class="viewcode-block" id="CompositionCorrection"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.CompositionCorrection">[docs]</a><span class="nd">@cached_class</span>
+<span class="k">class</span> <span class="nc">CompositionCorrection</span><span class="p">(</span><span class="n">Correction</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Correct anion energies to obtain the right formation energies. Note that</span>
 <span class="sd">    this depends on calculations being run within the same input set.</span>
@@ -612,7 +612,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="p">[</span><span class="n">PotcarCorrection</span><span class="p">(</span><span class="n">MPRelaxSet</span><span class="p">,</span> <span class="n">check_hash</span><span class="o">=</span><span class="n">check_potcar_hash</span><span class="p">),</span>
              <span class="n">GasCorrection</span><span class="p">(</span><span class="n">fp</span><span class="p">),</span>
-             <span class="n">AnionCorrection</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">correct_peroxide</span><span class="o">=</span><span class="n">correct_peroxide</span><span class="p">),</span>
+             <span class="n">CompositionCorrection</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">correct_peroxide</span><span class="o">=</span><span class="n">correct_peroxide</span><span class="p">),</span>
              <span class="n">UCorrection</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">MPRelaxSet</span><span class="p">,</span> <span class="n">compat_type</span><span class="p">)])</span></div>
 
 
@@ -646,7 +646,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="p">[</span><span class="n">PotcarCorrection</span><span class="p">(</span><span class="n">MITRelaxSet</span><span class="p">,</span> <span class="n">check_hash</span><span class="o">=</span><span class="n">check_potcar_hash</span><span class="p">),</span>
              <span class="n">GasCorrection</span><span class="p">(</span><span class="n">fp</span><span class="p">),</span>
-             <span class="n">AnionCorrection</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">correct_peroxide</span><span class="o">=</span><span class="n">correct_peroxide</span><span class="p">),</span>
+             <span class="n">CompositionCorrection</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">correct_peroxide</span><span class="o">=</span><span class="n">correct_peroxide</span><span class="p">),</span>
              <span class="n">UCorrection</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">MITRelaxSet</span><span class="p">,</span> <span class="n">compat_type</span><span class="p">)])</span></div>
 
 
@@ -680,7 +680,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="p">[</span><span class="n">PotcarCorrection</span><span class="p">(</span><span class="n">MITRelaxSet</span><span class="p">,</span> <span class="n">check_hash</span><span class="o">=</span><span class="n">check_potcar_hash</span><span class="p">),</span>
              <span class="n">GasCorrection</span><span class="p">(</span><span class="n">fp</span><span class="p">),</span>
-             <span class="n">AnionCorrection</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">correct_peroxide</span><span class="o">=</span><span class="n">correct_peroxide</span><span class="p">),</span>
+             <span class="n">CompositionCorrection</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">correct_peroxide</span><span class="o">=</span><span class="n">correct_peroxide</span><span class="p">),</span>
              <span class="n">UCorrection</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">MITRelaxSet</span><span class="p">,</span> <span class="n">compat_type</span><span class="p">),</span> <span class="n">AqueousCorrection</span><span class="p">(</span><span class="n">fp</span><span class="p">)])</span></div>
 
 
@@ -715,7 +715,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="p">[</span><span class="n">PotcarCorrection</span><span class="p">(</span><span class="n">MPRelaxSet</span><span class="p">,</span> <span class="n">check_hash</span><span class="o">=</span><span class="n">check_potcar_hash</span><span class="p">),</span>
              <span class="n">GasCorrection</span><span class="p">(</span><span class="n">fp</span><span class="p">),</span>
-             <span class="n">AnionCorrection</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">correct_peroxide</span><span class="o">=</span><span class="n">correct_peroxide</span><span class="p">),</span>
+             <span class="n">CompositionCorrection</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">correct_peroxide</span><span class="o">=</span><span class="n">correct_peroxide</span><span class="p">),</span>
              <span class="n">UCorrection</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">MPRelaxSet</span><span class="p">,</span> <span class="n">compat_type</span><span class="p">),</span> <span class="n">AqueousCorrection</span><span class="p">(</span><span class="n">fp</span><span class="p">)])</span></div>
 </pre></div>
 
