@@ -225,7 +225,7 @@ class MITGasCorrection(Correction):
 
 
 @cached_class
-class AnionCorrection(Correction):
+class CompositionCorrection(Correction):
     """
     Correct anion energies to obtain the right formation energies. Note that
     this depends on calculations being run within the same input set.
@@ -240,12 +240,12 @@ class AnionCorrection(Correction):
                 corrections are to be applied or not.
         """
         c = loadfn(config_file)
-        self.anion_correction = c.get("AnionCorrections", defaultdict(float))
+        self.anion_correction = c.get("CompositionCorrections", defaultdict(float))
         self.name = c["Name"]
         self.correct_peroxide = correct_peroxide
         if error_file:
             e = loadfn(error_file)
-            self.anion_errors = e.get("AnionCorrections", defaultdict(float))
+            self.anion_errors = e.get("CompositionCorrections", defaultdict(float))
         else:
             self.anion_errors = defaultdict(float)
 
@@ -526,7 +526,7 @@ class Compatibility(MSONable):
     The Compatibility class combines a list of corrections to be applied to
     an entry or a set of entries. Note that some of the Corrections have
     interdependencies. For example, PotcarCorrection must always be used
-    before any other compatibility. Also, AnionCorrection("MP") must be used
+    before any other compatibility. Also, CompositionCorrection("MP") must be used
     with PotcarCorrection("MP") (similarly with "MIT"). Typically,
     you should use the specific MaterialsProjectCompatibility and
     MITCompatibility subclasses instead.
@@ -708,7 +708,7 @@ class MaterialsProjectCompatibility(Compatibility):
         super().__init__(
             [
                 PotcarCorrection(MPRelaxSet, check_hash=check_potcar_hash),
-                AnionCorrection(
+                CompositionCorrection(
                     fp, error_file=fp_error, correct_peroxide=correct_peroxide
                 ),
                 UCorrection(fp, MPRelaxSet, compat_type, error_file=fp_error),
@@ -748,7 +748,7 @@ class MITCompatibility(Compatibility):
             [
                 PotcarCorrection(MITRelaxSet, check_hash=check_potcar_hash),
                 MITGasCorrection(fp),
-                AnionCorrection(fp, correct_peroxide=correct_peroxide),
+                CompositionCorrection(fp, correct_peroxide=correct_peroxide),
                 UCorrection(fp, MITRelaxSet, compat_type),
             ]
         )
@@ -786,7 +786,7 @@ class MITAqueousCompatibility(Compatibility):
             [
                 PotcarCorrection(MITRelaxSet, check_hash=check_potcar_hash),
                 MITGasCorrection(fp),
-                AnionCorrection(fp, correct_peroxide=correct_peroxide),
+                CompositionCorrection(fp, correct_peroxide=correct_peroxide),
                 UCorrection(fp, MITRelaxSet, compat_type),
                 AqueousCorrection(fp),
             ]
@@ -825,7 +825,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         super().__init__(
             [
                 PotcarCorrection(MPRelaxSet, check_hash=check_potcar_hash),
-                AnionCorrection(fp, correct_peroxide=correct_peroxide),
+                CompositionCorrection(fp, correct_peroxide=correct_peroxide),
                 UCorrection(fp, MPRelaxSet, compat_type),
                 AqueousCorrection(fp),
             ]

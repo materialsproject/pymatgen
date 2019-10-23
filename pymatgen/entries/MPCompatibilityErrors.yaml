@@ -20,7 +20,7 @@ Advanced:
       Cu: 0.0089
       Mo: 0.0085
 GasCorrections:
-AnionCorrections:
+CompositionCorrections:
   F: 0.0025
   Cl: 0.0016
   N: 0.0084

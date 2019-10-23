@@ -391,7 +391,7 @@ class CorrectionCalculator:
         compatibility["Name"] = name
         compatibility["Advanced"] = advanced
         compatibility["GasCorrections"] = gas_corr
-        compatibility["AnionCorrections"] = anion_corr
+        compatibility["CompositionCorrections"] = anion_corr
         compatibility["AqueousCompoundEnergies"] = aqueous
 
         u_corr_error["O"] = o_error
@@ -400,7 +400,7 @@ class CorrectionCalculator:
         compatibility_error["Name"] = name
         compatibility_error["Advanced"] = advanced_error
         compatibility_error["GasCorrections"] = gas_corr_error
-        compatibility_error["AnionCorrections"] = anion_corr_error
+        compatibility_error["CompositionCorrections"] = anion_corr_error
 
         fn = name + "Compatibility.yaml"
 
