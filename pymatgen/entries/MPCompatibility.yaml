@@ -21,9 +21,9 @@ Advanced:
       Mo: -3.057
 AnionCorrections:
   F: -0.457
-  Cl: -0.581695
-  N: -0.3398086
-  H: 2.11833
+  Cl: -0.582
+  N: -0.340
+  H: 1.027
   oxide: -0.731
   peroxide: -0.476
   superoxide: -0.162
