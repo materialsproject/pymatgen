@@ -335,7 +335,7 @@ class CorrectionCalculator:
         aqueous["H2O"] = -4.972
 
         compatibility: OrderedDict = OrderedDict()
-        anion_corr: OrderedDict[str, float] = OrderedDict()
+        comp_corr: OrderedDict[str, float] = OrderedDict()
         advanced: OrderedDict[str, OrderedDict] = OrderedDict()
         gas_corr: OrderedDict[str, float] = OrderedDict()
         u_corr: OrderedDict[str, OrderedDict] = OrderedDict()
@@ -343,40 +343,35 @@ class CorrectionCalculator:
         f: OrderedDict[str, float] = OrderedDict()
 
         compatibility_error: OrderedDict = OrderedDict()
-        anion_corr_error: OrderedDict[str, float] = OrderedDict()
+        comp_corr_error: OrderedDict[str, float] = OrderedDict()
         advanced_error: OrderedDict[str, OrderedDict] = OrderedDict()
         gas_corr_error: OrderedDict[str, float] = OrderedDict()
         u_corr_error: OrderedDict[str, OrderedDict] = OrderedDict()
         o_error: OrderedDict[str, float] = OrderedDict()
         f_error: OrderedDict[str, float] = OrderedDict()
 
-        anion_corr["oxide"] = self.corrections_dict["oxide"][0]
-        anion_corr["peroxide"] = self.corrections_dict["peroxide"][0]
-        anion_corr["superoxide"] = self.corrections_dict["superoxide"][0]
-        anion_corr["ozonide"] = 0  # do i need this??
+        comp_corr["oxide"] = self.corrections_dict["oxide"][0]
+        comp_corr["peroxide"] = self.corrections_dict["peroxide"][0]
+        comp_corr["superoxide"] = self.corrections_dict["superoxide"][0]
+        comp_corr["ozonide"] = 0  # do i need this??
 
-        anion_corr_error["oxide"] = self.corrections_dict["oxide"][1]
-        anion_corr_error["peroxide"] = self.corrections_dict["peroxide"][1]
-        anion_corr_error["superoxide"] = self.corrections_dict["superoxide"][1]
-        anion_corr_error["ozonide"] = 0  # do i need this??
+        comp_corr_error["oxide"] = self.corrections_dict["oxide"][1]
+        comp_corr_error["peroxide"] = self.corrections_dict["peroxide"][1]
+        comp_corr_error["superoxide"] = self.corrections_dict["superoxide"][1]
+        comp_corr_error["ozonide"] = 0  # do i need this??
 
-        anion_corr["sulfide"] = self.corrections_dict["S"][0]
-        anion_corr_error["sulfide"] = self.corrections_dict["S"][1]
+        comp_corr["sulfide"] = self.corrections_dict["S"][0]
+        comp_corr_error["sulfide"] = self.corrections_dict["S"][1]
 
         for elem in ["Br", "I", "Se", "Si", "Sb", "Te"]:
-            anion_corr[elem] = self.corrections_dict[elem][0]
-            anion_corr_error[elem] = self.corrections_dict[elem][1]
+            comp_corr[elem] = self.corrections_dict[elem][0]
+            comp_corr_error[elem] = self.corrections_dict[elem][1]
 
-        for elem in ["F", "Cl", "N"]:
+        for elem in ["F", "Cl", "N", "H"]:
             entry = self.calc_compounds[elem]
             key = entry.composition.reduced_formula
-            val = entry.energy_per_atom - self.corrections_dict[elem][0]
-            gas_corr[key] = val
-            gas_corr_error[key] = self.corrections_dict[elem][1]
-
-        # from old mpcompatibility
-        gas_corr["H2"] = -3.23973666138
-        gas_corr_error["H2"] = 0
+            comp_corr[key] = self.corrections_dict[elem][0]
+            comp_corr_error[key] = self.corrections_dict[elem][1]
 
         for elem in ["V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Mo"]:
             o[elem] = self.corrections_dict[elem][0]
@@ -390,8 +385,7 @@ class CorrectionCalculator:
         advanced["UCorrections"] = u_corr
         compatibility["Name"] = name
         compatibility["Advanced"] = advanced
-        compatibility["GasCorrections"] = gas_corr
-        compatibility["CompositionCorrections"] = anion_corr
+        compatibility["CompositionCorrections"] = comp_corr
         compatibility["AqueousCompoundEnergies"] = aqueous
 
         u_corr_error["O"] = o_error
@@ -399,8 +393,7 @@ class CorrectionCalculator:
         advanced_error["UCorrections"] = u_corr_error
         compatibility_error["Name"] = name
         compatibility_error["Advanced"] = advanced_error
-        compatibility_error["GasCorrections"] = gas_corr_error
-        compatibility_error["CompositionCorrections"] = anion_corr_error
+        compatibility_error["CompositionCorrections"] = comp_corr_error
 
         fn = name + "Compatibility.yaml"
 

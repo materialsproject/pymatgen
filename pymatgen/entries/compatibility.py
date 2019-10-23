@@ -236,7 +236,7 @@ class CompositionCorrection(Correction):
 
     def __init__(self, config_file, error_file=None, correct_peroxide=True):
         c = loadfn(config_file)
-        self.anion_correction = c.get("CompositionCorrections", defaultdict(float))
+        self.comp_correction = c.get("CompositionCorrections", defaultdict(float))
         self.name = c["Name"]
         self.correct_peroxide = correct_peroxide
         if error_file:
@@ -273,21 +273,21 @@ class CompositionCorrection(Correction):
                 sf_type = entry.data["sulfide_type"]
             elif hasattr(entry, "structure"):
                 sf_type = sulfide_type(entry.structure)
-            if sf_type in self.anion_correction:
-                correction += self.anion_correction[sf_type] * comp["S"]
+            if sf_type in self.comp_correction:
+                correction += self.comp_correction[sf_type] * comp["S"]
                 error = sqrt(error ** 2 + (self.anion_errors[sf_type] * comp["S"]) ** 2)
 
         # Check for oxide, peroxide, superoxide, and ozonide corrections.
         if Element("O") in comp:
             if self.correct_peroxide:
                 if entry.data.get("oxide_type"):
-                    if entry.data["oxide_type"] in self.anion_correction:
-                        ox_corr = self.anion_correction[entry.data["oxide_type"]]
+                    if entry.data["oxide_type"] in self.comp_correction:
+                        ox_corr = self.comp_correction[entry.data["oxide_type"]]
                         correction += ox_corr * comp["O"]
                         ox_error = self.anion_errors[entry.data["oxide_type"]]
                         error = sqrt(error ** 2 + (ox_error * comp["O"]) ** 2)
                     if entry.data["oxide_type"] == "hydroxide":
-                        ox_corr = self.oxide_correction["oxide"]
+                        ox_corr = self.comp_correction["oxide"]
                         correction += ox_corr * comp["O"]
                         ox_error = self.anion_errors["oxide"]
                         error = sqrt(error ** 2 + (ox_error * comp["O"]) ** 2)
@@ -296,13 +296,13 @@ class CompositionCorrection(Correction):
                     ox_type, nbonds = oxide_type(
                         entry.structure, 1.05, return_nbonds=True
                     )
-                    if ox_type in self.anion_correction:
-                        correction += self.anion_correction[ox_type] * nbonds
+                    if ox_type in self.comp_correction:
+                        correction += self.comp_correction[ox_type] * nbonds
                         error = sqrt(
                             error ** 2 + (self.anion_errors[ox_type] * nbonds) ** 2
                         )
                     elif ox_type == "hydroxide":
-                        correction += self.anion_correction["oxide"] * comp["O"]
+                        correction += self.comp_correction["oxide"] * comp["O"]
                         error = sqrt(
                             error ** 2 + (self.anion_errors["oxide"] * comp["O"]) ** 2
                         )
@@ -315,40 +315,40 @@ class CompositionCorrection(Correction):
                     )
                     rform = entry.composition.reduced_formula
                     if rform in UCorrection.common_peroxides:
-                        correction += self.anion_correction["peroxide"] * comp["O"]
+                        correction += self.comp_correction["peroxide"] * comp["O"]
                         error = sqrt(
                             error ** 2
                             + (self.anion_errors["peroxide"] * comp["O"]) ** 2
                         )
                     elif rform in UCorrection.common_superoxides:
-                        correction += self.anion_correction["superoxide"] * comp["O"]
+                        correction += self.comp_correction["superoxide"] * comp["O"]
                         error = sqrt(
                             error ** 2
                             + (self.anion_errors["superoxide"] * comp["O"]) ** 2
                         )
                     elif rform in UCorrection.ozonides:
-                        correction += self.anion_correction["ozonide"] * comp["O"]
+                        correction += self.comp_correction["ozonide"] * comp["O"]
                         error = sqrt(
                             error ** 2 + (self.anion_errors["ozonide"] * comp["O"]) ** 2
                         )
                     elif Element("O") in comp.elements and len(comp.elements) > 1:
-                        correction += self.anion_correction["oxide"] * comp["O"]
+                        correction += self.comp_correction["oxide"] * comp["O"]
                         error = sqrt(
                             error ** 2 + (self.anion_errors["oxide"] * comp["O"]) ** 2
                         )
             else:
-                correction += self.anion_correction["oxide"] * comp["O"]
+                correction += self.comp_correction["oxide"] * comp["O"]
                 error = sqrt(error ** 2 + (self.anion_errors["oxide"] * comp["O"]) ** 2)
 
         for anion in ["Br", "I", "Se", "Si", "Sb", "Te"]:
-            if Element(anion) in comp and anion in self.anion_correction:
-                correction += self.anion_correction[anion] * comp[anion]
+            if Element(anion) in comp and anion in self.comp_correction:
+                correction += self.comp_correction[anion] * comp[anion]
                 error = sqrt(error ** 2 + (self.anion_errors[anion] * comp[anion]) ** 2)
         
         if self.name != 'MIT': # the MIT compatibility set still uses MITGasCorrection
             for gas in ["H", "N", "F", "Cl"]:
-                if Element(gas) in comp and gas in self.anion_correction:     
-                    correction += self.anion_correction[gas] * comp[gas]
+                if Element(gas) in comp and gas in self.comp_correction:     
+                    correction += self.comp_correction[gas] * comp[gas]
                     error = sqrt(error ** 2 + (self.anion_errors[gas] * comp[gas]) ** 2)
 
         return correction, error
