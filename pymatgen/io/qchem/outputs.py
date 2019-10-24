@@ -678,6 +678,8 @@ class QCOutput(MSONable):
         for scf in self.data["SCF"]:
             if abs(scf[0][0] - scf[1][0]) > 10.0:
                 self.data["warnings"]["bad_roothaan"] = True
+                if abs(scf[0][0] - scf[1][0]) > 100.0:
+                    self.data["warnings"]["very_bad_roothaan"] = True
 
     def _read_geometries(self):
         """
