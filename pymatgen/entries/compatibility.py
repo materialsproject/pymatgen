@@ -182,7 +182,7 @@ class PotcarCorrection(Correction):
 @cached_class
 class MITGasCorrection(Correction):
     """
-    Correct energies of diatomic gases to obtain the right formation energies. As 
+    Correct energies of diatomic gases to obtain the right formation energies. As
     of pymatgen XXX, used only by the MITCompatibility class.
 
     Note that this depends on calculations being run within the same input set.
@@ -255,7 +255,7 @@ class CompositionCorrection(Correction):
 
         correction = 0.0
         error = 0.0
-
+        
         # Check for diatomic gas corrections and skip other single elements
         if len(comp) == 1:
             if self.name != 'MIT': # the MIT compatibility set still uses MITGasCorrection
@@ -344,10 +344,10 @@ class CompositionCorrection(Correction):
             if Element(anion) in comp and anion in self.comp_correction:
                 correction += self.comp_correction[anion] * comp[anion]
                 error = sqrt(error ** 2 + (self.anion_errors[anion] * comp[anion]) ** 2)
-        
-        if self.name != 'MIT': # the MIT compatibility set still uses MITGasCorrection
+
+        if self.name != 'MIT':  # the MIT compatibility set still uses MITGasCorrection
             for gas in ["H", "N", "F", "Cl"]:
-                if Element(gas) in comp and gas in self.comp_correction:     
+                if Element(gas) in comp and gas in self.comp_correction:
                     correction += self.comp_correction[gas] * comp[gas]
                     error = sqrt(error ** 2 + (self.anion_errors[gas] * comp[gas]) ** 2)
 
