@@ -1143,6 +1143,12 @@ class QCOutput(MSONable):
                 },
                 terminate_on_match=True).get('key') == [[]]:
             self.data["errors"] += ["driver_error"]
+        elif read_pattern(
+                self.text, {
+                    "key": r"gen_scfman_exception:  GDM:: Zero or negative preconditioner scaling factor"
+                },
+                terminate_on_match=True).get('key') == [[]]:
+            self.data["errors"] += ["gdm_neg_precon_error"]
         else:
             tmp_failed_line_searches = read_pattern(
                 self.text, {
