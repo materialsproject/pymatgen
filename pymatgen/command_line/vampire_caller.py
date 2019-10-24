@@ -440,9 +440,7 @@ class VampireCaller:
 
 
 class VampireOutput(MSONable):
-    def __init__(
-        self, parsed_out=None, nmats=None, critical_temp=None
-    ):
+    def __init__(self, parsed_out=None, nmats=None, critical_temp=None):
         """
         This class processes results from a Vampire Monte Carlo simulation
         and returns the critical temperature.
@@ -455,5 +453,5 @@ class VampireOutput(MSONable):
         """
 
         self.parsed_out = parsed_out
-        self.nmats = nmats       
+        self.nmats = nmats
         self.critical_temp = critical_temp
