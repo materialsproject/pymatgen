@@ -351,7 +351,7 @@ class CompositionCorrection(Correction):
         return correction, error
 
     def __str__(self):
-        return "{} Anion Correction".format(self.name)
+        return "{} Composition Correction".format(self.name)
 
 
 @cached_class
