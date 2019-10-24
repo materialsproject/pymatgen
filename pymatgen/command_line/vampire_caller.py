@@ -170,7 +170,8 @@ class VampireCaller:
 
         # Process output
         nmats = max(self.mat_id_dict.values())
-        self.output = VampireOutput("output", nmats)
+        parsed_out, critical_temp = parse_stdout("output", nmats)
+        self.output = VampireOutput(parsed_out, nmats, critical_temp)
 
     def _create_mat(self):
 
@@ -406,30 +407,19 @@ class VampireCaller:
         with open(ucf_file_name, "w") as f:
             f.write(ucf)
 
+    @staticmethod
+    def parse_stdout(vamp_stdout, nmats):
+        """Parse stdout from Vampire.
 
-class VampireOutput(MSONable):
-    def __init__(
-        self, vamp_stdout=None, nmats=None, parsed_out=None, critical_temp=None
-    ):
-        """
-        This class processes results from a Vampire Monte Carlo simulation
-        and returns the critical temperature.
-        
         Args:
-            vamp_stdout (txt file): stdout from running vampire-serial.
-            nmats (int): Number of distinct materials (1 for each specie and up/down spin).
-            parsed_out (json): json rep of parsed stdout DataFrame.
-            critical_temp (float): Monte Carlo Tc result.
+            vamp_stdout (txt file): Vampire 'output' file.
+            nmats (int): Num of materials in Vampire sim.
+
+        Returns:
+            parsed_out (DataFrame): MSONable vampire output.
+            critical_temp (float): Calculated critical temp.
 
         """
-
-        self.vamp_stdout = vamp_stdout
-        self.nmats = nmats
-        self.parsed_out = parsed_out
-        self.critical_temp = critical_temp
-        self._parse_stdout(vamp_stdout, nmats)
-
-    def _parse_stdout(self, vamp_stdout, nmats):
 
         names = (
             ["T", "m_total"]
@@ -441,9 +431,29 @@ class VampireOutput(MSONable):
         df = pd.read_csv(vamp_stdout, sep="\t", skiprows=9, header=None, names=names)
         df.drop("nan", axis=1, inplace=True)
 
-        self.parsed_out = df.to_json()
+        parsed_out = df.to_json()
 
         # Max of susceptibility <-> critical temp
         critical_temp = df.iloc[df.X_m.idxmax()]["T"]
 
+        return parsed_out, critical_temp
+
+
+class VampireOutput(MSONable):
+    def __init__(
+        self, parsed_out=None, nmats=None, critical_temp=None
+    ):
+        """
+        This class processes results from a Vampire Monte Carlo simulation
+        and returns the critical temperature.
+        
+        Args:
+            parsed_out (json): json rep of parsed stdout DataFrame.
+            nmats (int): Number of distinct materials (1 for each specie and up/down spin).
+            critical_temp (float): Monte Carlo Tc result.
+
+        """
+
+        self.parsed_out = parsed_out
+        self.nmats = nmats       
         self.critical_temp = critical_temp
