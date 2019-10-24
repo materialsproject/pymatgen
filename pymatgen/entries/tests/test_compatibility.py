@@ -400,9 +400,9 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
             },
         )
         c, e = compat.get_corrections_dict(entry)
-        self.assertAlmostEqual(c["MP Anion Correction"], -0.731 * 3)
+        self.assertAlmostEqual(c["MP Composition Correction"], -0.731 * 3)
         self.assertAlmostEqual(c["MP Advanced Correction"], -2.245 * 2)
-        self.assertAlmostEqual(e["MP Anion Correction"], 0.0017 * 3)
+        self.assertAlmostEqual(e["MP Composition Correction"], 0.0017 * 3)
         self.assertAlmostEqual(e["MP Advanced Correction"], 0.008 * 2)
 
         entry.parameters["is_hubbard"] = False
