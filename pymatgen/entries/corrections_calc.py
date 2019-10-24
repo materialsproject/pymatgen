@@ -63,6 +63,7 @@ class CorrectionCalculator:
         "Ni",
         "Cu",
         "Mo",
+        "H"
     ]  # species that we're fitting corrections for
 
     def __init__(self, exp_gz: str, comp_gz: str) -> None:
@@ -361,15 +362,9 @@ class CorrectionCalculator:
         comp_corr["sulfide"] = self.corrections_dict["S"][0]
         comp_corr_error["sulfide"] = self.corrections_dict["S"][1]
 
-        for elem in ["Br", "I", "Se", "Si", "Sb", "Te"]:
+        for elem in ["Br", "I", "Se", "Si", "Sb", "Te", "F", "Cl", "N", "H"]:
             comp_corr[elem] = self.corrections_dict[elem][0]
             comp_corr_error[elem] = self.corrections_dict[elem][1]
-
-        for elem in ["F", "Cl", "N", "H"]:
-            entry = self.calc_compounds[elem]
-            key = entry.composition.reduced_formula
-            comp_corr[key] = self.corrections_dict[elem][0]
-            comp_corr_error[key] = self.corrections_dict[elem][1]
 
         for elem in ["V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Mo"]:
             o[elem] = self.corrections_dict[elem][0]

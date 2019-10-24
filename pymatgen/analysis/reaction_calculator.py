@@ -12,6 +12,7 @@ from pymatgen.core.composition import Composition
 from pymatgen.entries.computed_entries import ComputedEntry
 from monty.json import MontyDecoder
 from monty.fractions import gcd_float
+from math import sqrt
 
 import itertools
 
@@ -461,6 +462,31 @@ class ComputedReaction(Reaction):
                                       entry.energy / factor)
 
         return self.calculate_energy(calc_energies)
+
+
+    @property
+    def calculated_reaction_energy_uncertainty(self):
+        calc_energies = {}
+
+        error = 0
+
+        for entry in self._reactant_entries + self._product_entries:
+            (comp, factor) = \
+                entry.composition.get_reduced_composition_and_factor()
+            try:
+                e = entry.data["correction_error"]
+                if not np.isnan(e):
+                    e = e/factor
+
+                    coeff = self._coeffs[self._all_comp.index(comp)]
+                    if abs(coeff) <= self.TOLERANCE:
+                        coeff = 0
+                    
+                    error = sqrt((e*coeff)**2 + error**2)
+            except KeyError:
+                pass
+
+        return error
 
     def as_dict(self):
         return {"@module": self.__class__.__module__,

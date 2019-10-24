@@ -9,6 +9,7 @@ from pymatgen import Composition
 from pymatgen.analysis.reaction_calculator import Reaction, BalancedReaction, \
     ReactionError, ComputedReaction
 from pymatgen.entries.computed_entries import ComputedEntry
+from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 
 
 class ReactionTest(unittest.TestCase):
@@ -337,11 +338,11 @@ class ComputedReactionTest(unittest.TestCase):
     def setUp(self):
         d = [{"correction": 0.0, "data": {}, "energy": -108.56492362,
               "parameters": {}, "composition": {"Li": 54}},
-             {"correction": 0.0, "data": {}, "energy": -577.94689128,
+             {"correction": 0.0, "data": {"correction_error": 64*0.731}, "energy": -577.94689128,
               "parameters": {}, "composition": {"O": 32, "Li": 64}},
              {"correction": 0.0, "data": {}, "energy": -17.02844794,
               "parameters": {}, "composition": {"O": 2}},
-             {"correction": 0.0, "data": {}, "energy": -959.64693323,
+             {"correction": 0.0, "data": {"correction_error": 72*0.731}, "energy": -959.64693323,
               "parameters": {}, "composition": {"O": 72, "Li": 72}}]
         entries = []
         for e in d:
@@ -357,6 +358,10 @@ class ComputedReactionTest(unittest.TestCase):
     def test_calculated_reaction_energy(self):
         self.assertAlmostEqual(self.rxn.calculated_reaction_energy,
                                - 5.60748821935)
+
+    def test_calculated_reaction_energy_uncertainty(self):
+        self.assertAlmostEqual(self.rxn.calculated_reaction_energy_uncertainty,
+                               2*0.731)
 
     def test_init(self):
         self.assertEqual(str(self.rxn), "O2 + 2 Li -> Li2O2")
