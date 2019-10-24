@@ -19,7 +19,6 @@ Advanced:
       Ni: 0.011
       Cu: 0.0089
       Mo: 0.0085
-GasCorrections:
 CompositionCorrections:
   F: 0.0025
   Cl: 0.0016
