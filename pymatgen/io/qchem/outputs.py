@@ -440,7 +440,7 @@ class QCOutput(MSONable):
                              r"(?:\s*\-+\s+OpenMP\s+Integral\s+computing\s+Module\s+" \
                              r"(?:Release:\s+version\s+[\d\-\.]+\,\s+\w+\s+[\d\-\.]+\, " \
                              r"Q-Chem Inc\. Pittsburgh\s+)*\-+)*\n"
-            table_pattern = r"(?:\n[a-zA-Z_\s/]+\.C::(?:WARNING energy changes are now smaller than effective " \
+            table_pattern = r"(?:\n[a-zA-Z_\s/]+(?:\.C)*::(?:WARNING energy changes are now smaller than effective " \
                             r"accuracy\.)*(?:\s+calculation will continue, but THRESH should be increased)*" \
                             r"(?:\s+or SCF_CONVERGENCE decreased\. )*(?:\s+effective_thresh = [\d\-\.]+e[\d\-]+)*)*" \
                             r"(?:\s*Nonlocal correlation = [\d\-\.]+e[\d\-]+)*" \
