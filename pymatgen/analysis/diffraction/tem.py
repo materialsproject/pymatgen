@@ -1,51 +1,33 @@
 from __future__ import division, unicode_literals
-import pymatgen as pmg
-from pymatgen import Lattice, Structure, Element
-from prettytable import PrettyTable
-import matplotlib.colors as mc
-import colorsys
 
-from typing import List, Set, Dict, Tuple, Optional
+import json
+import os
+from fractions import Fraction
+from typing import List, Dict, Tuple
 
-import plotly.plotly as py
+import numpy as np
 import plotly.graph_objs as go
 import plotly.offline as poff
-import matplotlib.pyplot as plt
-import numpy as np
 import scipy as sc
-from matplotlib.widgets import Cursor, Button
-from IPython.display import set_matplotlib_formats, Image, display
+import scipy.constants as sc
+from IPython.display import set_matplotlib_formats
+from prettytable import PrettyTable
+from pymatgen import Structure, Element
+from pymatgen.analysis.diffraction.core import DiffractionPattern, AbstractDiffractionPatternCalculator, \
+    get_unique_families
 
+with open(os.path.join(os.path.dirname(__file__),
+                       "atomic_scattering_params.json")) as f:
+    ATOMIC_SCATTERING_PARAMS = json.load(f)
 set_matplotlib_formats('retina')
 poff.init_notebook_mode(connected=True)
-
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 # tempattern inherits from diffractionpattern
 # make msonable
 # run TEM on all 120k strucs
-# remove: symprec
-# voltage default set to 200 instead of 300 kv
-# beam directions: all permutations/families of 1, -1 (-1-1-1, 111, 110, 100)
 # cluster analysis of the points: min vector (1d or 2d)
-from fractions import Fraction
-
-import os
-import json
-import numpy as np
-import random
-import scipy.constants as sc
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-
-from pymatgen.analysis.diffraction.core import DiffractionPattern, AbstractDiffractionPatternCalculator, \
-    get_unique_families
-
-from pymatgen.analysis.local_env import site_is_of_motif_type, MinimumDistanceNN
-
-with open(os.path.join(os.path.dirname(__file__),
-                       "atomic_scattering_params.json")) as f:
-    ATOMIC_SCATTERING_PARAMS = json.load(f)
 
 """
 This module implements a TEM pattern calculator.
@@ -60,7 +42,7 @@ __email__ = "fwan@berkeley.edu, yhljason@berkeley.edu"
 __date__ = "06/19/2019, updated 10/2019"
 
 
-class TEMDot():
+class TEMDot:
     """
     Instantatiates a point on the TEM diffraction pattern.
     """
@@ -144,13 +126,13 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         Returns:
             list of 3-tuples
         """
-        points = []
-        coord_values = range(coord_left, coord_right + 1)
-        for x in coord_values:
-            for y in coord_values:
-                for z in coord_values:
-                    points.append((x, y, z))
-        return points
+        points = [0, 0, 0]
+        coord_values = np.arange(coord_left, coord_right + 1)
+        points[0], points[1], points[2] = np.meshgrid(coord_values, coord_values, coord_values)
+        points_matrix = (np.ravel(points[i]) for i in range(0, 3))
+        result = np.vstack(list(points_matrix))
+        result_tuples = [tuple(x) for x in np.transpose(result).tolist()]
+        return result_tuples
 
     def zone_axis_filter(self, points: List[Tuple[int, int, int]], laue_zone: int = 0) -> List[Tuple[int, int, int]]:
         """
@@ -161,7 +143,6 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         Returns:
             list of 3-tuples
         """
-        # TODO: memoize this as a dict of laue zone to pointlist. prob want a system where if you input a diff range of 
         # initial points, you edit the cache entry.
         # t-SNE: perplexity parameter
 
@@ -280,7 +261,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             scattering_factors_for_atom = {}
         return electron_scattering_factors
 
-    def cell_scattering_factors(self, structure: Structure, bragg_angles: Dict[Tuple[int, int, int]]) \
+    def cell_scattering_factors(self, structure: Structure, bragg_angles: Dict[Tuple[int, int, int], float]) \
             -> Dict[Tuple[int, int, int], Dict]:
         """
         Calculates the scattering factor for the whole cell.
@@ -305,7 +286,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             scattering_factor_curr = 0
         return cell_scattering_factors
 
-    def cell_intensity(self, structure: Structure, bragg_angles: Dict[Tuple[int, int, int]]) \
+    def cell_intensity(self, structure: Structure, bragg_angles: Dict[Tuple[int, int, int], float]) \
             -> Dict[Tuple[int, int, int], Dict]:
         """
         Calculates cell intensity for each hkl plane. For simplicity's sake, take I = |F|**2.
@@ -321,7 +302,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             cell_intensity[plane] = (csf[plane] * csf[plane].conjugate()).real
         return cell_intensity
 
-    def get_pattern(self, structure: Structure, scaled: bool = True, two_theta_range: tuple[int, int] = (0, 90)) \
+    def get_pattern(self, structure: Structure, scaled: bool = True, two_theta_range: tuple = (0, 90)) \
             -> DiffractionPattern:
         """
         Calculates the diffraction pattern for a structure. As you'll find out if you try to run this method,
@@ -370,7 +351,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             tem.normalize(mode="max", value=100)
         return tem
 
-    def normalized_cell_intensity(self, structure: Structure, bragg_angles: Dict[Tuple[int, int, int]]) \
+    def normalized_cell_intensity(self, structure: Structure, bragg_angles: Dict[Tuple[int, int, int], float]) \
             -> Dict[Tuple[int, int, int], Dict] :
         """
         Normalizes the cell_intensity dict to 1, for use in plotting.
