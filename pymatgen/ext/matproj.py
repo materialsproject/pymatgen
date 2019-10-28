@@ -1304,38 +1304,54 @@ class MPRester:
         return self._make_request("/interface_reactions",
                                   payload=payload, method="POST")
 
-    def get_link_to_raw_data(self, material_ids, task_types=None, files=None):
+    def get_link_to_raw_data(self, material_ids, task_types=None, file_patterns=None):
         """
-        get a URL to retrieve raw VASP output files from the NoMaD repository
+        get a list of URLs to retrieve raw VASP output files from the NoMaD repository
 
         Args:
             material_ids (list): list of material identifiers (mp-id's)
             task_types (list): list of task types to include in download
-            files (list): list of file names to include for each task
+            file_patterns (list): list of wildcard file names to include for each task
 
         Returns:
-            URL to download zip archive from NoMaD repository
+            URLs to download zip archives from NoMaD repository
         """
         # task_id's correspond to NoMaD external_id's
+        prefix = 'http://labdev-nomad.esc.rzg.mpg.de/fairdi/nomad/mp/api/raw/query?'
         task_ids = []
         task_types = [t.lower() for t in task_types] if task_types else []
 
         for doc in self.query({'material_id': {'$in': material_ids}},
                               ['material_id', 'blessed_tasks']):
 
+            print(f'tasks for material {doc["material_id"]}:')
             for task_type, task_id in doc['blessed_tasks'].items():
                 tt = task_type.lower()
                 if task_types and not any([
                     t in tt for t in task_types
                 ]):
                     continue
+                print(f'\t{task_id}: {task_type}')
                 task_ids.append(task_id)
 
         if not task_ids:
             raise ValueError('No tasks found.')
 
-        # TODO return a URL to a NoMaD download containing the list of files for
-        # every external_id in `task_ids`
+        # return a list of URLs for NoMaD Downloads containing the list of files
+        # for every external_id in `task_ids`
+        if file_patterns is not None:
+            for file_pattern in file_patterns:
+                prefix += f'file_pattern={file_pattern}&'
+        prefix += 'external_id='
+
+        # NOTE: IE has 2kb URL char limit
+        chunks = lambda l, n: [l[x: x+n] for x in range(0, len(l), n)]
+        nmax = int((2000 - len(prefix)) / 11) # mp-<7-digit> + , = 11
+
+        return [
+            prefix + ','.join(tids)
+            for tids in chunks(task_ids, nmax)
+        ]
 
 
 
