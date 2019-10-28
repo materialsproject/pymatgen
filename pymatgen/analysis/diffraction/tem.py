@@ -142,21 +142,11 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         Returns:
             list of 3-tuples
         """
-        # initial points, you edit the cache entry.
-        # t-SNE: perplexity parameter
         point_array = np.asarray(points)
         filtered = np.where(np.dot(np.array(self.beam_direction), np.transpose(point_array)) == laue_zone)
         result = point_array[filtered]
         result_tuples = [tuple(x) for x in result.tolist()]
         return result_tuples
-
-    # due to the MASSIVE (to the point of overflow) number of Bragg points, as well as the extreme
-    # difficulty of separating said points based on where they would theoretically appear in a
-    # 2d DP, it is impractical to calculate interplanar distance from the g-vector (which must
-    # be calc'ed by knowing the Bragg angle).
-    # actually disregard that, it's not hard to test it. you only need the miller indices.
-    # however just by a cursory inspection of interplanar distances, how is it 
-    # mathematically possible for hkl alone to determine interplanar distance?  
 
     def get_interplanar_spacings(self, structure: Structure, points: List[Tuple[int, int, int]]) \
             -> Dict[Tuple[int, int, int], float]:
@@ -189,7 +179,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         bragg_angles = dict(zip(plane, bragg_angles_val))
         return bragg_angles
 
-    def get_s2(self, structure: Structure, bragg_angles: Dict[Tuple[int, int, int], float]) \
+    def get_s2(self, bragg_angles: Dict[Tuple[int, int, int], float]) \
             -> Dict[Tuple[int, int, int], float]:
         """
         Calculates the s squared parameter (= square of sin theta over lambda) for each hkl plane.
@@ -217,17 +207,18 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             A Dict of atomic symbol to another dict of hkl plane to x-ray factor
         """
         x_ray_factors = {}
-        s2 = self.get_s2(structure, bragg_angles)
+        s2 = self.get_s2(bragg_angles)
         atoms = structure.composition.elements
-        plane = list(bragg_angles.keys())
-        s2_val = np.array(s2.values())
+        scattering_factors_for_atom = {}
         for atom in atoms:
             coeffs = np.array(ATOMIC_SCATTERING_PARAMS[atom.symbol])
-            scattering_factor_curr = atom.Z - 41.78214 * s2_val * np.sum(coeffs[:, 0]
-                                                                         * np.exp(-coeffs[:, 1] * s2_val),
-                                                                         axis=None)
-            scattering_factors_for_atom = dict(zip(plane, scattering_factor_curr))
+            for plane in bragg_angles:
+                scattering_factor_curr = atom.Z - 41.78214 * s2[plane] * np.sum(coeffs[:, 0]
+                                                                                * np.exp(-coeffs[:, 1] * s2[plane]),
+                                                                                axis=None)
+                scattering_factors_for_atom[plane] = scattering_factor_curr
             x_ray_factors[atom.symbol] = scattering_factors_for_atom
+            scattering_factors_for_atom = {}
         return x_ray_factors
 
     def electron_scattering_factors(self, structure: Structure, bragg_angles: Dict[Tuple[int, int, int], float]) \
@@ -242,16 +233,16 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         """
         electron_scattering_factors = {}
         x_ray_factors = self.x_ray_factors(structure, bragg_angles)
-        s2 = self.get_s2(structure, bragg_angles)
+        s2 = self.get_s2(bragg_angles)
         atoms = structure.composition.elements
-        plane = list(bragg_angles.keys())
-        s2_val = np.array(s2.values())
-        x_ray_factors_dict = x_ray_factors.values()
         prefactor = sc.e / (16 * (np.pi ** 2) * sc.epsilon_0)
+        scattering_factors_for_atom = {}
         for atom in atoms:
-            scattering_factor_curr = prefactor * (atom.Z - x_ray_factors_dict[atom.symbol]) / s2_val
-            scattering_factors_for_atom = dict(zip(plane, scattering_factor_curr))
+            for plane in bragg_angles:
+                scattering_factor_curr = prefactor * (atom.Z - x_ray_factors[atom.symbol][plane]) / s2[plane]
+                scattering_factors_for_atom[plane] = scattering_factor_curr
             electron_scattering_factors[atom.symbol] = scattering_factors_for_atom
+            scattering_factors_for_atom = {}
         return electron_scattering_factors
 
     def cell_scattering_factors(self, structure: Structure, bragg_angles: Dict[Tuple[int, int, int], float]) \
@@ -291,7 +282,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         plane = bragg_angles.keys()
         csf_val = np.array(list(csf.values()))
         cell_intensity_val = (csf_val * csf_val.conjugate()).real
-        cell_intensity = dict(zip(plane, csf_val))
+        cell_intensity = dict(zip(plane, cell_intensity_val))
         return cell_intensity
 
     def get_pattern(self, structure: Structure, scaled: bool = True, two_theta_range: tuple = (0, 90)) \
