@@ -187,7 +187,6 @@ class CohpcarTest(PymatgenTest):
         self.assertIsNone(self.orb_notot.cohp_data["1"]["ICOHP"])
         for orbs in self.orb.orb_res_cohp["1"]:
             orb_set = self.orb.orb_res_cohp["1"][orbs]["orbitals"]
-            # print(orb_set[0][0])
             self.assertEqual(orb_set[0][0], 4)
             self.assertEqual(orb_set[1][0], 4)
             self.assertIn(tuple((orb_set[0][1], orb_set[1][1])), orbitals)
@@ -1358,10 +1357,6 @@ class LobsterinTest(unittest.TestCase):
                                                                                                           kpoint2[2]):
                 if weight == weightlist[ikpoint2]:
                     found += 1
-        if found == 2:
-            print(found)
-            print(kpoint)
-            print(kpointlist)
         if found == 1:
             return True
         else:

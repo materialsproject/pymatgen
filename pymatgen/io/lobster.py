@@ -107,11 +107,7 @@ class Cohpcar:
         # The COHP data start in row num_bonds + 3
         data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3:]]).transpose()
         data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3:]]).transpose()
-        # print(data)
-        # TODO: fix
-        # print(data[0])
         self.energies = data[0]
-        # print(data[0])
         cohp_data = {"average": {"COHP": {spin: data[1 + 2 * s * (num_bonds + 1)]
                                           for s, spin in enumerate(spins)},
                                  "ICOHP": {spin: data[2 + 2 * s * (num_bonds + 1)]
@@ -685,7 +681,6 @@ class Lobsterout:
 
         orthowarning = self._get_warning_orthonormalization(data=data)
         self.info_orthonormalization = orthowarning
-        # print(orthowarning)
 
         infos = self._get_all_info_lines(data=data)
         self.info_lines = infos
@@ -821,7 +816,6 @@ class Lobsterout:
 
     def _get_number_of_spins(self, data):
         if "spillings for spin channel 2" in data:
-            # print('two spin channels')
             return 2
         else:
             return 1
@@ -861,7 +855,6 @@ class Lobsterout:
         for row in data:
 
             if begin and not end:
-                # print(row)
                 splitrow = row.split()
                 if splitrow[0] not in ['INFO:', 'WARNING:', 'setting', 'calculating', 'post-processing', 'saving',
                                        'spillings', 'writing']:
@@ -874,7 +867,6 @@ class Lobsterout:
                     end = True
             if "setting up local basis functions..." in row:
                 begin = True
-                # print(row)
         return elements, basistype, basisfunctions
 
     def _get_timing(self, data):
@@ -918,7 +910,6 @@ class Lobsterout:
                     warnings.append(" ".join(splitrow[1:]))
 
         return warnings
-        # print(warnings)
 
     def _get_all_info_lines(self, data):
         infos = []
@@ -1060,9 +1051,6 @@ class Fatband:
             else:
                 linenumbers = []
                 for iline, line in enumerate(contents[1:self.nbands * 2 + 4]):
-                    # print(line)
-                    # if line in ['\n', '\r\n']:
-                    #    linenumbers.append(iline)
                     if line.split()[0] == '#':
                         linenumbers.append(iline)
 
@@ -1117,8 +1105,6 @@ class Fatband:
                         p_eigenvals[Spin.up][iband][ikpoint][atomnames[ifilename]][orbital_names[ifilename]] = float(
                             line.split()[2])
                     if linenumber >= self.nbands and self.is_spinpolarized:
-                        # print(line.split())
-                        # print(iband)
                         if ifilename == 0:
                             eigenvals[Spin.down][iband][ikpoint] = float(line.split()[1]) + self.efermi
                         p_eigenvals[Spin.down][iband][ikpoint][atomnames[ifilename]][
@@ -1173,7 +1159,7 @@ class Lobsterin(dict, MSONable):
                          'useDecimalPlaces', 'kSpaceCOHP']
 
     # keyword + one float can be used in file
-    FLOATKEYWORDS = ['COHPstartEnergy', 'COHPendEnergy', 'gaussianSmearingWidth', 'useDecimalPlaces']
+    FLOATKEYWORDS = ['COHPstartEnergy', 'COHPendEnergy', 'gaussianSmearingWidth', 'useDecimalPlaces', 'COHPSteps']
     # one of these keywords +endstring can be used in file
     STRINGKEYWORDS = ['basisSet', 'cohpGenerator', 'realspaceHamiltonian', 'realspaceOverlap',
                       'printPAWRealSpaceWavefunction', 'printLCAORealSpaceWavefunction', 'kSpaceCOHP']
@@ -1184,7 +1170,8 @@ class Lobsterin(dict, MSONable):
                        'writeBasisFunctions', 'writeMatricesToFile', 'noFFTforVisualization', 'RMSp',
                        'onlyReadVasprun.xml', 'noMemoryMappedFiles', 'skipPAWOrthonormalityTest',
                        'doNotIgnoreExcessiveBands', 'doNotUseAbsoluteSpilling', 'skipReOrthonormalization',
-                       'forceV1HMatrix', 'useOriginalTetrahedronMethod']
+                       'forceV1HMatrix', 'useOriginalTetrahedronMethod', 'forceEnergyRange', 'bandwiseSpilling',
+                       'kpointwiseSpilling']
     # several of these keywords + ending can be used in a lobsterin file:
     LISTKEYWORDS = ['basisfunctions', 'cohpbetween', 'createFatband']
 
@@ -1513,12 +1500,11 @@ class Lobsterin(dict, MSONable):
             weights = []
             all_labels = []
             for gp in grid:
-                # print("%3d ->%3d %s" % (i, ir_gp_id, gp.astype(float) / mesh))
                 kpts.append(gp.astype(float) / mesh)
                 weights.append(float(1))
                 all_labels.append("")
         elif isym == 0:
-            # implement time reversal symmetry: k and -k are equivalent
+            # time reversal symmetry: k and -k are equivalent
             kpts = []
             weights = []
             all_labels = []
