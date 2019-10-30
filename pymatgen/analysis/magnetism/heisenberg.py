@@ -51,7 +51,7 @@ class HeisenbergMapper:
 
         Args:
             ordered_structures (list): Structure objects with magmoms.
-            energies (list): Energies of each relaxed magnetic structure.
+            energies (list): Total energies of each relaxed magnetic structure.
             cutoff (float): Cutoff in Angstrom for nearest neighbor search.
                 Defaults to 0 (only NN, no NNN, etc.)
             tol (float): Tolerance (in Angstrom) on nearest neighbor distances 
@@ -78,8 +78,11 @@ class HeisenbergMapper:
         self.ordered_structures_ = ordered_structures
         self.energies_ = energies
 
-        # Sanitize inputs and order them by energy / magnetic moments
-        hs = HeisenbergScreener(ordered_structures, energies)
+        # Convert to energies / atom
+        energies = [e / len(s) for (e, s) in zip(energies, ordered_structures)]
+
+        # Sanitize inputs and optionally order them by energy / magnetic moments
+        hs = HeisenbergScreener(ordered_structures, energies, screen=False)
         ordered_structures = hs.screened_structures
         energies = hs.screened_energies
 
@@ -442,6 +445,8 @@ class HeisenbergMapper:
         afm_e_min = 0
         afm_threshold = 1  # total magnetization < threshold -> AFM, not FiM
 
+        # epas = [e / len(s) for (e, s) in zip(self.energies, self.ordered_structures)]
+
         for s, e in zip(self.ordered_structures, self.energies):
 
             ordering = CollinearMagneticStructureAnalyzer(
@@ -492,6 +497,7 @@ class HeisenbergMapper:
         afm_struct = CollinearMagneticStructureAnalyzer(
             afm_struct, make_primitive=False, threshold=0.0
         ).get_structure_with_only_magnetic_atoms(make_primitive=False)
+
         return fm_struct, afm_struct, fm_e, afm_e
 
     def estimate_exchange(self, fm_struct=None, afm_struct=None, fm_e=None, afm_e=None):
@@ -501,8 +507,8 @@ class HeisenbergMapper:
         Args:
             fm_struct (Structure): fm structure with 'magmom' site property
             afm_struct (Structure): afm structure with 'magmom' site property
-            fm_e (float): fm energy
-            afm_e (float): afm energy
+            fm_e (float): fm energy/atom
+            afm_e (float): afm energy/atom
         
         Returns:
             j_avg (float): Average exchange parameter (meV/atom)
@@ -517,8 +523,8 @@ class HeisenbergMapper:
         afm_magmoms = afm_struct.site_properties["magmom"]
 
         # Normalize energies by number of magnetic ions
-        fm_e = fm_e / len(magmoms)
-        afm_e = afm_e / len(afm_magmoms)
+        # fm_e = fm_e / len(magmoms)
+        # afm_e = afm_e / len(afm_magmoms)
 
         m_avg = np.mean([np.sqrt(m ** 2) for m in magmoms])
         afm_m_avg = np.mean([np.sqrt(m ** 2) for m in afm_magmoms])
@@ -735,14 +741,15 @@ class HeisenbergMapper:
 
 
 class HeisenbergScreener:
-    def __init__(self, structures, energies):
+    def __init__(self, structures, energies, screen=False):
         """Clean and screen magnetic orderings.
 
         This class pre-processes magnetic orderings and energies for HeisenbergMapper. It prioritizes low-energy orderings with large and localized magnetic moments.
 
         Args:
             structures (list): Structure objects with magnetic moments.
-            energies (list): energies of magnetic orderings.
+            energies (list): Energies/atom of magnetic orderings.
+            screen (bool): Try to screen out high energy and low-spin configurations.
 
         Attributes:
             screened_structures (list): Sorted structures.
@@ -757,7 +764,7 @@ class HeisenbergScreener:
 
         # If there are more than 2 structures, we want to perform a
         # screening to prioritize well-behaved orderings
-        if n_structures > 2:
+        if screen and n_structures > 2:
             structures, energies = self._do_screen(structures, energies)
 
         self.screened_structures = structures
@@ -796,7 +803,7 @@ class HeisenbergScreener:
         # configs relax to the same state)
         remove_list = []
         for i, e in enumerate(energies):
-            e_tol = 6  # 10^-4 eV tol on equal energies
+            e_tol = 6  # 10^-6 eV/atom tol on energies
             e = round(e, e_tol)
             if i not in remove_list:
                 for i_check, e_check in enumerate(energies):

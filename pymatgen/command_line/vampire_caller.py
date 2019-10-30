@@ -103,6 +103,7 @@ class VampireCaller:
         self.equil_timesteps = equil_timesteps
         self.mc_timesteps = mc_timesteps
         self.save_inputs = save_inputs
+        self.avg = avg
 
         if not user_input_settings:  # set to empty dict
             self.user_input_settings = {}
@@ -111,13 +112,6 @@ class VampireCaller:
 
         # Get exchange parameters and set instance variables
         if not hm:
-            # Sort by energy if not already sorted
-            ordered_structures = [
-                s for _, s in sorted(zip(energies, ordered_structures), reverse=False)
-            ]
-
-            energies = sorted(energies, reverse=False)
-
             hmapper = HeisenbergMapper(
                 ordered_structures, energies, cutoff=3.0, tol=0.02
             )
