@@ -105,10 +105,13 @@ class Cohpcar:
             self.is_spin_polarized = False
 
         # The COHP data start in row num_bonds + 3
-        data = np.array([np.array(row.split(), dtype=float)
-                         for row in contents[num_bonds + 3:]]).transpose()
+        data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3:]]).transpose()
+        data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3:]]).transpose()
+        # print(data)
+        # TODO: fix
+        # print(data[0])
         self.energies = data[0]
-
+        # print(data[0])
         cohp_data = {"average": {"COHP": {spin: data[1 + 2 * s * (num_bonds + 1)]
                                           for s, spin in enumerate(spins)},
                                  "ICOHP": {spin: data[2 + 2 * s * (num_bonds + 1)]
@@ -1367,21 +1370,28 @@ class Lobsterin(dict, MSONable):
         return Lobsterin({k: v for k, v in d.items() if k not in ["@module",
                                                                   "@class"]})
 
-    def write_INCAR(self, incar_input="INCAR", incar_output="INCAR.lobster", poscar_input="POSCAR",
-                    further_settings=None):
+    def write_INCAR(self, incar_input: str = "INCAR", incar_output: str = "INCAR.lobster", poscar_input: str = "POSCAR",
+                    isym: int = -1,
+                    further_settings: dict = None):
         """
         Will only make the run static, insert nbands, make ISYM=-1, set LWAVE=True and write a new INCAR.
         You have to check for the rest.
         Args:
             incar_input (str): path to input INCAR
             incar_output (str): path to output INCAR
-            poscar_input (str) path to input POSCAR
+            poscar_input (str): path to input POSCAR
+            isym (int): isym equal to -1 or 0 are possible. Current Lobster version only allow -1.
             further_settings (dict): A dict can be used to include further settings, e.g. {"ISMEAR":-5}
         """
         # reads old incar from file, this one will be modified
         incar = Incar.from_file(incar_input)
         warnings.warn("Please check your incar_input before using it. This method only changes three settings!")
-        incar["ISYM"] = -1
+        if isym == -1:
+            incar["ISYM"] = -1
+        elif isym == 0:
+            incar["ISYM"] = 0
+        else:
+            ValueError("isym has to be -1 or 0.")
         incar["NSW"] = 0
         incar["LWAVE"] = True
         # get nbands from _get_nbands (use basis set that is inserted)
@@ -1442,15 +1452,15 @@ class Lobsterin(dict, MSONable):
 
     @staticmethod
     def write_KPOINTS(POSCAR_input: str = "POSCAR", KPOINTS_output="KPOINTS.lobster", reciprocal_density: int = 100,
-                      from_grid: bool = False, input_grid: list = [5, 5, 5], line_mode: bool = True,
+                      isym: int = -1, from_grid: bool = False, input_grid: list = [5, 5, 5], line_mode: bool = True,
                       kpoints_line_density: int = 20, symprec: float = 0.01):
         """
-        writes a KPOINT file for lobster (no symmetry considered!, ISYM=-1)
-        #TODO: extend this to ISYM=0
+        writes a KPOINT file for lobster (only ISYM=-1 and ISYM=0 are possible), grids are gamma centered
         Args:
             POSCAR_input (str): path to POSCAR
             KPOINTS_output (str): path to output KPOINTS
             reciprocal_density (int): Grid density
+            isym (int): either -1 or 0. Current Lobster versions only allow -1.
             from_grid (bool): If True KPOINTS will be generated with the help of a grid given in input_grid. Otherwise,
                 they will be generated from the reciprocal_density
             input_grid (list): grid to generate the KPOINTS file
@@ -1493,18 +1503,46 @@ class Lobsterin(dict, MSONable):
 
         # For now, we are setting magmom to zero. (Taken from INCAR class)
         cell = latt, positions, zs, magmoms
+        # TODO: what about this shift?
         mapping, grid = spglib.get_ir_reciprocal_mesh(mesh, cell, is_shift=[0, 0, 0])
 
+        # exit()
         # get the kpoints for the grid
-        kpts = []
-        weights = []
-        all_labels = []
-        for i, (ir_gp_id, gp) in enumerate(zip(mapping, grid)):
-            # print("%3d ->%3d %s" % (i, ir_gp_id, gp.astype(float) / mesh))
-            kpts.append(gp.astype(float) / mesh)
-            weights.append(float(1))
-            all_labels.append("")
+        if isym == -1:
+            kpts = []
+            weights = []
+            all_labels = []
+            for gp in grid:
+                # print("%3d ->%3d %s" % (i, ir_gp_id, gp.astype(float) / mesh))
+                kpts.append(gp.astype(float) / mesh)
+                weights.append(float(1))
+                all_labels.append("")
+        elif isym == 0:
+            # implement time reversal symmetry: k and -k are equivalent
+            kpts = []
+            weights = []
+            all_labels = []
+            newlist = [list(gp) for gp in list(grid)]
+            mapping = []
+            for gp in newlist:
+                minusgp = [-k for k in gp]
+                if minusgp in newlist and minusgp not in [[0, 0, 0]]:
+                    mapping.append(newlist.index(minusgp))
+                else:
+                    mapping.append(newlist.index(gp))
 
+            for igp, gp in enumerate(newlist):
+                if mapping[igp] > igp:
+                    kpts.append(np.array(gp).astype(float) / mesh)
+                    weights.append(float(2))
+                    all_labels.append("")
+                elif mapping[igp] == igp:
+                    kpts.append(np.array(gp).astype(float) / mesh)
+                    weights.append(float(1))
+                    all_labels.append("")
+
+        else:
+            ValueError("Only isym=-1 and isym=0 are allowed.")
         # line mode
         if line_mode:
             kpath = HighSymmKpath(structure, symprec=symprec)
@@ -1521,9 +1559,12 @@ class Lobsterin(dict, MSONable):
                 kpts.append(frac_k_points[k])
                 weights.append(0.0)
                 all_labels.append(labels[k])
-
-        comment = (
-            "ISYM=-1, grid: " + str(mesh) if not line_mode else "ISYM=-1, grid: " + str(mesh) + " plus kpoint path")
+        if isym == -1:
+            comment = (
+                "ISYM=-1, grid: " + str(mesh) if not line_mode else "ISYM=-1, grid: " + str(mesh) + " plus kpoint path")
+        elif isym == 0:
+            comment = (
+                "ISYM=0, grid: " + str(mesh) if not line_mode else "ISYM=0, grid: " + str(mesh) + " plus kpoint path")
 
         KpointObject = Kpoints(comment=comment,
                                style=Kpoints.supported_modes.Reciprocal,

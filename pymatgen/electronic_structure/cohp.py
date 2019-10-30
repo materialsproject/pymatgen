@@ -691,7 +691,7 @@ class CompleteCohp(Cohp):
                              "sites": [structure.sites[site]
                                        for site in cohp_data[label]["sites"]]}
                      for label in cohp_data}
-
+        
         return CompleteCohp(structure, avg_cohp, cohp_dict, bonds=bond_dict,
                             are_coops=are_coops, orb_res_cohp=orb_res_cohp)
 
