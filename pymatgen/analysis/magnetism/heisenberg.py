@@ -1010,9 +1010,12 @@ class HeisenbergModel(MSONable):
         igraph = StructureGraph.from_dict(d["igraph"])
 
         # Reconstitute the exchange matrix DataFrame
-        ex_mat = eval(d["ex_mat"])
-        ex_mat = pd.DataFrame.from_dict(ex_mat)
-
+        try:
+            ex_mat = eval(d["ex_mat"])
+            ex_mat = pd.DataFrame.from_dict(ex_mat)
+        except SyntaxError:  # if ex_mat is empty
+            ex_mat = pd.DataFrame(columns=['E', 'E0'])
+            
         hmodel = HeisenbergModel(
             formula=d["formula"],
             structures=structures,
