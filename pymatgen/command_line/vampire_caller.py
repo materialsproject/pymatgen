@@ -170,7 +170,7 @@ class VampireCaller:
 
         # Process output
         nmats = max(self.mat_id_dict.values())
-        parsed_out, critical_temp = parse_stdout("output", nmats)
+        parsed_out, critical_temp = VampireCaller.parse_stdout("output", nmats)
         self.output = VampireOutput(parsed_out, nmats, critical_temp)
 
     def _create_mat(self):
