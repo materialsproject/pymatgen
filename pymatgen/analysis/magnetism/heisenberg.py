@@ -950,12 +950,12 @@ class HeisenbergModel(MSONable):
         d["tol"] = self.tol
         d["sgraphs"] = [sgraph.as_dict() for sgraph in self.sgraphs]
         d["dists"] = self.dists
-        d["ex_mat"] = self.ex_mat
         d["ex_params"] = self.ex_params
         d["javg"] = self.javg
         d["igraph"] = self.igraph.as_dict()
 
         # Sanitize tuple & int keys
+        d["ex_mat"] = jsanitize(self.ex_mat.to_dict())
         d["nn_interactions"] = jsanitize(self.nn_interactions)
         d["unique_site_ids"] = jsanitize(self.unique_site_ids)
         d["wyckoff_ids"] = jsanitize(self.wyckoff_ids)
@@ -1003,7 +1003,7 @@ class HeisenbergModel(MSONable):
         igraph = StructureGraph.from_dict(d["igraph"])
 
         # Reconstitute the exchange matrix DataFrame
-        ex_mat = pd.read_json(d["ex_mat"])
+        ex_mat = pd.DataFrame.from_dict(d["ex_mat"])
 
         hmodel = HeisenbergModel(
             formula=d["formula"],
