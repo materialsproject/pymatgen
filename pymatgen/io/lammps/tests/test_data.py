@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 from ruamel.yaml import YAML
 from pymatgen import Molecule, Element, Lattice, Structure
-
+from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.lammps.data import LammpsBox, LammpsData, Topology, \
     ForceField, lattice_2_lmpbox, structure_2_lmpdata, CombinedData
 
@@ -20,7 +20,7 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         "test_files", "lammps")
 
 
-class LammpsBoxTest(unittest.TestCase):
+class LammpsBoxTest(PymatgenTest):
 
     @classmethod
     def setUpClass(cls):
@@ -96,21 +96,21 @@ class LammpsDataTest(unittest.TestCase):
 
     def test_structure(self):
         quartz = self.quartz.structure
-        np.testing.assert_array_equal(quartz.lattice.matrix,
-                                      [[4.913400, 0, 0],
-                                       [-2.456700, 4.255129, 0],
-                                       [0, 0, 5.405200]])
+        np.testing.assert_array_almost_equal(quartz.lattice.matrix,
+                                             [[4.913400, 0, 0],
+                                              [-2.456700, 4.255129, 0],
+                                              [0, 0, 5.405200]])
         self.assertEqual(quartz.formula, "Si3 O6")
         self.assertNotIn("molecule-ID", self.quartz.atoms.columns)
 
         ethane = self.ethane.structure
-        np.testing.assert_array_equal(ethane.lattice.matrix,
-                                      np.diag([10.0] * 3))
+        np.testing.assert_array_almost_equal(ethane.lattice.matrix,
+                                             np.diag([10.0] * 3))
         lbounds = np.array(self.ethane.box.bounds)[:, 0]
         coords = self.ethane.atoms[["x", "y", "z"]].values - lbounds
-        np.testing.assert_array_equal(ethane.cart_coords, coords)
-        np.testing.assert_array_equal(ethane.site_properties["charge"],
-                                      self.ethane.atoms["q"])
+        np.testing.assert_array_almost_equal(ethane.cart_coords, coords)
+        np.testing.assert_array_almost_equal(ethane.site_properties["charge"],
+                                             self.ethane.atoms["q"])
         tatb = self.tatb.structure
         frac_coords = tatb.frac_coords[381]
         real_frac_coords = frac_coords - np.floor(frac_coords)
@@ -286,8 +286,8 @@ class LammpsDataTest(unittest.TestCase):
                                    ff_kw)
         topo = topos[-1]
         atoms = c.atoms[c.atoms["molecule-ID"] == 46]
-        np.testing.assert_array_equal(topo.sites.cart_coords,
-                                      atoms[["x", "y", "z"]])
+        np.testing.assert_array_almost_equal(topo.sites.cart_coords,
+                                             atoms[["x", "y", "z"]])
         np.testing.assert_array_equal(topo.charges, atoms["q"])
         atom_labels = [m[0] for m in mass_info]
         self.assertListEqual(topo.sites.site_properties["ff_map"],

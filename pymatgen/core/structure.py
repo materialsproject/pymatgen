@@ -1078,9 +1078,11 @@ class IStructure(SiteCollection, MSONable):
         new_sites = []
         for site in self:
             for v in c_lat:
-                s = PeriodicSite(site.species, site.coords + v,
-                                 new_lattice, properties=site.properties,
-                                 coords_are_cartesian=True, to_unit_cell=False)
+                s = PeriodicSite(
+                    site.species, site.coords + v,
+                    new_lattice, properties=site.properties,
+                    coords_are_cartesian=True, to_unit_cell=False,
+                    skip_checks=True)
                 new_sites.append(s)
 
         new_charge = self._charge * np.linalg.det(scale_matrix) if self._charge else None
@@ -1165,7 +1167,8 @@ class IStructure(SiteCollection, MSONable):
                 site_fcoords, pt, r):
             nnsite = PeriodicSite(self[i].species,
                                   fcoord, self._lattice,
-                                  properties=self[i].properties)
+                                  properties=self[i].properties,
+                                  skip_checks=True)
 
             # Get the neighbor data
             nn_data = (nnsite, dist) if not include_index else (nnsite, dist, i)  # type: ignore
@@ -1445,7 +1448,8 @@ class IStructure(SiteCollection, MSONable):
                 if include_site:
                     nnsite = PeriodicSite(self[j].species, coords[j],
                                           latt, properties=self[j].properties,
-                                          coords_are_cartesian=True)
+                                          coords_are_cartesian=True,
+                                          skip_checks=True)
 
                 for i in indices[within_r]:
                     item = []
@@ -1568,7 +1572,8 @@ class IStructure(SiteCollection, MSONable):
             new_sites.append(PeriodicSite(site.species,
                                           frac_coords, reduced_latt,
                                           to_unit_cell=True,
-                                          properties=site_props))
+                                          properties=site_props,
+                                          skip_checks=True))
         new_sites = sorted(new_sites)
         return self.__class__.from_sites(new_sites, charge=self._charge)
 
@@ -3187,7 +3192,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 new_frac = self._lattice.get_fractional_coords(new_cart)
                 return PeriodicSite(site.species, new_frac,
                                     self._lattice,
-                                    properties=site.properties)
+                                    properties=site.properties,
+                                    skip_checks=True)
 
         else:
             new_latt = np.dot(symmop.rotation_matrix, self._lattice.matrix)
@@ -3197,7 +3203,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 return PeriodicSite(site.species,
                                     symmop.operate(site.frac_coords),
                                     self._lattice,
-                                    properties=site.properties)
+                                    properties=site.properties,
+                                    skip_checks=True)
 
         self._sites = [operate_site(s) for s in self._sites]
 
@@ -3315,7 +3322,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
             new_site = PeriodicSite(
                 site.species, coords, self._lattice,
                 to_unit_cell=to_unit_cell, coords_are_cartesian=True,
-                properties=site.properties)
+                properties=site.properties,
+                skip_checks=True)
             self._sites[i] = new_site
 
     def perturb(self, distance, min_distance=None):
