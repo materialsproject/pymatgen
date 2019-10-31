@@ -1323,7 +1323,7 @@ class MPRester:
         return self._make_request("/interface_reactions",
                                   payload=payload, method="POST")
 
-    def get_link_to_raw_data(self, material_ids, task_types=None, file_patterns=None):
+    def get_download_info(self, material_ids, task_types=None, file_patterns=None):
         """
         get a list of URLs to retrieve raw VASP output files from the NoMaD repository
 
@@ -1334,23 +1334,25 @@ class MPRester:
 
         Returns:
             a tuple of 1) a dictionary mapping material_ids to task_ids and
-            task_types, and 2) a list of URLs to download zip archives from NoMaD repository
+            task_types, and 2) a list of URLs to download zip archives from
+            NoMaD repository. Each zip archive will contain a manifest.json with
+            metadata info, e.g. the task/external_ids that belong to a directory
         """
         # task_id's correspond to NoMaD external_id's
         task_types = [t.value for t in task_types if isinstance(t, TaskType)] if task_types else []
 
-        tasks = defaultdict(list)
+        meta = defaultdict(list)
         for doc in self.query({'material_id': {'$in': material_ids}},
                               ['material_id', 'blessed_tasks']):
 
             for task_type, task_id in doc['blessed_tasks'].items():
                 if task_types and not task_type in task_types:
                     continue
-                tasks[doc["material_id"]].append(
+                meta[doc["material_id"]].append(
                     {'task_id': task_id, 'task_type': task_type}
                 )
 
-        if not tasks:
+        if not meta:
             raise ValueError('No tasks found.')
 
         # return a list of URLs for NoMaD Downloads containing the list of files
@@ -1365,9 +1367,9 @@ class MPRester:
         chunks = lambda l, n: [l[x: x+n] for x in range(0, len(l), n)]
         nmax = int((2000 - len(prefix)) / 11) # mp-<7-digit> + , = 11
 
-        task_ids = [t['task_id'] for tl in tasks.values() for t in tl]
+        task_ids = [t['task_id'] for tl in meta.values() for t in tl]
         urls = [prefix + ','.join(tids) for tids in chunks(task_ids, nmax)]
-        return tasks, urls
+        return meta, urls
 
 
 
