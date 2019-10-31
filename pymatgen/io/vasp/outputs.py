@@ -3261,7 +3261,7 @@ class VolumetricData(MSONable):
         with h5py.File(filename, "r") as f:
             data = {k: np.array(v) for k, v in f["vdata"].items()}
             structure = Structure.from_dict(json.loads(f.attrs["structure_json"]))
-            return VolumetricData(structure, data)
+            return cls(structure=structure, data=data)
 
 
 class Locpot(VolumetricData):

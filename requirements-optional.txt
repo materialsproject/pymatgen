@@ -1,6 +1,6 @@
 pybtex==0.22.2
 tqdm==4.36.1
-pytest==5.2.1
+pytest==5.2.2
 pytest-cov==2.8.1
 coverage==4.5.4
 ase==3.18.1
@@ -15,5 +15,5 @@ f90nml==1.1.2
 pycodestyle==2.5.0
 mypy==0.740
 pydocstyle==4.0.1
-flake8==3.7.8
+flake8==3.7.9
 pylint==2.4.3
