@@ -49,8 +49,10 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Feb 22, 2013"
 
+
 @unique
 class TaskType(Enum):
+    """task types available in MP"""
     GGA_OPT = "GGA Structure Optimization"
     GGAU_OPT = "GGA+U Structure Optimization"
     SCAN_OPT = "SCAN Structure Optimization"
@@ -1346,7 +1348,7 @@ class MPRester:
                               ['material_id', 'blessed_tasks']):
 
             for task_type, task_id in doc['blessed_tasks'].items():
-                if task_types and not task_type in task_types:
+                if task_types and task_type not in task_types:
                     continue
                 meta[doc["material_id"]].append(
                     {'task_id': task_id, 'task_type': task_type}
@@ -1364,14 +1366,11 @@ class MPRester:
         prefix += 'external_id='
 
         # NOTE: IE has 2kb URL char limit
-        chunks = lambda l, n: [l[x: x+n] for x in range(0, len(l), n)]
-        nmax = int((2000 - len(prefix)) / 11) # mp-<7-digit> + , = 11
-
+        nmax = int((2000 - len(prefix)) / 11)  # mp-<7-digit> + , = 11
         task_ids = [t['task_id'] for tl in meta.values() for t in tl]
-        urls = [prefix + ','.join(tids) for tids in chunks(task_ids, nmax)]
+        chunks = get_chunks(task_ids, size=nmax)
+        urls = [prefix + ','.join(tids) for tids in chunks]
         return meta, urls
-
-
 
     @staticmethod
     def parse_criteria(criteria_string):
