@@ -1227,13 +1227,13 @@ class CombinedData(LammpsData):
         self.names = list_of_names
         self.mols = list_of_molecules
         self.nums = list_of_numbers
-        self.masses = pd.concat([mol.masses for mol in self.mols], ignore_index=True)
+        self.masses = pd.concat([mol.masses.copy() for mol in self.mols], ignore_index=True)
         self.masses.index += 1
         all_ff_kws = SECTION_KEYWORDS["ff"] + SECTION_KEYWORDS["class2"]
         ff_kws = [k for k in all_ff_kws if k in self.mols[0].force_field]
         self.force_field = {}
         for kw in ff_kws:
-            self.force_field[kw] = pd.concat([mol.force_field[kw] for mol in self.mols
+            self.force_field[kw] = pd.concat([mol.force_field[kw].copy() for mol in self.mols
                                               if kw in mol.force_field], ignore_index=True)
             self.force_field[kw].index += 1
 
@@ -1241,7 +1241,7 @@ class CombinedData(LammpsData):
         mol_count = 0
         type_count = 0
         for i, mol in enumerate(self.mols):
-            atoms_df = mol.atoms
+            atoms_df = mol.atoms.copy()
             atoms_df['molecule-ID'] += mol_count
             atoms_df['type'] += type_count
             for j in range(self.nums[i]):
@@ -1264,7 +1264,7 @@ class CombinedData(LammpsData):
                 if kw in mol.topology:
                     if kw not in self.topology:
                         self.topology[kw] = pd.DataFrame()
-                    topo_df = mol.topology[kw]
+                    topo_df = mol.topology[kw].copy()
                     topo_df['type'] += count[kw]
                     for col in topo_df.columns[1:]:
                         topo_df[col] += atom_count
