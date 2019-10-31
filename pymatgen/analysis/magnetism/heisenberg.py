@@ -78,9 +78,6 @@ class HeisenbergMapper:
         self.ordered_structures_ = ordered_structures
         self.energies_ = energies
 
-        # Convert to energies / atom
-        energies = [e / len(s) for (e, s) in zip(energies, ordered_structures)]
-
         # Sanitize inputs and optionally order them by energy / magnetic moments
         hs = HeisenbergScreener(ordered_structures, energies, screen=False)
         ordered_structures = hs.screened_structures
@@ -776,6 +773,7 @@ class HeisenbergScreener:
 
         Takes magnetic structures and performs the following operations
         - Erases nonmagnetic ions and gives all ions ['magmom'] site prop
+        - Converts total energies -> energy / magnetic ion
         - Checks for duplicate/degenerate orderings
         - Sorts by energy 
 
@@ -798,6 +796,9 @@ class HeisenbergScreener:
             ).get_structure_with_only_magnetic_atoms(make_primitive=False)
             for s in structures
         ]
+
+        # Convert to energies / magnetic ion
+        energies = [e / len(s) for (e, s) in zip(energies, ordered_structures)]
 
         # Check for duplicate / degenerate states (sometimes different initial
         # configs relax to the same state)
