@@ -300,7 +300,7 @@ class DictSet(VaspInputSet):
         self.force_gamma = force_gamma
         self.reduce_structure = reduce_structure
         self.user_incar_settings = user_incar_settings or {}
-        self.user_kpoints_settings = user_kpoints_settings
+        self.user_kpoints_settings = user_kpoints_settings or {}
         self.user_potcar_settings = user_potcar_settings
         self.vdw = vdw.lower() if vdw is not None else None
         self.use_structure_charge = use_structure_charge
