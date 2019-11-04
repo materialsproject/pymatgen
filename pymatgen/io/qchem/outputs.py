@@ -1140,6 +1140,12 @@ class QCOutput(MSONable):
             self.data["errors"] += ["licensing_error"]
         elif read_pattern(
                 self.text, {
+                    "key": r"Unable to validate license"
+                },
+                terminate_on_match=True).get('key') == [[]]:
+            self.data["errors"] += ["licensing_error"]
+        elif read_pattern(
+                self.text, {
                     "key": r"Could not open driver file in ReadDriverFromDisk"
                 },
                 terminate_on_match=True).get('key') == [[]]:
