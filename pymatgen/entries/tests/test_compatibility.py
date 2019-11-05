@@ -511,13 +511,13 @@ class MITCompatibilityTest(unittest.TestCase):
 
         # Check that correction error is nan
         self.assertTrue(
-            isnan(self.compat.process_entry(self.entry_O).data["correction_error"])
+            isnan(self.compat.process_entry(self.entry_O).data["correction_uncertainty"])
         )
         self.assertTrue(
-            isnan(self.compat.process_entry(self.entry_F).data["correction_error"])
+            isnan(self.compat.process_entry(self.entry_F).data["correction_uncertainty"])
         )
         self.assertTrue(
-            isnan(self.compat.process_entry(self.entry_S).data["correction_error"])
+            isnan(self.compat.process_entry(self.entry_S).data["correction_uncertainty"])
         )
 
     def test_U_value(self):
@@ -1525,13 +1525,13 @@ class TestCorrectionErrorsCompatibility(unittest.TestCase):
     def test_errors(self):
         entry1_corrected = self.compat.process_entry(self.entry1)
         self.assertAlmostEqual(
-            entry1_corrected.data["correction_error"],
+            entry1_corrected.data["correction_uncertainty"],
             sqrt((2 * 0.008) ** 2 + (3 * 0.0017) ** 2),
         )
 
         entry2_corrected = self.compat.process_entry(self.entry2)
         self.assertAlmostEqual(
-            entry2_corrected.data["correction_error"],
+            entry2_corrected.data["correction_uncertainty"],
             sqrt((3 * 0.008) ** 2 + (4 * 0.0017) ** 2),
         )
 

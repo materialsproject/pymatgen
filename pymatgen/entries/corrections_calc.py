@@ -38,7 +38,7 @@ class CorrectionCalculator:
         calc_compounds: dictionary of ComputedEntry objects
         corrections: list of corrections in same order as species list
         corrections_std_error: list of the variances of the corrections in same order as species list
-        corrections_dict: dictionary of format {'species': (value, error)} for easier correction lookup
+        corrections_dict: dictionary of format {'species': (value, uncertainty)} for easier correction lookup
     """
 
     species = [
@@ -82,7 +82,7 @@ class CorrectionCalculator:
         self.corrections_std_error: List[float] = []
         self.corrections_dict: Dict[
             str, Tuple[float, float]
-        ] = {}  # {'species': (value, error)}
+        ] = {}  # {'species': (value, uncertainty)}
 
         # to help the graph_residual_error_per_species() method differentiate between oxygen containing compounds
         self.oxides: List[str] = []
@@ -313,8 +313,8 @@ class CorrectionCalculator:
 
     def make_yaml(self, name: str = "MP") -> None:
         """
-        Creates the _name_Compatibility.yaml that stores corrections as well as _name_CompatibilityErrors.yaml
-        for correction errors.
+        Creates the _name_Compatibility.yaml that stores corrections as well as _name_CompatibilityUncertainties.yaml
+        for correction uncertainties.
 
         Args:
             name: optional argument, alternate name for the outputted yaml file
@@ -396,7 +396,7 @@ class CorrectionCalculator:
         yaml.dump(compatibility, file)
         file.close()
 
-        fn = name + "CompatibilityErrors.yaml"
+        fn = name + "CompatibilityUncertainties.yaml"
         file = open(fn, "w")
         yaml = ruamel.yaml.YAML()
         yaml.Representer.add_representer(OrderedDict, yaml.Representer.represent_dict)
