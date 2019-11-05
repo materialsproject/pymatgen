@@ -81,7 +81,7 @@ class Correction(metaclass=abc.ABCMeta):
         """
         corr = self.get_correction(entry)
         entry.correction += corr[0]
-        entry.data["correction_error"] = corr[1]
+        entry.data["correction_uncertainty"] = corr[1]
         return entry
 
 
@@ -134,7 +134,7 @@ class PotcarCorrection(Correction):
     def get_correction(self, entry) -> Tuple[float, float]:
         """
         :param entry: A ComputedEntry/ComputedStructureEntry
-        :return: Correction, Error.
+        :return: Correction, Uncertainty.
         """
         if self.check_hash:
             if entry.parameters.get("potcar_spec"):
@@ -204,7 +204,7 @@ class MITGasCorrection(Correction):
     def get_correction(self, entry) -> Tuple[float, float]:
         """
         :param entry: A ComputedEntry/ComputedStructureEntry
-        :return: Correction, Error.
+        :return: Correction, Uncertainty.
         """
         comp = entry.composition
 
@@ -252,7 +252,7 @@ class CompositionCorrection(Correction):
     def get_correction(self, entry) -> Tuple[float, float]:
         """
         :param entry: A ComputedEntry/ComputedStructureEntry
-        :return: Correction, Error.
+        :return: Correction, Uncertainty.
         """
         comp = entry.composition
 
@@ -379,7 +379,7 @@ class AqueousCorrection(Correction):
     def get_correction(self, entry) -> Tuple[float, float]:
         """
         :param entry: A ComputedEntry/ComputedStructureEntry
-        :return: Correction, Error.
+        :return: Correction, Uncertainty.
         """
         comp = entry.composition
         rform = comp.reduced_formula
@@ -485,7 +485,7 @@ class UCorrection(Correction):
     def get_correction(self, entry) -> Tuple[float, float]:
         """
         :param entry: A ComputedEntry/ComputedStructureEntry
-        :return: Correction, Error.
+        :return: Correction, Uncertainty.
         """
         if entry.parameters.get("run_type", "GGA") == "HF":
             raise CompatibilityError("Invalid run type")
@@ -561,10 +561,10 @@ class Compatibility(MSONable):
             tot_error += e ** 2
         tot_error = sqrt(tot_error)
         if tot_error == 0:
-            # if there are no error values available for the corrections applied, set correction_error to not a number
-            entry.data["correction_error"] = float("NaN")
+            # if there are no error values available for the corrections applied, set correction_uncertainty to not a number
+            entry.data["correction_uncertainty"] = float("NaN")
         else:
-            entry.data["correction_error"] = tot_error
+            entry.data["correction_uncertainty"] = tot_error
         return entry
 
     def get_corrections_dict(self, entry):
@@ -613,24 +613,24 @@ class Compatibility(MSONable):
             {"Compatibility": "string",
             "Uncorrected_energy": float,
             "Corrected_energy": float,
-            "Correction_error:" float,
+            "correction_uncertainty:" float,
             "Corrections": [{"Name of Correction": {
-            "Value": float, "Explanation": "string", "Error": float}]}
+            "Value": float, "Explanation": "string", "Uncertainty": float}]}
         """
         centry = self.process_entry(entry)
         if centry is None:
             uncorrected_energy = entry.uncorrected_energy
             corrected_energy = None
-            correction_error = None
+            correction_uncertainty = None
         else:
             uncorrected_energy = centry.uncorrected_energy
             corrected_energy = centry.energy
-            correction_error = centry.data["correction_error"]
+            correction_uncertainty = centry.data["correction_uncertainty"]
         d = {
             "compatibility": self.__class__.__name__,
             "uncorrected_energy": uncorrected_energy,
             "corrected_energy": corrected_energy,
-            "correction_error": correction_error,
+            "correction_uncertainty": correction_uncertainty,
         }
         corrections = []
         corr_dict, error_dict = self.get_corrections_dict(entry)
@@ -639,7 +639,7 @@ class Compatibility(MSONable):
                 "name": str(c),
                 "description": c.__doc__.split("Args")[0].strip(),
                 "value": corr_dict.get(str(c), 0),
-                "error": error_dict.get(str(c), 0),
+                "uncertainty": error_dict.get(str(c), 0),
             }
             corrections.append(cd)
         d["corrections"] = corrections
@@ -666,8 +666,8 @@ class Compatibility(MSONable):
         for c in d["corrections"]:
             print("%s correction: %s\n" % (c["name"], c["description"]))
             print("For the entry, this correction has the value %f eV." % c["value"])
-            if c["error"]:
-                print("This correction has an uncertainty value of %f eV." % c["error"])
+            if c["uncertainty"]:
+                print("This correction has an uncertainty value of %f eV." % c["uncertainty"])
             else:
                 print("This correction does not have uncertainty data available")
             print("-" * 30)
@@ -704,7 +704,7 @@ class MaterialsProjectCompatibility(Compatibility):
         self.correct_peroxide = correct_peroxide
         self.check_potcar_hash = check_potcar_hash
         fp = os.path.join(MODULE_DIR, "MPCompatibility.yaml")
-        fp_error = os.path.join(MODULE_DIR, "MPCompatibilityErrors.yaml")
+        fp_error = os.path.join(MODULE_DIR, "MPCompatibilityUncertainties.yaml")
         super().__init__(
             [
                 PotcarCorrection(MPRelaxSet, check_hash=check_potcar_hash),
