@@ -90,6 +90,8 @@ class ComputedEntry(MSONable):
         self.composition = comp
         self.uncorrected_energy /= factor
         self.correction /= factor
+        if 'correction_uncertainty' in self.data.keys():
+            self.data['correction_uncertainty'] /= factor
 
     @property
     def is_element(self) -> bool:
