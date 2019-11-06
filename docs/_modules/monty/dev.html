@@ -178,7 +178,7 @@
 
     <span class="c1"># jython</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">java.lang</span> <span class="k">import</span> <span class="n">Runtime</span>  <span class="c1"># type: ignore</span>
+        <span class="kn">from</span> <span class="nn">java.lang</span> <span class="k">import</span> <span class="n">Runtime</span>  <span class="c1"># pylint: disable=import-outside-toplevel</span>
         <span class="n">runtime</span> <span class="o">=</span> <span class="n">Runtime</span><span class="o">.</span><span class="n">getRuntime</span><span class="p">()</span>
         <span class="n">res</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">availableProcessors</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">res</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -251,7 +251,7 @@
 <span class="sd">        0 if hook is installed successfully.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">IPython.core</span> <span class="k">import</span> <span class="n">ultratb</span>  <span class="c1"># type: ignore</span>
+        <span class="kn">from</span> <span class="nn">IPython.core</span> <span class="k">import</span> <span class="n">ultratb</span>  <span class="c1"># pylint: disable=import-outside-toplevel</span>
     <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
             <span class="s2">&quot;Cannot install excepthook, IPyhon.core.ultratb not available&quot;</span><span class="p">)</span>
@@ -305,7 +305,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
