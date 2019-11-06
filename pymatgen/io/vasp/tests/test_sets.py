@@ -6,6 +6,7 @@
 import unittest
 import os
 import tempfile
+from zipfile import ZipFile
 from monty.json import MontyDecoder
 from pymatgen.io.vasp.sets import *
 from pymatgen.io.vasp.inputs import Poscar, Kpoints
@@ -414,6 +415,21 @@ class MPStaticSetTest(PymatgenTest):
 
         vis = MPStaticSet(original_structure, standardize=True)
         self.assertFalse(sm.fit(vis.structure, original_structure))
+
+    def test_write_spec(self):
+
+        vis = MPStaticSet(self.get_structure("Si"))
+        vis.write_spec()
+
+        self.assertTrue(os.path.exists("MPStaticSet_spec.zip"))
+        with ZipFile("MPStaticSet_spec.zip", "r") as zip:
+            contents = zip.namelist()
+            self.assertSetEqual(set(contents), {"INCAR", "POSCAR",
+                                                "POTCAR.spec", "KPOINTS"})
+            spec = zip.open("POTCAR.spec", "r").read().decode()
+            self.assertEqual(spec, "Si")
+
+        os.remove("MPStaticSet_spec.zip")
 
     def tearDown(self):
         shutil.rmtree(self.tmp)

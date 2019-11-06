@@ -22,6 +22,8 @@ from time import sleep
 import requests
 from monty.json import MontyDecoder, MontyEncoder
 
+from enum import Enum, unique
+from collections import defaultdict
 from copy import deepcopy
 
 from pymatgen import SETTINGS, __version__ as pmg_version
@@ -46,6 +48,25 @@ __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Feb 22, 2013"
+
+
+@unique
+class TaskType(Enum):
+    """task types available in MP"""
+    GGA_OPT = "GGA Structure Optimization"
+    GGAU_OPT = "GGA+U Structure Optimization"
+    SCAN_OPT = "SCAN Structure Optimization"
+    GGA_LINE = "GGA NSCF Line"
+    GGAU_LINE = "GGA+U NSCF Line"
+    GGA_UNIFORM = "GGA NSCF Uniform"
+    GGAU_UNIFORM = "GGA+U NSCF Uniform"
+    GGA_STATIC = "GGA Static"
+    GGAU_STATIC = "GGA+U Static"
+    GGA_STATIC_DIEL = "GGA Static Dielectric"
+    GGAU_STATIC_DIEL = "GGA+U Static Dielectric"
+    GGA_DEF = "GGA Deformation"
+    GGAU_DEF = "GGA+U Deformation"
+    LDA_STATIC_DIEL = "LDA Static Dielectric"
 
 
 class MPRester:
@@ -1303,6 +1324,53 @@ class MPRester:
                    "use_hull_energy": use_hull_energy}
         return self._make_request("/interface_reactions",
                                   payload=payload, method="POST")
+
+    def get_download_info(self, material_ids, task_types=None, file_patterns=None):
+        """
+        get a list of URLs to retrieve raw VASP output files from the NoMaD repository
+
+        Args:
+            material_ids (list): list of material identifiers (mp-id's)
+            task_types (list): list of task types to include in download (see TaskType Enum class)
+            file_patterns (list): list of wildcard file names to include for each task
+
+        Returns:
+            a tuple of 1) a dictionary mapping material_ids to task_ids and
+            task_types, and 2) a list of URLs to download zip archives from
+            NoMaD repository. Each zip archive will contain a manifest.json with
+            metadata info, e.g. the task/external_ids that belong to a directory
+        """
+        # task_id's correspond to NoMaD external_id's
+        task_types = [t.value for t in task_types if isinstance(t, TaskType)] if task_types else []
+
+        meta = defaultdict(list)
+        for doc in self.query({'material_id': {'$in': material_ids}},
+                              ['material_id', 'blessed_tasks']):
+
+            for task_type, task_id in doc['blessed_tasks'].items():
+                if task_types and task_type not in task_types:
+                    continue
+                meta[doc["material_id"]].append(
+                    {'task_id': task_id, 'task_type': task_type}
+                )
+
+        if not meta:
+            raise ValueError('No tasks found.')
+
+        # return a list of URLs for NoMaD Downloads containing the list of files
+        # for every external_id in `task_ids`
+        prefix = 'http://labdev-nomad.esc.rzg.mpg.de/fairdi/nomad/mp/api/raw/query?'
+        if file_patterns is not None:
+            for file_pattern in file_patterns:
+                prefix += f'file_pattern={file_pattern}&'
+        prefix += 'external_id='
+
+        # NOTE: IE has 2kb URL char limit
+        nmax = int((2000 - len(prefix)) / 11)  # mp-<7-digit> + , = 11
+        task_ids = [t['task_id'] for tl in meta.values() for t in tl]
+        chunks = get_chunks(task_ids, size=nmax)
+        urls = [prefix + ','.join(tids) for tids in chunks]
+        return meta, urls
 
     @staticmethod
     def parse_criteria(criteria_string):
