@@ -64,7 +64,7 @@
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">spglib</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="k">import</span> <span class="n">Spin</span><span class="p">,</span> <span class="n">Orbital</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.vasp.outputs</span> <span class="k">import</span> <span class="n">Vasprun</span>
@@ -1439,7 +1439,8 @@
         <span class="n">incar</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">incar_output</span><span class="p">)</span></div>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_get_basis</span><span class="p">(</span><span class="n">structure</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">potcar_symbols</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_get_basis</span><span class="p">(</span><span class="n">structure</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">potcar_symbols</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+                   <span class="n">address_basis_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s2">&quot;BASIS_PBE_54.yaml&quot;</span><span class="p">)):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        will get the basis from given potcar_symbols (e.g., [&quot;Fe_pv&quot;,&quot;Si&quot;]</span>
 <span class="sd">        #include this in lobsterin class</span>
@@ -1457,7 +1458,7 @@
 
         <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">AtomTypes</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">set</span><span class="p">(</span><span class="n">AtomTypes_Potcar</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Your POSCAR does not correspond to your POTCAR!&quot;</span><span class="p">)</span>
-        <span class="n">BASIS</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s2">&quot;BASIS_PBE_54.yaml&quot;</span><span class="p">))[</span><span class="s1">&#39;BASIS&#39;</span><span class="p">]</span>
+        <span class="n">BASIS</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">address_basis_file</span><span class="p">)[</span><span class="s1">&#39;BASIS&#39;</span><span class="p">]</span>
 
         <span class="n">basis_functions</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">list_forin</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1941,7 +1942,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -277,8 +277,8 @@ some examples:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Make a supercell</span>
 <span class="n">structure</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
 
-<span class="c1">#Find a primitive version of the Structure</span>
-<span class="n">structure</span><span class="o">.</span><span class="n">find_primitive_structure</span><span class="p">()</span>
+<span class="c1"># Get a primitive version of the Structure</span>
+<span class="n">structure</span><span class="o">.</span><span class="n">get_primitive_structure</span><span class="p">()</span>
 
 <span class="c1"># Interpolate between two structures to get 10 structures (typically for</span>
 <span class="c1"># NEB calculations.</span>
@@ -651,7 +651,7 @@ use MPRester without having to constantly insert their API key in the scripts.</
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
