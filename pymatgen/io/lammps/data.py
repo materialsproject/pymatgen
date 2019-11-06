@@ -1,6 +1,22 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
+
+"""
+This module implements a core class LammpsData for generating/parsing
+LAMMPS data file, and other bridging classes to build LammpsData from
+molecules. This module also implements a subclass CombinedData for
+merging LammpsData object.
+
+Only point particle styles are supported for now (atom_style in angle,
+atomic, bond, charge, full and molecular only). See the pages below for
+more info.
+
+    http://lammps.sandia.gov/doc/atom_style.html
+    http://lammps.sandia.gov/doc/read_data.html
+
+"""
+
 from collections import OrderedDict
 from io import StringIO
 import itertools
@@ -17,21 +33,6 @@ from ruamel.yaml import YAML
 
 from pymatgen.util.io_utils import clean_lines
 from pymatgen import Molecule, Element, Lattice, Structure, SymmOp
-
-"""
-This module implements a core class LammpsData for generating/parsing
-LAMMPS data file, and other bridging classes to build LammpsData from
-molecules. This module also implements a subclass CombinedData for
-merging LammpsData object.
-
-Only point particle styles are supported for now (atom_style in angle,
-atomic, bond, charge, full and molecular only). See the pages below for
-more info.
-
-    http://lammps.sandia.gov/doc/atom_style.html
-    http://lammps.sandia.gov/doc/read_data.html
-
-"""
 
 __author__ = "Kiran Mathew, Zhi Deng, Tingzheng Hou"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"
