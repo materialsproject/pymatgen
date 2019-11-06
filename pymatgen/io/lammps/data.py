@@ -21,7 +21,8 @@ from pymatgen import Molecule, Element, Lattice, Structure, SymmOp
 """
 This module implements a core class LammpsData for generating/parsing
 LAMMPS data file, and other bridging classes to build LammpsData from
-molecules.
+molecules. This module also implements a subclass CombinedData for
+merging LammpsData object.
 
 Only point particle styles are supported for now (atom_style in angle,
 atomic, bond, charge, full and molecular only). See the pages below for
@@ -825,6 +826,12 @@ class LammpsData(MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Constructor that reads in a dictionary.
+
+        Args:
+            d (dict): Dictionary to read.
+        """
         def decode_df(s):
             return pd.read_json(s, orient="split")
         items = dict()
@@ -848,6 +855,10 @@ class LammpsData(MSONable):
         return cls(**items)
 
     def as_dict(self):
+        """
+        Returns the LammpsData as a dict.
+
+        """
         def encode_df(df):
             return df.to_json(orient="split")
         d = dict()
@@ -1195,6 +1206,12 @@ class ForceField(MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Constructor that reads in a dictionary.
+
+        Args:
+            d (dict): Dictionary to read.
+        """
         d["mass_info"] = [tuple(m) for m in d["mass_info"]]
         if d.get("topo_coeffs"):
             for v in d["topo_coeffs"].values():
@@ -1323,7 +1340,7 @@ class CombinedData(LammpsData):
     def from_lammpsdata(cls, mols, names, list_of_numbers, coordinates, atom_style=None):
         """
         Constructor that can infer atom_style.
-        The input LammpsData objects are used destructively.
+        The input LammpsData objects are used non-destructively.
 
         Args:
             mols: a list of LammpsData of a single cluster.
