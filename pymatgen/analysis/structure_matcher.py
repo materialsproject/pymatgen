@@ -17,11 +17,12 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.composition import Composition
 
 from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.optimization.linear_assignment import LinearAssignment  # type: ignore
 from pymatgen.util.coord_cython import pbc_shortest_vectors, is_coord_subset_pbc  # type: ignore
 from pymatgen.util.coord import lattice_points_in_supercell
 from pymatgen.analysis.defects.core import Interstitial, \
     Defect, Vacancy, Substitution
+
+from scipy.optimize import linear_sum_assignment
 
 __author__ = "William Davidson Richards, Stephen Dacek, Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -514,8 +515,7 @@ class StructureMatcher(MSONable):
         vecs, d_2 = pbc_shortest_vectors(avg_lattice, s2, s1, mask,
                                          return_d2=True,
                                          lll_frac_tol=lll_frac_tol)
-        lin = LinearAssignment(d_2)
-        s = lin.solution
+        s = linear_sum_assignment(d_2)[1]
         short_vecs = vecs[np.arange(len(s)), s]
         translation = np.average(short_vecs, axis=0)
         f_translation = avg_lattice.get_fractional_coords(translation)
@@ -702,7 +702,7 @@ class StructureMatcher(MSONable):
         if (not self._subset) and mask.shape[1] != mask.shape[0]:
             return None
 
-        if LinearAssignment(mask).min_cost > 0:
+        if mask[linear_sum_assignment(mask)].sum() > 0:
             return None
 
         best_match = None
