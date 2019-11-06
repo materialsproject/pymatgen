@@ -904,6 +904,37 @@ class CombinedDataTest(unittest.TestCase):
         self.assertEqual(topo["Dihedrals"].at[41991, "atom2"], 14994)
         self.assertEqual(topo["Impropers"].at[4, "atom4"], 34)
 
+        # non-destructively use of input (ID number)
+        fec = self.fec
+        topo = fec.topology
+        ff = fec.force_field
+        self.assertEqual(ff["Pair Coeffs"].index[0], 1)
+        self.assertEqual(ff["Bond Coeffs"].index[0], 1)
+        self.assertEqual(ff["Angle Coeffs"].index[0], 1)
+        self.assertTrue(ff["Dihedral Coeffs"].index[0], 1)
+        self.assertEqual(ff["Improper Coeffs"].index[0], 1)
+        self.assertEqual(fec.atoms.index[0], 1)
+        self.assertEqual(fec.atoms.at[1, "molecule-ID"], 1)
+        self.assertEqual(fec.atoms.at[1, "type"], 1)
+        self.assertEqual(topo["Bonds"].index[0], 1)
+        self.assertEqual(topo["Bonds"].at[1, "type"], 1)
+        self.assertEqual(topo["Bonds"].at[1, "atom1"], 1)
+        self.assertEqual(topo["Bonds"].at[1, "atom2"], 2)
+        self.assertEqual(topo["Angles"].index[0], 1)
+        self.assertEqual(topo["Angles"].at[1, "atom1"], 1)
+        self.assertEqual(topo["Angles"].at[1, "atom2"], 3)
+        self.assertEqual(topo["Angles"].at[1, "atom3"], 4)
+        self.assertEqual(topo["Dihedrals"].index[0], 1)
+        self.assertEqual(topo["Dihedrals"].at[1, "atom1"], 1)
+        self.assertEqual(topo["Dihedrals"].at[1, "atom2"], 3)
+        self.assertEqual(topo["Dihedrals"].at[1, "atom3"], 4)
+        self.assertEqual(topo["Dihedrals"].at[1, "atom4"], 5)
+        self.assertEqual(topo["Impropers"].index[0], 1)
+        self.assertEqual(topo["Impropers"].at[1, "atom1"], 5)
+        self.assertEqual(topo["Impropers"].at[1, "atom2"], 4)
+        self.assertEqual(topo["Impropers"].at[1, "atom3"], 3)
+        self.assertEqual(topo["Impropers"].at[1, "atom4"], 6)
+
     def test_get_string(self):
         # general tests
         ec_fec_lines = self.ec_fec1.get_string().splitlines()
