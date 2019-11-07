@@ -11,6 +11,8 @@ of single sites in molecules and structures.
 import math
 import warnings
 from collections import namedtuple, defaultdict
+from functools import lru_cache
+from typing import Union
 
 import ruamel.yaml as yaml
 import os
@@ -48,7 +50,7 @@ from monty.serialization import loadfn
 from bisect import bisect_left
 from scipy.spatial import Voronoi
 
-from pymatgen import Element
+from pymatgen import Element, Structure, IStructure
 from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
 
 _directory = os.path.join(os.path.dirname(__file__))
@@ -1094,16 +1096,16 @@ class JmolNN(NearNeighbors):
 
         siw = []
         for nn in structure.get_neighbors(site, max_rad):
-            neighb, dist = nn.site, nn.distance
+            dist = nn.nn_distance
             # Confirm neighbor based on bond length specific to atom pair
-            if dist <= (bonds[(site.specie, neighb.specie)]) and (
-                    dist > self.min_bond_distance):
+            if dist <= (bonds[(site.specie, nn.specie)]) and (
+                    nn.nn_distance > self.min_bond_distance):
                 weight = min_rad / dist
-                siw.append({'site': neighb,
-                            'image': self._get_image(structure, neighb),
+                siw.append({'site': nn,
+                            'image': self._get_image(structure, nn),
                             'weight': weight,
                             'site_index': self._get_original_site(structure,
-                                                                  neighb)})
+                                                                  nn)})
         return siw
 
 
@@ -1152,23 +1154,23 @@ class MinimumDistanceNN(NearNeighbors):
         siw = []
         if self.get_all_sites:
             for nn in neighs_dists:
-                w = nn.distance
-                siw.append({'site': nn.site,
-                            'image': self._get_image(structure, nn.site),
+                w = nn.nn_distance
+                siw.append({'site': nn,
+                            'image': self._get_image(structure, nn),
                             'weight': w,
                             'site_index': self._get_original_site(structure,
-                                                                  nn.site)})
+                                                                  nn)})
         else:
-            min_dist = min([nn.distance for nn in neighs_dists])
+            min_dist = min([nn.nn_distance for nn in neighs_dists])
             for nn in neighs_dists:
-                dist = nn.distance
+                dist = nn.nn_distance
                 if dist < (1.0 + self.tol) * min_dist:
                     w = min_dist / dist
-                    siw.append({'site': nn.site,
-                                'image': self._get_image(structure, nn.site),
+                    siw.append({'site': nn,
+                                'image': self._get_image(structure, nn),
                                 'weight': w,
                                 'site_index': self._get_original_site(structure,
-                                                                      nn.site)})
+                                                                      nn)})
         return siw
 
 
@@ -1485,8 +1487,8 @@ class MinimumOKeeffeNN(NearNeighbors):
 
         reldists_neighs = []
         for nn in neighs_dists:
-            neigh = nn.site
-            dist = nn.distance
+            neigh = nn
+            dist = nn.nn_distance
             try:
                 el2 = neigh.specie.element
             except Exception:
@@ -1544,17 +1546,16 @@ class MinimumVIRENN(NearNeighbors):
                 of which represents a neighbor site, its image location,
                 and its weight.
         """
-
-        vire = ValenceIonicRadiusEvaluator(structure)
+        vire = _get_vire(structure)
         site = vire.structure[n]
         neighs_dists = vire.structure.get_neighbors(site, self.cutoff)
         rn = vire.radii[vire.structure[n].species_string]
 
         reldists_neighs = []
         for nn in neighs_dists:
-            reldists_neighs.append([nn.distance / (
-                    vire.radii[nn.site.species_string] + rn),
-                                    nn.site])
+            reldists_neighs.append([nn.nn_distance / (
+                    vire.radii[nn.species_string] + rn),
+                                    nn])
 
         siw = []
         min_reldist = min([reldist for reldist, neigh in reldists_neighs])
@@ -1568,6 +1569,38 @@ class MinimumVIRENN(NearNeighbors):
                                 vire.structure, s)})
 
         return siw
+
+
+def _get_vire(structure: Union[Structure, IStructure]):
+    """Get the ValenceIonicRadiusEvaluator object for an structure taking
+    advantage of caching.
+
+    Args:
+        structure: A structure.
+
+    Returns:
+        Output of `ValenceIonicRadiusEvaluator(structure)`
+    """
+    # pymatgen does not hash Structure objects, so we need
+    # to cast from Structure to the immutable IStructure
+    if isinstance(structure, Structure):
+        structure = IStructure.from_sites(structure)
+
+    return _get_vire_istructure(structure)
+
+
+@lru_cache(maxsize=1)
+def _get_vire_istructure(structure: IStructure):
+    """Get the ValenceIonicRadiusEvaluator object for an immutable structure
+    taking advantage of caching.
+
+    Args:
+        structure: A structure.
+
+    Returns:
+        Output of `ValenceIonicRadiusEvaluator(structure)`
+    """
+    return ValenceIonicRadiusEvaluator(structure)
 
 
 def solid_angle(center, coords):
@@ -2989,7 +3022,7 @@ class BrunnerNN_reciprocal(NearNeighbors):
         """
         site = structure[n]
         neighs_dists = structure.get_neighbors(site, self.cutoff)
-        ds = [i.distance for i in neighs_dists]
+        ds = [i.nn_distance for i in neighs_dists]
         ds.sort()
 
         ns = [1.0 / ds[i] - 1.0 / ds[i + 1] for i in range(len(ds) - 1)]
@@ -2997,7 +3030,7 @@ class BrunnerNN_reciprocal(NearNeighbors):
         d_max = ds[ns.index(max(ns))]
         siw = []
         for nn in neighs_dists:
-            s, dist = nn.site, nn.distance
+            s, dist = nn, nn.nn_distance
             if dist < d_max + self.tol:
                 w = ds[0] / dist
                 siw.append({'site': s,
@@ -3044,7 +3077,7 @@ class BrunnerNN_relative(NearNeighbors):
         """
         site = structure[n]
         neighs_dists = structure.get_neighbors(site, self.cutoff)
-        ds = [i.distance for i in neighs_dists]
+        ds = [i.nn_distance for i in neighs_dists]
         ds.sort()
 
         ns = [ds[i] / ds[i + 1] for i in range(len(ds) - 1)]
@@ -3052,7 +3085,7 @@ class BrunnerNN_relative(NearNeighbors):
         d_max = ds[ns.index(max(ns))]
         siw = []
         for nn in neighs_dists:
-            s, dist = nn.site, nn.distance
+            s, dist = nn, nn.nn_distance
             if dist < d_max + self.tol:
                 w = ds[0] / dist
                 siw.append({'site': s,
@@ -3099,7 +3132,7 @@ class BrunnerNN_real(NearNeighbors):
         """
         site = structure[n]
         neighs_dists = structure.get_neighbors(site, self.cutoff)
-        ds = [i.distance for i in neighs_dists]
+        ds = [i.nn_distance for i in neighs_dists]
         ds.sort()
 
         ns = [ds[i] - ds[i + 1] for i in range(len(ds) - 1)]
@@ -3107,7 +3140,7 @@ class BrunnerNN_real(NearNeighbors):
         d_max = ds[ns.index(max(ns))]
         siw = []
         for nn in neighs_dists:
-            s, dist = nn.site, nn.distance
+            s, dist = nn, nn.nn_distance
             if dist < d_max + self.tol:
                 w = ds[0] / dist
                 siw.append({'site': s,
@@ -3158,12 +3191,12 @@ class EconNN(NearNeighbors):
         """
         site = structure[n]
         neighs_dists = structure.get_neighbors(site, self.cutoff)
-        all_bond_lengths = [i.distance for i in neighs_dists]
+        all_bond_lengths = [i.nn_distance for i in neighs_dists]
         weighted_avg = calculate_weighted_avg(all_bond_lengths)
 
         siw = []
         for nn in neighs_dists:
-            s, dist = nn.site, nn.distance
+            s, dist = nn, nn.nn_distance
             if dist < self.cutoff:
                 w = exp(1 - (dist / weighted_avg) ** 6)
                 if w > self.tol:
@@ -3646,8 +3679,8 @@ class CutOffDictNN(NearNeighbors):
 
         nn_info = []
         for nn in neighs_dists:
-            n_site = nn.site
-            dist = nn.distance
+            n_site = nn
+            dist = nn.nn_distance
             neigh_cut_off_dist = self._lookup_dict \
                 .get(site.species_string, {}) \
                 .get(n_site.species_string, 0.0)

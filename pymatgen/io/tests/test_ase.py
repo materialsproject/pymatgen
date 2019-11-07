@@ -3,18 +3,6 @@
 # Distributed under the terms of the MIT License.
 
 
-"""
-Created on Mar 8, 2012
-"""
-
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Mar 8, 2012"
-
 import unittest
 import os
 
@@ -45,8 +33,4 @@ class AseAtomsAdaptorTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
-    if aio.ase_loaded:
-        unittest.main()
-    else:
-        print("ASE not loaded. Skipping tests")
+    unittest.main()

@@ -47,11 +47,13 @@ class FloatWithUnitTest(PymatgenTest):
     def test_time(self):
         a = Time(20, "h")
         self.assertAlmostEqual(float(a.to("s")), 3600 * 20)
-        #Test left and right multiplication.
+        # Test left and right multiplication.
         b = a * 3
         self.assertAlmostEqual(float(b), 60.0)
         self.assertEqual(str(b.unit), "h")
         self.assertEqual(float(3 * a), 60.0)
+        a = Time(0.5, "d")
+        self.assertAlmostEqual(float(a.to("s")), 3600 * 24 * 0.5)
 
     def test_length(self):
         x = Length(4.2, "ang")
@@ -64,7 +66,7 @@ class FloatWithUnitTest(PymatgenTest):
 
     def test_memory(self):
         mega = Memory(1, "Mb")
-        self.assertEqual(mega.to("byte"), 1024**2)
+        self.assertEqual(mega.to("byte"), 1024 ** 2)
         self.assertEqual(mega, Memory(1, "mb"))
 
         same_mega = Memory.from_string("1Mb")
@@ -74,7 +76,6 @@ class FloatWithUnitTest(PymatgenTest):
         self.assertEqual(mega, other_mega)
 
     def test_unitized(self):
-
         @unitized("eV")
         def f():
             return [1, 2, 3]
@@ -172,7 +173,7 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
         # dtype=np.int.
         a = TimeArray(20, "h")
         self.assertAlmostEqual(a.to("s"), 3600 * 20)
-        #Test left and right multiplication.
+        # Test left and right multiplication.
         self.assertEqual(str(a * 3), "60 h")
         self.assertEqual(str(3 * a), "60 h")
 
@@ -196,7 +197,7 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
         e2 = ene_ha.copy()
         e2 -= 1
         e3 = ene_ha.copy()
-        #e3 /= 2
+        # e3 /= 2
         e4 = ene_ha.copy()
         e4 *= 2
 
@@ -264,4 +265,5 @@ class DataPersistenceTest(PymatgenTest):
 
 if __name__ == '__main__':
     import unittest
+
     unittest.main()

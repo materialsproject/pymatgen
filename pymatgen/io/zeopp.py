@@ -140,7 +140,7 @@ class ZeoCssr(Cssr):
         lengths.insert(0, a)
         alpha = angles.pop(-1)
         angles.insert(0, alpha)
-        latt = Lattice.from_lengths_and_angles(lengths, angles)
+        latt = Lattice.from_parameters(*lengths, *angles)
         sp = []
         coords = []
         chrg = []
@@ -299,8 +299,7 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
         coords.append(list(site.coords))
         prop.append(site.properties['voronoi_radius'])
 
-    lattice = Lattice.from_lengths_and_angles(
-        structure.lattice.abc, structure.lattice.angles)
+    lattice = Lattice.from_parameters(structure.lattice.parameters)
     vor_node_struct = Structure(
         lattice, species, coords, coords_are_cartesian=True,
         to_unit_cell=True, site_properties={"voronoi_radius": prop})
@@ -377,8 +376,7 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
         coords.append(list(site.coords))
         prop.append(site.properties['voronoi_radius'])
 
-    lattice = Lattice.from_lengths_and_angles(
-        structure.lattice.abc, structure.lattice.angles)
+    lattice = Lattice.from_parameters(structure.lattice.parameters)
     vor_node_struct = Structure(
         lattice, species, coords, coords_are_cartesian=True,
         to_unit_cell=True, site_properties={"voronoi_radius": prop})

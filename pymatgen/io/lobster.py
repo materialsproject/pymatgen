@@ -18,7 +18,7 @@ import fnmatch
 import itertools
 import warnings
 import spglib
-from typing import List, Dict
+from typing import Dict, Any, Optional, List
 from collections import defaultdict
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.io.vasp.outputs import Vasprun
@@ -32,7 +32,7 @@ __author__ = "Janine George, Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
 __version__ = "0.2"
 __maintainer__ = "Janine George, Marco Esters "
-__email__ = "esters@uoregon.edu, janine.george@uclouvain.be"
+__email__ = "janine.george@uclouvain.be, esters@uoregon.edu"
 __date__ = "Dec 13, 2017"
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -75,7 +75,7 @@ class Cohpcar:
 
     """
 
-    def __init__(self, are_coops=False, filename=None):
+    def __init__(self, are_coops: bool = False, filename: str = None):
         """
         Args:
             are_coops: Determines if the file is a list of COHPs or COOPs.
@@ -105,16 +105,15 @@ class Cohpcar:
             self.is_spin_polarized = False
 
         # The COHP data start in row num_bonds + 3
-        data = np.array([np.array(row.split(), dtype=float)
-                         for row in contents[num_bonds + 3:]]).transpose()
+        data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3:]]).transpose()
+        data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3:]]).transpose()
         self.energies = data[0]
-
         cohp_data = {"average": {"COHP": {spin: data[1 + 2 * s * (num_bonds + 1)]
                                           for s, spin in enumerate(spins)},
                                  "ICOHP": {spin: data[2 + 2 * s * (num_bonds + 1)]
-                                           for s, spin in enumerate(spins)}}}
-        orb_cohp = {}
+                                           for s, spin in enumerate(spins)}}}  # type: Dict[Any, Any]
 
+        orb_cohp = {}  # type: Dict[str, Any]
         # present for Lobster versions older than Lobster 2.2.0
         veryold = False
         # the labeling had to be changed: there are more than one COHP for each atom combination
@@ -158,16 +157,16 @@ class Cohpcar:
 
         # present for lobster older than 2.2.0
         if veryold:
-            for bond in orb_cohp:
-                cohp_data[bond] = {"COHP": None, "ICOHP": None,
-                                   "length": bond_data["length"],
-                                   "sites": bond_data["sites"]}
+            for bond_str in orb_cohp:
+                cohp_data[bond_str] = {"COHP": None, "ICOHP": None,
+                                       "length": bond_data["length"],
+                                       "sites": bond_data["sites"]}
 
         self.orb_res_cohp = orb_cohp if orb_cohp else None
         self.cohp_data = cohp_data
 
     @staticmethod
-    def _get_bond_data(line):
+    def _get_bond_data(line: str) -> dict:
         """
         Subroutine to extract bond label, site indices, and length from
         a LOBSTER header line. The site indices are zero-based, so they
@@ -190,21 +189,21 @@ class Cohpcar:
                     "d_xz", "d_x^2-y^2", "f_y(3x^2-y^2)", "f_xyz",
                     "f_yz^2", "f_z^3", "f_xz^2", "f_z(x^2-y^2)", "f_x(x^2-3y^2)"]
 
-        line = line.rsplit("(", 1)
+        line_new = line.rsplit("(", 1)
         # bondnumber = line[0].replace("->", ":").replace(".", ":").split(':')[1]
-        length = float(line[-1][:-1])
+        length = float(line_new[-1][:-1])
 
-        sites = line[0].replace("->", ":").split(":")[1:3]
+        sites = line_new[0].replace("->", ":").split(":")[1:3]
         site_indices = tuple(int(re.split(r"\D+", site)[1]) - 1
                              for site in sites)
 
         # species = tuple(re.split(r"\d+", site)[0] for site in sites)
         if "[" in sites[0]:
             orbs = [re.findall(r"\[(.*)\]", site)[0] for site in sites]
-            orbitals = [tuple((int(orb[0]), Orbital(orb_labs.index(orb[1:]))))
-                        for orb in orbs]
+            orbitals = [tuple((int(orb[0]), Orbital(orb_labs.index(orb[1:])))) for orb in
+                        orbs]  # type: Any
             orb_label = "%d%s-%d%s" % (orbitals[0][0], orbitals[0][1].name,
-                                       orbitals[1][0], orbitals[1][1].name)
+                                       orbitals[1][0], orbitals[1][1].name)  # type: Any
 
         else:
             orbitals = None
@@ -239,7 +238,7 @@ class Icohplist:
 
     """
 
-    def __init__(self, are_coops=False, filename=None):
+    def __init__(self, are_coops: bool = False, filename: str = None):
         """
         Args:
             are_coops: Determines if the file is a list of ICOHPs or ICOOPs.
@@ -328,7 +327,7 @@ class Icohplist:
                                                 list_icohp=list_icohp, is_spin_polarized=self.is_spin_polarized)
 
     @property
-    def icohplist(self):
+    def icohplist(self) -> Dict[Any, Dict[str, Any]]:
         """
         Returns: icohplist compatible with older version of this class
         """
@@ -379,7 +378,7 @@ class Doscar:
 
     """
 
-    def __init__(self, doscar="DOSCAR.lobster", structure_file="POSCAR", dftprogram="Vasp"):
+    def __init__(self, doscar: str = "DOSCAR.lobster", structure_file: str = "POSCAR", dftprogram: str = "Vasp"):
         """
         Args:
             doscar: DOSCAR filename, typically "DOSCAR.lobster"
@@ -466,42 +465,42 @@ class Doscar:
         self._completedos = LobsterCompleteDos(final_struct, self._tdos, pdossneu)
 
     @property
-    def completedos(self):
+    def completedos(self) -> LobsterCompleteDos:
         """
         :return: CompleteDos
         """
         return self._completedos
 
     @property
-    def pdos(self):
+    def pdos(self) -> list:
         """
         :return: Projected DOS
         """
         return self._pdos
 
     @property
-    def tdos(self):
+    def tdos(self) -> Dos:
         """
         :return: Total DOS
         """
         return self._tdos
 
     @property
-    def energies(self):
+    def energies(self) -> list:
         """
         :return: Energies
         """
         return self._energies
 
     @property
-    def tdensities(self):
+    def tdensities(self) -> list:
         """
-        :return: What is this?!??!
+        :return: total densities as a list
         """
         return self._tdensities
 
     @property
-    def is_spin_polarized(self):
+    def is_spin_polarized(self) -> bool:
         """
         :return: Whether run is spin polarized.
         """
@@ -525,21 +524,21 @@ class Charge:
 
     """
 
-    def __init__(self, filename="CHARGE.lobster"):
+    def __init__(self, filename: str = "CHARGE.lobster"):
         """
         Args:
             filename: filename for the CHARGE file, typically "CHARGE.lobster"
         """
-        with zopen(filename) as f:
+        with zopen(filename, 'rt') as f:
             data = f.read().split("\n")[3:-3]
         if len(data) == 0:
             raise IOError("CHARGES file contains no data.")
 
         self.num_atoms = len(data)
-        self.atomlist = []
-        self.types = []
-        self.Mulliken = []
-        self.Loewdin = []
+        self.atomlist = []  # type: List[str]
+        self.types = []  # type: List[str]
+        self.Mulliken = []  # type: List[float]
+        self.Loewdin = []  # type: List[float]
         for atom in range(0, self.num_atoms):
             line = data[atom].split()
             self.atomlist.append(line[1] + line[0])
@@ -647,7 +646,7 @@ class Lobsterout:
         """
         warnings.warn("Make sure the lobsterout is read in correctly. This is a brand new class.")
         # read in file
-        with zopen(filename) as f:
+        with zopen(filename, 'rt') as f:
             data = f.read().split("\n")  # [3:-3]
         if len(data) == 0:
             raise IOError("lobsterout does not contain any data")
@@ -682,7 +681,6 @@ class Lobsterout:
 
         orthowarning = self._get_warning_orthonormalization(data=data)
         self.info_orthonormalization = orthowarning
-        # print(orthowarning)
 
         infos = self._get_all_info_lines(data=data)
         self.info_lines = infos
@@ -818,7 +816,6 @@ class Lobsterout:
 
     def _get_number_of_spins(self, data):
         if "spillings for spin channel 2" in data:
-            # print('two spin channels')
             return 2
         else:
             return 1
@@ -858,7 +855,6 @@ class Lobsterout:
         for row in data:
 
             if begin and not end:
-                # print(row)
                 splitrow = row.split()
                 if splitrow[0] not in ['INFO:', 'WARNING:', 'setting', 'calculating', 'post-processing', 'saving',
                                        'spillings', 'writing']:
@@ -871,7 +867,6 @@ class Lobsterout:
                     end = True
             if "setting up local basis functions..." in row:
                 begin = True
-                # print(row)
         return elements, basistype, basisfunctions
 
     def _get_timing(self, data):
@@ -915,7 +910,6 @@ class Lobsterout:
                     warnings.append(" ".join(splitrow[1:]))
 
         return warnings
-        # print(warnings)
 
     def _get_all_info_lines(self, data):
         infos = []
@@ -1057,9 +1051,6 @@ class Fatband:
             else:
                 linenumbers = []
                 for iline, line in enumerate(contents[1:self.nbands * 2 + 4]):
-                    # print(line)
-                    # if line in ['\n', '\r\n']:
-                    #    linenumbers.append(iline)
                     if line.split()[0] == '#':
                         linenumbers.append(iline)
 
@@ -1114,8 +1105,6 @@ class Fatband:
                         p_eigenvals[Spin.up][iband][ikpoint][atomnames[ifilename]][orbital_names[ifilename]] = float(
                             line.split()[2])
                     if linenumber >= self.nbands and self.is_spinpolarized:
-                        # print(line.split())
-                        # print(iband)
                         if ifilename == 0:
                             eigenvals[Spin.down][iband][ikpoint] = float(line.split()[1]) + self.efermi
                         p_eigenvals[Spin.down][iband][ikpoint][atomnames[ifilename]][
@@ -1170,7 +1159,7 @@ class Lobsterin(dict, MSONable):
                          'useDecimalPlaces', 'kSpaceCOHP']
 
     # keyword + one float can be used in file
-    FLOATKEYWORDS = ['COHPstartEnergy', 'COHPendEnergy', 'gaussianSmearingWidth', 'useDecimalPlaces']
+    FLOATKEYWORDS = ['COHPstartEnergy', 'COHPendEnergy', 'gaussianSmearingWidth', 'useDecimalPlaces', 'COHPSteps']
     # one of these keywords +endstring can be used in file
     STRINGKEYWORDS = ['basisSet', 'cohpGenerator', 'realspaceHamiltonian', 'realspaceOverlap',
                       'printPAWRealSpaceWavefunction', 'printLCAORealSpaceWavefunction', 'kSpaceCOHP']
@@ -1181,7 +1170,8 @@ class Lobsterin(dict, MSONable):
                        'writeBasisFunctions', 'writeMatricesToFile', 'noFFTforVisualization', 'RMSp',
                        'onlyReadVasprun.xml', 'noMemoryMappedFiles', 'skipPAWOrthonormalityTest',
                        'doNotIgnoreExcessiveBands', 'doNotUseAbsoluteSpilling', 'skipReOrthonormalization',
-                       'forceV1HMatrix', 'useOriginalTetrahedronMethod']
+                       'forceV1HMatrix', 'useOriginalTetrahedronMethod', 'forceEnergyRange', 'bandwiseSpilling',
+                       'kpointwiseSpilling']
     # several of these keywords + ending can be used in a lobsterin file:
     LISTKEYWORDS = ['basisfunctions', 'cohpbetween', 'createFatband']
 
@@ -1367,21 +1357,28 @@ class Lobsterin(dict, MSONable):
         return Lobsterin({k: v for k, v in d.items() if k not in ["@module",
                                                                   "@class"]})
 
-    def write_INCAR(self, incar_input="INCAR", incar_output="INCAR.lobster", poscar_input="POSCAR",
-                    further_settings=None):
+    def write_INCAR(self, incar_input: str = "INCAR", incar_output: str = "INCAR.lobster", poscar_input: str = "POSCAR",
+                    isym: int = -1,
+                    further_settings: dict = None):
         """
         Will only make the run static, insert nbands, make ISYM=-1, set LWAVE=True and write a new INCAR.
         You have to check for the rest.
         Args:
             incar_input (str): path to input INCAR
             incar_output (str): path to output INCAR
-            poscar_input (str) path to input POSCAR
+            poscar_input (str): path to input POSCAR
+            isym (int): isym equal to -1 or 0 are possible. Current Lobster version only allow -1.
             further_settings (dict): A dict can be used to include further settings, e.g. {"ISMEAR":-5}
         """
         # reads old incar from file, this one will be modified
         incar = Incar.from_file(incar_input)
         warnings.warn("Please check your incar_input before using it. This method only changes three settings!")
-        incar["ISYM"] = -1
+        if isym == -1:
+            incar["ISYM"] = -1
+        elif isym == 0:
+            incar["ISYM"] = 0
+        else:
+            ValueError("isym has to be -1 or 0.")
         incar["NSW"] = 0
         incar["LWAVE"] = True
         # get nbands from _get_nbands (use basis set that is inserted)
@@ -1393,7 +1390,8 @@ class Lobsterin(dict, MSONable):
         incar.write_file(incar_output)
 
     @staticmethod
-    def _get_basis(structure: Structure, potcar_symbols: list):
+    def _get_basis(structure: Structure, potcar_symbols: list,
+                   address_basis_file: str = os.path.join(MODULE_DIR, "BASIS_PBE_54.yaml")):
         """
         will get the basis from given potcar_symbols (e.g., ["Fe_pv","Si"]
         #include this in lobsterin class
@@ -1411,7 +1409,7 @@ class Lobsterin(dict, MSONable):
 
         if set(AtomTypes) != set(AtomTypes_Potcar):
             raise IOError("Your POSCAR does not correspond to your POTCAR!")
-        BASIS = loadfn(os.path.join(MODULE_DIR, "BASIS_PBE_54.yaml"))['BASIS']
+        BASIS = loadfn(address_basis_file)['BASIS']
 
         basis_functions = []
         list_forin = []
@@ -1440,22 +1438,22 @@ class Lobsterin(dict, MSONable):
         new_structure.to(fmt='POSCAR', filename=POSCAR_output)
 
     @staticmethod
-    def write_KPOINTS(POSCAR_input="POSCAR", KPOINTS_output="KPOINTS.lobster", reciprocal_density=100, from_grid=False,
-                      input_grid=[5, 5, 5], line_mode=True,
-                      kpoints_line_density=20, symprec=0.01):
+    def write_KPOINTS(POSCAR_input: str = "POSCAR", KPOINTS_output="KPOINTS.lobster", reciprocal_density: int = 100,
+                      isym: int = -1, from_grid: bool = False, input_grid: list = [5, 5, 5], line_mode: bool = True,
+                      kpoints_line_density: int = 20, symprec: float = 0.01):
         """
-        writes a KPOINT file for lobster (no symmetry considered!, ISYM=-1)
+        writes a KPOINT file for lobster (only ISYM=-1 and ISYM=0 are possible), grids are gamma centered
         Args:
             POSCAR_input (str): path to POSCAR
             KPOINTS_output (str): path to output KPOINTS
             reciprocal_density (int): Grid density
+            isym (int): either -1 or 0. Current Lobster versions only allow -1.
             from_grid (bool): If True KPOINTS will be generated with the help of a grid given in input_grid. Otherwise,
                 they will be generated from the reciprocal_density
             input_grid (list): grid to generate the KPOINTS file
             line_mode (bool): If True, band structure will be generated
             kpoints_line_density (int): density of the lines in the band structure
             symprec (float): precision to determine symmetry
-
         """
         structure = Structure.from_file(POSCAR_input)
         # should this really be static? -> make it similar to INCAR?
@@ -1469,7 +1467,7 @@ class Lobsterin(dict, MSONable):
         # we need to switch off symmetry here
         latt = structure.lattice.matrix
         positions = structure.frac_coords
-        unique_species = []
+        unique_species = []  # type: List[Any]
         zs = []
         magmoms = []
 
@@ -1492,18 +1490,45 @@ class Lobsterin(dict, MSONable):
 
         # For now, we are setting magmom to zero. (Taken from INCAR class)
         cell = latt, positions, zs, magmoms
+        # TODO: what about this shift?
         mapping, grid = spglib.get_ir_reciprocal_mesh(mesh, cell, is_shift=[0, 0, 0])
 
+        # exit()
         # get the kpoints for the grid
-        kpts = []
-        weights = []
-        all_labels = []
-        for i, (ir_gp_id, gp) in enumerate(zip(mapping, grid)):
-            # print("%3d ->%3d %s" % (i, ir_gp_id, gp.astype(float) / mesh))
-            kpts.append(gp.astype(float) / mesh)
-            weights.append(1)
-            all_labels.append("")
+        if isym == -1:
+            kpts = []
+            weights = []
+            all_labels = []
+            for gp in grid:
+                kpts.append(gp.astype(float) / mesh)
+                weights.append(float(1))
+                all_labels.append("")
+        elif isym == 0:
+            # time reversal symmetry: k and -k are equivalent
+            kpts = []
+            weights = []
+            all_labels = []
+            newlist = [list(gp) for gp in list(grid)]
+            mapping = []
+            for gp in newlist:
+                minusgp = [-k for k in gp]
+                if minusgp in newlist and minusgp not in [[0, 0, 0]]:
+                    mapping.append(newlist.index(minusgp))
+                else:
+                    mapping.append(newlist.index(gp))
 
+            for igp, gp in enumerate(newlist):
+                if mapping[igp] > igp:
+                    kpts.append(np.array(gp).astype(float) / mesh)
+                    weights.append(float(2))
+                    all_labels.append("")
+                elif mapping[igp] == igp:
+                    kpts.append(np.array(gp).astype(float) / mesh)
+                    weights.append(float(1))
+                    all_labels.append("")
+
+        else:
+            ValueError("Only isym=-1 and isym=0 are allowed.")
         # line mode
         if line_mode:
             kpath = HighSymmKpath(structure, symprec=symprec)
@@ -1520,9 +1545,12 @@ class Lobsterin(dict, MSONable):
                 kpts.append(frac_k_points[k])
                 weights.append(0.0)
                 all_labels.append(labels[k])
-
-        comment = (
-            "ISYM=-1, grid: " + str(mesh) if not line_mode else "ISYM=-1, grid: " + str(mesh) + " plus kpoint path")
+        if isym == -1:
+            comment = (
+                "ISYM=-1, grid: " + str(mesh) if not line_mode else "ISYM=-1, grid: " + str(mesh) + " plus kpoint path")
+        elif isym == 0:
+            comment = (
+                "ISYM=0, grid: " + str(mesh) if not line_mode else "ISYM=0, grid: " + str(mesh) + " plus kpoint path")
 
         KpointObject = Kpoints(comment=comment,
                                style=Kpoints.supported_modes.Reciprocal,
@@ -1540,7 +1568,7 @@ class Lobsterin(dict, MSONable):
         Returns:
             Lobsterin object
         """
-        with zopen(lobsterin) as f:
+        with zopen(lobsterin, 'rt') as f:
             data = f.read().split("\n")
         if len(data) == 0:
             raise IOError("lobsterin file contains no data.")
@@ -1598,9 +1626,10 @@ class Lobsterin(dict, MSONable):
         return Potcar_names
 
     @classmethod
-    def standard_calculations_from_vasp_files(cls, POSCAR_input="POSCAR", INCAR_input="INCAR", POTCAR_input=None,
-                                              dict_for_basis=None,
-                                              option='standard'):
+    def standard_calculations_from_vasp_files(cls, POSCAR_input: str = "POSCAR", INCAR_input: str = "INCAR",
+                                              POTCAR_input: Optional[str] = None,
+                                              dict_for_basis: Optional[dict] = None,
+                                              option: str = 'standard'):
         """
         will generate Lobsterin with standard settings
 
@@ -1631,7 +1660,7 @@ class Lobsterin(dict, MSONable):
                           'onlycohp', 'onlycoop', 'onlycohpcoop']:
             raise ValueError("The option is not valid!")
 
-        Lobsterindict = {}
+        Lobsterindict = {}  # type: Dict[Any,Any]
         # this basis set covers most elements
         Lobsterindict['basisSet'] = 'pbeVaspFit2015'
         # energies around e-fermi
@@ -1688,12 +1717,14 @@ class Lobsterin(dict, MSONable):
             # dict_for_basis={"Fe":'3p 3d 4s 4f', "C": '2s 2p'}
             # will just insert this basis and not check with poscar
             basis = [key + ' ' + value for key, value in dict_for_basis.items()]
-        else:
+        elif POTCAR_input is not None:
             # get basis from POTCAR
             potcar_names = Lobsterin._get_potcar_symbols(POTCAR_input=POTCAR_input)
 
             basis = Lobsterin._get_basis(structure=Structure.from_file(POSCAR_input),
                                          potcar_symbols=potcar_names)
+        else:
+            raise ValueError("basis cannot be generated")
         Lobsterindict["basisfunctions"] = basis
         if option == 'standard_with_fatband':
             Lobsterindict['createFatband'] = basis
@@ -1712,7 +1743,7 @@ class Bandoverlaps:
 
     """
 
-    def __init__(self, filename="bandOverlaps.lobster"):
+    def __init__(self, filename: str = "bandOverlaps.lobster"):
         """
         Args:
             filename: filename of the "bandOverlaps.lobster" file
@@ -1760,7 +1791,7 @@ class Bandoverlaps:
                         overlaps.append(float(el))
                 self.bandoverlapsdict[spin][" ".join(kpoint_array)]["matrix"].append(overlaps)
 
-    def has_good_quality_maxDeviation(self, limit_maxDeviation=0.1) -> bool:
+    def has_good_quality_maxDeviation(self, limit_maxDeviation: float = 0.1) -> bool:
         """
         will check if the maxDeviation from the ideal bandoverlap is smaller or equal to limit_maxDeviation
         Args:
@@ -1774,8 +1805,9 @@ class Bandoverlaps:
                 return False
         return True
 
-    def has_good_quality_check_occupied_bands(self, number_occ_bands_spin_up, number_occ_bands_spin_down=None,
-                                              spin_polarized=False, limit_deviation=0.1) -> bool:
+    def has_good_quality_check_occupied_bands(self, number_occ_bands_spin_up: int,
+                                              number_occ_bands_spin_down: Optional[int] = None,
+                                              spin_polarized: bool = False, limit_deviation: float = 0.1) -> bool:
         """
         will check if the deviation from the ideal bandoverlap of all occupied bands is smaller or equal to
         limit_deviation
@@ -1804,14 +1836,16 @@ class Bandoverlaps:
             for matrix in self.bandoverlapsdict[Spin.down].values():
                 for iband1, band1 in enumerate(matrix["matrix"]):
                     for iband2, band2 in enumerate(band1):
-                        if iband1 < number_occ_bands_spin_down and iband2 < number_occ_bands_spin_down:
-                            if iband1 == iband2:
-                                if abs(band2 - 1.0) > limit_deviation:
-                                    return False
-                            else:
-                                if band2 > limit_deviation:
-                                    return False
-
+                        if number_occ_bands_spin_down is not None:
+                            if iband1 < number_occ_bands_spin_down and iband2 < number_occ_bands_spin_down:
+                                if iband1 == iband2:
+                                    if abs(band2 - 1.0) > limit_deviation:
+                                        return False
+                                else:
+                                    if band2 > limit_deviation:
+                                        return False
+                        else:
+                            ValueError("number_occ_bands_spin_down has to be specified")
         return True
 
 
@@ -1826,7 +1860,7 @@ class Grosspop:
         The 0. entry of the list refers to the first atom in GROSSPOP.lobster and so on.
     """
 
-    def __init__(self, filename="GROSSPOP.lobster"):
+    def __init__(self, filename: str = "GROSSPOP.lobster"):
         """
         Args:
             filename: filename of the "GROSSPOP.lobster" file
@@ -1835,7 +1869,7 @@ class Grosspop:
         with zopen(filename, "rt") as f:
             contents = f.read().split("\n")
 
-        self.list_dict_grosspop = []
+        self.list_dict_grosspop = []  # type: List[Any]
         # transfers content of file to list of dict
         for line in contents[3:]:
             cleanline = [i for i in line.split(" ") if not i == '']

@@ -114,17 +114,17 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         ref = [1.956090529381193, 2.0339311618566343, 1.1529383757896965]
         ref2 = [4258.4072823354145, 4597.0351887125289, 4238.1262696392705]
         sbk_mass_tens_mu = \
-        self.bz.get_seebeck_eff_mass(output='tensor', doping_levels=False,
-                                     temp=300)[3]
+            self.bz.get_seebeck_eff_mass(output='tensor', doping_levels=False,
+                                         temp=300)[3]
         sbk_mass_tens_dop = \
-        self.bz.get_seebeck_eff_mass(output='tensor', doping_levels=True,
-                                     temp=300)['n'][2]
+            self.bz.get_seebeck_eff_mass(output='tensor', doping_levels=True,
+                                         temp=300)['n'][2]
         sbk_mass_avg_mu = \
-        self.bz.get_seebeck_eff_mass(output='average', doping_levels=False,
-                                     temp=300)[3]
+            self.bz.get_seebeck_eff_mass(output='average', doping_levels=False,
+                                         temp=300)[3]
         sbk_mass_avg_dop = \
-        self.bz.get_seebeck_eff_mass(output='average', doping_levels=True,
-                                     temp=300)['n'][2]
+            self.bz.get_seebeck_eff_mass(output='average', doping_levels=True,
+                                         temp=300)['n'][2]
 
         for i in range(0, 3):
             self.assertAlmostEqual(sbk_mass_tens_mu[i], ref2[i], 1)
@@ -139,17 +139,17 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         ref2 = [0.0112022048620205, 0.0036001049607186602,
                 0.0083028947173193028]
         sbk_mass_tens_mu = \
-        self.bz.get_complexity_factor(output='tensor', doping_levels=False,
-                                      temp=300)[3]
+            self.bz.get_complexity_factor(output='tensor', doping_levels=False,
+                                          temp=300)[3]
         sbk_mass_tens_dop = \
-        self.bz.get_complexity_factor(output='tensor', doping_levels=True,
-                                      temp=300)['n'][2]
+            self.bz.get_complexity_factor(output='tensor', doping_levels=True,
+                                          temp=300)['n'][2]
         sbk_mass_avg_mu = \
-        self.bz.get_complexity_factor(output='average', doping_levels=False,
-                                      temp=300)[3]
+            self.bz.get_complexity_factor(output='average', doping_levels=False,
+                                          temp=300)[3]
         sbk_mass_avg_dop = \
-        self.bz.get_complexity_factor(output='average', doping_levels=True,
-                                      temp=300)['n'][2]
+            self.bz.get_complexity_factor(output='average', doping_levels=True,
+                                          temp=300)['n'][2]
 
         for i in range(0, 3):
             self.assertAlmostEqual(sbk_mass_tens_mu[i], ref2[i], 4)

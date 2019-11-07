@@ -8,7 +8,7 @@ import warnings
 import random
 import sys
 from pymatgen import SETTINGS, __version__ as pmg_version
-from pymatgen.ext.matproj import MPRester, MPRestError
+from pymatgen.ext.matproj import MPRester, MPRestError, TaskType
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure, Composition
 from pymatgen.entries.computed_entries import ComputedEntry
@@ -24,18 +24,6 @@ from pymatgen.io.cif import CifParser
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.util.testing import PymatgenTest
-
-"""
-Created on Jun 9, 2012
-"""
-
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Jun 9, 2012"
 
 
 @unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY"),
@@ -288,8 +276,8 @@ class MPResterTest(PymatgenTest):
         pbx = PourbaixDiagram(pbx_entries)
 
         # Try binary system
-        #pbx_entries = self.rester.get_pourbaix_entries(["Fe", "Cr"])
-        #pbx = PourbaixDiagram(pbx_entries)
+        # pbx_entries = self.rester.get_pourbaix_entries(["Fe", "Cr"])
+        # pbx = PourbaixDiagram(pbx_entries)
 
         # TODO: Shyue Ping: I do not understand this test. You seem to
         # be grabbing Zn-S system, but I don't see proper test for anything,
@@ -351,7 +339,7 @@ class MPResterTest(PymatgenTest):
         self.assertIn("mp-2534", substrates)
 
     def test_get_surface_data(self):
-        data = self.rester.get_surface_data("mp-126") # Pt
+        data = self.rester.get_surface_data("mp-126")  # Pt
         one_surf = self.rester.get_surface_data('mp-129', miller_index=[-2, -3, 1])
         self.assertAlmostEqual(one_surf['surface_energy'], 2.99156963, places=2)
         self.assertArrayAlmostEqual(one_surf['miller_index'], [3, 2, 1])
@@ -393,7 +381,6 @@ class MPResterTest(PymatgenTest):
         self.assertAlmostEqual(hcp_s7[0]['gb_energy'], 1.12, places=2)
         self.assertAlmostEqual(hcp_s7[0]['work_of_separation'], 2.46, places=2)
 
-
     def test_get_interface_reactions(self):
         kinks = self.rester.get_interface_reactions("LiCoO2", "Li3PS4")
         self.assertTrue(len(kinks) > 0)
@@ -409,6 +396,30 @@ class MPResterTest(PymatgenTest):
             warnings.filterwarnings("always", message="The reactant.+")
             self.rester.get_interface_reactions("LiCoO2", "MnO9")
             self.assertTrue("The reactant" in str(w[-1].message))
+
+    def test_download_info(self):
+        material_ids = ['mp-32800', 'mp-23494']
+        task_types = [TaskType.GGA_OPT, TaskType.GGA_LINE]
+        file_patterns = ['vasprun*', 'OUTCAR*']
+        meta, urls = self.rester.get_download_info(
+            material_ids, task_types=task_types,
+            file_patterns=file_patterns
+        )
+        self.assertEqual(meta, {
+            'mp-23494': [
+                {'task_id': 'mp-23494', 'task_type': 'GGA Structure Optimization'},
+                {'task_id': 'mp-688563', 'task_type': 'GGA NSCF Line'}
+            ],
+            'mp-32800': [
+                {'task_id': 'mp-32800', 'task_type': 'GGA Structure Optimization'},
+                {'task_id': 'mp-746913', 'task_type': 'GGA NSCF Line'}
+            ]
+        })
+        prefix = 'http://labdev-nomad.esc.rzg.mpg.de/fairdi/nomad/mp/api/raw/query?'
+        ids = 'mp-23494,mp-688563,mp-32800,mp-746913'
+        self.assertEqual(
+            urls[0], f'{prefix}file_pattern=vasprun*&file_pattern=OUTCAR*&external_id={ids}'
+        )
 
     def test_parse_criteria(self):
         crit = MPRester.parse_criteria("mp-1234 Li-*")
@@ -433,7 +444,7 @@ class MPResterTest(PymatgenTest):
         comps = MPRester.parse_criteria("{Fe,Mn,Co}O")["pretty_formula"]["$in"]
         self.assertEqual(len(comps), 3, comps)
 
-        #Let's test some invalid symbols
+        # Let's test some invalid symbols
 
         self.assertRaises(ValueError, MPRester.parse_criteria, "li-fe")
         self.assertRaises(ValueError, MPRester.parse_criteria, "LO2")

@@ -5,24 +5,13 @@
 
 import numpy as np
 import pickle
+import timeit
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.composition import Composition
-
-"""
-Created on Jul 17, 2012
-"""
-
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Jul 17, 2012"
 
 
 class SiteTest(PymatgenTest):
@@ -82,6 +71,7 @@ class SiteTest(PymatgenTest):
 
         def set_bad_species():
             self.disordered_site.species = {"Cu": 0.5, "Gd": 0.6}
+
         self.assertRaises(ValueError, set_bad_species)
 
 
@@ -121,7 +111,7 @@ class PeriodicSiteTest(PymatgenTest):
     def test_distance(self):
         other_site = PeriodicSite("Fe", np.array([0, 0, 0]), self.lattice)
         self.assertAlmostEqual(self.site.distance(other_site), 6.22494979899,
-                                5)
+                               5)
 
     def test_distance_from_point(self):
         self.assertNotAlmostEqual(self.site.distance_from_point([0.1, 0.1,
@@ -219,6 +209,7 @@ class PeriodicSiteTest(PymatgenTest):
 
         def set_bad_species():
             site.species = {"Cu": 0.5, "Gd": 0.6}
+
         self.assertRaises(ValueError, set_bad_species)
 
         site.frac_coords = [0, 0, 0.1]

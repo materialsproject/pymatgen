@@ -5,8 +5,10 @@
 import unittest
 import os
 import json
-
+import warnings
 from io import open
+
+import scipy
 
 from monty.os.path import which
 from pymatgen.electronic_structure.core import Spin
@@ -21,22 +23,8 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Vasprun
 from pymatgen.util.testing import PymatgenTest
 
-"""
-Created on May 1, 2012
-"""
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "May 1, 2012"
-
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
-
-import scipy
-import warnings
 
 
 class DosPlotterTest(unittest.TestCase):

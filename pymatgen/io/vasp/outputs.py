@@ -2922,6 +2922,17 @@ class VolumetricData(MSONable):
     def __sub__(self, other):
         return self.linear_add(other, -1.0)
 
+    def copy(self):
+        """
+        :return: Copy of Volumetric object
+        """
+        return VolumetricData(
+            self.structure,
+            {k: v.copy() for k, v in self.data.items()},
+            distance_matrix=self._distance_matrix,
+            data_aug=self.data_aug
+        )
+
     def linear_add(self, other, scale_factor=1.0):
         """
         Method to do a linear sum of volumetric objects. Used by + and -
@@ -2936,9 +2947,12 @@ class VolumetricData(MSONable):
             VolumetricData corresponding to self + scale_factor * other.
         """
         if self.structure != other.structure:
-            raise ValueError("Adding or subtraction operations can only be "
-                             "performed for volumetric data with the exact "
-                             "same structure.")
+            warnings.warn("Structures are different. Make sure you know what "
+                          "you are doing...")
+        if self.data.keys() != other.data.keys():
+            raise ValueError("Data have different keys! Maybe one is spin-"
+                             "polarized and the other is not?")
+
         # To add checks
         data = {}
         for k in self.data.keys():
@@ -3247,7 +3261,7 @@ class VolumetricData(MSONable):
         with h5py.File(filename, "r") as f:
             data = {k: np.array(v) for k, v in f["vdata"].items()}
             structure = Structure.from_dict(json.loads(f.attrs["structure_json"]))
-            return VolumetricData(structure, data)
+            return cls(structure=structure, data=data)
 
 
 class Locpot(VolumetricData):
@@ -3710,7 +3724,7 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None,
                 branches.append(run.get_band_structure(efermi=efermi))
             else:
                 # It might be better to throw an exception
-                warnings.warn("Skipping {}. Unable to find {}".format(d=dir_name, f=xml_file))
+                warnings.warn("Skipping {}. Unable to find {}".format(dir_name, xml_file))
 
         return get_reconstructed_band_structure(branches, efermi)
     else:
@@ -4483,6 +4497,126 @@ class Wavecar:
 
         self.ng = temp_ng
         return Chgcar(poscar, data)
+
+
+class Eigenval:
+    """
+    Object for reading EIGENVAL file.
+
+    .. attribute:: filename
+
+        string containing input filename
+
+    .. attribute:: occu_tol
+
+        tolerance for determining occupation in band properties
+
+    .. attribute:: ispin
+
+        spin polarization tag (int)
+
+    .. attribute:: nelect
+
+        number of electrons
+
+    .. attribute:: nkpt
+
+        number of kpoints
+
+    .. attribute:: nbands
+
+        number of bands
+
+    .. attribute:: kpoints
+
+        list of kpoints
+
+    .. attribute:: kpoints_weights
+
+        weights of each kpoint in the BZ, should sum to 1.
+
+    .. attribute:: eigenvalues
+
+        Eigenvalues as a dict of {(spin): np.ndarray(shape=(nkpt, nbands, 2))}.
+        This representation is based on actual ordering in VASP and is meant as
+        an intermediate representation to be converted into proper objects. The
+        kpoint index is 0-based (unlike the 1-based indexing in VASP).
+    """
+
+    def __init__(self, filename, occu_tol=1e-8):
+        """
+        Reads input from filename to construct Eigenval object
+
+        Args:
+            filename (str):     filename of EIGENVAL to read in
+            occu_tol (float):   tolerance for determining band gap
+
+        Returns:
+            a pymatgen.io.vasp.outputs.Eigenval object
+        """
+
+        self.filename = filename
+        self.occu_tol = occu_tol
+
+        with zopen(filename, 'r') as f:
+            self.ispin = int(f.readline().split()[-1])
+
+            # useless header information
+            for _ in range(4):
+                f.readline()
+
+            self.nelect, self.nkpt, self.nbands = \
+                list(map(int, f.readline().split()))
+
+            self.kpoints = []
+            self.kpoints_weights = []
+            if self.ispin == 2:
+                self.eigenvalues = \
+                    {Spin.up: np.zeros((self.nkpt, self.nbands, 2)),
+                     Spin.down: np.zeros((self.nkpt, self.nbands, 2))}
+            else:
+                self.eigenvalues = \
+                    {Spin.up: np.zeros((self.nkpt, self.nbands, 2))}
+
+            ikpt = -1
+            for line in f:
+                if re.search(r'(\s+[\-+0-9eE.]+){4}', str(line)):
+                    ikpt += 1
+                    kpt = list(map(float, line.split()))
+                    self.kpoints.append(kpt[:-1])
+                    self.kpoints_weights.append(kpt[-1])
+                    for i in range(self.nbands):
+                        sl = list(map(float, f.readline().split()))
+                        if len(sl) == 3:
+                            self.eigenvalues[Spin.up][ikpt, i, 0] = sl[1]
+                            self.eigenvalues[Spin.up][ikpt, i, 1] = sl[2]
+                        elif len(sl) == 5:
+                            self.eigenvalues[Spin.up][ikpt, i, 0] = sl[1]
+                            self.eigenvalues[Spin.up][ikpt, i, 1] = sl[3]
+                            self.eigenvalues[Spin.down][ikpt, i, 0] = sl[2]
+                            self.eigenvalues[Spin.down][ikpt, i, 1] = sl[4]
+
+    @property
+    def eigenvalue_band_properties(self):
+        """
+        Band properties from the eigenvalues as a tuple,
+        (band gap, cbm, vbm, is_band_gap_direct).
+        """
+
+        vbm = -float("inf")
+        vbm_kpoint = None
+        cbm = float("inf")
+        cbm_kpoint = None
+        for spin, d in self.eigenvalues.items():
+            for k, val in enumerate(d):
+                for (eigenval, occu) in val:
+                    if occu > self.occu_tol and eigenval > vbm:
+                        vbm = eigenval
+                        vbm_kpoint = k
+                    elif occu <= self.occu_tol and eigenval < cbm:
+                        cbm = eigenval
+                        cbm_kpoint = k
+        return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
 
 
 class Wavederf:

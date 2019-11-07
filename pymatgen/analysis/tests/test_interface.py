@@ -112,10 +112,10 @@ class InterfaceTest(PymatgenTest):
     def test_copy(self):
         interface = self.ib.interfaces[0]
         copy = interface.copy()
-        for attr in ['lattice', 'cart_coords', 'sub_plane', 'film_plane', \
-                     'modified_film_structure', 'modified_sub_structure', \
-                     'strained_film_structure', 'strained_sub_structure', \
-                     'sub_init_cell', 'film_init_cell', 'site_properties', \
+        for attr in ['lattice', 'cart_coords', 'sub_plane', 'film_plane',
+                     'modified_film_structure', 'modified_sub_structure',
+                     'strained_film_structure', 'strained_sub_structure',
+                     'sub_init_cell', 'film_init_cell', 'site_properties',
                      'offset_vector', 'ab_shift', 'z_shift', 'vacuum_thickness']:
             if type(copy.__getattribute__(attr)) == np.ndarray:
                 self.assertArrayAlmostEqual(copy.__getattribute__(attr), interface.__getattribute__(attr))
@@ -126,10 +126,10 @@ class InterfaceTest(PymatgenTest):
         interface = self.ib.interfaces[0]
         interface_dict = interface.as_dict()
         interface_from_dict = Interface.from_dict(interface_dict)
-        for attr in ['lattice', 'cart_coords', 'sub_plane', 'film_plane', \
-                     'modified_film_structure', 'modified_sub_structure', \
-                     'strained_film_structure', 'strained_sub_structure', \
-                     'sub_init_cell', 'film_init_cell', 'site_properties', \
+        for attr in ['lattice', 'cart_coords', 'sub_plane', 'film_plane',
+                     'modified_film_structure', 'modified_sub_structure',
+                     'strained_film_structure', 'strained_sub_structure',
+                     'sub_init_cell', 'film_init_cell', 'site_properties',
                      'offset_vector', 'ab_shift', 'z_shift', 'vacuum_thickness']:
             if type(interface_from_dict.__getattribute__(attr)) == np.ndarray:
                 self.assertArrayAlmostEqual(interface_from_dict.__getattribute__(attr),
@@ -143,10 +143,10 @@ class InterfaceTest(PymatgenTest):
         interface.ab_shift = [0.5, 0.5]
         interface_dict = interface.as_dict()
         interface_from_dict = Interface.from_dict(interface_dict)
-        for attr in ['lattice', 'cart_coords', 'sub_plane', 'film_plane', \
-                     'modified_film_structure', 'modified_sub_structure', \
-                     'strained_film_structure', 'strained_sub_structure', \
-                     'sub_init_cell', 'film_init_cell', 'site_properties', \
+        for attr in ['lattice', 'cart_coords', 'sub_plane', 'film_plane',
+                     'modified_film_structure', 'modified_sub_structure',
+                     'strained_film_structure', 'strained_sub_structure',
+                     'sub_init_cell', 'film_init_cell', 'site_properties',
                      'offset_vector', 'ab_shift', 'z_shift', 'vacuum_thickness']:
             if type(interface_from_dict.__getattribute__(attr)) == np.ndarray:
                 self.assertArrayAlmostEqual(interface_from_dict.__getattribute__(attr),

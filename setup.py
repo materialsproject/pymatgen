@@ -30,6 +30,17 @@ extra_link_args = []
 if sys.platform.startswith('win') and platform.machine().endswith('64'):
     extra_link_args.append('-Wl,--allow-multiple-definition')
 
+cpp_extra_link_args = extra_link_args
+cpp_extra_compile_args = ["-Wno-cpp", "-Wno-unused-function", "-O2", "-march=native", '-std=c++11']
+if sys.platform.startswith('darwin'):
+    cpp_extra_compile_args.append("-stdlib=libc++")
+    cpp_extra_link_args = ["-O2", "-march=native", '-stdlib=libc++']
+
+# https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options-listed-alphabetically?view=vs-2017
+if sys.platform.startswith('win'):
+    cpp_extra_compile_args = ['/w', '/O2', '/std:c++14']
+    cpp_extra_link_args = extra_link_args
+
 long_desc = """
 Official docs: [http://pymatgen.org](http://pymatgen.org/)
 
@@ -90,19 +101,19 @@ who require Python 2.7 should install pymatgen v2018.x.
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2019.9.16",
+    version="2019.10.16",
     cmdclass={'build_ext': build_ext},
     setup_requires=['numpy>=1.14.3', 'setuptools>=18.0'],
     python_requires='>=3.6',
     install_requires=["numpy>=1.14.3", "requests", "ruamel.yaml>=0.15.6",
-                      "monty>=2.0.6", "scipy>=1.0.1", "pydispatcher>=2.0.5",
+                      "monty>=3.0.2", "scipy>=1.0.1", "pydispatcher>=2.0.5",
                       "tabulate", "spglib>=1.9.9.44", "networkx>=2.2",
                       "matplotlib>=1.5", "palettable>=3.1.1", "sympy", "pandas"],
     extras_require={
         "provenance": ["pybtex"],
         "ase": ["ase>=3.3"],
         "vis": ["vtk>=6.0.0"],
-        "abinit": ["apscheduler", "netcdf4"],
+        "abinit": ["netcdf4"],
         ':python_version < "3.7"': [
             "dataclasses>=0.6",
         ]},
@@ -162,7 +173,12 @@ setup(
                            extra_link_args=extra_link_args),
                  Extension("pymatgen.util.coord_cython",
                            ["pymatgen/util/coord_cython.c"],
-                           extra_link_args=extra_link_args)],
+                           extra_link_args=extra_link_args),
+                 Extension("pymatgen.optimization.neighbors",
+                           ["pymatgen/optimization/neighbors.cpp"],
+                           extra_compile_args=cpp_extra_compile_args,
+                           extra_link_args=cpp_extra_link_args,
+                           language='c++')],
     entry_points={
           'console_scripts': [
               'pmg = pymatgen.cli.pmg:main',

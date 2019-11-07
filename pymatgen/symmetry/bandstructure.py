@@ -2,6 +2,11 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Created on March 25, 2013
+
+@author: geoffroy
+"""
 
 import numpy as np
 import warnings
@@ -12,12 +17,6 @@ from math import tan
 from math import pi
 from warnings import warn
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-
-"""
-Created on March 25, 2013
-
-@author: geoffroy
-"""
 
 
 class HighSymmKpath:
@@ -36,17 +35,18 @@ class HighSymmKpath:
     get_primitive_standard_structure(international_monoclinic=False)).
     A warning will signal possible compatibility problems
     with the given structure.
-
-    Args:
-        structure (Structure): Structure object
-        symprec (float): Tolerance for symmetry finding
-        angle_tolerance (float): Angle tolerance for symmetry finding.
-        atol (float): Absolute tolerance used to compare the input
-            structure with the one expected as primitive standard.
-            A warning will be issued if the lattices don't match.
     """
 
     def __init__(self, structure, symprec=0.01, angle_tolerance=5, atol=1e-8):
+        """
+        Args:
+            structure (Structure): Structure object
+            symprec (float): Tolerance for symmetry finding
+            angle_tolerance (float): Angle tolerance for symmetry finding.
+            atol (float): Absolute tolerance used to compare the input
+                structure with the one expected as primitive standard.
+                A warning will be issued if the lattices don't match.
+        """
         self._structure = structure
         self._sym = SpacegroupAnalyzer(structure, symprec=symprec,
                                        angle_tolerance=angle_tolerance)
@@ -117,7 +117,7 @@ class HighSymmKpath:
             self._kpath = self.hex()
 
         elif lattice_type == "rhombohedral":
-            alpha = self._prim.lattice.lengths_and_angles[1][0]
+            alpha = self._prim.lattice.angles[0]
             if alpha < 90:
                 self._kpath = self.rhl1(alpha * pi / 180)
             else:
@@ -125,14 +125,13 @@ class HighSymmKpath:
 
         elif lattice_type == "monoclinic":
             a, b, c = self._conv.lattice.abc
-            alpha = self._conv.lattice.lengths_and_angles[1][0]
-            # beta = self._conv.lattice.lengths_and_angles[1][1]
+            alpha = self._conv.lattice.angles[0]
 
             if "P" in spg_symbol:
                 self._kpath = self.mcl(b, c, alpha * pi / 180)
 
             elif "C" in spg_symbol:
-                kgamma = self._prim_rec.lengths_and_angles[1][2]
+                kgamma = self._prim_rec.angles[2]
                 if kgamma > 90:
                     self._kpath = self.mclc1(a, b, c, alpha * pi / 180)
                 if kgamma == 90:
@@ -151,9 +150,9 @@ class HighSymmKpath:
                 warn("Unexpected value for spg_symbol: %s" % spg_symbol)
 
         elif lattice_type == "triclinic":
-            kalpha = self._prim_rec.lengths_and_angles[1][0]
-            kbeta = self._prim_rec.lengths_and_angles[1][1]
-            kgamma = self._prim_rec.lengths_and_angles[1][2]
+            kalpha = self._prim_rec.angles[0]
+            kbeta = self._prim_rec.angles[1]
+            kgamma = self._prim_rec.angles[2]
             if kalpha > 90 and kbeta > 90 and kgamma > 90:
                 self._kpath = self.tria()
             if kalpha < 90 and kbeta < 90 and kgamma < 90:
@@ -237,6 +236,11 @@ class HighSymmKpath:
             return frac_k_points, sym_point_labels
 
     def cubic(self):
+        """
+        Cubic HighSymmKPath
+
+        :return: Dict
+        """
         self.name = "CUB"
         kpoints = {'\\Gamma': np.array([0.0, 0.0, 0.0]),
                    'X': np.array([0.0, 0.5, 0.0]),
@@ -246,6 +250,11 @@ class HighSymmKpath:
         return {'kpoints': kpoints, 'path': path}
 
     def fcc(self):
+        """
+        Fcc HighSymmKPath
+
+        :return: Dict
+        """
         self.name = "FCC"
         kpoints = {'\\Gamma': np.array([0.0, 0.0, 0.0]),
                    'K': np.array([3.0 / 8.0, 3.0 / 8.0, 3.0 / 4.0]),
@@ -258,6 +267,11 @@ class HighSymmKpath:
         return {'kpoints': kpoints, 'path': path}
 
     def bcc(self):
+        """
+        Bcc HighSymmKPath
+
+        :return: Dict
+        """
         self.name = "BCC"
         kpoints = {'\\Gamma': np.array([0.0, 0.0, 0.0]),
                    'H': np.array([0.5, -0.5, 0.5]),
@@ -267,6 +281,11 @@ class HighSymmKpath:
         return {'kpoints': kpoints, 'path': path}
 
     def tet(self):
+        """
+        Tetragonal HighSymmKPath
+
+        :return: Dict
+        """
         self.name = "TET"
         kpoints = {'\\Gamma': np.array([0.0, 0.0, 0.0]),
                    'A': np.array([0.5, 0.5, 0.5]),
@@ -279,6 +298,11 @@ class HighSymmKpath:
         return {'kpoints': kpoints, 'path': path}
 
     def bctet1(self, c, a):
+        """
+        BCT1 HighSymmKPath
+
+        :return: Dict
+        """
         self.name = "BCT1"
         eta = (1 + c ** 2 / a ** 2) / 4.0
         kpoints = {'\\Gamma': np.array([0.0, 0.0, 0.0]),
@@ -293,6 +317,11 @@ class HighSymmKpath:
         return {'kpoints': kpoints, 'path': path}
 
     def bctet2(self, c, a):
+        """
+        BCT2 HighSymmKPath
+
+        :return: Dict
+        """
         self.name = "BCT2"
         eta = (1 + a ** 2 / c ** 2) / 4.0
         zeta = a ** 2 / (2 * c ** 2)
@@ -310,6 +339,11 @@ class HighSymmKpath:
         return {'kpoints': kpoints, 'path': path}
 
     def orc(self):
+        """
+        Orthorhombic HighSymmKPath
+
+        :return: Dict
+        """
         self.name = "ORC"
         kpoints = {'\\Gamma': np.array([0.0, 0.0, 0.0]),
                    'R': np.array([0.5, 0.5, 0.5]),
@@ -324,6 +358,11 @@ class HighSymmKpath:
         return {'kpoints': kpoints, 'path': path}
 
     def orcf1(self, a, b, c):
+        """
+        Orthorhombic f1 HighSymmKPath
+
+        :return: Dict
+        """
         self.name = "ORCF1"
         zeta = (1 + a ** 2 / b ** 2 - a ** 2 / c ** 2) / 4
         eta = (1 + a ** 2 / b ** 2 + a ** 2 / c ** 2) / 4
@@ -342,6 +381,11 @@ class HighSymmKpath:
         return {'kpoints': kpoints, 'path': path}
 
     def orcf2(self, a, b, c):
+        """
+        Orthorhombic f2 HighSymmKPath
+
+        :return: Dict
+        """
         self.name = "ORCF2"
         phi = (1 + c ** 2 / b ** 2 - c ** 2 / a ** 2) / 4
         eta = (1 + a ** 2 / b ** 2 - a ** 2 / c ** 2) / 4
@@ -363,6 +407,11 @@ class HighSymmKpath:
         return {'kpoints': kpoints, 'path': path}
 
     def orcf3(self, a, b, c):
+        """
+        Orthorhombic f3 HighSymmKPath
+
+        :return: Dict
+        """
         self.name = "ORCF3"
         zeta = (1 + a ** 2 / b ** 2 - a ** 2 / c ** 2) / 4
         eta = (1 + a ** 2 / b ** 2 + a ** 2 / c ** 2) / 4
@@ -380,6 +429,11 @@ class HighSymmKpath:
         return {'kpoints': kpoints, 'path': path}
 
     def orci(self, a, b, c):
+        """
+        Orthorhombic I HighSymmKPath
+
+        :return: Dict
+        """
         self.name = "ORCI"
         zeta = (1 + a ** 2 / c ** 2) / 4
         eta = (1 + b ** 2 / c ** 2) / 4
@@ -403,6 +457,11 @@ class HighSymmKpath:
         return {'kpoints': kpoints, 'path': path}
 
     def orcc(self, a, b, c):
+        """
+        Orthorhombic C HighSymmKPath
+
+        :return: Dict
+        """
         self.name = "ORCC"
         zeta = (1 + a ** 2 / b ** 2) / 4
         kpoints = {'\\Gamma': np.array([0.0, 0.0, 0.0]),
@@ -420,6 +479,11 @@ class HighSymmKpath:
         return {'kpoints': kpoints, 'path': path}
 
     def hex(self):
+        """
+        Hexagonal HighSymmKPath
+
+        :return: Dict
+        """
         self.name = "HEX"
         kpoints = {'\\Gamma': np.array([0.0, 0.0, 0.0]),
                    'A': np.array([0.0, 0.0, 0.5]),
@@ -432,6 +496,11 @@ class HighSymmKpath:
         return {'kpoints': kpoints, 'path': path}
 
     def rhl1(self, alpha):
+        """
+        Rhombohedral 1 HighSymmKPath
+
+        :return: Dict
+        """
         self.name = "RHL1"
         eta = (1 + 4 * cos(alpha)) / (2 + 4 * cos(alpha))
         nu = 3.0 / 4.0 - eta / 2.0
@@ -452,6 +521,11 @@ class HighSymmKpath:
         return {'kpoints': kpoints, 'path': path}
 
     def rhl2(self, alpha):
+        """
+        Rhombohedral 2 HighSymmKPath
+
+        :return: Dict
+        """
         self.name = "RHL2"
         eta = 1 / (2 * tan(alpha / 2.0) ** 2)
         nu = 3.0 / 4.0 - eta / 2.0
@@ -468,6 +542,11 @@ class HighSymmKpath:
         return {'kpoints': kpoints, 'path': path}
 
     def mcl(self, b, c, beta):
+        """
+        Monoclinic 1 HighSymmKPath
+
+        :return: Dict
+        """
         self.name = "MCL"
         eta = (1 - b * cos(beta) / c) / (2 * sin(beta) ** 2)
         nu = 0.5 - eta * c * cos(beta) / b
@@ -492,6 +571,11 @@ class HighSymmKpath:
         return {'kpoints': kpoints, 'path': path}
 
     def mclc1(self, a, b, c, alpha):
+        """
+        Monoclinic C1 HighSymmKPath
+
+        :return: Dict
+        """
         self.name = "MCLC1"
         zeta = (2 - b * cos(alpha) / c) / (4 * sin(alpha) ** 2)
         eta = 0.5 + 2 * zeta * c * cos(alpha) / b
@@ -519,6 +603,11 @@ class HighSymmKpath:
         return {'kpoints': kpoints, 'path': path}
 
     def mclc2(self, a, b, c, alpha):
+        """
+        Monoclinic C2 HighSymmKPath
+
+        :return: Dict
+        """
         self.name = "MCLC2"
         zeta = (2 - b * cos(alpha) / c) / (4 * sin(alpha) ** 2)
         eta = 0.5 + 2 * zeta * c * cos(alpha) / b
@@ -546,6 +635,11 @@ class HighSymmKpath:
         return {'kpoints': kpoints, 'path': path}
 
     def mclc3(self, a, b, c, alpha):
+        """
+        Monoclinic C3 HighSymmKPath
+
+        :return: Dict
+        """
         self.name = "MCLC3"
         mu = (1 + b ** 2 / a ** 2) / 4.0
         delta = b * c * cos(alpha) / (2 * a ** 2)
@@ -575,6 +669,11 @@ class HighSymmKpath:
         return {'kpoints': kpoints, 'path': path}
 
     def mclc4(self, a, b, c, alpha):
+        """
+        Monoclinic C4 HighSymmKPath
+
+        :return: Dict
+        """
         self.name = "MCLC4"
         mu = (1 + b ** 2 / a ** 2) / 4.0
         delta = b * c * cos(alpha) / (2 * a ** 2)
@@ -604,6 +703,11 @@ class HighSymmKpath:
         return {'kpoints': kpoints, 'path': path}
 
     def mclc5(self, a, b, c, alpha):
+        """
+        Monoclinic C5 HighSymmKPath
+
+        :return: Dict
+        """
         self.name = "MCLC5"
         zeta = (b ** 2 / a ** 2 + (1 - b * cos(alpha) / c)
                 / sin(alpha) ** 2) / 4
@@ -637,6 +741,11 @@ class HighSymmKpath:
         return {'kpoints': kpoints, 'path': path}
 
     def tria(self):
+        """
+        Trigonal a HighSymmKPath
+
+        :return: Dict
+        """
         self.name = "TRI1a"
         kpoints = {'\\Gamma': np.array([0.0, 0.0, 0.0]),
                    'L': np.array([0.5, 0.5, 0.0]),
@@ -651,6 +760,11 @@ class HighSymmKpath:
         return {'kpoints': kpoints, 'path': path}
 
     def trib(self):
+        """
+        Trigonal b HighSymmKPath
+
+        :return: Dict
+        """
         self.name = "TRI1b"
         kpoints = {'\\Gamma': np.array([0.0, 0.0, 0.0]),
                    'L': np.array([0.5, -0.5, 0.0]),

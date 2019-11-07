@@ -68,6 +68,7 @@ def as_ncreader(file):
 
 
 def as_etsfreader(file):
+    """Return an ETSF_Reader. Accepts filename or ETSF_Reader."""
     return _asreader(file, ETSF_Reader)
 
 
@@ -100,11 +101,11 @@ class NetcdfReader:
 
         self.ngroups = len(list(self.walk_tree()))
 
-        # self.path2group = OrderedDict()
-        # for children in self.walk_tree():
-        #   for child in children:
-        #       #print(child.group,  child.path)
-        #       self.path2group[child.path] = child.group
+        # Always return non-masked numpy arrays.
+        # Slicing a ncvar returns a MaskedArrray and this is really annoying
+        # because it can lead to unexpected behaviour in e.g. calls to np.matmul!
+        # See also https://github.com/Unidata/netcdf4-python/issues/785
+        self.rootgrp.set_auto_mask(False)
 
     def __enter__(self):
         """Activated when used in the with statement."""
@@ -115,6 +116,7 @@ class NetcdfReader:
         self.rootgrp.close()
 
     def close(self):
+        """Close the file."""
         try:
             self.rootgrp.close()
         except Exception as exc:
@@ -135,6 +137,7 @@ class NetcdfReader:
                 yield children
 
     def print_tree(self):
+        """Print all the groups in the file."""
         for children in self.walk_tree():
             for child in children:
                 print(child)
@@ -305,7 +308,7 @@ class ETSF_Reader(NetcdfReader):
                 raise ValueError("Cannot find `%s` in `%s`" % (ncname, self.path))
             # Convert scalars to (well) scalars.
             if hasattr(d[hvar.name], "shape") and not d[hvar.name].shape:
-                d[hvar.name] = np.asscalar(d[hvar.name])
+                d[hvar.name] = np.asarray(d[hvar.name]).item()
             if hvar.name in ("title", "md5_pseudos", "codvsn"):
                 # Convert array of numpy bytes to list of strings
                 if hvar.name == "codvsn":

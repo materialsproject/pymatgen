@@ -9,8 +9,10 @@ import unittest
 from monty.serialization import loadfn, dumpfn
 from pymatgen.io.qchem.outputs import QCOutput
 from pymatgen.util.testing import PymatgenTest
+
 try:
     import openbabel
+
     have_babel = True
 except ImportError:
     have_babel = False

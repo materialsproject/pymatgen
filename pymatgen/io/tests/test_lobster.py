@@ -187,7 +187,6 @@ class CohpcarTest(PymatgenTest):
         self.assertIsNone(self.orb_notot.cohp_data["1"]["ICOHP"])
         for orbs in self.orb.orb_res_cohp["1"]:
             orb_set = self.orb.orb_res_cohp["1"][orbs]["orbitals"]
-            # print(orb_set[0][0])
             self.assertEqual(orb_set[0][0], 4)
             self.assertEqual(orb_set[1][0], 4)
             self.assertIn(tuple((orb_set[0][1], orb_set[1][1])), orbitals)
@@ -490,6 +489,8 @@ class DoscarTest(unittest.TestCase):
 class ChargeTest(PymatgenTest):
     def setUp(self):
         self.charge2 = Charge(filename=os.path.join(test_dir, "CHARGE.lobster.MnO"))
+        # gzipped file
+        self.charge = Charge(filename=os.path.join(test_dir, "CHARGE.lobster.MnO2.gz"))
 
     def testattributes(self):
         charge_Loewdin = [-1.25, 1.25]
@@ -528,6 +529,8 @@ class LobsteroutTest(PymatgenTest):
     def setUp(self):
         warnings.simplefilter("ignore")
         self.lobsterout_normal = Lobsterout(filename=os.path.join(test_dir, "lobsterout.normal"))
+        # make sure .gz files are also read correctly
+        self.lobsterout_normal = Lobsterout(filename=os.path.join(test_dir, "lobsterout.normal2.gz"))
         self.lobsterout_fatband_grosspop_densityofenergies = Lobsterout(
             filename=os.path.join(test_dir, "lobsterout.fatband_grosspop_densityofenergy"))
         self.lobsterout_saveprojection = Lobsterout(filename=os.path.join(test_dir, "lobsterout.saveprojection"))
@@ -793,8 +796,9 @@ class LobsteroutTest(PymatgenTest):
     def test_get_doc(self):
         comparedict = {'restart_from_projection': False, 'lobster_version': 'v3.1.0', 'threads': 8,
                        'Dftprogram': 'VASP', 'chargespilling': [0.0268], 'totalspilling': [0.044000000000000004],
-                       'elements': ['Ti'], 'basistype': ['pbeVaspFit2015'], 'basisfunctions': [
-                ['3s', '4s', '3p_y', '3p_z', '3p_x', '3d_xy', '3d_yz', '3d_z^2', '3d_xz', '3d_x^2-y^2']],
+                       'elements': ['Ti'], 'basistype': ['pbeVaspFit2015'],
+                       'basisfunctions': [[
+                           '3s', '4s', '3p_y', '3p_z', '3p_x', '3d_xy', '3d_yz', '3d_z^2', '3d_xz', '3d_x^2-y^2']],
                        'timing': {'walltime': {'h': '0', 'min': '0', 's': '2', 'ms': '702'},
                                   'usertime': {'h': '0', 'min': '0', 's': '20', 'ms': '330'},
                                   'sys_time': {'h': '0', 'min': '0', 's': '0', 'ms': '310'}},
@@ -802,8 +806,9 @@ class LobsteroutTest(PymatgenTest):
                                     'Generally, this is not a critical error. But to help you analyze it,',
                                     'I dumped the band overlap matrices to the file bandOverlaps.lobster.',
                                     'Please check how much they deviate from the identity matrix and decide to',
-                                    'use your results only, if you are sure that this is ok.'], 'orthonormalization': [
-                '3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.'],
+                                    'use your results only, if you are sure that this is ok.'],
+                       'orthonormalization': [
+                           '3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.'],
                        'infos': ['There are more PAW bands than local basis functions available.',
                                  'To prevent trouble in orthonormalization and Hamiltonian reconstruction',
                                  'the PAW bands from 21 and upwards will be ignored.'], 'hasDOSCAR': True,
@@ -811,15 +816,15 @@ class LobsteroutTest(PymatgenTest):
                        'hasbandoverlaps': True, 'hasfatband': False, 'hasGrossPopuliation': False,
                        'hasDensityOfEnergies': False}
         for key, item in self.lobsterout_normal.get_doc().items():
-            if type(item) == type(''):
+            if isinstance(item, str):
                 self.assertTrue(comparedict[key], item)
-            elif type(item) == type(0):
+            elif isinstance(item, int):
                 self.assertEqual(comparedict[key], item)
-            elif key == 'chargespilling' or key == 'totalspilling':
+            elif key in ('chargespilling', 'totalspilling'):
                 self.assertAlmostEqual(item[0], comparedict[key][0])
-            elif type(item) == type(['']):
+            elif isinstance(item, list):
                 self.assertListEqual(item, comparedict[key])
-            elif type(item) == type({}):
+            elif isinstance(item, dict):
                 self.assertDictEqual(item, comparedict[key])
 
 
@@ -1003,12 +1008,14 @@ class FatbandTest(PymatgenTest):
         self.assertAlmostEqual(bs_p.kpoints[50].cart_coords[2], self.bs_symmline2.kpoints[50].cart_coords[2])
         self.assertAlmostEqual(bs_p.get_band_gap()["energy"], self.bs_symmline2.get_band_gap()["energy"], places=2)
         self.assertAlmostEqual(bs_p.get_projection_on_elements()[Spin.up][0][0]["Si0+"], 3 * (0.001 + 0.064))
-        self.assertAlmostEqual(bs_p.get_projections_on_elements_and_orbitals({"Si0+": ["3p"]})[Spin.up][0][0]["Si0+"]["3p"],
-                               0.003)
-        self.assertAlmostEqual(bs_p.get_projections_on_elements_and_orbitals({"O0+": ["2p"]})[Spin.up][0][0]["O0+"]["2p"],
-                               0.002 * 3 + 0.003 * 3)
-        dict_here = bs_p.get_projections_on_elements_and_orbitals({"Si0+": ["3s", "3p"], "O0+": ["2s", "2p"]})[Spin.up][0][
-            0]
+        self.assertAlmostEqual(
+            bs_p.get_projections_on_elements_and_orbitals({"Si0+": ["3p"]})[Spin.up][0][0]["Si0+"]["3p"],
+            0.003)
+        self.assertAlmostEqual(
+            bs_p.get_projections_on_elements_and_orbitals({"O0+": ["2p"]})[Spin.up][0][0]["O0+"]["2p"],
+            0.002 * 3 + 0.003 * 3)
+        dict_here = bs_p.get_projections_on_elements_and_orbitals({
+            "Si0+": ["3s", "3p"], "O0+": ["2s", "2p"]})[Spin.up][0][0]
         self.assertAlmostEqual(dict_here["Si0+"]["3s"], 0.192)
         self.assertAlmostEqual(dict_here["Si0+"]["3p"], 0.003)
         self.assertAlmostEqual(dict_here["O0+"]["2s"], 0.792)
@@ -1037,7 +1044,8 @@ class FatbandTest(PymatgenTest):
             bs_spin.get_projections_on_elements_and_orbitals({"O0+": ["2p"]})[Spin.down][0][0]["O0+"]["2p"],
             0.002 * 3 + 0.003 * 3)
         dict_here = \
-            bs_spin.get_projections_on_elements_and_orbitals({"Si0+": ["3s", "3p"], "O0+": ["2s", "2p"]})[Spin.down][0][0]
+            bs_spin.get_projections_on_elements_and_orbitals({"Si0+": ["3s", "3p"], "O0+": ["2s", "2p"]})[Spin.down][0][
+                0]
         self.assertAlmostEqual(dict_here["Si0+"]["3s"], 0.192)
         self.assertAlmostEqual(dict_here["Si0+"]["3p"], 0.003)
         self.assertAlmostEqual(dict_here["O0+"]["2s"], 0.792)
@@ -1052,6 +1060,7 @@ class LobsterinTest(unittest.TestCase):
         self.Lobsterinfromfile = Lobsterin.from_file(os.path.join(test_dir, "lobsterin.1"))
         self.Lobsterinfromfile2 = Lobsterin.from_file(os.path.join(test_dir, "lobsterin.2"))
         self.Lobsterinfromfile3 = Lobsterin.from_file(os.path.join(test_dir, "lobsterin.3"))
+        self.Lobsterinfromfile4 = Lobsterin.from_file(os.path.join(test_dir, "lobsterin.4.gz"))
 
     def test_from_file(self):
         # test read from file
@@ -1308,6 +1317,50 @@ class LobsterinTest(unittest.TestCase):
             self.assertAlmostEqual(list_kpoint[2], kpoint2.kpts[num_kpt][2])
 
         self.assertEqual(kpoint.num_kpts, 108)
+
+        #
+        # #without line mode, using a certain grid, isym=0 instead of -1
+        lobsterin1.write_KPOINTS(POSCAR_input=os.path.join(test_dir, "POSCAR.Li"), KPOINTS_output=outfile_path,
+                                 line_mode=False,
+                                 from_grid=True, input_grid=[3, 3, 3], isym=0)
+
+        kpoint1 = Kpoints.from_file(outfile_path)
+        kpoint2 = Kpoints.from_file(os.path.join(test_dir, "IBZKPT_3_3_3_Li"))
+        for ikpoint, kpoint in enumerate(kpoint1.kpts):
+            self.assertTrue(
+                self.is_kpoint_in_list(kpoint, kpoint2.kpts, kpoint1.kpts_weights[ikpoint], kpoint2.kpts_weights))
+        for ikpoint, kpoint in enumerate(kpoint2.kpts):
+            self.assertTrue(
+                self.is_kpoint_in_list(kpoint, kpoint1.kpts, kpoint2.kpts_weights[ikpoint], kpoint1.kpts_weights))
+
+        lobsterin1.write_KPOINTS(POSCAR_input=os.path.join(test_dir, "POSCAR.Li"), KPOINTS_output=outfile_path,
+                                 line_mode=False,
+                                 from_grid=True, input_grid=[2, 2, 2], isym=0)
+
+        kpoint1 = Kpoints.from_file(outfile_path)
+        kpoint2 = Kpoints.from_file(os.path.join(test_dir, "IBZKPT_2_2_2_Li"))
+        for ikpoint, kpoint in enumerate(kpoint1.kpts):
+            self.assertTrue(
+                self.is_kpoint_in_list(kpoint, kpoint2.kpts, kpoint1.kpts_weights[ikpoint], kpoint2.kpts_weights))
+        for ikpoint, kpoint in enumerate(kpoint2.kpts):
+            self.assertTrue(
+                self.is_kpoint_in_list(kpoint, kpoint1.kpts, kpoint2.kpts_weights[ikpoint], kpoint1.kpts_weights))
+
+    def is_kpoint_in_list(self, kpoint, kpointlist, weight, weightlist):
+        found = 0
+        for ikpoint2, kpoint2 in enumerate(kpointlist):
+            if np.isclose(kpoint[0], kpoint2[0]) and np.isclose(kpoint[1], kpoint2[1]) and np.isclose(kpoint[2],
+                                                                                                      kpoint2[2]):
+                if weight == weightlist[ikpoint2]:
+                    found += 1
+            elif np.isclose(-kpoint[0], kpoint2[0]) and np.isclose(-kpoint[1], kpoint2[1]) and np.isclose(-kpoint[2],
+                                                                                                          kpoint2[2]):
+                if weight == weightlist[ikpoint2]:
+                    found += 1
+        if found == 1:
+            return True
+        else:
+            return False
 
     def test_MSONable_implementation(self):
         # tests as dict and from dict methods

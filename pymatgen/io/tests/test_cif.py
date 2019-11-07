@@ -14,6 +14,7 @@ from pymatgen import Element, Specie, Lattice, Structure, Composition, DummySpec
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.electronic_structure.core import Magmom
+
 try:
     import pybtex
 except ImportError:
@@ -308,7 +309,6 @@ loop_
             self.assertIn("Structure has implicit hydrogens defined, "
                           "parsed structure unlikely to be suitable for use "
                           "in calculations unless hydrogens added.", parser.warnings)
-
 
     def test_CifParserSpringerPauling(self):
         with warnings.catch_warnings():
@@ -614,7 +614,7 @@ loop_
         lattice = Lattice(np.array([[3.8401979337, 0.00, 0.00],
                                     [1.9200989668, 3.3257101909, 0.00],
                                     [0.00, -2.2171384943, 3.1355090603]]))
-        struct = Structure(lattice, [si, {si:0.5, n:0.5}], coords)
+        struct = Structure(lattice, [si, {si: 0.5, n: 0.5}], coords)
         writer = CifWriter(struct)
         ans = """# generated using pymatgen
 data_Si1.5N0.5
@@ -661,7 +661,7 @@ N  N2  1  0.750000  0.500000  0.750000  0.5
         lattice = Lattice(np.array([[3.8401979337, 0.00, 0.00],
                                     [1.9200989668, 3.3257101909, 0.00],
                                     [0.00, -2.2171384943, 3.1355090603]]))
-        struct = Structure(lattice, [n, {si3:0.5, n:0.5}, si4], coords)
+        struct = Structure(lattice, [n, {si3: 0.5, n: 0.5}, si4], coords)
         writer = CifWriter(struct)
         ans = """# generated using pymatgen
 data_X1.5Si1.5
@@ -727,7 +727,7 @@ loop_
     def test_no_coords_or_species(self):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            string=  """#generated using pymatgen
+            string = """#generated using pymatgen
     data_Si1.5N1.5
     _symmetry_space_group_name_H-M   'P 1'
     _cell_length_a   3.84019793
@@ -944,6 +944,7 @@ Si1 Si 0 0 0 1 0.0
         parser = CifParser.from_string(cif)
         self.assertEqual(p.get_structures()[0].formula, "Si1")
 
+
 class MagCifTest(PymatgenTest):
 
     def setUp(self):
@@ -968,7 +969,6 @@ class MagCifTest(PymatgenTest):
         self.assertFalse(self.mcif_disord.feature_flags["magcif_incommensurate"])
 
     def test_get_structures(self):
-
         # incommensurate structures not currently supported
         self.assertRaises(NotImplementedError, self.mcif_incom.get_structures)
 
@@ -1020,7 +1020,6 @@ Gd1 5.05 5.05 0.0"""
         self.assertTrue(s_ncl.matches(s_ncl_from_msg))
 
     def test_write(self):
-
         cw_ref_string = """# generated using pymatgen
 data_GdB4
 _symmetry_space_group_name_H-M   'P 1'
@@ -1162,7 +1161,7 @@ loop_
         self.assertAlmostEqual(list_magmoms[1][1], 2.9580396704363183)
 
         # test creating an structure without oxidation state doesn't raise errors
-        s_manual = Structure(Lattice.cubic(4.2), ["Cs", "Cl"],[[0, 0, 0], [0.5, 0.5, 0.5]])
+        s_manual = Structure(Lattice.cubic(4.2), ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
         s_manual.add_spin_by_site([1, -1])
         cw = CifWriter(s_manual, write_magmoms=True)
 
@@ -1206,13 +1205,12 @@ loop_
  _atom_site_moment_crystalaxis_y
  _atom_site_moment_crystalaxis_z
 """
-        s_manual.add_oxidation_state_by_site([1,1])
+        s_manual.add_oxidation_state_by_site([1, 1])
         cw = CifWriter(s_manual, write_magmoms=True)
         self.assertEqual(cw.__str__(), cw_manual_oxi_string)
 
     @unittest.skipIf(pybtex is None, "pybtex not present")
     def test_bibtex(self):
-
         ref_bibtex_string = """@article{cif-reference-0,
     author = "Blanco, J.A.",
     journal = "PHYSICAL REVIEW B",

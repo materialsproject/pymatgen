@@ -32,17 +32,6 @@ from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.io import atat
 
-"""
-Created on Jul 24, 2012
-"""
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Jul 24, 2012"
-
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
@@ -330,10 +319,10 @@ class MagOrderingTransformationTest(PymatgenTest):
         alls = trans.apply_transformation(self.NiO.get_primitive_structure(),
                                           return_ranked_list=10)
 
-        self.assertArrayAlmostEqual(self.NiO_AFM_111.lattice.lengths_and_angles,
-                                    alls[0]["structure"].lattice.lengths_and_angles)
-        self.assertArrayAlmostEqual(self.NiO_AFM_001.lattice.lengths_and_angles,
-                                    alls[1]["structure"].lattice.lengths_and_angles)
+        self.assertArrayAlmostEqual(self.NiO_AFM_111.lattice.parameters,
+                                    alls[0]["structure"].lattice.parameters)
+        self.assertArrayAlmostEqual(self.NiO_AFM_001.lattice.parameters,
+                                    alls[1]["structure"].lattice.parameters)
 
     def test_ferrimagnetic(self):
         trans = MagOrderingTransformation({"Fe": 5}, order_parameter=0.75,

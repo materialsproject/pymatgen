@@ -267,7 +267,7 @@ class ReactionTest(unittest.TestCase):
                      Composition("Cl")]
         products = [Composition("LiCl")]
         self.assertRaisesRegex(ReactionError, "underdetermined", Reaction,
-                              reactants, products)
+                               reactants, products)
 
         reactants = [Composition("LiMnCl3"),
                      Composition("LiCl"),

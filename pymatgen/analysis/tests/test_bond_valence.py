@@ -3,21 +3,6 @@
 # Distributed under the terms of the MIT License.
 
 
-'''
-Created on Oct 24, 2012
-
-@author: shyue
-'''
-
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Production"
-__date__ = "Oct 24, 2012"
-
 import unittest
 import os
 
@@ -83,5 +68,5 @@ class BondValenceSumTest(PymatgenTest):
 
 
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
+    # import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

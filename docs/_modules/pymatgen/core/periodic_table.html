@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.periodic_table &#8212; pymatgen 2019.9.16 documentation</title>
+    <title>pymatgen.core.periodic_table &#8212; pymatgen 2019.10.16 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -54,25 +53,20 @@
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">io</span> <span class="k">import</span> <span class="nb">open</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="k">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Callable</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">product</span><span class="p">,</span> \
+    <span class="n">combinations</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">Counter</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
 <span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="k">import</span> <span class="n">Mass</span><span class="p">,</span> <span class="n">Length</span><span class="p">,</span> <span class="n">FloatWithUnit</span><span class="p">,</span> <span class="n">Unit</span><span class="p">,</span> \
     <span class="n">SUPPORTED_UNIT_NAMES</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.string</span> <span class="k">import</span> <span class="n">formula_double_format</span>
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
-<span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">product</span><span class="p">,</span> <span class="n">combinations</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">Counter</span>
-
-<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong, Michael Kocher&quot;</span>
-<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2011, The Materials Project&quot;</span>
-<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;2.0&quot;</span>
-<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
-<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyuep@gmail.com&quot;</span>
-<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Production&quot;</span>
-<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Sep 23, 2011&quot;</span>
 
 <span class="c1"># Loads element data from json file</span>
 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;periodic_table.json&quot;</span><span class="p">),</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -470,12 +464,11 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="s2">&quot;X&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;No electronegativity for </span><span class="si">%s</span><span class="s2">. Setting to NaN. &quot;</span>
-                          <span class="s2">&quot;This has no physical meaning, and is mainly done to &quot;</span>
-                          <span class="s2">&quot;avoid errors caused by the code expecting a float.&quot;</span>
-                          <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">)</span>
-            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;NaN&quot;</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;No electronegativity for </span><span class="si">%s</span><span class="s2">. Setting to NaN. &quot;</span>
+                      <span class="s2">&quot;This has no physical meaning, and is mainly done to &quot;</span>
+                      <span class="s2">&quot;avoid errors caused by the code expecting a float.&quot;</span>
+                      <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;NaN&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">atomic_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -509,7 +502,7 @@
             <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">kstr</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;no data&quot;</span><span class="p">):</span>
                 <span class="n">val</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
                 <span class="k">pass</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
@@ -602,8 +595,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="s2">&quot;Ionic radii&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="n">FloatWithUnit</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="s2">&quot;ang&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s2">&quot;Ionic radii&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">{}</span>
+        <span class="k">return</span> <span class="p">{}</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -777,8 +769,7 @@
         <span class="n">L</span><span class="p">,</span> <span class="n">v_e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">valence</span>
         <span class="k">if</span> <span class="n">v_e</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">L</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">J_sorted_terms</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">J_sorted_terms</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">J_sorted_terms</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Element</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">Z</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">Z</span>
@@ -805,10 +796,10 @@
         <span class="n">x2</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">other</span><span class="o">.</span><span class="n">X</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">X</span> <span class="k">else</span> <span class="n">other</span><span class="o">.</span><span class="n">X</span>
         <span class="k">if</span> <span class="n">x1</span> <span class="o">!=</span> <span class="n">x2</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">x1</span> <span class="o">&lt;</span> <span class="n">x2</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># There are cases where the electronegativity are exactly equal.</span>
-            <span class="c1"># We then sort by symbol.</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">symbol</span>
+
+        <span class="c1"># There are cases where the electronegativity are exactly equal.</span>
+        <span class="c1"># We then sort by symbol.</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">symbol</span>
 
 <div class="viewcode-block" id="Element.from_Z"><a class="viewcode-back" href="../../../pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element.from_Z">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_Z</span><span class="p">(</span><span class="n">z</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
@@ -856,11 +847,7 @@
 <span class="sd">            True if symbol is a valid element (e.g., &quot;H&quot;). False otherwise</span>
 <span class="sd">            (e.g., &quot;Zebra&quot;).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">Element</span><span class="p">(</span><span class="n">symbol</span><span class="p">)</span>
-            <span class="k">return</span> <span class="kc">True</span>
-        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">False</span></div>
+        <span class="k">return</span> <span class="n">symbol</span> <span class="ow">in</span> <span class="n">Element</span><span class="o">.</span><span class="n">__members__</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">row</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -871,11 +858,10 @@
         <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">if</span> <span class="mi">57</span> <span class="o">&lt;=</span> <span class="n">z</span> <span class="o">&lt;=</span> <span class="mi">71</span><span class="p">:</span>
             <span class="k">return</span> <span class="mi">8</span>
-        <span class="k">elif</span> <span class="mi">89</span> <span class="o">&lt;=</span> <span class="n">z</span> <span class="o">&lt;=</span> <span class="mi">103</span><span class="p">:</span>
+        <span class="k">if</span> <span class="mi">89</span> <span class="o">&lt;=</span> <span class="n">z</span> <span class="o">&lt;=</span> <span class="mi">103</span><span class="p">:</span>
             <span class="k">return</span> <span class="mi">9</span>
-
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">_pt_row_sizes</span><span class="p">)):</span>
-            <span class="n">total</span> <span class="o">+=</span> <span class="n">_pt_row_sizes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">size</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">_pt_row_sizes</span><span class="p">):</span>
+            <span class="n">total</span> <span class="o">+=</span> <span class="n">size</span>
             <span class="k">if</span> <span class="n">total</span> <span class="o">&gt;=</span> <span class="n">z</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="mi">8</span>
@@ -893,23 +879,20 @@
         <span class="k">if</span> <span class="mi">3</span> <span class="o">&lt;=</span> <span class="n">z</span> <span class="o">&lt;=</span> <span class="mi">18</span><span class="p">:</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">z</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">%</span> <span class="mi">8</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">return</span> <span class="mi">18</span>
-            <span class="k">elif</span> <span class="p">(</span><span class="n">z</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">%</span> <span class="mi">8</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">z</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">%</span> <span class="mi">8</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
                 <span class="k">return</span> <span class="p">(</span><span class="n">z</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">%</span> <span class="mi">8</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="mi">10</span> <span class="o">+</span> <span class="p">(</span><span class="n">z</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">%</span> <span class="mi">8</span>
+            <span class="k">return</span> <span class="mi">10</span> <span class="o">+</span> <span class="p">(</span><span class="n">z</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">%</span> <span class="mi">8</span>
 
         <span class="k">if</span> <span class="mi">19</span> <span class="o">&lt;=</span> <span class="n">z</span> <span class="o">&lt;=</span> <span class="mi">54</span><span class="p">:</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">z</span> <span class="o">-</span> <span class="mi">18</span><span class="p">)</span> <span class="o">%</span> <span class="mi">18</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">return</span> <span class="mi">18</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="p">(</span><span class="n">z</span> <span class="o">-</span> <span class="mi">18</span><span class="p">)</span> <span class="o">%</span> <span class="mi">18</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">z</span> <span class="o">-</span> <span class="mi">18</span><span class="p">)</span> <span class="o">%</span> <span class="mi">18</span>
 
         <span class="k">if</span> <span class="p">(</span><span class="n">z</span> <span class="o">-</span> <span class="mi">54</span><span class="p">)</span> <span class="o">%</span> <span class="mi">32</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="mi">18</span>
-        <span class="k">elif</span> <span class="p">(</span><span class="n">z</span> <span class="o">-</span> <span class="mi">54</span><span class="p">)</span> <span class="o">%</span> <span class="mi">32</span> <span class="o">&gt;=</span> <span class="mi">18</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">z</span> <span class="o">-</span> <span class="mi">54</span><span class="p">)</span> <span class="o">%</span> <span class="mi">32</span> <span class="o">&gt;=</span> <span class="mi">18</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">(</span><span class="n">z</span> <span class="o">-</span> <span class="mi">54</span><span class="p">)</span> <span class="o">%</span> <span class="mi">32</span> <span class="o">-</span> <span class="mi">14</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">(</span><span class="n">z</span> <span class="o">-</span> <span class="mi">54</span><span class="p">)</span> <span class="o">%</span> <span class="mi">32</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">z</span> <span class="o">-</span> <span class="mi">54</span><span class="p">)</span> <span class="o">%</span> <span class="mi">32</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">block</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -918,13 +901,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">is_actinoid</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_lanthanoid</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">Z</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">71</span><span class="p">,</span> <span class="mi">103</span><span class="p">]:</span>
             <span class="k">return</span> <span class="s2">&quot;f&quot;</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_actinoid</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_lanthanoid</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_actinoid</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_lanthanoid</span><span class="p">:</span>
             <span class="k">return</span> <span class="s2">&quot;d&quot;</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]:</span>
             <span class="k">return</span> <span class="s2">&quot;s&quot;</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">19</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">19</span><span class="p">):</span>
             <span class="k">return</span> <span class="s2">&quot;p&quot;</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">13</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">13</span><span class="p">):</span>
             <span class="k">return</span> <span class="s2">&quot;d&quot;</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;unable to determine block&quot;</span><span class="p">)</span>
 
@@ -1173,19 +1156,18 @@
         <span class="n">x2</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">other</span><span class="o">.</span><span class="n">X</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">X</span> <span class="k">else</span> <span class="n">other</span><span class="o">.</span><span class="n">X</span>
         <span class="k">if</span> <span class="n">x1</span> <span class="o">!=</span> <span class="n">x2</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">x1</span> <span class="o">&lt;</span> <span class="n">x2</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">symbol</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">symbol</span><span class="p">:</span>
             <span class="c1"># There are cases where the electronegativity are exactly equal.</span>
             <span class="c1"># We then sort by symbol.</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">symbol</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">oxi_state</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">oxi_state</span><span class="p">:</span>
             <span class="n">other_oxi</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Element</span><span class="p">)</span>
                               <span class="ow">or</span> <span class="n">other</span><span class="o">.</span><span class="n">oxi_state</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="n">other</span><span class="o">.</span><span class="n">oxi_state</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">oxi_state</span> <span class="o">&lt;</span> <span class="n">other_oxi</span>
-        <span class="k">elif</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;spin&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;spin&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
             <span class="n">other_spin</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="s2">&quot;spin&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin</span> <span class="o">&lt;</span> <span class="n">other_spin</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">False</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">element</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1208,7 +1190,7 @@
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;No default ionic radius for </span><span class="si">%s</span><span class="s2">. Using hs data.&quot;</span> <span class="o">%</span>
                           <span class="bp">self</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;Ionic radii hs&quot;</span><span class="p">][</span><span class="n">oxstr</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="n">oxstr</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Ionic radii ls&quot;</span><span class="p">,</span> <span class="p">{}):</span>
+        <span class="k">if</span> <span class="n">oxstr</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Ionic radii ls&quot;</span><span class="p">,</span> <span class="p">{}):</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;No default ionic radius for </span><span class="si">%s</span><span class="s2">. Using ls data.&quot;</span> <span class="o">%</span>
                           <span class="bp">self</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;Ionic radii ls&quot;</span><span class="p">][</span><span class="n">oxstr</span><span class="p">]</span>
@@ -1247,8 +1229,7 @@
                 <span class="n">toks</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span>
                 <span class="n">properties</span> <span class="o">=</span> <span class="p">{</span><span class="n">toks</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="nb">float</span><span class="p">(</span><span class="n">toks</span><span class="p">[</span><span class="mi">1</span><span class="p">])}</span>
             <span class="k">return</span> <span class="n">Specie</span><span class="p">(</span><span class="n">sym</span><span class="p">,</span> <span class="n">oxi</span><span class="p">,</span> <span class="n">properties</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid Species String&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid Species String&quot;</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;Specie &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
@@ -1276,18 +1257,18 @@
 
         <span class="n">quad_mom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_el</span><span class="o">.</span><span class="n">nmr_quadrupole_moment</span>
 
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">quad_mom</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">quad_mom</span><span class="p">:</span>
             <span class="k">return</span> <span class="mf">0.0</span>
 
         <span class="k">if</span> <span class="n">isotope</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">isotopes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">quad_mom</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
             <span class="n">isotopes</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">quad_mom</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">isotopes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">isotope</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">quad_mom</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No quadrupole moment for isotope </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                    <span class="n">isotope</span><span class="p">))</span>
-            <span class="k">return</span> <span class="n">quad_mom</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">isotope</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span></div>
+
+        <span class="k">if</span> <span class="n">isotope</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">quad_mom</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No quadrupole moment for isotope </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">isotope</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">quad_mom</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">isotope</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Specie.get_shannon_radius"><a class="viewcode-back" href="../../../pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie.get_shannon_radius">[docs]</a>    <span class="k">def</span> <span class="nf">get_shannon_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cn</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">spin</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
                            <span class="n">radius_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ionic&quot;</span><span class="p">):</span>
@@ -1339,8 +1320,7 @@
 <span class="sd">            an invalid oxidation state.</span>
 <span class="sd">            ValueError if invalid coordination or spin_config.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">coordination</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;oct&quot;</span><span class="p">,</span> <span class="s2">&quot;tet&quot;</span><span class="p">)</span> <span class="ow">or</span> \
-                <span class="n">spin_config</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;high&quot;</span><span class="p">,</span> <span class="s2">&quot;low&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">coordination</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;oct&quot;</span><span class="p">,</span> <span class="s2">&quot;tet&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">spin_config</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;high&quot;</span><span class="p">,</span> <span class="s2">&quot;low&quot;</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid coordination or spin config.&quot;</span><span class="p">)</span>
         <span class="n">elec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_electronic_structure</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">elec</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">4</span> <span class="ow">or</span> <span class="n">elec</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;s&quot;</span> <span class="ow">or</span> <span class="n">elec</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;d&quot;</span><span class="p">:</span>
@@ -1351,26 +1331,27 @@
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
                 <span class="s2">&quot;Invalid oxidation state </span><span class="si">{}</span><span class="s2"> for element </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">oxi_state</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">spin_config</span> <span class="o">==</span> <span class="s2">&quot;high&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">nelectrons</span> <span class="k">if</span> <span class="n">nelectrons</span> <span class="o">&lt;=</span> <span class="mi">5</span> <span class="k">else</span> <span class="mi">10</span> <span class="o">-</span> <span class="n">nelectrons</span>
-        <span class="k">elif</span> <span class="n">spin_config</span> <span class="o">==</span> <span class="s2">&quot;low&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">nelectrons</span> <span class="o">&lt;=</span> <span class="mi">5</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">nelectrons</span>
+            <span class="k">return</span> <span class="mi">10</span> <span class="o">-</span> <span class="n">nelectrons</span>
+        <span class="k">if</span> <span class="n">spin_config</span> <span class="o">==</span> <span class="s2">&quot;low&quot;</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">coordination</span> <span class="o">==</span> <span class="s2">&quot;oct&quot;</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">nelectrons</span> <span class="o">&lt;=</span> <span class="mi">3</span><span class="p">:</span>
                     <span class="k">return</span> <span class="n">nelectrons</span>
-                <span class="k">elif</span> <span class="n">nelectrons</span> <span class="o">&lt;=</span> <span class="mi">6</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">nelectrons</span> <span class="o">&lt;=</span> <span class="mi">6</span><span class="p">:</span>
                     <span class="k">return</span> <span class="mi">6</span> <span class="o">-</span> <span class="n">nelectrons</span>
-                <span class="k">elif</span> <span class="n">nelectrons</span> <span class="o">&lt;=</span> <span class="mi">8</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">nelectrons</span> <span class="o">&lt;=</span> <span class="mi">8</span><span class="p">:</span>
                     <span class="k">return</span> <span class="n">nelectrons</span> <span class="o">-</span> <span class="mi">6</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="mi">10</span> <span class="o">-</span> <span class="n">nelectrons</span>
-            <span class="k">elif</span> <span class="n">coordination</span> <span class="o">==</span> <span class="s2">&quot;tet&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="mi">10</span> <span class="o">-</span> <span class="n">nelectrons</span>
+            <span class="k">if</span> <span class="n">coordination</span> <span class="o">==</span> <span class="s2">&quot;tet&quot;</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">nelectrons</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
                     <span class="k">return</span> <span class="n">nelectrons</span>
-                <span class="k">elif</span> <span class="n">nelectrons</span> <span class="o">&lt;=</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">nelectrons</span> <span class="o">&lt;=</span> <span class="mi">4</span><span class="p">:</span>
                     <span class="k">return</span> <span class="mi">4</span> <span class="o">-</span> <span class="n">nelectrons</span>
-                <span class="k">elif</span> <span class="n">nelectrons</span> <span class="o">&lt;=</span> <span class="mi">7</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">nelectrons</span> <span class="o">&lt;=</span> <span class="mi">7</span><span class="p">:</span>
                     <span class="k">return</span> <span class="n">nelectrons</span> <span class="o">-</span> <span class="mi">4</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="mi">10</span> <span class="o">-</span> <span class="n">nelectrons</span></div>
+                <span class="k">return</span> <span class="mi">10</span> <span class="o">-</span> <span class="n">nelectrons</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">()</span></div>
 
     <span class="k">def</span> <span class="nf">__deepcopy__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">memo</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">Specie</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">oxi_state</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_properties</span><span class="p">)</span>
@@ -1467,8 +1448,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">DummySpecie</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">False</span>
-        <span class="k">return</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Specie</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">symbol</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">oxi_state</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">oxi_state</span>
-                <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_properties</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_properties</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Specie</span><span class="p">)</span> <span class="ow">and</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">symbol</span> <span class="ow">and</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">oxi_state</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">oxi_state</span> <span class="ow">and</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_properties</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_properties</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
@@ -1480,13 +1463,12 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">X</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">X</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">symbol</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">symbol</span><span class="p">:</span>
             <span class="c1"># There are cases where the electronegativity are exactly equal.</span>
             <span class="c1"># We then sort by symbol.</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">symbol</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">other_oxi</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Element</span><span class="p">)</span> <span class="k">else</span> <span class="n">other</span><span class="o">.</span><span class="n">oxi_state</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">oxi_state</span> <span class="o">&lt;</span> <span class="n">other_oxi</span>
+        <span class="n">other_oxi</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Element</span><span class="p">)</span> <span class="k">else</span> <span class="n">other</span><span class="o">.</span><span class="n">oxi_state</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">oxi_state</span> <span class="o">&lt;</span> <span class="n">other_oxi</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">Z</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -1667,7 +1649,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.9.16 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.16 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1675,7 +1657,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -415,7 +415,6 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         self.assertEqual(len(entries), 2)
 
     def test_msonable(self):
-
         compat_dict = self.compat.as_dict()
         decoder = MontyDecoder()
         temp_compat = decoder.process_decoded(compat_dict)
@@ -706,7 +705,6 @@ class MITCompatibilityTest(unittest.TestCase):
                 ],
             },
         )
-
         compat = MITCompatibility()
         self.assertEqual(len(compat.process_entries([entry, entry2])), 2)
         self.assertEqual(len(self.compat.process_entries([entry, entry2])), 1)
@@ -731,7 +729,6 @@ class MITCompatibilityTest(unittest.TestCase):
         self.assertRaises(ValueError, self.compat.process_entry, entry)
 
     def test_potcar_doenst_match_structure(self):
-
         compat = MITCompatibility()
         entry = ComputedEntry(
             "Li2O3",
@@ -748,7 +745,6 @@ class MITCompatibilityTest(unittest.TestCase):
         self.assertIsNone(compat.process_entry(entry))
 
     def test_potcar_spec_is_none(self):
-
         compat = MITCompatibility(check_potcar_hash=True)
         entry = ComputedEntry(
             "Li2O3",
@@ -790,7 +786,6 @@ class MITCompatibilityTest(unittest.TestCase):
         self.assertEqual("MITRelaxSet Potcar Correction", d["corrections"][0]["name"])
 
     def test_msonable(self):
-
         compat_dict = self.compat.as_dict()
         decoder = MontyDecoder()
         temp_compat = decoder.process_decoded(compat_dict)
@@ -1379,7 +1374,6 @@ class TestMITAqueousCompatibility(unittest.TestCase):
         self.aqcorr = AqueousCorrection(fp)
 
     def test_aqueous_compat(self):
-
         el_li = Element("Li")
         el_o = Element("O")
         el_h = Element("H")
@@ -1463,7 +1457,6 @@ class TestMITAqueousCompatibility(unittest.TestCase):
         self.assertIsNone(compat.process_entry(lioh_entry))
 
     def test_msonable(self):
-
         compat_dict = self.aqcompat.as_dict()
         decoder = MontyDecoder()
         temp_compat = decoder.process_decoded(compat_dict)

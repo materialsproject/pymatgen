@@ -10,21 +10,9 @@ import warnings
 from pymatgen.ext.cod import COD
 
 
-"""
-Created on Jun 9, 2012
-"""
-
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Jun 9, 2012"
-
-
 class CODTest(unittest.TestCase):
     _multiprocess_shared_ = True
+
     def setUp(self):
         warnings.simplefilter("ignore")
 

@@ -11,24 +11,11 @@ import numpy as np
 import csv
 import scipy.constants as const
 
-from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer,\
+from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer, \
     get_conversion_factor, fit_arrhenius
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
 from monty.tempfile import ScratchDir
-
-"""
-TODO: Change the module doc.
-"""
-
-
-__author__ = "shyuepingong"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Beta"
-__date__ = "5/2/13"
-
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -49,7 +36,7 @@ class FuncTest(unittest.TestCase):
         k = const.k / const.e
         c = 12
         temps = np.array([300, 1000, 500])
-        diffusivities = c * np.exp(-Ea/(k * temps))
+        diffusivities = c * np.exp(-Ea / (k * temps))
         diffusivities *= np.array([1.00601834013,
                                    1.00803236262,
                                    0.98609720824])
@@ -78,7 +65,7 @@ class DiffusionAnalyzerTest(PymatgenTest):
             # large tolerance because scipy constants changed between 0.16.1 and 0.17
             self.assertAlmostEqual(d.conductivity, 74.165372613735684, 4)
             self.assertAlmostEqual(d.chg_conductivity, 232.827958801, 4)
-            self.assertAlmostEqual(d.diffusivity,  1.16083658794e-06, 7)
+            self.assertAlmostEqual(d.diffusivity, 1.16083658794e-06, 7)
             self.assertAlmostEqual(d.chg_diffusivity, 3.64565578208e-06, 7)
             self.assertAlmostEqual(d.conductivity_std_dev, 0.0097244677795984488, 7)
             self.assertAlmostEqual(d.diffusivity_std_dev, 9.1013023085561779e-09, 7)
@@ -86,17 +73,17 @@ class DiffusionAnalyzerTest(PymatgenTest):
             self.assertAlmostEqual(d.haven_ratio, 0.31854161048867402, 7)
             self.assertArrayAlmostEqual(
                 d.conductivity_components,
-                [45.7903694,   26.1651956,  150.5406140], 3)
+                [45.7903694, 26.1651956, 150.5406140], 3)
             self.assertArrayAlmostEqual(
                 d.diffusivity_components,
                 [7.49601236e-07, 4.90254273e-07, 2.24649255e-06])
             self.assertArrayAlmostEqual(
                 d.conductivity_components_std_dev,
-                [0.0063566,  0.0180854,  0.0217918]
+                [0.0063566, 0.0180854, 0.0217918]
             )
             self.assertArrayAlmostEqual(
                 d.diffusivity_components_std_dev,
-                [8.9465670e-09,   2.4931224e-08,   2.2636384e-08]
+                [8.9465670e-09, 2.4931224e-08, 2.2636384e-08]
             )
             self.assertArrayAlmostEqual(
                 d.mscd[0:4],
@@ -140,7 +127,7 @@ class DiffusionAnalyzerTest(PymatgenTest):
             d = DiffusionAnalyzer.from_dict(d.as_dict())
             self.assertIsInstance(d, DiffusionAnalyzer)
 
-            #Ensure summary dict is json serializable.
+            # Ensure summary dict is json serializable.
             json.dumps(d.get_summary_dict(include_msd_t=True))
 
             d = DiffusionAnalyzer(d.structure, d.disp, d.specie, d.temperature,
@@ -200,7 +187,7 @@ class DiffusionAnalyzerTest(PymatgenTest):
             # large tolerance because scipy constants changed between 0.16.1 and 0.17
             self.assertAlmostEqual(d.conductivity, 499.15058192970508, 4)
             self.assertAlmostEqual(d.chg_conductivity, 1219.59633107, 4)
-            self.assertAlmostEqual(d.diffusivity,  8.40265434771e-06, 7)
+            self.assertAlmostEqual(d.diffusivity, 8.40265434771e-06, 7)
             self.assertAlmostEqual(d.chg_diffusivity, 2.05305709033e-05, 6)
             self.assertAlmostEqual(d.conductivity_std_dev, 0.10368477696021029, 7)
             self.assertAlmostEqual(d.diffusivity_std_dev, 9.1013023085561779e-09, 7)
@@ -208,17 +195,17 @@ class DiffusionAnalyzerTest(PymatgenTest):
             self.assertAlmostEqual(d.haven_ratio, 0.409275240679, 7)
             self.assertArrayAlmostEqual(
                 d.conductivity_components,
-                [455.178101,   602.252644,  440.0210014], 3)
+                [455.178101, 602.252644, 440.0210014], 3)
             self.assertArrayAlmostEqual(
                 d.diffusivity_components,
                 [7.66242570e-06, 1.01382648e-05, 7.40727250e-06])
             self.assertArrayAlmostEqual(
                 d.conductivity_components_std_dev,
-                [0.1196577,  0.0973347,  0.1525400]
+                [0.1196577, 0.0973347, 0.1525400]
             )
             self.assertArrayAlmostEqual(
                 d.diffusivity_components_std_dev,
-                [2.0143072e-09,   1.6385239e-09,   2.5678445e-09]
+                [2.0143072e-09, 1.6385239e-09, 2.5678445e-09]
             )
 
             self.assertArrayAlmostEqual(
@@ -317,11 +304,11 @@ class DiffusionAnalyzerTest(PymatgenTest):
             self.assertArrayAlmostEqual(data[:, -1], d.mscd)
             os.remove("test.csv")
 
-    def test_from_structure_NPT( self ):
+    def test_from_structure_NPT(self):
         from pymatgen import Structure, Lattice
-        coords1 = np.array([[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]] )
-        coords2 = np.array([[0.0, 0.0, 0.0], [0.6, 0.6, 0.6]] )
-        coords3 = np.array([[0.0, 0.0, 0.0], [0.7, 0.7, 0.7]] )
+        coords1 = np.array([[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]])
+        coords2 = np.array([[0.0, 0.0, 0.0], [0.6, 0.6, 0.6]])
+        coords3 = np.array([[0.0, 0.0, 0.0], [0.7, 0.7, 0.7]])
         lattice1 = Lattice.from_parameters(a=2.0, b=2.0, c=2.0, alpha=90, beta=90, gamma=90)
         lattice2 = Lattice.from_parameters(a=2.1, b=2.1, c=2.1, alpha=90, beta=90, gamma=90)
         lattice3 = Lattice.from_parameters(a=2.0, b=2.0, c=2.0, alpha=90, beta=90, gamma=90)
@@ -329,10 +316,12 @@ class DiffusionAnalyzerTest(PymatgenTest):
         s2 = Structure(coords=coords2, lattice=lattice2, species=['F', 'Li'])
         s3 = Structure(coords=coords3, lattice=lattice3, species=['F', 'Li'])
         structures = [s1, s2, s3]
-        d = DiffusionAnalyzer.from_structures( structures, specie='Li', temperature=500.0, time_step=2.0, step_skip=1, smoothed=None )    
-        self.assertArrayAlmostEqual(d.disp[1], np.array([[0.,    0.,    0.  ],
-                                                         [0.21,  0.21,  0.21],
-                                                         [0.40,  0.40,  0.40]]))
+        d = DiffusionAnalyzer.from_structures(structures, specie='Li', temperature=500.0, time_step=2.0, step_skip=1,
+                                              smoothed=None)
+        self.assertArrayAlmostEqual(d.disp[1], np.array([[0., 0., 0.],
+                                                         [0.21, 0.21, 0.21],
+                                                         [0.40, 0.40, 0.40]]))
+
 
 if __name__ == '__main__':
     unittest.main()

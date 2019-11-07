@@ -26,6 +26,7 @@ from pymatgen.util.coord import pbc_shortest_vectors
 from pymatgen.util.num import abs_cap
 from pymatgen.util.typing import Vector3Like
 
+
 __author__ = "Shyue Ping Ong, Michael Kocher"
 __copyright__ = "Copyright 2011, The Materials Project"
 __maintainer__ = "Shyue Ping Ong"
@@ -116,7 +117,7 @@ class Lattice(MSONable):
         elif fmt_spec.endswith("p"):
             fmt = "{{{}, {}, {}, {}, {}, {}}}"
             fmt_spec = fmt_spec[:-1]
-            m = self.lengths_and_angles
+            m = (self.lengths, self.angles)
         else:
             fmt = "{} {} {}\n{} {} {}\n{} {} {}"
         return fmt.format(*[format(c, fmt_spec) for row in m for c in row])
@@ -189,7 +190,7 @@ class Lattice(MSONable):
         Returns:
             Lattice coordinates.
         """
-        return self.lengths_and_angles[0] * self.get_fractional_coords(cart_coords)
+        return self.lengths * self.get_fractional_coords(cart_coords)
 
     def d_hkl(self, miller_index: Vector3Like) -> float:
         """
@@ -295,6 +296,7 @@ class Lattice(MSONable):
         return Lattice.from_parameters(a, a, a, alpha, alpha, alpha)
 
     @staticmethod
+    @deprecated(message="Use Lattice.from_parameters instead. This will be removed in v2020.*")
     def from_lengths_and_angles(abc: Sequence[float], ang: Sequence[float]):
         """
         Create a Lattice using unit cell lengths and angles (in degrees).
@@ -446,6 +448,14 @@ class Lattice(MSONable):
         return float(abs(dot(np.cross(m[0], m[1]), m[2])))
 
     @property
+    def parameters(self) -> Tuple[float, float, float, float, float, float]:
+        """
+        Returns: (a, b, c, alpha, beta, gamma).
+        """
+        return (*self.lengths, *self.angles)
+
+    @property  # type: ignore
+    @deprecated(message="Use Lattice.parameters instead. This will be removed in v2020.*")
     def lengths_and_angles(self) -> Tuple[Tuple[float, float, float], Tuple[float, float, float]]:
         """
         Returns (lattice lengths, lattice angles).
@@ -544,7 +554,7 @@ class Lattice(MSONable):
             "@class": self.__class__.__name__,
             "matrix": self._matrix.tolist(),
         }
-        (a, b, c), (alpha, beta, gamma) = self.lengths_and_angles
+        a, b, c, alpha, beta, gamma = self.parameters
         if verbosity > 0:
             d.update(
                 {
@@ -594,8 +604,8 @@ class Lattice(MSONable):
 
             None is returned if no matches are found.
         """
-        (lengths, angles) = other_lattice.lengths_and_angles
-        (alpha, beta, gamma) = angles
+        lengths = other_lattice.lengths
+        (alpha, beta, gamma) = other_lattice.angles
 
         frac, dist, _, _ = self.get_points_in_sphere(
             [[0, 0, 0]], [0, 0, 0], max(lengths) * (1 + ltol), zip_results=False
@@ -1084,6 +1094,80 @@ class Lattice(MSONable):
             else:
                 fcoords, dists, inds, image
         """
+        try:
+            from pymatgen.optimization.neighbors import find_points_in_spheres  # type: ignore
+        except ImportError:
+            return self.get_points_in_sphere_py(frac_points=frac_points, center=center, r=r, zip_results=zip_results)
+        else:
+            frac_points = np.ascontiguousarray(frac_points, dtype=float)
+            r = float(r)
+            lattice_matrix = np.array(self.matrix)
+            lattice_matrix = np.ascontiguousarray(lattice_matrix)
+            cart_coords = self.get_cartesian_coords(frac_points)
+            _, indices, images, distances = \
+                find_points_in_spheres(all_coords=cart_coords,
+                                       center_coords=np.ascontiguousarray([center], dtype=float),
+                                       r=r, pbc=np.array([1, 1, 1]), lattice=lattice_matrix, tol=1e-8)
+            if len(indices) < 1:
+                return [] if zip_results else [()] * 4
+            fcoords = frac_points[indices] + images
+            if zip_results:
+                return list(
+                    zip(
+                        fcoords,
+                        distances,
+                        indices,
+                        images,
+                    )
+                )
+            return [
+                fcoords,
+                distances,
+                indices,
+                images,
+            ]
+
+    def get_points_in_sphere_py(
+            self,
+            frac_points: List[Vector3Like],
+            center: Vector3Like,
+            r: float,
+            zip_results=True,
+    ) -> Union[
+        List[Tuple[np.ndarray, float, int, np.ndarray]],
+        List[np.ndarray],
+    ]:
+        """
+        Find all points within a sphere from the point taking into account
+        periodic boundary conditions. This includes sites in other periodic
+        images.
+
+        Algorithm:
+
+        1. place sphere of radius r in crystal and determine minimum supercell
+           (parallelpiped) which would contain a sphere of radius r. for this
+           we need the projection of a_1 on a unit vector perpendicular
+           to a_2 & a_3 (i.e. the unit vector in the direction b_1) to
+           determine how many a_1"s it will take to contain the sphere.
+
+           Nxmax = r * length_of_b_1 / (2 Pi)
+
+        2. keep points falling within r.
+
+        Args:
+            frac_points: All points in the lattice in fractional coordinates.
+            center: Cartesian coordinates of center of sphere.
+            r: radius of sphere.
+            zip_results (bool): Whether to zip the results together to group by
+                 point, or return the raw fcoord, dist, index arrays
+
+        Returns:
+            if zip_results:
+                [(fcoord, dist, index, supercell_image) ...] since most of the time, subsequent
+                processing requires the distance, index number of the atom, or index of the image
+            else:
+                fcoords, dists, inds, image
+        """
         cart_coords = self.get_cartesian_coords(frac_points)
         neighbors = get_points_in_spheres(all_coords=cart_coords, center_coords=np.array([center]), r=r, pbc=True,
                                           numerical_tol=1e-8, lattice=self, return_fcoords=True)[0]
@@ -1228,7 +1312,8 @@ class Lattice(MSONable):
         :param hex_length_tol: Length tolerance
         :return: Whether lattice corresponds to hexagonal lattice.
         """
-        lengths, angles = self.lengths_and_angles
+        lengths = self.lengths
+        angles = self.angles
         right_angles = [i for i in range(3) if abs(angles[i] - 90) < hex_angle_tol]
         hex_angles = [i for i in range(3)
                       if abs(angles[i] - 60) < hex_angle_tol or abs(angles[i] - 120) < hex_angle_tol]
@@ -1425,6 +1510,7 @@ def get_points_in_spheres(all_coords: np.ndarray, center_coords: np.ndarray, r: 
     """
     if isinstance(pbc, bool):
         pbc = [pbc] * 3
+    pbc = np.array(pbc, dtype=bool)
     if return_fcoords and lattice is None:
         raise ValueError("Lattice needs to be supplied to compute fractional coordinates")
     center_coords_min = np.min(center_coords, axis=0)
@@ -1432,8 +1518,7 @@ def get_points_in_spheres(all_coords: np.ndarray, center_coords: np.ndarray, r: 
     # The lower bound of all considered atom coords
     global_min = center_coords_min - r - numerical_tol
     global_max = center_coords_max + r + numerical_tol
-
-    if any(pbc):
+    if np.any(pbc):
         if lattice is None:
             raise ValueError("Lattice needs to be supplied when considering periodic boundary")
         recp_len = np.array(lattice.reciprocal_lattice.abc)
@@ -1447,10 +1532,18 @@ def get_points_in_spheres(all_coords: np.ndarray, center_coords: np.ndarray, r: 
         nmax[pbc] = nmax_temp[pbc]
         all_ranges = [np.arange(x, y, dtype='int64') for x, y in zip(nmin, nmax)]
         matrix = lattice.matrix
-
-        all_fcoords = np.mod(lattice.get_fractional_coords(all_coords), 1)
+        # temporarily hold the fractional coordinates
+        image_offsets = lattice.get_fractional_coords(all_coords)
+        all_fcoords = []
+        # only wrap periodic boundary
+        for k in range(3):
+            if pbc[k]:  # type: ignore
+                all_fcoords.append(np.mod(image_offsets[:, k:k+1], 1))
+            else:
+                all_fcoords.append(image_offsets[:, k:k+1])
+        all_fcoords = np.concatenate(all_fcoords, axis=1)
+        image_offsets = image_offsets - all_fcoords
         coords_in_cell = np.dot(all_fcoords, matrix)
-
         # Filter out those beyond max range
         valid_coords = []
         valid_images = []
@@ -1462,7 +1555,7 @@ def get_points_in_spheres(all_coords: np.ndarray, center_coords: np.ndarray, r: 
             ind = np.arange(len(all_coords))
             if np.any(valid_index_bool):
                 valid_coords.append(coords[valid_index_bool])
-                valid_images.append(np.tile(image, [np.sum(valid_index_bool), 1]))
+                valid_images.append(np.tile(image, [np.sum(valid_index_bool), 1]) - image_offsets[valid_index_bool])
                 valid_indices.extend([k for k in ind if valid_index_bool[k]])
         if len(valid_coords) < 1:
             return [[]] * len(center_coords)
