@@ -204,7 +204,9 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         self.assertIsNotNone(self.compat.process_entry(entry))
 
         # Check actual correction
-        self.assertAlmostEqual(self.compat.process_entry(entry).correction, -0.457*3 + -2.245)
+        self.assertAlmostEqual(
+            self.compat.process_entry(entry).correction, -0.457 * 3 + -2.245
+        )
 
         self.assertAlmostEqual(
             self.compat.process_entry(self.entry_sulfide).correction, -0.633
@@ -510,13 +512,19 @@ class MITCompatibilityTest(unittest.TestCase):
 
         # Check that correction error is nan
         self.assertTrue(
-            isnan(self.compat.process_entry(self.entry_O).data["correction_uncertainty"])
+            isnan(
+                self.compat.process_entry(self.entry_O).data["correction_uncertainty"]
+            )
         )
         self.assertTrue(
-            isnan(self.compat.process_entry(self.entry_F).data["correction_uncertainty"])
+            isnan(
+                self.compat.process_entry(self.entry_F).data["correction_uncertainty"]
+            )
         )
         self.assertTrue(
-            isnan(self.compat.process_entry(self.entry_S).data["correction_uncertainty"])
+            isnan(
+                self.compat.process_entry(self.entry_S).data["correction_uncertainty"]
+            )
         )
 
     def test_U_value(self):
@@ -1588,10 +1596,15 @@ class TestCorrectionErrorsCompatibility(unittest.TestCase):
         )
 
         entry_sulfide_corrected = self.compat.process_entry(self.entry_sulfide)
-        self.assertAlmostEqual(entry_sulfide_corrected.data["correction_uncertainty"], 0.0121)
+        self.assertAlmostEqual(
+            entry_sulfide_corrected.data["correction_uncertainty"], 0.0121
+        )
 
         entry_fluoride_corrected = self.compat.process_entry(self.entry_fluoride)
-        self.assertAlmostEqual(entry_fluoride_corrected.data["correction_uncertainty"], sqrt((3*0.0025)**2 + 0.008**2))
+        self.assertAlmostEqual(
+            entry_fluoride_corrected.data["correction_uncertainty"],
+            sqrt((3 * 0.0025) ** 2 + 0.008 ** 2),
+        )
 
 
 if __name__ == "__main__":
