@@ -204,10 +204,10 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         self.assertIsNotNone(self.compat.process_entry(entry))
 
         # Check actual correction
-        self.assertAlmostEqual(self.compat.process_entry(entry).correction, -2.245)
+        self.assertAlmostEqual(self.compat.process_entry(entry).correction, -0.457*3 + -2.245)
 
         self.assertAlmostEqual(
-            self.compat.process_entry(self.entry_sulfide).correction, -0.631
+            self.compat.process_entry(self.entry_sulfide).correction, -0.633
         )
 
     def test_U_values(self):
@@ -1595,10 +1595,10 @@ class TestCorrectionErrorsCompatibility(unittest.TestCase):
         )
 
         entry_sulfide_corrected = self.compat.process_entry(self.entry_sulfide)
-        self.assertAlmostEqual(entry_sulfide_corrected.data["correction_error"], 0.0122)
+        self.assertAlmostEqual(entry_sulfide_corrected.data["correction_error"], 0.0121)
 
         entry_fluoride_corrected = self.compat.process_entry(self.entry_fluoride)
-        self.assertAlmostEqual(entry_fluoride_corrected.data["correction_error"], 0.008)
+        self.assertAlmostEqual(entry_fluoride_corrected.data["correction_error"], sqrt((3*0.0025)**2 + 0.008**2))
 
 
 if __name__ == "__main__":

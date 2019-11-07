@@ -20,18 +20,18 @@ Advanced:
       Cu: 0.0089
       Mo: 0.0085
 CompositionCorrections:
-  F: 0.0025
-  Cl: 0.0016
-  N: 0.0084
-  H: 0.0015
   oxide: 0.0017
-  peroxide: 0.0187
+  peroxide: 0.0186
   superoxide: 0.0075
   ozonide: 0
-  sulfide: 0.0122
+  sulfide: 0.0121
   Br: 0.0022
   I: 0.0059
   Se: 0.0341
   Si: 0.0243
   Sb: 0.0089
-  Te: 0.0241
+  Te: 0.0239
+  F: 0.0025
+  Cl: 0.0016
+  N: 0.0084
+  H: 0.0013

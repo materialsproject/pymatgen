@@ -8,7 +8,7 @@ Advanced:
       Fe: -2.245
       Co: -1.656
       Ni: -2.734
-      Cu: 0.08
+      Cu: 0.079
       Mo: -3.057
     F:
       V: -1.635
@@ -17,24 +17,24 @@ Advanced:
       Fe: -2.245
       Co: -1.656
       Ni: -2.734
-      Cu: 0.08
+      Cu: 0.079
       Mo: -3.057
 CompositionCorrections:
-  F: -0.457
-  Cl: -0.582
-  N: -0.340
-  H: 1.027
   oxide: -0.731
   peroxide: -0.476
   superoxide: -0.162
   ozonide: 0
-  sulfide: -0.631
+  sulfide: -0.633
   Br: -0.538
   I: -0.384
   Se: -0.473
   Si: 0.243
   Sb: -0.188
-  Te: -0.417
+  Te: -0.418
+  F: -0.457
+  Cl: -0.583
+  N: -0.34
+  H: 0.819
 AqueousCompoundEnergies:
   O2: -0.316731
   N2: -0.295729
