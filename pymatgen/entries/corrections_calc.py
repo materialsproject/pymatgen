@@ -166,20 +166,19 @@ class CorrectionCalculator:
         sigma = np.array(self.exp_uncer)
         sigma[sigma == 0] = np.nan
 
-        w.filterwarnings(
-            "ignore", lineno=169
-        )  # numpy raises warning if the entire array is nan values
-        mean_uncer = np.nanmean(sigma)
+        with w.catch_warnings():
+            w.simplefilter("ignore", category=RuntimeWarning)  # numpy raises warning if the entire array is nan values
+            mean_uncer = np.nanmean(sigma)
 
         sigma = np.where(np.isnan(sigma), mean_uncer, sigma)
 
         if np.isnan(mean_uncer):
             # no uncertainty values for any compounds, don't try to weight
-            popt, pcov = curve_fit(
+            popt, self.pcov = curve_fit(
                 func, self.coeff_mat, self.diffs, p0=np.ones(len(self.species))
             )
         else:
-            popt, pcov = curve_fit(
+            popt, self.pcov = curve_fit(
                 func,
                 self.coeff_mat,
                 self.diffs,
@@ -188,7 +187,7 @@ class CorrectionCalculator:
                 absolute_sigma=True,
             )
         self.corrections = popt.tolist()
-        self.corrections_std_error = np.sqrt(np.diag(pcov)).tolist()
+        self.corrections_std_error = np.sqrt(np.diag(self.pcov)).tolist()
         for i in range(len(self.species)):
             self.corrections_dict[self.species[i]] = (
                 round(self.corrections[i], 3),
