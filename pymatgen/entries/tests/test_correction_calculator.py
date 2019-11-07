@@ -94,8 +94,8 @@ class CorrectionCalculatorTest(unittest.TestCase):
 
     def test_normal_corrections(self):
         """
-		Test that the values in MPCompatiblity.yaml are reproduced correctly.
-		"""
+        Test that the values in MPCompatiblity.yaml are reproduced correctly.
+        """
 
         exp_path = os.path.join(self.test_dir, "exp_compounds_norm.gz")
         calc_path = os.path.join(self.test_dir, "calc_compounds_norm.gz")
@@ -107,8 +107,8 @@ class CorrectionCalculatorTest(unittest.TestCase):
 
     def test_warnings_options(self):
         """
-		Test that compounds can be included/excluded using the allow_{warning} optional parameters.
-		"""
+        Test that compounds can be included/excluded using the allow_{warning} optional parameters.
+        """
 
         exp_path = os.path.join(self.test_dir, "exp_compounds_norm.gz")
         calc_path = os.path.join(self.test_dir, "calc_compounds_norm.gz")
@@ -122,8 +122,8 @@ class CorrectionCalculatorTest(unittest.TestCase):
 
     def test_no_uncertainties(self):
         """
-		Test that corrections can be calculated with no uncertainties.
-		"""
+        Test that corrections can be calculated with no uncertainties.
+        """
 
         exp_path = os.path.join(self.test_dir, "exp_no_error_compounds.gz")
         calc_path = os.path.join(self.test_dir, "calc_compounds_norm.gz")
@@ -135,8 +135,8 @@ class CorrectionCalculatorTest(unittest.TestCase):
 
     def test_missing_entry_response(self):
         """
-		Test that correct error is raised (ValueError) if the input is missing a computed entry.
-		"""
+        Test that correct error is raised (ValueError) if the input is missing a computed entry.
+        """
 
         exp_path = os.path.join(self.test_dir, "exp_compounds_norm.gz")
         calc_path = os.path.join(self.test_dir, "calc_missing_compounds.gz")
