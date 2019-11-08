@@ -561,7 +561,8 @@ class Compatibility(MSONable):
             tot_error += e ** 2
         tot_error = sqrt(tot_error)
         if tot_error == 0:
-            # if there are no error values available for the corrections applied, set correction_uncertainty to not a number
+            # if there are no error values available for the corrections applied,
+            # set correction_uncertainty to not a number
             entry.data["correction_uncertainty"] = float("NaN")
         else:
             entry.data["correction_uncertainty"] = tot_error
