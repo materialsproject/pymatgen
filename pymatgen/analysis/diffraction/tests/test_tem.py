@@ -6,7 +6,7 @@ import unittest
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element
-from pymatgen.analysis.diffraction.tem import TEMCalculator
+from tem import TEMCalculator
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 

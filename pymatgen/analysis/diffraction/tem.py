@@ -1,4 +1,4 @@
-from __future__ import division, unicode_literals
+from __future__ import division, print_function, unicode_literals
 import json
 import os
 from fractions import Fraction
@@ -23,9 +23,6 @@ poff.init_notebook_mode(connected=True)
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 # tempattern inherits from diffractionpattern
-# make msonable
-# run TEM on all 120k strucs
-# cluster analysis of the points: min vector (1d or 2d)
 
 """
 This module implements a TEM pattern calculator.
@@ -131,7 +128,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         result = np.vstack(list(points_matrix)).transpose()
         return result
 
-    def zone_axis_filter(self, points: List[Tuple[int, int, int]], laue_zone: int = 0) -> List[Tuple[int, int, int]]:
+    def zone_axis_filter(self, points: np.ndarray, laue_zone: int = 0) -> List[Tuple[int, int, int]]:
         """
         Filters out all points that exist within the specified Laue zone according to the zone axis rule.
         Args:
@@ -142,6 +139,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         """
         if any(type(n) is tuple for n in points):
             return points
+        if points.size ==  0:
+            return []
         filtered = np.where(np.dot(np.array(self.beam_direction), np.transpose(points)) == laue_zone)
         result = points[filtered]
         result_tuples = [tuple(x) for x in result.tolist()]
@@ -183,7 +182,6 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         """
         Calculates the s squared parameter (= square of sin theta over lambda) for each hkl plane.
         Args:
-            structure (Structure): The structure in question.
             bragg_angles (Dict): The bragg angles for each hkl plane.
         Returns:
             Dict of hkl plane to s2 parameter, calcs the s squared parameter (= square of sin theta over lambda).
