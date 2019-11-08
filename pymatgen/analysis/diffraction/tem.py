@@ -30,7 +30,6 @@ poff.init_notebook_mode(connected=True)
 """
 This module implements a TEM pattern calculator.
 """
-
 # Credit to Dr. Shyue Ping Ong for the template of the calculator
 __author__ = "Frank Wan, modified by JasonL"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -129,9 +128,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         coord_values = np.arange(coord_left, coord_right + 1)
         points[0], points[1], points[2] = np.meshgrid(coord_values, coord_values, coord_values)
         points_matrix = (np.ravel(points[i]) for i in range(0, 3))
-        result = np.vstack(list(points_matrix))
-        result_tuples = [tuple(x) for x in np.transpose(result).tolist()]
-        return result_tuples
+        result = np.vstack(list(points_matrix)).transpose()
+        return result
 
     def zone_axis_filter(self, points: List[Tuple[int, int, int]], laue_zone: int = 0) -> List[Tuple[int, int, int]]:
         """
@@ -142,9 +140,10 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         Returns:
             list of 3-tuples
         """
-        point_array = np.asarray(points)
-        filtered = np.where(np.dot(np.array(self.beam_direction), np.transpose(point_array)) == laue_zone)
-        result = point_array[filtered]
+        if any(type(n) is tuple for n in points):
+            return points
+        filtered = np.where(np.dot(np.array(self.beam_direction), np.transpose(points)) == laue_zone)
+        result = points[filtered]
         result_tuples = [tuple(x) for x in result.tolist()]
         return result_tuples
 
@@ -433,7 +432,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                 break
         p1 = list(first_point)
         p2 = list(second_point)
-        points.remove((0, 0, 0))
+        if (0, 0, 0) in points:
+            points.remove((0, 0, 0))
         points.remove(first_point)
         points.remove(second_point)
         positions[(0, 0, 0)] = np.array([0, 0])
@@ -468,8 +468,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             list of TEM_dots
         """
         dots = []
-        points_filtered = self.zone_axis_filter(points)
-        interplanar_spacings = self.get_interplanar_spacings(structure, points_filtered)
+        interplanar_spacings = self.get_interplanar_spacings(structure, points)
         bragg_angles = self.bragg_angles(interplanar_spacings)
         cell_intensity = self.normalized_cell_intensity(structure, bragg_angles)
         positions = self.get_positions(structure, points)
