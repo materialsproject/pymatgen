@@ -115,14 +115,14 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         self.wavelength_cache[self.voltage] = wavelength_rel
         return wavelength_rel
 
-    def generate_points(self, coord_left: int = -10, coord_right: int = 10) -> List[Tuple[int, int, int]]:
+    def generate_points(self, coord_left: int = -10, coord_right: int = 10) -> np.ndarray:
         """
         Generates a bunch of 3D points that span a cube.
         Args:
             coord_left (int): The minimum coordinate value.
             coord_right (int): The maximum coordinate value.
         Returns:
-            list of 3-tuples
+            Numpy 2d array
         """
         points = [0, 0, 0]
         coord_values = np.arange(coord_left, coord_right + 1)
@@ -135,7 +135,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         """
         Filters out all points that exist within the specified Laue zone according to the zone axis rule.
         Args:
-            points (List[Tuple[int, int, int]]): The list of points to be filtered.
+            points (np.ndarray): The list of points to be filtered.
             laue_zone (int): The desired Laue zone.
         Returns:
             list of 3-tuples
