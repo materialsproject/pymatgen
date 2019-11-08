@@ -489,14 +489,13 @@ class ComputedReaction(Reaction):
 
     @property
     def calculated_reaction_energy_uncertainty(self):
-        calc_energies = {}
 
         error = 0
 
         for entry in self._reactant_entries + self._product_entries:
             (comp, factor) = entry.composition.get_reduced_composition_and_factor()
             try:
-                e = entry.data["correction_error"]
+                e = entry.data["correction_uncertainty"]
                 if not np.isnan(e):
                     e = e / factor
 
