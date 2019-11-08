@@ -323,7 +323,6 @@ class Reaction(BalancedReaction):
         num_constraints = diff if diff >= 2 else 1
 
         self._coeffs = self.balance_coeffs(comp_matrix, num_constraints)
-
         self._els = all_elems
 
     def balance_coeffs(self, comp_matrix, num_constraints):
