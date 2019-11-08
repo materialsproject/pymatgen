@@ -342,7 +342,7 @@ class CompositionCorrection(Correction):
                 correction += self.comp_correction[anion] * comp[anion]
                 error = sqrt(error ** 2 + (self.anion_errors[anion] * comp[anion]) ** 2)
 
-        if self.name != 'MIT':  # the MIT compatibility set still uses MITGasCorrection
+        if self.name != "MIT":  # the MIT compatibility set still uses MITGasCorrection
             for gas in ["H", "N", "F", "Cl"]:
                 if Element(gas) in comp and gas in self.comp_correction:
                     correction += self.comp_correction[gas] * comp[gas]
@@ -667,7 +667,10 @@ class Compatibility(MSONable):
             print("%s correction: %s\n" % (c["name"], c["description"]))
             print("For the entry, this correction has the value %f eV." % c["value"])
             if c["uncertainty"]:
-                print("This correction has an uncertainty value of %f eV." % c["uncertainty"])
+                print(
+                    "This correction has an uncertainty value of %f eV."
+                    % c["uncertainty"]
+                )
             else:
                 print("This correction does not have uncertainty data available")
             print("-" * 30)
