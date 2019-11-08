@@ -13,7 +13,7 @@ from pymatgen.entries.computed_entries import ComputedEntry
 from monty.json import MontyDecoder
 from monty.fractions import gcd_float
 
-import itertools
+from itertools import combinations
 
 """
 This module provides classes that define a chemical reaction.
@@ -311,74 +311,53 @@ class Reaction(BalancedReaction):
         self._input_reactants = reactants
         self._input_products = products
         self._all_comp = reactants + products
+        self._num_comp = len(self.all_comp)
 
-        els = set()
-        for c in self.all_comp:
-            els.update(c.elements)
-        els = sorted(els)
+        all_elems = sorted({elem for c in self._all_comp for elem in c.elements})
+        self._num_elems = len(all_elems)
 
-        # Solving:
-        #          | 0  R |
-        # [ x y ]  |      |  =  [ 1 .. 1 0 .. 0]
-        #          | C  P |
-        # x, y are the coefficients of the reactants and products
-        # R, P the matrices of the element compositions of the reactants
-        # and products
-        # C is a constraint matrix that chooses which compositions to normalize to
+        comp_matrix = np.array([[c[el] for el in all_elems] for c in self._all_comp]).T
 
-        # try just normalizing to just the first product
-        rp_mat = np.array([[c[el] for el in els] for c in self._all_comp])
-        f_mat = np.concatenate([np.zeros((len(rp_mat), 1)), rp_mat], axis=1)
-        f_mat[len(reactants), 0] = 1  # set normalization by the first product
-        b = np.zeros(len(els) + 1)
-        b[0] = 1
-        coeffs, res, _, s = np.linalg.lstsq(f_mat.T, b, rcond=None)
+        rank = np.linalg.matrix_rank(comp_matrix)
+        diff = self._num_comp - rank
+        num_constraints = diff if diff >= 2 else 1
 
-        # for whatever reason the rank returned by lstsq isn't always correct
-        # seems to be a problem with low-rank M but inconsistent system
-        # M x = b.
-        # the singular values seem ok, so checking based on those
-        if sum(np.abs(s) > 1e-12) == len(f_mat):
-            if res.size > 0 and res[0] > self.TOLERANCE ** 2:
-                raise ReactionError("Reaction cannot be balanced.")
-            else:
-                ok = True
-        else:
-            # underdetermined, add product constraints to make non-singular
-            ok = False
-            n_constr = len(rp_mat) - np.linalg.matrix_rank(rp_mat)
-            f_mat = np.concatenate([np.zeros((len(rp_mat), n_constr)),
-                                    rp_mat], axis=1)
-            b = np.zeros(f_mat.shape[1])
-            b[:n_constr] = 1
+        self._coeffs = self.balance_coeffs(comp_matrix, num_constraints)
 
-            # try setting C to all n_constr combinations of products
-            for inds in itertools.combinations(range(len(reactants),
-                                                     len(f_mat)),
-                                               n_constr):
-                f_mat[:, :n_constr] = 0
-                for j, i in enumerate(inds):
-                    f_mat[i, j] = 1
-                # try a solution
-                coeffs, res, _, s = np.linalg.lstsq(f_mat.T, b, rcond=None)
-                if sum(np.abs(s) > 1e-12) == len(self._all_comp) and \
-                        (res.size == 0 or res[0] < self.TOLERANCE ** 2):
-                    ok = True
-                    break
+        self._els = all_elems
 
-        if not ok:
-            r_mat = np.array([[c[el] for el in els] for c in reactants])
-            reactants_underdetermined = (
-                np.linalg.lstsq(r_mat.T, np.zeros(len(els)), rcond=None)[2]
-                != len(reactants))
-            if reactants_underdetermined:
-                raise ReactionError("Reaction cannot be balanced. "
-                                    "Reactants are underdetermined.")
-            raise ReactionError("Reaction cannot be balanced. "
-                                "Unknown error, please report.")
+    def balance_coeffs(self, comp_matrix, num_constraints):
+        comp_and_constraints = np.append(comp_matrix, np.zeros((num_constraints, self._num_comp)), axis=0)
+        b = np.zeros((self._num_elems+num_constraints, 1))
+        b[-num_constraints:] = 1
+        first_product_idx = len(self._input_reactants)
 
-        self._els = els
-        self._coeffs = coeffs
+        balanced = False
+        lowest_num_errors = np.inf
+        best_soln = None
+
+        for constraints in combinations(range(first_product_idx, self._num_comp), num_constraints):
+            test_comp_and_constraints = comp_and_constraints.copy()
+            for num, idx in enumerate(constraints):
+                test_comp_and_constraints[self._num_elems + num, idx] = 1
+
+            coeffs = np.matmul(np.linalg.pinv(test_comp_and_constraints), b)
+            if np.allclose(np.matmul(comp_matrix, coeffs), np.zeros((self._num_elems, 1))):
+                balanced = True
+                expected_signs = np.array([-1]*len(self._input_reactants) + [+1]*len(self._input_products))
+                num_errors = np.sum(np.multiply(expected_signs, coeffs.T) < self.TOLERANCE)
+
+                if num_errors == 0:
+                    return np.squeeze(coeffs)
+                elif num_errors < lowest_num_errors:
+                    best_soln = coeffs
+                    lowest_num_errors = num_errors
+
+        if not balanced:
+            raise ReactionError("Reaction cannot be balanced.")
+
+        coeffs = np.squeeze(best_soln)
+        return coeffs
 
     def copy(self):
         """
