@@ -256,12 +256,12 @@ class CompositionCorrection(Correction):
         """
         comp = entry.composition
 
-        correction = 0
-        error = 0
+        correction = 0.0
+        error = 0.0
 
         # Skip single elements
         if len(comp) == 1:
-            return 0, 0
+            return 0.0, 0.0
 
         # Check for sulfide corrections
         if Element("S") in comp:
