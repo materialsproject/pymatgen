@@ -62,7 +62,7 @@ library by making your own contributions.  These contributions can be in the
 form of additional tools or modules you develop, or feature requests and bug
 reports. Please report any bugs and issues at pymatgen's [Github page]
 (https://github.com/materialsproject/pymatgen). For help with any pymatgen
-issues, please use the [Discourse page](https://pymatgen.discourse.group).
+issues, please use the [Discourse page](https://discuss.matsci.org/c/pymatgen).
 
 Why use pymatgen?
 =================

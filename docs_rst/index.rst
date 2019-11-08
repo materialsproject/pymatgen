@@ -36,7 +36,7 @@ reports. The following are resources for pymatgen:
 * Please report any bugs and issues at pymatgen's `Github Issues
   page <https://github.com/materialsproject/pymatgen/issues>`_.
 * For help with any pymatgen issue, please use the pymatgen `Discourse page
-  <https://pymatgen.discourse.group>`_. Please note that the pymatgen Google
+  <https://discuss.matsci.org/c/pymatgen>`_. Please note that the pymatgen Google
   group has been deprecated in favor of Discourse.
 * `Twitter <http://twitter.com/pymatgen>`_. Follow to get news and tips.
 * `matgenb <http://matgenb.materialsvirtuallab.org>`_. For example notebooks.

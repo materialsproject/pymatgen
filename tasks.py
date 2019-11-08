@@ -244,7 +244,7 @@ def release_github(ctx):
 @task
 def post_discourse(ctx):
     """
-    Post release announcement to http://pymatgen.discourse.group.
+    Post release announcement to http://discuss.matsci.org/c/pymatgen.
 
     :param ctx:
     """
@@ -260,7 +260,7 @@ def post_discourse(ctx):
         "raw": raw,
     }
     response = requests.post(
-        "https://pymatgen.discourse.group/posts.json",
+        "https://discuss.matsci.org/c/pymatgen/posts.json",
         data=payload,
         params={
             "api_username": os.environ["DISCOURSE_API_USERNAME"],
