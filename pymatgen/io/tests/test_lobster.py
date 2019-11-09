@@ -1465,6 +1465,48 @@ class GrosspopTest(unittest.TestCase):
         self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[8]["Loewdin GP"]["2s"], 1.60)
         self.assertEqual(self.grosspop1.list_dict_grosspop[8]["element"], 'O')
 
+    def test_structure_with_grosspop(self):
+        struct_dict = {'@module': 'pymatgen.core.structure', '@class': 'Structure', 'charge': None, 'lattice': {
+            'matrix': [[5.021897888834907, 4.53806e-11, 0.0], [-2.5109484443388332, 4.349090983701526, 0.0],
+                       [0.0, 0.0, 5.511929408565514]], 'a': 5.021897888834907, 'b': 5.0218974974248045,
+            'c': 5.511929408565514, 'alpha': 90.0, 'beta': 90.0, 'gamma': 119.99999598960493,
+            'volume': 120.38434608659402}, 'sites': [
+            {'species': [{'element': 'Si', 'occu': 1}], 'abc': [-3e-16, 0.4763431475490085, 0.6666669999999968],
+             'xyz': [-1.1960730853096477, 2.0716596881533986, 3.674621443020128], 'label': 'Si',
+             'properties': {'Total Mulliken GP': 1.64, 'Total Loewdin GP': 2.16}},
+            {'species': [{'element': 'Si', 'occu': 1}], 'abc': [0.5236568524509936, 0.5236568524509926, 0.0],
+             'xyz': [1.3148758827683875, 2.277431295571896, 0.0], 'label': 'Si',
+             'properties': {'Total Mulliken GP': 1.64, 'Total Loewdin GP': 2.16}},
+            {'species': [{'element': 'Si', 'occu': 1}], 'abc': [0.4763431475490066, -1.2e-15, 0.3333330000000032],
+             'xyz': [2.392146647037334, 2.1611518932482004e-11, 1.8373079655453863], 'label': 'Si',
+             'properties': {'Total Mulliken GP': 1.64, 'Total Loewdin GP': 2.16}},
+            {'species': [{'element': 'O', 'occu': 1}],
+             'abc': [0.1589037798059321, 0.7440031622164922, 0.4613477252144715],
+             'xyz': [-1.0701550264153763, 3.235737444648381, 2.5429160941844473], 'label': 'O',
+             'properties': {'Total Mulliken GP': 7.18, 'Total Loewdin GP': 6.92}},
+            {'species': [{'element': 'O', 'occu': 1}],
+             'abc': [0.2559968377835071, 0.4149006175894398, 0.7946807252144676],
+             'xyz': [0.2437959189219816, 1.8044405351020447, 4.380224059729795], 'label': 'O',
+             'properties': {'Total Mulliken GP': 7.18, 'Total Loewdin GP': 6.92}},
+            {'species': [{'element': 'O', 'occu': 1}],
+             'abc': [0.5850993824105679, 0.8410962201940679, 0.1280147252144683],
+             'xyz': [0.8263601076506712, 3.6580039876980064, 0.7056081286390611], 'label': 'O',
+             'properties': {'Total Mulliken GP': 7.18, 'Total Loewdin GP': 6.92}},
+            {'species': [{'element': 'O', 'occu': 1}],
+             'abc': [0.7440031622164928, 0.1589037798059326, 0.5386522747855285],
+             'xyz': [3.337308710918233, 0.6910869960638374, 2.969013314381067], 'label': 'O',
+             'properties': {'Total Mulliken GP': 7.18, 'Total Loewdin GP': 6.92}},
+            {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.4149006175894392, 0.2559968377835, 0.2053192747855324],
+             'xyz': [1.4407936739605638, 1.1133535390791505, 1.13170534883572], 'label': 'O',
+             'properties': {'Total Mulliken GP': 7.18, 'Total Loewdin GP': 6.92}},
+            {'species': [{'element': 'O', 'occu': 1}],
+             'abc': [0.841096220194068, 0.5850993824105675, 0.8719852747855317],
+             'xyz': [2.754744948452184, 2.5446504486493, 4.806321279926453], 'label': 'O',
+             'properties': {'Total Mulliken GP': 7.18, 'Total Loewdin GP': 6.92}}]}
+        newstructure = self.grosspop1.get_structure_with_total_grosspop(os.path.join(test_dir, "POSCAR.SiO2"))
+
+        self.assertDictEqual(newstructure.as_dict(), struct_dict)
+
 
 if __name__ == "__main__":
     unittest.main()
