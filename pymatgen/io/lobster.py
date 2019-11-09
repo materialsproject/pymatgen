@@ -1896,7 +1896,7 @@ class Grosspop:
         """
 
         struct = Structure.from_file(structure_filename)
-        site_properties = {}  # Dict[str, Any]
+        site_properties = {}  # type: Dict[str, Any]
         mullikengp = []
         loewdingp = []
         for grosspop in self.list_dict_grosspop:
