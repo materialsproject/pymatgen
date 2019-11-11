@@ -21,6 +21,8 @@ import functools
 from typing import Dict, List, Tuple, Optional, Union, Iterator, Set, Sequence, Iterable
 import numpy as np
 
+from tabulate import tabulate
+
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
@@ -1950,7 +1952,6 @@ class IStructure(SiteCollection, MSONable):
             for k in keys:
                 row.append(props[k][i])
             data.append(row)
-        from tabulate import tabulate
         outs.append(tabulate(data, headers=["#", "SP", "a", "b", "c"] + keys,
                              ))
         return "\n".join(outs)
