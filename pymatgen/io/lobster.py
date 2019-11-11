@@ -1885,3 +1885,24 @@ class Grosspop:
                 smalldict["Loewdin GP"][cleanline[0]] = float(cleanline[2])
                 if 'total' in cleanline[0]:
                     self.list_dict_grosspop.append(smalldict)
+
+    def get_structure_with_total_grosspop(self, structure_filename: str) -> Structure:
+        """
+        get a Structure with Mulliken and Loewdin total grosspopulations as site properties
+        Args:
+            structure_filename (str): filename of POSCAR
+        Returns:
+            Structure Object with Mulliken and Loewdin total grosspopulations as site properties
+        """
+
+        struct = Structure.from_file(structure_filename)
+        site_properties = {}  # type: Dict[str, Any]
+        mullikengp = []
+        loewdingp = []
+        for grosspop in self.list_dict_grosspop:
+            mullikengp.append(grosspop["Mulliken GP"]["total"])
+            loewdingp.append(grosspop["Loewdin GP"]["total"])
+
+        site_properties = {"Total Mulliken GP": mullikengp, "Total Loewdin GP": loewdingp}
+        new_struct = struct.copy(site_properties=site_properties)
+        return new_struct
