@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.vasp.sets &#8212; pymatgen 2019.10.16 documentation</title>
+    <title>pymatgen.io.vasp.sets &#8212; pymatgen 2019.11.11 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.16 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -98,6 +98,7 @@
 <span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="k">import</span> <span class="n">loadfn</span>
 <span class="kn">from</span> <span class="nn">monty.io</span> <span class="k">import</span> <span class="n">zopen</span>
 <span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">deprecated</span>
+<span class="kn">from</span> <span class="nn">zipfile</span> <span class="k">import</span> <span class="n">ZipFile</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">Element</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
@@ -217,6 +218,38 @@
             <span class="n">s</span> <span class="o">=</span> <span class="n">vinput</span><span class="p">[</span><span class="s2">&quot;POSCAR&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">structure</span>
             <span class="n">fname</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.cif&quot;</span> <span class="o">%</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\s&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">formula</span><span class="p">))</span>
             <span class="n">s</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">fname</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VaspInputSet.write_spec"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.VaspInputSet.write_spec">[docs]</a>    <span class="k">def</span> <span class="nf">write_spec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">readme</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write a set of the VASP input files to a zip file, WITHOUT the Potcar</span>
+<span class="sd">        file. The Potcar file will instead be written as a &quot;POTCAR.spec&quot;. This is</span>
+<span class="sd">        intended to help sharing an input set with people who might not have a license</span>
+<span class="sd">        to specific Potcar files.</span>
+
+<span class="sd">        Given a &quot;POTCAR.spec&quot;, the specific POTCAR file can be re-generated using</span>
+<span class="sd">        pymatgen with the &quot;generate_potcar&quot; function in the pymatgen CLI when set</span>
+<span class="sd">        up with a corresponding directory of POTCAR files.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename (str): Filename to output as zip file, will default to name</span>
+<span class="sd">            of input set.</span>
+<span class="sd">            readme (str): Additional file to include as README</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s2">&quot;_spec.zip&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.zip&quot;</span><span class="p">):</span>
+            <span class="n">filename</span> <span class="o">+=</span> <span class="s2">&quot;.zip&quot;</span>
+
+        <span class="k">with</span> <span class="n">ZipFile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="nb">zip</span><span class="p">:</span>
+            <span class="nb">zip</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span><span class="s2">&quot;INCAR&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">incar</span><span class="p">))</span>
+            <span class="nb">zip</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span><span class="s2">&quot;POSCAR&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">poscar</span><span class="p">))</span>
+            <span class="nb">zip</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span><span class="s2">&quot;KPOINTS&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span><span class="p">))</span>
+            <span class="nb">zip</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span><span class="s2">&quot;POTCAR.spec&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">potcar_symbols</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">readme</span><span class="p">:</span>
+                <span class="nb">zip</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span><span class="s2">&quot;README&quot;</span><span class="p">,</span> <span class="n">readme</span><span class="p">)</span></div>
+            <span class="c1"># TODO: should write transformations.json also where appropriate</span>
+            <span class="c1"># cannot import TransformedStructure due to circular import</span>
 
 <div class="viewcode-block" id="VaspInputSet.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.VaspInputSet.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -346,7 +379,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">force_gamma</span> <span class="o">=</span> <span class="n">force_gamma</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reduce_structure</span> <span class="o">=</span> <span class="n">reduce_structure</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">user_incar_settings</span> <span class="o">=</span> <span class="n">user_incar_settings</span> <span class="ow">or</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">user_kpoints_settings</span> <span class="o">=</span> <span class="n">user_kpoints_settings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">user_kpoints_settings</span> <span class="o">=</span> <span class="n">user_kpoints_settings</span> <span class="ow">or</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">user_potcar_settings</span> <span class="o">=</span> <span class="n">user_potcar_settings</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vdw</span> <span class="o">=</span> <span class="n">vdw</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">if</span> <span class="n">vdw</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">use_structure_charge</span> <span class="o">=</span> <span class="n">use_structure_charge</span>
@@ -2430,7 +2463,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.16 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

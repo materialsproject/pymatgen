@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.lobster module &#8212; pymatgen 2019.10.16 documentation</title>
+    <title>pymatgen.io.lobster module &#8212; pymatgen 2019.11.11 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.16 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -293,6 +293,19 @@ tdensities[Spin.up]: numpy array of the total density of states</p>
 <dd class="field-odd"><p><strong>filename</strong> – filename of the “GROSSPOP.lobster” file</p>
 </dd>
 </dl>
+<dl class="method">
+<dt id="pymatgen.io.lobster.Grosspop.get_structure_with_total_grosspop">
+<code class="sig-name descname">get_structure_with_total_grosspop</code><span class="sig-paren">(</span><em class="sig-param">structure_filename: str</em><span class="sig-paren">)</span> &#x2192; pymatgen.core.structure.Structure<a class="reference internal" href="_modules/pymatgen/io/lobster.html#Grosspop.get_structure_with_total_grosspop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Grosspop.get_structure_with_total_grosspop" title="Permalink to this definition">¶</a></dt>
+<dd><p>get a Structure with Mulliken and Loewdin total grosspopulations as site properties
+:param structure_filename: filename of POSCAR
+:type structure_filename: str</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Structure Object with Mulliken and Loewdin total grosspopulations as site properties</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -354,12 +367,12 @@ There are also several standard lobsterin files that can be easily generated.</p
 
 <dl class="attribute">
 <dt id="pymatgen.io.lobster.Lobsterin.BOOLEANKEYWORDS">
-<code class="sig-name descname">BOOLEANKEYWORDS</code><em class="property"> = ['saveProjectionToFile', 'skipdos', 'skipcohp', 'skipcoop', 'loadProjectionFromFile', 'forceEnergyRange', 'DensityOfEnergy', 'BWDF', 'BWDFCOHP', 'skipPopulationAnalysis', 'skipGrossPopulation', 'userecommendedbasisfunctions', 'skipProjection', 'writeBasisFunctions', 'writeMatricesToFile', 'noFFTforVisualization', 'RMSp', 'onlyReadVasprun.xml', 'noMemoryMappedFiles', 'skipPAWOrthonormalityTest', 'doNotIgnoreExcessiveBands', 'doNotUseAbsoluteSpilling', 'skipReOrthonormalization', 'forceV1HMatrix', 'useOriginalTetrahedronMethod']</em><a class="headerlink" href="#pymatgen.io.lobster.Lobsterin.BOOLEANKEYWORDS" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">BOOLEANKEYWORDS</code><em class="property"> = ['saveProjectionToFile', 'skipdos', 'skipcohp', 'skipcoop', 'loadProjectionFromFile', 'forceEnergyRange', 'DensityOfEnergy', 'BWDF', 'BWDFCOHP', 'skipPopulationAnalysis', 'skipGrossPopulation', 'userecommendedbasisfunctions', 'skipProjection', 'writeBasisFunctions', 'writeMatricesToFile', 'noFFTforVisualization', 'RMSp', 'onlyReadVasprun.xml', 'noMemoryMappedFiles', 'skipPAWOrthonormalityTest', 'doNotIgnoreExcessiveBands', 'doNotUseAbsoluteSpilling', 'skipReOrthonormalization', 'forceV1HMatrix', 'useOriginalTetrahedronMethod', 'forceEnergyRange', 'bandwiseSpilling', 'kpointwiseSpilling']</em><a class="headerlink" href="#pymatgen.io.lobster.Lobsterin.BOOLEANKEYWORDS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.lobster.Lobsterin.FLOATKEYWORDS">
-<code class="sig-name descname">FLOATKEYWORDS</code><em class="property"> = ['COHPstartEnergy', 'COHPendEnergy', 'gaussianSmearingWidth', 'useDecimalPlaces']</em><a class="headerlink" href="#pymatgen.io.lobster.Lobsterin.FLOATKEYWORDS" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">FLOATKEYWORDS</code><em class="property"> = ['COHPstartEnergy', 'COHPendEnergy', 'gaussianSmearingWidth', 'useDecimalPlaces', 'COHPSteps']</em><a class="headerlink" href="#pymatgen.io.lobster.Lobsterin.FLOATKEYWORDS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -453,30 +466,33 @@ calculated
 
 <dl class="method">
 <dt id="pymatgen.io.lobster.Lobsterin.write_INCAR">
-<code class="sig-name descname">write_INCAR</code><span class="sig-paren">(</span><em class="sig-param">incar_input='INCAR'</em>, <em class="sig-param">incar_output='INCAR.lobster'</em>, <em class="sig-param">poscar_input='POSCAR'</em>, <em class="sig-param">further_settings=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lobster.html#Lobsterin.write_INCAR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Lobsterin.write_INCAR" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_INCAR</code><span class="sig-paren">(</span><em class="sig-param">incar_input: str = 'INCAR'</em>, <em class="sig-param">incar_output: str = 'INCAR.lobster'</em>, <em class="sig-param">poscar_input: str = 'POSCAR'</em>, <em class="sig-param">isym: int = -1</em>, <em class="sig-param">further_settings: dict = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lobster.html#Lobsterin.write_INCAR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Lobsterin.write_INCAR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Will only make the run static, insert nbands, make ISYM=-1, set LWAVE=True and write a new INCAR.
 You have to check for the rest.
 :param incar_input: path to input INCAR
 :type incar_input: str
 :param incar_output: path to output INCAR
 :type incar_output: str
-:param poscar_input:
+:param poscar_input: path to input POSCAR
 :type poscar_input: str
+:param isym: isym equal to -1 or 0 are possible. Current Lobster version only allow -1.
+:type isym: int
 :param further_settings: A dict can be used to include further settings, e.g. {“ISMEAR”:-5}
 :type further_settings: dict</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.lobster.Lobsterin.write_KPOINTS">
-<em class="property">static </em><code class="sig-name descname">write_KPOINTS</code><span class="sig-paren">(</span><em class="sig-param">POSCAR_input: str = 'POSCAR', KPOINTS_output='KPOINTS.lobster', reciprocal_density: int = 100, from_grid: bool = False, input_grid: list = [5, 5, 5], line_mode: bool = True, kpoints_line_density: int = 20, symprec: float = 0.01</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lobster.html#Lobsterin.write_KPOINTS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Lobsterin.write_KPOINTS" title="Permalink to this definition">¶</a></dt>
-<dd><p>writes a KPOINT file for lobster (no symmetry considered!, ISYM=-1)
-#TODO: extend this to ISYM=0
+<em class="property">static </em><code class="sig-name descname">write_KPOINTS</code><span class="sig-paren">(</span><em class="sig-param">POSCAR_input: str = 'POSCAR', KPOINTS_output='KPOINTS.lobster', reciprocal_density: int = 100, isym: int = -1, from_grid: bool = False, input_grid: list = [5, 5, 5], line_mode: bool = True, kpoints_line_density: int = 20, symprec: float = 0.01</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lobster.html#Lobsterin.write_KPOINTS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Lobsterin.write_KPOINTS" title="Permalink to this definition">¶</a></dt>
+<dd><p>writes a KPOINT file for lobster (only ISYM=-1 and ISYM=0 are possible), grids are gamma centered
 :param POSCAR_input: path to POSCAR
 :type POSCAR_input: str
 :param KPOINTS_output: path to output KPOINTS
 :type KPOINTS_output: str
 :param reciprocal_density: Grid density
 :type reciprocal_density: int
+:param isym: either -1 or 0. Current Lobster versions only allow -1.
+:type isym: int
 :param from_grid: If True KPOINTS will be generated with the help of a grid given in input_grid. Otherwise,</p>
 <blockquote>
 <div><p>they will be generated from the reciprocal_density</p>
@@ -575,7 +591,7 @@ You have to check for the rest.
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.16 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
       </ul>
     </div>
 

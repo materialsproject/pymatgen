@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.vasp.sets module &#8212; pymatgen 2019.10.16 documentation</title>
+    <title>pymatgen.io.vasp.sets module &#8212; pymatgen 2019.11.11 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.16 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -1261,6 +1261,27 @@ directory for easier opening by VESTA.</p></li>
 </dl>
 </dd></dl>
 
+<dl class="method">
+<dt id="pymatgen.io.vasp.sets.VaspInputSet.write_spec">
+<code class="sig-name descname">write_spec</code><span class="sig-paren">(</span><em class="sig-param">filename=None</em>, <em class="sig-param">readme=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#VaspInputSet.write_spec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.VaspInputSet.write_spec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a set of the VASP input files to a zip file, WITHOUT the Potcar
+file. The Potcar file will instead be written as a “POTCAR.spec”. This is
+intended to help sharing an input set with people who might not have a license
+to specific Potcar files.</p>
+<p>Given a “POTCAR.spec”, the specific POTCAR file can be re-generated using
+pymatgen with the “generate_potcar” function in the pymatgen CLI when set
+up with a corresponding directory of POTCAR files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – Filename to output as zip file, will default to name</p></li>
+<li><p><strong>input set.</strong> (<em>of</em>) – </p></li>
+<li><p><strong>readme</strong> (<em>str</em>) – Additional file to include as README</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="function">
@@ -1388,7 +1409,7 @@ convention (vs Curtarolo) for monoclinic. Defaults True.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.16 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
       </ul>
     </div>
 
