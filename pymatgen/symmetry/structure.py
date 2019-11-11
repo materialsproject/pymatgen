@@ -84,6 +84,9 @@ class SymmetrizedStructure(Structure):
 
         raise ValueError("Site not in structure")
 
+    def __repr__(self):
+        return self.__str__()
+
     def __str__(self):
         outs = [
             "SymmetrizedStructure",
