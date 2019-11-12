@@ -479,6 +479,15 @@ class DoscarTest(unittest.TestCase):
         tdos_nonspin = [0.00000, 1.60000, 0.00000, 1.60000, 0.00000, 0.02418]
         self.assertListEqual(tdos_nonspin, self.DOSCAR_nonspin_pol.tdensities[Spin.up].tolist())
 
+    def test_itdensities(self):
+        pass
+        itdos_up = [1.99997, 4.99992, 4.99992, 7.99987, 7.99987, 8.09650]
+        itdos_down = [1.99997, 4.99992, 4.99992, 7.99987, 7.99987, 8.09685]
+        self.assertListEqual(itdos_up,self.DOSCAR_spin_pol.itdensities[Spin.up].tolist())
+        self.assertListEqual(itdos_down,self.DOSCAR_spin_pol.itdensities[Spin.down].tolist())
+
+        itdos_nonspin=[   4.00000,   10.00000,  10.00000,  16.00000,  16.00000,  16.09067]
+        self.assertListEqual(itdos_nonspin, self.DOSCAR_nonspin_pol.itdensities[Spin.up].tolist())
     def test_is_spin_polarized(self):
         # first for spin polarized version
         self.assertTrue(self.DOSCAR_spin_pol.is_spin_polarized)

@@ -503,23 +503,23 @@ class Doscar:
         return self._tdos
 
     @property
-    def energies(self) -> list:
+    def energies(self) -> np.array:
         """
         :return: Energies
         """
         return self._energies
 
     @property
-    def tdensities(self) -> list:
+    def tdensities(self) -> np.array:
         """
-        :return: total densities as a list
+        :return: total densities as a np.array
         """
         return self._tdensities
 
     @property
-    def itdensities(self) -> list:
+    def itdensities(self) -> np.array:
         """
-        :return: integrated total densities as a list
+        :return: integrated total densities as a np.array
         """
         return self._itdensities
 
