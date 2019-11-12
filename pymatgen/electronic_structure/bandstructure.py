@@ -14,7 +14,7 @@ import collections
 import warnings
 
 from monty.json import MSONable
-from pymatgen.core.periodic_table import get_el_sp, Specie, Element
+from pymatgen.core.periodic_table import get_el_sp, Element
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.electronic_structure.core import Spin, Orbital
