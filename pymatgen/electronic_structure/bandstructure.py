@@ -14,7 +14,7 @@ import collections
 import warnings
 
 from monty.json import MSONable
-from pymatgen.core.periodic_table import get_el_sp, Specie
+from pymatgen.core.periodic_table import get_el_sp, Specie, Element
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.electronic_structure.core import Spin, Orbital
@@ -1095,7 +1095,6 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
                 structure = Structure.from_dict(d['structure'])
                 projections = {Spin(int(spin)): np.array(v)
                                for spin, v in d["projections"].items()}
-                print(projections)
 
             return LobsterBandStructureSymmLine(
                 d['kpoints'], {Spin(int(k)): d['bands'][k]
@@ -1160,7 +1159,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
                                           range(len(self.kpoints))):
                 for key, item in v[i][j].items():
                     for key2, item2 in item.items():
-                        specie = str(Specie(re.split(r"[0-9]+", key)[0]))
+                        specie = str(Element(re.split(r"[0-9]+", key)[0]))
                         result[spin][i][j][specie] += item2
         return result
 
@@ -1193,7 +1192,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
                                           range(len(self.kpoints))):
                 for key, item in v[i][j].items():
                     for key2, item2 in item.items():
-                        specie = str(Specie(re.split(r"[0-9]+", key)[0]))
+                        specie = str(Element(re.split(r"[0-9]+", key)[0]))
                         if get_el_sp(str(specie)) in el_orb_spec:
                             if key2 in el_orb_spec[get_el_sp(str(specie))]:
                                 result[spin][i][j][specie][key2] += item2
