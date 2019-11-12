@@ -372,6 +372,17 @@ class Doscar:
         if is_spin_polarized=False:
         tdensities[Spin.up]: numpy array of the total density of states
 
+
+    .. attribute:: itdensities:
+        itdensities[Spin.up]: numpy array of the total density of states for the Spin.up contribution at each of the
+            energies
+        itdensities[Spin.down]: numpy array of the total density of states for the Spin.down contribution at each of the
+            energies
+
+        if is_spin_polarized=False:
+        itdensities[Spin.up]: numpy array of the total density of states
+
+
     .. attribute:: is_spin_polarized
         Boolean. Tells if the system is spin polarized
 
@@ -395,6 +406,7 @@ class Doscar:
         doscar = self._doscar
 
         tdensities = {}
+        itdensities = {}
         f = open(doscar)
         natoms = int(f.readline().split()[0])
         efermi = float([f.readline() for nn in range(4)][3].split()[17])
@@ -422,6 +434,7 @@ class Doscar:
         energies = doshere[:, 0]
         if not self._is_spin_polarized:
             tdensities[Spin.up] = doshere[:, 1]
+            itdensities[Spin.up] = doshere[:, 2]
             pdoss = []
             spin = Spin.up
             for atom in range(natoms):
@@ -437,6 +450,8 @@ class Doscar:
         else:
             tdensities[Spin.up] = doshere[:, 1]
             tdensities[Spin.down] = doshere[:, 2]
+            itdensities[Spin.up] = doshere[:, 3]
+            itdensities[Spin.down] = doshere[:, 4]
             pdoss = []
             for atom in range(natoms):
                 pdos = defaultdict(dict)
@@ -453,11 +468,13 @@ class Doscar:
                     if j % 2 == 0:
                         orbnumber = orbnumber + 1
                 pdoss.append(pdos)
+
         self._efermi = efermi
         self._pdos = pdoss
         self._tdos = Dos(efermi, energies, tdensities)
         self._energies = energies
         self._tdensities = tdensities
+        self._itdensities = itdensities
         final_struct = self._final_structure
 
         pdossneu = {final_struct[i]: pdos for i, pdos in enumerate(self._pdos)}
@@ -498,6 +515,13 @@ class Doscar:
         :return: total densities as a list
         """
         return self._tdensities
+
+    @property
+    def itdensities(self) -> list:
+        """
+        :return: integrated total densities as a list
+        """
+        return self._itdensities
 
     @property
     def is_spin_polarized(self) -> bool:
