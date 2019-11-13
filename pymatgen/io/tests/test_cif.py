@@ -1211,7 +1211,7 @@ loop_
 
     @unittest.skipIf(pybtex is None, "pybtex not present")
     def test_bibtex(self):
-        ref_bibtex_string = """@article{cif-reference-0,
+        ref_bibtex_string = """@article{cifref0,
     author = "Blanco, J.A.",
     journal = "PHYSICAL REVIEW B",
     volume = "73",
