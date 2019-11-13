@@ -838,7 +838,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
                             old_dict['bands'][spin][k][v] = \
                                 old_dict['bands'][spin][k][v] + shift
             old_dict['efermi'] = old_dict['efermi'] + shift
-            return BandStructureSymmLine.from_dict(old_dict)
+        return BandStructureSymmLine.from_dict(old_dict)
 
     def as_dict(self):
         """
