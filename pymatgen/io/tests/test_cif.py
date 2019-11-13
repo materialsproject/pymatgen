@@ -174,7 +174,7 @@ class CifIOTest(PymatgenTest):
             self.assertEqual(s.formula, "V4 O6")
 
         bibtex_str = """
-@article{cif-reference-0,
+@article{cifref0,
     author = "Andersson, G.",
     title = "Studies on vanadium oxides. I. Phase analysis",
     journal = "Acta Chemica Scandinavica (1-27,1973-42,1988)",
