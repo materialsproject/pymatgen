@@ -15,6 +15,7 @@ import textwrap
 
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.groups import SymmetryGroup, in_array_list
+from pymatgen.symmetry.settings import JonesFaithfulTransformation
 from pymatgen.core.operations import MagSymmOp
 from pymatgen.util.string import transformation_to_string
 
@@ -37,7 +38,7 @@ class MagneticSpaceGroup(SymmetryGroup):
     """
     Representation of a magnetic space group.
     """
-    def __init__(self, id):
+    def __init__(self, id, jf_in="a,b,c;0,0,0"):
         """
         Initializes a MagneticSpaceGroup from its Belov, Neronova and
         Smirnova (BNS) number supplied as a list or its label supplied
@@ -120,6 +121,15 @@ class MagneticSpaceGroup(SymmetryGroup):
             # OG3 index is a 'master' index, going from 1 to 1651
             c.execute('SELECT * FROM space_groups WHERE OG3=?;', (id,))
         raw_data = list(c.fetchone())
+
+        # Jones Faithful transformation
+        self.jf = JonesFaithfulTransformation.from_transformation_string("a,b,c;0,0,0")
+        if isinstance(jf_in, str):
+            if jf_in != "a,b,c;0,0,0":
+                self.jf = JonesFaithfulTransformation.from_transformation_string(jf_in)
+        elif isinstance(jf_in, JonesFaithfulTransformation):
+            if jf_in != self.jf:
+                self.jf = jf_in
 
         self._data['magtype'] = raw_data[0]  # int from 1 to 4
         self._data['bns_number'] = [raw_data[1], raw_data[2]]
@@ -334,7 +344,10 @@ class MagneticSpaceGroup(SymmetryGroup):
 
         ops = ops + centered_ops
 
-        return ops
+        # apply jones faithful transformation
+        ops_jf = [self.jf.transform_symmop(op) for op in ops]
+
+        return ops_jf
 
     def get_orbit(self, p, m, tol=1e-5):
         """
