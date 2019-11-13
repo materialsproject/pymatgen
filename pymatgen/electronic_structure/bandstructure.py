@@ -1027,7 +1027,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
                                 old_dict['bands'][spin][k][v] + shift
             old_dict['efermi'] = old_dict['efermi'] + shift
 
-            return LobsterBandStructureSymmLine.from_dict(old_dict)
+        return LobsterBandStructureSymmLine.from_dict(old_dict)
 
     def as_dict(self):
         """
