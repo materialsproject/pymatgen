@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.abinit.netcdf &#8212; pymatgen 2019.10.4 documentation</title>
+    <title>pymatgen.io.abinit.netcdf &#8212; pymatgen 2019.11.11 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -114,6 +114,7 @@
 
 
 <div class="viewcode-block" id="as_etsfreader"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.as_etsfreader">[docs]</a><span class="k">def</span> <span class="nf">as_etsfreader</span><span class="p">(</span><span class="n">file</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return an ETSF_Reader. Accepts filename or ETSF_Reader.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_asreader</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">ETSF_Reader</span><span class="p">)</span></div>
 
 
@@ -146,11 +147,11 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">ngroups</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">walk_tree</span><span class="p">()))</span>
 
-        <span class="c1"># self.path2group = OrderedDict()</span>
-        <span class="c1"># for children in self.walk_tree():</span>
-        <span class="c1">#   for child in children:</span>
-        <span class="c1">#       #print(child.group,  child.path)</span>
-        <span class="c1">#       self.path2group[child.path] = child.group</span>
+        <span class="c1"># Always return non-masked numpy arrays.</span>
+        <span class="c1"># Slicing a ncvar returns a MaskedArrray and this is really annoying</span>
+        <span class="c1"># because it can lead to unexpected behaviour in e.g. calls to np.matmul!</span>
+        <span class="c1"># See also https://github.com/Unidata/netcdf4-python/issues/785</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rootgrp</span><span class="o">.</span><span class="n">set_auto_mask</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Activated when used in the with statement.&quot;&quot;&quot;</span>
@@ -161,6 +162,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">rootgrp</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
 <div class="viewcode-block" id="NetcdfReader.close"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.NetcdfReader.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Close the file.&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">rootgrp</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
@@ -181,6 +183,7 @@
                 <span class="k">yield</span> <span class="n">children</span></div>
 
 <div class="viewcode-block" id="NetcdfReader.print_tree"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.NetcdfReader.print_tree">[docs]</a>    <span class="k">def</span> <span class="nf">print_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Print all the groups in the file.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">children</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">walk_tree</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">children</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="n">child</span><span class="p">)</span></div>
@@ -351,7 +354,7 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot find `</span><span class="si">%s</span><span class="s2">` in `</span><span class="si">%s</span><span class="s2">`&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ncname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">))</span>
             <span class="c1"># Convert scalars to (well) scalars.</span>
             <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="n">hvar</span><span class="o">.</span><span class="n">name</span><span class="p">],</span> <span class="s2">&quot;shape&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">d</span><span class="p">[</span><span class="n">hvar</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
-                <span class="n">d</span><span class="p">[</span><span class="n">hvar</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asscalar</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="n">hvar</span><span class="o">.</span><span class="n">name</span><span class="p">])</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">hvar</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="n">hvar</span><span class="o">.</span><span class="n">name</span><span class="p">])</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">hvar</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="s2">&quot;md5_pseudos&quot;</span><span class="p">,</span> <span class="s2">&quot;codvsn&quot;</span><span class="p">):</span>
                 <span class="c1"># Convert array of numpy bytes to list of strings</span>
                 <span class="k">if</span> <span class="n">hvar</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;codvsn&quot;</span><span class="p">:</span>
@@ -549,7 +552,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -557,7 +560,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

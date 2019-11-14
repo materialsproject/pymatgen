@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.lammps.data module &#8212; pymatgen 2019.10.4 documentation</title>
+    <title>pymatgen.io.lammps.data module &#8212; pymatgen 2019.11.11 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -43,6 +43,17 @@
             
   <div class="section" id="module-pymatgen.io.lammps.data">
 <span id="pymatgen-io-lammps-data-module"></span><h1>pymatgen.io.lammps.data module<a class="headerlink" href="#module-pymatgen.io.lammps.data" title="Permalink to this headline">¶</a></h1>
+<p>This module implements a core class LammpsData for generating/parsing
+LAMMPS data file, and other bridging classes to build LammpsData from
+molecules. This module also implements a subclass CombinedData for
+merging LammpsData object.</p>
+<p>Only point particle styles are supported for now (atom_style in angle,
+atomic, bond, charge, full and molecular only). See the pages below for
+more info.</p>
+<blockquote>
+<div><p><a class="reference external" href="http://lammps.sandia.gov/doc/atom_style.html">http://lammps.sandia.gov/doc/atom_style.html</a>
+<a class="reference external" href="http://lammps.sandia.gov/doc/read_data.html">http://lammps.sandia.gov/doc/read_data.html</a></p>
+</div></blockquote>
 <dl class="class">
 <dt id="pymatgen.io.lammps.data.CombinedData">
 <em class="property">class </em><code class="sig-name descname">CombinedData</code><span class="sig-paren">(</span><em class="sig-param">list_of_molecules</em>, <em class="sig-param">list_of_names</em>, <em class="sig-param">list_of_numbers</em>, <em class="sig-param">coordinates</em>, <em class="sig-param">atom_style='full'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#CombinedData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.CombinedData" title="Permalink to this definition">¶</a></dt>
@@ -81,7 +92,7 @@ clusters parsed from files.</p></li>
 <dt id="pymatgen.io.lammps.data.CombinedData.from_lammpsdata">
 <em class="property">classmethod </em><code class="sig-name descname">from_lammpsdata</code><span class="sig-paren">(</span><em class="sig-param">mols</em>, <em class="sig-param">names</em>, <em class="sig-param">list_of_numbers</em>, <em class="sig-param">coordinates</em>, <em class="sig-param">atom_style=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#CombinedData.from_lammpsdata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.CombinedData.from_lammpsdata" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor that can infer atom_style.
-The input LammpsData objects are used destructively.</p>
+The input LammpsData objects are used non-destructively.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -230,12 +241,10 @@ be defined MORE THAN ONCE with DIFFERENT coefficients.</p>
 <dl class="method">
 <dt id="pymatgen.io.lammps.data.ForceField.from_dict">
 <em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#ForceField.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.ForceField.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Constructor that reads in a dictionary.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>d</strong> – Dict representation.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>MSONable class.</p>
+<dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dictionary to read.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -368,7 +377,7 @@ keys, and each value is a DataFrame.</p></li>
 <dl class="method">
 <dt id="pymatgen.io.lammps.data.LammpsData.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A JSON serializable dict representation of an object.</p>
+<dd><p>Returns the LammpsData as a dict.</p>
 </dd></dl>
 
 <dl class="method">
@@ -418,12 +427,10 @@ different types. Default to “ff_map”.</p></li>
 <dl class="method">
 <dt id="pymatgen.io.lammps.data.LammpsData.from_dict">
 <em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Constructor that reads in a dictionary.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>d</strong> – Dict representation.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>MSONable class.</p>
+<dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dictionary to read.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -662,13 +669,13 @@ simulation box. Default to (0, 0, 0).</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

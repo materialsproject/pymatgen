@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.gaussian module &#8212; pymatgen 2019.10.4 documentation</title>
+    <title>pymatgen.io.gaussian module &#8212; pymatgen 2019.11.11 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -52,16 +52,23 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>mol</strong> – Input molecule. If molecule is a single string, it is used as a
-direct input to the geometry section of the Gaussian input
-file.</p></li>
+<li><p><strong>mol</strong> – Input molecule. It can either be a Molecule object,
+a string giving the geometry in a format supported by Guassian,
+or <code class="docutils literal notranslate"><span class="pre">None</span></code>. If the molecule is <code class="docutils literal notranslate"><span class="pre">None</span></code>, you will need to use
+read it in from a checkpoint. Consider adding <code class="docutils literal notranslate"><span class="pre">CHK</span></code> to the
+<code class="docutils literal notranslate"><span class="pre">link0_parameters</span></code>.</p></li>
 <li><p><strong>charge</strong> – Charge of the molecule. If None, charge on molecule is used.
 Defaults to None. This allows the input file to be set a
-charge independently from the molecule itself.</p></li>
-<li><p><strong>spin_multiplicity</strong> – Spin multiplicity of molecule. Defaults to None,
+charge independently from the molecule itself.
+If <code class="docutils literal notranslate"><span class="pre">mol</span></code> is not a Molecule object, then you must specify a charge.</p></li>
+<li><p><strong>spin_multiplicity</strong> – <p>Spin multiplicity of molecule. Defaults to None,
 which means that the spin multiplicity is set to 1 if the
 molecule has no unpaired electrons and to 2 if there are
-unpaired electrons.</p></li>
+unpaired electrons. If <code class="docutils literal notranslate"><span class="pre">mol</span></code> is not a Molecule object, then you</p>
+<blockquote>
+<div><p>must specify the multiplicity</p>
+</div></blockquote>
+</p></li>
 <li><p><strong>title</strong> – Title for run. Defaults to formula of molecule if None.</p></li>
 <li><p><strong>functional</strong> – Functional for run.</p></li>
 <li><p><strong>basis_set</strong> – Basis set for run.</p></li>
@@ -642,13 +649,13 @@ route (dict) : dictionary of parameters</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

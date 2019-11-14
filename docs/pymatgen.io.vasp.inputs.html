@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.vasp.inputs module &#8212; pymatgen 2019.10.4 documentation</title>
+    <title>pymatgen.io.vasp.inputs module &#8212; pymatgen 2019.11.11 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -590,7 +590,7 @@ enum.</p>
 
 <dl class="class">
 <dt id="pymatgen.io.vasp.inputs.Poscar">
-<em class="property">class </em><code class="sig-name descname">Poscar</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">comment=None</em>, <em class="sig-param">selective_dynamics=None</em>, <em class="sig-param">true_names=True</em>, <em class="sig-param">velocities=None</em>, <em class="sig-param">predictor_corrector=None</em>, <em class="sig-param">predictor_corrector_preamble=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Poscar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Poscar" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Poscar</code><span class="sig-paren">(</span><em class="sig-param">structure: pymatgen.core.structure.Structure</em>, <em class="sig-param">comment: str = None</em>, <em class="sig-param">selective_dynamics=None</em>, <em class="sig-param">true_names: bool = True</em>, <em class="sig-param">velocities=None</em>, <em class="sig-param">predictor_corrector=None</em>, <em class="sig-param">predictor_corrector_preamble=None</em>, <em class="sig-param">sort_structure: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Poscar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Poscar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Object for representing the data in a POSCAR or CONTCAR file.
 Please note that this current implementation. Most attributes can be set
@@ -654,19 +654,23 @@ to -1 (MB hasn”t been performed).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Structure object.</p></li>
-<li><p><strong>comment</strong> (<em>str</em>) – Optional comment line for POSCAR. Defaults to unit
+<li><p><strong>structure</strong> – Structure object.</p></li>
+<li><p><strong>comment</strong> – Optional comment line for POSCAR. Defaults to unit
 cell formula of structure. Defaults to None.</p></li>
-<li><p><strong>selective_dynamics</strong> (<em>Nx3 array</em>) – bool values for selective dynamics,
+<li><p><strong>selective_dynamics</strong> – bool values for selective dynamics,
 where N is number of sites. Defaults to None.</p></li>
-<li><p><strong>true_names</strong> (<em>bool</em>) – Set to False is the names in the POSCAR are not
+<li><p><strong>true_names</strong> – Set to False if the names in the POSCAR are not
 well-defined and ambiguous. This situation arises commonly in
 vasp &lt; 5 where the POSCAR sometimes does not contain element
 symbols. Defaults to True.</p></li>
-<li><p><strong>velocities</strong> (<em>Nx3 array</em>) – Velocities for the POSCAR. Typically parsed
+<li><p><strong>velocities</strong> – Velocities for the POSCAR. Typically parsed
 in MD runs or can be used to initialize velocities.</p></li>
-<li><p><strong>predictor_corrector</strong> (<em>Nx3 array</em>) – Predictor corrector for the POSCAR.
+<li><p><strong>predictor_corrector</strong> – Predictor corrector for the POSCAR.
 Typically parsed in MD runs.</p></li>
+<li><p><strong>predictor_corrector_preamble</strong> – Preamble to the predictor
+corrector.</p></li>
+<li><p><strong>sort_structure</strong> – Whether to sort structure. Useful if species
+are not grouped properly together.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1254,13 +1258,13 @@ present. Defaults to True.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

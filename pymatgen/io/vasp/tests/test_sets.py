@@ -6,6 +6,7 @@
 import unittest
 import os
 import tempfile
+from zipfile import ZipFile
 from monty.json import MontyDecoder
 from pymatgen.io.vasp.sets import *
 from pymatgen.io.vasp.inputs import Poscar, Kpoints
@@ -13,6 +14,8 @@ from pymatgen.core import Specie, Lattice, Structure
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.vasp.outputs import Vasprun
+
+MODULE_DIR = Path(__file__).resolve().parent
 
 dec = MontyDecoder()
 
@@ -412,6 +415,21 @@ class MPStaticSetTest(PymatgenTest):
 
         vis = MPStaticSet(original_structure, standardize=True)
         self.assertFalse(sm.fit(vis.structure, original_structure))
+
+    def test_write_spec(self):
+
+        vis = MPStaticSet(self.get_structure("Si"))
+        vis.write_spec()
+
+        self.assertTrue(os.path.exists("MPStaticSet_spec.zip"))
+        with ZipFile("MPStaticSet_spec.zip", "r") as zip:
+            contents = zip.namelist()
+            self.assertSetEqual(set(contents), {"INCAR", "POSCAR",
+                                                "POTCAR.spec", "KPOINTS"})
+            spec = zip.open("POTCAR.spec", "r").read().decode()
+            self.assertEqual(spec, "Si")
+
+        os.remove("MPStaticSet_spec.zip")
 
     def tearDown(self):
         shutil.rmtree(self.tmp)
@@ -1146,6 +1164,8 @@ class LobsterSetTest(PymatgenTest):
         self.lobsterset5 = LobsterSet(self.struct, user_supplied_basis={"Fe": "3d 3p 4s", "P": "3p 3s", "O": "2p 2s"})
         with self.assertRaises(ValueError):
             self.lobsterset6 = LobsterSet(self.struct, user_supplied_basis={"Fe": "3d 3p 4s", "P": "3p 3s"})
+        self.lobsterset7 = LobsterSet(self.struct,
+                                      address_basis_file=os.path.join(MODULE_DIR, "../../BASIS_PBE_54.yaml"))
 
     def test_incar(self):
         incar1 = self.lobsterset1.incar

@@ -100,16 +100,20 @@ class GaussianInput:
                  gen_basis=None):
         """
         Args:
-            mol: Input molecule. If molecule is a single string, it is used as a
-                direct input to the geometry section of the Gaussian input
-                file.
+            mol: Input molecule. It can either be a Molecule object,
+                a string giving the geometry in a format supported by Guassian,
+                or ``None``. If the molecule is ``None``, you will need to use
+                read it in from a checkpoint. Consider adding ``CHK`` to the
+                ``link0_parameters``.
             charge: Charge of the molecule. If None, charge on molecule is used.
                 Defaults to None. This allows the input file to be set a
                 charge independently from the molecule itself.
+                If ``mol`` is not a Molecule object, then you must specify a charge.
             spin_multiplicity: Spin multiplicity of molecule. Defaults to None,
                 which means that the spin multiplicity is set to 1 if the
                 molecule has no unpaired electrons and to 2 if there are
-                unpaired electrons.
+                unpaired electrons. If ``mol`` is not a Molecule object, then you
+                 must specify the multiplicity
             title: Title for run. Defaults to formula of molecule if None.
             functional: Functional for run.
             basis_set: Basis set for run.
@@ -124,23 +128,38 @@ class GaussianInput:
                 be set to "Gen".
         """
         self._mol = mol
-        self.charge = charge if charge is not None else mol.charge
-        nelectrons = - self.charge + mol.charge + mol.nelectrons
-        if spin_multiplicity is not None:
-            self.spin_multiplicity = spin_multiplicity
-            if (nelectrons + spin_multiplicity) % 2 != 1:
-                raise ValueError(
-                    "Charge of {} and spin multiplicity of {} is"
-                    " not possible for this molecule".format(
-                        self.charge, spin_multiplicity))
+
+        # Determine multiplicity and charge settings
+        if isinstance(mol, Molecule):
+            self.charge = charge if charge is not None else mol.charge
+            nelectrons = - self.charge + mol.charge + mol.nelectrons
+            if spin_multiplicity is not None:
+                self.spin_multiplicity = spin_multiplicity
+                if (nelectrons + spin_multiplicity) % 2 != 1:
+                    raise ValueError(
+                        "Charge of {} and spin multiplicity of {} is"
+                        " not possible for this molecule".format(
+                            self.charge, spin_multiplicity))
+            else:
+                self.spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
+
+            # Get a title from the molecule name
+            self.title = title if title else self._mol.composition.formula
         else:
-            self.spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
+            if charge is None or spin_multiplicity is None:
+                raise ValueError('`charge` and `spin_multiplicity` must be specified')
+            self.charge = charge
+            self.spin_multiplicity = spin_multiplicity
+
+            # Set a title
+            self.title = title if title else 'Restart'
+
+        # Store the remaining settings
         self.functional = functional
         self.basis_set = basis_set
         self.link0_parameters = link0_parameters if link0_parameters else {}
         self.route_parameters = route_parameters if route_parameters else {}
         self.input_parameters = input_parameters if input_parameters else {}
-        self.title = title if title else self._mol.composition.formula
         self.dieze_tag = dieze_tag if dieze_tag[0] == "#" else "#" + dieze_tag
         self.gen_basis = gen_basis
         if gen_basis is not None:
@@ -443,7 +462,7 @@ class GaussianInput:
                 output.append(self.get_cart_coords())
             else:
                 output.append(self.get_zmatrix())
-        else:
+        elif self._mol is not None:
             output.append(str(self._mol))
         output.append("")
         if self.gen_basis is not None:
@@ -1359,7 +1378,7 @@ class GaussianOutput:
             A matplotlib plot.
         """
         from pymatgen.util.plotting import pretty_plot
-        from matplotlib.mlab import normpdf
+        from scipy.stats import norm
         plt = pretty_plot(12, 8)
 
         transitions = self.read_excitation_energies()
@@ -1375,7 +1394,7 @@ class GaussianOutput:
         # sum of gaussian functions
         spectre = np.zeros(npts)
         for trans in transitions:
-            spectre += trans[2] * normpdf(eneval, trans[0], sigma)
+            spectre += trans[2] * norm(eneval, trans[0], sigma)
         spectre /= spectre.max()
         plt.plot(lambdaval, spectre, "r-", label="spectre")
 

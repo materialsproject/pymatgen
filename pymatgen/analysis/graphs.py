@@ -862,8 +862,8 @@ class StructureGraph(MSONable):
                 d['arrowhead'] = "normal" if d['headlabel'] else "none"
 
             # optionally color edges using node colors
-            color_u = g.node[u]['fillcolor']
-            color_v = g.node[v]['fillcolor']
+            color_u = g.nodes[u]['fillcolor']
+            color_v = g.nodes[v]['fillcolor']
             d['color_uv'] = "{};0.5:{};0.5".format(color_u, color_v) if edge_colors else "#000000"
 
             # optionally add weights to graph
@@ -1457,7 +1457,8 @@ class StructureGraph(MSONable):
         supercell_sg.graph = nx.Graph(supercell_sg.graph)
 
         # find subgraphs
-        all_subgraphs = list(nx.connected_component_subgraphs(supercell_sg.graph))
+        all_subgraphs = [supercell_sg.graph.subgraph(c) for c in
+                         nx.connected_components(supercell_sg.graph)]
 
         # discount subgraphs that lie across *supercell* boundaries
         # these will subgraphs representing crystals
@@ -1466,7 +1467,7 @@ class StructureGraph(MSONable):
             intersects_boundary = any([d['to_jimage'] != (0, 0, 0)
                                        for u, v, d in subgraph.edges(data=True)])
             if not intersects_boundary:
-                molecule_subgraphs.append(subgraph)
+                molecule_subgraphs.append(nx.MultiDiGraph(subgraph))
 
         # add specie names to graph to be able to test for isomorphism
         for subgraph in molecule_subgraphs:
@@ -2024,8 +2025,8 @@ class MoleculeGraph(MSONable):
 
             # Had to use nx.weakly_connected_components because of deprecation
             # of nx.weakly_connected_component_subgraphs
-            components = nx.weakly_connected_components(original.graph)
-            subgraphs = [original.graph.subgraph(c) for c in components]
+            subgraphs = [original.graph.subgraph(c)
+                         for c in nx.weakly_connected_components(original.graph)]
 
             for subg in subgraphs:
 

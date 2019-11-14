@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.abinit.pseudos module &#8212; pymatgen 2019.10.4 documentation</title>
+    <title>pymatgen.io.abinit.pseudos module &#8212; pymatgen 2019.11.11 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -66,7 +66,7 @@ implemented by the concrete pseudopotential sub-classes.</p>
 <dl class="method">
 <dt id="pymatgen.io.abinit.pseudos.Pseudo.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/pseudos.html#Pseudo.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.Pseudo.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A JSON serializable dict representation of an object.</p>
+<dd><p>Return dictionary for MSONable protocol.</p>
 </dd></dl>
 
 <dl class="method">
@@ -121,19 +121,13 @@ else tmpdir is used.</p>
 <dl class="method">
 <dt id="pymatgen.io.abinit.pseudos.Pseudo.filepath">
 <em class="property">property </em><code class="sig-name descname">filepath</code><a class="headerlink" href="#pymatgen.io.abinit.pseudos.Pseudo.filepath" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Absolute path to pseudopotential file.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.pseudos.Pseudo.from_dict">
 <em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/pseudos.html#Pseudo.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.Pseudo.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>d</strong> – Dict representation.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>MSONable class.</p>
-</dd>
-</dl>
+<dd><p>Build instance from dictionary (MSONable protocol).</p>
 </dd></dl>
 
 <dl class="method">
@@ -243,7 +237,8 @@ Base classes should provide a concrete implementation that computes this value.<
 <dl class="method">
 <dt id="pymatgen.io.abinit.pseudos.Pseudo.type">
 <em class="property">property </em><code class="sig-name descname">type</code><a class="headerlink" href="#pymatgen.io.abinit.pseudos.Pseudo.type" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Type of pseudo.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -296,7 +291,7 @@ Each item is a list of pseudopotential objects.</p>
 <dl class="method">
 <dt id="pymatgen.io.abinit.pseudos.PseudoTable.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/pseudos.html#PseudoTable.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.PseudoTable.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A JSON serializable dict representation of an object.</p>
+<dd><p>Return dictionary for MSONable protocol.</p>
 </dd></dl>
 
 <dl class="method">
@@ -308,14 +303,7 @@ Each item is a list of pseudopotential objects.</p>
 <dl class="method">
 <dt id="pymatgen.io.abinit.pseudos.PseudoTable.from_dict">
 <em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/pseudos.html#PseudoTable.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.PseudoTable.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>d</strong> – Dict representation.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>MSONable class.</p>
-</dd>
-</dl>
+<dd><p>Build instance from dictionary (MSONable protocol).</p>
 </dd></dl>
 
 <dl class="method">
@@ -418,7 +406,8 @@ Return new class:<cite>PseudoTable</cite> object.</p>
 <dl class="method">
 <dt id="pymatgen.io.abinit.pseudos.PseudoTable.select_family">
 <code class="sig-name descname">select_family</code><span class="sig-paren">(</span><em class="sig-param">family</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/pseudos.html#PseudoTable.select_family"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.PseudoTable.select_family" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Return PseudoTable with element beloging to the specified family, e.g. familiy=”alkaline”</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.pseudos.PseudoTable.select_rows">
@@ -520,13 +509,13 @@ Prepend the symbol string with “-“, to exclude pseudos.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -27,7 +27,13 @@ from tabulate import tabulate
 save_file = "gau_data.gz"
 
 
-def get_energies(rootdir, reanalyze, verbose, pretty):
+def get_energies(rootdir, reanalyze, verbose):
+    """
+    :param rootdir:
+    :param reanalyze:
+    :param verbose:
+    :return:
+    """
     if verbose:
         FORMAT = "%(relativeCreated)d msecs : %(message)s"
         logging.basicConfig(level=logging.INFO, format=FORMAT)
@@ -37,8 +43,8 @@ def get_energies(rootdir, reanalyze, verbose, pretty):
     logging.info('Detected {} cpus'.format(ncpus))
     queen = BorgQueen(drone, number_of_drones=ncpus)
     if os.path.exists(save_file) and not reanalyze:
-        msg = 'Using previously assimilated data from {}. ' + \
-              'Use -f to force re-analysis'.format(save_file)
+        msg = 'Using previously assimilated data from {}.'.format(save_file) + \
+              ' Use -f to force re-analysis.'
         queen.load_data(save_file)
     else:
         queen.parallel_assimilate(rootdir)
@@ -61,6 +67,9 @@ def get_energies(rootdir, reanalyze, verbose, pretty):
 
 
 def main():
+    """
+    Main function
+    """
     desc = '''
     Convenient Gaussian run analyzer which can recursively go into a directory
     to search results.
@@ -84,7 +93,7 @@ def main():
 
     args = parser.parse_args()
     for d in args.directories:
-        get_energies(d, args.reanalyze, args.verbose, args.pretty)
+        get_energies(d, args.reanalyze, args.verbose)
 
 
 if __name__ == "__main__":

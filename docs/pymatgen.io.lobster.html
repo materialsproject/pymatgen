@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.lobster module &#8212; pymatgen 2019.10.4 documentation</title>
+    <title>pymatgen.io.lobster module &#8212; pymatgen 2019.11.11 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -47,7 +47,7 @@
 on LOBSTER see www.cohp.de.</p>
 <dl class="class">
 <dt id="pymatgen.io.lobster.Bandoverlaps">
-<em class="property">class </em><code class="sig-name descname">Bandoverlaps</code><span class="sig-paren">(</span><em class="sig-param">filename='bandOverlaps.lobster'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lobster.html#Bandoverlaps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Bandoverlaps" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Bandoverlaps</code><span class="sig-paren">(</span><em class="sig-param">filename: str = 'bandOverlaps.lobster'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lobster.html#Bandoverlaps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Bandoverlaps" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to read in bandOverlaps.lobster files. These files are not created during every Lobster run.
 .. attribute: bandoverlapsdict is a dict of the following form:</p>
@@ -62,7 +62,7 @@ array of the size number of bands times number of bands including the overlap ma
 </dl>
 <dl class="method">
 <dt id="pymatgen.io.lobster.Bandoverlaps.has_good_quality_check_occupied_bands">
-<code class="sig-name descname">has_good_quality_check_occupied_bands</code><span class="sig-paren">(</span><em class="sig-param">number_occ_bands_spin_up</em>, <em class="sig-param">number_occ_bands_spin_down=None</em>, <em class="sig-param">spin_polarized=False</em>, <em class="sig-param">limit_deviation=0.1</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/pymatgen/io/lobster.html#Bandoverlaps.has_good_quality_check_occupied_bands"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Bandoverlaps.has_good_quality_check_occupied_bands" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">has_good_quality_check_occupied_bands</code><span class="sig-paren">(</span><em class="sig-param">number_occ_bands_spin_up: int</em>, <em class="sig-param">number_occ_bands_spin_down: Optional[int] = None</em>, <em class="sig-param">spin_polarized: bool = False</em>, <em class="sig-param">limit_deviation: float = 0.1</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/pymatgen/io/lobster.html#Bandoverlaps.has_good_quality_check_occupied_bands"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Bandoverlaps.has_good_quality_check_occupied_bands" title="Permalink to this definition">¶</a></dt>
 <dd><p>will check if the deviation from the ideal bandoverlap of all occupied bands is smaller or equal to
 limit_deviation</p>
 <p>Args:
@@ -75,7 +75,7 @@ limit_deviation (float): limit of the maxDeviation
 
 <dl class="method">
 <dt id="pymatgen.io.lobster.Bandoverlaps.has_good_quality_maxDeviation">
-<code class="sig-name descname">has_good_quality_maxDeviation</code><span class="sig-paren">(</span><em class="sig-param">limit_maxDeviation=0.1</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/pymatgen/io/lobster.html#Bandoverlaps.has_good_quality_maxDeviation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Bandoverlaps.has_good_quality_maxDeviation" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">has_good_quality_maxDeviation</code><span class="sig-paren">(</span><em class="sig-param">limit_maxDeviation: float = 0.1</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/pymatgen/io/lobster.html#Bandoverlaps.has_good_quality_maxDeviation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Bandoverlaps.has_good_quality_maxDeviation" title="Permalink to this definition">¶</a></dt>
 <dd><p>will check if the maxDeviation from the ideal bandoverlap is smaller or equal to limit_maxDeviation
 :param limit_maxDeviation: limit of the maxDeviation</p>
 <dl class="field-list simple">
@@ -89,7 +89,7 @@ limit_deviation (float): limit of the maxDeviation
 
 <dl class="class">
 <dt id="pymatgen.io.lobster.Charge">
-<em class="property">class </em><code class="sig-name descname">Charge</code><span class="sig-paren">(</span><em class="sig-param">filename='CHARGE.lobster'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lobster.html#Charge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Charge" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Charge</code><span class="sig-paren">(</span><em class="sig-param">filename: str = 'CHARGE.lobster'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lobster.html#Charge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Charge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to read CHARGE files generated by LOBSTER</p>
 <dl class="field-list simple">
@@ -113,7 +113,7 @@ limit_deviation (float): limit of the maxDeviation
 
 <dl class="class">
 <dt id="pymatgen.io.lobster.Cohpcar">
-<em class="property">class </em><code class="sig-name descname">Cohpcar</code><span class="sig-paren">(</span><em class="sig-param">are_coops=False</em>, <em class="sig-param">filename=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lobster.html#Cohpcar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Cohpcar" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Cohpcar</code><span class="sig-paren">(</span><em class="sig-param">are_coops: bool = False</em>, <em class="sig-param">filename: str = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lobster.html#Cohpcar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Cohpcar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to read COHPCAR/COOPCAR files generated by LOBSTER.</p>
 <dl class="field-list simple">
@@ -130,7 +130,7 @@ file name will be chosen, depending on the value of are_coops.</p></li>
 
 <dl class="class">
 <dt id="pymatgen.io.lobster.Doscar">
-<em class="property">class </em><code class="sig-name descname">Doscar</code><span class="sig-paren">(</span><em class="sig-param">doscar='DOSCAR.lobster'</em>, <em class="sig-param">structure_file='POSCAR'</em>, <em class="sig-param">dftprogram='Vasp'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lobster.html#Doscar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Doscar" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Doscar</code><span class="sig-paren">(</span><em class="sig-param">doscar: str = 'DOSCAR.lobster'</em>, <em class="sig-param">structure_file: str = 'POSCAR'</em>, <em class="sig-param">dftprogram: str = 'Vasp'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lobster.html#Doscar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Doscar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to deal with Lobster’s projected DOS and local projected DOS.
 The beforehand quantum-chemical calculation was performed with VASP</p>
@@ -239,7 +239,7 @@ tdensities[Spin.up]: numpy array of the total density of states</p>
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">tdensities</code></dt>
-<dd><p>What is this?!??!</p>
+<dd><p>total densities as a list</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>return</p>
@@ -285,7 +285,7 @@ tdensities[Spin.up]: numpy array of the total density of states</p>
 
 <dl class="class">
 <dt id="pymatgen.io.lobster.Grosspop">
-<em class="property">class </em><code class="sig-name descname">Grosspop</code><span class="sig-paren">(</span><em class="sig-param">filename='GROSSPOP.lobster'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lobster.html#Grosspop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Grosspop" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Grosspop</code><span class="sig-paren">(</span><em class="sig-param">filename: str = 'GROSSPOP.lobster'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lobster.html#Grosspop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Grosspop" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to read in GROSSPOP.lobster files.</p>
 <dl class="field-list simple">
@@ -293,11 +293,24 @@ tdensities[Spin.up]: numpy array of the total density of states</p>
 <dd class="field-odd"><p><strong>filename</strong> – filename of the “GROSSPOP.lobster” file</p>
 </dd>
 </dl>
+<dl class="method">
+<dt id="pymatgen.io.lobster.Grosspop.get_structure_with_total_grosspop">
+<code class="sig-name descname">get_structure_with_total_grosspop</code><span class="sig-paren">(</span><em class="sig-param">structure_filename: str</em><span class="sig-paren">)</span> &#x2192; pymatgen.core.structure.Structure<a class="reference internal" href="_modules/pymatgen/io/lobster.html#Grosspop.get_structure_with_total_grosspop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Grosspop.get_structure_with_total_grosspop" title="Permalink to this definition">¶</a></dt>
+<dd><p>get a Structure with Mulliken and Loewdin total grosspopulations as site properties
+:param structure_filename: filename of POSCAR
+:type structure_filename: str</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Structure Object with Mulliken and Loewdin total grosspopulations as site properties</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.io.lobster.Icohplist">
-<em class="property">class </em><code class="sig-name descname">Icohplist</code><span class="sig-paren">(</span><em class="sig-param">are_coops=False</em>, <em class="sig-param">filename=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lobster.html#Icohplist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Icohplist" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Icohplist</code><span class="sig-paren">(</span><em class="sig-param">are_coops: bool = False</em>, <em class="sig-param">filename: str = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lobster.html#Icohplist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Icohplist" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to read ICOHPLIST/ICOOPLIST files generated by LOBSTER.</p>
 <dl class="field-list simple">
@@ -354,12 +367,12 @@ There are also several standard lobsterin files that can be easily generated.</p
 
 <dl class="attribute">
 <dt id="pymatgen.io.lobster.Lobsterin.BOOLEANKEYWORDS">
-<code class="sig-name descname">BOOLEANKEYWORDS</code><em class="property"> = ['saveProjectionToFile', 'skipdos', 'skipcohp', 'skipcoop', 'loadProjectionFromFile', 'forceEnergyRange', 'DensityOfEnergy', 'BWDF', 'BWDFCOHP', 'skipPopulationAnalysis', 'skipGrossPopulation', 'userecommendedbasisfunctions', 'skipProjection', 'writeBasisFunctions', 'writeMatricesToFile', 'noFFTforVisualization', 'RMSp', 'onlyReadVasprun.xml', 'noMemoryMappedFiles', 'skipPAWOrthonormalityTest', 'doNotIgnoreExcessiveBands', 'doNotUseAbsoluteSpilling', 'skipReOrthonormalization', 'forceV1HMatrix', 'useOriginalTetrahedronMethod']</em><a class="headerlink" href="#pymatgen.io.lobster.Lobsterin.BOOLEANKEYWORDS" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">BOOLEANKEYWORDS</code><em class="property"> = ['saveProjectionToFile', 'skipdos', 'skipcohp', 'skipcoop', 'loadProjectionFromFile', 'forceEnergyRange', 'DensityOfEnergy', 'BWDF', 'BWDFCOHP', 'skipPopulationAnalysis', 'skipGrossPopulation', 'userecommendedbasisfunctions', 'skipProjection', 'writeBasisFunctions', 'writeMatricesToFile', 'noFFTforVisualization', 'RMSp', 'onlyReadVasprun.xml', 'noMemoryMappedFiles', 'skipPAWOrthonormalityTest', 'doNotIgnoreExcessiveBands', 'doNotUseAbsoluteSpilling', 'skipReOrthonormalization', 'forceV1HMatrix', 'useOriginalTetrahedronMethod', 'forceEnergyRange', 'bandwiseSpilling', 'kpointwiseSpilling']</em><a class="headerlink" href="#pymatgen.io.lobster.Lobsterin.BOOLEANKEYWORDS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.lobster.Lobsterin.FLOATKEYWORDS">
-<code class="sig-name descname">FLOATKEYWORDS</code><em class="property"> = ['COHPstartEnergy', 'COHPendEnergy', 'gaussianSmearingWidth', 'useDecimalPlaces']</em><a class="headerlink" href="#pymatgen.io.lobster.Lobsterin.FLOATKEYWORDS" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">FLOATKEYWORDS</code><em class="property"> = ['COHPstartEnergy', 'COHPendEnergy', 'gaussianSmearingWidth', 'useDecimalPlaces', 'COHPSteps']</em><a class="headerlink" href="#pymatgen.io.lobster.Lobsterin.FLOATKEYWORDS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -424,7 +437,7 @@ Similar to the diff in INCAR.
 
 <dl class="method">
 <dt id="pymatgen.io.lobster.Lobsterin.standard_calculations_from_vasp_files">
-<em class="property">classmethod </em><code class="sig-name descname">standard_calculations_from_vasp_files</code><span class="sig-paren">(</span><em class="sig-param">POSCAR_input='POSCAR'</em>, <em class="sig-param">INCAR_input='INCAR'</em>, <em class="sig-param">POTCAR_input=None</em>, <em class="sig-param">dict_for_basis=None</em>, <em class="sig-param">option='standard'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lobster.html#Lobsterin.standard_calculations_from_vasp_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Lobsterin.standard_calculations_from_vasp_files" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">standard_calculations_from_vasp_files</code><span class="sig-paren">(</span><em class="sig-param">POSCAR_input: str = 'POSCAR'</em>, <em class="sig-param">INCAR_input: str = 'INCAR'</em>, <em class="sig-param">POTCAR_input: Optional[str] = None</em>, <em class="sig-param">dict_for_basis: Optional[dict] = None</em>, <em class="sig-param">option: str = 'standard'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lobster.html#Lobsterin.standard_calculations_from_vasp_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Lobsterin.standard_calculations_from_vasp_files" title="Permalink to this definition">¶</a></dt>
 <dd><p>will generate Lobsterin with standard settings</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -453,29 +466,33 @@ calculated
 
 <dl class="method">
 <dt id="pymatgen.io.lobster.Lobsterin.write_INCAR">
-<code class="sig-name descname">write_INCAR</code><span class="sig-paren">(</span><em class="sig-param">incar_input='INCAR'</em>, <em class="sig-param">incar_output='INCAR.lobster'</em>, <em class="sig-param">poscar_input='POSCAR'</em>, <em class="sig-param">further_settings=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lobster.html#Lobsterin.write_INCAR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Lobsterin.write_INCAR" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_INCAR</code><span class="sig-paren">(</span><em class="sig-param">incar_input: str = 'INCAR'</em>, <em class="sig-param">incar_output: str = 'INCAR.lobster'</em>, <em class="sig-param">poscar_input: str = 'POSCAR'</em>, <em class="sig-param">isym: int = -1</em>, <em class="sig-param">further_settings: dict = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lobster.html#Lobsterin.write_INCAR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Lobsterin.write_INCAR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Will only make the run static, insert nbands, make ISYM=-1, set LWAVE=True and write a new INCAR.
 You have to check for the rest.
 :param incar_input: path to input INCAR
 :type incar_input: str
 :param incar_output: path to output INCAR
 :type incar_output: str
-:param poscar_input:
+:param poscar_input: path to input POSCAR
 :type poscar_input: str
+:param isym: isym equal to -1 or 0 are possible. Current Lobster version only allow -1.
+:type isym: int
 :param further_settings: A dict can be used to include further settings, e.g. {“ISMEAR”:-5}
 :type further_settings: dict</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.lobster.Lobsterin.write_KPOINTS">
-<em class="property">static </em><code class="sig-name descname">write_KPOINTS</code><span class="sig-paren">(</span><em class="sig-param">POSCAR_input='POSCAR', KPOINTS_output='KPOINTS.lobster', reciprocal_density=100, from_grid=False, input_grid=[5, 5, 5], line_mode=True, kpoints_line_density=20, symprec=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lobster.html#Lobsterin.write_KPOINTS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Lobsterin.write_KPOINTS" title="Permalink to this definition">¶</a></dt>
-<dd><p>writes a KPOINT file for lobster (no symmetry considered!, ISYM=-1)
+<em class="property">static </em><code class="sig-name descname">write_KPOINTS</code><span class="sig-paren">(</span><em class="sig-param">POSCAR_input: str = 'POSCAR', KPOINTS_output='KPOINTS.lobster', reciprocal_density: int = 100, isym: int = -1, from_grid: bool = False, input_grid: list = [5, 5, 5], line_mode: bool = True, kpoints_line_density: int = 20, symprec: float = 0.01</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lobster.html#Lobsterin.write_KPOINTS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.Lobsterin.write_KPOINTS" title="Permalink to this definition">¶</a></dt>
+<dd><p>writes a KPOINT file for lobster (only ISYM=-1 and ISYM=0 are possible), grids are gamma centered
 :param POSCAR_input: path to POSCAR
 :type POSCAR_input: str
 :param KPOINTS_output: path to output KPOINTS
 :type KPOINTS_output: str
 :param reciprocal_density: Grid density
 :type reciprocal_density: int
+:param isym: either -1 or 0. Current Lobster versions only allow -1.
+:type isym: int
 :param from_grid: If True KPOINTS will be generated with the help of a grid given in input_grid. Otherwise,</p>
 <blockquote>
 <div><p>they will be generated from the reciprocal_density</p>
@@ -574,13 +591,13 @@ You have to check for the rest.
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

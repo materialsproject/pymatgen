@@ -485,7 +485,7 @@ class Magmom(MSONable):
 
     def __repr__(self):
         if np.allclose(self.saxis, (0, 0, 1)):
-            return 'Magnetic moment {0}'.format(self.moment, self.saxis)
+            return 'Magnetic moment {0}'.format(self.moment)
         else:
             return 'Magnetic moment {0} (spin axis = {1})'.format(self.moment,
                                                                   self.saxis)

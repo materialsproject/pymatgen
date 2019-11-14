@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Requirements &#8212; pymatgen 2019.10.4 documentation</title>
+    <title>Requirements &#8212; pymatgen 2019.11.11 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="index.html" title="Introduction"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -54,24 +54,6 @@
 <p>All required dependencies should be automatically taken care of if you
 install pymatgen using easy_install or pip. Otherwise, these packages should
 be available on <a class="reference external" href="http://pypi.python.org">PyPI</a>.</p>
-<ol class="arabic simple">
-<li><p>Python 2.7-3.x supported. <strong>It is highly recommended that you use latest
-Python 3.x unless you know you need other dependencies that works with
-Python 2.x only.</strong></p></li>
-<li><p>numpy&gt;=1.14</p></li>
-<li><p>scipy&gt;=1.0.1</p></li>
-<li><p>matplotlib&gt;=1.5+</p></li>
-<li><p>monty&gt;=0.9.6</p></li>
-<li><p>requests&gt;=2.0+</p></li>
-<li><p>pybtex</p></li>
-<li><p>pyyaml</p></li>
-<li><p>tabulate</p></li>
-<li><p>six</p></li>
-</ol>
-<p>Most of these are fairly easy to install. The well-established numpy and scipy
-should have ready-made installation packages for all platforms. The rest are
-pure/semi-pure Python packages that installs without any issues with pip and
-easy_install.</p>
 <div class="section" id="optional-dependencies">
 <h2>Optional dependencies<a class="headerlink" href="#optional-dependencies" title="Permalink to this headline">¶</a></h2>
 <p>Optional libraries that are required if you need certain features.</p>
@@ -90,7 +72,7 @@ and OpenBabel’s OBMol. Opens up input and output support for the very large
 number of input and output formats supported by OpenBabel.</p></li>
 <li><p>networkx: For graph analysis associated with critic2 topological analysis
 of electron charge densities, pygraphviz is also required for visualization.</p></li>
-<li><p>nose - For unittesting. Not optional for developers.</p></li>
+<li><p>pytest - For unittesting. Not optional for developers.</p></li>
 </ol>
 </div>
 <div class="section" id="optional-non-python-programs">
@@ -165,10 +147,9 @@ create a separate environment for each of your packages. For example:</p>
 </div>
 <div class="section" id="step-3-install-pymatgen">
 <h2>Step 3: Install pymatgen<a class="headerlink" href="#step-3-install-pymatgen" title="Permalink to this headline">¶</a></h2>
-<p>You can install pymatgen via conda as well via the <a class="reference external" href="https://anaconda.org/matsci">matsci channel on
-Anaconda cloud</a> maintained by the Materials
-Virtual Lab:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">--</span><span class="n">channel</span> <span class="n">matsci</span> <span class="n">pymatgen</span>
+<p>You can install pymatgen via conda as well via the conda-forge channel on
+Anaconda cloud:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">--</span><span class="n">channel</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span> <span class="n">pymatgen</span>
 </pre></div>
 </div>
 <p>If the above fails, try using conda to install some critical dependencies and
@@ -182,20 +163,14 @@ then do pip install:</p>
 <h2>Step 4: (Optional) Install enumlib and bader (only for OSX and Linux)<a class="headerlink" href="#step-4-optional-install-enumlib-and-bader-only-for-osx-and-linux" title="Permalink to this headline">¶</a></h2>
 <p>If you would like to use the enumeration capabilities powered by Gus Hart’s
 enumlib or perform Bader charge analysis powered by the Bader analysis code
-of the Henkelmann group, the <a class="reference external" href="https://anaconda.org/matsci">matsci channel on Anaconda cloud</a> has builds for enumlib and bader for OSX and
-Linux (sorry, Windows users, you are on your own as the develpers of these
-packages do not support Windows):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">--</span><span class="n">channel</span> <span class="n">matsci</span> <span class="n">bader</span>
-<span class="n">conda</span> <span class="n">install</span> <span class="o">--</span><span class="n">channel</span> <span class="n">matsci</span> <span class="n">enumlib</span>
-</pre></div>
-</div>
-<p>If the above fails, you can also try installing these from source using the pmg
+of the Henkelmann group, please try installing these from source using the pmg
 command line tool as follows:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pmg</span> <span class="n">config</span> <span class="o">--</span><span class="n">install</span> <span class="n">enumlib</span>
 <span class="n">pmg</span> <span class="n">config</span> <span class="o">--</span><span class="n">install</span> <span class="n">bader</span>
 </pre></div>
 </div>
-<p>Then put these in your PATH somewhere.</p>
+<p>Then put these in your PATH somewhere. You can also download the source of
+these from the official repos and follow the compile instructions.</p>
 </div>
 </div>
 <div class="section" id="potcar-setup">
@@ -593,13 +568,13 @@ can do using pymatgen:</p>
         <li class="right" >
           <a href="index.html" title="Introduction"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

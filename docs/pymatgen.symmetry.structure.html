@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.symmetry.structure module &#8212; pymatgen 2019.10.4 documentation</title>
+    <title>pymatgen.symmetry.structure module &#8212; pymatgen 2019.11.11 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -43,9 +43,10 @@
             
   <div class="section" id="module-pymatgen.symmetry.structure">
 <span id="pymatgen-symmetry-structure-module"></span><h1>pymatgen.symmetry.structure module<a class="headerlink" href="#module-pymatgen.symmetry.structure" title="Permalink to this headline">¶</a></h1>
+<p>This module implements symmetry-related structure forms.</p>
 <dl class="class">
 <dt id="pymatgen.symmetry.structure.SymmetrizedStructure">
-<em class="property">class </em><code class="sig-name descname">SymmetrizedStructure</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">spacegroup</em>, <em class="sig-param">equivalent_positions</em>, <em class="sig-param">wyckoff_letters</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/structure.html#SymmetrizedStructure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.structure.SymmetrizedStructure" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">SymmetrizedStructure</code><span class="sig-paren">(</span><em class="sig-param">structure: pymatgen.core.structure.Structure, spacegroup, equivalent_positions: Sequence[int], wyckoff_letters: Sequence[str]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/structure.html#SymmetrizedStructure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.structure.SymmetrizedStructure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.structure.Structure</span></code></a></p>
 <p>This class represents a symmetrized structure, i.e. a structure
 where the spacegroup and symmetry operations are defined. This class is
@@ -58,46 +59,20 @@ pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_symmetrized_structure.</p>
 <li><p><strong>spacegroup</strong> (<a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupOperations" title="pymatgen.symmetry.analyzer.SpacegroupOperations"><em>SpacegroupOperations</em></a>) – An input SpacegroupOperations from
 SpacegroupAnalyzer.</p></li>
 <li><p><strong>equivalent_positions</strong> – Equivalent positions from SpacegroupAnalyzer.</p></li>
+<li><p><strong>wyckoff_letters</strong> – Wyckoff letters</p></li>
 </ul>
 </dd>
 </dl>
-<p>Create a periodic structure.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>lattice</strong> – The lattice, either as a pymatgen.core.lattice.Lattice or
-simply as any 2D array. Each row should correspond to a lattice
-vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
-lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].</p></li>
-<li><p><strong>species</strong> – <p>List of species on each site. Can take in flexible input,
-including:</p>
-<ol class="lowerroman simple">
-<li><p>A sequence of element / specie specified either as string
-symbols, e.g. [“Li”, “Fe2+”, “P”, …] or atomic numbers,
-e.g., (3, 56, …) or actual Element or Specie objects.</p></li>
-<li><p>List of dict of elements/species and occupancies, e.g.,
-[{“Fe” : 0.5, “Mn”:0.5}, …]. This allows the setup of
-disordered structures.</p></li>
-</ol>
-</p></li>
-<li><p><strong>coords</strong> (<em>Nx3 array</em>) – list of fractional/cartesian coordinates of
-each species.</p></li>
-<li><p><strong>charge</strong> (<em>int</em>) – overall charge of the structure. Defaults to behavior
-in SiteCollection where total charge is the sum of the oxidation
-states.</p></li>
-<li><p><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check if there are sites
-that are less than 0.01 Ang apart. Defaults to False.</p></li>
-<li><p><strong>to_unit_cell</strong> (<em>bool</em>) – Whether to map all sites into the unit cell,
-i.e., fractional coords between 0 and 1. Defaults to False.</p></li>
-<li><p><strong>coords_are_cartesian</strong> (<em>bool</em>) – Set to True if you are providing
-coordinates in cartesian coordinates. Defaults to False.</p></li>
-<li><p><strong>site_properties</strong> (<em>dict</em>) – Properties associated with the sites as a
-dict of sequences, e.g., {“magmom”:[5,5,5,5]}. The sequences
-have to be the same length as the atomic species and
-fractional_coords. Defaults to None for no properties.</p></li>
-</ul>
+<dl class="method">
+<dt id="pymatgen.symmetry.structure.SymmetrizedStructure.copy">
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/structure.html#SymmetrizedStructure.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.structure.SymmetrizedStructure.copy" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Copy of structure.</p>
 </dd>
 </dl>
+</dd></dl>
+
 <dl class="method">
 <dt id="pymatgen.symmetry.structure.SymmetrizedStructure.find_equivalent_sites">
 <code class="sig-name descname">find_equivalent_sites</code><span class="sig-paren">(</span><em class="sig-param">site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/structure.html#SymmetrizedStructure.find_equivalent_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.structure.SymmetrizedStructure.find_equivalent_sites" title="Permalink to this definition">¶</a></dt>
@@ -155,13 +130,13 @@ fractional_coords. Defaults to None for no properties.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

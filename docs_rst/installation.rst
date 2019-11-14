@@ -5,24 +5,6 @@ All required dependencies should be automatically taken care of if you
 install pymatgen using easy_install or pip. Otherwise, these packages should
 be available on `PyPI <http://pypi.python.org>`_.
 
-1. Python 2.7-3.x supported. **It is highly recommended that you use latest
-   Python 3.x unless you know you need other dependencies that works with
-   Python 2.x only.**
-2. numpy>=1.14
-3. scipy>=1.0.1
-4. matplotlib>=1.5+
-5. monty>=0.9.6
-6. requests>=2.0+
-7. pybtex
-8. pyyaml
-9. tabulate
-10. six
-
-Most of these are fairly easy to install. The well-established numpy and scipy
-should have ready-made installation packages for all platforms. The rest are
-pure/semi-pure Python packages that installs without any issues with pip and
-easy_install.
-
 Optional dependencies
 ---------------------
 
@@ -42,7 +24,7 @@ Optional libraries that are required if you need certain features.
    number of input and output formats supported by OpenBabel.
 5. networkx: For graph analysis associated with critic2 topological analysis
    of electron charge densities, pygraphviz is also required for visualization.
-6. nose - For unittesting. Not optional for developers.
+6. pytest - For unittesting. Not optional for developers.
 
 Optional non-Python programs
 ----------------------------
@@ -119,11 +101,10 @@ create a separate environment for each of your packages. For example::
 Step 3: Install pymatgen
 ------------------------
 
-You can install pymatgen via conda as well via the `matsci channel on
-Anaconda cloud <https://anaconda.org/matsci>`_ maintained by the Materials
-Virtual Lab::
+You can install pymatgen via conda as well via the conda-forge channel on
+Anaconda cloud::
 
-    conda install --channel matsci pymatgen
+    conda install --channel conda-forge pymatgen
 
 If the above fails, try using conda to install some critical dependencies and
 then do pip install::
@@ -136,21 +117,14 @@ Step 4: (Optional) Install enumlib and bader (only for OSX and Linux)
 
 If you would like to use the enumeration capabilities powered by Gus Hart's
 enumlib or perform Bader charge analysis powered by the Bader analysis code
-of the Henkelmann group, the `matsci channel on Anaconda cloud
-<https://anaconda.org/matsci>`_ has builds for enumlib and bader for OSX and
-Linux (sorry, Windows users, you are on your own as the develpers of these
-packages do not support Windows)::
-
-    conda install --channel matsci bader
-    conda install --channel matsci enumlib
-
-If the above fails, you can also try installing these from source using the pmg
+of the Henkelmann group, please try installing these from source using the pmg
 command line tool as follows::
 
    pmg config --install enumlib
    pmg config --install bader
 
-Then put these in your PATH somewhere.
+Then put these in your PATH somewhere. You can also download the source of
+these from the official repos and follow the compile instructions.
 
 POTCAR Setup
 ============

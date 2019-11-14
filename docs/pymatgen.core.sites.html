@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.sites module &#8212; pymatgen 2019.10.4 documentation</title>
+    <title>pymatgen.core.sites module &#8212; pymatgen 2019.11.11 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -46,7 +46,7 @@
 <p>This module defines classes representing non-periodic and periodic sites.</p>
 <dl class="class">
 <dt id="pymatgen.core.sites.PeriodicSite">
-<em class="property">class </em><code class="sig-name descname">PeriodicSite</code><span class="sig-paren">(</span><em class="sig-param">atoms_n_occu</em>, <em class="sig-param">coords</em>, <em class="sig-param">lattice</em>, <em class="sig-param">to_unit_cell=False</em>, <em class="sig-param">coords_are_cartesian=False</em>, <em class="sig-param">properties=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/sites.html#PeriodicSite"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.sites.PeriodicSite" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">PeriodicSite</code><span class="sig-paren">(</span><em class="sig-param">species: Union[str, pymatgen.core.periodic_table.Element, pymatgen.core.periodic_table.Specie, pymatgen.core.periodic_table.DummySpecie, Dict, pymatgen.core.composition.Composition], coords: Union[Tuple, List, numpy.ndarray], lattice: pymatgen.core.lattice.Lattice, to_unit_cell: bool = False, coords_are_cartesian: bool = False, properties: dict = None, skip_checks: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/sites.html#PeriodicSite"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.sites.PeriodicSite" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.sites.Site</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Extension of generic Site object to periodic systems.
 PeriodicSite includes a lattice system.</p>
@@ -54,26 +54,45 @@ PeriodicSite includes a lattice system.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>atoms_n_occu</strong> – <p>Species on the site. Can be:</p>
-<ol class="lowerroman simple">
-<li><p>A sequence of element / specie specified either as string
-symbols, e.g. [“Li”, “Fe2+”, “P”, …] or atomic numbers,
-e.g., (3, 56, …) or actual Element or Specie objects.</p></li>
-<li><p>List of dict of elements/species and occupancies, e.g.,
-[{“Fe” : 0.5, “Mn”:0.5}, …]. This allows the setup of
-disordered structures.</p></li>
-</ol>
+<li><p><strong>species</strong> – <p>Species on the site. Can be:
+i.  A Composition-type object (preferred)
+ii. An  element / specie specified either as a string</p>
+<blockquote>
+<div><p>symbols, e.g. “Li”, “Fe2+”, “P” or atomic numbers,
+e.g., 3, 56, or actual Element or Specie objects.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>iii.Dict of elements/species and occupancies, e.g.,</dt><dd><p>{“Fe” : 0.5, “Mn”:0.5}. This allows the setup of
+disordered structures.</p>
+</dd>
+</dl>
 </p></li>
-<li><p><strong>coords</strong> (<em>3x1 array</em><em> or </em><em>sequence</em>) – Coordinates of site as fractional
-or cartesian coordinates.</p></li>
-<li><p><strong>lattice</strong> – Lattice associated with the site</p></li>
-<li><p><strong>to_unit_cell</strong> (<em>bool</em>) – Translates fractional coordinate to the
+<li><p><strong>coords</strong> – Cartesian coordinates of site.</p></li>
+<li><p><strong>lattice</strong> – Lattice associated with the site.</p></li>
+<li><p><strong>to_unit_cell</strong> – Translates fractional coordinate to the
 basic unit cell, i.e. all fractional coordinates satisfy 0
 &lt;= a &lt; 1. Defaults to False.</p></li>
-<li><p><strong>coords_are_cartesian</strong> (<em>bool</em>) – Set to True if you are providing
+<li><p><strong>coords_are_cartesian</strong> – Set to True if you are providing
 cartesian coordinates. Defaults to False.</p></li>
-<li><p><strong>properties</strong> (<em>dict</em>) – Properties associated with the PeriodicSite,
-e.g., {“magmom”:5}. Defaults to None.</p></li>
+<li><p><strong>species</strong> – <p>Species on the site. Can be:
+i.  A Composition-type object (preferred)
+ii. An  element / specie specified either as a string</p>
+<blockquote>
+<div><p>symbols, e.g. “Li”, “Fe2+”, “P” or atomic numbers,
+e.g., 3, 56, or actual Element or Specie objects.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>iii.Dict of elements/species and occupancies, e.g.,</dt><dd><p>{“Fe” : 0.5, “Mn”:0.5}. This allows the setup of
+disordered structures.</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>coords</strong> – Cartesian coordinates of site.</p></li>
+<li><p><strong>properties</strong> – Properties associated with the site as a dict, e.g.
+{“magmom”: 5}. Defaults to None.</p></li>
+<li><p><strong>skip_checks</strong> – Whether to ignore all the usual checks and just
+create the site. Use this if the PeriodicSite is created in a
+controlled manner and speed is desired.</p></li>
 </ul>
 </dd>
 </dl>
@@ -277,18 +296,18 @@ same lattice.</p></li>
 
 <dl class="class">
 <dt id="pymatgen.core.sites.Site">
-<em class="property">class </em><code class="sig-name descname">Site</code><span class="sig-paren">(</span><em class="sig-param">atoms_n_occu</em>, <em class="sig-param">coords</em>, <em class="sig-param">properties=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/sites.html#Site"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.sites.Site" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Site</code><span class="sig-paren">(</span><em class="sig-param">species: Union[str, pymatgen.core.periodic_table.Element, pymatgen.core.periodic_table.Specie, pymatgen.core.periodic_table.DummySpecie, Dict, pymatgen.core.composition.Composition], coords: Union[Tuple, List, numpy.ndarray], properties: dict = None, skip_checks: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/sites.html#Site"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.sites.Site" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.Hashable</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>A generalized <em>non-periodic</em> site. This is essentially a composition
 at a point in space, with some optional properties associated with it. A
 Composition is used to represent the atoms and occupancy, which allows for
 disordered site representation. Coords are given in standard cartesian
 coordinates.</p>
-<p>Create a <em>non-periodic</em> site.</p>
+<p>Creates a non-periodic Site.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>atoms_n_occu</strong> – <p>Species on the site. Can be:
+<li><p><strong>species</strong> – <p>Species on the site. Can be:
 i.  A Composition-type object (preferred)
 ii. An  element / specie specified either as a string</p>
 <blockquote>
@@ -304,6 +323,9 @@ disordered structures.</p>
 <li><p><strong>coords</strong> – Cartesian coordinates of site.</p></li>
 <li><p><strong>properties</strong> – Properties associated with the site as a dict, e.g.
 {“magmom”: 5}. Defaults to None.</p></li>
+<li><p><strong>skip_checks</strong> – Whether to ignore all the usual checks and just
+create the site. Use this if the Site is created in a controlled
+manner and speed is desired.</p></li>
 </ul>
 </dd>
 </dl>
@@ -452,13 +474,13 @@ design should make use of the property species_and_occu instead.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
