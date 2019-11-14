@@ -193,6 +193,18 @@ H 0
         self.assertEqual(gin.charge, 0)
         self.assertEqual(gin.spin_multiplicity, 1)
 
+    def test_no_molecule(self):
+        """Test that we can write output files without a geometry"""
+
+        # Note that we must manually specify charge
+        with self.assertRaises(ValueError):
+            GaussianInput(None)
+
+        # Makes a file without geometry
+        input_file = GaussianInput(None, charge=0, spin_multiplicity=2)
+        input_str = input_file.to_string().strip()
+        self.assertTrue(input_str.endswith('0 2'))
+
 
 class GaussianOutputTest(unittest.TestCase):
     # todo: Add unittest for PCM type output.

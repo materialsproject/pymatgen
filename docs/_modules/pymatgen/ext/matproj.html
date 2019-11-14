@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.ext.matproj &#8212; pymatgen 2019.10.4 documentation</title>
+    <title>pymatgen.ext.matproj &#8212; pymatgen 2019.11.11 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -68,6 +68,8 @@
 <span class="kn">import</span> <span class="nn">requests</span>
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MontyDecoder</span><span class="p">,</span> <span class="n">MontyEncoder</span>
 
+<span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">unique</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen</span> <span class="k">import</span> <span class="n">SETTINGS</span><span class="p">,</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">pmg_version</span>
@@ -92,6 +94,25 @@
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyuep@gmail.com&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Feb 22, 2013&quot;</span>
+
+
+<div class="viewcode-block" id="TaskType"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.TaskType">[docs]</a><span class="nd">@unique</span>
+<span class="k">class</span> <span class="nc">TaskType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;task types available in MP&quot;&quot;&quot;</span>
+    <span class="n">GGA_OPT</span> <span class="o">=</span> <span class="s2">&quot;GGA Structure Optimization&quot;</span>
+    <span class="n">GGAU_OPT</span> <span class="o">=</span> <span class="s2">&quot;GGA+U Structure Optimization&quot;</span>
+    <span class="n">SCAN_OPT</span> <span class="o">=</span> <span class="s2">&quot;SCAN Structure Optimization&quot;</span>
+    <span class="n">GGA_LINE</span> <span class="o">=</span> <span class="s2">&quot;GGA NSCF Line&quot;</span>
+    <span class="n">GGAU_LINE</span> <span class="o">=</span> <span class="s2">&quot;GGA+U NSCF Line&quot;</span>
+    <span class="n">GGA_UNIFORM</span> <span class="o">=</span> <span class="s2">&quot;GGA NSCF Uniform&quot;</span>
+    <span class="n">GGAU_UNIFORM</span> <span class="o">=</span> <span class="s2">&quot;GGA+U NSCF Uniform&quot;</span>
+    <span class="n">GGA_STATIC</span> <span class="o">=</span> <span class="s2">&quot;GGA Static&quot;</span>
+    <span class="n">GGAU_STATIC</span> <span class="o">=</span> <span class="s2">&quot;GGA+U Static&quot;</span>
+    <span class="n">GGA_STATIC_DIEL</span> <span class="o">=</span> <span class="s2">&quot;GGA Static Dielectric&quot;</span>
+    <span class="n">GGAU_STATIC_DIEL</span> <span class="o">=</span> <span class="s2">&quot;GGA+U Static Dielectric&quot;</span>
+    <span class="n">GGA_DEF</span> <span class="o">=</span> <span class="s2">&quot;GGA Deformation&quot;</span>
+    <span class="n">GGAU_DEF</span> <span class="o">=</span> <span class="s2">&quot;GGA+U Deformation&quot;</span>
+    <span class="n">LDA_STATIC_DIEL</span> <span class="o">=</span> <span class="s2">&quot;LDA Static Dielectric&quot;</span></div>
 
 
 <div class="viewcode-block" id="MPRester"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester">[docs]</a><span class="k">class</span> <span class="nc">MPRester</span><span class="p">:</span>
@@ -1350,6 +1371,53 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_request</span><span class="p">(</span><span class="s2">&quot;/interface_reactions&quot;</span><span class="p">,</span>
                                   <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;POST&quot;</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="MPRester.get_download_info"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.get_download_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_download_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">material_ids</span><span class="p">,</span> <span class="n">task_types</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">file_patterns</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        get a list of URLs to retrieve raw VASP output files from the NoMaD repository</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            material_ids (list): list of material identifiers (mp-id&#39;s)</span>
+<span class="sd">            task_types (list): list of task types to include in download (see TaskType Enum class)</span>
+<span class="sd">            file_patterns (list): list of wildcard file names to include for each task</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            a tuple of 1) a dictionary mapping material_ids to task_ids and</span>
+<span class="sd">            task_types, and 2) a list of URLs to download zip archives from</span>
+<span class="sd">            NoMaD repository. Each zip archive will contain a manifest.json with</span>
+<span class="sd">            metadata info, e.g. the task/external_ids that belong to a directory</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># task_id&#39;s correspond to NoMaD external_id&#39;s</span>
+        <span class="n">task_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">task_types</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">TaskType</span><span class="p">)]</span> <span class="k">if</span> <span class="n">task_types</span> <span class="k">else</span> <span class="p">[]</span>
+
+        <span class="n">meta</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">({</span><span class="s1">&#39;material_id&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;$in&#39;</span><span class="p">:</span> <span class="n">material_ids</span><span class="p">}},</span>
+                              <span class="p">[</span><span class="s1">&#39;material_id&#39;</span><span class="p">,</span> <span class="s1">&#39;blessed_tasks&#39;</span><span class="p">]):</span>
+
+            <span class="k">for</span> <span class="n">task_type</span><span class="p">,</span> <span class="n">task_id</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">[</span><span class="s1">&#39;blessed_tasks&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">task_types</span> <span class="ow">and</span> <span class="n">task_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">task_types</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">meta</span><span class="p">[</span><span class="n">doc</span><span class="p">[</span><span class="s2">&quot;material_id&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span><span class="s1">&#39;task_id&#39;</span><span class="p">:</span> <span class="n">task_id</span><span class="p">,</span> <span class="s1">&#39;task_type&#39;</span><span class="p">:</span> <span class="n">task_type</span><span class="p">}</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">meta</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;No tasks found.&#39;</span><span class="p">)</span>
+
+        <span class="c1"># return a list of URLs for NoMaD Downloads containing the list of files</span>
+        <span class="c1"># for every external_id in `task_ids`</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;http://labdev-nomad.esc.rzg.mpg.de/fairdi/nomad/mp/api/raw/query?&#39;</span>
+        <span class="k">if</span> <span class="n">file_patterns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">file_pattern</span> <span class="ow">in</span> <span class="n">file_patterns</span><span class="p">:</span>
+                <span class="n">prefix</span> <span class="o">+=</span> <span class="n">f</span><span class="s1">&#39;file_pattern=</span><span class="si">{file_pattern}</span><span class="s1">&amp;&#39;</span>
+        <span class="n">prefix</span> <span class="o">+=</span> <span class="s1">&#39;external_id=&#39;</span>
+
+        <span class="c1"># NOTE: IE has 2kb URL char limit</span>
+        <span class="n">nmax</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="mi">2000</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">))</span> <span class="o">/</span> <span class="mi">11</span><span class="p">)</span>  <span class="c1"># mp-&lt;7-digit&gt; + , = 11</span>
+        <span class="n">task_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="p">[</span><span class="s1">&#39;task_id&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">tl</span> <span class="ow">in</span> <span class="n">meta</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tl</span><span class="p">]</span>
+        <span class="n">chunks</span> <span class="o">=</span> <span class="n">get_chunks</span><span class="p">(</span><span class="n">task_ids</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">nmax</span><span class="p">)</span>
+        <span class="n">urls</span> <span class="o">=</span> <span class="p">[</span><span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tids</span><span class="p">)</span> <span class="k">for</span> <span class="n">tids</span> <span class="ow">in</span> <span class="n">chunks</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">meta</span><span class="p">,</span> <span class="n">urls</span></div>
+
 <div class="viewcode-block" id="MPRester.parse_criteria"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.parse_criteria">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">parse_criteria</span><span class="p">(</span><span class="n">criteria_string</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1463,7 +1531,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1471,7 +1539,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

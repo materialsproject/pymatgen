@@ -9,7 +9,6 @@ env:
     - PATH=$PATH:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit:`pwd`/cmd_line/boltztrap/Linux_64bit
     - GULP_LIB=`pwd`/cmd_line/gulp/Libraries
     - MPLBACKEND=Agg
-    - PMG_MAPI_ENDPOINT=https://zola.lbl.gov/rest/v2
     - EXCLUDE_TESTS="--ignore=pymatgen/ext/tests/test_matproj.py"
 # command to install dependencies
 sudo: false
@@ -19,7 +18,7 @@ install:
   - export PATH="$HOME/miniconda/bin:$PATH"
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
-  - conda update -q conda
+  # - conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
   - conda create -q -n test-environment python=3.7 numpy scipy matplotlib sympy cython pandas networkx pytest h5py git
@@ -39,8 +38,8 @@ script:
   - travis_wait 28800 pycodestyle pymatgen && mypy pymatgen && pytest $EXCLUDE_TESTS pymatgen
   - flake8 --count --show-source --statistics pymatgen
   - flake8 --count --exit-zero --max-complexity=10 --statistics pymatgen
-  # Docstyle checks are enforced for files that have been modified since the v2019.10.2 tagged release.
-  - export MODIFIED_FILES=`git diff --diff-filter=ACMRTUXB --name-only HEAD v2019.10.2 | grep -E 'pymatgen.*\.(py)$' | sed '/test_/d' | tr '\n' ' '`
+  # Docstyle checks are enforced for files that have been modified since the v2019.10.16 tagged release.
+  - export MODIFIED_FILES=`git diff --diff-filter=ACMRTUXB --name-only HEAD v2019.10.16 | grep -E 'pymatgen.*\.(py)$' | sed '/test_/d' | tr '\n' ' '`
   - pydocstyle --count pymatgen/core $MODIFIED_FILES
 
 notifications:

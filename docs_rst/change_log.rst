@@ -1,6 +1,21 @@
 Change log
 ==========
 
+v2019.11.11
+-----------
+* Extend grosspop class (@Jageo)
+* Add option to VaspInputSet to write output with POTCAR.spec
+* Add sort_structure option to Poscar.
+* Added ability to make gaussian input file without a geometry (@WardLT)
+* Misc big fixes.
+
+v2019.10.16
+-----------
+1. Major refactoring of ABINIT IO to remove workflow-based packages (@gmatteo)
+2. Use caching in MinimumVIRENN class. (Alex Ganose)
+3. Changes to Lobster module and lobsterset (@jageo)
+4. Eigenval object for EIGENVAL output file (@mturiansky)
+
 v2019.10.4
 ----------
 1. Fix compile args.

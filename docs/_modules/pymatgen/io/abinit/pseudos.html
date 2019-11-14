@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.abinit.pseudos &#8212; pymatgen 2019.10.4 documentation</title>
+    <title>pymatgen.io.abinit.pseudos &#8212; pymatgen 2019.11.11 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -213,6 +213,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">filepath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Absolute path to pseudopotential file.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
 
     <span class="nd">@property</span>
@@ -232,6 +233,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Type of pseudo.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
 
     <span class="nd">@property</span>
@@ -291,6 +293,7 @@
 
 <div class="viewcode-block" id="Pseudo.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.as_dict">[docs]</a>    <span class="nd">@pmg_serialize</span>
     <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return dictionary for MSONable protocol.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
             <span class="n">basename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basename</span><span class="p">,</span>
             <span class="nb">type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span>
@@ -305,6 +308,7 @@
 
 <div class="viewcode-block" id="Pseudo.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.Pseudo.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Build instance from dictionary (MSONable protocol).&quot;&quot;&quot;</span>
         <span class="n">new</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;filepath&#39;</span><span class="p">])</span>
 
         <span class="c1"># Consistency test based on md5</span>
@@ -398,7 +402,7 @@
 <span class="sd">            ecut: Cutoff energy in Hartree.</span>
 <span class="sd">            pawecutdg: Cutoff energy for the PAW double grid.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.io.abinit.tasks</span> <span class="k">import</span> <span class="n">AbinitTask</span>
+        <span class="kn">from</span> <span class="nn">abipy.flowtk</span> <span class="k">import</span> <span class="n">AbinitTask</span>
         <span class="kn">from</span> <span class="nn">abipy.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
         <span class="kn">from</span> <span class="nn">abipy.abio.factories</span> <span class="k">import</span> <span class="n">gs_input</span>
         <span class="kn">from</span> <span class="nn">abipy.electrons.psps</span> <span class="k">import</span> <span class="n">PspsFile</span>
@@ -612,10 +616,12 @@
 
     <span class="nd">@pmg_serialize</span>
     <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return dictionary for MSONable protocol.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">ecut</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ecut</span><span class="p">,</span> <span class="n">pawecutdg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pawecutdg</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Build instance from dictionary (MSONable protocol).&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;@&quot;</span><span class="p">)})</span>
 
 
@@ -1715,6 +1721,7 @@
     <span class="c1">#    return ecut, pawecutdg</span>
 
 <div class="viewcode-block" id="PseudoTable.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return dictionary for MSONable protocol.&quot;&quot;&quot;</span>
         <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="n">k</span><span class="p">,</span> <span class="n">count</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="mi">1</span>
@@ -1730,6 +1737,7 @@
 
 <div class="viewcode-block" id="PseudoTable.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Build instance from dictionary (MSONable protocol).&quot;&quot;&quot;</span>
         <span class="n">pseudos</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">dec</span> <span class="o">=</span> <span class="n">MontyDecoder</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -1921,6 +1929,9 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">([</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="PseudoTable.select_family"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.select_family">[docs]</a>    <span class="k">def</span> <span class="nf">select_family</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">family</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return PseudoTable with element beloging to the specified family, e.g. familiy=&quot;alkaline&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># e.g element.is_alkaline</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">([</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">element</span><span class="p">,</span> <span class="s2">&quot;is_&quot;</span> <span class="o">+</span> <span class="n">family</span><span class="p">)])</span></div></div>
 </pre></div>
@@ -1953,7 +1964,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1961,7 +1972,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

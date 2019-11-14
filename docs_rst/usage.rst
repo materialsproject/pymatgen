@@ -251,8 +251,8 @@ some examples::
     # Make a supercell
     structure.make_supercell([2, 2, 2])
 
-    #Find a primitive version of the Structure
-    structure.find_primitive_structure()
+    # Get a primitive version of the Structure
+    structure.get_primitive_structure()
 
     # Interpolate between two structures to get 10 structures (typically for
     # NEB calculations.

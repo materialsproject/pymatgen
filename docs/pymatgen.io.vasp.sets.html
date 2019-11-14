@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.vasp.sets module &#8212; pymatgen 2019.10.4 documentation</title>
+    <title>pymatgen.io.vasp.sets module &#8212; pymatgen 2019.11.11 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -81,6 +81,7 @@ ensures the as_dict and from_dict work correctly.</p></li>
 <dt id="pymatgen.io.vasp.sets.BadInputSetWarning">
 <em class="property">exception </em><code class="sig-name descname">BadInputSetWarning</code><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#BadInputSetWarning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.BadInputSetWarning" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">UserWarning</span></code></p>
+<p>Warning class for bad but legal inputs.</p>
 </dd></dl>
 
 <dl class="class">
@@ -174,13 +175,18 @@ cell. Defaults to False.</p></li>
 <dl class="method">
 <dt id="pymatgen.io.vasp.sets.DictSet.incar">
 <em class="property">property </em><code class="sig-name descname">incar</code><a class="headerlink" href="#pymatgen.io.vasp.sets.DictSet.incar" title="Permalink to this definition">¶</a></dt>
-<dd><p>Incar object</p>
+<dd><p>Incar</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.vasp.sets.DictSet.kpoints">
 <em class="property">property </em><code class="sig-name descname">kpoints</code><a class="headerlink" href="#pymatgen.io.vasp.sets.DictSet.kpoints" title="Permalink to this definition">¶</a></dt>
-<dd><p>Writes out a KPOINTS file using the fully automated grid method. Uses
+<dd><p>Returns a KPOINTS file using the fully automated grid method. Uses
 Gamma centered meshes for hexagonal cells and Monk grids otherwise.</p>
 <dl class="simple">
 <dt>Algorithm:</dt><dd><p>Uses a simple approach scaling the number of divisions along each
@@ -198,28 +204,40 @@ reciprocal lattice vector proportional to its length.</p>
 <dl class="method">
 <dt id="pymatgen.io.vasp.sets.DictSet.poscar">
 <em class="property">property </em><code class="sig-name descname">poscar</code><a class="headerlink" href="#pymatgen.io.vasp.sets.DictSet.poscar" title="Permalink to this definition">¶</a></dt>
-<dd><p>Poscar object</p>
+<dd><p>Poscar</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.vasp.sets.DictSet.structure">
 <em class="property">property </em><code class="sig-name descname">structure</code><a class="headerlink" href="#pymatgen.io.vasp.sets.DictSet.structure" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Structure</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.vasp.sets.DictSet.write_input">
-<code class="sig-name descname">write_input</code><span class="sig-paren">(</span><em class="sig-param">output_dir</em>, <em class="sig-param">make_dir_if_not_present=True</em>, <em class="sig-param">include_cif=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#DictSet.write_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.DictSet.write_input" title="Permalink to this definition">¶</a></dt>
-<dd><p>Writes a set of VASP input to a directory.</p>
+<code class="sig-name descname">write_input</code><span class="sig-paren">(</span><em class="sig-param">output_dir: str</em>, <em class="sig-param">make_dir_if_not_present: bool = True</em>, <em class="sig-param">include_cif: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#DictSet.write_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.DictSet.write_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes out all input to a directory.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>output_dir</strong> (<em>str</em>) – Directory to output the VASP input files</p></li>
-<li><p><strong>make_dir_if_not_present</strong> (<em>bool</em>) – Set to True if you want the
-directory (and the whole path) to be created if it is not
-present.</p></li>
-<li><p><strong>include_cif</strong> (<em>bool</em>) – Whether to write a CIF file in the output
-directory for easier opening by VESTA.</p></li>
+<li><p><strong>output_dir</strong> – Name of output dir.</p></li>
+<li><p><strong>make_dir_if_not_present</strong> – Makes the directory if it does not
+exist.</p></li>
+<li><p><strong>include_cif</strong> – Whether to include a CIF file for easier reading.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
 </dd>
 </dl>
 </dd></dl>
@@ -228,12 +246,9 @@ directory for easier opening by VESTA.</p></li>
 
 <dl class="class">
 <dt id="pymatgen.io.vasp.sets.LobsterSet">
-<em class="property">class </em><code class="sig-name descname">LobsterSet</code><span class="sig-paren">(</span><em class="sig-param">structure: pymatgen.core.structure.Structure</em>, <em class="sig-param">isym=-1</em>, <em class="sig-param">ismear=-5</em>, <em class="sig-param">reciprocal_density=None</em>, <em class="sig-param">potcar_functional='PBE_54'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#LobsterSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.LobsterSet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">LobsterSet</code><span class="sig-paren">(</span><em class="sig-param">structure: pymatgen.core.structure.Structure</em>, <em class="sig-param">isym: int = -1</em>, <em class="sig-param">ismear: int = -5</em>, <em class="sig-param">reciprocal_density: int = None</em>, <em class="sig-param">potcar_functional: str = 'PBE_54'</em>, <em class="sig-param">address_basis_file: str = None</em>, <em class="sig-param">user_supplied_basis: dict = None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#LobsterSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.LobsterSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vasp.sets.MPRelaxSet" title="pymatgen.io.vasp.sets.MPRelaxSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.vasp.sets.MPRelaxSet</span></code></a></p>
-<dl class="attribute">
-<dt id="pymatgen.io.vasp.sets.LobsterSet.CONFIG">
-<code class="sig-name descname">CONFIG</code><em class="property"> = {'INCAR': {'ALGO': 'FAST', 'EDIFF_PER_ATOM': 5e-05, 'ENCUT': 520, 'IBRION': 2, 'ICHARG': 1, 'ISIF': 3, 'ISMEAR': -5, 'ISPIN': 2, 'LDAU': True, 'LDAUJ': {'F': {'Co': 0, 'Cr': 0, 'Fe': 0, 'Mn': 0, 'Mo': 0, 'Ni': 0, 'V': 0, 'W': 0}, 'O': {'Co': 0, 'Cr': 0, 'Fe': 0, 'Mn': 0, 'Mo': 0, 'Ni': 0, 'V': 0, 'W': 0}}, 'LDAUL': {'F': {'Co': 2, 'Cr': 2, 'Fe': 2, 'Mn': 2, 'Mo': 2, 'Ni': 2, 'V': 2, 'W': 2}, 'O': {'Co': 2, 'Cr': 2, 'Fe': 2, 'Mn': 2, 'Mo': 2, 'Ni': 2, 'V': 2, 'W': 2}}, 'LDAUPRINT': 1, 'LDAUTYPE': 2, 'LDAUU': {'F': {'Co': 3.32, 'Cr': 3.7, 'Fe': 5.3, 'Mn': 3.9, 'Mo': 4.38, 'Ni': 6.2, 'V': 3.25, 'W': 6.2}, 'O': {'Co': 3.32, 'Cr': 3.7, 'Fe': 5.3, 'Mn': 3.9, 'Mo': 4.38, 'Ni': 6.2, 'V': 3.25, 'W': 6.2}}, 'LORBIT': 11, 'LREAL': 'AUTO', 'LWAVE': False, 'MAGMOM': {'Ce': 5, 'Ce3+': 1, 'Co': 5, 'Co3+': 0.6, 'Co4+': 1, 'Cr': 5, 'Dy3+': 5, 'Er3+': 3, 'Eu': 10, 'Eu2+': 7, 'Eu3+': 6, 'Fe': 5, 'Gd3+': 7, 'Ho3+': 4, 'La3+': 0.6, 'Lu3+': 0.6, 'Mn': 5, 'Mn3+': 4, 'Mn4+': 3, 'Mo': 5, 'Nd3+': 3, 'Ni': 5, 'Pm3+': 4, 'Pr3+': 2, 'Sm3+': 5, 'Tb3+': 6, 'Tm3+': 2, 'V': 5, 'W': 5, 'Yb3+': 1}, 'NELM': 100, 'NSW': 99, 'PREC': 'Accurate', 'SIGMA': 0.05}, 'KPOINTS': {'reciprocal_density': 64}, 'POTCAR': {'Ac': 'Ac', 'Ag': 'Ag', 'Al': 'Al', 'Ar': 'Ar', 'As': 'As', 'Au': 'Au', 'B': 'B', 'Ba': 'Ba_sv', 'Be': 'Be_sv', 'Bi': 'Bi', 'Br': 'Br', 'C': 'C', 'Ca': 'Ca_sv', 'Cd': 'Cd', 'Ce': 'Ce', 'Cl': 'Cl', 'Co': 'Co', 'Cr': 'Cr_pv', 'Cs': 'Cs_sv', 'Cu': 'Cu_pv', 'Dy': 'Dy_3', 'Er': 'Er_3', 'Eu': 'Eu', 'F': 'F', 'Fe': 'Fe_pv', 'Ga': 'Ga_d', 'Gd': 'Gd', 'Ge': 'Ge_d', 'H': 'H', 'He': 'He', 'Hf': 'Hf_pv', 'Hg': 'Hg', 'Ho': 'Ho_3', 'I': 'I', 'In': 'In_d', 'Ir': 'Ir', 'K': 'K_sv', 'Kr': 'Kr', 'La': 'La', 'Li': 'Li_sv', 'Lu': 'Lu_3', 'Mg': 'Mg_pv', 'Mn': 'Mn_pv', 'Mo': 'Mo_pv', 'N': 'N', 'Na': 'Na_pv', 'Nb': 'Nb_pv', 'Nd': 'Nd_3', 'Ne': 'Ne', 'Ni': 'Ni_pv', 'Np': 'Np', 'O': 'O', 'Os': 'Os_pv', 'P': 'P', 'Pa': 'Pa', 'Pb': 'Pb_d', 'Pd': 'Pd', 'Pm': 'Pm_3', 'Pr': 'Pr_3', 'Pt': 'Pt', 'Pu': 'Pu', 'Rb': 'Rb_sv', 'Re': 'Re_pv', 'Rh': 'Rh_pv', 'Ru': 'Ru_pv', 'S': 'S', 'Sb': 'Sb', 'Sc': 'Sc_sv', 'Se': 'Se', 'Si': 'Si', 'Sm': 'Sm_3', 'Sn': 'Sn_d', 'Sr': 'Sr_sv', 'Ta': 'Ta_pv', 'Tb': 'Tb_3', 'Tc': 'Tc_pv', 'Te': 'Te', 'Th': 'Th', 'Ti': 'Ti_pv', 'Tl': 'Tl_d', 'Tm': 'Tm_3', 'U': 'U', 'V': 'V_pv', 'W': 'W_pv', 'Xe': 'Xe', 'Y': 'Y_sv', 'Yb': 'Yb_2', 'Zn': 'Zn', 'Zr': 'Zr_sv'}}</em><a class="headerlink" href="#pymatgen.io.vasp.sets.LobsterSet.CONFIG" title="Permalink to this definition">¶</a></dt>
-<dd><p>Input set to prepare VASP runs that can be digested by Lobster (See cohp.de)</p>
+<p>Input set to prepare VASP runs that can be digested by Lobster (See cohp.de)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -242,11 +257,17 @@ directory for easier opening by VESTA.</p></li>
 <li><p><strong>ismear</strong> (<em>int</em>) – ISMEAR entry for INCAR, only ismear=-5 and ismear=0 are allowed</p></li>
 <li><p><strong>reciprocal_density</strong> (<em>int</em>) – density of k-mesh by reciprocal volume</p></li>
 <li><p><strong>potcar_functional</strong> (<em>string</em>) – only PBE_54, PBE_52 and PBE are recommended at the moment</p></li>
+<li><p><strong>user_supplied_basis</strong> (<em>dict</em>) – dict including basis functions for all elements in structure,
+e.g. {“Fe”: “3d 3p 4s”, “O”: “2s 2p”}; if not supplied, a standard basis is used</p></li>
+<li><p><strong>address_basis_file</strong> (<em>str</em>) – address to a file similar to “BASIS_PBE_54.yaml” in pymatgen.io</p></li>
 <li><p><strong>**kwargs</strong> – Other kwargs supported by <a class="reference internal" href="#pymatgen.io.vasp.sets.DictSet" title="pymatgen.io.vasp.sets.DictSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DictSet</span></code></a>.</p></li>
 </ul>
 </dd>
 </dl>
-</dd></dl>
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.sets.LobsterSet.CONFIG">
+<code class="sig-name descname">CONFIG</code><em class="property"> = {'INCAR': {'ALGO': 'FAST', 'EDIFF_PER_ATOM': 5e-05, 'ENCUT': 520, 'IBRION': 2, 'ICHARG': 1, 'ISIF': 3, 'ISMEAR': -5, 'ISPIN': 2, 'LDAU': True, 'LDAUJ': {'F': {'Co': 0, 'Cr': 0, 'Fe': 0, 'Mn': 0, 'Mo': 0, 'Ni': 0, 'V': 0, 'W': 0}, 'O': {'Co': 0, 'Cr': 0, 'Fe': 0, 'Mn': 0, 'Mo': 0, 'Ni': 0, 'V': 0, 'W': 0}}, 'LDAUL': {'F': {'Co': 2, 'Cr': 2, 'Fe': 2, 'Mn': 2, 'Mo': 2, 'Ni': 2, 'V': 2, 'W': 2}, 'O': {'Co': 2, 'Cr': 2, 'Fe': 2, 'Mn': 2, 'Mo': 2, 'Ni': 2, 'V': 2, 'W': 2}}, 'LDAUPRINT': 1, 'LDAUTYPE': 2, 'LDAUU': {'F': {'Co': 3.32, 'Cr': 3.7, 'Fe': 5.3, 'Mn': 3.9, 'Mo': 4.38, 'Ni': 6.2, 'V': 3.25, 'W': 6.2}, 'O': {'Co': 3.32, 'Cr': 3.7, 'Fe': 5.3, 'Mn': 3.9, 'Mo': 4.38, 'Ni': 6.2, 'V': 3.25, 'W': 6.2}}, 'LORBIT': 11, 'LREAL': 'AUTO', 'LWAVE': False, 'MAGMOM': {'Ce': 5, 'Ce3+': 1, 'Co': 5, 'Co3+': 0.6, 'Co4+': 1, 'Cr': 5, 'Dy3+': 5, 'Er3+': 3, 'Eu': 10, 'Eu2+': 7, 'Eu3+': 6, 'Fe': 5, 'Gd3+': 7, 'Ho3+': 4, 'La3+': 0.6, 'Lu3+': 0.6, 'Mn': 5, 'Mn3+': 4, 'Mn4+': 3, 'Mo': 5, 'Nd3+': 3, 'Ni': 5, 'Pm3+': 4, 'Pr3+': 2, 'Sm3+': 5, 'Tb3+': 6, 'Tm3+': 2, 'V': 5, 'W': 5, 'Yb3+': 1}, 'NELM': 100, 'NSW': 99, 'PREC': 'Accurate', 'SIGMA': 0.05}, 'KPOINTS': {'reciprocal_density': 64}, 'POTCAR': {'Ac': 'Ac', 'Ag': 'Ag', 'Al': 'Al', 'Ar': 'Ar', 'As': 'As', 'Au': 'Au', 'B': 'B', 'Ba': 'Ba_sv', 'Be': 'Be_sv', 'Bi': 'Bi', 'Br': 'Br', 'C': 'C', 'Ca': 'Ca_sv', 'Cd': 'Cd', 'Ce': 'Ce', 'Cl': 'Cl', 'Co': 'Co', 'Cr': 'Cr_pv', 'Cs': 'Cs_sv', 'Cu': 'Cu_pv', 'Dy': 'Dy_3', 'Er': 'Er_3', 'Eu': 'Eu', 'F': 'F', 'Fe': 'Fe_pv', 'Ga': 'Ga_d', 'Gd': 'Gd', 'Ge': 'Ge_d', 'H': 'H', 'He': 'He', 'Hf': 'Hf_pv', 'Hg': 'Hg', 'Ho': 'Ho_3', 'I': 'I', 'In': 'In_d', 'Ir': 'Ir', 'K': 'K_sv', 'Kr': 'Kr', 'La': 'La', 'Li': 'Li_sv', 'Lu': 'Lu_3', 'Mg': 'Mg_pv', 'Mn': 'Mn_pv', 'Mo': 'Mo_pv', 'N': 'N', 'Na': 'Na_pv', 'Nb': 'Nb_pv', 'Nd': 'Nd_3', 'Ne': 'Ne', 'Ni': 'Ni_pv', 'Np': 'Np', 'O': 'O', 'Os': 'Os_pv', 'P': 'P', 'Pa': 'Pa', 'Pb': 'Pb_d', 'Pd': 'Pd', 'Pm': 'Pm_3', 'Pr': 'Pr_3', 'Pt': 'Pt', 'Pu': 'Pu', 'Rb': 'Rb_sv', 'Re': 'Re_pv', 'Rh': 'Rh_pv', 'Ru': 'Ru_pv', 'S': 'S', 'Sb': 'Sb', 'Sc': 'Sc_sv', 'Se': 'Se', 'Si': 'Si', 'Sm': 'Sm_3', 'Sn': 'Sn_d', 'Sr': 'Sr_sv', 'Ta': 'Ta_pv', 'Tb': 'Tb_3', 'Tc': 'Tc_pv', 'Te': 'Te', 'Th': 'Th', 'Ti': 'Ti_pv', 'Tl': 'Tl_d', 'Tm': 'Tm_3', 'U': 'U', 'V': 'V_pv', 'W': 'W_pv', 'Xe': 'Xe', 'Y': 'Y_sv', 'Yb': 'Yb_2', 'Zn': 'Zn', 'Zr': 'Zr_sv'}}</em><a class="headerlink" href="#pymatgen.io.vasp.sets.LobsterSet.CONFIG" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -254,7 +275,7 @@ directory for easier opening by VESTA.</p></li>
 <dt id="pymatgen.io.vasp.sets.MITMDSet">
 <em class="property">class </em><code class="sig-name descname">MITMDSet</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">start_temp</em>, <em class="sig-param">end_temp</em>, <em class="sig-param">nsteps</em>, <em class="sig-param">time_step=2</em>, <em class="sig-param">spin_polarized=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MITMDSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MITMDSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vasp.sets.MITRelaxSet" title="pymatgen.io.vasp.sets.MITRelaxSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.vasp.sets.MITRelaxSet</span></code></a></p>
-<p>Clas for writing a vasp md run. This DOES NOT do multiple stage
+<p>Class for writing a vasp md run. This DOES NOT do multiple stage
 runs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -274,11 +295,10 @@ The ISPIN parameter. Defaults to False.</p></li>
 <dl class="method">
 <dt id="pymatgen.io.vasp.sets.MITMDSet.kpoints">
 <em class="property">property </em><code class="sig-name descname">kpoints</code><a class="headerlink" href="#pymatgen.io.vasp.sets.MITMDSet.kpoints" title="Permalink to this definition">¶</a></dt>
-<dd><p>Writes out a KPOINTS file using the fully automated grid method. Uses
-Gamma centered meshes for hexagonal cells and Monk grids otherwise.</p>
-<dl class="simple">
-<dt>Algorithm:</dt><dd><p>Uses a simple approach scaling the number of divisions along each
-reciprocal lattice vector proportional to its length.</p>
+<dd><p>Kpoints</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
 </dd>
 </dl>
 </dd></dl>
@@ -294,6 +314,7 @@ basis for this input set.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>structures</strong> – List of Structure objects.</p></li>
 <li><p><strong>unset_encut</strong> (<em>bool</em>) – Whether to unset ENCUT.</p></li>
 <li><p><strong>**kwargs</strong> – Other kwargs supported by <a class="reference internal" href="#pymatgen.io.vasp.sets.DictSet" title="pymatgen.io.vasp.sets.DictSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DictSet</span></code></a>.</p></li>
 </ul>
@@ -302,13 +323,24 @@ basis for this input set.</p>
 <dl class="method">
 <dt id="pymatgen.io.vasp.sets.MITNEBSet.poscar">
 <em class="property">property </em><code class="sig-name descname">poscar</code><a class="headerlink" href="#pymatgen.io.vasp.sets.MITNEBSet.poscar" title="Permalink to this definition">¶</a></dt>
-<dd><p>Poscar object</p>
+<dd><p>Poscar for structure of first end point.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.vasp.sets.MITNEBSet.poscars">
 <em class="property">property </em><code class="sig-name descname">poscars</code><a class="headerlink" href="#pymatgen.io.vasp.sets.MITNEBSet.poscars" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>List of Poscars.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.vasp.sets.MITNEBSet.write_input">
@@ -348,6 +380,14 @@ which means in general pseudopotentials with fewer electrons were chosen.</p>
 <span class="mi">2011</span><span class="p">,</span> <span class="mi">50</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span> <span class="mi">2295</span><span class="o">-</span><span class="mf">2310.</span> <span class="n">doi</span><span class="p">:</span><span class="mf">10.1016</span><span class="o">/</span><span class="n">j</span><span class="o">.</span><span class="n">commatsci</span><span class="o">.</span><span class="mf">2011.02</span><span class="o">.</span><span class="mi">023</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – Structure</p></li>
+<li><p><strong>kwargs</strong> – Same as those supported by DictSet.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.sets.MITRelaxSet.CONFIG">
 <code class="sig-name descname">CONFIG</code><em class="property"> = {'INCAR': {'ALGO': 'FAST', 'EDIFF': 1e-05, 'ENCUT': 520, 'IBRION': 2, 'ICHARG': 1, 'ISIF': 3, 'ISMEAR': -5, 'ISPIN': 2, 'ISYM': 0, 'LDAU': True, 'LDAUJ': {'F': {'Ag': 0, 'Co': 0, 'Cr': 0, 'Cu': 0, 'Fe': 0, 'Mn': 0, 'Mo': 0, 'Nb': 0, 'Ni': 0, 'Re': 0, 'Ta': 0, 'V': 0, 'W': 0}, 'O': {'Ag': 0, 'Co': 0, 'Cr': 0, 'Cu': 0, 'Fe': 0, 'Mn': 0, 'Mo': 0, 'Nb': 0, 'Ni': 0, 'Re': 0, 'Ta': 0, 'V': 0, 'W': 0}, 'S': {'Fe': 0, 'Mn': 0}}, 'LDAUL': {'F': {'Ag': 2, 'Co': 2, 'Cr': 2, 'Cu': 2, 'Fe': 2, 'Mn': 2, 'Mo': 2, 'Nb': 2, 'Ni': 2, 'Re': 2, 'Ta': 2, 'V': 2, 'W': 2}, 'O': {'Ag': 2, 'Co': 2, 'Cr': 2, 'Cu': 2, 'Fe': 2, 'Mn': 2, 'Mo': 2, 'Nb': 2, 'Ni': 2, 'Re': 2, 'Ta': 2, 'V': 2, 'W': 2}, 'S': {'Fe': 2, 'Mn': 2.5}}, 'LDAUPRINT': 1, 'LDAUTYPE': 2, 'LDAUU': {'F': {'Ag': 1.5, 'Co': 3.4, 'Cr': 3.5, 'Cu': 4, 'Fe': 4.0, 'Mn': 3.9, 'Mo': 4.38, 'Nb': 1.5, 'Ni': 6, 'Re': 2, 'Ta': 2, 'V': 3.1, 'W': 4.0}, 'O': {'Ag': 1.5, 'Co': 3.4, 'Cr': 3.5, 'Cu': 4, 'Fe': 4.0, 'Mn': 3.9, 'Mo': 4.38, 'Nb': 1.5, 'Ni': 6, 'Re': 2, 'Ta': 2, 'V': 3.1, 'W': 4.0}, 'S': {'Fe': 1.9, 'Mn': 2.5}}, 'LORBIT': '11', 'LREAL': 'AUTO', 'LWAVE': False, 'MAGMOM': {'Ce': 5, 'Ce3+': 1, 'Co': 5, 'Co3+': 0.6, 'Co4+': 1, 'Cr': 5, 'Dy3+': 5, 'Er3+': 3, 'Eu': 10, 'Eu2+': 7, 'Eu3+': 6, 'Fe': 5, 'Gd3+': 7, 'Ho3+': 4, 'La3+': 0.6, 'Lu3+': 0.6, 'Mn': 5, 'Mn3+': 4, 'Mn4+': 3, 'Mo': 5, 'Nd3+': 3, 'Ni': 5, 'Pm3+': 4, 'Pr3+': 2, 'Sm3+': 5, 'Tb3+': 6, 'Tm3+': 2, 'V': 5, 'W': 5, 'Yb3+': 1}, 'NELM': 200, 'NELMIN': 6, 'NSW': 99, 'PREC': 'Accurate', 'SIGMA': 0.05}, 'KPOINTS': {'length': 25}, 'POTCAR': {'Ac': {'hash': 'd6854224d20e3de6e6fd7399503791d1', 'symbol': 'Ac'}, 'Ag': {'hash': 'e8ffa02fe3f3a51338ac1ac91ae968b9', 'symbol': 'Ag'}, 'Al': {'hash': 'a6fd9a46aec185f4ad2acd0cbe4ae2fa', 'symbol': 'Al'}, 'Ar': {'hash': 'e782fc6292623b396091bf8b871c272f', 'symbol': 'Ar'}, 'As': {'hash': '8005364db225a254e52cba350bedd032', 'symbol': 'As'}, 'Au': {'hash': 'a9182d436a13194b744640ac940ab9b0', 'symbol': 'Au'}, 'B': {'hash': '18ed2875dfa6305324cec3d7d59273ae', 'symbol': 'B'}, 'Ba': {'hash': 'c0477913afb63dfae3439f3534fbf0ed', 'symbol': 'Ba_sv'}, 'Be': {'hash': 'fb974e44d56a8c62c6bbd1a1eb70c3a7', 'symbol': 'Be'}, 'Bi': {'hash': 'e29661c79d59abae3b3ba69eae24b1a5', 'symbol': 'Bi'}, 'Br': {'hash': '40f9594b4506684a69158c8975cfb9d6', 'symbol': 'Br'}, 'C': {'hash': 'c0a8167dbb174fe492a3db7f5006c0f8', 'symbol': 'C'}, 'Ca': {'hash': 'eb006721e214c04b3c13146e81b3a27d', 'symbol': 'Ca_sv'}, 'Cd': {'hash': '0506b2d0ac28d5fe2b5ced77a701aa86', 'symbol': 'Cd'}, 'Ce': {'hash': 'ff3a09f2ff91798e58eb4b9854e9be4a', 'symbol': 'Ce'}, 'Cl': {'hash': '779b9901046c78fe51c5d80224642aeb', 'symbol': 'Cl'}, 'Co': {'hash': 'b169bca4e137294d2ab3df8cbdd09083', 'symbol': 'Co'}, 'Cr': {'hash': '82c14307937c7509fda4e9bc023d243d', 'symbol': 'Cr'}, 'Cs': {'hash': '096b53a7d80cc0086976bcda50d536e5', 'symbol': 'Cs_sv'}, 'Cu': {'hash': '8ca4e43a30de0c397e51f16bbb20d678', 'symbol': 'Cu'}, 'Dy': {'hash': 'd4a05220ab0a2d4c03a76872ea724a1e', 'symbol': 'Dy_3'}, 'Er': {'hash': 'daa65a04877317f8c3c593ddeaa8a132', 'symbol': 'Er_3'}, 'Eu': {'hash': 'd466d046adf21f6146ee9644049ea268', 'symbol': 'Eu'}, 'F': {'hash': '180141c33d032bfbfff30b3bea9d23dd', 'symbol': 'F'}, 'Fe': {'hash': '9530da8244e4dac17580869b4adab115', 'symbol': 'Fe'}, 'Ga': {'hash': '6e0b9d58412b1bfcd7252aff13d476c2', 'symbol': 'Ga'}, 'Gd': {'hash': '1f0d42b1e5f6769d319d3f247992aeb9', 'symbol': 'Gd'}, 'Ge': {'hash': '79e788788c31e196a460553010512d3f', 'symbol': 'Ge'}, 'H': {'hash': 'bb43c666e3d36577264afe07669e9582', 'symbol': 'H'}, 'He': {'hash': '47f9434aa3db96c85d7c4b3e4c2df09b', 'symbol': 'He'}, 'Hf': {'hash': 'b113f150cbf9c736f8244a6c25b0482e', 'symbol': 'Hf'}, 'Hg': {'hash': 'c2f15dfb5fd53396c5427635e5019160', 'symbol': 'Hg'}, 'Ho': {'hash': '661891464a27e87cf7e1324dd1893b77', 'symbol': 'Ho_3'}, 'I': {'hash': 'f4ff16a495dd361ff5824ee61b418bb0', 'symbol': 'I'}, 'In': {'hash': '7df38c0cdb4e6d9a9b93f09d690bb3ae', 'symbol': 'In'}, 'Ir': {'hash': 'dbcf7dcc6f4fb40df7b3d26904f60a66', 'symbol': 'Ir'}, 'K': {'hash': '3e84f86d37f203a4fb01de36af57e430', 'symbol': 'K_sv'}, 'Kr': {'hash': '39b9b85ae3982e6c012fb549b2840ce5', 'symbol': 'Kr'}, 'La': {'hash': '9b3ce03d18f7c0b40471a817ff91b287', 'symbol': 'La'}, 'Li': {'hash': '65e83282d1707ec078c1012afbd05be8', 'symbol': 'Li'}, 'Lu': {'hash': 'd40a90babf1224b88ffb4c3273ac3848', 'symbol': 'Lu_3'}, 'Mg': {'hash': '1771eb72adbbfa6310d66e7517e49930', 'symbol': 'Mg'}, 'Mn': {'hash': 'd082dba29b57ab59b3165e605dbf71b8', 'symbol': 'Mn'}, 'Mo': {'hash': '84e18fd84a98e3d7fa8f055952410df0', 'symbol': 'Mo_pv'}, 'N': {'hash': 'b98fd027ddebc67da4063ff2cabbc04b', 'symbol': 'N'}, 'Na': {'hash': '1a89e79f7e21d99e8cf5788979f6a987', 'symbol': 'Na'}, 'Nb': {'hash': '7bcee99a4dc3094be0f9fd7961c02966', 'symbol': 'Nb_pv'}, 'Nd': {'hash': '0c64e63070cee837c967283fffa001df', 'symbol': 'Nd'}, 'Ne': {'hash': '52064eee378b9e37a295a674f1c278f0', 'symbol': 'Ne'}, 'Ni': {'hash': '653f5772e68b2c7fd87ffd1086c0d710', 'symbol': 'Ni'}, 'Np': {'hash': '20cb30b714200c4db870550b288ac4cd', 'symbol': 'Np'}, 'O': {'hash': '7a25bc5b9a5393f46600a4939d357982', 'symbol': 'O'}, 'Os': {'hash': '35c2cb48d48a9c38c40fb82bbe70626d', 'symbol': 'Os'}, 'P': {'hash': '7dc3393307131ae67785a0cdacb61d5f', 'symbol': 'P'}, 'Pa': {'hash': 'a1fdb1089d0727f415416ec8082246ba', 'symbol': 'Pa'}, 'Pb': {'hash': '704c2c967247d7f84090d2536c91877d', 'symbol': 'Pb'}, 'Pd': {'hash': 'a395eb3aaf2fcab12fac3030a1146f61', 'symbol': 'Pd'}, 'Pm': {'hash': 'a2c9485ea86b2a7cf175077e6e5c7b3e', 'symbol': 'Pm'}, 'Pr': {'hash': '92f191499bf5346ea652bb806350ad87', 'symbol': 'Pr'}, 'Pt': {'hash': 'a604ea3c6a9cc23c739b762f625cf449', 'symbol': 'Pt'}, 'Pu': {'hash': 'f1d01e845dccc52d448679911f301a73', 'symbol': 'Pu'}, 'Rb': {'hash': 'e447c648d870b066b3514e6b800727ab', 'symbol': 'Rb_pv'}, 'Re': {'hash': '72385e193c92a8acfe17ea49004c2be1', 'symbol': 'Re'}, 'Rh': {'hash': '2c3dba3fcc6058ca1b1cfa75e45084bc', 'symbol': 'Rh'}, 'Ru': {'hash': '7925f4d4b68076d70af7cd86eef9ba8d', 'symbol': 'Ru_pv'}, 'S': {'hash': 'd368db6899d8839859bbee4811a42a88', 'symbol': 'S'}, 'Sb': {'hash': 'd82c022b02fc5344e85bd1909f9ee3e7', 'symbol': 'Sb'}, 'Sc': {'hash': 'dc386f505ad0c43385a7715b4111cb75', 'symbol': 'Sc_sv'}, 'Se': {'hash': '67a8804ede9f1112726e3d136978ef19', 'symbol': 'Se'}, 'Si': {'hash': 'b2b0ea6feb62e7cde209616683b8f7f5', 'symbol': 'Si'}, 'Sm': {'hash': 'e5e274e7cd99602ca81d146155abdf88', 'symbol': 'Sm_3'}, 'Sn': {'hash': '849b0795e148f93113a06be8fd5f5001', 'symbol': 'Sn_d'}, 'Sr': {'hash': 'ca6a5429c120a0ab705824386a76fe5b', 'symbol': 'Sr_sv'}, 'Ta': {'hash': 'd4e2cfe9338ef80da592d5bb9dc782c7', 'symbol': 'Ta'}, 'Tb': {'hash': '0790955c547003956c0fd4f080f7f508', 'symbol': 'Tb_3'}, 'Tc': {'hash': '9592642886319309a39d55c5717c6f48', 'symbol': 'Tc'}, 'Te': {'hash': '72719856e22fb1d3032df6f96d98a0f2', 'symbol': 'Te'}, 'Th': {'hash': 'aea79f322180fa6f0bfa74cb2a156dcf', 'symbol': 'Th'}, 'Ti': {'hash': 'c617e8b539c3f44a0ab6e8da2a92d318', 'symbol': 'Ti'}, 'Tl': {'hash': '2aa0d5406aaab7ebfbc761da382f1352', 'symbol': 'Tl'}, 'Tm': {'hash': '94a07cb7949b01305cb161da0cbfb492', 'symbol': 'Tm_3'}, 'U': {'hash': '72702eabbb1bc02b4167590dc848ed5d', 'symbol': 'U'}, 'V': {'hash': '7f1297a2e1d963e2a4d81b61f85e4ded', 'symbol': 'V_pv'}, 'W': {'hash': '2a33e0d5c700640535f60ac0a12177ab', 'symbol': 'W_pv'}, 'Xe': {'hash': '338472e581f58b41d37c002a5e22353b', 'symbol': 'Xe'}, 'Y': {'hash': '4ed187e77cd54f198bb88020278b143d', 'symbol': 'Y_sv'}, 'Yb': {'hash': '9f472bd422f640710f7d93e2d9ce89f4', 'symbol': 'Yb'}, 'Zn': {'hash': 'e35ee27f8483a63bb68dbc236a343af3', 'symbol': 'Zn'}, 'Zr': {'hash': 'd221d2c0bac4f8e81af2f5c42a314274', 'symbol': 'Zr'}}}</em><a class="headerlink" href="#pymatgen.io.vasp.sets.MITRelaxSet.CONFIG" title="Permalink to this definition">¶</a></dt>
@@ -408,11 +448,10 @@ prev_structure which is determined from the previous calc dir.</p></li>
 <dl class="method">
 <dt id="pymatgen.io.vasp.sets.MPHSEBSSet.kpoints">
 <em class="property">property </em><code class="sig-name descname">kpoints</code><a class="headerlink" href="#pymatgen.io.vasp.sets.MPHSEBSSet.kpoints" title="Permalink to this definition">¶</a></dt>
-<dd><p>Writes out a KPOINTS file using the fully automated grid method. Uses
-Gamma centered meshes for hexagonal cells and Monk grids otherwise.</p>
-<dl class="simple">
-<dt>Algorithm:</dt><dd><p>Uses a simple approach scaling the number of divisions along each
-reciprocal lattice vector proportional to its length.</p>
+<dd><p>Kpoints</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
 </dd>
 </dl>
 </dd></dl>
@@ -439,6 +478,14 @@ updated using the previous VASP run.</p>
 <em class="property">class </em><code class="sig-name descname">MPHSERelaxSet</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MPHSERelaxSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MPHSERelaxSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vasp.sets.DictSet" title="pymatgen.io.vasp.sets.DictSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.vasp.sets.DictSet</span></code></a></p>
 <p>Same as the MPRelaxSet, but with HSE parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – Structure</p></li>
+<li><p><strong>kwargs</strong> – Same as those supported by DictSet.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.sets.MPHSERelaxSet.CONFIG">
 <code class="sig-name descname">CONFIG</code><em class="property"> = {'INCAR': {'ALGO': 'All', 'EDIFF_PER_ATOM': 5e-05, 'ENCUT': 520, 'HFSCREEN': 0.2, 'IBRION': 2, 'ICHARG': 1, 'ISIF': 3, 'ISMEAR': 0, 'ISPIN': 2, 'LHFCALC': True, 'LORBIT': 11, 'LREAL': 'AUTO', 'LWAVE': False, 'MAGMOM': {'Ce': 5, 'Ce3+': 1, 'Co': 5, 'Co3+': 0.6, 'Co4+': 1, 'Cr': 5, 'Dy3+': 5, 'Er3+': 3, 'Eu': 10, 'Eu2+': 7, 'Eu3+': 6, 'Fe': 5, 'Gd3+': 7, 'Ho3+': 4, 'La3+': 0.6, 'Lu3+': 0.6, 'Mn': 5, 'Mn3+': 4, 'Mn4+': 3, 'Mo': 5, 'Nd3+': 3, 'Ni': 5, 'Pm3+': 4, 'Pr3+': 2, 'Sm3+': 5, 'Tb3+': 6, 'Tm3+': 2, 'V': 5, 'W': 5, 'Yb3+': 1}, 'NELM': 100, 'NSW': 99, 'PREC': 'Accurate', 'PRECFOCK': 'Fast', 'SIGMA': 0.05}, 'KPOINTS': {'reciprocal_density': 50}, 'POTCAR': {'Ac': 'Ac', 'Ag': 'Ag', 'Al': 'Al', 'Ar': 'Ar', 'As': 'As', 'Au': 'Au', 'B': 'B', 'Ba': 'Ba_sv', 'Be': 'Be_sv', 'Bi': 'Bi', 'Br': 'Br', 'C': 'C', 'Ca': 'Ca_sv', 'Cd': 'Cd', 'Ce': 'Ce', 'Cl': 'Cl', 'Co': 'Co', 'Cr': 'Cr_pv', 'Cs': 'Cs_sv', 'Cu': 'Cu_pv', 'Dy': 'Dy_3', 'Er': 'Er_3', 'Eu': 'Eu', 'F': 'F', 'Fe': 'Fe_pv', 'Ga': 'Ga_d', 'Gd': 'Gd', 'Ge': 'Ge_d', 'H': 'H', 'He': 'He', 'Hf': 'Hf_pv', 'Hg': 'Hg', 'Ho': 'Ho_3', 'I': 'I', 'In': 'In_d', 'Ir': 'Ir', 'K': 'K_sv', 'Kr': 'Kr', 'La': 'La', 'Li': 'Li_sv', 'Lu': 'Lu_3', 'Mg': 'Mg_pv', 'Mn': 'Mn_pv', 'Mo': 'Mo_pv', 'N': 'N', 'Na': 'Na_pv', 'Nb': 'Nb_pv', 'Nd': 'Nd_3', 'Ne': 'Ne', 'Ni': 'Ni_pv', 'Np': 'Np', 'O': 'O', 'Os': 'Os_pv', 'P': 'P', 'Pa': 'Pa', 'Pb': 'Pb_d', 'Pd': 'Pd', 'Pm': 'Pm_3', 'Pr': 'Pr_3', 'Pt': 'Pt', 'Pu': 'Pu', 'Rb': 'Rb_sv', 'Re': 'Re_pv', 'Rh': 'Rh_pv', 'Ru': 'Ru_pv', 'S': 'S', 'Sb': 'Sb', 'Sc': 'Sc_sv', 'Se': 'Se', 'Si': 'Si', 'Sm': 'Sm_3', 'Sn': 'Sn_d', 'Sr': 'Sr_sv', 'Ta': 'Ta_pv', 'Tb': 'Tb_3', 'Tc': 'Tc_pv', 'Te': 'Te', 'Th': 'Th', 'Ti': 'Ti_pv', 'Tl': 'Tl_d', 'Tm': 'Tm_3', 'U': 'U', 'V': 'V_pv', 'W': 'W_pv', 'Xe': 'Xe', 'Y': 'Y_sv', 'Yb': 'Yb_2', 'Zn': 'Zn', 'Zr': 'Zr_sv'}}</em><a class="headerlink" href="#pymatgen.io.vasp.sets.MPHSERelaxSet.CONFIG" title="Permalink to this definition">¶</a></dt>
@@ -477,11 +524,10 @@ The ISPIN parameter. Defaults to False.</p></li>
 <dl class="method">
 <dt id="pymatgen.io.vasp.sets.MPMDSet.kpoints">
 <em class="property">property </em><code class="sig-name descname">kpoints</code><a class="headerlink" href="#pymatgen.io.vasp.sets.MPMDSet.kpoints" title="Permalink to this definition">¶</a></dt>
-<dd><p>Writes out a KPOINTS file using the fully automated grid method. Uses
-Gamma centered meshes for hexagonal cells and Monk grids otherwise.</p>
-<dl class="simple">
-<dt>Algorithm:</dt><dd><p>Uses a simple approach scaling the number of divisions along each
-reciprocal lattice vector proportional to its length.</p>
+<dd><p>Kpoints</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
 </dd>
 </dl>
 </dd></dl>
@@ -495,6 +541,14 @@ reciprocal lattice vector proportional to its length.</p>
 <p>Implementation of VaspInputSet utilizing parameters in the public
 Materials Project, but with tuning for metals. Key things are a denser
 k point density, and a</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – Structure</p></li>
+<li><p><strong>kwargs</strong> – Same as those supported by DictSet.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.sets.MPMetalRelaxSet.CONFIG">
 <code class="sig-name descname">CONFIG</code><em class="property"> = {'INCAR': {'ALGO': 'FAST', 'EDIFF_PER_ATOM': 5e-05, 'ENCUT': 520, 'IBRION': 2, 'ICHARG': 1, 'ISIF': 3, 'ISMEAR': -5, 'ISPIN': 2, 'LDAU': True, 'LDAUJ': {'F': {'Co': 0, 'Cr': 0, 'Fe': 0, 'Mn': 0, 'Mo': 0, 'Ni': 0, 'V': 0, 'W': 0}, 'O': {'Co': 0, 'Cr': 0, 'Fe': 0, 'Mn': 0, 'Mo': 0, 'Ni': 0, 'V': 0, 'W': 0}}, 'LDAUL': {'F': {'Co': 2, 'Cr': 2, 'Fe': 2, 'Mn': 2, 'Mo': 2, 'Ni': 2, 'V': 2, 'W': 2}, 'O': {'Co': 2, 'Cr': 2, 'Fe': 2, 'Mn': 2, 'Mo': 2, 'Ni': 2, 'V': 2, 'W': 2}}, 'LDAUPRINT': 1, 'LDAUTYPE': 2, 'LDAUU': {'F': {'Co': 3.32, 'Cr': 3.7, 'Fe': 5.3, 'Mn': 3.9, 'Mo': 4.38, 'Ni': 6.2, 'V': 3.25, 'W': 6.2}, 'O': {'Co': 3.32, 'Cr': 3.7, 'Fe': 5.3, 'Mn': 3.9, 'Mo': 4.38, 'Ni': 6.2, 'V': 3.25, 'W': 6.2}}, 'LORBIT': 11, 'LREAL': 'AUTO', 'LWAVE': False, 'MAGMOM': {'Ce': 5, 'Ce3+': 1, 'Co': 5, 'Co3+': 0.6, 'Co4+': 1, 'Cr': 5, 'Dy3+': 5, 'Er3+': 3, 'Eu': 10, 'Eu2+': 7, 'Eu3+': 6, 'Fe': 5, 'Gd3+': 7, 'Ho3+': 4, 'La3+': 0.6, 'Lu3+': 0.6, 'Mn': 5, 'Mn3+': 4, 'Mn4+': 3, 'Mo': 5, 'Nd3+': 3, 'Ni': 5, 'Pm3+': 4, 'Pr3+': 2, 'Sm3+': 5, 'Tb3+': 6, 'Tm3+': 2, 'V': 5, 'W': 5, 'Yb3+': 1}, 'NELM': 100, 'NSW': 99, 'PREC': 'Accurate', 'SIGMA': 0.05}, 'KPOINTS': {'reciprocal_density': 64}, 'POTCAR': {'Ac': 'Ac', 'Ag': 'Ag', 'Al': 'Al', 'Ar': 'Ar', 'As': 'As', 'Au': 'Au', 'B': 'B', 'Ba': 'Ba_sv', 'Be': 'Be_sv', 'Bi': 'Bi', 'Br': 'Br', 'C': 'C', 'Ca': 'Ca_sv', 'Cd': 'Cd', 'Ce': 'Ce', 'Cl': 'Cl', 'Co': 'Co', 'Cr': 'Cr_pv', 'Cs': 'Cs_sv', 'Cu': 'Cu_pv', 'Dy': 'Dy_3', 'Er': 'Er_3', 'Eu': 'Eu', 'F': 'F', 'Fe': 'Fe_pv', 'Ga': 'Ga_d', 'Gd': 'Gd', 'Ge': 'Ge_d', 'H': 'H', 'He': 'He', 'Hf': 'Hf_pv', 'Hg': 'Hg', 'Ho': 'Ho_3', 'I': 'I', 'In': 'In_d', 'Ir': 'Ir', 'K': 'K_sv', 'Kr': 'Kr', 'La': 'La', 'Li': 'Li_sv', 'Lu': 'Lu_3', 'Mg': 'Mg_pv', 'Mn': 'Mn_pv', 'Mo': 'Mo_pv', 'N': 'N', 'Na': 'Na_pv', 'Nb': 'Nb_pv', 'Nd': 'Nd_3', 'Ne': 'Ne', 'Ni': 'Ni_pv', 'Np': 'Np', 'O': 'O', 'Os': 'Os_pv', 'P': 'P', 'Pa': 'Pa', 'Pb': 'Pb_d', 'Pd': 'Pd', 'Pm': 'Pm_3', 'Pr': 'Pr_3', 'Pt': 'Pt', 'Pu': 'Pu', 'Rb': 'Rb_sv', 'Re': 'Re_pv', 'Rh': 'Rh_pv', 'Ru': 'Ru_pv', 'S': 'S', 'Sb': 'Sb', 'Sc': 'Sc_sv', 'Se': 'Se', 'Si': 'Si', 'Sm': 'Sm_3', 'Sn': 'Sn_d', 'Sr': 'Sr_sv', 'Ta': 'Ta_pv', 'Tb': 'Tb_3', 'Tc': 'Tc_pv', 'Te': 'Te', 'Th': 'Th', 'Ti': 'Ti_pv', 'Tl': 'Tl_d', 'Tm': 'Tm_3', 'U': 'U', 'V': 'V_pv', 'W': 'W_pv', 'Xe': 'Xe', 'Y': 'Y_sv', 'Yb': 'Yb_2', 'Zn': 'Zn', 'Zr': 'Zr_sv'}}</em><a class="headerlink" href="#pymatgen.io.vasp.sets.MPMetalRelaxSet.CONFIG" title="Permalink to this definition">¶</a></dt>
@@ -525,7 +579,12 @@ volume (defaults to 100)</p></li>
 <dl class="method">
 <dt id="pymatgen.io.vasp.sets.MPNMRSet.incar">
 <em class="property">property </em><code class="sig-name descname">incar</code><a class="headerlink" href="#pymatgen.io.vasp.sets.MPNMRSet.incar" title="Permalink to this definition">¶</a></dt>
-<dd><p>Incar object</p>
+<dd><p>Incar</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -581,17 +640,21 @@ prev_calc_dir.</p></li>
 <dl class="method">
 <dt id="pymatgen.io.vasp.sets.MPNonSCFSet.incar">
 <em class="property">property </em><code class="sig-name descname">incar</code><a class="headerlink" href="#pymatgen.io.vasp.sets.MPNonSCFSet.incar" title="Permalink to this definition">¶</a></dt>
-<dd><p>Incar object</p>
+<dd><p>Incar</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.vasp.sets.MPNonSCFSet.kpoints">
 <em class="property">property </em><code class="sig-name descname">kpoints</code><a class="headerlink" href="#pymatgen.io.vasp.sets.MPNonSCFSet.kpoints" title="Permalink to this definition">¶</a></dt>
-<dd><p>Writes out a KPOINTS file using the fully automated grid method. Uses
-Gamma centered meshes for hexagonal cells and Monk grids otherwise.</p>
-<dl class="simple">
-<dt>Algorithm:</dt><dd><p>Uses a simple approach scaling the number of divisions along each
-reciprocal lattice vector proportional to its length.</p>
+<dd><p>Kpoints</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
 </dd>
 </dl>
 </dd></dl>
@@ -622,6 +685,14 @@ Materials Project. Typically, the pseudopotentials chosen contain more
 electrons than the MIT parameters, and the k-point grid is ~50% more dense.
 The LDAUU parameters are also different due to the different psps used,
 which result in different fitted values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – Structure</p></li>
+<li><p><strong>kwargs</strong> – Same as those supported by DictSet.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.sets.MPRelaxSet.CONFIG">
 <code class="sig-name descname">CONFIG</code><em class="property"> = {'INCAR': {'ALGO': 'FAST', 'EDIFF_PER_ATOM': 5e-05, 'ENCUT': 520, 'IBRION': 2, 'ICHARG': 1, 'ISIF': 3, 'ISMEAR': -5, 'ISPIN': 2, 'LDAU': True, 'LDAUJ': {'F': {'Co': 0, 'Cr': 0, 'Fe': 0, 'Mn': 0, 'Mo': 0, 'Ni': 0, 'V': 0, 'W': 0}, 'O': {'Co': 0, 'Cr': 0, 'Fe': 0, 'Mn': 0, 'Mo': 0, 'Ni': 0, 'V': 0, 'W': 0}}, 'LDAUL': {'F': {'Co': 2, 'Cr': 2, 'Fe': 2, 'Mn': 2, 'Mo': 2, 'Ni': 2, 'V': 2, 'W': 2}, 'O': {'Co': 2, 'Cr': 2, 'Fe': 2, 'Mn': 2, 'Mo': 2, 'Ni': 2, 'V': 2, 'W': 2}}, 'LDAUPRINT': 1, 'LDAUTYPE': 2, 'LDAUU': {'F': {'Co': 3.32, 'Cr': 3.7, 'Fe': 5.3, 'Mn': 3.9, 'Mo': 4.38, 'Ni': 6.2, 'V': 3.25, 'W': 6.2}, 'O': {'Co': 3.32, 'Cr': 3.7, 'Fe': 5.3, 'Mn': 3.9, 'Mo': 4.38, 'Ni': 6.2, 'V': 3.25, 'W': 6.2}}, 'LORBIT': 11, 'LREAL': 'AUTO', 'LWAVE': False, 'MAGMOM': {'Ce': 5, 'Ce3+': 1, 'Co': 5, 'Co3+': 0.6, 'Co4+': 1, 'Cr': 5, 'Dy3+': 5, 'Er3+': 3, 'Eu': 10, 'Eu2+': 7, 'Eu3+': 6, 'Fe': 5, 'Gd3+': 7, 'Ho3+': 4, 'La3+': 0.6, 'Lu3+': 0.6, 'Mn': 5, 'Mn3+': 4, 'Mn4+': 3, 'Mo': 5, 'Nd3+': 3, 'Ni': 5, 'Pm3+': 4, 'Pr3+': 2, 'Sm3+': 5, 'Tb3+': 6, 'Tm3+': 2, 'V': 5, 'W': 5, 'Yb3+': 1}, 'NELM': 100, 'NSW': 99, 'PREC': 'Accurate', 'SIGMA': 0.05}, 'KPOINTS': {'reciprocal_density': 64}, 'POTCAR': {'Ac': 'Ac', 'Ag': 'Ag', 'Al': 'Al', 'Ar': 'Ar', 'As': 'As', 'Au': 'Au', 'B': 'B', 'Ba': 'Ba_sv', 'Be': 'Be_sv', 'Bi': 'Bi', 'Br': 'Br', 'C': 'C', 'Ca': 'Ca_sv', 'Cd': 'Cd', 'Ce': 'Ce', 'Cl': 'Cl', 'Co': 'Co', 'Cr': 'Cr_pv', 'Cs': 'Cs_sv', 'Cu': 'Cu_pv', 'Dy': 'Dy_3', 'Er': 'Er_3', 'Eu': 'Eu', 'F': 'F', 'Fe': 'Fe_pv', 'Ga': 'Ga_d', 'Gd': 'Gd', 'Ge': 'Ge_d', 'H': 'H', 'He': 'He', 'Hf': 'Hf_pv', 'Hg': 'Hg', 'Ho': 'Ho_3', 'I': 'I', 'In': 'In_d', 'Ir': 'Ir', 'K': 'K_sv', 'Kr': 'Kr', 'La': 'La', 'Li': 'Li_sv', 'Lu': 'Lu_3', 'Mg': 'Mg_pv', 'Mn': 'Mn_pv', 'Mo': 'Mo_pv', 'N': 'N', 'Na': 'Na_pv', 'Nb': 'Nb_pv', 'Nd': 'Nd_3', 'Ne': 'Ne', 'Ni': 'Ni_pv', 'Np': 'Np', 'O': 'O', 'Os': 'Os_pv', 'P': 'P', 'Pa': 'Pa', 'Pb': 'Pb_d', 'Pd': 'Pd', 'Pm': 'Pm_3', 'Pr': 'Pr_3', 'Pt': 'Pt', 'Pu': 'Pu', 'Rb': 'Rb_sv', 'Re': 'Re_pv', 'Rh': 'Rh_pv', 'Ru': 'Ru_pv', 'S': 'S', 'Sb': 'Sb', 'Sc': 'Sc_sv', 'Se': 'Se', 'Si': 'Si', 'Sm': 'Sm_3', 'Sn': 'Sn_d', 'Sr': 'Sr_sv', 'Ta': 'Ta_pv', 'Tb': 'Tb_3', 'Tc': 'Tc_pv', 'Te': 'Te', 'Th': 'Th', 'Ti': 'Ti_pv', 'Tl': 'Tl_d', 'Tm': 'Tm_3', 'U': 'U', 'V': 'V_pv', 'W': 'W_pv', 'Xe': 'Xe', 'Y': 'Y_sv', 'Yb': 'Yb_2', 'Zn': 'Zn', 'Zr': 'Zr_sv'}}</em><a class="headerlink" href="#pymatgen.io.vasp.sets.MPRelaxSet.CONFIG" title="Permalink to this definition">¶</a></dt>
@@ -675,7 +746,12 @@ prev_calc_dir.</p></li>
 <dl class="method">
 <dt id="pymatgen.io.vasp.sets.MPSOCSet.incar">
 <em class="property">property </em><code class="sig-name descname">incar</code><a class="headerlink" href="#pymatgen.io.vasp.sets.MPSOCSet.incar" title="Permalink to this definition">¶</a></dt>
-<dd><p>Incar object</p>
+<dd><p>Incar</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -699,7 +775,7 @@ updated using the previous VASP run.</p>
 <dt id="pymatgen.io.vasp.sets.MPStaticSet">
 <em class="property">class </em><code class="sig-name descname">MPStaticSet</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">prev_incar=None</em>, <em class="sig-param">prev_kpoints=None</em>, <em class="sig-param">lepsilon=False</em>, <em class="sig-param">lcalcpol=False</em>, <em class="sig-param">reciprocal_density=100</em>, <em class="sig-param">small_gap_multiply=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MPStaticSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MPStaticSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vasp.sets.MPRelaxSet" title="pymatgen.io.vasp.sets.MPRelaxSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.vasp.sets.MPRelaxSet</span></code></a></p>
-<p>Run a static calculation.</p>
+<p>Creates input files for a static calculation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -739,17 +815,21 @@ the prev_calc_dir.</p></li>
 <dl class="method">
 <dt id="pymatgen.io.vasp.sets.MPStaticSet.incar">
 <em class="property">property </em><code class="sig-name descname">incar</code><a class="headerlink" href="#pymatgen.io.vasp.sets.MPStaticSet.incar" title="Permalink to this definition">¶</a></dt>
-<dd><p>Incar object</p>
+<dd><p>Incar</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.vasp.sets.MPStaticSet.kpoints">
 <em class="property">property </em><code class="sig-name descname">kpoints</code><a class="headerlink" href="#pymatgen.io.vasp.sets.MPStaticSet.kpoints" title="Permalink to this definition">¶</a></dt>
-<dd><p>Writes out a KPOINTS file using the fully automated grid method. Uses
-Gamma centered meshes for hexagonal cells and Monk grids otherwise.</p>
-<dl class="simple">
-<dt>Algorithm:</dt><dd><p>Uses a simple approach scaling the number of divisions along each
-reciprocal lattice vector proportional to its length.</p>
+<dd><p>Kpoints</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
 </dd>
 </dl>
 </dd></dl>
@@ -794,6 +874,7 @@ elastic constants.</p>
 but some structures may require a smaller step.</p></li>
 <li><p><strong>user_incar_settings</strong> (<em>dict</em>) – A dict specifying additional incar
 settings.</p></li>
+<li><p><strong>kwargs</strong> – Parameters supported by MPRelaxSet.</p></li>
 </ul>
 </dd>
 </dl>
@@ -826,7 +907,12 @@ which can be set by the user to be anything desired.</p></li>
 <dl class="method">
 <dt id="pymatgen.io.vasp.sets.MVLGBSet.incar">
 <em class="property">property </em><code class="sig-name descname">incar</code><a class="headerlink" href="#pymatgen.io.vasp.sets.MVLGBSet.incar" title="Permalink to this definition">¶</a></dt>
-<dd><p>Incar object</p>
+<dd><p>Incar</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -912,7 +998,12 @@ prev_calc_dir.</p></li>
 <dl class="method">
 <dt id="pymatgen.io.vasp.sets.MVLGWSet.incar">
 <em class="property">property </em><code class="sig-name descname">incar</code><a class="headerlink" href="#pymatgen.io.vasp.sets.MVLGWSet.incar" title="Permalink to this definition">¶</a></dt>
-<dd><p>Incar object</p>
+<dd><p>Incar</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -1048,17 +1139,28 @@ to ensure the same KPOINTS, POTCAR and INCAR criterion.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>k_product</strong> – default to 50, kpoint number * length for a &amp; b directions,
-also for c direction in bulk calculations</p></li>
-<li><p><strong>bulk</strong> (<em>bool</em>) – Set to True for bulk calculation. Defaults to False.</p></li>
-<li><p><strong>**kwargs</strong> – Other kwargs supported by <a class="reference internal" href="#pymatgen.io.vasp.sets.DictSet" title="pymatgen.io.vasp.sets.DictSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DictSet</span></code></a>.</p></li>
+<li><p><strong>structure</strong> – Structure</p></li>
+<li><p><strong>k_product</strong> – default to 50, kpoint number * length for a &amp; b
+directions, also for c direction in bulk calculations</p></li>
+<li><p><strong>bulk</strong> – </p></li>
+<li><p><strong>auto_dipole</strong> – </p></li>
+<li><p><strong>set_mix</strong> – </p></li>
+<li><p><strong>sort_structure</strong> – </p></li>
+<li><p><strong>kwargs</strong> – Other kwargs supported by <a class="reference internal" href="#pymatgen.io.vasp.sets.DictSet" title="pymatgen.io.vasp.sets.DictSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DictSet</span></code></a>.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="method">
 <dt id="pymatgen.io.vasp.sets.MVLSlabSet.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><em class="sig-param">verbosity=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MVLSlabSet.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MVLSlabSet.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A JSON serializable dict representation of an object.</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>verbosity</strong> – Verbosity of dict. E.g., whether to include Structure.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>MSONAble dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -1088,7 +1190,17 @@ class. Start from DictSet or MPRelaxSet or MITRelaxSet.</p>
 <dl class="method">
 <dt id="pymatgen.io.vasp.sets.VaspInputSet.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><em class="sig-param">verbosity=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#VaspInputSet.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.VaspInputSet.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A JSON serializable dict representation of an object.</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>verbosity</strong> – Verbosity for generated dict. If 1, structure is</p></li>
+<li><p><strong>excluded.</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>MSONable dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -1144,6 +1256,27 @@ directory (and the whole path) to be created if it is not
 present.</p></li>
 <li><p><strong>include_cif</strong> (<em>bool</em>) – Whether to write a CIF file in the output
 directory for easier opening by VESTA.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.vasp.sets.VaspInputSet.write_spec">
+<code class="sig-name descname">write_spec</code><span class="sig-paren">(</span><em class="sig-param">filename=None</em>, <em class="sig-param">readme=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#VaspInputSet.write_spec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.VaspInputSet.write_spec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a set of the VASP input files to a zip file, WITHOUT the Potcar
+file. The Potcar file will instead be written as a “POTCAR.spec”. This is
+intended to help sharing an input set with people who might not have a license
+to specific Potcar files.</p>
+<p>Given a “POTCAR.spec”, the specific POTCAR file can be re-generated using
+pymatgen with the “generate_potcar” function in the pymatgen CLI when set
+up with a corresponding directory of POTCAR files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – Filename to output as zip file, will default to name</p></li>
+<li><p><strong>input set.</strong> (<em>of</em>) – </p></li>
+<li><p><strong>readme</strong> (<em>str</em>) – Additional file to include as README</p></li>
 </ul>
 </dd>
 </dl>
@@ -1205,7 +1338,19 @@ Vasp input files, e.g. get_kpoints.</p>
 <dl class="function">
 <dt id="pymatgen.io.vasp.sets.get_vasprun_outcar">
 <code class="sig-name descname">get_vasprun_outcar</code><span class="sig-paren">(</span><em class="sig-param">path</em>, <em class="sig-param">parse_dos=True</em>, <em class="sig-param">parse_eigen=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#get_vasprun_outcar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.get_vasprun_outcar" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> – Path to get the vasprun.xml and OUTCAR.</p></li>
+<li><p><strong>parse_dos</strong> – Whether to parse dos. Defaults to True.</p></li>
+<li><p><strong>parse_eigen</strong> – Whether to parse eigenvalue. Defaults to True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.io.vasp.sets.standardize_structure">
@@ -1264,13 +1409,13 @@ convention (vs Curtarolo) for monoclinic. Defaults True.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

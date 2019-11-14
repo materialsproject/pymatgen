@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.cli.pmg_config &#8212; pymatgen 2019.10.4 documentation</title>
+    <title>pymatgen.cli.pmg_config &#8212; pymatgen 2019.11.11 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -49,6 +49,11 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A master convenience script with many tools for vasp and structure analysis.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">glob</span>
@@ -59,21 +64,13 @@
 <span class="kn">from</span> <span class="nn">pymatgen</span> <span class="k">import</span> <span class="n">SETTINGS_FILE</span>
 <span class="kn">from</span> <span class="nn">urllib.request</span> <span class="k">import</span> <span class="n">urlretrieve</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">A master convenience script with many tools for vasp and structure analysis.</span>
-<span class="sd">&quot;&quot;&quot;</span>
-
-<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
-<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
-<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;4.0&quot;</span>
-<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
-<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;ongsp@ucsd.edu&quot;</span>
-<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Aug 13 2016&quot;</span>
-
-<span class="n">SAVE_FILE</span> <span class="o">=</span> <span class="s2">&quot;vasp_data.gz&quot;</span>
-
 
 <div class="viewcode-block" id="setup_potcars"><a class="viewcode-back" href="../../../pymatgen.cli.pmg_config.html#pymatgen.cli.pmg_config.setup_potcars">[docs]</a><span class="k">def</span> <span class="nf">setup_potcars</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Setup POTCAR directirt,</span>
+
+<span class="sd">    :param args: args from command.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">pspdir</span><span class="p">,</span> <span class="n">targetdir</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">potcar_dirs</span><span class="p">]</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">targetdir</span><span class="p">)</span>
@@ -136,14 +133,17 @@
 
 
 <div class="viewcode-block" id="build_enum"><a class="viewcode-back" href="../../../pymatgen.cli.pmg_config.html#pymatgen.cli.pmg_config.build_enum">[docs]</a><span class="k">def</span> <span class="nf">build_enum</span><span class="p">(</span><span class="n">fortran_command</span><span class="o">=</span><span class="s2">&quot;gfortran&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build enum.</span>
+
+<span class="sd">    :param fortran_command:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">currdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
     <span class="n">state</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;clone&quot;</span><span class="p">,</span>
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;clone&quot;</span><span class="p">,</span> <span class="s2">&quot;--recursive&quot;</span><span class="p">,</span>
                          <span class="s2">&quot;https://github.com/msg-byu/enumlib.git&quot;</span><span class="p">])</span>
-        <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;clone&quot;</span><span class="p">,</span>
-                         <span class="s2">&quot;https://github.com/msg-byu/symlib.git&quot;</span><span class="p">])</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">currdir</span><span class="p">,</span> <span class="s2">&quot;symlib&quot;</span><span class="p">,</span> <span class="s2">&quot;src&quot;</span><span class="p">))</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">currdir</span><span class="p">,</span> <span class="s2">&quot;enumlib&quot;</span><span class="p">,</span> <span class="s2">&quot;symlib&quot;</span><span class="p">,</span> <span class="s2">&quot;src&quot;</span><span class="p">))</span>
         <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;F90&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fortran_command</span>
         <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s2">&quot;make&quot;</span><span class="p">])</span>
         <span class="n">enumpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">currdir</span><span class="p">,</span> <span class="s2">&quot;enumlib&quot;</span><span class="p">,</span> <span class="s2">&quot;src&quot;</span><span class="p">)</span>
@@ -158,11 +158,15 @@
     <span class="k">finally</span><span class="p">:</span>
         <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">currdir</span><span class="p">)</span>
         <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="s2">&quot;enumlib&quot;</span><span class="p">)</span>
-        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="s2">&quot;symlib&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">state</span></div>
 
 
 <div class="viewcode-block" id="build_bader"><a class="viewcode-back" href="../../../pymatgen.cli.pmg_config.html#pymatgen.cli.pmg_config.build_bader">[docs]</a><span class="k">def</span> <span class="nf">build_bader</span><span class="p">(</span><span class="n">fortran_command</span><span class="o">=</span><span class="s2">&quot;gfortran&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build bader package.</span>
+
+<span class="sd">    :param fortran_command:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">bader_url</span> <span class="o">=</span> <span class="s2">&quot;http://theory.cm.utexas.edu/henkelman/code/bader/download/bader.tar.gz&quot;</span>
     <span class="n">currdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
     <span class="n">state</span> <span class="o">=</span> <span class="kc">True</span>
@@ -187,6 +191,11 @@
 
 
 <div class="viewcode-block" id="install_software"><a class="viewcode-back" href="../../../pymatgen.cli.pmg_config.html#pymatgen.cli.pmg_config.install_software">[docs]</a><span class="k">def</span> <span class="nf">install_software</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Install all optional external software.</span>
+
+<span class="sd">    :param args:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s2">&quot;ifort&quot;</span><span class="p">,</span> <span class="s2">&quot;--version&quot;</span><span class="p">])</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Found ifort&quot;</span><span class="p">)</span>
@@ -219,6 +228,11 @@
 
 
 <div class="viewcode-block" id="add_config_var"><a class="viewcode-back" href="../../../pymatgen.cli.pmg_config.html#pymatgen.cli.pmg_config.add_config_var">[docs]</a><span class="k">def</span> <span class="nf">add_config_var</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add configuration args.</span>
+
+<span class="sd">    :param args:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">SETTINGS_FILE</span><span class="p">):</span>
         <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">SETTINGS_FILE</span><span class="p">,</span> <span class="n">SETTINGS_FILE</span> <span class="o">+</span> <span class="s2">&quot;.bak&quot;</span><span class="p">)</span>
@@ -236,6 +250,11 @@
 
 
 <div class="viewcode-block" id="configure_pmg"><a class="viewcode-back" href="../../../pymatgen.cli.pmg_config.html#pymatgen.cli.pmg_config.configure_pmg">[docs]</a><span class="k">def</span> <span class="nf">configure_pmg</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Handle configure command.</span>
+
+<span class="sd">    :param args:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">potcar_dirs</span><span class="p">:</span>
         <span class="n">setup_potcars</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">install</span><span class="p">:</span>
@@ -272,7 +291,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -280,7 +299,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

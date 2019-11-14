@@ -18,7 +18,7 @@ import fnmatch
 import itertools
 import warnings
 import spglib
-from typing import List, Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from collections import defaultdict
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.io.vasp.outputs import Vasprun
@@ -105,10 +105,9 @@ class Cohpcar:
             self.is_spin_polarized = False
 
         # The COHP data start in row num_bonds + 3
-        data = np.array([np.array(row.split(), dtype=float)
-                         for row in contents[num_bonds + 3:]]).transpose()
+        data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3:]]).transpose()
+        data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3:]]).transpose()
         self.energies = data[0]
-
         cohp_data = {"average": {"COHP": {spin: data[1 + 2 * s * (num_bonds + 1)]
                                           for s, spin in enumerate(spins)},
                                  "ICOHP": {spin: data[2 + 2 * s * (num_bonds + 1)]
@@ -373,6 +372,17 @@ class Doscar:
         if is_spin_polarized=False:
         tdensities[Spin.up]: numpy array of the total density of states
 
+
+    .. attribute:: itdensities:
+        itdensities[Spin.up]: numpy array of the total density of states for the Spin.up contribution at each of the
+            energies
+        itdensities[Spin.down]: numpy array of the total density of states for the Spin.down contribution at each of the
+            energies
+
+        if is_spin_polarized=False:
+        itdensities[Spin.up]: numpy array of the total density of states
+
+
     .. attribute:: is_spin_polarized
         Boolean. Tells if the system is spin polarized
 
@@ -396,6 +406,7 @@ class Doscar:
         doscar = self._doscar
 
         tdensities = {}
+        itdensities = {}
         f = open(doscar)
         natoms = int(f.readline().split()[0])
         efermi = float([f.readline() for nn in range(4)][3].split()[17])
@@ -423,6 +434,7 @@ class Doscar:
         energies = doshere[:, 0]
         if not self._is_spin_polarized:
             tdensities[Spin.up] = doshere[:, 1]
+            itdensities[Spin.up] = doshere[:, 2]
             pdoss = []
             spin = Spin.up
             for atom in range(natoms):
@@ -438,6 +450,8 @@ class Doscar:
         else:
             tdensities[Spin.up] = doshere[:, 1]
             tdensities[Spin.down] = doshere[:, 2]
+            itdensities[Spin.up] = doshere[:, 3]
+            itdensities[Spin.down] = doshere[:, 4]
             pdoss = []
             for atom in range(natoms):
                 pdos = defaultdict(dict)
@@ -454,11 +468,13 @@ class Doscar:
                     if j % 2 == 0:
                         orbnumber = orbnumber + 1
                 pdoss.append(pdos)
+
         self._efermi = efermi
         self._pdos = pdoss
         self._tdos = Dos(efermi, energies, tdensities)
         self._energies = energies
         self._tdensities = tdensities
+        self._itdensities = itdensities
         final_struct = self._final_structure
 
         pdossneu = {final_struct[i]: pdos for i, pdos in enumerate(self._pdos)}
@@ -487,18 +503,25 @@ class Doscar:
         return self._tdos
 
     @property
-    def energies(self) -> list:
+    def energies(self) -> np.array:
         """
         :return: Energies
         """
         return self._energies
 
     @property
-    def tdensities(self) -> list:
+    def tdensities(self) -> np.array:
         """
-        :return: total densities as a list
+        :return: total densities as a np.array
         """
         return self._tdensities
+
+    @property
+    def itdensities(self) -> np.array:
+        """
+        :return: integrated total densities as a np.array
+        """
+        return self._itdensities
 
     @property
     def is_spin_polarized(self) -> bool:
@@ -682,7 +705,6 @@ class Lobsterout:
 
         orthowarning = self._get_warning_orthonormalization(data=data)
         self.info_orthonormalization = orthowarning
-        # print(orthowarning)
 
         infos = self._get_all_info_lines(data=data)
         self.info_lines = infos
@@ -818,7 +840,6 @@ class Lobsterout:
 
     def _get_number_of_spins(self, data):
         if "spillings for spin channel 2" in data:
-            # print('two spin channels')
             return 2
         else:
             return 1
@@ -858,7 +879,6 @@ class Lobsterout:
         for row in data:
 
             if begin and not end:
-                # print(row)
                 splitrow = row.split()
                 if splitrow[0] not in ['INFO:', 'WARNING:', 'setting', 'calculating', 'post-processing', 'saving',
                                        'spillings', 'writing']:
@@ -871,7 +891,6 @@ class Lobsterout:
                     end = True
             if "setting up local basis functions..." in row:
                 begin = True
-                # print(row)
         return elements, basistype, basisfunctions
 
     def _get_timing(self, data):
@@ -915,7 +934,6 @@ class Lobsterout:
                     warnings.append(" ".join(splitrow[1:]))
 
         return warnings
-        # print(warnings)
 
     def _get_all_info_lines(self, data):
         infos = []
@@ -1057,9 +1075,6 @@ class Fatband:
             else:
                 linenumbers = []
                 for iline, line in enumerate(contents[1:self.nbands * 2 + 4]):
-                    # print(line)
-                    # if line in ['\n', '\r\n']:
-                    #    linenumbers.append(iline)
                     if line.split()[0] == '#':
                         linenumbers.append(iline)
 
@@ -1114,8 +1129,6 @@ class Fatband:
                         p_eigenvals[Spin.up][iband][ikpoint][atomnames[ifilename]][orbital_names[ifilename]] = float(
                             line.split()[2])
                     if linenumber >= self.nbands and self.is_spinpolarized:
-                        # print(line.split())
-                        # print(iband)
                         if ifilename == 0:
                             eigenvals[Spin.down][iband][ikpoint] = float(line.split()[1]) + self.efermi
                         p_eigenvals[Spin.down][iband][ikpoint][atomnames[ifilename]][
@@ -1170,7 +1183,7 @@ class Lobsterin(dict, MSONable):
                          'useDecimalPlaces', 'kSpaceCOHP']
 
     # keyword + one float can be used in file
-    FLOATKEYWORDS = ['COHPstartEnergy', 'COHPendEnergy', 'gaussianSmearingWidth', 'useDecimalPlaces']
+    FLOATKEYWORDS = ['COHPstartEnergy', 'COHPendEnergy', 'gaussianSmearingWidth', 'useDecimalPlaces', 'COHPSteps']
     # one of these keywords +endstring can be used in file
     STRINGKEYWORDS = ['basisSet', 'cohpGenerator', 'realspaceHamiltonian', 'realspaceOverlap',
                       'printPAWRealSpaceWavefunction', 'printLCAORealSpaceWavefunction', 'kSpaceCOHP']
@@ -1181,7 +1194,8 @@ class Lobsterin(dict, MSONable):
                        'writeBasisFunctions', 'writeMatricesToFile', 'noFFTforVisualization', 'RMSp',
                        'onlyReadVasprun.xml', 'noMemoryMappedFiles', 'skipPAWOrthonormalityTest',
                        'doNotIgnoreExcessiveBands', 'doNotUseAbsoluteSpilling', 'skipReOrthonormalization',
-                       'forceV1HMatrix', 'useOriginalTetrahedronMethod']
+                       'forceV1HMatrix', 'useOriginalTetrahedronMethod', 'forceEnergyRange', 'bandwiseSpilling',
+                       'kpointwiseSpilling']
     # several of these keywords + ending can be used in a lobsterin file:
     LISTKEYWORDS = ['basisfunctions', 'cohpbetween', 'createFatband']
 
@@ -1367,21 +1381,28 @@ class Lobsterin(dict, MSONable):
         return Lobsterin({k: v for k, v in d.items() if k not in ["@module",
                                                                   "@class"]})
 
-    def write_INCAR(self, incar_input="INCAR", incar_output="INCAR.lobster", poscar_input="POSCAR",
-                    further_settings=None):
+    def write_INCAR(self, incar_input: str = "INCAR", incar_output: str = "INCAR.lobster", poscar_input: str = "POSCAR",
+                    isym: int = -1,
+                    further_settings: dict = None):
         """
         Will only make the run static, insert nbands, make ISYM=-1, set LWAVE=True and write a new INCAR.
         You have to check for the rest.
         Args:
             incar_input (str): path to input INCAR
             incar_output (str): path to output INCAR
-            poscar_input (str) path to input POSCAR
+            poscar_input (str): path to input POSCAR
+            isym (int): isym equal to -1 or 0 are possible. Current Lobster version only allow -1.
             further_settings (dict): A dict can be used to include further settings, e.g. {"ISMEAR":-5}
         """
         # reads old incar from file, this one will be modified
         incar = Incar.from_file(incar_input)
         warnings.warn("Please check your incar_input before using it. This method only changes three settings!")
-        incar["ISYM"] = -1
+        if isym == -1:
+            incar["ISYM"] = -1
+        elif isym == 0:
+            incar["ISYM"] = 0
+        else:
+            ValueError("isym has to be -1 or 0.")
         incar["NSW"] = 0
         incar["LWAVE"] = True
         # get nbands from _get_nbands (use basis set that is inserted)
@@ -1393,7 +1414,8 @@ class Lobsterin(dict, MSONable):
         incar.write_file(incar_output)
 
     @staticmethod
-    def _get_basis(structure: Structure, potcar_symbols: list):
+    def _get_basis(structure: Structure, potcar_symbols: list,
+                   address_basis_file: str = os.path.join(MODULE_DIR, "BASIS_PBE_54.yaml")):
         """
         will get the basis from given potcar_symbols (e.g., ["Fe_pv","Si"]
         #include this in lobsterin class
@@ -1411,7 +1433,7 @@ class Lobsterin(dict, MSONable):
 
         if set(AtomTypes) != set(AtomTypes_Potcar):
             raise IOError("Your POSCAR does not correspond to your POTCAR!")
-        BASIS = loadfn(os.path.join(MODULE_DIR, "BASIS_PBE_54.yaml"))['BASIS']
+        BASIS = loadfn(address_basis_file)['BASIS']
 
         basis_functions = []
         list_forin = []
@@ -1441,15 +1463,15 @@ class Lobsterin(dict, MSONable):
 
     @staticmethod
     def write_KPOINTS(POSCAR_input: str = "POSCAR", KPOINTS_output="KPOINTS.lobster", reciprocal_density: int = 100,
-                      from_grid: bool = False, input_grid: list = [5, 5, 5], line_mode: bool = True,
+                      isym: int = -1, from_grid: bool = False, input_grid: list = [5, 5, 5], line_mode: bool = True,
                       kpoints_line_density: int = 20, symprec: float = 0.01):
         """
-        writes a KPOINT file for lobster (no symmetry considered!, ISYM=-1)
-        #TODO: extend this to ISYM=0
+        writes a KPOINT file for lobster (only ISYM=-1 and ISYM=0 are possible), grids are gamma centered
         Args:
             POSCAR_input (str): path to POSCAR
             KPOINTS_output (str): path to output KPOINTS
             reciprocal_density (int): Grid density
+            isym (int): either -1 or 0. Current Lobster versions only allow -1.
             from_grid (bool): If True KPOINTS will be generated with the help of a grid given in input_grid. Otherwise,
                 they will be generated from the reciprocal_density
             input_grid (list): grid to generate the KPOINTS file
@@ -1492,18 +1514,45 @@ class Lobsterin(dict, MSONable):
 
         # For now, we are setting magmom to zero. (Taken from INCAR class)
         cell = latt, positions, zs, magmoms
+        # TODO: what about this shift?
         mapping, grid = spglib.get_ir_reciprocal_mesh(mesh, cell, is_shift=[0, 0, 0])
 
+        # exit()
         # get the kpoints for the grid
-        kpts = []
-        weights = []
-        all_labels = []
-        for i, (ir_gp_id, gp) in enumerate(zip(mapping, grid)):
-            # print("%3d ->%3d %s" % (i, ir_gp_id, gp.astype(float) / mesh))
-            kpts.append(gp.astype(float) / mesh)
-            weights.append(float(1))
-            all_labels.append("")
+        if isym == -1:
+            kpts = []
+            weights = []
+            all_labels = []
+            for gp in grid:
+                kpts.append(gp.astype(float) / mesh)
+                weights.append(float(1))
+                all_labels.append("")
+        elif isym == 0:
+            # time reversal symmetry: k and -k are equivalent
+            kpts = []
+            weights = []
+            all_labels = []
+            newlist = [list(gp) for gp in list(grid)]
+            mapping = []
+            for gp in newlist:
+                minusgp = [-k for k in gp]
+                if minusgp in newlist and minusgp not in [[0, 0, 0]]:
+                    mapping.append(newlist.index(minusgp))
+                else:
+                    mapping.append(newlist.index(gp))
 
+            for igp, gp in enumerate(newlist):
+                if mapping[igp] > igp:
+                    kpts.append(np.array(gp).astype(float) / mesh)
+                    weights.append(float(2))
+                    all_labels.append("")
+                elif mapping[igp] == igp:
+                    kpts.append(np.array(gp).astype(float) / mesh)
+                    weights.append(float(1))
+                    all_labels.append("")
+
+        else:
+            ValueError("Only isym=-1 and isym=0 are allowed.")
         # line mode
         if line_mode:
             kpath = HighSymmKpath(structure, symprec=symprec)
@@ -1520,9 +1569,12 @@ class Lobsterin(dict, MSONable):
                 kpts.append(frac_k_points[k])
                 weights.append(0.0)
                 all_labels.append(labels[k])
-
-        comment = (
-            "ISYM=-1, grid: " + str(mesh) if not line_mode else "ISYM=-1, grid: " + str(mesh) + " plus kpoint path")
+        if isym == -1:
+            comment = (
+                "ISYM=-1, grid: " + str(mesh) if not line_mode else "ISYM=-1, grid: " + str(mesh) + " plus kpoint path")
+        elif isym == 0:
+            comment = (
+                "ISYM=0, grid: " + str(mesh) if not line_mode else "ISYM=0, grid: " + str(mesh) + " plus kpoint path")
 
         KpointObject = Kpoints(comment=comment,
                                style=Kpoints.supported_modes.Reciprocal,
@@ -1857,3 +1909,24 @@ class Grosspop:
                 smalldict["Loewdin GP"][cleanline[0]] = float(cleanline[2])
                 if 'total' in cleanline[0]:
                     self.list_dict_grosspop.append(smalldict)
+
+    def get_structure_with_total_grosspop(self, structure_filename: str) -> Structure:
+        """
+        get a Structure with Mulliken and Loewdin total grosspopulations as site properties
+        Args:
+            structure_filename (str): filename of POSCAR
+        Returns:
+            Structure Object with Mulliken and Loewdin total grosspopulations as site properties
+        """
+
+        struct = Structure.from_file(structure_filename)
+        site_properties = {}  # type: Dict[str, Any]
+        mullikengp = []
+        loewdingp = []
+        for grosspop in self.list_dict_grosspop:
+            mullikengp.append(grosspop["Mulliken GP"]["total"])
+            loewdingp.append(grosspop["Loewdin GP"]["total"])
+
+        site_properties = {"Total Mulliken GP": mullikengp, "Total Loewdin GP": loewdingp}
+        new_struct = struct.copy(site_properties=site_properties)
+        return new_struct

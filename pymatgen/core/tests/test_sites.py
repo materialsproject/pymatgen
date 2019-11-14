@@ -5,23 +5,13 @@
 
 import numpy as np
 import pickle
+import timeit
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.composition import Composition
-
-"""
-Created on Jul 17, 2012
-"""
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Jul 17, 2012"
 
 
 class SiteTest(PymatgenTest):

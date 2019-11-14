@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.vasp.outputs &#8212; pymatgen 2019.10.4 documentation</title>
+    <title>pymatgen.io.vasp.outputs &#8212; pymatgen 2019.11.11 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -3307,7 +3307,7 @@
         <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">f</span><span class="p">[</span><span class="s2">&quot;vdata&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
             <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;structure_json&quot;</span><span class="p">]))</span>
-            <span class="k">return</span> <span class="n">VolumetricData</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div></div>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="Locpot"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Locpot">[docs]</a><span class="k">class</span> <span class="nc">Locpot</span><span class="p">(</span><span class="n">VolumetricData</span><span class="p">):</span>
@@ -3770,7 +3770,7 @@
                 <span class="n">branches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">get_band_structure</span><span class="p">(</span><span class="n">efermi</span><span class="o">=</span><span class="n">efermi</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># It might be better to throw an exception</span>
-                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Skipping </span><span class="si">{}</span><span class="s2">. Unable to find </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">dir_name</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="n">xml_file</span><span class="p">))</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Skipping </span><span class="si">{}</span><span class="s2">. Unable to find </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dir_name</span><span class="p">,</span> <span class="n">xml_file</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="n">get_reconstructed_band_structure</span><span class="p">(</span><span class="n">branches</span><span class="p">,</span> <span class="n">efermi</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -4545,6 +4545,126 @@
         <span class="k">return</span> <span class="n">Chgcar</span><span class="p">(</span><span class="n">poscar</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div></div>
 
 
+<div class="viewcode-block" id="Eigenval"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Eigenval">[docs]</a><span class="k">class</span> <span class="nc">Eigenval</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Object for reading EIGENVAL file.</span>
+
+<span class="sd">    .. attribute:: filename</span>
+
+<span class="sd">        string containing input filename</span>
+
+<span class="sd">    .. attribute:: occu_tol</span>
+
+<span class="sd">        tolerance for determining occupation in band properties</span>
+
+<span class="sd">    .. attribute:: ispin</span>
+
+<span class="sd">        spin polarization tag (int)</span>
+
+<span class="sd">    .. attribute:: nelect</span>
+
+<span class="sd">        number of electrons</span>
+
+<span class="sd">    .. attribute:: nkpt</span>
+
+<span class="sd">        number of kpoints</span>
+
+<span class="sd">    .. attribute:: nbands</span>
+
+<span class="sd">        number of bands</span>
+
+<span class="sd">    .. attribute:: kpoints</span>
+
+<span class="sd">        list of kpoints</span>
+
+<span class="sd">    .. attribute:: kpoints_weights</span>
+
+<span class="sd">        weights of each kpoint in the BZ, should sum to 1.</span>
+
+<span class="sd">    .. attribute:: eigenvalues</span>
+
+<span class="sd">        Eigenvalues as a dict of {(spin): np.ndarray(shape=(nkpt, nbands, 2))}.</span>
+<span class="sd">        This representation is based on actual ordering in VASP and is meant as</span>
+<span class="sd">        an intermediate representation to be converted into proper objects. The</span>
+<span class="sd">        kpoint index is 0-based (unlike the 1-based indexing in VASP).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">occu_tol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reads input from filename to construct Eigenval object</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename (str):     filename of EIGENVAL to read in</span>
+<span class="sd">            occu_tol (float):   tolerance for determining band gap</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            a pymatgen.io.vasp.outputs.Eigenval object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">occu_tol</span> <span class="o">=</span> <span class="n">occu_tol</span>
+
+        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ispin</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+            <span class="c1"># useless header information</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">nelect</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nkpt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nbands</span> <span class="o">=</span> \
+                <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()))</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">kpoints_weights</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ispin</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">eigenvalues</span> <span class="o">=</span> \
+                    <span class="p">{</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">nkpt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nbands</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span>
+                     <span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">nkpt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nbands</span><span class="p">,</span> <span class="mi">2</span><span class="p">))}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">eigenvalues</span> <span class="o">=</span> \
+                    <span class="p">{</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">nkpt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nbands</span><span class="p">,</span> <span class="mi">2</span><span class="p">))}</span>
+
+            <span class="n">ikpt</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\s+[\-+0-9eE.]+)</span><span class="si">{4}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">line</span><span class="p">)):</span>
+                    <span class="n">ikpt</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">kpt</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kpt</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">kpoints_weights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kpt</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nbands</span><span class="p">):</span>
+                        <span class="n">sl</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()))</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sl</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">eigenvalues</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">][</span><span class="n">ikpt</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">sl</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">eigenvalues</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">][</span><span class="n">ikpt</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">sl</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">sl</span><span class="p">)</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">eigenvalues</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">][</span><span class="n">ikpt</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">sl</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">eigenvalues</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">][</span><span class="n">ikpt</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">sl</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">eigenvalues</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">][</span><span class="n">ikpt</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">sl</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">eigenvalues</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">][</span><span class="n">ikpt</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">sl</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">eigenvalue_band_properties</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Band properties from the eigenvalues as a tuple,</span>
+<span class="sd">        (band gap, cbm, vbm, is_band_gap_direct).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">vbm</span> <span class="o">=</span> <span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
+        <span class="n">vbm_kpoint</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">cbm</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
+        <span class="n">cbm_kpoint</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">spin</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">eigenvalues</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+                <span class="k">for</span> <span class="p">(</span><span class="n">eigenval</span><span class="p">,</span> <span class="n">occu</span><span class="p">)</span> <span class="ow">in</span> <span class="n">val</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">occu</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">occu_tol</span> <span class="ow">and</span> <span class="n">eigenval</span> <span class="o">&gt;</span> <span class="n">vbm</span><span class="p">:</span>
+                        <span class="n">vbm</span> <span class="o">=</span> <span class="n">eigenval</span>
+                        <span class="n">vbm_kpoint</span> <span class="o">=</span> <span class="n">k</span>
+                    <span class="k">elif</span> <span class="n">occu</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">occu_tol</span> <span class="ow">and</span> <span class="n">eigenval</span> <span class="o">&lt;</span> <span class="n">cbm</span><span class="p">:</span>
+                        <span class="n">cbm</span> <span class="o">=</span> <span class="n">eigenval</span>
+                        <span class="n">cbm_kpoint</span> <span class="o">=</span> <span class="n">k</span>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">cbm</span> <span class="o">-</span> <span class="n">vbm</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">cbm</span><span class="p">,</span> <span class="n">vbm</span><span class="p">,</span> <span class="n">vbm_kpoint</span> <span class="o">==</span> <span class="n">cbm_kpoint</span></div>
+
+
 <div class="viewcode-block" id="Wavederf"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Wavederf">[docs]</a><span class="k">class</span> <span class="nc">Wavederf</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Object for reading a WAVEDERF file.</span>
@@ -4770,7 +4890,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -4778,7 +4898,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

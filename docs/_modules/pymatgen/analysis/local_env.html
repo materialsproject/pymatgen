@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.local_env &#8212; pymatgen 2019.10.4 documentation</title>
+    <title>pymatgen.analysis.local_env &#8212; pymatgen 2019.11.11 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -57,6 +57,8 @@
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">namedtuple</span><span class="p">,</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">lru_cache</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">ruamel.yaml</span> <span class="k">as</span> <span class="nn">yaml</span>
 <span class="kn">import</span> <span class="nn">os</span>
@@ -94,7 +96,7 @@
 <span class="kn">from</span> <span class="nn">bisect</span> <span class="k">import</span> <span class="n">bisect_left</span>
 <span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="k">import</span> <span class="n">Voronoi</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="k">import</span> <span class="n">Element</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="k">import</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">IStructure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.bond_valence</span> <span class="k">import</span> <span class="n">BV_PARAMS</span><span class="p">,</span> <span class="n">BVAnalyzer</span>
 
 <span class="n">_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
@@ -1590,8 +1592,7 @@
 <span class="sd">                of which represents a neighbor site, its image location,</span>
 <span class="sd">                and its weight.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="n">vire</span> <span class="o">=</span> <span class="n">ValenceIonicRadiusEvaluator</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+        <span class="n">vire</span> <span class="o">=</span> <span class="n">_get_vire</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
         <span class="n">site</span> <span class="o">=</span> <span class="n">vire</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
         <span class="n">neighs_dists</span> <span class="o">=</span> <span class="n">vire</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span><span class="p">)</span>
         <span class="n">rn</span> <span class="o">=</span> <span class="n">vire</span><span class="o">.</span><span class="n">radii</span><span class="p">[</span><span class="n">vire</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">species_string</span><span class="p">]</span>
@@ -1614,6 +1615,38 @@
                                 <span class="n">vire</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">s</span><span class="p">)})</span>
 
         <span class="k">return</span> <span class="n">siw</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_get_vire</span><span class="p">(</span><span class="n">structure</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Structure</span><span class="p">,</span> <span class="n">IStructure</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Get the ValenceIonicRadiusEvaluator object for an structure taking</span>
+<span class="sd">    advantage of caching.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        structure: A structure.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Output of `ValenceIonicRadiusEvaluator(structure)`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># pymatgen does not hash Structure objects, so we need</span>
+    <span class="c1"># to cast from Structure to the immutable IStructure</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">Structure</span><span class="p">):</span>
+        <span class="n">structure</span> <span class="o">=</span> <span class="n">IStructure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_get_vire_istructure</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+
+
+<span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_get_vire_istructure</span><span class="p">(</span><span class="n">structure</span><span class="p">:</span> <span class="n">IStructure</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get the ValenceIonicRadiusEvaluator object for an immutable structure</span>
+<span class="sd">    taking advantage of caching.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        structure: A structure.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Output of `ValenceIonicRadiusEvaluator(structure)`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">ValenceIonicRadiusEvaluator</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="solid_angle"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.solid_angle">[docs]</a><span class="k">def</span> <span class="nf">solid_angle</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">coords</span><span class="p">):</span>
@@ -3812,7 +3845,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -3820,7 +3853,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -9,6 +9,9 @@ This module implements symmetry-related structure forms.
 from typing import Sequence, List
 
 import numpy as np
+
+from tabulate import tabulate
+
 from pymatgen.core.structure import Structure, PeriodicSite
 
 
@@ -65,7 +68,7 @@ class SymmetrizedStructure(Structure):
                               equivalent_positions=self.site_labels,
                               wyckoff_letters=self.wyckoff_letters)
 
-    def find_equivalent_sites(self, site):
+    def find_equivalent_sites(self, site) -> List[PeriodicSite]:
         """
         Finds all symmetrically equivalent sites for a particular site
 
@@ -80,3 +83,63 @@ class SymmetrizedStructure(Structure):
                 return sites
 
         raise ValueError("Site not in structure")
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __str__(self):
+        outs = [
+            "SymmetrizedStructure",
+            "Full Formula ({s})".format(s=self.composition.formula),
+            "Reduced Formula: {}".format(self.composition.reduced_formula)]
+
+        def to_s(x):
+            return "%0.6f" % x
+        outs.append("abc   : " + " ".join([to_s(i).rjust(10)
+                                           for i in self.lattice.abc]))
+        outs.append("angles: " + " ".join([to_s(i).rjust(10)
+                                           for i in self.lattice.angles]))
+        if self._charge:
+            if self._charge >= 0:
+                outs.append("Overall Charge: +{}".format(self._charge))
+            else:
+                outs.append("Overall Charge: -{}".format(self._charge))
+        outs.append("Sites ({i})".format(i=len(self)))
+        data = []
+        props = self.site_properties
+        keys = sorted(props.keys())
+        for i, sites in enumerate(self.equivalent_sites):
+            site = sites[0]
+            row = [str(i), site.species_string]
+            row.extend([to_s(j) for j in site.frac_coords])
+            row.append(self.wyckoff_symbols[i])
+            for k in keys:
+                row.append(props[k][i])
+            data.append(row)
+        outs.append(tabulate(data, headers=["#", "SP", "a", "b", "c", "Wyckoff"] + keys,
+                             ))
+        return "\n".join(outs)
+
+    def as_dict(self):
+        """
+        :return: MSONAble dict
+        """
+        return {
+            "structure": super().as_dict(),
+            "spacegroup": self.spacegroup,
+            "equivalent_positions": self.site_labels,
+            "wyckoff_letters": self.wyckoff_letters
+        }
+
+    @classmethod
+    def from_dict(cls, d):
+        """
+        :param d: Dict representation
+        :return: SymmetrizedStructure
+        """
+        return SymmetrizedStructure(
+            Structure.from_dict(d["structure"]),
+            spacegroup=d["spacegroup"],
+            equivalent_positions=d["equivalent_positions"],
+            wyckoff_letters=d["wyckoff_letters"]
+        )

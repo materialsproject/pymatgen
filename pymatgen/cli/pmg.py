@@ -3,6 +3,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+A master convenience script with many tools for vasp and structure analysis.
+"""
 
 import argparse
 import sys
@@ -20,12 +23,13 @@ from pymatgen.cli.pmg_structure import analyze_structures
 from pymatgen.cli.pmg_query import do_query
 from pymatgen import __version__
 
-"""
-A master convenience script with many tools for vasp and structure analysis.
-"""
-
 
 def parse_view(args):
+    """
+    Handle view commands.
+
+    :param args: Args from command.
+    """
     from pymatgen.vis.structure_vtk import StructureVis
     excluded_bonding_elements = args.exclude_bonding[0].split(",") \
         if args.exclude_bonding else []
@@ -36,6 +40,11 @@ def parse_view(args):
 
 
 def diff_incar(args):
+    """
+    Handle diff commands.
+
+    :param args: Args from command.
+    """
     filepath1 = args.incars[0]
     filepath2 = args.incars[1]
     incar1 = Incar.from_file(filepath1)
@@ -60,6 +69,9 @@ def diff_incar(args):
 
 
 def main():
+    """
+    Handle main.
+    """
     parser = argparse.ArgumentParser(
         description="""
     pmg is a convenient script that uses pymatgen to perform many

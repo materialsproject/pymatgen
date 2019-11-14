@@ -176,6 +176,11 @@ class SpacegroupAnalyzerTest(PymatgenTest):
 
         # Check copying
         self.assertEqual(symm_struct.copy(), symm_struct)
+        d = symm_struct.as_dict()
+        from pymatgen.symmetry.structure import SymmetrizedStructure
+        ss = SymmetrizedStructure.from_dict(d)
+        self.assertEqual(ss.wyckoff_symbols[0], "16h")
+        self.assertIn("SymmetrizedStructure", ss.__str__())
 
     def test_find_primitive(self):
         """

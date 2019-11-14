@@ -694,13 +694,13 @@ class MoleculeGraphTest(unittest.TestCase):
         self.assertEqual(mol_graph.graph.adj, ref_mol_graph.graph.adj)
         for node in mol_graph.graph.nodes:
             self.assertEqual(
-                mol_graph.graph.node[node]["specie"],
-                ref_mol_graph.graph.node[node]["specie"],
+                mol_graph.graph.nodes[node]["specie"],
+                ref_mol_graph.graph.nodes[node]["specie"],
             )
             for ii in range(3):
                 self.assertEqual(
-                    mol_graph.graph.node[node]["coords"][ii],
-                    ref_mol_graph.graph.node[node]["coords"][ii],
+                    mol_graph.graph.nodes[node]["coords"][ii],
+                    ref_mol_graph.graph.nodes[node]["coords"][ii],
                 )
 
         edges_pc = {(e[0], e[1]): {"weight": 1.0} for e in self.pc_edges}
@@ -711,13 +711,13 @@ class MoleculeGraphTest(unittest.TestCase):
         self.assertEqual(mol_graph.graph.adj, ref_mol_graph.graph.adj)
         for node in mol_graph.graph:
             self.assertEqual(
-                mol_graph.graph.node[node]["specie"],
-                ref_mol_graph.graph.node[node]["specie"],
+                mol_graph.graph.nodes[node]["specie"],
+                ref_mol_graph.graph.nodes[node]["specie"],
             )
             for ii in range(3):
                 self.assertEqual(
-                    mol_graph.graph.node[node]["coords"][ii],
-                    ref_mol_graph.graph.node[node]["coords"][ii],
+                    mol_graph.graph.nodes[node]["coords"][ii],
+                    ref_mol_graph.graph.nodes[node]["coords"][ii],
                 )
 
         mol_graph_edges = MoleculeGraph.with_edges(self.pc, edges=edges_pc)

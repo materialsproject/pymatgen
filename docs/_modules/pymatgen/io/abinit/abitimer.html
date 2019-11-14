@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.abinit.abitimer &#8212; pymatgen 2019.10.4 documentation</title>
+    <title>pymatgen.io.abinit.abitimer &#8212; pymatgen 2019.11.11 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -127,6 +127,7 @@
         <span class="k">return</span> <span class="n">parser</span><span class="p">,</span> <span class="n">paths</span><span class="p">,</span> <span class="n">okfiles</span></div>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize object.&quot;&quot;&quot;</span>
         <span class="c1"># List of files that have been parsed.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_filenames</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -296,8 +297,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Analyze the parallel efficiency.</span>
 
-<span class="sd">        Return:</span>
-<span class="sd">            :class:`ParallelEfficiency` object.</span>
+<span class="sd">        Return: :class:`ParallelEfficiency` object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">timers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="p">()</span>
 
@@ -358,8 +358,8 @@
 
         <span class="c1"># Compute parallel efficiency (use the run with min number of cpus to normalize).</span>
         <span class="n">i</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[</span><span class="s2">&quot;tot_ncpus&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
-        <span class="n">ref_wtime</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s2">&quot;wall_time&quot;</span><span class="p">]</span>
-        <span class="n">ref_ncpus</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s2">&quot;tot_ncpus&quot;</span><span class="p">]</span>
+        <span class="n">ref_wtime</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s2">&quot;wall_time&quot;</span><span class="p">]</span>
+        <span class="n">ref_ncpus</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s2">&quot;tot_ncpus&quot;</span><span class="p">]</span>
         <span class="n">frame</span><span class="p">[</span><span class="s2">&quot;peff&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">ref_ncpus</span> <span class="o">*</span> <span class="n">ref_wtime</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">frame</span><span class="p">[</span><span class="s2">&quot;wall_time&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">frame</span><span class="p">[</span><span class="s2">&quot;tot_ncpus&quot;</span><span class="p">])</span>
 
         <span class="k">return</span> <span class="n">frame</span></div>
@@ -543,8 +543,16 @@
 
 
 <div class="viewcode-block" id="ParallelEfficiency"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.ParallelEfficiency">[docs]</a><span class="k">class</span> <span class="nc">ParallelEfficiency</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Store results concerning the parallel efficiency of the job.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filenames</span><span class="p">,</span> <span class="n">ref_idx</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            filennames: List of filenames</span>
+<span class="sd">            ref_idx: Index of the Reference time (calculation done with the smallest number of cpus)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">filenames</span> <span class="o">=</span> <span class="n">filenames</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ref_idx</span> <span class="o">=</span> <span class="n">ref_idx</span>
@@ -573,7 +581,16 @@
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">sect_name</span> <span class="k">for</span> <span class="p">(</span><span class="n">sect_name</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span> <span class="ow">in</span> <span class="n">data</span><span class="p">])</span>
 
 <div class="viewcode-block" id="ParallelEfficiency.totable"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.ParallelEfficiency.totable">[docs]</a>    <span class="k">def</span> <span class="nf">totable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return table (list of lists) with timing results.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            stop: Include results up to stop. None for all</span>
+<span class="sd">            reverse: Put items with highest wall_time in first positions if True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">osects</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_order_by_peff</span><span class="p">(</span><span class="s2">&quot;wall_time&quot;</span><span class="p">,</span> <span class="n">criterion</span><span class="o">=</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">stop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">osects</span> <span class="o">=</span> <span class="n">osects</span><span class="p">[:</span><span class="n">stop</span><span class="p">]</span>
 
         <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filenames</span><span class="p">)</span>
         <span class="n">table</span> <span class="o">=</span> <span class="p">[[</span><span class="s2">&quot;AbinitTimerSection&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">alternate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filenames</span><span class="p">,</span> <span class="n">n</span> <span class="o">*</span> <span class="p">[</span><span class="s2">&quot;%&quot;</span><span class="p">])]</span>
@@ -587,10 +604,16 @@
         <span class="k">return</span> <span class="n">table</span></div>
 
 <div class="viewcode-block" id="ParallelEfficiency.good_sections"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.ParallelEfficiency.good_sections">[docs]</a>    <span class="k">def</span> <span class="nf">good_sections</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;wall_time&quot;</span><span class="p">,</span> <span class="n">criterion</span><span class="o">=</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="n">nmax</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return first `nmax` sections with best value of key `key` using criterion `criterion`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">good_sections</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_order_by_peff</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">criterion</span><span class="o">=</span><span class="n">criterion</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">good_sections</span><span class="p">[:</span><span class="n">nmax</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="ParallelEfficiency.bad_sections"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.ParallelEfficiency.bad_sections">[docs]</a>    <span class="k">def</span> <span class="nf">bad_sections</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;wall_time&quot;</span><span class="p">,</span> <span class="n">criterion</span><span class="o">=</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="n">nmax</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return first `nmax` sections with worst value of key `key` using criterion `criterion`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">bad_sections</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_order_by_peff</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">criterion</span><span class="o">=</span><span class="n">criterion</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">bad_sections</span><span class="p">[:</span><span class="n">nmax</span><span class="p">]</span></div></div>
 
@@ -614,9 +637,20 @@
 
 <div class="viewcode-block" id="AbinitTimerSection.fake"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimerSection.fake">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">fake</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a fake section. Mainly used to fill missing entries if needed.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">AbinitTimerSection</span><span class="p">(</span><span class="s2">&quot;fake&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">cpu_time</span><span class="p">,</span> <span class="n">cpu_fract</span><span class="p">,</span> <span class="n">wall_time</span><span class="p">,</span> <span class="n">wall_fract</span><span class="p">,</span> <span class="n">ncalls</span><span class="p">,</span> <span class="n">gflops</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            name: Name of the sections.</span>
+<span class="sd">            cpu_time: CPU time in seconds.</span>
+<span class="sd">            cpu_fract: Percentage of CPU time.</span>
+<span class="sd">            wall_time: Wall-time in seconds.</span>
+<span class="sd">            wall_fract: Percentage of wall-time.</span>
+<span class="sd">            ncalls: Number of calls</span>
+<span class="sd">            gflops: Gigaflops.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cpu_time</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">cpu_time</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cpu_fract</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">cpu_fract</span><span class="p">)</span>
@@ -626,13 +660,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">gflops</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">gflops</span><span class="p">)</span>
 
 <div class="viewcode-block" id="AbinitTimerSection.to_tuple"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimerSection.to_tuple">[docs]</a>    <span class="k">def</span> <span class="nf">to_tuple</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert object to tuple.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">at</span><span class="p">]</span> <span class="k">for</span> <span class="n">at</span> <span class="ow">in</span> <span class="n">AbinitTimerSection</span><span class="o">.</span><span class="n">FIELDS</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="AbinitTimerSection.to_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimerSection.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert object to dictionary.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span><span class="n">at</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">at</span><span class="p">]</span> <span class="k">for</span> <span class="n">at</span> <span class="ow">in</span> <span class="n">AbinitTimerSection</span><span class="o">.</span><span class="n">FIELDS</span><span class="p">}</span></div>
 
 <div class="viewcode-block" id="AbinitTimerSection.to_csvline"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimerSection.to_csvline">[docs]</a>    <span class="k">def</span> <span class="nf">to_csvline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">with_header</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return a string with data in CSV format&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return a string with data in CSV format. Add header if `with_header`&quot;&quot;&quot;</span>
         <span class="n">string</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">with_header</span><span class="p">:</span>
@@ -642,6 +678,7 @@
         <span class="k">return</span> <span class="n">string</span></div>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;String representation.&quot;&quot;&quot;</span>
         <span class="n">string</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">AbinitTimerSection</span><span class="o">.</span><span class="n">FIELDS</span><span class="p">:</span>
             <span class="n">string</span> <span class="o">+=</span> <span class="n">a</span> <span class="o">+</span> <span class="s2">&quot; = &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span>
@@ -652,7 +689,13 @@
     <span class="sd">&quot;&quot;&quot;Container class storing the timing results.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sections</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">cpu_time</span><span class="p">,</span> <span class="n">wall_time</span><span class="p">):</span>
-
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            sections: List of sections</span>
+<span class="sd">            info: Dictionary with extra info.</span>
+<span class="sd">            cpu_time: Cpu-time in seconds.</span>
+<span class="sd">            wall_time: Wall-time in seconds.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Store sections and names</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sections</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">sections</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">section_names</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">s</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">])</span>
@@ -680,6 +723,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpi_nprocs</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">omp_nthreads</span>
 
 <div class="viewcode-block" id="AbinitTimer.get_section"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimer.get_section">[docs]</a>    <span class="k">def</span> <span class="nf">get_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">section_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return section associated to `section_name`.&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">section_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">section_name</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
@@ -807,6 +851,7 @@
         <span class="k">return</span> <span class="n">operator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">keys</span><span class="p">))</span>
 
 <div class="viewcode-block" id="AbinitTimer.sum_sections"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimer.sum_sections">[docs]</a>    <span class="k">def</span> <span class="nf">sum_sections</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sum value of keys.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reduce_sections</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="nb">sum</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AbinitTimer.order_sections"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimer.order_sections">[docs]</a>    <span class="k">def</span> <span class="nf">order_sections</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -815,6 +860,14 @@
 
 <div class="viewcode-block" id="AbinitTimer.cpuwall_histogram"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimer.cpuwall_histogram">[docs]</a>    <span class="nd">@add_fig_kwargs</span>
     <span class="k">def</span> <span class="nf">cpuwall_histogram</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot histogram with cpu- and wall-time on axis `ax`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ax: matplotlib :class:`Axes` or None if a new figure should be created.</span>
+
+<span class="sd">        Returns: `matplotlib` figure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ax</span><span class="p">,</span> <span class="n">fig</span><span class="p">,</span> <span class="n">plt</span> <span class="o">=</span> <span class="n">get_ax_fig_plt</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
 
         <span class="n">nk</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">)</span>
@@ -830,10 +883,7 @@
         <span class="c1"># Add ylable and title</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Time (s)&#39;</span><span class="p">)</span>
 
-        <span class="c1"># if title:</span>
-        <span class="c1">#    plt.title(title)</span>
-        <span class="c1"># else:</span>
-        <span class="c1">#    plt.title(&#39;CPU-time and Wall-time for the different sections of the code&#39;)</span>
+        <span class="c1"># plt.title(&#39;CPU-time and Wall-time for the different sections of the code&#39;)</span>
 
         <span class="n">ticks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">ind</span> <span class="o">+</span> <span class="n">width</span><span class="p">,</span> <span class="n">ticks</span><span class="p">)</span>
@@ -841,22 +891,6 @@
         <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">((</span><span class="n">rects1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">rects2</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="p">(</span><span class="s1">&#39;CPU&#39;</span><span class="p">,</span> <span class="s1">&#39;Wall&#39;</span><span class="p">),</span> <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;best&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">fig</span></div>
-
-    <span class="c1"># def hist2(self, key1=&quot;wall_time&quot;, key2=&quot;cpu_time&quot;):</span>
-    <span class="c1">#    labels = self.get_values(&quot;name&quot;)</span>
-    <span class="c1">#    vals1, vals2 = self.get_values([key1, key2])</span>
-    <span class="c1">#    N = len(vals1)</span>
-    <span class="c1">#    assert N == len(vals2)</span>
-    <span class="c1">#    plt.figure(1)</span>
-    <span class="c1">#    plt.subplot(2, 1, 1) # 2 rows, 1 column, figure 1</span>
-    <span class="c1">#    n1, bins1, patches1 = plt.hist(vals1, N, facecolor=&quot;m&quot;)</span>
-    <span class="c1">#    plt.xlabel(labels)</span>
-    <span class="c1">#    plt.ylabel(key1)</span>
-    <span class="c1">#    plt.subplot(2, 1, 2)</span>
-    <span class="c1">#    n2, bins2, patches2 = plt.hist(vals2, N, facecolor=&quot;y&quot;)</span>
-    <span class="c1">#    plt.xlabel(labels)</span>
-    <span class="c1">#    plt.ylabel(key2)</span>
-    <span class="c1">#    plt.show()</span>
 
 <div class="viewcode-block" id="AbinitTimer.pie"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimer.pie">[docs]</a>    <span class="nd">@add_fig_kwargs</span>
     <span class="k">def</span> <span class="nf">pie</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;wall_time&quot;</span><span class="p">,</span> <span class="n">minfract</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -868,8 +902,7 @@
 <span class="sd">            minfract: Don&#39;t show sections whose relative weight is less that minfract.</span>
 <span class="sd">            ax: matplotlib :class:`Axes` or None if a new figure should be created.</span>
 
-<span class="sd">        Returns:</span>
-<span class="sd">            `matplotlib` figure</span>
+<span class="sd">        Returns: `matplotlib` figure</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ax</span><span class="p">,</span> <span class="n">fig</span><span class="p">,</span> <span class="n">plt</span> <span class="o">=</span> <span class="n">get_ax_fig_plt</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
         <span class="c1"># Set aspect ratio to be equal so that pie is drawn as a circle.</span>
@@ -881,6 +914,14 @@
 
 <div class="viewcode-block" id="AbinitTimer.scatter_hist"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abitimer.html#pymatgen.io.abinit.abitimer.AbinitTimer.scatter_hist">[docs]</a>    <span class="nd">@add_fig_kwargs</span>
     <span class="k">def</span> <span class="nf">scatter_hist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Scatter plot + histogram.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ax: matplotlib :class:`Axes` or None if a new figure should be created.</span>
+
+<span class="sd">        Returns: `matplotlib` figure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">mpl_toolkits.axes_grid1</span> <span class="k">import</span> <span class="n">make_axes_locatable</span>
         <span class="n">ax</span><span class="p">,</span> <span class="n">fig</span><span class="p">,</span> <span class="n">plt</span> <span class="o">=</span> <span class="n">get_ax_fig_plt</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
 
@@ -956,7 +997,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -964,7 +1005,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

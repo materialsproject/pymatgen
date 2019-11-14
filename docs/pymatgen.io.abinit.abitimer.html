@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.abinit.abitimer module &#8212; pymatgen 2019.10.4 documentation</title>
+    <title>pymatgen.io.abinit.abitimer module &#8212; pymatgen 2019.11.11 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -50,10 +50,27 @@ It also provides tools to analye and to visualize the parallel efficiency.</p>
 <em class="property">class </em><code class="sig-name descname">AbinitTimer</code><span class="sig-paren">(</span><em class="sig-param">sections</em>, <em class="sig-param">info</em>, <em class="sig-param">cpu_time</em>, <em class="sig-param">wall_time</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abitimer.html#AbinitTimer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Container class storing the timing results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sections</strong> – List of sections</p></li>
+<li><p><strong>info</strong> – Dictionary with extra info.</p></li>
+<li><p><strong>cpu_time</strong> – Cpu-time in seconds.</p></li>
+<li><p><strong>wall_time</strong> – Wall-time in seconds.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.io.abinit.abitimer.AbinitTimer.cpuwall_histogram">
 <code class="sig-name descname">cpuwall_histogram</code><span class="sig-paren">(</span><em class="sig-param">ax=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abitimer.html#AbinitTimer.cpuwall_histogram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.cpuwall_histogram" title="Permalink to this definition">¶</a></dt>
-<dd><p>Keyword arguments controlling the display of the figure:</p>
+<dd><p>Plot histogram with cpu- and wall-time on axis <cite>ax</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ax</strong> – matplotlib <code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code> or None if a new figure should be created.</p>
+</dd>
+</dl>
+<p>Returns: <cite>matplotlib</cite> figure</p>
+<p>Keyword arguments controlling the display of the figure:</p>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 23%" />
@@ -102,7 +119,8 @@ Default: False</p></td>
 <dl class="method">
 <dt id="pymatgen.io.abinit.abitimer.AbinitTimer.get_section">
 <code class="sig-name descname">get_section</code><span class="sig-paren">(</span><em class="sig-param">section_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abitimer.html#AbinitTimer.get_section"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.get_section" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Return section associated to <cite>section_name</cite>.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.abitimer.AbinitTimer.get_values">
@@ -141,10 +159,8 @@ Return the names of the sections and the corresponding values.</p>
 <li><p><strong>ax</strong> – matplotlib <code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code> or None if a new figure should be created.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><cite>matplotlib</cite> figure</p>
-</dd>
 </dl>
+<p>Returns: <cite>matplotlib</cite> figure</p>
 <p>Keyword arguments controlling the display of the figure:</p>
 <table class="docutils align-default">
 <colgroup>
@@ -188,7 +204,14 @@ Default: False</p></td>
 <dl class="method">
 <dt id="pymatgen.io.abinit.abitimer.AbinitTimer.scatter_hist">
 <code class="sig-name descname">scatter_hist</code><span class="sig-paren">(</span><em class="sig-param">ax=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abitimer.html#AbinitTimer.scatter_hist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.scatter_hist" title="Permalink to this definition">¶</a></dt>
-<dd><p>Keyword arguments controlling the display of the figure:</p>
+<dd><p>Scatter plot + histogram.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ax</strong> – matplotlib <code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code> or None if a new figure should be created.</p>
+</dd>
+</dl>
+<p>Returns: <cite>matplotlib</cite> figure</p>
+<p>Keyword arguments controlling the display of the figure:</p>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 23%" />
@@ -231,7 +254,8 @@ Default: False</p></td>
 <dl class="method">
 <dt id="pymatgen.io.abinit.abitimer.AbinitTimer.sum_sections">
 <code class="sig-name descname">sum_sections</code><span class="sig-paren">(</span><em class="sig-param">keys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abitimer.html#AbinitTimer.sum_sections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.sum_sections" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Sum value of keys.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.abitimer.AbinitTimer.to_csv">
@@ -267,6 +291,7 @@ parser.parse(list_of_files)</p>
 <blockquote>
 <div><p>parser, paths, okfiles = AbinitTimerParser.walk(top=”.”, ext=”.abo”)</p>
 </div></blockquote>
+<p>Initialize object.</p>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.abitimer.AbinitTimerParser.BEGIN_TAG">
 <code class="sig-name descname">BEGIN_TAG</code><em class="property"> = '-&lt;BEGIN_TIMER'</em><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.BEGIN_TAG" title="Permalink to this definition">¶</a></dt>
@@ -308,11 +333,7 @@ Files that cannot be opened are ignored. A single filename may also be given.</p
 <dt id="pymatgen.io.abinit.abitimer.AbinitTimerParser.pefficiency">
 <code class="sig-name descname">pefficiency</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abitimer.html#AbinitTimerParser.pefficiency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.pefficiency" title="Permalink to this definition">¶</a></dt>
 <dd><p>Analyze the parallel efficiency.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#pymatgen.io.abinit.abitimer.ParallelEfficiency" title="pymatgen.io.abinit.abitimer.ParallelEfficiency"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParallelEfficiency</span></code></a> object.</p>
-</dd>
-</dl>
+<p>Return: <a class="reference internal" href="#pymatgen.io.abinit.abitimer.ParallelEfficiency" title="pymatgen.io.abinit.abitimer.ParallelEfficiency"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParallelEfficiency</span></code></a> object.</p>
 </dd></dl>
 
 <dl class="method">
@@ -559,6 +580,19 @@ is the list of files that have been parsed successfully.
 <em class="property">class </em><code class="sig-name descname">AbinitTimerSection</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">cpu_time</em>, <em class="sig-param">cpu_fract</em>, <em class="sig-param">wall_time</em>, <em class="sig-param">wall_fract</em>, <em class="sig-param">ncalls</em>, <em class="sig-param">gflops</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abitimer.html#AbinitTimerSection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerSection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Record with the timing results associated to a section of code.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – Name of the sections.</p></li>
+<li><p><strong>cpu_time</strong> – CPU time in seconds.</p></li>
+<li><p><strong>cpu_fract</strong> – Percentage of CPU time.</p></li>
+<li><p><strong>wall_time</strong> – Wall-time in seconds.</p></li>
+<li><p><strong>wall_fract</strong> – Percentage of wall-time.</p></li>
+<li><p><strong>ncalls</strong> – Number of calls</p></li>
+<li><p><strong>gflops</strong> – Gigaflops.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.abitimer.AbinitTimerSection.FIELDS">
 <code class="sig-name descname">FIELDS</code><em class="property"> = ('name', 'wall_time', 'wall_fract', 'cpu_time', 'cpu_fract', 'ncalls', 'gflops')</em><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerSection.FIELDS" title="Permalink to this definition">¶</a></dt>
@@ -577,23 +611,26 @@ is the list of files that have been parsed successfully.
 <dl class="method">
 <dt id="pymatgen.io.abinit.abitimer.AbinitTimerSection.fake">
 <em class="property">classmethod </em><code class="sig-name descname">fake</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abitimer.html#AbinitTimerSection.fake"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerSection.fake" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Return a fake section. Mainly used to fill missing entries if needed.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.abitimer.AbinitTimerSection.to_csvline">
 <code class="sig-name descname">to_csvline</code><span class="sig-paren">(</span><em class="sig-param">with_header=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abitimer.html#AbinitTimerSection.to_csvline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerSection.to_csvline" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a string with data in CSV format</p>
+<dd><p>Return a string with data in CSV format. Add header if <cite>with_header</cite></p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.abitimer.AbinitTimerSection.to_dict">
 <code class="sig-name descname">to_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abitimer.html#AbinitTimerSection.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerSection.to_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Convert object to dictionary.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.abitimer.AbinitTimerSection.to_tuple">
 <code class="sig-name descname">to_tuple</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abitimer.html#AbinitTimerSection.to_tuple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerSection.to_tuple" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Convert object to tuple.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -601,20 +638,40 @@ is the list of files that have been parsed successfully.
 <dt id="pymatgen.io.abinit.abitimer.ParallelEfficiency">
 <em class="property">class </em><code class="sig-name descname">ParallelEfficiency</code><span class="sig-paren">(</span><em class="sig-param">filenames</em>, <em class="sig-param">ref_idx</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abitimer.html#ParallelEfficiency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.ParallelEfficiency" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+<p>Store results concerning the parallel efficiency of the job.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filennames</strong> – List of filenames</p></li>
+<li><p><strong>ref_idx</strong> – Index of the Reference time (calculation done with the smallest number of cpus)</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.io.abinit.abitimer.ParallelEfficiency.bad_sections">
 <code class="sig-name descname">bad_sections</code><span class="sig-paren">(</span><em class="sig-param">key='wall_time'</em>, <em class="sig-param">criterion='mean'</em>, <em class="sig-param">nmax=5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abitimer.html#ParallelEfficiency.bad_sections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.ParallelEfficiency.bad_sections" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Return first <cite>nmax</cite> sections with worst value of key <cite>key</cite> using criterion <cite>criterion</cite>.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.abitimer.ParallelEfficiency.good_sections">
 <code class="sig-name descname">good_sections</code><span class="sig-paren">(</span><em class="sig-param">key='wall_time'</em>, <em class="sig-param">criterion='mean'</em>, <em class="sig-param">nmax=5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abitimer.html#ParallelEfficiency.good_sections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.ParallelEfficiency.good_sections" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Return first <cite>nmax</cite> sections with best value of key <cite>key</cite> using criterion <cite>criterion</cite>.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.abitimer.ParallelEfficiency.totable">
 <code class="sig-name descname">totable</code><span class="sig-paren">(</span><em class="sig-param">stop=None</em>, <em class="sig-param">reverse=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abitimer.html#ParallelEfficiency.totable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.ParallelEfficiency.totable" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Return table (list of lists) with timing results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stop</strong> – Include results up to stop. None for all</p></li>
+<li><p><strong>reverse</strong> – Put items with highest wall_time in first positions if True.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -664,13 +721,13 @@ is the list of files that have been parsed successfully.
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
