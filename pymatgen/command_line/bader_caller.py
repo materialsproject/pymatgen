@@ -265,7 +265,7 @@ class BaderAnalysis:
         for i, v in enumerate(self.natoms):
             potcar_indices += [i] * v
         nelect = self.potcar[potcar_indices[atom_index]].nelectrons
-        return self.data[atom_index]["charge"] - nelect
+        return self.data[atom_index]["charge"] + nelect
 
     def get_oxidation_state_decorated_structure(self):
         """
