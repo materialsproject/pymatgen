@@ -31,9 +31,10 @@ usage requiring identification of critical points in the charge density.
 
 This module depends on a compiled critic2 executable available in the path.
 Please follow the instructions at https://github.com/aoterodelaroza/critic2
-to compile.
+to compile or, if using macOS and homebrew, use `brew tap homebrew/science`
+followed by `brew install critic2`.
 
-New users are *strongly* encouraged to read the critic2 manual first.
+New users are *strongly* recommended to read the critic2 manual first.
 
 In brief,
 * critic2 searches for critical points in charge density
@@ -62,6 +63,7 @@ V. Luaña, Comput. Phys. Commun. 180, 157–166 (2009)
 """
 
 __author__ = "Matthew Horton"
+__version__ = "0.1"
 __maintainer__ = "Matthew Horton"
 __email__ = "mkhorton@lbl.gov"
 __status__ = "Production"
@@ -437,8 +439,8 @@ class Critic2Output(MSONable):
 
         # parse unique critical points
         for i, line in enumerate(stdout):
-            if "# ncp   pg  type   CPname         p" in line:
-                start_i = i + 3
+            if "* Critical point list, final report (non-equivalent cps)" in line:
+                start_i = i + 4
             elif "* Analysis of system bonds" in line:
                 end_i = i - 2
         # if start_i and end_i haven't been found, we
