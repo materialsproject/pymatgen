@@ -34,7 +34,7 @@ class Mcsqs:
         Returns a structure in mcsqs rndstr.in format.
         :return (str):
         """
-        
+
         # add lattice vectors
         m = self.structure.lattice.matrix
         output = ["{:6f} {:6f} {:6f}".format(*m[0]),
@@ -45,7 +45,7 @@ class Mcsqs:
         output.append("1.0 0.0 0.0")
         output.append("0.0 1.0 0.0")
         output.append("0.0 0.0 1.0")
-        
+
         # add species
         for site in self.structure:
             species_str = []
@@ -120,7 +120,7 @@ class Mcsqs:
                     species_str = [species_str[0], 1.0]
                 try:
                     species[Specie(species_str[0])] = float(species_str[1])
-                except:
+                except Exception:
                     species[DummySpecie(species_str[0])] = float(species_str[1])
 
             all_species.append(species)

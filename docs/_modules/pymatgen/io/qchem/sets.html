@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.qchem.sets &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.io.qchem.sets &#8212; pymatgen 2019.11.11 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -50,6 +49,8 @@
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">monty.io</span> <span class="k">import</span> <span class="n">zopen</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.qchem.inputs</span> <span class="k">import</span> <span class="n">QCInput</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.qchem.utils</span> <span class="k">import</span> <span class="n">lower_and_check_unique</span>
 
@@ -75,6 +76,7 @@
                  <span class="n">dft_rung</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
                  <span class="n">pcm_dielectric</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">smd_solvent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">custom_smd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">max_scf_cycles</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
                  <span class="n">geom_opt_max_cycles</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
                  <span class="n">overwrite_inputs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -103,6 +105,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">dft_rung</span> <span class="o">=</span> <span class="n">dft_rung</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pcm_dielectric</span> <span class="o">=</span> <span class="n">pcm_dielectric</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">smd_solvent</span> <span class="o">=</span> <span class="n">smd_solvent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">custom_smd</span> <span class="o">=</span> <span class="n">custom_smd</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_scf_cycles</span> <span class="o">=</span> <span class="n">max_scf_cycles</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">geom_opt_max_cycles</span> <span class="o">=</span> <span class="n">geom_opt_max_cycles</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">overwrite_inputs</span> <span class="o">=</span> <span class="n">overwrite_inputs</span>
@@ -123,19 +126,23 @@
         <span class="n">myrem</span><span class="p">[</span><span class="s2">&quot;basis&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span>
         <span class="n">myrem</span><span class="p">[</span><span class="s2">&quot;max_scf_cycles&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_scf_cycles</span>
         <span class="n">myrem</span><span class="p">[</span><span class="s2">&quot;gen_scfman&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;true&quot;</span>
+        <span class="n">myrem</span><span class="p">[</span><span class="s2">&quot;xc_grid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;3&quot;</span>
         <span class="n">myrem</span><span class="p">[</span><span class="s2">&quot;scf_algorithm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scf_algorithm</span>
+        <span class="n">myrem</span><span class="p">[</span><span class="s2">&quot;resp_charges&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;true&quot;</span>
+        <span class="n">myrem</span><span class="p">[</span><span class="s2">&quot;symmetry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;false&quot;</span>
+        <span class="n">myrem</span><span class="p">[</span><span class="s2">&quot;sym_ignore&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;true&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dft_rung</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">myrem</span><span class="p">[</span><span class="s2">&quot;exchange&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;B3LYP&quot;</span>
+            <span class="n">myrem</span><span class="p">[</span><span class="s2">&quot;method&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;b3lyp&quot;</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">dft_rung</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">myrem</span><span class="p">[</span><span class="s2">&quot;method&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;B97-D3&quot;</span>
+            <span class="n">myrem</span><span class="p">[</span><span class="s2">&quot;method&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;b3lyp&quot;</span>
             <span class="n">myrem</span><span class="p">[</span><span class="s2">&quot;dft_D&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;D3_BJ&quot;</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">dft_rung</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
-            <span class="n">myrem</span><span class="p">[</span><span class="s2">&quot;method&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;B97M-rV&quot;</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">dft_rung</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
             <span class="n">myrem</span><span class="p">[</span><span class="s2">&quot;method&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;wb97xd&quot;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">dft_rung</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="n">myrem</span><span class="p">[</span><span class="s2">&quot;method&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;wb97xv&quot;</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">dft_rung</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
-            <span class="n">myrem</span><span class="p">[</span><span class="s2">&quot;method&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;wB97M-V&quot;</span>
+            <span class="n">myrem</span><span class="p">[</span><span class="s2">&quot;method&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;wb97mv&quot;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;dft_rung should be between 1 and 5!&quot;</span><span class="p">)</span>
 
@@ -151,8 +158,19 @@
             <span class="n">myrem</span><span class="p">[</span><span class="s2">&quot;solvent_method&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;pcm&#39;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">smd_solvent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">mysmx</span><span class="p">[</span><span class="s2">&quot;solvent&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smd_solvent</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">smd_solvent</span> <span class="o">==</span> <span class="s2">&quot;custom&quot;</span><span class="p">:</span>
+                <span class="n">mysmx</span><span class="p">[</span><span class="s2">&quot;solvent&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;other&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">mysmx</span><span class="p">[</span><span class="s2">&quot;solvent&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smd_solvent</span>
             <span class="n">myrem</span><span class="p">[</span><span class="s2">&quot;solvent_method&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;smd&quot;</span>
+            <span class="n">myrem</span><span class="p">[</span><span class="s2">&quot;ideriv&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">smd_solvent</span> <span class="o">==</span> <span class="s2">&quot;custom&quot;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">smd_solvent</span> <span class="o">==</span> <span class="s2">&quot;other&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_smd</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s1">&#39;A user-defined SMD requires passing custom_smd, a string&#39;</span> <span class="o">+</span>
+                        <span class="s1">&#39; of seven comma separated values in the following order:&#39;</span> <span class="o">+</span>
+                        <span class="s1">&#39; dielectric, refractive index, acidity, basicity, surface&#39;</span> <span class="o">+</span>
+                        <span class="s1">&#39; tension, aromaticity, electronegative halogenicity&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">overwrite_inputs</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">sec</span><span class="p">,</span> <span class="n">sec_dict</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">overwrite_inputs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -174,7 +192,13 @@
                         <span class="n">mysmx</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="p">,</span> <span class="n">rem</span><span class="o">=</span><span class="n">myrem</span><span class="p">,</span> <span class="n">pcm</span><span class="o">=</span><span class="n">mypcm</span><span class="p">,</span> <span class="n">solvent</span><span class="o">=</span><span class="n">mysolvent</span><span class="p">,</span> <span class="n">smx</span><span class="o">=</span><span class="n">mysmx</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="p">,</span> <span class="n">rem</span><span class="o">=</span><span class="n">myrem</span><span class="p">,</span> <span class="n">pcm</span><span class="o">=</span><span class="n">mypcm</span><span class="p">,</span> <span class="n">solvent</span><span class="o">=</span><span class="n">mysolvent</span><span class="p">,</span> <span class="n">smx</span><span class="o">=</span><span class="n">mysmx</span><span class="p">)</span>
+
+<div class="viewcode-block" id="QChemDictSet.write"><a class="viewcode-back" href="../../../../pymatgen.io.qchem.sets.html#pymatgen.io.qchem.sets.QChemDictSet.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">smd_solvent</span> <span class="o">==</span> <span class="s2">&quot;custom&quot;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">smd_solvent</span> <span class="o">==</span> <span class="s2">&quot;other&quot;</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">input_file</span><span class="p">),</span> <span class="s2">&quot;solvent_data&quot;</span><span class="p">),</span> <span class="s1">&#39;wt&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">custom_smd</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="OptSet"><a class="viewcode-back" href="../../../../pymatgen.io.qchem.sets.html#pymatgen.io.qchem.sets.OptSet">[docs]</a><span class="k">class</span> <span class="nc">OptSet</span><span class="p">(</span><span class="n">QChemDictSet</span><span class="p">):</span>
@@ -184,11 +208,12 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">molecule</span><span class="p">,</span>
-                 <span class="n">dft_rung</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
-                 <span class="n">basis_set</span><span class="o">=</span><span class="s2">&quot;6-311++G*&quot;</span><span class="p">,</span>
+                 <span class="n">dft_rung</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                 <span class="n">basis_set</span><span class="o">=</span><span class="s2">&quot;def2-tzvppd&quot;</span><span class="p">,</span>
                  <span class="n">pcm_dielectric</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">smd_solvent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">scf_algorithm</span><span class="o">=</span><span class="s2">&quot;gdm&quot;</span><span class="p">,</span>
+                 <span class="n">custom_smd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">scf_algorithm</span><span class="o">=</span><span class="s2">&quot;diis&quot;</span><span class="p">,</span>
                  <span class="n">max_scf_cycles</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
                  <span class="n">geom_opt_max_cycles</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
                  <span class="n">overwrite_inputs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -202,6 +227,7 @@
             <span class="n">dft_rung</span><span class="o">=</span><span class="n">dft_rung</span><span class="p">,</span>
             <span class="n">pcm_dielectric</span><span class="o">=</span><span class="n">pcm_dielectric</span><span class="p">,</span>
             <span class="n">smd_solvent</span><span class="o">=</span><span class="n">smd_solvent</span><span class="p">,</span>
+            <span class="n">custom_smd</span><span class="o">=</span><span class="n">custom_smd</span><span class="p">,</span>
             <span class="n">basis_set</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span><span class="p">,</span>
             <span class="n">scf_algorithm</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">scf_algorithm</span><span class="p">,</span>
             <span class="n">max_scf_cycles</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_scf_cycles</span><span class="p">,</span>
@@ -216,11 +242,12 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">molecule</span><span class="p">,</span>
-                 <span class="n">dft_rung</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
-                 <span class="n">basis_set</span><span class="o">=</span><span class="s2">&quot;6-311++G*&quot;</span><span class="p">,</span>
+                 <span class="n">dft_rung</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                 <span class="n">basis_set</span><span class="o">=</span><span class="s2">&quot;def2-tzvppd&quot;</span><span class="p">,</span>
                  <span class="n">pcm_dielectric</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">smd_solvent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">scf_algorithm</span><span class="o">=</span><span class="s2">&quot;gdm&quot;</span><span class="p">,</span>
+                 <span class="n">custom_smd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">scf_algorithm</span><span class="o">=</span><span class="s2">&quot;diis&quot;</span><span class="p">,</span>
                  <span class="n">max_scf_cycles</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
                  <span class="n">overwrite_inputs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span> <span class="o">=</span> <span class="n">basis_set</span>
@@ -232,6 +259,7 @@
             <span class="n">dft_rung</span><span class="o">=</span><span class="n">dft_rung</span><span class="p">,</span>
             <span class="n">pcm_dielectric</span><span class="o">=</span><span class="n">pcm_dielectric</span><span class="p">,</span>
             <span class="n">smd_solvent</span><span class="o">=</span><span class="n">smd_solvent</span><span class="p">,</span>
+            <span class="n">custom_smd</span><span class="o">=</span><span class="n">custom_smd</span><span class="p">,</span>
             <span class="n">basis_set</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span><span class="p">,</span>
             <span class="n">scf_algorithm</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">scf_algorithm</span><span class="p">,</span>
             <span class="n">max_scf_cycles</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_scf_cycles</span><span class="p">,</span>
@@ -245,11 +273,12 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">molecule</span><span class="p">,</span>
-                 <span class="n">dft_rung</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
-                 <span class="n">basis_set</span><span class="o">=</span><span class="s2">&quot;6-311++G*&quot;</span><span class="p">,</span>
+                 <span class="n">dft_rung</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                 <span class="n">basis_set</span><span class="o">=</span><span class="s2">&quot;def2-tzvppd&quot;</span><span class="p">,</span>
                  <span class="n">pcm_dielectric</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">smd_solvent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">scf_algorithm</span><span class="o">=</span><span class="s2">&quot;gdm&quot;</span><span class="p">,</span>
+                 <span class="n">custom_smd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">scf_algorithm</span><span class="o">=</span><span class="s2">&quot;diis&quot;</span><span class="p">,</span>
                  <span class="n">max_scf_cycles</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
                  <span class="n">overwrite_inputs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span> <span class="o">=</span> <span class="n">basis_set</span>
@@ -261,6 +290,7 @@
             <span class="n">dft_rung</span><span class="o">=</span><span class="n">dft_rung</span><span class="p">,</span>
             <span class="n">pcm_dielectric</span><span class="o">=</span><span class="n">pcm_dielectric</span><span class="p">,</span>
             <span class="n">smd_solvent</span><span class="o">=</span><span class="n">smd_solvent</span><span class="p">,</span>
+            <span class="n">custom_smd</span><span class="o">=</span><span class="n">custom_smd</span><span class="p">,</span>
             <span class="n">basis_set</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span><span class="p">,</span>
             <span class="n">scf_algorithm</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">scf_algorithm</span><span class="p">,</span>
             <span class="n">max_scf_cycles</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_scf_cycles</span><span class="p">,</span>
@@ -295,7 +325,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -303,7 +333,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

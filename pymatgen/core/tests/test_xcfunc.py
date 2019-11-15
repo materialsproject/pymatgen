@@ -51,9 +51,9 @@ class LibxcFuncTest(PymatgenTest):
 
         # Test if object supports MSONable
         # TODO
-        #print("in test", type(ixc_11.x), type(ixc_11.c), type(ixc_11.xc))
-        #ixc_11.x.as_dict()
-        #self.assertMSONable(ixc_11)
+        # print("in test", type(ixc_11.x), type(ixc_11.c), type(ixc_11.xc))
+        # ixc_11.x.as_dict()
+        # self.assertMSONable(ixc_11)
 
         # GGA-PBE from ixc given in abinit-libxc mode
         ixc_101130 = XcFunc.from_abinit_ixc(-101130)
@@ -74,5 +74,3 @@ class LibxcFuncTest(PymatgenTest):
         gga_pbe = XcFunc.from_type_name("GGA", "GGA_X_PBE+GGA_C_PBE")
         assert gga_pbe.type == "GGA" and gga_pbe.name == "PBE"
         assert str(gga_pbe) == "PBE"
-
-

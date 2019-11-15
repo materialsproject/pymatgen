@@ -1,0 +1,163 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>pymatgen.io.abinit.variable module &#8212; pymatgen 2019.11.11 documentation</title>
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pymatgen.io.abinit.variable">
+<span id="pymatgen-io-abinit-variable-module"></span><h1>pymatgen.io.abinit.variable module<a class="headerlink" href="#module-pymatgen.io.abinit.variable" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pymatgen.io.abinit.variable.InputVariable">
+<em class="property">class </em><code class="sig-name descname">InputVariable</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">value</em>, <em class="sig-param">units=''</em>, <em class="sig-param">valperline=3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/variable.html#InputVariable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.variable.InputVariable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>An Abinit input variable.</p>
+<dl class="method">
+<dt id="pymatgen.io.abinit.variable.InputVariable.basename">
+<em class="property">property </em><code class="sig-name descname">basename</code><a class="headerlink" href="#pymatgen.io.abinit.variable.InputVariable.basename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the name trimmed of any dataset index.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.variable.InputVariable.dataset">
+<em class="property">property </em><code class="sig-name descname">dataset</code><a class="headerlink" href="#pymatgen.io.abinit.variable.InputVariable.dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the dataset index in string form.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.variable.InputVariable.format_list">
+<code class="sig-name descname">format_list</code><span class="sig-paren">(</span><em class="sig-param">values</em>, <em class="sig-param">floatdecimal=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/variable.html#InputVariable.format_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.variable.InputVariable.format_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Format a list of values into a string.
+The result might be spread among several lines.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.variable.InputVariable.format_list2d">
+<code class="sig-name descname">format_list2d</code><span class="sig-paren">(</span><em class="sig-param">values</em>, <em class="sig-param">floatdecimal=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/variable.html#InputVariable.format_list2d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.variable.InputVariable.format_list2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Format a list of lists.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.variable.InputVariable.format_scalar">
+<code class="sig-name descname">format_scalar</code><span class="sig-paren">(</span><em class="sig-param">val</em>, <em class="sig-param">floatdecimal=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/variable.html#InputVariable.format_scalar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.variable.InputVariable.format_scalar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Format a single numerical value into a string
+with the appropriate number of decimal.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.variable.InputVariable.get_value">
+<code class="sig-name descname">get_value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/variable.html#InputVariable.get_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.variable.InputVariable.get_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the value.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.variable.InputVariable.name">
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#pymatgen.io.abinit.variable.InputVariable.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.variable.InputVariable.units">
+<em class="property">property </em><code class="sig-name descname">units</code><a class="headerlink" href="#pymatgen.io.abinit.variable.InputVariable.units" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the units.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pymatgen.io.abinit.variable.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

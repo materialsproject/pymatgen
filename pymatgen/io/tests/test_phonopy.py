@@ -1,4 +1,3 @@
-
 import os
 import unittest
 import sys
@@ -126,7 +125,7 @@ class GetDisplacedStructuresTest(PymatgenTest):
         self.assertEqual(structures[10].num_sites, 128)
         self.assertArrayAlmostEqual(structures[0].lattice._matrix,
                                     structures[8].lattice._matrix, 8)
-        
+
         # test writing output
         with ScratchDir("."):
             structures = get_displaced_structures(pmg_structure=pmg_s,

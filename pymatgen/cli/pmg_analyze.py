@@ -26,11 +26,10 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "ongsp@ucsd.edu"
 __date__ = "Aug 13 2016"
 
-
 SAVE_FILE = "vasp_data.gz"
 
 
-def get_energies(rootdir, reanalyze, verbose, detailed, sort, fmt):
+def get_energies(rootdir, reanalyze, verbose, quick, sort, fmt):
     """
     Doc string.
     """
@@ -38,7 +37,7 @@ def get_energies(rootdir, reanalyze, verbose, detailed, sort, fmt):
         logformat = "%(relativeCreated)d msecs : %(message)s"
         logging.basicConfig(level=logging.INFO, format=logformat)
 
-    if not detailed:
+    if quick:
         drone = SimpleVaspToComputedEntryDrone(inc_structure=True)
     else:
         drone = VaspToComputedEntryDrone(inc_structure=True,
@@ -50,7 +49,7 @@ def get_energies(rootdir, reanalyze, verbose, detailed, sort, fmt):
     queen = BorgQueen(drone, number_of_drones=ncpus)
     if os.path.exists(SAVE_FILE) and not reanalyze:
         msg = "Using previously assimilated data from {}.".format(SAVE_FILE) \
-            + " Use -r to force re-analysis."
+              + " Use -r to force re-analysis."
         queen.load_data(SAVE_FILE)
     else:
         if ncpus > 1:
@@ -69,11 +68,11 @@ def get_energies(rootdir, reanalyze, verbose, detailed, sort, fmt):
 
     all_data = []
     for e in entries:
-        if not detailed:
-            delta_vol = "{:.2f}".format(e.data["delta_volume"] * 100)
+        if quick:
+            delta_vol = "NA"
         else:
             delta_vol = e.structure.volume / \
-                e.data["initial_structure"].volume - 1
+                        e.data["initial_structure"].volume - 1
             delta_vol = "{:.2f}".format(delta_vol * 100)
         all_data.append((e.data["filename"].replace("./", ""),
                          re.sub(r"\s+", "", e.composition.formula),
@@ -111,7 +110,7 @@ def get_magnetizations(mydir, ion_list):
                     data.append(row)
                     if len(all_ions) > max_row:
                         max_row = len(all_ions)
-                except:
+                except Exception:
                     pass
 
     for d in data:
@@ -124,13 +123,12 @@ def get_magnetizations(mydir, ion_list):
 
 
 def analyze(args):
-
     default_energies = not (args.get_energies or args.ion_list)
 
     if args.get_energies or default_energies:
         for d in args.directories:
             get_energies(d, args.reanalyze, args.verbose,
-                         args.detailed, args.sort, args.format)
+                         args.quick, args.sort, args.format)
     if args.ion_list:
         if args.ion_list[0] == "All":
             ion_list = None

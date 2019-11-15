@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometries module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometries module &#8212; pymatgen 2019.11.11 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -178,14 +177,24 @@ and [Acta Cryst. A, Vol. 46, No. 1, pp. 1–11, 1990].
 :param central_site: The coordinates of the central site of this coordination geometry.
 :param points: The list of the coordinates of all the points of this coordination geometry.
 :param separation_planes: List of separation facets to help set up the permutations
-:param permutation_safe_override: Computes all the permutations if set to True (overrides the plane separation
-algorithms or any other algorithm, for testing purposes)
-:param plane_ordering_override: Computes all the permutations of the plane separation algorithm if set to False
-otherwise, uses the anticlockwise ordering of the separation facets (for testing purposes)
-:param deactivate: deactivates this coordination geometry in the search
-:param faces : list of the faces with their vertices given in a clockwise or anticlockwise order, for drawing
-purposes
-:param : list of edges, for drawing purposes</p>
+:param permutation_safe_override: Computes all the permutations if set to True (overrides the plane separation</p>
+<blockquote>
+<div><p>algorithms or any other algorithm, for testing purposes)</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>plane_ordering_override</strong> – Computes all the permutations of the plane separation algorithm if set to False
+otherwise, uses the anticlockwise ordering of the separation facets (for testing purposes)</p></li>
+<li><p><strong>deactivate</strong> – deactivates this coordination geometry in the search</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>:param faces<span class="classifier">list of the faces with their vertices given in a clockwise or anticlockwise order, for drawing</span></dt><dd><p>purposes</p>
+</dd>
+</dl>
+<p>:param : list of edges, for drawing purposes</p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.CSM_SKIP_SEPARATION_PLANE_ALGO">
 <code class="sig-name descname">CSM_SKIP_SEPARATION_PLANE_ALGO</code><em class="property"> = 10.0</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.CSM_SKIP_SEPARATION_PLANE_ALGO" title="Permalink to this definition">¶</a></dt>
@@ -375,11 +384,6 @@ list of its end vertices coordinates.</p>
 
 </dd></dl>
 
-<dl class="data">
-<dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.EXPLICIT_PERMUTATIONS">
-<code class="sig-name descname">EXPLICIT_PERMUTATIONS</code><em class="property"> = 'EXPLICIT_PERMUTATIONS'</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.EXPLICIT_PERMUTATIONS" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="class">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.ExplicitPermutationsAlgorithm">
 <em class="property">class </em><code class="sig-name descname">ExplicitPermutationsAlgorithm</code><span class="sig-paren">(</span><em class="sig-param">permutations</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#ExplicitPermutationsAlgorithm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.ExplicitPermutationsAlgorithm" title="Permalink to this definition">¶</a></dt>
@@ -394,7 +398,15 @@ list of its end vertices coordinates.</p>
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.ExplicitPermutationsAlgorithm.from_dict">
 <em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">dd</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#ExplicitPermutationsAlgorithm.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.ExplicitPermutationsAlgorithm.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> – Dict representation.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>MSONable class.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.ExplicitPermutationsAlgorithm.permutations">
@@ -403,11 +415,6 @@ list of its end vertices coordinates.</p>
 
 </dd></dl>
 
-<dl class="data">
-<dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SEPARATION_PLANE">
-<code class="sig-name descname">SEPARATION_PLANE</code><em class="property"> = 'SEPARATION_PLANE'</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SEPARATION_PLANE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="class">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane">
 <em class="property">class </em><code class="sig-name descname">SeparationPlane</code><span class="sig-paren">(</span><em class="sig-param">plane_points</em>, <em class="sig-param">mirror_plane=False</em>, <em class="sig-param">ordered_plane=False</em>, <em class="sig-param">point_groups=None</em>, <em class="sig-param">ordered_point_groups=None</em>, <em class="sig-param">point_groups_permutations=None</em>, <em class="sig-param">explicit_permutations=None</em>, <em class="sig-param">minimum_number_of_points=None</em>, <em class="sig-param">explicit_optimized_permutations=None</em>, <em class="sig-param">multiplicity=None</em>, <em class="sig-param">other_plane_points=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#SeparationPlane"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane" title="Permalink to this definition">¶</a></dt>
@@ -415,26 +422,33 @@ list of its end vertices coordinates.</p>
 <p>Initializes a separation plane for a given perfect coordination geometry</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>mirror_plane</strong> – True if the separation plane is a mirror plane, in which case there is a correspondence</p>
+<dd class="field-odd"><p><strong>mirror_plane</strong> – True if the separation plane is a mirror plane, in which case there is a correspondence
+of the points in each point_group (can reduce the number of permutations)</p>
 </dd>
 </dl>
-<p>of the points in each point_group (can reduce the number of permutations)
-:param ordered_plane : True if the order of the points in the plane can be taken into account to reduce the
-number of permutations
-:param plane_points: Indices of the points that are in the plane in the perfect structure (and should be
-found in the defective one as well)
-:param point_groups: The two groups of points separated by the plane
-:param plane_type: can be “MIRROR”, if the plane is a mirror plane going through the central site,</p>
-<blockquote>
-<div><p>‘BASAL_THROUGH_CENTER’, if the plane is a basal plane (no point on the “left” side) going through the central
-site, ‘BASAL’, if the is a basal plane not going through the central site, ‘UNEQUILIBRATED_THROUGH_CENTER’, if
-the plane cuts the geometry in two groups of points with different numbers of points on each side, and is going
-through the centre, ‘UNEQUILIBRATED’, if the plane cuts the geometry in two groups of points with different
-numbers of points on each side, and is not going through the centre, ‘EQUILIBRATED_THROUGH_CENTER’, if the
-plane cuts the geometry in two groups of points of the same size, is going through the centre but is not a
-mirror plane, ‘EQUILIBRATED’, if the plane cuts the geometry in two groups of points of the same size, is not
-going through the centre but is not a mirror plane.</p>
-</div></blockquote>
+<dl class="simple">
+<dt>:param ordered_plane<span class="classifier">True if the order of the points in the plane can be taken into account to reduce the</span></dt><dd><p>number of permutations</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>plane_points</strong> – Indices of the points that are in the plane in the perfect structure (and should be
+found in the defective one as well)</p></li>
+<li><p><strong>point_groups</strong> – The two groups of points separated by the plane</p></li>
+<li><p><strong>plane_type</strong> – can be “MIRROR”, if the plane is a mirror plane going through the central site,
+‘BASAL_THROUGH_CENTER’, if the plane is a basal plane (no point on the “left” side) going through the
+central site, ‘BASAL’, if the is a basal plane not going through the central site,
+‘UNEQUILIBRATED_THROUGH_CENTER’, if the plane cuts the geometry in two groups of points with different
+numbers of points on each side, and is going through the centre, ‘UNEQUILIBRATED’, if the plane cuts
+the geometry in two groups of points with different numbers of points on each side, and is not going
+through the centre, ‘EQUILIBRATED_THROUGH_CENTER’, if the plane cuts the geometry in two groups of
+points of the same size, is going through the centre but is not a mirror plane, ‘EQUILIBRATED’, if the
+plane cuts the geometry in two groups of points of the same size, is not
+going through the centre but is not a mirror plane.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane.argsorted_ref_separation_perm">
 <em class="property">property </em><code class="sig-name descname">argsorted_ref_separation_perm</code><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane.argsorted_ref_separation_perm" title="Permalink to this definition">¶</a></dt>
@@ -449,7 +463,15 @@ going through the centre but is not a mirror plane.</p>
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane.from_dict">
 <em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">dd</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#SeparationPlane.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> – Dict representation.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>MSONable class.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane.inv_ordered_indices">
@@ -477,21 +499,6 @@ going through the centre but is not a mirror plane.</p>
 <dd></dd></dl>
 
 </dd></dl>
-
-<dl class="data">
-<dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.UNCLEAR_ENVIRONMENT_SYMBOL">
-<code class="sig-name descname">UNCLEAR_ENVIRONMENT_SYMBOL</code><em class="property"> = 'UNCLEAR'</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.UNCLEAR_ENVIRONMENT_SYMBOL" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="data">
-<dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.UNKNOWN_ENVIRONMENT_SYMBOL">
-<code class="sig-name descname">UNKNOWN_ENVIRONMENT_SYMBOL</code><em class="property"> = 'UNKNOWN'</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.UNKNOWN_ENVIRONMENT_SYMBOL" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="data">
-<dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.module_dir">
-<code class="sig-name descname">module_dir</code><em class="property"> = '/Users/shyuepingong/repos/pymatgen/pymatgen/analysis/chemenv/coordination_environments'</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.module_dir" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 </div>
 
@@ -531,13 +538,13 @@ going through the centre but is not a mirror plane.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

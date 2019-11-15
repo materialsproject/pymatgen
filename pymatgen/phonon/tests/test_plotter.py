@@ -1,4 +1,3 @@
-
 import unittest
 import os
 import json
@@ -8,7 +7,6 @@ from io import open
 from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.phonon.plotter import PhononDosPlotter, PhononBSPlotter, ThermoPlotter
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
-
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')

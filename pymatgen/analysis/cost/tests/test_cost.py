@@ -9,6 +9,7 @@ from pymatgen.analysis.cost.cost import CostDBCSV, CostAnalyzer, CostDBElements
 
 module_dir = os.path.join(os.path.dirname(pymatgen.__file__), '..', 'test_files')
 
+
 class CostAnalyzerTest(unittest.TestCase):
 
     def setUp(self):

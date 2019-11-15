@@ -1,0 +1,1342 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>pymatgen.io.abinit.inputs &#8212; pymatgen 2019.11.11 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.io.abinit.inputs</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module defines a simplified interface for generating ABINIT input files.</span>
+<span class="sd">Note that not all the features of Abinit are supported by BasicAbinitInput.</span>
+<span class="sd">For a more comprehensive implementation, use the AbinitInput object provided by AbiPy.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">namedtuple</span>
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="k">import</span> <span class="n">MutableMapping</span><span class="p">,</span> <span class="n">Mapping</span>
+<span class="kn">from</span> <span class="nn">monty.collections</span> <span class="k">import</span> <span class="n">dict2namedtuple</span><span class="p">,</span> <span class="n">AttrDict</span>
+<span class="kn">from</span> <span class="nn">monty.string</span> <span class="k">import</span> <span class="n">list_strings</span><span class="p">,</span> <span class="n">is_string</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MontyDecoder</span><span class="p">,</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.serialization</span> <span class="k">import</span> <span class="n">pmg_serialize</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.abinit.pseudos</span> <span class="k">import</span> <span class="n">PseudoTable</span><span class="p">,</span> <span class="n">Pseudo</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.abinit</span> <span class="k">import</span> <span class="n">abiobjects</span> <span class="k">as</span> <span class="n">aobj</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.abinit.variable</span> <span class="k">import</span> <span class="n">InputVariable</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+
+
+<span class="c1"># List of Abinit variables used to specify the structure.</span>
+<span class="c1"># This variables should not be passed to set_vars since</span>
+<span class="c1"># they will be generated with structure.to_abivars()</span>
+<span class="n">GEOVARS</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span>
+    <span class="s2">&quot;acell&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;rprim&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;rprimd&quot;</span>
+    <span class="s2">&quot;angdeg&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;xred&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;xcart&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;xangst&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;znucl&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;typat&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ntypat&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;natom&quot;</span><span class="p">,</span>
+<span class="p">])</span>
+
+<span class="c1"># Variables defining tolerances (used in pop_tolerances)</span>
+<span class="n">_TOLVARS</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span>
+    <span class="s1">&#39;toldfe&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;tolvrs&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;tolwfr&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;tolrff&#39;</span><span class="p">,</span>
+    <span class="s2">&quot;toldff&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tolimg&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tolmxf&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tolrde&quot;</span><span class="p">,</span>
+<span class="p">])</span>
+
+<span class="c1"># Variables defining tolerances for the SCF cycle that are mutally exclusive</span>
+<span class="n">_TOLVARS_SCF</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span>
+    <span class="s1">&#39;toldfe&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;tolvrs&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;tolwfr&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;tolrff&#39;</span><span class="p">,</span>
+    <span class="s2">&quot;toldff&quot;</span><span class="p">,</span>
+<span class="p">])</span>
+
+<span class="c1"># Variables determining if data files should be read in input</span>
+<span class="n">_IRDVARS</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span>
+    <span class="s2">&quot;irdbseig&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;irdbsreso&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;irdhaydock&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;irdddk&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;irdden&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ird1den&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;irdqps&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;irdkss&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;irdscr&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;irdsuscep&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;irdvdw&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;irdwfk&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;irdwfkfine&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;irdwfq&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ird1wf&quot;</span><span class="p">,</span>
+<span class="p">])</span>
+
+<span class="c1"># Name of the (default) tolerance used by the runlevels.</span>
+<span class="n">_runl2tolname</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;scf&quot;</span><span class="p">:</span> <span class="s1">&#39;tolvrs&#39;</span><span class="p">,</span>
+    <span class="s2">&quot;nscf&quot;</span><span class="p">:</span> <span class="s1">&#39;tolwfr&#39;</span><span class="p">,</span>
+    <span class="s2">&quot;dfpt&quot;</span><span class="p">:</span> <span class="s1">&#39;toldfe&#39;</span><span class="p">,</span>        <span class="c1"># ?</span>
+    <span class="s2">&quot;screening&quot;</span><span class="p">:</span> <span class="s1">&#39;toldfe&#39;</span><span class="p">,</span>   <span class="c1"># dummy</span>
+    <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="s1">&#39;toldfe&#39;</span><span class="p">,</span>       <span class="c1"># dummy</span>
+    <span class="s2">&quot;bse&quot;</span><span class="p">:</span> <span class="s1">&#39;toldfe&#39;</span><span class="p">,</span>         <span class="c1"># ?</span>
+    <span class="s2">&quot;relax&quot;</span><span class="p">:</span> <span class="s1">&#39;tolrff&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># Tolerances for the different levels of accuracy.</span>
+
+<span class="n">T</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;Tolerance&#39;</span><span class="p">,</span> <span class="s2">&quot;low normal high&quot;</span><span class="p">)</span>
+<span class="n">_tolerances</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;toldfe&quot;</span><span class="p">:</span> <span class="n">T</span><span class="p">(</span><span class="mf">1.e-7</span><span class="p">,</span>  <span class="mf">1.e-8</span><span class="p">,</span>  <span class="mf">1.e-9</span><span class="p">),</span>
+    <span class="s2">&quot;tolvrs&quot;</span><span class="p">:</span> <span class="n">T</span><span class="p">(</span><span class="mf">1.e-7</span><span class="p">,</span>  <span class="mf">1.e-8</span><span class="p">,</span>  <span class="mf">1.e-9</span><span class="p">),</span>
+    <span class="s2">&quot;tolwfr&quot;</span><span class="p">:</span> <span class="n">T</span><span class="p">(</span><span class="mf">1.e-15</span><span class="p">,</span> <span class="mf">1.e-17</span><span class="p">,</span> <span class="mf">1.e-19</span><span class="p">),</span>
+    <span class="s2">&quot;tolrff&quot;</span><span class="p">:</span> <span class="n">T</span><span class="p">(</span><span class="mf">0.04</span><span class="p">,</span>   <span class="mf">0.02</span><span class="p">,</span>   <span class="mf">0.01</span><span class="p">)}</span>
+<span class="k">del</span> <span class="n">T</span>
+
+
+<span class="c1"># Default values used if user does not specify them</span>
+<span class="n">_DEFAULTS</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+    <span class="n">kppa</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="as_structure"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.as_structure">[docs]</a><span class="k">def</span> <span class="nf">as_structure</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert obj into a Structure. Accepts:</span>
+
+<span class="sd">        - Structure object.</span>
+<span class="sd">        - Filename</span>
+<span class="sd">        - Dictionaries (MSONable format or dictionaries with abinit variables).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Structure</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span>
+
+    <span class="k">if</span> <span class="n">is_string</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s2">&quot;@module&quot;</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">aobj</span><span class="o">.</span><span class="n">structure_from_abivars</span><span class="p">(</span><span class="bp">cls</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">obj</span><span class="p">)</span>
+
+    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Don&#39;t know how to convert </span><span class="si">%s</span><span class="s2"> into a structure&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="ShiftMode"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.ShiftMode">[docs]</a><span class="k">class</span> <span class="nc">ShiftMode</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class defining the mode to be used for the shifts.</span>
+<span class="sd">    G: Gamma centered</span>
+<span class="sd">    M: Monkhorst-Pack ((0.5, 0.5, 0.5))</span>
+<span class="sd">    S: Symmetric. Respects the chksymbreak with multiple shifts</span>
+<span class="sd">    O: OneSymmetric. Respects the chksymbreak with a single shift (as in &#39;S&#39; if a single shift is given, gamma</span>
+<span class="sd">        centered otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">GammaCentered</span> <span class="o">=</span> <span class="s1">&#39;G&#39;</span>
+    <span class="n">MonkhorstPack</span> <span class="o">=</span> <span class="s1">&#39;M&#39;</span>
+    <span class="n">Symmetric</span> <span class="o">=</span> <span class="s1">&#39;S&#39;</span>
+    <span class="n">OneSymmetric</span> <span class="o">=</span> <span class="s1">&#39;O&#39;</span>
+
+<div class="viewcode-block" id="ShiftMode.from_object"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.ShiftMode.from_object">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_object</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns an instance of ShiftMode based on the type of object passed. Converts strings to ShiftMode depending</span>
+<span class="sd">        on the iniital letter of the string. G for GammaCenterd, M for MonkhorstPack,</span>
+<span class="sd">        S for Symmetric, O for OneSymmetric.</span>
+<span class="sd">        Case insensitive.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">cls</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">obj</span>
+        <span class="k">elif</span> <span class="n">is_string</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;The object provided is not handled: type </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_stopping_criterion</span><span class="p">(</span><span class="n">runlevel</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the stopping criterion for this runlevel with the given accuracy.&quot;&quot;&quot;</span>
+    <span class="n">tolname</span> <span class="o">=</span> <span class="n">_runl2tolname</span><span class="p">[</span><span class="n">runlevel</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">tolname</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">_tolerances</span><span class="p">[</span><span class="n">tolname</span><span class="p">],</span> <span class="n">accuracy</span><span class="p">)}</span>
+
+
+<span class="k">def</span> <span class="nf">_find_ecut_pawecutdg</span><span class="p">(</span><span class="n">ecut</span><span class="p">,</span> <span class="n">pawecutdg</span><span class="p">,</span> <span class="n">pseudos</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return a |AttrDict| with the value of ``ecut`` and ``pawecutdg``.&quot;&quot;&quot;</span>
+    <span class="c1"># Get ecut and pawecutdg from the pseudo hints.</span>
+    <span class="k">if</span> <span class="n">ecut</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="p">(</span><span class="n">pawecutdg</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">ispaw</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pseudos</span><span class="p">)):</span>
+        <span class="n">has_hints</span> <span class="o">=</span> <span class="nb">all</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">has_hints</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pseudos</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">ecut</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">has_hints</span><span class="p">:</span>
+            <span class="n">ecut</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">hint_for_accuracy</span><span class="p">(</span><span class="n">accuracy</span><span class="p">)</span><span class="o">.</span><span class="n">ecut</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pseudos</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;ecut is None but pseudos do not provide hints for ecut&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">pawecutdg</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">ispaw</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pseudos</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">has_hints</span><span class="p">:</span>
+            <span class="n">pawecutdg</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">hint_for_accuracy</span><span class="p">(</span><span class="n">accuracy</span><span class="p">)</span><span class="o">.</span><span class="n">pawecutdg</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pseudos</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;pawecutdg is None but pseudos do not provide hints&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">AttrDict</span><span class="p">(</span><span class="n">ecut</span><span class="o">=</span><span class="n">ecut</span><span class="p">,</span> <span class="n">pawecutdg</span><span class="o">=</span><span class="n">pawecutdg</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_find_scf_nband</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">pseudos</span><span class="p">,</span> <span class="n">electrons</span><span class="p">,</span> <span class="n">spinat</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Find the value of ``nband``.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">electrons</span><span class="o">.</span><span class="n">nband</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">electrons</span><span class="o">.</span><span class="n">nband</span>
+
+    <span class="n">nsppol</span><span class="p">,</span> <span class="n">smearing</span> <span class="o">=</span> <span class="n">electrons</span><span class="o">.</span><span class="n">nsppol</span><span class="p">,</span> <span class="n">electrons</span><span class="o">.</span><span class="n">smearing</span>
+
+    <span class="c1"># Number of valence electrons including possible extra charge</span>
+    <span class="n">nval</span> <span class="o">=</span> <span class="n">num_valence_electrons</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">pseudos</span><span class="p">)</span>
+    <span class="n">nval</span> <span class="o">-=</span> <span class="n">electrons</span><span class="o">.</span><span class="n">charge</span>
+
+    <span class="c1"># First guess (semiconductors)</span>
+    <span class="n">nband</span> <span class="o">=</span> <span class="n">nval</span> <span class="o">//</span> <span class="mi">2</span>
+
+    <span class="c1"># TODO: Find better algorithm</span>
+    <span class="c1"># If nband is too small we may kill the job, increase nband and restart</span>
+    <span class="c1"># but this change could cause problems in the other steps of the calculation</span>
+    <span class="c1"># if the change is not propagated e.g. phonons in metals.</span>
+    <span class="k">if</span> <span class="n">smearing</span><span class="p">:</span>
+        <span class="c1"># metallic occupation</span>
+        <span class="n">nband</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">nband</span> <span class="o">*</span> <span class="mf">1.2</span><span class="p">),</span> <span class="n">nband</span> <span class="o">+</span> <span class="mi">10</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">nband</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">nband</span><span class="o">*</span><span class="mf">1.1</span><span class="p">),</span> <span class="n">nband</span> <span class="o">+</span> <span class="mi">4</span><span class="p">)</span>
+
+    <span class="c1"># Increase number of bands based on the starting magnetization</span>
+    <span class="k">if</span> <span class="n">nsppol</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">spinat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">nband</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">spinat</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">)</span>
+
+    <span class="c1"># Force even nband (easier to divide among procs, mandatory if nspinor == 2)</span>
+    <span class="n">nband</span> <span class="o">+=</span> <span class="n">nband</span> <span class="o">%</span> <span class="mi">2</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">nband</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_get_shifts</span><span class="p">(</span><span class="n">shift_mode</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Gives the shifts based on the selected shift mode and on the symmetry of the structure.</span>
+<span class="sd">    G: Gamma centered</span>
+<span class="sd">    M: Monkhorst-Pack ((0.5, 0.5, 0.5))</span>
+<span class="sd">    S: Symmetric. Respects the chksymbreak with multiple shifts</span>
+<span class="sd">    O: OneSymmetric. Respects the chksymbreak with a single shift (as in &#39;S&#39; if a single shift is given, gamma</span>
+<span class="sd">        centered otherwise.</span>
+
+<span class="sd">    Note: for some cases (e.g. body centered tetragonal), both the Symmetric and OneSymmetric may fail to satisfy the</span>
+<span class="sd">        ``chksymbreak`` condition (Abinit input variable).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">shift_mode</span> <span class="o">==</span> <span class="n">ShiftMode</span><span class="o">.</span><span class="n">GammaCentered</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">shift_mode</span> <span class="o">==</span> <span class="n">ShiftMode</span><span class="o">.</span><span class="n">MonkhorstPack</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">((</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">shift_mode</span> <span class="o">==</span> <span class="n">ShiftMode</span><span class="o">.</span><span class="n">Symmetric</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">calc_shiftk</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">shift_mode</span> <span class="o">==</span> <span class="n">ShiftMode</span><span class="o">.</span><span class="n">OneSymmetric</span><span class="p">:</span>
+        <span class="n">shifts</span> <span class="o">=</span> <span class="n">calc_shiftk</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">shifts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">shifts</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;invalid shift_mode: `</span><span class="si">%s</span><span class="s2">`&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">shift_mode</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="gs_input"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.gs_input">[docs]</a><span class="k">def</span> <span class="nf">gs_input</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">pseudos</span><span class="p">,</span>
+             <span class="n">kppa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ecut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pawecutdg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">scf_nband</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="s2">&quot;normal&quot;</span><span class="p">,</span> <span class="n">spin_mode</span><span class="o">=</span><span class="s2">&quot;polarized&quot;</span><span class="p">,</span>
+             <span class="n">smearing</span><span class="o">=</span><span class="s2">&quot;fermi_dirac:0.1 eV&quot;</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">scf_algorithm</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a |BasicAbinitInput| for ground-state calculation.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        structure: |Structure| object.</span>
+<span class="sd">        pseudos: List of filenames or list of |Pseudo| objects or |PseudoTable| object.</span>
+<span class="sd">        kppa: Defines the sampling used for the SCF run. Defaults to 1000 if not given.</span>
+<span class="sd">        ecut: cutoff energy in Ha (if None, ecut is initialized from the pseudos according to accuracy)</span>
+<span class="sd">        pawecutdg: cutoff energy in Ha for PAW double-grid (if None, pawecutdg is initialized from the pseudos</span>
+<span class="sd">                   according to accuracy)</span>
+<span class="sd">        scf_nband: Number of bands for SCF run. If scf_nband is None, nband is automatically initialized</span>
+<span class="sd">                   from the list of pseudos, the structure and the smearing option.</span>
+<span class="sd">        accuracy: Accuracy of the calculation.</span>
+<span class="sd">        spin_mode: Spin polarization.</span>
+<span class="sd">        smearing: Smearing technique.</span>
+<span class="sd">        charge: Electronic charge added to the unit cell.</span>
+<span class="sd">        scf_algorithm: Algorithm used for solving of the SCF cycle.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">multi</span> <span class="o">=</span> <span class="n">ebands_input</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">pseudos</span><span class="p">,</span>
+                         <span class="n">kppa</span><span class="o">=</span><span class="n">kppa</span><span class="p">,</span> <span class="n">ndivsm</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                         <span class="n">ecut</span><span class="o">=</span><span class="n">ecut</span><span class="p">,</span> <span class="n">pawecutdg</span><span class="o">=</span><span class="n">pawecutdg</span><span class="p">,</span> <span class="n">scf_nband</span><span class="o">=</span><span class="n">scf_nband</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="n">accuracy</span><span class="p">,</span> <span class="n">spin_mode</span><span class="o">=</span><span class="n">spin_mode</span><span class="p">,</span>
+                         <span class="n">smearing</span><span class="o">=</span><span class="n">smearing</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">,</span> <span class="n">scf_algorithm</span><span class="o">=</span><span class="n">scf_algorithm</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">multi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="ebands_input"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.ebands_input">[docs]</a><span class="k">def</span> <span class="nf">ebands_input</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">pseudos</span><span class="p">,</span>
+                 <span class="n">kppa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nscf_nband</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ndivsm</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+                 <span class="n">ecut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pawecutdg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">scf_nband</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="s2">&quot;normal&quot;</span><span class="p">,</span> <span class="n">spin_mode</span><span class="o">=</span><span class="s2">&quot;polarized&quot;</span><span class="p">,</span>
+                 <span class="n">smearing</span><span class="o">=</span><span class="s2">&quot;fermi_dirac:0.1 eV&quot;</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">scf_algorithm</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dos_kppa</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a |BasicMultiDataset| object for band structure calculations.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        structure: |Structure| object.</span>
+<span class="sd">        pseudos: List of filenames or list of |Pseudo| objects or |PseudoTable| object.</span>
+<span class="sd">        kppa: Defines the sampling used for the SCF run. Defaults to 1000 if not given.</span>
+<span class="sd">        nscf_nband: Number of bands included in the NSCF run. Set to scf_nband + 10 if None.</span>
+<span class="sd">        ndivsm: Number of divisions used to sample the smallest segment of the k-path.</span>
+<span class="sd">                if 0, only the GS input is returned in multi[0].</span>
+<span class="sd">        ecut: cutoff energy in Ha (if None, ecut is initialized from the pseudos according to accuracy)</span>
+<span class="sd">        pawecutdg: cutoff energy in Ha for PAW double-grid (if None, pawecutdg is initialized from the pseudos</span>
+<span class="sd">            according to accuracy)</span>
+<span class="sd">        scf_nband: Number of bands for SCF run. If scf_nband is None, nband is automatically initialized</span>
+<span class="sd">            from the list of pseudos, the structure and the smearing option.</span>
+<span class="sd">        accuracy: Accuracy of the calculation.</span>
+<span class="sd">        spin_mode: Spin polarization.</span>
+<span class="sd">        smearing: Smearing technique.</span>
+<span class="sd">        charge: Electronic charge added to the unit cell.</span>
+<span class="sd">        scf_algorithm: Algorithm used for solving of the SCF cycle.</span>
+<span class="sd">        dos_kppa: Scalar or List of integers with the number of k-points per atom</span>
+<span class="sd">            to be used for the computation of the DOS (None if DOS is not wanted).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">structure</span> <span class="o">=</span> <span class="n">as_structure</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">dos_kppa</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dos_kppa</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+        <span class="n">dos_kppa</span> <span class="o">=</span> <span class="p">[</span><span class="n">dos_kppa</span><span class="p">]</span>
+
+    <span class="n">multi</span> <span class="o">=</span> <span class="n">BasicMultiDataset</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">pseudos</span><span class="p">,</span> <span class="n">ndtset</span><span class="o">=</span><span class="mi">2</span> <span class="k">if</span> <span class="n">dos_kppa</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">2</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">dos_kppa</span><span class="p">))</span>
+
+    <span class="c1"># Set the cutoff energies.</span>
+    <span class="n">multi</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">_find_ecut_pawecutdg</span><span class="p">(</span><span class="n">ecut</span><span class="p">,</span> <span class="n">pawecutdg</span><span class="p">,</span> <span class="n">multi</span><span class="o">.</span><span class="n">pseudos</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">))</span>
+
+    <span class="c1"># SCF calculation.</span>
+    <span class="n">kppa</span> <span class="o">=</span> <span class="n">_DEFAULTS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;kppa&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">kppa</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">kppa</span>
+    <span class="n">scf_ksampling</span> <span class="o">=</span> <span class="n">aobj</span><span class="o">.</span><span class="n">KSampling</span><span class="o">.</span><span class="n">automatic_density</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">kppa</span><span class="p">,</span> <span class="n">chksymbreak</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">scf_electrons</span> <span class="o">=</span> <span class="n">aobj</span><span class="o">.</span><span class="n">Electrons</span><span class="p">(</span><span class="n">spin_mode</span><span class="o">=</span><span class="n">spin_mode</span><span class="p">,</span> <span class="n">smearing</span><span class="o">=</span><span class="n">smearing</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="n">scf_algorithm</span><span class="p">,</span>
+                                   <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">,</span> <span class="n">nband</span><span class="o">=</span><span class="n">scf_nband</span><span class="p">,</span> <span class="n">fband</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">scf_electrons</span><span class="o">.</span><span class="n">nband</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">scf_electrons</span><span class="o">.</span><span class="n">nband</span> <span class="o">=</span> <span class="n">_find_scf_nband</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">multi</span><span class="o">.</span><span class="n">pseudos</span><span class="p">,</span> <span class="n">scf_electrons</span><span class="p">,</span> <span class="n">multi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;spinat&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+
+    <span class="n">multi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">scf_ksampling</span><span class="o">.</span><span class="n">to_abivars</span><span class="p">())</span>
+    <span class="n">multi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">scf_electrons</span><span class="o">.</span><span class="n">to_abivars</span><span class="p">())</span>
+    <span class="n">multi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">_stopping_criterion</span><span class="p">(</span><span class="s2">&quot;scf&quot;</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">ndivsm</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">multi</span>
+
+    <span class="c1"># Band structure calculation.</span>
+    <span class="n">nscf_ksampling</span> <span class="o">=</span> <span class="n">aobj</span><span class="o">.</span><span class="n">KSampling</span><span class="o">.</span><span class="n">path_from_structure</span><span class="p">(</span><span class="n">ndivsm</span><span class="p">,</span> <span class="n">structure</span><span class="p">)</span>
+    <span class="n">nscf_nband</span> <span class="o">=</span> <span class="n">scf_electrons</span><span class="o">.</span><span class="n">nband</span> <span class="o">+</span> <span class="mi">10</span> <span class="k">if</span> <span class="n">nscf_nband</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">nscf_nband</span>
+    <span class="n">nscf_electrons</span> <span class="o">=</span> <span class="n">aobj</span><span class="o">.</span><span class="n">Electrons</span><span class="p">(</span><span class="n">spin_mode</span><span class="o">=</span><span class="n">spin_mode</span><span class="p">,</span> <span class="n">smearing</span><span class="o">=</span><span class="n">smearing</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;iscf&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">2</span><span class="p">},</span>
+                                    <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">,</span> <span class="n">nband</span><span class="o">=</span><span class="n">nscf_nband</span><span class="p">,</span> <span class="n">fband</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">multi</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">nscf_ksampling</span><span class="o">.</span><span class="n">to_abivars</span><span class="p">())</span>
+    <span class="n">multi</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">nscf_electrons</span><span class="o">.</span><span class="n">to_abivars</span><span class="p">())</span>
+    <span class="n">multi</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">_stopping_criterion</span><span class="p">(</span><span class="s2">&quot;nscf&quot;</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">))</span>
+
+    <span class="c1"># DOS calculation with different values of kppa.</span>
+    <span class="k">if</span> <span class="n">dos_kppa</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">kppa</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dos_kppa</span><span class="p">):</span>
+            <span class="n">dos_ksampling</span> <span class="o">=</span> <span class="n">aobj</span><span class="o">.</span><span class="n">KSampling</span><span class="o">.</span><span class="n">automatic_density</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">kppa</span><span class="p">,</span> <span class="n">chksymbreak</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="c1"># dos_ksampling = aobj.KSampling.monkhorst(dos_ngkpt, shiftk=dos_shiftk, chksymbreak=0)</span>
+            <span class="n">dos_electrons</span> <span class="o">=</span> <span class="n">aobj</span><span class="o">.</span><span class="n">Electrons</span><span class="p">(</span><span class="n">spin_mode</span><span class="o">=</span><span class="n">spin_mode</span><span class="p">,</span> <span class="n">smearing</span><span class="o">=</span><span class="n">smearing</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;iscf&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">2</span><span class="p">},</span>
+                                           <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">,</span> <span class="n">nband</span><span class="o">=</span><span class="n">nscf_nband</span><span class="p">)</span>
+            <span class="n">dt</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">i</span>
+            <span class="n">multi</span><span class="p">[</span><span class="n">dt</span><span class="p">]</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">dos_ksampling</span><span class="o">.</span><span class="n">to_abivars</span><span class="p">())</span>
+            <span class="n">multi</span><span class="p">[</span><span class="n">dt</span><span class="p">]</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">dos_electrons</span><span class="o">.</span><span class="n">to_abivars</span><span class="p">())</span>
+            <span class="n">multi</span><span class="p">[</span><span class="n">dt</span><span class="p">]</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">_stopping_criterion</span><span class="p">(</span><span class="s2">&quot;nscf&quot;</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">multi</span></div>
+
+
+<div class="viewcode-block" id="ion_ioncell_relax_input"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.ion_ioncell_relax_input">[docs]</a><span class="k">def</span> <span class="nf">ion_ioncell_relax_input</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">pseudos</span><span class="p">,</span>
+                            <span class="n">kppa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nband</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                            <span class="n">ecut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pawecutdg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="s2">&quot;normal&quot;</span><span class="p">,</span> <span class="n">spin_mode</span><span class="o">=</span><span class="s2">&quot;polarized&quot;</span><span class="p">,</span>
+                            <span class="n">smearing</span><span class="o">=</span><span class="s2">&quot;fermi_dirac:0.1 eV&quot;</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">scf_algorithm</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">shift_mode</span><span class="o">=</span><span class="s1">&#39;Monkhorst-pack&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a |BasicMultiDataset| for a structural relaxation. The first dataset optmizes the</span>
+<span class="sd">    atomic positions at fixed unit cell. The second datasets optimizes both ions and unit cell parameters.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        structure: |Structure| object.</span>
+<span class="sd">        pseudos: List of filenames or list of |Pseudo| objects or |PseudoTable| object.</span>
+<span class="sd">        kppa: Defines the sampling used for the Brillouin zone.</span>
+<span class="sd">        nband: Number of bands included in the SCF run.</span>
+<span class="sd">        accuracy: Accuracy of the calculation.</span>
+<span class="sd">        spin_mode: Spin polarization.</span>
+<span class="sd">        smearing: Smearing technique.</span>
+<span class="sd">        charge: Electronic charge added to the unit cell.</span>
+<span class="sd">        scf_algorithm: Algorithm used for the solution of the SCF cycle.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">structure</span> <span class="o">=</span> <span class="n">as_structure</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+    <span class="n">multi</span> <span class="o">=</span> <span class="n">BasicMultiDataset</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">pseudos</span><span class="p">,</span> <span class="n">ndtset</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="c1"># Set the cutoff energies.</span>
+    <span class="n">multi</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">_find_ecut_pawecutdg</span><span class="p">(</span><span class="n">ecut</span><span class="p">,</span> <span class="n">pawecutdg</span><span class="p">,</span> <span class="n">multi</span><span class="o">.</span><span class="n">pseudos</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">))</span>
+
+    <span class="n">kppa</span> <span class="o">=</span> <span class="n">_DEFAULTS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;kppa&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">kppa</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">kppa</span>
+
+    <span class="n">shift_mode</span> <span class="o">=</span> <span class="n">ShiftMode</span><span class="o">.</span><span class="n">from_object</span><span class="p">(</span><span class="n">shift_mode</span><span class="p">)</span>
+    <span class="n">shifts</span> <span class="o">=</span> <span class="n">_get_shifts</span><span class="p">(</span><span class="n">shift_mode</span><span class="p">,</span> <span class="n">structure</span><span class="p">)</span>
+    <span class="n">ksampling</span> <span class="o">=</span> <span class="n">aobj</span><span class="o">.</span><span class="n">KSampling</span><span class="o">.</span><span class="n">automatic_density</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">kppa</span><span class="p">,</span> <span class="n">chksymbreak</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">shifts</span><span class="o">=</span><span class="n">shifts</span><span class="p">)</span>
+    <span class="n">electrons</span> <span class="o">=</span> <span class="n">aobj</span><span class="o">.</span><span class="n">Electrons</span><span class="p">(</span><span class="n">spin_mode</span><span class="o">=</span><span class="n">spin_mode</span><span class="p">,</span> <span class="n">smearing</span><span class="o">=</span><span class="n">smearing</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="n">scf_algorithm</span><span class="p">,</span>
+                               <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">,</span> <span class="n">nband</span><span class="o">=</span><span class="n">nband</span><span class="p">,</span> <span class="n">fband</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">electrons</span><span class="o">.</span><span class="n">nband</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">electrons</span><span class="o">.</span><span class="n">nband</span> <span class="o">=</span> <span class="n">_find_scf_nband</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">multi</span><span class="o">.</span><span class="n">pseudos</span><span class="p">,</span> <span class="n">electrons</span><span class="p">,</span> <span class="n">multi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;spinat&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+
+    <span class="n">ion_relax</span> <span class="o">=</span> <span class="n">aobj</span><span class="o">.</span><span class="n">RelaxationMethod</span><span class="o">.</span><span class="n">atoms_only</span><span class="p">(</span><span class="n">atoms_constraints</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">ioncell_relax</span> <span class="o">=</span> <span class="n">aobj</span><span class="o">.</span><span class="n">RelaxationMethod</span><span class="o">.</span><span class="n">atoms_and_cell</span><span class="p">(</span><span class="n">atoms_constraints</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">multi</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">electrons</span><span class="o">.</span><span class="n">to_abivars</span><span class="p">())</span>
+    <span class="n">multi</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">ksampling</span><span class="o">.</span><span class="n">to_abivars</span><span class="p">())</span>
+
+    <span class="n">multi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">ion_relax</span><span class="o">.</span><span class="n">to_abivars</span><span class="p">())</span>
+    <span class="n">multi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">_stopping_criterion</span><span class="p">(</span><span class="s2">&quot;relax&quot;</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">))</span>
+
+    <span class="n">multi</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">ioncell_relax</span><span class="o">.</span><span class="n">to_abivars</span><span class="p">())</span>
+    <span class="n">multi</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">_stopping_criterion</span><span class="p">(</span><span class="s2">&quot;relax&quot;</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">multi</span></div>
+
+
+<div class="viewcode-block" id="calc_shiftk"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.calc_shiftk">[docs]</a><span class="k">def</span> <span class="nf">calc_shiftk</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find the values of ``shiftk`` and ``nshiftk`` appropriated for the sampling of the Brillouin zone.</span>
+
+<span class="sd">    When the primitive vectors of the lattice do NOT form a FCC or a BCC lattice,</span>
+<span class="sd">    the usual (shifted) Monkhorst-Pack grids are formed by using nshiftk=1 and shiftk 0.5 0.5 0.5 .</span>
+<span class="sd">    This is often the preferred k point sampling. For a non-shifted Monkhorst-Pack grid,</span>
+<span class="sd">    use `nshiftk=1` and `shiftk 0.0 0.0 0.0`, but there is little reason to do that.</span>
+
+<span class="sd">    When the primitive vectors of the lattice form a FCC lattice, with rprim::</span>
+
+<span class="sd">            0.0 0.5 0.5</span>
+<span class="sd">            0.5 0.0 0.5</span>
+<span class="sd">            0.5 0.5 0.0</span>
+
+<span class="sd">    the (very efficient) usual Monkhorst-Pack sampling will be generated by using nshiftk= 4 and shiftk::</span>
+
+<span class="sd">        0.5 0.5 0.5</span>
+<span class="sd">        0.5 0.0 0.0</span>
+<span class="sd">        0.0 0.5 0.0</span>
+<span class="sd">        0.0 0.0 0.5</span>
+
+<span class="sd">    When the primitive vectors of the lattice form a BCC lattice, with rprim::</span>
+
+<span class="sd">           -0.5  0.5  0.5</span>
+<span class="sd">            0.5 -0.5  0.5</span>
+<span class="sd">            0.5  0.5 -0.5</span>
+
+<span class="sd">    the usual Monkhorst-Pack sampling will be generated by using nshiftk= 2 and shiftk::</span>
+
+<span class="sd">            0.25  0.25  0.25</span>
+<span class="sd">           -0.25 -0.25 -0.25</span>
+
+<span class="sd">    However, the simple sampling nshiftk=1 and shiftk 0.5 0.5 0.5 is excellent.</span>
+
+<span class="sd">    For hexagonal lattices with hexagonal axes, e.g. rprim::</span>
+
+<span class="sd">            1.0  0.0       0.0</span>
+<span class="sd">           -0.5  sqrt(3)/2 0.0</span>
+<span class="sd">            0.0  0.0       1.0</span>
+
+<span class="sd">    one can use nshiftk= 1 and shiftk 0.0 0.0 0.5</span>
+<span class="sd">    In rhombohedral axes, e.g. using angdeg 3*60., this corresponds to shiftk 0.5 0.5 0.5,</span>
+<span class="sd">    to keep the shift along the symmetry axis.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Suggested value of shiftk.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Find lattice type.</span>
+    <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
+    <span class="n">sym</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="n">symprec</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="o">=</span><span class="n">angle_tolerance</span><span class="p">)</span>
+    <span class="n">lattice_type</span><span class="p">,</span> <span class="n">spg_symbol</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">get_lattice_type</span><span class="p">(),</span> <span class="n">sym</span><span class="o">.</span><span class="n">get_space_group_symbol</span><span class="p">()</span>
+
+    <span class="c1"># Check if the cell is primitive</span>
+    <span class="n">is_primitive</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sym</span><span class="o">.</span><span class="n">find_primitive</span><span class="p">())</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+
+    <span class="c1"># Generate the appropriate set of shifts.</span>
+    <span class="n">shiftk</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">is_primitive</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">lattice_type</span> <span class="o">==</span> <span class="s2">&quot;cubic&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;F&quot;</span> <span class="ow">in</span> <span class="n">spg_symbol</span><span class="p">:</span>
+                <span class="c1"># FCC</span>
+                <span class="n">shiftk</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span>
+                          <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span>
+                          <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span>
+                          <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]</span>
+
+            <span class="k">elif</span> <span class="s2">&quot;I&quot;</span> <span class="ow">in</span> <span class="n">spg_symbol</span><span class="p">:</span>
+                <span class="c1"># BCC</span>
+                <span class="n">shiftk</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.25</span><span class="p">,</span>  <span class="mf">0.25</span><span class="p">,</span>  <span class="mf">0.25</span><span class="p">,</span>
+                          <span class="o">-</span><span class="mf">0.25</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.25</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.25</span><span class="p">]</span>
+                <span class="c1"># shiftk = [0.5, 0.5, 05])</span>
+
+        <span class="k">elif</span> <span class="n">lattice_type</span> <span class="o">==</span> <span class="s2">&quot;hexagonal&quot;</span><span class="p">:</span>
+            <span class="c1"># Find the hexagonal axis and set the shift along it.</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">angle</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">angles</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">angle</span> <span class="o">-</span> <span class="mi">120</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">:</span>
+                    <span class="n">j</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">3</span>
+                    <span class="n">k</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span> <span class="o">%</span> <span class="mi">3</span>
+                    <span class="n">hex_ax</span> <span class="o">=</span> <span class="p">[</span><span class="n">ax</span> <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="k">if</span> <span class="n">ax</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">]][</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot find hexagonal axis&quot;</span><span class="p">)</span>
+
+            <span class="n">shiftk</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>
+            <span class="n">shiftk</span><span class="p">[</span><span class="n">hex_ax</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span>
+
+        <span class="k">elif</span> <span class="n">lattice_type</span> <span class="o">==</span> <span class="s2">&quot;tetragonal&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;I&quot;</span> <span class="ow">in</span> <span class="n">spg_symbol</span><span class="p">:</span>
+                <span class="c1"># BCT</span>
+                <span class="n">shiftk</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.25</span><span class="p">,</span>  <span class="mf">0.25</span><span class="p">,</span>  <span class="mf">0.25</span><span class="p">,</span>
+                          <span class="o">-</span><span class="mf">0.25</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.25</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.25</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">shiftk</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Use default value.</span>
+        <span class="n">shiftk</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shiftk</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="num_valence_electrons"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.num_valence_electrons">[docs]</a><span class="k">def</span> <span class="nf">num_valence_electrons</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">pseudos</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the number of valence electrons.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        pseudos: List of |Pseudo| objects or list of filenames.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nval</span><span class="p">,</span> <span class="n">table</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">PseudoTable</span><span class="o">.</span><span class="n">as_table</span><span class="p">(</span><span class="n">pseudos</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">structure</span><span class="p">:</span>
+        <span class="n">pseudo</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">pseudo_with_symbol</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span><span class="p">)</span>
+        <span class="n">nval</span> <span class="o">+=</span> <span class="n">pseudo</span><span class="o">.</span><span class="n">Z_val</span>
+
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">nval</span><span class="p">)</span> <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">nval</span><span class="p">)</span> <span class="o">==</span> <span class="n">nval</span> <span class="k">else</span> <span class="n">nval</span></div>
+
+
+<div class="viewcode-block" id="AbstractInput"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.AbstractInput">[docs]</a><span class="k">class</span> <span class="nc">AbstractInput</span><span class="p">(</span><span class="n">MutableMapping</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract class defining the methods that must be implemented by Input objects.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># ABC protocol: __delitem__, __getitem__, __iter__, __len__, __setitem__</span>
+    <span class="k">def</span> <span class="nf">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="o">.</span><span class="fm">__delitem__</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="o">.</span><span class="fm">__iter__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_varname</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="o">.</span><span class="fm">__setitem__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;&lt;</span><span class="si">%s</span><span class="s2"> at </span><span class="si">%s</span><span class="s2">&gt;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span>
+
+<div class="viewcode-block" id="AbstractInput.write"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.AbstractInput.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="o">=</span><span class="s2">&quot;run.abi&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write the input file to file to ``filepath``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dirname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">filepath</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dirname</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dirname</span><span class="p">)</span>
+
+        <span class="c1"># Write the input file.</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+            <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="AbstractInput.deepcopy"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.AbstractInput.deepcopy">[docs]</a>    <span class="k">def</span> <span class="nf">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Deep copy of the input.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AbstractInput.set_vars"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.AbstractInput.set_vars">[docs]</a>    <span class="k">def</span> <span class="nf">set_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the value of the variables.</span>
+<span class="sd">        Return dict with the variables added to the input.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">            input.set_vars(ecut=10, ionmov=3)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">varname</span><span class="p">,</span> <span class="n">varvalue</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span> <span class="o">=</span> <span class="n">varvalue</span>
+        <span class="k">return</span> <span class="n">kwargs</span></div>
+
+<div class="viewcode-block" id="AbstractInput.set_vars_ifnotin"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.AbstractInput.set_vars_ifnotin">[docs]</a>    <span class="k">def</span> <span class="nf">set_vars_ifnotin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the value of the variables but only if the variable is not already present.</span>
+<span class="sd">        Return dict with the variables added to the input.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">            input.set_vars(ecut=10, ionmov=3)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">))</span>
+        <span class="n">added</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">varname</span><span class="p">,</span> <span class="n">varvalue</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">varname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+                <span class="bp">self</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span> <span class="o">=</span> <span class="n">varvalue</span>
+                <span class="n">added</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span> <span class="o">=</span> <span class="n">varvalue</span>
+        <span class="k">return</span> <span class="n">added</span></div>
+
+<div class="viewcode-block" id="AbstractInput.pop_vars"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.AbstractInput.pop_vars">[docs]</a>    <span class="k">def</span> <span class="nf">pop_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove the variables listed in keys.</span>
+<span class="sd">        Return dictionary with the variables that have been removed.</span>
+<span class="sd">        Unlike remove_vars, no exception is raised if the variables are not in the input.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            keys: string or list of strings with variable names.</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            inp.pop_vars([&quot;ionmov&quot;, &quot;optcell&quot;, &quot;ntime&quot;, &quot;dilatmx&quot;])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">remove_vars</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AbstractInput.remove_vars"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.AbstractInput.remove_vars">[docs]</a>    <span class="k">def</span> <span class="nf">remove_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove the variables listed in keys.</span>
+<span class="sd">        Return dictionary with the variables that have been removed.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            keys: string or list of strings with variable names.</span>
+<span class="sd">            strict: If True, KeyError is raised if at least one variable is not present.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">removed</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">list_strings</span><span class="p">(</span><span class="n">keys</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">strict</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;key: </span><span class="si">%s</span><span class="s2"> not in self:</span><span class="se">\n</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+                <span class="n">removed</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">removed</span></div>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractproperty</span>
+    <span class="k">def</span> <span class="nf">vars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Dictionary with the input variables. Used to implement dict-like interface.&quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_check_varname</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check if key is a valid name. Raise self.Error if not valid.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="AbstractInput.to_string"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.AbstractInput.to_string">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a string with the input.&quot;&quot;&quot;</span></div></div>
+
+
+<div class="viewcode-block" id="BasicAbinitInputError"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInputError">[docs]</a><span class="k">class</span> <span class="nc">BasicAbinitInputError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base error class for exceptions raised by ``BasicAbinitInput``.&quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="BasicAbinitInput"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput">[docs]</a><span class="k">class</span> <span class="nc">BasicAbinitInput</span><span class="p">(</span><span class="n">AbstractInput</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This object stores the ABINIT variables for a single dataset.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">Error</span> <span class="o">=</span> <span class="n">BasicAbinitInputError</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">pseudos</span><span class="p">,</span> <span class="n">pseudo_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">abi_args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">abi_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure: Parameters defining the crystalline structure. Accepts |Structure| object</span>
+<span class="sd">            file with structure (CIF, netcdf file, ...) or dictionary with ABINIT geo variables.</span>
+<span class="sd">            pseudos: Pseudopotentials to be used for the calculation. Accepts: string or list of strings</span>
+<span class="sd">                with the name of the pseudopotential files, list of |Pseudo| objects</span>
+<span class="sd">                or |PseudoTable| object.</span>
+<span class="sd">            pseudo_dir: Name of the directory where the pseudopotential files are located.</span>
+<span class="sd">            ndtset: Number of datasets.</span>
+<span class="sd">            comment: Optional string with a comment that will be placed at the beginning of the file.</span>
+<span class="sd">            abi_args: list of tuples (key, value) with the initial set of variables. Default: Empty</span>
+<span class="sd">            abi_kwargs: Dictionary with the initial set of variables. Default: Empty</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Internal dict with variables. we use an ordered dict so that</span>
+        <span class="c1"># variables will be likely grouped by `topics` when we fill the input.</span>
+        <span class="n">abi_args</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">abi_args</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">abi_args</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">abi_args</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_varname</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+        <span class="n">abi_kwargs</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">abi_kwargs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">abi_kwargs</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">abi_kwargs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_varname</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">abi_args</span><span class="p">)[:]</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">abi_kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vars</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_structure</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">pseudo_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">pseudo_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">pseudo_dir</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">pseudo_dir</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="s2">&quot;Directory </span><span class="si">%s</span><span class="s2"> does not exist&quot;</span> <span class="o">%</span> <span class="n">pseudo_dir</span><span class="p">)</span>
+            <span class="n">pseudos</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pseudo_dir</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">list_strings</span><span class="p">(</span><span class="n">pseudos</span><span class="p">)]</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pseudos</span> <span class="o">=</span> <span class="n">PseudoTable</span><span class="o">.</span><span class="n">as_table</span><span class="p">(</span><span class="n">pseudos</span><span class="p">)</span><span class="o">.</span><span class="n">get_pseudos_for_structure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">comment</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_comment</span><span class="p">(</span><span class="n">comment</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BasicAbinitInput.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput.as_dict">[docs]</a>    <span class="nd">@pmg_serialize</span>
+    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        JSON interface used in pymatgen for easier serialization.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Use a list of (key, value) to serialize the OrderedDict</span>
+        <span class="n">abi_args</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="n">abi_args</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
+                    <span class="n">pseudos</span><span class="o">=</span><span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pseudos</span><span class="p">],</span>
+                    <span class="n">comment</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comment</span><span class="p">,</span>
+                    <span class="n">abi_args</span><span class="o">=</span><span class="n">abi_args</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">vars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vars</span>
+
+<div class="viewcode-block" id="BasicAbinitInput.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        JSON interface used in pymatgen for easier serialization.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pseudos</span> <span class="o">=</span> <span class="p">[</span><span class="n">Pseudo</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;filepath&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;pseudos&#39;</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;structure&quot;</span><span class="p">],</span> <span class="n">pseudos</span><span class="p">,</span>
+                   <span class="n">comment</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;comment&quot;</span><span class="p">],</span> <span class="n">abi_args</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;abi_args&quot;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="BasicAbinitInput.add_abiobjects"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput.add_abiobjects">[docs]</a>    <span class="k">def</span> <span class="nf">add_abiobjects</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">abi_objects</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function receive a list of ``AbiVarable`` objects and add</span>
+<span class="sd">        the corresponding variables to the input.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">abi_objects</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;to_abivars&quot;</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;type </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2"> does not have `to_abivars` method&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">),</span> <span class="nb">repr</span><span class="p">(</span><span class="n">obj</span><span class="p">)))</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">to_abivars</span><span class="p">()))</span>
+        <span class="k">return</span> <span class="n">d</span></div>
+
+    <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_TOLVARS_SCF</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_vars&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vars</span> <span class="ow">and</span> <span class="n">t</span> <span class="o">!=</span> <span class="n">key</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">_TOLVARS_SCF</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Replacing previously set tolerance variable: </span><span class="si">{0}</span><span class="s2">.&quot;</span>
+                        <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">remove_vars</span><span class="p">(</span><span class="n">_TOLVARS_SCF</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)))</span>
+
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__setitem__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_check_varname</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">GEOVARS</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="s2">&quot;You cannot set the value of a variable associated to the structure.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                             <span class="s2">&quot;Use Structure objects to prepare the input file.&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BasicAbinitInput.to_string"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput.to_string">[docs]</a>    <span class="k">def</span> <span class="nf">to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">post</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">with_structure</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">with_pseudos</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        String representation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            post: String that will be appended to the name of the variables</span>
+<span class="sd">                Note that post is usually autodetected when we have multiple datatasets</span>
+<span class="sd">                It is mainly used when we have an input file with a single dataset</span>
+<span class="sd">                so that we can prevent the code from adding &quot;1&quot; to the name of the variables</span>
+<span class="sd">                (In this case, indeed, Abinit complains if ndtset=1 is not specified</span>
+<span class="sd">                and we don&#39;t want ndtset=1 simply because the code will start to add</span>
+<span class="sd">                _DS1_ to all the input and output files.</span>
+<span class="sd">            with_structure: False if section with structure variables should not be printed.</span>
+<span class="sd">            with_pseudos: False if JSON section with pseudo data should not be added.</span>
+<span class="sd">            exclude: List of variable names that should be ignored.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">app</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">append</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment</span><span class="p">:</span>
+            <span class="n">app</span><span class="p">(</span><span class="s2">&quot;# &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">#&quot;</span><span class="p">))</span>
+
+        <span class="n">post</span> <span class="o">=</span> <span class="n">post</span> <span class="k">if</span> <span class="n">post</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">exclude</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">exclude</span><span class="p">)</span> <span class="k">if</span> <span class="n">exclude</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="c1"># Default is no sorting else alphabetical order.</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exclude</span> <span class="ow">and</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">])</span>
+
+        <span class="c1"># Extract the items from the dict and add the geo variables at the end</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="p">[(</span><span class="n">k</span><span class="p">,</span> <span class="bp">self</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">with_structure</span><span class="p">:</span>
+            <span class="n">items</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">aobj</span><span class="o">.</span><span class="n">structure_to_abivars</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+            <span class="c1"># Build variable, convert to string and append it</span>
+            <span class="n">vname</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="n">post</span>
+            <span class="n">app</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">InputVariable</span><span class="p">(</span><span class="n">vname</span><span class="p">,</span> <span class="n">value</span><span class="p">)))</span>
+
+        <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">with_pseudos</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">s</span>
+
+        <span class="c1"># Add JSON section with pseudo potentials.</span>
+        <span class="n">ppinfo</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="se">\n\n\n</span><span class="s2">#&lt;JSON&gt;&quot;</span><span class="p">]</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;pseudos&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pseudos</span><span class="p">]}</span>
+        <span class="n">ppinfo</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">())</span>
+        <span class="n">ppinfo</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&lt;/JSON&gt;&quot;</span><span class="p">)</span>
+
+        <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">#&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ppinfo</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">comment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Optional string with comment. None if comment is not set.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_comment</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="BasicAbinitInput.set_comment"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput.set_comment">[docs]</a>    <span class="k">def</span> <span class="nf">set_comment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comment</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set a comment to be included at the top of the file.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_comment</span> <span class="o">=</span> <span class="n">comment</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The |Structure| object associated to this input.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_structure</span>
+
+<div class="viewcode-block" id="BasicAbinitInput.set_structure"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput.set_structure">[docs]</a>    <span class="k">def</span> <span class="nf">set_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set structure.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_structure</span> <span class="o">=</span> <span class="n">as_structure</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+
+        <span class="c1"># Check volume</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">m</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="s2">&quot;The triple product of the lattice vector is negative. Use structure.abi_sanitize.&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_structure</span></div>
+
+    <span class="c1"># Helper functions to facilitate the specification of several variables.</span>
+<div class="viewcode-block" id="BasicAbinitInput.set_kmesh"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput.set_kmesh">[docs]</a>    <span class="k">def</span> <span class="nf">set_kmesh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ngkpt</span><span class="p">,</span> <span class="n">shiftk</span><span class="p">,</span> <span class="n">kptopt</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the variables for the sampling of the BZ.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ngkpt: Monkhorst-Pack divisions</span>
+<span class="sd">            shiftk: List of shifts.</span>
+<span class="sd">            kptopt: Option for the generation of the mesh.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">shiftk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shiftk</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">ngkpt</span><span class="o">=</span><span class="n">ngkpt</span><span class="p">,</span> <span class="n">kptopt</span><span class="o">=</span><span class="n">kptopt</span><span class="p">,</span> <span class="n">nshiftk</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">shiftk</span><span class="p">),</span> <span class="n">shiftk</span><span class="o">=</span><span class="n">shiftk</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BasicAbinitInput.set_gamma_sampling"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput.set_gamma_sampling">[docs]</a>    <span class="k">def</span> <span class="nf">set_gamma_sampling</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Gamma-only sampling of the BZ.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_kmesh</span><span class="p">(</span><span class="n">ngkpt</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">shiftk</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="BasicAbinitInput.set_kpath"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput.set_kpath">[docs]</a>    <span class="k">def</span> <span class="nf">set_kpath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ndivsm</span><span class="p">,</span> <span class="n">kptbounds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">iscf</span><span class="o">=-</span><span class="mi">2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the variables for the computation of the electronic band structure.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ndivsm: Number of divisions for the smallest segment.</span>
+<span class="sd">            kptbounds: k-points defining the path in k-space.</span>
+<span class="sd">                If None, we use the default high-symmetry k-path defined in the pymatgen database.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">kptbounds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">pymatgen.symmetry.bandstructure</span> <span class="k">import</span> <span class="n">HighSymmKpath</span>
+            <span class="n">hsym_kpath</span> <span class="o">=</span> <span class="n">HighSymmKpath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
+
+            <span class="n">name2frac_coords</span> <span class="o">=</span> <span class="n">hsym_kpath</span><span class="o">.</span><span class="n">kpath</span><span class="p">[</span><span class="s2">&quot;kpoints&quot;</span><span class="p">]</span>
+            <span class="n">kpath</span> <span class="o">=</span> <span class="n">hsym_kpath</span><span class="o">.</span><span class="n">kpath</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">]</span>
+
+            <span class="n">frac_coords</span><span class="p">,</span> <span class="n">names</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">segment</span> <span class="ow">in</span> <span class="n">kpath</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">segment</span><span class="p">:</span>
+                    <span class="n">fc</span> <span class="o">=</span> <span class="n">name2frac_coords</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+                    <span class="n">frac_coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fc</span><span class="p">)</span>
+                    <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">kptbounds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">frac_coords</span><span class="p">)</span>
+
+        <span class="n">kptbounds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">kptbounds</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="c1"># self.pop_vars([&quot;ngkpt&quot;, &quot;shiftk&quot;]) ??</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">kptbounds</span><span class="o">=</span><span class="n">kptbounds</span><span class="p">,</span> <span class="n">kptopt</span><span class="o">=-</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">kptbounds</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="n">ndivsm</span><span class="o">=</span><span class="n">ndivsm</span><span class="p">,</span> <span class="n">iscf</span><span class="o">=</span><span class="n">iscf</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BasicAbinitInput.set_spin_mode"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput.set_spin_mode">[docs]</a>    <span class="k">def</span> <span class="nf">set_spin_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spin_mode</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the variables used to the treat the spin degree of freedom.</span>
+<span class="sd">        Return dictionary with the variables that have been removed.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            spin_mode: :class:`SpinMode` object or string. Possible values for string are:</span>
+
+<span class="sd">            - polarized</span>
+<span class="sd">            - unpolarized</span>
+<span class="sd">            - afm (anti-ferromagnetic)</span>
+<span class="sd">            - spinor (non-collinear magnetism)</span>
+<span class="sd">            - spinor_nomag (non-collinear, no magnetism)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Remove all variables used to treat spin</span>
+        <span class="n">old_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pop_vars</span><span class="p">([</span><span class="s2">&quot;nsppol&quot;</span><span class="p">,</span> <span class="s2">&quot;nspden&quot;</span><span class="p">,</span> <span class="s2">&quot;nspinor&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_abiobjects</span><span class="p">(</span><span class="n">aobj</span><span class="o">.</span><span class="n">SpinMode</span><span class="o">.</span><span class="n">as_spinmode</span><span class="p">(</span><span class="n">spin_mode</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">old_vars</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pseudos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;List of |Pseudo| objects.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pseudos</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ispaw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;True if PAW calculation.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">ispaw</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pseudos</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">isnc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;True if norm-conserving calculation.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">isnc</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pseudos</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BasicAbinitInput.new_with_vars"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput.new_with_vars">[docs]</a>    <span class="k">def</span> <span class="nf">new_with_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a new input with the given variables.</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            new = input.new_with_vars(ecut=20)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Avoid modifications in self.</span>
+        <span class="n">new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">()</span>
+        <span class="n">new</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">new</span></div>
+
+<div class="viewcode-block" id="BasicAbinitInput.pop_tolerances"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput.pop_tolerances">[docs]</a>    <span class="k">def</span> <span class="nf">pop_tolerances</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove all the tolerance variables present in self.</span>
+<span class="sd">        Return dictionary with the variables that have been removed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">remove_vars</span><span class="p">(</span><span class="n">_TOLVARS</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BasicAbinitInput.pop_irdvars"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicAbinitInput.pop_irdvars">[docs]</a>    <span class="k">def</span> <span class="nf">pop_irdvars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove all the `ird*` variables present in self.</span>
+<span class="sd">        Return dictionary with the variables that have been removed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">remove_vars</span><span class="p">(</span><span class="n">_IRDVARS</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="BasicMultiDataset"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicMultiDataset">[docs]</a><span class="k">class</span> <span class="nc">BasicMultiDataset</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This object is essentially a list of BasicAbinitInput objects.</span>
+<span class="sd">    that provides an easy-to-use interface to apply global changes to the</span>
+<span class="sd">    the inputs stored in the objects.</span>
+
+<span class="sd">    Let&#39;s assume for example that multi contains two ``BasicAbinitInput`` objects and we</span>
+<span class="sd">    want to set `ecut` to 1 in both dictionaries. The direct approach would be:</span>
+
+<span class="sd">        for inp in multi:</span>
+<span class="sd">            inp.set_vars(ecut=1)</span>
+
+<span class="sd">    or alternatively:</span>
+
+<span class="sd">        for i in range(multi.ndtset):</span>
+<span class="sd">            multi[i].set_vars(ecut=1)</span>
+
+<span class="sd">    BasicMultiDataset provides its own implementaion of __getattr__ so that one can simply use:</span>
+
+<span class="sd">        multi.set_vars(ecut=1)</span>
+
+<span class="sd">        multi.get(&quot;ecut&quot;) returns a list of values. It&#39;s equivalent to:</span>
+
+<span class="sd">            [inp[&quot;ecut&quot;] for inp in multi]</span>
+
+<span class="sd">        Note that if &quot;ecut&quot; is not present in one of the input of multi, the corresponding entry is set to None.</span>
+<span class="sd">        A default value can be specified with:</span>
+
+<span class="sd">            multi.get(&quot;paral_kgb&quot;, 0)</span>
+
+<span class="sd">    .. warning::</span>
+
+<span class="sd">        BasicMultiDataset does not support calculations done with different sets of pseudopotentials.</span>
+<span class="sd">        The inputs can have different crystalline structures (as long as the atom types are equal)</span>
+<span class="sd">        but each input in BasicMultiDataset must have the same set of pseudopotentials.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">Error</span> <span class="o">=</span> <span class="n">BasicAbinitInputError</span>
+
+<div class="viewcode-block" id="BasicMultiDataset.from_inputs"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicMultiDataset.from_inputs">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_inputs</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Build object from a list of BasicAbinitInput objects.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">inp</span> <span class="ow">in</span> <span class="n">inputs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">p1</span> <span class="o">!=</span> <span class="n">p2</span> <span class="k">for</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">pseudos</span><span class="p">,</span> <span class="n">inp</span><span class="o">.</span><span class="n">pseudos</span><span class="p">)):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Pseudos must be consistent when from_inputs is invoked.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Build BasicMultiDataset from input structures and pseudos and add inputs.</span>
+        <span class="n">multi</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="p">[</span><span class="n">inp</span><span class="o">.</span><span class="n">structure</span> <span class="k">for</span> <span class="n">inp</span> <span class="ow">in</span> <span class="n">inputs</span><span class="p">],</span> <span class="n">pseudos</span><span class="o">=</span><span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">pseudos</span><span class="p">,</span> <span class="n">ndtset</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">inputs</span><span class="p">))</span>
+
+        <span class="c1"># Add variables</span>
+        <span class="k">for</span> <span class="n">inp</span><span class="p">,</span> <span class="n">new_inp</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">multi</span><span class="p">):</span>
+            <span class="n">new_inp</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="o">**</span><span class="n">inp</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">multi</span></div>
+
+<div class="viewcode-block" id="BasicMultiDataset.replicate_input"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicMultiDataset.replicate_input">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">replicate_input</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">ndtset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct a multidataset with ndtset from the BasicAbinitInput input.&quot;&quot;&quot;</span>
+        <span class="n">multi</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="nb">input</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="nb">input</span><span class="o">.</span><span class="n">pseudos</span><span class="p">,</span> <span class="n">ndtset</span><span class="o">=</span><span class="n">ndtset</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">inp</span> <span class="ow">in</span> <span class="n">multi</span><span class="p">:</span>
+            <span class="n">inp</span><span class="o">.</span><span class="n">set_vars</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">input</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
+
+        <span class="k">return</span> <span class="n">multi</span></div>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">pseudos</span><span class="p">,</span> <span class="n">pseudo_dir</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">ndtset</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure: file with the structure, |Structure| object or dictionary with ABINIT geo variable</span>
+<span class="sd">                Accepts also list of objects that can be converted to Structure object.</span>
+<span class="sd">                In this case, however, ndtset must be equal to the length of the list.</span>
+<span class="sd">            pseudos: String or list of string with the name of the pseudopotential files.</span>
+<span class="sd">            pseudo_dir: Name of the directory where the pseudopotential files are located.</span>
+<span class="sd">            ndtset: Number of datasets.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Setup of the pseudopotential files.</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pseudos</span><span class="p">,</span> <span class="n">Pseudo</span><span class="p">):</span>
+            <span class="n">pseudos</span> <span class="o">=</span> <span class="p">[</span><span class="n">pseudos</span><span class="p">]</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pseudos</span><span class="p">,</span> <span class="n">PseudoTable</span><span class="p">):</span>
+            <span class="n">pseudos</span> <span class="o">=</span> <span class="n">pseudos</span>
+
+        <span class="k">elif</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">Pseudo</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pseudos</span><span class="p">):</span>
+            <span class="n">pseudos</span> <span class="o">=</span> <span class="n">PseudoTable</span><span class="p">(</span><span class="n">pseudos</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># String(s)</span>
+            <span class="n">pseudo_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">pseudo_dir</span><span class="p">)</span>
+            <span class="n">pseudo_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pseudo_dir</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">list_strings</span><span class="p">(</span><span class="n">pseudos</span><span class="p">)]</span>
+
+            <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pseudo_paths</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">p</span><span class="p">)]</span>
+            <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="s2">&quot;Cannot find the following pseudopotential files:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">missing</span><span class="p">))</span>
+
+            <span class="n">pseudos</span> <span class="o">=</span> <span class="n">PseudoTable</span><span class="p">(</span><span class="n">pseudo_paths</span><span class="p">)</span>
+
+        <span class="c1"># Build the list of BasicAbinitInput objects.</span>
+        <span class="k">if</span> <span class="n">ndtset</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ndtset </span><span class="si">%d</span><span class="s2"> cannot be &lt;=0&quot;</span> <span class="o">%</span> <span class="n">ndtset</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_inputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">BasicAbinitInput</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span> <span class="n">pseudos</span><span class="o">=</span><span class="n">pseudos</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ndtset</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span> <span class="o">==</span> <span class="n">ndtset</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_inputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">BasicAbinitInput</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">pseudos</span><span class="o">=</span><span class="n">pseudos</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">structure</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ndtset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Number of inputs in self.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pseudos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Pseudopotential objects.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">pseudos</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ispaw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;True if PAW calculation.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">ispaw</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pseudos</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">isnc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;True if norm-conserving calculation.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">isnc</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pseudos</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_inputs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inputs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inputs</span><span class="o">.</span><span class="fm">__iter__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="n">_inputs</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_inputs&quot;</span><span class="p">)</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">_inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">m</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Cannot find attribute </span><span class="si">%s</span><span class="s2">. Tried in </span><span class="si">%s</span><span class="s2"> and then in BasicAbinitInput object&quot;</span>
+                                 <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+        <span class="n">isattr</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">on_all</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inputs</span><span class="p">:</span>
+                <span class="n">a</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+                <span class="c1"># print(&quot;name&quot;, name, &quot;, type:&quot;, type(a), &quot;callable: &quot;,callable(a))</span>
+                <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+                    <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">results</span>
+
+        <span class="k">if</span> <span class="n">isattr</span><span class="p">:</span>
+            <span class="n">on_all</span> <span class="o">=</span> <span class="n">on_all</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">on_all</span>
+
+    <span class="k">def</span> <span class="nf">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;self + other&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">BasicAbinitInput</span><span class="p">):</span>
+            <span class="n">new_mds</span> <span class="o">=</span> <span class="n">BasicMultiDataset</span><span class="o">.</span><span class="n">from_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="n">new_mds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">new_mds</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">BasicMultiDataset</span><span class="p">):</span>
+            <span class="n">new_mds</span> <span class="o">=</span> <span class="n">BasicMultiDataset</span><span class="o">.</span><span class="n">from_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="n">new_mds</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">new_mds</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Operation not supported&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__radd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">BasicAbinitInput</span><span class="p">):</span>
+            <span class="n">new_mds</span> <span class="o">=</span> <span class="n">BasicMultiDataset</span><span class="o">.</span><span class="n">from_inputs</span><span class="p">([</span><span class="n">other</span><span class="p">])</span>
+            <span class="n">new_mds</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">BasicMultiDataset</span><span class="p">):</span>
+            <span class="n">new_mds</span> <span class="o">=</span> <span class="n">BasicMultiDataset</span><span class="o">.</span><span class="n">from_inputs</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+            <span class="n">new_mds</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Operation not supported&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BasicMultiDataset.append"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicMultiDataset.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">abinit_input</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a |BasicAbinitInput| to the list.&quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">abinit_input</span><span class="p">,</span> <span class="n">BasicAbinitInput</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">p1</span> <span class="o">!=</span> <span class="n">p2</span> <span class="k">for</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">abinit_input</span><span class="o">.</span><span class="n">pseudos</span><span class="p">,</span> <span class="n">abinit_input</span><span class="o">.</span><span class="n">pseudos</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Pseudos must be consistent when from_inputs is invoked.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">abinit_input</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BasicMultiDataset.extend"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicMultiDataset.extend">[docs]</a>    <span class="k">def</span> <span class="nf">extend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">abinit_inputs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Extends self with a list of |BasicAbinitInput| objects.&quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="n">BasicAbinitInput</span><span class="p">)</span> <span class="k">for</span> <span class="n">inp</span> <span class="ow">in</span> <span class="n">abinit_inputs</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">inp</span> <span class="ow">in</span> <span class="n">abinit_inputs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">p1</span> <span class="o">!=</span> <span class="n">p2</span> <span class="k">for</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">pseudos</span><span class="p">,</span> <span class="n">inp</span><span class="o">.</span><span class="n">pseudos</span><span class="p">)):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Pseudos must be consistent when from_inputs is invoked.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_inputs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">abinit_inputs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BasicMultiDataset.addnew_from"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicMultiDataset.addnew_from">[docs]</a>    <span class="k">def</span> <span class="nf">addnew_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtindex</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a new entry in the multidataset by copying the input with index ``dtindex``.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">dtindex</span><span class="p">]</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="BasicMultiDataset.split_datasets"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicMultiDataset.split_datasets">[docs]</a>    <span class="k">def</span> <span class="nf">split_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return list of |BasicAbinitInput| objects..&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inputs</span></div>
+
+<div class="viewcode-block" id="BasicMultiDataset.deepcopy"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicMultiDataset.deepcopy">[docs]</a>    <span class="k">def</span> <span class="nf">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Deep copy of the BasicMultiDataset.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">has_same_structures</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;True if all inputs in BasicMultiDataset are equal.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">structure</span> <span class="o">==</span> <span class="n">inp</span><span class="o">.</span><span class="n">structure</span> <span class="k">for</span> <span class="n">inp</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span>
+
+<div class="viewcode-block" id="BasicMultiDataset.to_string"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicMultiDataset.to_string">[docs]</a>    <span class="k">def</span> <span class="nf">to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">with_pseudos</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        String representation i.e. the input file read by Abinit.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            with_pseudos: False if JSON section with pseudo data should not be added.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndtset</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># Multi dataset mode.</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ndtset </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndtset</span><span class="p">]</span>
+
+            <span class="k">def</span> <span class="nf">has_same_variable</span><span class="p">(</span><span class="n">kref</span><span class="p">,</span> <span class="n">vref</span><span class="p">,</span> <span class="n">other_inp</span><span class="p">):</span>
+                <span class="sd">&quot;&quot;&quot;True if variable kref is present in other_inp with the same value.&quot;&quot;&quot;</span>
+                <span class="k">if</span> <span class="n">kref</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">other_inp</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+                <span class="n">otherv</span> <span class="o">=</span> <span class="n">other_inp</span><span class="p">[</span><span class="n">kref</span><span class="p">]</span>
+                <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">vref</span><span class="p">,</span> <span class="n">otherv</span><span class="p">)</span>
+
+            <span class="c1"># Don&#39;t repeat variable that are common to the different datasets.</span>
+            <span class="c1"># Put them in the `Global Variables` section and exclude these variables in inp.to_string</span>
+            <span class="n">global_vars</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">k0</span><span class="p">,</span> <span class="n">v0</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">isame</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndtset</span><span class="p">):</span>
+                    <span class="n">isame</span> <span class="o">=</span> <span class="n">has_same_variable</span><span class="p">(</span><span class="n">k0</span><span class="p">,</span> <span class="n">v0</span><span class="p">,</span> <span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">isame</span><span class="p">:</span>
+                        <span class="k">break</span>
+                <span class="k">if</span> <span class="n">isame</span><span class="p">:</span>
+                    <span class="n">global_vars</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">k0</span><span class="p">)</span>
+            <span class="c1"># print(&quot;global_vars vars&quot;, global_vars)</span>
+
+            <span class="n">w</span> <span class="o">=</span> <span class="mi">92</span>
+            <span class="k">if</span> <span class="n">global_vars</span><span class="p">:</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="s2">&quot;#&quot;</span><span class="p">)</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;### Global Variables.&quot;</span><span class="p">)</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="s2">&quot;#&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">global_vars</span><span class="p">:</span>
+                    <span class="n">vname</span> <span class="o">=</span> <span class="n">key</span>
+                    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">InputVariable</span><span class="p">(</span><span class="n">vname</span><span class="p">,</span> <span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">key</span><span class="p">])))</span>
+
+            <span class="n">has_same_structures</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_same_structures</span>
+            <span class="k">if</span> <span class="n">has_same_structures</span><span class="p">:</span>
+                <span class="c1"># Write structure here and disable structure output in input.to_string</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="s2">&quot;#&quot;</span><span class="p">)</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;#&quot;</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;STRUCTURE&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">center</span><span class="p">(</span><span class="n">w</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="s2">&quot;#&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">aobj</span><span class="o">.</span><span class="n">structure_to_abivars</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">vname</span> <span class="o">=</span> <span class="n">key</span>
+                    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">InputVariable</span><span class="p">(</span><span class="n">vname</span><span class="p">,</span> <span class="n">value</span><span class="p">)))</span>
+
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">inp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="n">header</span> <span class="o">=</span> <span class="s2">&quot;### DATASET </span><span class="si">%d</span><span class="s2"> ###&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">is_last</span> <span class="o">=</span> <span class="n">i</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndtset</span> <span class="o">-</span> <span class="mi">1</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="n">inp</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">post</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">with_pseudos</span><span class="o">=</span><span class="n">is_last</span> <span class="ow">and</span> <span class="n">with_pseudos</span><span class="p">,</span>
+                                  <span class="n">with_structure</span><span class="o">=</span><span class="ow">not</span> <span class="n">has_same_structures</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="n">global_vars</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">s</span><span class="p">:</span>
+                    <span class="n">header</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">header</span><span class="p">)</span> <span class="o">*</span> <span class="s2">&quot;#&quot;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">header</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">header</span><span class="p">)</span> <span class="o">*</span> <span class="s2">&quot;#&quot;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">header</span> <span class="o">+</span> <span class="n">s</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># single datasets ==&gt; don&#39;t append the dataset index to the variables.</span>
+            <span class="c1"># this trick is needed because Abinit complains if ndtset is not specified</span>
+            <span class="c1"># and we have variables that end with the dataset index e.g. acell1</span>
+            <span class="c1"># We don&#39;t want to specify ndtset here since abinit will start to add DS# to</span>
+            <span class="c1"># the input and output files thus complicating the algorithms we have to use to locate the files.</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">with_pseudos</span><span class="o">=</span><span class="n">with_pseudos</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BasicMultiDataset.write"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.inputs.html#pymatgen.io.abinit.inputs.BasicMultiDataset.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="o">=</span><span class="s2">&quot;run.abi&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write ``ndset`` input files to disk. The name of the file</span>
+<span class="sd">        is constructed from the dataset index e.g. run0.abi</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">root</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">inp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">root</span> <span class="o">+</span> <span class="s2">&quot;DS</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">i</span> <span class="o">+</span> <span class="n">ext</span>
+            <span class="n">inp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">p</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

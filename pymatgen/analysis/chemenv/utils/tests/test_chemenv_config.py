@@ -13,6 +13,7 @@ from monty.tempfile import ScratchDir
 config_file_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "..",
                                'test_files', "chemenv", "config")
 
+
 class ChemenvConfigTest(unittest.TestCase):
 
     def test_chemenv_config(self):
@@ -20,9 +21,9 @@ class ChemenvConfigTest(unittest.TestCase):
             config = ChemEnvConfig()
 
             if SETTINGS.get("PMG_MAPI_KEY", "") != "":
-                 self.assertTrue(config.has_materials_project_access)
+                self.assertTrue(config.has_materials_project_access)
             else:
-                 self.assertFalse(config.has_materials_project_access)
+                self.assertFalse(config.has_materials_project_access)
 
             package_options = ChemEnvConfig.DEFAULT_PACKAGE_OPTIONS
             package_options['default_max_distance_factor'] = 1.8

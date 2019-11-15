@@ -17,7 +17,6 @@ __date__ = "Feb 20, 2016"
 
 import numpy as np
 
-
 if __name__ == '__main__':
 
     cg_symbol = 'O:6'
@@ -60,10 +59,10 @@ if __name__ == '__main__':
     if cg_symbol == 'PB:7':
         for i0 in range(5):
             for turn in [1, -1]:
-                i1 = np.mod(i0+turn, 5)
-                i2 = np.mod(i1+turn, 5)
-                i3 = np.mod(i2+turn, 5)
-                i4 = np.mod(i3+turn, 5)
+                i1 = np.mod(i0 + turn, 5)
+                i2 = np.mod(i1 + turn, 5)
+                i3 = np.mod(i2 + turn, 5)
+                i4 = np.mod(i3 + turn, 5)
                 for i5 in [5, 6]:
                     i6 = 5 if i5 == 6 else 6
                     equiv_list.append([i0, i1, i2, i3, i4, i5, i6])
@@ -83,23 +82,23 @@ if __name__ == '__main__':
 
     # SBT:8
     if cg_symbol == 'SBT:8':
-        #0. any point on the square face without cap
+        # 0. any point on the square face without cap
         for i0 in [0, 1, 3, 4]:
-            #1. point in this square face but also in the triangular plane of point 0
-            #2. last point in the triangular plane of point 0
+            # 1. point in this square face but also in the triangular plane of point 0
+            # 2. last point in the triangular plane of point 0
             if i0 < 3:
                 i1 = 0 if i0 == 1 else 1
                 i2 = 2
             else:
                 i1 = 3 if i0 == 4 else 4
                 i2 = 5
-            #3.4.5. corresponding points in the opposite triangular plane to the one of points 0.1.2.
+            # 3.4.5. corresponding points in the opposite triangular plane to the one of points 0.1.2.
             i3 = np.mod(i0 + 3, 6)
             i4 = np.mod(i1 + 3, 6)
             i5 = np.mod(i2 + 3, 6)
-            #6. cap point opposite to the first point
+            # 6. cap point opposite to the first point
             i6 = 7 if i0 in [1, 4] else 6
-            #7. last cap point
+            # 7. last cap point
             i7 = 6 if i0 in [1, 4] else 7
             equiv_list.append([i0, i1, i2, i3, i4, i5, i6, i7])
 

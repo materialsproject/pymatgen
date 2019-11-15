@@ -70,12 +70,12 @@ class FermiDosTest(unittest.TestCase):
             self.assertAlmostEqual(calc_fermis[j], f_ref, 4)
 
         sci_dos = FermiDos(self.dos, bandgap=3.0)
-        self.assertEqual( sci_dos.get_gap(), 3.)
+        self.assertEqual(sci_dos.get_gap(), 3.)
         old_cbm, old_vbm = self.dos.get_cbm_vbm()
         old_gap = old_cbm - old_vbm
         new_cbm, new_vbm = sci_dos.get_cbm_vbm()
-        self.assertAlmostEqual( new_cbm - old_cbm, (3. - old_gap) / 2.)
-        self.assertAlmostEqual( old_vbm - new_vbm, (3. - old_gap) / 2.)
+        self.assertAlmostEqual(new_cbm - old_cbm, (3. - old_gap) / 2.)
+        self.assertAlmostEqual(old_vbm - new_vbm, (3. - old_gap) / 2.)
         for i, c_ref in enumerate(ref_dopings):
             if c_ref < 0:
                 self.assertAlmostEqual(
@@ -368,7 +368,7 @@ class LobsterCompleteDosTest(unittest.TestCase):
         PDOS_Mn_eg_down = (np.array(PDOS_Mn_3dx2_down) + np.array(PDOS_Mn_3dz2_down)).tolist()
         PDOS_Mn_t2g_up = (np.array(PDOS_Mn_3dxy_up) + np.array(PDOS_Mn_3dxz_up) + np.array(PDOS_Mn_3dyz_up)).tolist()
         PDOS_Mn_t2g_down = (
-                    np.array(PDOS_Mn_3dxy_down) + np.array(PDOS_Mn_3dxz_down) + np.array(PDOS_Mn_3dyz_down)).tolist()
+                np.array(PDOS_Mn_3dxy_down) + np.array(PDOS_Mn_3dxz_down) + np.array(PDOS_Mn_3dyz_down)).tolist()
 
         for iel, el in enumerate(
                 self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])['e_g'].densities[
@@ -394,7 +394,6 @@ class LobsterCompleteDosTest(unittest.TestCase):
                          self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])['e_g'].efermi)
         self.assertEqual(efermi,
                          self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])['t2g'].efermi)
-
 
         # without spin polarization
         energies_nonspin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]

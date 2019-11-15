@@ -321,7 +321,8 @@ class CombinedIcohpTest(unittest.TestCase):
                 v.pop("@version")
             self.assertDictEqual(v, icohpvalue[key])
 
-        # compare number of results dependent on minsummedicohp, maxsummedicohp,minbondlength, maxbondlength, and only_bonds_to
+        # compare number of results dependent on minsummedicohp, maxsummedicohp,minbondlength, maxbondlength, and
+        # only_bonds_to
         dict_KF_2 = self.icohpcollection_KF.get_icohp_dict_of_site(site=0, minsummedicohp=None,
                                                                    maxsummedicohp=-0.0, minbondlength=0.0,
                                                                    maxbondlength=8.0)
@@ -625,6 +626,10 @@ class CompleteCohpTest(PymatgenTest):
         self.assertArrayEqual(cohp_label2.icohp[Spin.up], ref["ICOHP"][Spin.up] * 2.0)
         self.assertArrayEqual(cohp_label2x.icohp[Spin.up], ref["ICOHP"][Spin.up])
         self.assertArrayEqual(cohp_label3.icohp[Spin.up], ref["ICOHP"][Spin.up] + ref2["ICOHP"][Spin.up])
+        with self.assertRaises(ValueError):
+            self.cohp_orb.get_summed_cohp_by_label_and_orbital_list(["1"], ["4px-4pz", "4s-4px"])
+        with self.assertRaises(ValueError):
+            self.cohp_orb.get_summed_cohp_by_label_and_orbital_list(["1", "2"], ["4s-4px"])
 
     def test_orbital_resolved_cohp(self):
         # When read from a COHPCAR file, total COHPs are calculated from

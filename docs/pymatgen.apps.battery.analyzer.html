@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.apps.battery.analyzer module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.apps.battery.analyzer module &#8212; pymatgen 2019.11.11 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -49,9 +48,16 @@
 <em class="property">class </em><code class="sig-name descname">BatteryAnalyzer</code><span class="sig-paren">(</span><em class="sig-param">struc_oxid</em>, <em class="sig-param">cation='Li'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/analyzer.html#BatteryAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.BatteryAnalyzer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A suite of methods for starting with an oxidized structure and determining its potential as a battery</p>
-<p>Pass in a structure for analysis
-:param struc_oxid - a Structure object; oxidation states <em>must</em> be assigned for this structure; disordered structures should be OK:
-:param cation - a String symbol or Element for the cation. It must be positively charged, but can be 1+/2+/3+ etc.:</p>
+<p>Pass in a structure for analysis</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>struc_oxid</strong> – a Structure object; oxidation states <em>must</em> be assigned for this structure; disordered
+structures should be OK</p></li>
+<li><p><strong>cation</strong> – a String symbol or Element for the cation. It must be positively charged, but can be 1+/2+/3+ etc.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.apps.battery.analyzer.BatteryAnalyzer.get_max_capgrav">
 <code class="sig-name descname">get_max_capgrav</code><span class="sig-paren">(</span><em class="sig-param">remove=True</em>, <em class="sig-param">insert=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/analyzer.html#BatteryAnalyzer.get_max_capgrav"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.BatteryAnalyzer.get_max_capgrav" title="Permalink to this definition">¶</a></dt>
@@ -111,7 +117,8 @@ Li6V4(PO4)6 will return [4.0, 6.0])  <em>note that this example is not normalize
 <dt id="pymatgen.apps.battery.analyzer.BatteryAnalyzer.max_cation_insertion">
 <em class="property">property </em><code class="sig-name descname">max_cation_insertion</code><a class="headerlink" href="#pymatgen.apps.battery.analyzer.BatteryAnalyzer.max_cation_insertion" title="Permalink to this definition">¶</a></dt>
 <dd><p>Maximum number of cation A that can be inserted while maintaining charge-balance.
-No consideration is given to whether there (geometrically speaking) are Li sites to actually accommodate the extra Li.</p>
+No consideration is given to whether there (geometrically speaking) are Li sites to actually accommodate the
+extra Li.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>integer amount of cation. Depends on cell size (this is an ‘extrinsic’ function!)</p>
@@ -131,16 +138,6 @@ No consideration is given to whether there (geometrically speaking) are Li sites
 </dd></dl>
 
 </dd></dl>
-
-<dl class="data">
-<dt id="pymatgen.apps.battery.analyzer.ELECTRON_TO_AMPERE_HOURS">
-<code class="sig-name descname">ELECTRON_TO_AMPERE_HOURS</code><em class="property"> = 26.80148135624966</em><a class="headerlink" href="#pymatgen.apps.battery.analyzer.ELECTRON_TO_AMPERE_HOURS" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="data">
-<dt id="pymatgen.apps.battery.analyzer.EV_PER_ATOM_TO_J_PER_MOL">
-<code class="sig-name descname">EV_PER_ATOM_TO_J_PER_MOL</code><em class="property"> = 96485.33288249877</em><a class="headerlink" href="#pymatgen.apps.battery.analyzer.EV_PER_ATOM_TO_J_PER_MOL" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.apps.battery.analyzer.is_redox_active_intercalation">
@@ -191,13 +188,13 @@ No consideration is given to whether there (geometrically speaking) are Li sites
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

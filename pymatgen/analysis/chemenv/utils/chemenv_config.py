@@ -22,7 +22,6 @@ __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
 
-
 class ChemEnvConfig():
     """
     Class used to store the configuration of the chemenv package :
@@ -30,20 +29,23 @@ class ChemEnvConfig():
      - ICSD database access
      - Default options (strategies, ...)
     """
-    DEFAULT_PACKAGE_OPTIONS = {'default_strategy': {'strategy': 'SimplestChemenvStrategy',
-                                                    'strategy_options': {'distance_cutoff': strategies_class_lookup['SimplestChemenvStrategy'].DEFAULT_DISTANCE_CUTOFF,
-                                                                         'angle_cutoff': strategies_class_lookup['SimplestChemenvStrategy'].DEFAULT_ANGLE_CUTOFF,
-                                                                         'additional_condition': strategies_class_lookup['SimplestChemenvStrategy'].DEFAULT_ADDITIONAL_CONDITION,
-                                                                         'continuous_symmetry_measure_cutoff': strategies_class_lookup['SimplestChemenvStrategy'].DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF}},
-                               'default_max_distance_factor': 1.5
-                               }
+    DEFAULT_PACKAGE_OPTIONS = {
+        'default_strategy': {
+            'strategy': 'SimplestChemenvStrategy',
+            'strategy_options': {
+                'distance_cutoff': strategies_class_lookup['SimplestChemenvStrategy'].DEFAULT_DISTANCE_CUTOFF,
+                'angle_cutoff': strategies_class_lookup['SimplestChemenvStrategy'].DEFAULT_ANGLE_CUTOFF,
+                'additional_condition': strategies_class_lookup['SimplestChemenvStrategy'].DEFAULT_ADDITIONAL_CONDITION,
+                'continuous_symmetry_measure_cutoff':
+                    strategies_class_lookup['SimplestChemenvStrategy'].DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF}},
+        'default_max_distance_factor': 1.5
+    }
 
     def __init__(self, package_options=None):
-        if SETTINGS.get("PMG_MAPI_KEY", "") != "": 
+        if SETTINGS.get("PMG_MAPI_KEY", "") != "":
             self.materials_project_configuration = SETTINGS.get("PMG_MAPI_KEY", "")
         else:
             self.materials_project_configuration = None
-
 
         if package_options is None:
             self.package_options = self.DEFAULT_PACKAGE_OPTIONS
@@ -101,7 +103,8 @@ class ChemEnvConfig():
                     print('       {}'.format(option_dict['type'].allowed_values))
                     test = input('     Your choice : ')
                     if test == '':
-                        self.package_options['default_strategy']['strategy_options'][option] = option_dict['type'](strategy_class.STRATEGY_OPTIONS[option]['default'])
+                        self.package_options['default_strategy']['strategy_options'][option] = option_dict['type'](
+                            strategy_class.STRATEGY_OPTIONS[option]['default'])
                         break
                     try:
                         self.package_options['default_strategy']['strategy_options'][option] = option_dict['type'](test)
@@ -127,7 +130,7 @@ class ChemEnvConfig():
             root_dir = '{}/.chemenv'.format(home)
         if not exists(root_dir):
             makedirs(root_dir)
-        config_dict = {'package_options': self.package_options}  
+        config_dict = {'package_options': self.package_options}
         config_file = '{}/config.json'.format(root_dir)
         if exists(config_file):
             test = input('Overwrite existing configuration ? (<Y> + <ENTER> to confirm)')
@@ -150,8 +153,8 @@ class ChemEnvConfig():
             f = open(config_file, 'r')
             config_dict = json.load(f)
             f.close()
-            return ChemEnvConfig(package_options=config_dict['package_options']) 
-            
+            return ChemEnvConfig(package_options=config_dict['package_options'])
+
         except IOError:
             print('Unable to load configuration from file "{}" ...'.format(config_file))
             print(' ... loading default configuration')
