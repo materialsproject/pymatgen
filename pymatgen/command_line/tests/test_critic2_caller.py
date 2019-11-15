@@ -99,6 +99,10 @@ class Critic2OutputTest(unittest.TestCase):
                                              'structure', 'critic2_stdout'})
         self.c2o.from_dict(d)
 
+    def test_graph_output(self):
+
+        sg = self.c2o.structure_graph()
+        self.assertEqual(str(sg.structure[3].specie), "bcp")
 
 if __name__ == '__main__':
     unittest.main()
