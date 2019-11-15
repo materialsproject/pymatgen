@@ -517,7 +517,7 @@ class DictSet(VaspInputSet):
         
         # Return None if KSPACING is present in the INCAR, because this will
         # cause VASP to generate the KPOINTS file automatically
-        if incar.get("KSPACING",None) is not None:
+        if self.incar.get("KSPACING",None) is not None:
             return None
 
         # If grid_density is in the kpoints_settings use
