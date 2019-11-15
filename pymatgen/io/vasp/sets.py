@@ -429,7 +429,7 @@ class DictSet(VaspInputSet):
                 if "EDIFF" not in settings and k == "EDIFF_PER_ATOM":
                     incar["EDIFF"] = float(v) * structure.num_sites
                 else:
-                    incar["EDIFF"] = float(settings["EDIFF"])
+                    incar["EDIFF"] = float(settings["EDIFF"])   
             else:
                 incar[k] = v
 
@@ -458,8 +458,11 @@ class DictSet(VaspInputSet):
         if self.use_structure_charge:
             incar["NELECT"] = self.nelect
 
-        if np.product(self.kpoints.kpts) < 4 and incar.get("ISMEAR", 0) == -5:
-            incar["ISMEAR"] = 0
+        # disable this check if KSPACING is in the INCAR file because
+        # no KPOINTS file is generated
+        if "KSPACING" not in settings.keys():
+            if np.product(self.kpoints.kpts) < 4 and incar.get("ISMEAR", 0) == -5:
+                incar["ISMEAR"] = 0
 
         if all([k.is_metal for k in structure.composition.keys()]):
             if incar.get("NSW", 0) > 0 and incar.get("ISMEAR", 1) < 1:
@@ -511,6 +514,11 @@ class DictSet(VaspInputSet):
 
         if isinstance(settings, Kpoints):
             return settings
+        
+        # Return None if KSPACING is present in the INCAR, because this will
+        # cause VASP to generate the KPOINTS file automatically
+        if incar.get("KSPACING",None) is not None:
+            return None
 
         # If grid_density is in the kpoints_settings use
         # Kpoints.automatic_density
