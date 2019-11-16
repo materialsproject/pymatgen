@@ -31,7 +31,8 @@ from pymatgen import __version__, __author__
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.napoleon', 'sphinx.ext.viewcode', "sphinx.ext.mathjax"]
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.napoleon', 
+              'sphinx.ext.viewcode', "sphinx.ext.mathjax"]
 exclude_patterns = ['../**/tests*']
 exclude_dirnames = ['../**/tests*']
 autoclass_content = 'both'
@@ -101,7 +102,7 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'proBlue'
+html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -131,6 +132,10 @@ html_favicon = "favicon.ico"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+html_css_files = [
+    'css/custom.css',
+]
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
@@ -175,6 +180,28 @@ html_static_path = ['_static']
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'pymatgendoc'
+
+html_theme_options = {
+    'canonical_url': 'https://pymatgen.org',
+    'logo_only': True,
+    'display_version': True,
+    'prev_next_buttons_location': None,
+    'style_external_links': True,
+    'style_nav_header_background': '#0644B8',
+    'collapse_navigation': True,
+    'sticky_navigation': True,
+    'navigation_depth': 4,
+    'includehidden': True,
+    'titles_only': False
+}
+
+html_context = {
+    "display_github": True,
+    "github_user": "materialsproject",
+    "github_repo": "pymatgen",
+    "github_version": "master",
+    "conf_py_path": "/docs_rst/",
+}
 
 # -- Options for LaTeX output ------------------------------------------------
 
