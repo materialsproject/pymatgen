@@ -340,8 +340,7 @@ def linkcode_resolve(domain, info):
 
     try:
         filename = 'pymatgen/%s#L%d-L%d' % find_source()
-    except Exception as exc:
-        print(exc)
+    except:
         filename = info['module'].replace('.', '/') + '.py'
 
     tag = 'v'+__version__
