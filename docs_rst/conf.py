@@ -187,7 +187,7 @@ html_theme_options = {
     'display_version': True,
     'prev_next_buttons_location': None,
     'style_external_links': True,
-    'style_nav_header_background': '#0644B8',
+    'style_nav_header_background': 'linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)',
     'collapse_navigation': True,
     'sticky_navigation': True,
     'navigation_depth': 4,
