@@ -978,6 +978,12 @@ class OutcarTest(PymatgenTest):
         self.assertEqual(len(matrices[0][Spin.up]), 5)
         self.assertEqual(len(matrices[0][Spin.up][0]), 5)
         self.assertTrue("onsite_density_matrices" in outcar.as_dict())
+        outcar = Outcar(self.TEST_FILES_DIR / "OUTCAR_merged_numbers")
+        matrices = outcar.data["onsite_density_matrices"]
+        self.assertEqual(matrices[0][Spin.up][0][-1], 0.0)
+        self.assertEqual(len(matrices[0][Spin.up]), 7)
+        self.assertEqual(len(matrices[0][Spin.up][0]), 7)
+        self.assertTrue("onsite_density_matrices" in outcar.as_dict())
 
 
 class BSVasprunTest(PymatgenTest):
