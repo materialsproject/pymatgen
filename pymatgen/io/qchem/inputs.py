@@ -44,13 +44,14 @@ class QCInput(MSONable):
             Ex. opt = {"CONSTRAINT": ["tors 2 3 4 5 25.0", "tors 2 5 7 9 80.0"], "FIXED": ["2 XY"]}
     """
 
-    def __init__(self, molecule, rem, opt=None, pcm=None, solvent=None, smx=None):
+    def __init__(self, molecule, rem, opt=None, pcm=None, solvent=None, smx=None, plots=None):
         self.molecule = molecule
         self.rem = lower_and_check_unique(rem)
         self.opt = opt
         self.pcm = lower_and_check_unique(pcm)
         self.solvent = lower_and_check_unique(solvent)
         self.smx = lower_and_check_unique(smx)
+        self.plots = lower_and_check_unique(plots)
 
         # Make sure molecule is valid: either the string "read" or a pymatgen molecule object
 
@@ -117,6 +118,10 @@ class QCInput(MSONable):
         if self.smx:
             combined_list.append(self.smx_template(self.smx))
             combined_list.append("")
+        # plots section
+        if self.plots:
+            combined_list.append(self.plots_template(self.plots))
+            combined_list.append("")
         return '\n'.join(combined_list)
 
     @staticmethod
@@ -139,6 +144,7 @@ class QCInput(MSONable):
         pcm = None
         solvent = None
         smx = None
+        plots = None
         if "opt" in sections:
             opt = cls.read_opt(string)
         if "pcm" in sections:
@@ -147,7 +153,9 @@ class QCInput(MSONable):
             solvent = cls.read_solvent(string)
         if "smx" in sections:
             smx = cls.read_smx(string)
-        return cls(molecule, rem, opt=opt, pcm=pcm, solvent=solvent, smx=smx)
+        if "plots" in sections:
+            plots = cls.read_plots(string)
+        return cls(molecule, rem, opt=opt, pcm=pcm, solvent=solvent, smx=smx, plots=plots)
 
     def write_file(self, filename):
         with zopen(filename, 'wt') as f:
@@ -253,6 +261,16 @@ class QCInput(MSONable):
                     key=key, value=value))
         smx_list.append("$end")
         return '\n'.join(smx_list)
+
+    @staticmethod
+    def plots_template(plots):
+        plots_list = []
+        plots_list.append("$plots")
+        for key, value in plots.items():
+            plots_list.append("   {key} {value}".format(
+                key=key, value=value))
+        plots_list.append("$end")
+        return '\n'.join(plots_list)
 
     @staticmethod
     def find_sections(string):
@@ -431,3 +449,22 @@ class QCInput(MSONable):
             if smx["solvent"] == "tetrahydrofuran":
                 smx["solvent"] = "thf"
             return smx
+
+    @staticmethod
+    def read_plots(string):
+        header = r"^\s*\$plots"
+        row = r"\s*([a-zA-Z\_]+)\s+(\S+)"
+        footer = r"^\s*\$end"
+        plots_table = read_table_pattern(
+            string,
+            header_pattern=header,
+            row_pattern=row,
+            footer_pattern=footer)
+        if plots_table == []:
+            print(
+                "No valid plots inputs found. Note that there should be no '=' chracters in plots input lines."
+            )
+            return {}
+        else:
+            plots = {key: val for key, val in plots_table[0]}
+            return plots

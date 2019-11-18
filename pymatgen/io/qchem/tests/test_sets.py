@@ -421,6 +421,35 @@ class SinglePointSetTest(PymatgenTest):
         self.assertEqual(test_SPSet.smx, {'solvent': 'water'})
         self.assertEqual(test_SPSet.molecule, test_molecule)
 
+    def test_plots_init(self):
+        test_molecule = QCInput.from_file(
+            os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_SPSet = SinglePointSet(molecule=test_molecule, smd_solvent='water', plot_cubes=True)
+        self.assertEqual(
+            test_SPSet.rem, {
+                'job_type': 'sp',
+                'gen_scfman': 'true',
+                'basis': 'def2-tzvppd',
+                'max_scf_cycles': 200,
+                'method': 'wb97xd',
+                'scf_algorithm': 'diis',
+                'xc_grid': '3',
+                'solvent_method': 'smd',
+                'ideriv': '1',
+                'symmetry': 'false',
+                'sym_ignore': 'true',
+                'resp_charges': 'true',
+                'plots': 'true',
+                'make_cube_files': 'true'
+            })
+        self.assertEqual(
+            test_SPSet.plots, {
+                'grid_spacing': '0.05',
+                'total_density': '0'
+            })
+        self.assertEqual(test_SPSet.smx, {'solvent': 'water'})
+        self.assertEqual(test_SPSet.molecule, test_molecule)
+
 
 class FreqSetTest(PymatgenTest):
     def test_init(self):
