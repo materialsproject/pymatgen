@@ -1,15 +1,14 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
+"""
+Utilities for generating nicer plots.
+"""
 import math
 import numpy as np
 
 from pymatgen.core.periodic_table import Element
 
-"""
-Utilities for generating nicer plots.
-"""
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -155,7 +154,7 @@ def pretty_plot_two_axis(x, y1, y2, xlabel=None, y1label=None, y2label=None,
 
 
 def pretty_polyfit_plot(x, y, deg=1, xlabel=None, ylabel=None, **kwargs):
-    """
+    r"""
     Convenience method to plot data with trend lines based on polynomial fit.
 
     Args:
@@ -508,6 +507,7 @@ def add_fig_kwargs(func):
         tight_layout = kwargs.pop("tight_layout", False)
         ax_grid = kwargs.pop("ax_grid", None)
         ax_annotate = kwargs.pop("ax_annotate", None)
+        fig_close = kwargs.pop("fig_close", False)
 
         # Call func and return immediately if None is returned.
         fig = func(*args, **kwargs)
@@ -545,9 +545,11 @@ def add_fig_kwargs(func):
         if savefig:
             fig.savefig(savefig)
 
+        import matplotlib.pyplot as plt
         if show:
-            import matplotlib.pyplot as plt
             plt.show()
+        if fig_close:
+            plt.close(fig=fig)
 
         return fig
 
@@ -568,6 +570,7 @@ def add_fig_kwargs(func):
                           Default: None i.e. fig is left unchanged.
         ax_annotate       Add labels to  subplots e.g. (a), (b).
                           Default: False
+        fig_close         Close figure. Default: False.
         ================  ====================================================
 
 """

@@ -46,19 +46,28 @@ class Critic2OutputTest(unittest.TestCase):
     def setUp(self):
         stdout_file = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                                    'test_files/critic2/MoS2_critic2_stdout.txt')
+        stdout_file_new_format = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                                              'test_files/critic2/MoS2_critic2_stdout_new_format.txt')
         with open(stdout_file, 'r') as f:
             reference_stdout = f.read()
+        with open(stdout_file_new_format, 'r') as f:
+            reference_stdout_new_format = f.read()
 
         structure = Structure.from_file(os.path.join(os.path.dirname(__file__), "..", "..", "..",
                                                      'test_files/critic2/MoS2.cif'))
 
         self.c2o = Critic2Output(structure, reference_stdout)
+        self.c2o_new_format = Critic2Output(structure, reference_stdout_new_format)
 
     def test_properties_to_from_dict(self):
 
         self.assertEqual(len(self.c2o.critical_points), 6)
         self.assertEqual(len(self.c2o.nodes), 14)
         self.assertEqual(len(self.c2o.edges), 10)
+
+        self.assertEqual(len(self.c2o_new_format.critical_points), 6)
+        self.assertEqual(len(self.c2o_new_format.nodes), 14)
+        self.assertEqual(len(self.c2o_new_format.edges), 10)
 
         # reference dictionary for c2o.critical_points[0].as_dict()
         # {'@class': 'CriticalPoint',
@@ -90,6 +99,12 @@ class Critic2OutputTest(unittest.TestCase):
                                              'structure', 'critic2_stdout'})
         self.c2o.from_dict(d)
 
+    def test_graph_output(self):
+
+        sg = self.c2o.structure_graph()
+        self.assertEqual(str(sg.structure[3].specie), "bcp")
+
 
 if __name__ == '__main__':
+
     unittest.main()
