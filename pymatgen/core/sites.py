@@ -10,7 +10,9 @@ import collections
 import numpy as np
 from typing import Union, Dict, Tuple, List
 
+import json
 from monty.json import MSONable
+from monty.json import MontyDecoder, MontyEncoder
 from monty.dev import deprecated
 
 from pymatgen.core.lattice import Lattice
@@ -255,6 +257,7 @@ class Site(collections.abc.Hashable, MSONable):
         """
         Json-serializable dict representation for Site.
         """
+        
         species_list = []
         for spec, occu in self.species.items():
             d = spec.as_dict()
@@ -287,6 +290,8 @@ class Site(collections.abc.Hashable, MSONable):
                 sp = Element(sp_occu["element"])
             atoms_n_occu[sp] = sp_occu["occu"]
         props = d.get("properties", None)
+        for key in props.keys():
+            props[key] = json.loads( json.dumps(props[key], cls=MontyEncoder), cls=MontyDecoder)
         return cls(atoms_n_occu, d["xyz"], properties=props)
 
 
@@ -609,6 +614,7 @@ class PeriodicSite(Site, MSONable):
                 matrix representation. Set to 1 for more details such as
                 cartesian coordinates, etc.
         """
+        
         species_list = []
         for spec, occu in self._species.items():
             d = spec.as_dict()
@@ -626,8 +632,9 @@ class PeriodicSite(Site, MSONable):
         if verbosity > 0:
             d["xyz"] = [float(c) for c in self.coords]
             d["label"] = self.species_string
-
+        
         d["properties"] = self.properties
+        
         return d
 
     @classmethod
@@ -655,5 +662,7 @@ class PeriodicSite(Site, MSONable):
                 sp = Element(sp_occu["element"])
             species[sp] = sp_occu["occu"]
         props = d.get("properties", None)
+        for key in props.keys():
+            props[key] = json.loads( json.dumps(props[key], cls=MontyEncoder), cls=MontyDecoder)
         lattice = lattice if lattice else Lattice.from_dict(d["lattice"])
         return cls(species, d["abc"], lattice, properties=props)
