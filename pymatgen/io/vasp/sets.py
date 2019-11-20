@@ -511,7 +511,7 @@ class DictSet(VaspInputSet):
             return nelect
 
     @property
-    def kpoints(self) -> Kpoints or None:
+    def kpoints(self) -> Union[Kpoints,None]:
         """
         Returns a KPOINTS file using the fully automated grid method. Uses
         Gamma centered meshes for hexagonal cells and Monk grids otherwise.
@@ -527,7 +527,7 @@ class DictSet(VaspInputSet):
 
         # Return None if KSPACING is present in the INCAR, because this will
         # cause VASP to generate the KPOINTS file automatically
-        if self.user_incar_settings.get("KSPACING", None) is not None:
+        if self.user_incar_settings.get("KSPACING"):
             return None
 
         # If grid_density is in the kpoints_settings use
