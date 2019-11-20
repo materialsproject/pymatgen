@@ -47,6 +47,10 @@ from scipy.spatial import KDTree
 from pymatgen.io.vasp.outputs import Chgcar
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.core.periodic_table import DummySpecie
+from pymatgen.io.qchem.utils import read_table_pattern, read_pattern
+from pymatgen.analysis.graphs import MoleculeGraph, MolGraphSplitError
+from pymatgen.analysis.local_env import OpenBabelNN
+from pymatgen.analysis.fragmenter import metal_edge_extender
 from monty.os.path import which
 from monty.dev import requires
 from monty.json import MSONable
@@ -256,7 +260,7 @@ class CriticalPoint(MSONable):
     Access information about a critical point and the field values at that point.
     """
 
-    def __init__(self, index, type, frac_coords, point_group,
+    def __init__(self, index, mytype, frac_coords, point_group,
                  multiplicity, field, field_gradient,
                  coords=None, field_hessian=None):
         """
@@ -267,7 +271,7 @@ class CriticalPoint(MSONable):
         has information on multiplicity/point group symmetry.
 
         :param index: index of point
-        :param type: type of point, given as a string
+        :param mytype: type of point, given as a string
         :param coords: Cartesian co-ordinates in Angstroms
         :param frac_coords: fractional co-ordinates
         :param point_group: point group associated with critical point
@@ -277,7 +281,7 @@ class CriticalPoint(MSONable):
         :param field_hessian: hessian of field at point (del^2 f)
         """
         self.index = index
-        self._type = type
+        self._type = mytype
         self.coords = coords
         self.frac_coords = frac_coords
         self.point_group = point_group
@@ -480,13 +484,18 @@ class Critic2Output(MSONable):
         # information on that point can be retrieved if necessary.
 
         unique_critical_points = []
+        struct_type = None
 
         # parse unique critical points
         for i, line in enumerate(stdout):
-            if "mult  name            f             |grad|           lap" in line:
+            if "f             |grad|           lap" in line:
                 start_i = i + 1
             elif "* Analysis of system bonds" in line:
                 end_i = i - 2
+            if "Crystal structure" in line:
+                struct_type = "crystal"
+            elif "Molecular structure" in line:
+                struct_type = "molecule"
         # if start_i and end_i haven't been found, we
         # need to re-evaluate assumptions in this parser!
 
@@ -495,17 +504,26 @@ class Critic2Output(MSONable):
                 l = line.replace("(", "").replace(")", "").split()
 
                 unique_idx = int(l[0]) - 1
-                point_group = l[1]
-                # type = l[2]  # type from definition of critical point e.g. (3, -3)
-                type = l[3]  # type from name, e.g. nucleus
-                frac_coords = [float(l[4]), float(l[5]), float(l[6])]
-                multiplicity = float(l[7])
-                # name = float(l[8])
-                field = float(l[9])
-                field_gradient = float(l[10])
-                # laplacian = float(l[11])
+                if struct_type == "crystal":
+                    point_group = l[1]
+                    # type = l[2]  # type from definition of critical point e.g. (3, -3)
+                    mytype = l[3]  # type from name, e.g. nucleus
+                    frac_coords = [float(l[4]), float(l[5]), float(l[6])]
+                    multiplicity = float(l[7])
+                    # name = float(l[8])
+                    field = float(l[9])
+                    field_gradient = float(l[10])
+                    # laplacian = float(l[11])
+                elif struct_type == "molecule":
+                    mytype = l[2]  # type from name, e.g. nucleus
+                    coords = [float(l[3]), float(l[4]), float(l[5])]
+                    frac_coords = coords
+                    field = float(l[7])
+                    field_gradient = float(l[8])
+                    multiplicity = 1
+                    point_group = None
 
-                point = CriticalPoint(unique_idx, type, frac_coords, point_group,
+                point = CriticalPoint(unique_idx, mytype, frac_coords, point_group,
                                       multiplicity, field, field_gradient)
                 unique_critical_points.append(point)
 
@@ -525,13 +543,14 @@ class Critic2Output(MSONable):
         self.critical_points = unique_critical_points
 
         # parse graph connecting critical points
-        for i, line in enumerate(stdout):
-            if "#cp  ncp   typ        position " in line:
-                start_i = i + 1
-            elif "* Attractor connectivity matrix" in line:
-                end_i = i - 2
-        # if start_i and end_i haven't been found, we
-        # need to re-evaluate assumptions in this parser!
+        if struct_type == "crystal":
+            for i, line in enumerate(stdout):
+                if "#cp  ncp   typ        position " in line:
+                    start_i = i + 1
+                elif "* Attractor connectivity matrix" in line:
+                    end_i = i - 2
+            # if start_i and end_i haven't been found, we
+            # need to re-evaluate assumptions in this parser!
 
         # Order of nuclei provided by critic2 doesn't
         # necessarily match order of sites in Structure.
@@ -539,40 +558,81 @@ class Critic2Output(MSONable):
         # and re-index all nodes accordingly.
         node_mapping = {}  # critic2_index:structure_index
         # ensure frac coords are in [0,1] range
-        frac_coords = np.array(self.structure.frac_coords) % 1
-        kd = KDTree(frac_coords)
-        for i, line in enumerate(stdout):
-            if i >= start_i and i <= end_i:
-                l = line.split()
-                if l[2] == "n":
-                    critic2_idx = int(l[0]) - 1
-                    frac_coord = np.array([float(l[3]), float(l[4]), float(l[5])]) % 1
-                    node_mapping[critic2_idx] = kd.query(frac_coord)[1]
+        if struct_type == "crystal":
+            frac_coords = np.array(self.structure.frac_coords) % 1
+            kd = KDTree(frac_coords)
+            for i, line in enumerate(stdout):
+                if i >= start_i and i <= end_i:
+                    l = line.split()
+                    if l[2] == "n":
+                        critic2_idx = int(l[0]) - 1
+                        frac_coord = np.array([float(l[3]), float(l[4]), float(l[5])]) % 1
+                        node_mapping[critic2_idx] = kd.query(frac_coord)[1]
+        elif struct_type == "molecule":
+            coords = np.array([site.coords for site in self.structure])
+            kd = KDTree(coords)
+            for i, line in enumerate(stdout):
+                if i >= start_i and i <= end_i:
+                    l = line.split()
+                    if l[2] == "nucleus":
+                        critic2_idx = int(l[0]) - 1
+                        coord = np.array([float(l[3]), float(l[4]), float(l[5])])
+                        node_mapping[critic2_idx] = kd.query(coord)[1]
 
         if len(node_mapping) != len(self.structure):
             warnings.warn("Check that all sites in input structure have "
                           "been detected by critic2.")
 
-        def _remap(critic2_idx):
-            return node_mapping.get(critic2_idx, critic2_idx)
+        if struct_type == "crystal":
+            def _remap(critic2_idx):
+                return node_mapping.get(critic2_idx, critic2_idx)
 
-        for i, line in enumerate(stdout):
-            if i >= start_i and i <= end_i:
+            for i, line in enumerate(stdout):
+                if i >= start_i and i <= end_i:
 
-                l = line.replace("(", "").replace(")", "").split()
+                    l = line.replace("(", "").replace(")", "").split()
 
-                idx = _remap(int(l[0]) - 1)
-                unique_idx = int(l[1]) - 1
-                frac_coords = [float(l[3]), float(l[4]), float(l[5])]
+                    idx = _remap(int(l[0]) - 1)
+                    unique_idx = int(l[1]) - 1
+                    frac_coords = [float(l[3]), float(l[4]), float(l[5])]
 
-                self._add_node(idx, unique_idx, frac_coords)
-                if len(l) > 6:
-                    from_idx = _remap(int(l[6]) - 1)
-                    to_idx = _remap(int(l[10]) - 1)
-                    self._add_edge(idx, from_idx=from_idx, from_lvec=(int(l[7]), int(l[8]), int(l[9])),
-                                   to_idx=to_idx, to_lvec=(int(l[11]), int(l[12]), int(l[13])))
+                    self._add_node(idx, unique_idx, frac_coords)
+                    if len(l) > 6:
+                        from_idx = _remap(int(l[6]) - 1)
+                        to_idx = _remap(int(l[10]) - 1)
+                        self._add_edge(idx, from_idx=from_idx, from_lvec=(int(l[7]), int(l[8]), int(l[9])),
+                                       to_idx=to_idx, to_lvec=(int(l[11]), int(l[12]), int(l[13])))
 
-        self._map = node_mapping
+            self._map = node_mapping
+        elif struct_type == "molecule":
+            out_text = ""
+            for line in stdout:
+                out_text += line+"\n"
+            # print(out_text)
+            for key in node_mapping:
+                if node_mapping[key] != key:
+                    raise RuntimeError("Molecule that actually requires remapping found! Exiting...")
+            # header_pattern = r"# ncp\s+End-1\s+End-2\s+r1\(ang_\)\s+r2\(ang_\)\s+r1/r2\s+r1-B-r2\s+p1\(ang_\)\s+p2\(ang_\)"
+            header_pattern = r"# ncp\s+End-1\s+End-2\s+r1\(ang_\)\s+r2\(ang_\)\s+r1/r2\s+r1-B-r2\s+\(degree\)"
+            # table_pattern = r"\n \d+\s+[A-Z](?:[a-z]|\_) \((\d+)\)\s+[A-Z](?:[a-z]|\_) \((\d+)\)\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+) "
+            table_pattern = r"\n \d+\s+[A-Z](?:[a-z])* \((\d+)\)\s+[A-Z](?:[a-z])* \((\d+)\)\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)  "
+            footer_pattern = r"\n\* Analysis of system rings"
+            tmp_bonds = read_table_pattern(out_text, header_pattern,
+                                          table_pattern, footer_pattern)[0]
+            # real_bonds = [[int(entry[0])-1,int(entry[1])-1] for entry in tmp_bonds]
+            edges = {(int(entry[0])-1,int(entry[1])-1): None for entry in tmp_bonds}
+            # print(real_bonds)
+            # edges = {(e[0], e[1]): None for e in real_bonds}
+            mol_graph = MoleculeGraph.with_edges(self.structure, edges)
+            # print(mol_graph)
+            openbabel_molgraph = MoleculeGraph.with_local_env_strategy(self.structure, 
+                                                                       OpenBabelNN(),
+                                                                       reorder=False,
+                                                                       extend_structure=False)
+            openbabel_molgraph = metal_edge_extender(openbabel_molgraph)
+            # print(openbabel_molgraph)
+            print(mol_graph.isomorphic_to(openbabel_molgraph))
+            
 
     def _add_node(self, idx, unique_idx, frac_coords):
         """
