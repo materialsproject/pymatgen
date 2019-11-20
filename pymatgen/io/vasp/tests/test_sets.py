@@ -276,6 +276,9 @@ class MITMPRelaxSetTest(PymatgenTest):
         self.assertEqual(kpoints.kpts, [[2, 4, 5]])
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
 
+        kpoints = MPRelaxSet(self.structure,user_incar_settings={"KSPACING":0.22}).kpoints
+        self.assertEqual(kpoints,None)
+
     def test_get_vasp_input(self):
         d = self.mitset.get_vasp_input()
         self.assertEqual(d["INCAR"]["ISMEAR"], -5)
@@ -826,6 +829,12 @@ class MVLSlabSetTest(PymatgenTest):
         si = self.get_structure('Si')
         vis = MVLSlabSet(si, user_incar_settings={"AMIX": 0.1})
         self.assertEqual(vis.incar["AMIX"], 0.1)
+
+    def test_user_incar_kspacing(self):
+        # Make sure user KSPACING settings properly overrides KPOINTS.
+        si = self.get_structure('Si')
+        vis = MVLSlabSet(si, user_incar_settings={"KSPACING": 0.22})
+        self.assertEqual(vis.incar["KSPACING"], 0.22)
 
     def test_bulk(self):
         incar_bulk = self.d_bulk["INCAR"]

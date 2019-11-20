@@ -458,11 +458,21 @@ class DictSet(VaspInputSet):
         if self.use_structure_charge:
             incar["NELECT"] = self.nelect
 
-        # disable this check if KSPACING is in the INCAR file because
-        # no KPOINTS file is generated
-        if "KSPACING" not in settings.keys():
+        # Ensure adequate number of KPOINTS are present for the tetrahedron
+        # method (ISMEAR=-5). If KSPACING is in the INCAR file the number
+        # of kpoints is not known before calling VASP, but a warning is raised
+        # when the KSPACING value is > 0.5 (2 reciprocal Angstrom).
+        # An error handler in Custodian is available to
+        # correct overly large KSPACING values (small number of kpoints)
+        # if necessary. 
+        if "KSPACING" not in self.user_incar_settings.keys():
             if np.product(self.kpoints.kpts) < 4 and incar.get("ISMEAR", 0) == -5:
                 incar["ISMEAR"] = 0
+        
+        if self.user_incar_settings.get("KSPACING",0) > 0.5 and incar.get("ISMEAR",0 == -5):
+            warnings.warn("Large KSPACING value detected with ISMEAR = -5. Ensure that VASP "
+                              "generates an adequate number of KPOINTS, lower KSPACING, or "
+                              "set ISMEAR = 0", BadInputSetWarning)
 
         if all([k.is_metal for k in structure.composition.keys()]):
             if incar.get("NSW", 0) > 0 and incar.get("ISMEAR", 1) < 1:
@@ -501,7 +511,7 @@ class DictSet(VaspInputSet):
             return nelect
 
     @property
-    def kpoints(self) -> Kpoints:
+    def kpoints(self) -> Kpoints or None:
         """
         Returns a KPOINTS file using the fully automated grid method. Uses
         Gamma centered meshes for hexagonal cells and Monk grids otherwise.
@@ -517,7 +527,7 @@ class DictSet(VaspInputSet):
         
         # Return None if KSPACING is present in the INCAR, because this will
         # cause VASP to generate the KPOINTS file automatically
-        if self.incar.get("KSPACING",None) is not None:
+        if self.user_incar_settings.get("KSPACING",None) is not None:
             return None
 
         # If grid_density is in the kpoints_settings use
