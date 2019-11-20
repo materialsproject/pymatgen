@@ -511,7 +511,7 @@ class DictSet(VaspInputSet):
             return nelect
 
     @property
-    def kpoints(self) -> Union[Kpoints,None]:
+    def kpoints(self) -> Union[Kpoints, None]:
         """
         Returns a KPOINTS file using the fully automated grid method. Uses
         Gamma centered meshes for hexagonal cells and Monk grids otherwise.
@@ -762,7 +762,7 @@ class MPStaticSet(MPRelaxSet):
         return incar
 
     @property
-    def kpoints(self) -> Kpoints:
+    def kpoints(self) -> Union[Kpoints, None]:
         """
         :return: Kpoints
         """
