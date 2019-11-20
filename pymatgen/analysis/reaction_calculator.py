@@ -502,7 +502,6 @@ class ComputedReaction(Reaction):
                     coeff = self._coeffs[self._all_comp.index(comp)]
                     if abs(coeff) <= self.TOLERANCE:
                         coeff = 0
-
                     error = sqrt((e * coeff) ** 2 + error ** 2)
             except KeyError:
                 pass
