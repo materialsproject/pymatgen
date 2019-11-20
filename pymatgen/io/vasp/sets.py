@@ -429,7 +429,7 @@ class DictSet(VaspInputSet):
                 if "EDIFF" not in settings and k == "EDIFF_PER_ATOM":
                     incar["EDIFF"] = float(v) * structure.num_sites
                 else:
-                    incar["EDIFF"] = float(settings["EDIFF"])   
+                    incar["EDIFF"] = float(settings["EDIFF"])
             else:
                 incar[k] = v
 
@@ -464,15 +464,15 @@ class DictSet(VaspInputSet):
         # when the KSPACING value is > 0.5 (2 reciprocal Angstrom).
         # An error handler in Custodian is available to
         # correct overly large KSPACING values (small number of kpoints)
-        # if necessary. 
+        # if necessary.
         if "KSPACING" not in self.user_incar_settings.keys():
             if np.product(self.kpoints.kpts) < 4 and incar.get("ISMEAR", 0) == -5:
                 incar["ISMEAR"] = 0
-        
+
         if self.user_incar_settings.get("KSPACING", 0) > 0.5 and incar.get("ISMEAR", 0 == -5):
             warnings.warn("Large KSPACING value detected with ISMEAR = -5. Ensure that VASP "
-                            "generates an adequate number of KPOINTS, lower KSPACING, or "
-                            "set ISMEAR = 0", BadInputSetWarning)
+                          "generates an adequate number of KPOINTS, lower KSPACING, or "
+                          "set ISMEAR = 0", BadInputSetWarning)
 
         if all([k.is_metal for k in structure.composition.keys()]):
             if incar.get("NSW", 0) > 0 and incar.get("ISMEAR", 1) < 1:
@@ -524,7 +524,7 @@ class DictSet(VaspInputSet):
 
         if isinstance(settings, Kpoints):
             return settings
-        
+
         # Return None if KSPACING is present in the INCAR, because this will
         # cause VASP to generate the KPOINTS file automatically
         if self.user_incar_settings.get("KSPACING", None) is not None:
