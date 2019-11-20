@@ -276,8 +276,8 @@ class MITMPRelaxSetTest(PymatgenTest):
         self.assertEqual(kpoints.kpts, [[2, 4, 5]])
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
 
-        kpoints = MPRelaxSet(self.structure,user_incar_settings={"KSPACING":0.22}).kpoints
-        self.assertEqual(kpoints,None)
+        kpoints = MPRelaxSet(self.structure, user_incar_settings={"KSPACING": 0.22}).kpoints
+        self.assertEqual(kpoints, None)
 
     def test_get_vasp_input(self):
         d = self.mitset.get_vasp_input()
