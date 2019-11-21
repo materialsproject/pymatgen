@@ -276,9 +276,6 @@ class MITMPRelaxSetTest(PymatgenTest):
         self.assertEqual(kpoints.kpts, [[2, 4, 5]])
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
 
-        kpoints = MPRelaxSet(self.structure, user_incar_settings={"KSPACING": 0.22}).kpoints
-        self.assertEqual(kpoints, None)
-
     def test_get_vasp_input(self):
         d = self.mitset.get_vasp_input()
         self.assertEqual(d["INCAR"]["ISMEAR"], -5)
@@ -391,6 +388,22 @@ class MPStaticSetTest(PymatgenTest):
         lcalcpol_vis = MPStaticSet.from_prev_calc(prev_calc_dir=prev_run,
                                                   lcalcpol=True)
         self.assertTrue(lcalcpol_vis.incar["LCALCPOL"])
+
+    def test_user_incar_kspacing(self):
+        # Make sure user KSPACING settings properly overrides KPOINTS.
+        si = self.get_structure('Si')
+        vis = MPRelaxSet(si, user_incar_settings={"KSPACING": 0.22})
+        self.assertEqual(vis.incar["KSPACING"], 0.22)
+        self.assertEqual(vis.kpoints, None)
+
+    def test_kspacing_overridce(self):
+        # If KSPACING is set and user_kpoints_settings are given,
+        # make sure the user_kpoints_settings override KSPACING
+        si = self.get_structure('Si')
+        vis = MPRelaxSet(si, user_incar_settings={"KSPACING": 0.22},
+                         user_kpoints_settings={"reciprocal_density": 1000})
+        self.assertEqual(vis.incar.get("KSPACING"), None)
+        self.assertIsInstance(vis.kpoints, Kpoints)
 
     def test_override_from_prev_calc(self):
         # test override_from_prev
@@ -829,12 +842,6 @@ class MVLSlabSetTest(PymatgenTest):
         si = self.get_structure('Si')
         vis = MVLSlabSet(si, user_incar_settings={"AMIX": 0.1})
         self.assertEqual(vis.incar["AMIX"], 0.1)
-
-    def test_user_incar_kspacing(self):
-        # Make sure user KSPACING settings properly overrides KPOINTS.
-        si = self.get_structure('Si')
-        vis = MVLSlabSet(si, user_incar_settings={"KSPACING": 0.22})
-        self.assertEqual(vis.incar["KSPACING"], 0.22)
 
     def test_bulk(self):
         incar_bulk = self.d_bulk["INCAR"]
