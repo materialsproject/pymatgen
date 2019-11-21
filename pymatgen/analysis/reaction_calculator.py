@@ -2,6 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module provides classes that define a chemical reaction.
+"""
 
 import logging
 import numpy as np
@@ -15,11 +18,6 @@ from monty.fractions import gcd_float
 from math import sqrt
 
 import itertools
-
-"""
-This module provides classes that define a chemical reaction.
-"""
-
 
 __author__ = "Shyue Ping Ong, Anubhav Jain"
 __copyright__ = "Copyright 2011, The Materials Project"
