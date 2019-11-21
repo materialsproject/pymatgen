@@ -51,6 +51,7 @@ from pymatgen.io.qchem.utils import read_table_pattern, read_pattern
 from pymatgen.analysis.graphs import MoleculeGraph, MolGraphSplitError
 from pymatgen.analysis.local_env import OpenBabelNN
 from pymatgen.analysis.fragmenter import metal_edge_extender
+from monty.serialization import loadfn, dumpfn
 from monty.os.path import which
 from monty.dev import requires
 from monty.json import MSONable
@@ -608,7 +609,7 @@ class Critic2Output(MSONable):
             out_text = ""
             for line in stdout:
                 out_text += line+"\n"
-            print(out_text)
+            # print(out_text)
             for key in node_mapping:
                 if node_mapping[key] != key:
                     raise RuntimeError("Molecule that actually requires remapping found! Exiting...")
@@ -619,10 +620,26 @@ class Critic2Output(MSONable):
             footer_pattern = r"\n\* Analysis of system rings"
             tmp_bonds = read_table_pattern(out_text, header_pattern,
                                           table_pattern, footer_pattern)[0]
-            # real_bonds = [[int(entry[0])-1,int(entry[1])-1] for entry in tmp_bonds]
-            edges = {(int(entry[0])-1,int(entry[1])-1): None for entry in tmp_bonds}
+            bonds = [[int(entry[0])-1,int(entry[1])-1] for entry in tmp_bonds]
+            # # edges = {(int(entry[0])-1,int(entry[1])-1): None for entry in tmp_bonds}
+            # # edges = {(int(entry[0])-1,int(entry[1])-1): None for entry in tmp_bonds}
+            # # # print(real_bonds)
+            # edges = {(e[0], e[1]): None for e in bonds}
+            # mol_graph = MoleculeGraph.with_edges(self.structure, edges)
+            # # print(mol_graph)
+            # openbabel_molgraph = MoleculeGraph.with_local_env_strategy(self.structure, 
+            #                                                            OpenBabelNN(),
+            #                                                            reorder=False,
+            #                                                            extend_structure=False)
+            # openbabel_molgraph = metal_edge_extender(openbabel_molgraph)
+            # # print(openbabel_molgraph)
+            # print(mol_graph.isomorphic_to(openbabel_molgraph))
+            charges = np.zeros(len(self.structure),dtype=float)
             return_dict = {}
-            return_dict["edges"] = edges
+            return_dict["bonds"] = bonds
+            return_dict["charges"] = charges
+            dumpfn(return_dict,"../processed_critic2.json")
+
             
 
     def _add_node(self, idx, unique_idx, frac_coords):
