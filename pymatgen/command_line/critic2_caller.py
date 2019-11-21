@@ -608,30 +608,21 @@ class Critic2Output(MSONable):
             out_text = ""
             for line in stdout:
                 out_text += line+"\n"
-            # print(out_text)
+            print(out_text)
             for key in node_mapping:
                 if node_mapping[key] != key:
                     raise RuntimeError("Molecule that actually requires remapping found! Exiting...")
-            # header_pattern = r"# ncp\s+End-1\s+End-2\s+r1\(ang_\)\s+r2\(ang_\)\s+r1/r2\s+r1-B-r2\s+p1\(ang_\)\s+p2\(ang_\)"
-            header_pattern = r"# ncp\s+End-1\s+End-2\s+r1\(ang_\)\s+r2\(ang_\)\s+r1/r2\s+r1-B-r2\s+\(degree\)"
-            # table_pattern = r"\n \d+\s+[A-Z](?:[a-z]|\_) \((\d+)\)\s+[A-Z](?:[a-z]|\_) \((\d+)\)\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+) "
-            table_pattern = r"\n \d+\s+[A-Z](?:[a-z])* \((\d+)\)\s+[A-Z](?:[a-z])* \((\d+)\)\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)  "
+            header_pattern = r"# ncp\s+End-1\s+End-2\s+r1\(ang_\)\s+r2\(ang_\)\s+r1/r2\s+r1-B-r2\s+p1\(ang_\)\s+p2\(ang_\)"
+            # header_pattern = r"# ncp\s+End-1\s+End-2\s+r1\(ang_\)\s+r2\(ang_\)\s+r1/r2\s+r1-B-r2\s+\(degree\)"
+            table_pattern = r"\n \d+\s+[A-Z](?:[a-z]|\_) \((\d+)\)\s+[A-Z](?:[a-z]|\_) \((\d+)\)\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+) "
+            # table_pattern = r"\n \d+\s+[A-Z](?:[a-z])* \((\d+)\)\s+[A-Z](?:[a-z])* \((\d+)\)\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)  "
             footer_pattern = r"\n\* Analysis of system rings"
             tmp_bonds = read_table_pattern(out_text, header_pattern,
                                           table_pattern, footer_pattern)[0]
             # real_bonds = [[int(entry[0])-1,int(entry[1])-1] for entry in tmp_bonds]
             edges = {(int(entry[0])-1,int(entry[1])-1): None for entry in tmp_bonds}
-            # print(real_bonds)
-            # edges = {(e[0], e[1]): None for e in real_bonds}
-            mol_graph = MoleculeGraph.with_edges(self.structure, edges)
-            # print(mol_graph)
-            openbabel_molgraph = MoleculeGraph.with_local_env_strategy(self.structure, 
-                                                                       OpenBabelNN(),
-                                                                       reorder=False,
-                                                                       extend_structure=False)
-            openbabel_molgraph = metal_edge_extender(openbabel_molgraph)
-            # print(openbabel_molgraph)
-            print(mol_graph.isomorphic_to(openbabel_molgraph))
+            return_dict = {}
+            return_dict["edges"] = edges
             
 
     def _add_node(self, idx, unique_idx, frac_coords):
