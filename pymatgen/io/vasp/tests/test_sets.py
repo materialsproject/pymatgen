@@ -396,7 +396,7 @@ class MPStaticSetTest(PymatgenTest):
         self.assertEqual(vis.incar["KSPACING"], 0.22)
         self.assertEqual(vis.kpoints, None)
 
-    def test_kspacing_overridce(self):
+    def test_kspacing_override(self):
         # If KSPACING is set and user_kpoints_settings are given,
         # make sure the user_kpoints_settings override KSPACING
         si = self.get_structure('Si')
