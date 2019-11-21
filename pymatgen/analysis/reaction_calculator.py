@@ -262,7 +262,10 @@ class BalancedReaction(MSONable):
         entry.name = self.__str__()
         return entry
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
+        """
+        :return: MSONable dict.
+        """
         return {
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
@@ -275,7 +278,11 @@ class BalancedReaction(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, d) -> 'BalancedReaction':
+        """
+        :param d: Dict representation.
+        :return: BalancedReaction
+        """
         reactants = {Composition(comp): coeff for comp, coeff in d["reactants"].items()}
         products = {Composition(comp): coeff for comp, coeff in d["products"].items()}
         return cls(reactants, products)
@@ -403,7 +410,10 @@ class Reaction(BalancedReaction):
         """
         return Reaction(self.reactants, self.products)
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
+        """
+        :return: MSONable dict.
+        """
         return {
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
@@ -412,7 +422,11 @@ class Reaction(BalancedReaction):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, d) -> 'Reaction':
+        """
+        :param d: Dict representation.
+        :return: Reaction
+        """
         reactants = [Composition(sym_amt) for sym_amt in d["reactants"]]
         products = [Composition(sym_amt) for sym_amt in d["products"]]
         return cls(reactants, products)
@@ -425,6 +439,10 @@ class ReactionError(Exception):
     """
 
     def __init__(self, msg):
+        """
+        Args:
+            msg: Exception message
+        """
         self.msg = msg
 
     def __str__(self):
@@ -477,6 +495,9 @@ class ComputedReaction(Reaction):
 
     @property
     def calculated_reaction_energy(self):
+        """
+        Calculates the energy of the reaction based on the energy of the products and reactants
+        """
         calc_energies = {}
 
         for entry in self._reactant_entries + self._product_entries:
@@ -489,6 +510,10 @@ class ComputedReaction(Reaction):
 
     @property
     def calculated_reaction_energy_uncertainty(self):
+        """
+        Calculates the uncertainty in the reaction energy based on the uncertainty in the 
+        energies of the products and reactants
+        """
 
         error = 0
 
@@ -508,7 +533,10 @@ class ComputedReaction(Reaction):
 
         return error
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
+        """
+        :return: MSONable dict.
+        """
         return {
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
@@ -517,7 +545,11 @@ class ComputedReaction(Reaction):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, d) -> 'ComputedReaction':
+        """
+        :param d: Dict representation.
+        :return: ComputedReaction
+        """
         dec = MontyDecoder()
         reactants = [dec.process_decoded(e) for e in d["reactants"]]
         products = [dec.process_decoded(e) for e in d["products"]]

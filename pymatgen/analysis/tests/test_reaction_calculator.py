@@ -13,7 +13,6 @@ from pymatgen.analysis.reaction_calculator import (
     ComputedReaction,
 )
 from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 
 
 class ReactionTest(unittest.TestCase):
@@ -383,6 +382,52 @@ class ComputedReactionTest(unittest.TestCase):
             },
             {
                 "correction": 0.0,
+                "data": {},
+                "energy": -577.94689128,
+                "parameters": {},
+                "composition": {"O": 32, "Li": 64},
+            },
+            {
+                "correction": 0.0,
+                "data": {},
+                "energy": -17.02844794,
+                "parameters": {},
+                "composition": {"O": 2},
+            },
+            {
+                "correction": 0.0,
+                "data": {},
+                "energy": -959.64693323,
+                "parameters": {},
+                "composition": {"O": 72, "Li": 72},
+            },
+        ]
+        entries = []
+        for e in d:
+            entries.append(ComputedEntry.from_dict(e))
+        rcts = list(
+            filter(lambda e: e.composition.reduced_formula in ["Li", "O2"], entries)
+        )
+        prods = list(
+            filter(lambda e: e.composition.reduced_formula == "Li2O2", entries)
+        )
+
+        self.rxn = ComputedReaction(rcts, prods)
+
+    def test_calculated_reaction_energy(self):
+        self.assertAlmostEqual(self.rxn.calculated_reaction_energy, -5.60748821935)
+
+    def test_calculated_reaction_energy_uncertainty(self):
+        d = [
+            {
+                "correction": 0.0,
+                "data": {},
+                "energy": -108.56492362,
+                "parameters": {},
+                "composition": {"Li": 54},
+            },
+            {
+                "correction": 0.0,
                 "data": {"correction_uncertainty": 64 * 0.731},
                 "energy": -577.94689128,
                 "parameters": {},
@@ -413,15 +458,15 @@ class ComputedReactionTest(unittest.TestCase):
             filter(lambda e: e.composition.reduced_formula == "Li2O2", entries)
         )
 
-        self.rxn = ComputedReaction(rcts, prods)
-
-    def test_calculated_reaction_energy(self):
-        self.assertAlmostEqual(self.rxn.calculated_reaction_energy, -5.60748821935)
-
-    def test_calculated_reaction_energy_uncertainty(self):
+        rxn_with_uncertainty = ComputedReaction(rcts, prods)
         self.assertAlmostEqual(
-            self.rxn.calculated_reaction_energy_uncertainty, 2 * 0.731
+            rxn_with_uncertainty.calculated_reaction_energy_uncertainty, 2 * 0.731
         )
+
+    def test_calculated_reaction_energy_uncertainty_for_no_uncertainty(self):
+        # test that reaction_energy_uncertainty property doesn't cause errors
+        # when products/reactants have no uncertainties
+        self.assertAlmostEqual(self.rxn.calculated_reaction_energy_uncertainty, 0)
 
     def test_init(self):
         self.assertEqual(str(self.rxn), "O2 + 2 Li -> Li2O2")
