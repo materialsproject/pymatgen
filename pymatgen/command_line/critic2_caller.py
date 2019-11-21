@@ -638,8 +638,8 @@ class Critic2Output(MSONable):
             return_dict = {}
             return_dict["bonds"] = bonds
             return_dict["charges"] = charges
-            dumpfn(return_dict,"../processed_critic2.json")
-
+            # dumpfn(return_dict,"../processed_critic2.json")
+            return return_dict
             
 
     def _add_node(self, idx, unique_idx, frac_coords):
