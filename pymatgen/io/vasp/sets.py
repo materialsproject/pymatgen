@@ -47,7 +47,7 @@ import warnings
 from itertools import chain
 from copy import deepcopy
 from pathlib import Path
-from typing import List, Union
+from typing import List, Union, Optional
 import numpy as np
 from monty.serialization import loadfn
 from monty.io import zopen
@@ -777,7 +777,7 @@ class MPStaticSet(MPRelaxSet):
         return incar
 
     @property
-    def kpoints(self) -> Union[Kpoints, None]:
+    def kpoints(self) -> Optional[Kpoints]:
         """
         :return: Kpoints
         """
@@ -1106,7 +1106,7 @@ class MPNonSCFSet(MPRelaxSet):
         return incar
 
     @property
-    def kpoints(self) -> Union[Kpoints, None]:
+    def kpoints(self) -> Optional[Kpoints]:
         """
         :return: Kpoints
         """
