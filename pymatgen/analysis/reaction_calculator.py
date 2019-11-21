@@ -278,7 +278,7 @@ class BalancedReaction(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d) -> 'BalancedReaction':
+    def from_dict(cls, d) -> "BalancedReaction":
         """
         :param d: Dict representation.
         :return: BalancedReaction
@@ -422,7 +422,7 @@ class Reaction(BalancedReaction):
         }
 
     @classmethod
-    def from_dict(cls, d) -> 'Reaction':
+    def from_dict(cls, d) -> "Reaction":
         """
         :param d: Dict representation.
         :return: Reaction
@@ -511,7 +511,7 @@ class ComputedReaction(Reaction):
     @property
     def calculated_reaction_energy_uncertainty(self):
         """
-        Calculates the uncertainty in the reaction energy based on the uncertainty in the 
+        Calculates the uncertainty in the reaction energy based on the uncertainty in the
         energies of the products and reactants
         """
 
@@ -545,7 +545,7 @@ class ComputedReaction(Reaction):
         }
 
     @classmethod
-    def from_dict(cls, d) -> 'ComputedReaction':
+    def from_dict(cls, d) -> "ComputedReaction":
         """
         :param d: Dict representation.
         :return: ComputedReaction
