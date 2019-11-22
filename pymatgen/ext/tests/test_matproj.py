@@ -399,7 +399,7 @@ class MPResterTest(PymatgenTest):
 
     def test_download_info(self):
         material_ids = ['mp-32800', 'mp-23494']
-        task_types = [TaskType.GGA_OPT, TaskType.GGA_LINE]
+        task_types = [TaskType.GGA_OPT, TaskType.GGA_UNIFORM]
         file_patterns = ['vasprun*', 'OUTCAR*']
         meta, urls = self.rester.get_download_info(
             material_ids, task_types=task_types,
@@ -407,16 +407,19 @@ class MPResterTest(PymatgenTest):
         )
         self.assertEqual(meta, {
             'mp-23494': [
+                {'task_id': 'mp-669929', 'task_type': 'GGA NSCF Uniform'},
                 {'task_id': 'mp-23494', 'task_type': 'GGA Structure Optimization'},
-                {'task_id': 'mp-688563', 'task_type': 'GGA NSCF Line'}
+                #{'task_id': 'mp-688563', 'task_type': 'GGA NSCF Line'},
             ],
             'mp-32800': [
+                {'task_id': 'mp-739635', 'task_type': 'GGA NSCF Uniform'},
                 {'task_id': 'mp-32800', 'task_type': 'GGA Structure Optimization'},
-                {'task_id': 'mp-746913', 'task_type': 'GGA NSCF Line'}
+                #{'task_id': 'mp-746913', 'task_type': 'GGA NSCF Line'},
             ]
         })
         prefix = 'http://labdev-nomad.esc.rzg.mpg.de/fairdi/nomad/mp/api/raw/query?'
-        ids = 'mp-23494,mp-688563,mp-32800,mp-746913'
+        #ids = 'mp-23494,mp-688563,mp-32800,mp-746913'
+        ids = 'mp-669929,mp-23494,mp-739635,mp-32800'
         self.assertEqual(
             urls[0], f'{prefix}file_pattern=vasprun*&file_pattern=OUTCAR*&external_id={ids}'
         )
