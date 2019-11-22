@@ -79,8 +79,15 @@ class VasprunTest(PymatgenTest):
                                        UserWarning))
 
     def test_runtype(self):
+
+        v = Vasprun(self.TEST_FILES_DIR / "vasprun.GW0.xml")
+        self.assertIn(v.run_type, "HF")
+
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.hse06")
         self.assertIn(v.run_type, "HSE06")
+
+        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.scan_rvv10")
+        self.assertIn(v.run_type, "SCAN+rVV10")
 
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.dfpt.ionic")
         self.assertIn(v.run_type, "GGA")
