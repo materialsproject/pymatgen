@@ -2178,13 +2178,18 @@ class MVLScanRelaxSet(MPRelaxSet):
         super().__init__(structure, potcar_functional=potcar_functional,
                          **kwargs)
 
-        self._config_dict["INCAR"].update({"ADDGRID": True,
-                                           "EDIFF": 1e-05,
-                                           "EDIFFG": -0.05,
-                                           "LASPH": True,
-                                           "LDAU": False,
-                                           "METAGGA": "SCAN",
-                                           "NELM": 200})
+        updates = {"ADDGRID": True,
+                   "EDIFF": 1e-05,
+                   "EDIFFG": -0.05,
+                   "LASPH": True,
+                   "LDAU": False,
+                   "METAGGA": "SCAN",
+                   "NELM": 200}
+
+        if kwargs.get("vdw", "").lower() == "rvv10":
+            updates["BPARAM"] = 15.7  # This is the correct BPARAM for SCAN+rVV10
+
+        self._config_dict["INCAR"].update(updates)
 
 
 class LobsterSet(MPRelaxSet):

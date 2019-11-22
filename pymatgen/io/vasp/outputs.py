@@ -654,7 +654,7 @@ class Vasprun(MSONable):
         TODO: Fix for other functional types like PW91, other vdW types, etc.
         """
         GGA_TYPES = {"RE": "revPBE", "PE": "PBE", "PS": "PBESol", "RP": "RevPBE+PADE", "AM": "AM05", "OR": "optPBE",
-                     "BO": "optB88", "MK": "optB86b", "--": "None or LDA"}
+                     "BO": "optB88", "MK": "optB86b", "--": "GGA"}
 
         METAGGA_TYPES = {"TPSS": "TPSS", "RTPSS": "revTPSS", "M06L": "M06-L", "MBJ": "modified Becke-Johnson",
                          "SCAN": "SCAN", "MS0": "MadeSimple0", "MS1": "MadeSimple1", "MS2": "MadeSimple2"}
@@ -669,15 +669,13 @@ class Vasprun(MSONable):
             rt = "B3LYP"
         elif self.parameters.get("LHFCALC", True):
             rt = "PBEO or other Hybrid Functional"
-        elif self.parameters.get("BPARAM", 15.70) == 15.70 and self.parameters.get("LUSE_VDW", True):
+        elif self.parameters.get("LUSE_VDW", False):
             if self.incar.get("METAGGA", "").strip().upper() in METAGGA_TYPES:
-                rt = GGA_TYPES[self.parameters.get("GGA", "").strip().upper()] + "+" + \
-                     METAGGA_TYPES[self.incar.get("METAGGA", "").strip().upper()] + "+rVV10"
+                rt = METAGGA_TYPES[self.incar.get("METAGGA", "").strip().upper()] + "+rVV10"
             else:
                 rt = GGA_TYPES[self.parameters.get("GGA", "").strip().upper()] + "+rVV10"
         elif self.incar.get("METAGGA", "").strip().upper() in METAGGA_TYPES:
-            rt = GGA_TYPES[self.parameters.get("GGA", "").strip().upper()] + "+" + \
-                 METAGGA_TYPES[self.incar.get("METAGGA", "").strip().upper()]
+            rt = METAGGA_TYPES[self.incar.get("METAGGA", "").strip().upper()]
             if self.is_hubbard or self.parameters.get("LDAU", True):
                 rt += "+U"
         elif self.potcar_symbols[0].split()[0] == 'PAW':
