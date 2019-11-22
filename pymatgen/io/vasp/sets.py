@@ -2186,8 +2186,8 @@ class MVLScanRelaxSet(MPRelaxSet):
                    "METAGGA": "SCAN",
                    "NELM": 200}
 
-        if kwargs.get("vdw","").lower() == "rvv10":
-            updates["BPARAM"] = 15.7 # This is the correct BPARAM for SCAN+rVV10
+        if kwargs.get("vdw", "").lower() == "rvv10":
+            updates["BPARAM"] = 15.7  # This is the correct BPARAM for SCAN+rVV10
 
         self._config_dict["INCAR"].update(updates)
 
