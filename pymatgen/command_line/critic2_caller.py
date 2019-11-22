@@ -361,7 +361,7 @@ class Critic2Output(MSONable):
 
         self.nodes = {}
         self.edges = {}
-        self.processed_dict
+        self.processed_dict = {}
 
         self._parse_stdout(critic2_stdout)
 
