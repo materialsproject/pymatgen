@@ -11,6 +11,8 @@ of single sites in molecules and structures.
 import math
 import warnings
 from collections import namedtuple, defaultdict
+from functools import lru_cache
+from typing import Union
 
 import ruamel.yaml as yaml
 import os
@@ -48,7 +50,7 @@ from monty.serialization import loadfn
 from bisect import bisect_left
 from scipy.spatial import Voronoi
 
-from pymatgen import Element
+from pymatgen import Element, Structure, IStructure
 from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
 
 _directory = os.path.join(os.path.dirname(__file__))
@@ -1544,8 +1546,7 @@ class MinimumVIRENN(NearNeighbors):
                 of which represents a neighbor site, its image location,
                 and its weight.
         """
-
-        vire = ValenceIonicRadiusEvaluator(structure)
+        vire = _get_vire(structure)
         site = vire.structure[n]
         neighs_dists = vire.structure.get_neighbors(site, self.cutoff)
         rn = vire.radii[vire.structure[n].species_string]
@@ -1568,6 +1569,38 @@ class MinimumVIRENN(NearNeighbors):
                                 vire.structure, s)})
 
         return siw
+
+
+def _get_vire(structure: Union[Structure, IStructure]):
+    """Get the ValenceIonicRadiusEvaluator object for an structure taking
+    advantage of caching.
+
+    Args:
+        structure: A structure.
+
+    Returns:
+        Output of `ValenceIonicRadiusEvaluator(structure)`
+    """
+    # pymatgen does not hash Structure objects, so we need
+    # to cast from Structure to the immutable IStructure
+    if isinstance(structure, Structure):
+        structure = IStructure.from_sites(structure)
+
+    return _get_vire_istructure(structure)
+
+
+@lru_cache(maxsize=1)
+def _get_vire_istructure(structure: IStructure):
+    """Get the ValenceIonicRadiusEvaluator object for an immutable structure
+    taking advantage of caching.
+
+    Args:
+        structure: A structure.
+
+    Returns:
+        Output of `ValenceIonicRadiusEvaluator(structure)`
+    """
+    return ValenceIonicRadiusEvaluator(structure)
 
 
 def solid_angle(center, coords):

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.vasp.outputs module &#8212; pymatgen 2019.10.4 documentation</title>
+    <title>pymatgen.io.vasp.outputs module &#8212; pymatgen 2019.11.11 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -175,6 +175,89 @@ but there may be pathological cases.</p></li>
 <dt id="pymatgen.io.vasp.outputs.Dynmat.nspecs">
 <em class="property">property </em><code class="sig-name descname">nspecs</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Dynmat.nspecs" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns the number of species</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.vasp.outputs.Eigenval">
+<em class="property">class </em><code class="sig-name descname">Eigenval</code><span class="sig-paren">(</span><em class="sig-param">filename</em>, <em class="sig-param">occu_tol=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Eigenval"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Eigenval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Object for reading EIGENVAL file.</p>
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.outputs.Eigenval.filename">
+<code class="sig-name descname">filename</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Eigenval.filename" title="Permalink to this definition">¶</a></dt>
+<dd><p>string containing input filename</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.outputs.Eigenval.occu_tol">
+<code class="sig-name descname">occu_tol</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Eigenval.occu_tol" title="Permalink to this definition">¶</a></dt>
+<dd><p>tolerance for determining occupation in band properties</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.outputs.Eigenval.ispin">
+<code class="sig-name descname">ispin</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Eigenval.ispin" title="Permalink to this definition">¶</a></dt>
+<dd><p>spin polarization tag (int)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.outputs.Eigenval.nelect">
+<code class="sig-name descname">nelect</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Eigenval.nelect" title="Permalink to this definition">¶</a></dt>
+<dd><p>number of electrons</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.outputs.Eigenval.nkpt">
+<code class="sig-name descname">nkpt</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Eigenval.nkpt" title="Permalink to this definition">¶</a></dt>
+<dd><p>number of kpoints</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.outputs.Eigenval.nbands">
+<code class="sig-name descname">nbands</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Eigenval.nbands" title="Permalink to this definition">¶</a></dt>
+<dd><p>number of bands</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.outputs.Eigenval.kpoints">
+<code class="sig-name descname">kpoints</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Eigenval.kpoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of kpoints</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.outputs.Eigenval.kpoints_weights">
+<code class="sig-name descname">kpoints_weights</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Eigenval.kpoints_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p>weights of each kpoint in the BZ, should sum to 1.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.outputs.Eigenval.eigenvalues">
+<code class="sig-name descname">eigenvalues</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Eigenval.eigenvalues" title="Permalink to this definition">¶</a></dt>
+<dd><p>Eigenvalues as a dict of {(spin): np.ndarray(shape=(nkpt, nbands, 2))}.
+This representation is based on actual ordering in VASP and is meant as
+an intermediate representation to be converted into proper objects. The
+kpoint index is 0-based (unlike the 1-based indexing in VASP).</p>
+</dd></dl>
+
+<p>Reads input from filename to construct Eigenval object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – filename of EIGENVAL to read in</p></li>
+<li><p><strong>occu_tol</strong> (<em>float</em>) – tolerance for determining band gap</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a pymatgen.io.vasp.outputs.Eigenval object</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.io.vasp.outputs.Eigenval.eigenvalue_band_properties">
+<em class="property">property </em><code class="sig-name descname">eigenvalue_band_properties</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Eigenval.eigenvalue_band_properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Band properties from the eigenvalues as a tuple,
+(band gap, cbm, vbm, is_band_gap_direct).</p>
 </dd></dl>
 
 </dd></dl>
@@ -2087,13 +2170,13 @@ any. Note that this is sometimes very large</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

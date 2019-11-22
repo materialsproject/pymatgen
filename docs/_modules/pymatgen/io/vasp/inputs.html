@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.vasp.inputs &#8212; pymatgen 2019.10.4 documentation</title>
+    <title>pymatgen.io.vasp.inputs &#8212; pymatgen 2019.11.11 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -142,24 +142,34 @@
 <span class="sd">        to -1 (MB hasn&quot;t been performed).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">selective_dynamics</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">true_names</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">velocities</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">predictor_corrector</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">predictor_corrector_preamble</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">structure</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span>
+                 <span class="n">comment</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">selective_dynamics</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">true_names</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                 <span class="n">velocities</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">predictor_corrector</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">predictor_corrector_preamble</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">sort_structure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Args:</span>
-<span class="sd">            structure (Structure):  Structure object.</span>
-<span class="sd">            comment (str): Optional comment line for POSCAR. Defaults to unit</span>
-<span class="sd">                cell formula of structure. Defaults to None.</span>
-<span class="sd">            selective_dynamics (Nx3 array): bool values for selective dynamics,</span>
-<span class="sd">                where N is number of sites. Defaults to None.</span>
-<span class="sd">            true_names (bool): Set to False is the names in the POSCAR are not</span>
-<span class="sd">                well-defined and ambiguous. This situation arises commonly in</span>
-<span class="sd">                vasp &lt; 5 where the POSCAR sometimes does not contain element</span>
-<span class="sd">                symbols. Defaults to True.</span>
-<span class="sd">            velocities (Nx3 array): Velocities for the POSCAR. Typically parsed</span>
-<span class="sd">                in MD runs or can be used to initialize velocities.</span>
-<span class="sd">            predictor_corrector (Nx3 array): Predictor corrector for the POSCAR.</span>
-<span class="sd">                Typically parsed in MD runs.</span>
+
+<span class="sd">        :param structure: Structure object.</span>
+<span class="sd">        :param comment: Optional comment line for POSCAR. Defaults to unit</span>
+<span class="sd">            cell formula of structure. Defaults to None.</span>
+<span class="sd">        :param selective_dynamics: bool values for selective dynamics,</span>
+<span class="sd">            where N is number of sites. Defaults to None.</span>
+<span class="sd">        :param true_names: Set to False if the names in the POSCAR are not</span>
+<span class="sd">            well-defined and ambiguous. This situation arises commonly in</span>
+<span class="sd">            vasp &lt; 5 where the POSCAR sometimes does not contain element</span>
+<span class="sd">            symbols. Defaults to True.</span>
+<span class="sd">        :param velocities: Velocities for the POSCAR. Typically parsed</span>
+<span class="sd">            in MD runs or can be used to initialize velocities.</span>
+<span class="sd">        :param predictor_corrector: Predictor corrector for the POSCAR.</span>
+<span class="sd">            Typically parsed in MD runs.</span>
+<span class="sd">        :param predictor_corrector_preamble: Preamble to the predictor</span>
+<span class="sd">            corrector.</span>
+<span class="sd">        :param sort_structure: Whether to sort structure. Useful if species</span>
+<span class="sd">            are not grouped properly together.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">structure</span><span class="o">.</span><span class="n">is_ordered</span><span class="p">:</span>
             <span class="n">site_properties</span> <span class="o">=</span> <span class="p">{}</span>
@@ -171,6 +181,8 @@
                 <span class="n">site_properties</span><span class="p">[</span><span class="s2">&quot;predictor_corrector&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">predictor_corrector</span>
             <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">site_properties</span><span class="o">=</span><span class="n">site_properties</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">sort_structure</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">get_sorted_structure</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">true_names</span> <span class="o">=</span> <span class="n">true_names</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">comment</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">formula</span> <span class="k">if</span> <span class="n">comment</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">comment</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">predictor_corrector_preamble</span> <span class="o">=</span> <span class="n">predictor_corrector_preamble</span>
@@ -2154,7 +2166,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -2162,7 +2174,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

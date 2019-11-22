@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.vasp.sets &#8212; pymatgen 2019.10.4 documentation</title>
+    <title>pymatgen.io.vasp.sets &#8212; pymatgen 2019.11.11 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -92,11 +92,13 @@
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">chain</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="k">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="k">import</span> <span class="n">loadfn</span>
 <span class="kn">from</span> <span class="nn">monty.io</span> <span class="k">import</span> <span class="n">zopen</span>
 <span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">deprecated</span>
+<span class="kn">from</span> <span class="nn">zipfile</span> <span class="k">import</span> <span class="n">ZipFile</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">Element</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
@@ -217,7 +219,47 @@
             <span class="n">fname</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.cif&quot;</span> <span class="o">%</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\s&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">formula</span><span class="p">))</span>
             <span class="n">s</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">fname</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="VaspInputSet.write_spec"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.VaspInputSet.write_spec">[docs]</a>    <span class="k">def</span> <span class="nf">write_spec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">readme</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write a set of the VASP input files to a zip file, WITHOUT the Potcar</span>
+<span class="sd">        file. The Potcar file will instead be written as a &quot;POTCAR.spec&quot;. This is</span>
+<span class="sd">        intended to help sharing an input set with people who might not have a license</span>
+<span class="sd">        to specific Potcar files.</span>
+
+<span class="sd">        Given a &quot;POTCAR.spec&quot;, the specific POTCAR file can be re-generated using</span>
+<span class="sd">        pymatgen with the &quot;generate_potcar&quot; function in the pymatgen CLI when set</span>
+<span class="sd">        up with a corresponding directory of POTCAR files.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename (str): Filename to output as zip file, will default to name</span>
+<span class="sd">            of input set.</span>
+<span class="sd">            readme (str): Additional file to include as README</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s2">&quot;_spec.zip&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.zip&quot;</span><span class="p">):</span>
+            <span class="n">filename</span> <span class="o">+=</span> <span class="s2">&quot;.zip&quot;</span>
+
+        <span class="k">with</span> <span class="n">ZipFile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="nb">zip</span><span class="p">:</span>
+            <span class="nb">zip</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span><span class="s2">&quot;INCAR&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">incar</span><span class="p">))</span>
+            <span class="nb">zip</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span><span class="s2">&quot;POSCAR&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">poscar</span><span class="p">))</span>
+            <span class="nb">zip</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span><span class="s2">&quot;KPOINTS&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span><span class="p">))</span>
+            <span class="nb">zip</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span><span class="s2">&quot;POTCAR.spec&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">potcar_symbols</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">readme</span><span class="p">:</span>
+                <span class="nb">zip</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span><span class="s2">&quot;README&quot;</span><span class="p">,</span> <span class="n">readme</span><span class="p">)</span></div>
+            <span class="c1"># TODO: should write transformations.json also where appropriate</span>
+            <span class="c1"># cannot import TransformedStructure due to circular import</span>
+
 <div class="viewcode-block" id="VaspInputSet.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.VaspInputSet.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            verbosity: Verbosity for generated dict. If 1, structure is</span>
+<span class="sd">            excluded.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            MSONable dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">d</span> <span class="o">=</span> <span class="n">MSONable</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">verbosity</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;structure&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -249,69 +291,6 @@
 <span class="sd">       is used, e.g., Mn3+ may have a different magmom than Mn4+.</span>
 <span class="sd">    4. Lastly, the element symbol itself is checked in the config file. If</span>
 <span class="sd">       there are no settings, VASP&#39;s default of 0.6 is used.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        structure (Structure): The Structure to create inputs for.</span>
-<span class="sd">        config_dict (dict): The config dictionary to use.</span>
-<span class="sd">        files_to_transfer (dict): A dictionary of {filename: filepath}. This</span>
-<span class="sd">            allows the transfer of files from a previous calculation.</span>
-<span class="sd">        user_incar_settings (dict): User INCAR settings. This allows a user</span>
-<span class="sd">            to override INCAR settings, e.g., setting a different MAGMOM for</span>
-<span class="sd">            various elements or species. Note that in the new scheme,</span>
-<span class="sd">            ediff_per_atom and hubbard_u are no longer args. Instead, the</span>
-<span class="sd">            config_dict supports EDIFF_PER_ATOM and EDIFF keys. The former</span>
-<span class="sd">            scales with # of atoms, the latter does not. If both are</span>
-<span class="sd">            present, EDIFF is preferred. To force such settings, just supply</span>
-<span class="sd">            user_incar_settings={&quot;EDIFF&quot;: 1e-5, &quot;LDAU&quot;: False} for example.</span>
-<span class="sd">            The keys &#39;LDAUU&#39;, &#39;LDAUJ&#39;, &#39;LDAUL&#39; are special cases since</span>
-<span class="sd">            pymatgen defines different values depending on what anions are</span>
-<span class="sd">            present in the structure, so these keys can be defined in one</span>
-<span class="sd">            of two ways, e.g. either {&quot;LDAUU&quot;:{&quot;O&quot;:{&quot;Fe&quot;:5}}} to set LDAUU</span>
-<span class="sd">            for Fe to 5 in an oxide, or {&quot;LDAUU&quot;:{&quot;Fe&quot;:5}} to set LDAUU to</span>
-<span class="sd">            5 regardless of the input structure.</span>
-
-<span class="sd">            If a None value is given, that key is unset. For example,</span>
-<span class="sd">            {&quot;ENCUT&quot;: None} will remove ENCUT from the incar settings.</span>
-<span class="sd">        user_kpoints_settings (dict or Kpoints): Allow user to override kpoints</span>
-<span class="sd">            setting by supplying a dict E.g., {&quot;reciprocal_density&quot;: 1000}.</span>
-<span class="sd">            User can also supply Kpoints object. Default is None.</span>
-<span class="sd">        user_potcar_settings (dict: Allow user to override POTCARs. E.g.,</span>
-<span class="sd">            {&quot;Gd&quot;: &quot;Gd_3&quot;}. This is generally not recommended. Default is None.</span>
-<span class="sd">        constrain_total_magmom (bool): Whether to constrain the total magmom</span>
-<span class="sd">            (NUPDOWN in INCAR) to be the sum of the expected MAGMOM for all</span>
-<span class="sd">            species. Defaults to False.</span>
-<span class="sd">        sort_structure (bool): Whether to sort the structure (using the</span>
-<span class="sd">            default sort order of electronegativity) before generating input</span>
-<span class="sd">            files. Defaults to True, the behavior you would want most of the</span>
-<span class="sd">            time. This ensures that similar atomic species are grouped</span>
-<span class="sd">            together.</span>
-<span class="sd">        potcar_functional (str): Functional to use. Default (None) is to use</span>
-<span class="sd">            the functional in Potcar.DEFAULT_FUNCTIONAL. Valid values:</span>
-<span class="sd">            &quot;PBE&quot;, &quot;PBE_52&quot;, &quot;PBE_54&quot;, &quot;LDA&quot;, &quot;LDA_52&quot;, &quot;LDA_54&quot;, &quot;PW91&quot;,</span>
-<span class="sd">            &quot;LDA_US&quot;, &quot;PW91_US&quot;.</span>
-<span class="sd">        force_gamma (bool): Force gamma centered kpoint generation. Default</span>
-<span class="sd">            (False) is to use the Automatic Density kpoint scheme, which</span>
-<span class="sd">            will use the Gamma centered generation scheme for hexagonal</span>
-<span class="sd">            cells, and Monkhorst-Pack otherwise.</span>
-<span class="sd">        reduce_structure (None/str): Before generating the input files,</span>
-<span class="sd">            generate the reduced structure. Default (None), does not</span>
-<span class="sd">            alter the structure. Valid values: None, &quot;niggli&quot;, &quot;LLL&quot;.</span>
-<span class="sd">        vdw: Adds default parameters for van-der-Waals functionals supported</span>
-<span class="sd">            by VASP to INCAR. Supported functionals are: DFT-D2, undamped</span>
-<span class="sd">            DFT-D3, DFT-D3 with Becke-Jonson damping, Tkatchenko-Scheffler,</span>
-<span class="sd">            Tkatchenko-Scheffler with iterative Hirshfeld partitioning,</span>
-<span class="sd">            MBD@rSC, dDsC, Dion&#39;s vdW-DF, DF2, optPBE, optB88, optB86b and</span>
-<span class="sd">            rVV10.</span>
-<span class="sd">        use_structure_charge (bool): If set to True, then the public</span>
-<span class="sd">            variable used for setting the overall charge of the</span>
-<span class="sd">            structure (structure.charge) is used to set the NELECT</span>
-<span class="sd">            variable in the INCAR</span>
-<span class="sd">            Default is False (structure&#39;s overall charge is not used)</span>
-<span class="sd">        standardize (float): Whether to standardize to a primitive standard</span>
-<span class="sd">            cell. Defaults to False.</span>
-<span class="sd">        sym_prec (float): Tolerance for symmetry finding.</span>
-<span class="sd">        international_monoclinic (bool): Whether to use international convention</span>
-<span class="sd">            (vs Curtarolo) for monoclinic. Defaults True.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">config_dict</span><span class="p">,</span>
@@ -322,6 +301,70 @@
                  <span class="n">reduce_structure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vdw</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">use_structure_charge</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">standardize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sym_prec</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
                  <span class="n">international_monoclinic</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): The Structure to create inputs for.</span>
+<span class="sd">            config_dict (dict): The config dictionary to use.</span>
+<span class="sd">            files_to_transfer (dict): A dictionary of {filename: filepath}. This</span>
+<span class="sd">                allows the transfer of files from a previous calculation.</span>
+<span class="sd">            user_incar_settings (dict): User INCAR settings. This allows a user</span>
+<span class="sd">                to override INCAR settings, e.g., setting a different MAGMOM for</span>
+<span class="sd">                various elements or species. Note that in the new scheme,</span>
+<span class="sd">                ediff_per_atom and hubbard_u are no longer args. Instead, the</span>
+<span class="sd">                config_dict supports EDIFF_PER_ATOM and EDIFF keys. The former</span>
+<span class="sd">                scales with # of atoms, the latter does not. If both are</span>
+<span class="sd">                present, EDIFF is preferred. To force such settings, just supply</span>
+<span class="sd">                user_incar_settings={&quot;EDIFF&quot;: 1e-5, &quot;LDAU&quot;: False} for example.</span>
+<span class="sd">                The keys &#39;LDAUU&#39;, &#39;LDAUJ&#39;, &#39;LDAUL&#39; are special cases since</span>
+<span class="sd">                pymatgen defines different values depending on what anions are</span>
+<span class="sd">                present in the structure, so these keys can be defined in one</span>
+<span class="sd">                of two ways, e.g. either {&quot;LDAUU&quot;:{&quot;O&quot;:{&quot;Fe&quot;:5}}} to set LDAUU</span>
+<span class="sd">                for Fe to 5 in an oxide, or {&quot;LDAUU&quot;:{&quot;Fe&quot;:5}} to set LDAUU to</span>
+<span class="sd">                5 regardless of the input structure.</span>
+
+<span class="sd">                If a None value is given, that key is unset. For example,</span>
+<span class="sd">                {&quot;ENCUT&quot;: None} will remove ENCUT from the incar settings.</span>
+<span class="sd">            user_kpoints_settings (dict or Kpoints): Allow user to override kpoints</span>
+<span class="sd">                setting by supplying a dict E.g., {&quot;reciprocal_density&quot;: 1000}.</span>
+<span class="sd">                User can also supply Kpoints object. Default is None.</span>
+<span class="sd">            user_potcar_settings (dict: Allow user to override POTCARs. E.g.,</span>
+<span class="sd">                {&quot;Gd&quot;: &quot;Gd_3&quot;}. This is generally not recommended. Default is None.</span>
+<span class="sd">            constrain_total_magmom (bool): Whether to constrain the total magmom</span>
+<span class="sd">                (NUPDOWN in INCAR) to be the sum of the expected MAGMOM for all</span>
+<span class="sd">                species. Defaults to False.</span>
+<span class="sd">            sort_structure (bool): Whether to sort the structure (using the</span>
+<span class="sd">                default sort order of electronegativity) before generating input</span>
+<span class="sd">                files. Defaults to True, the behavior you would want most of the</span>
+<span class="sd">                time. This ensures that similar atomic species are grouped</span>
+<span class="sd">                together.</span>
+<span class="sd">            potcar_functional (str): Functional to use. Default (None) is to use</span>
+<span class="sd">                the functional in Potcar.DEFAULT_FUNCTIONAL. Valid values:</span>
+<span class="sd">                &quot;PBE&quot;, &quot;PBE_52&quot;, &quot;PBE_54&quot;, &quot;LDA&quot;, &quot;LDA_52&quot;, &quot;LDA_54&quot;, &quot;PW91&quot;,</span>
+<span class="sd">                &quot;LDA_US&quot;, &quot;PW91_US&quot;.</span>
+<span class="sd">            force_gamma (bool): Force gamma centered kpoint generation. Default</span>
+<span class="sd">                (False) is to use the Automatic Density kpoint scheme, which</span>
+<span class="sd">                will use the Gamma centered generation scheme for hexagonal</span>
+<span class="sd">                cells, and Monkhorst-Pack otherwise.</span>
+<span class="sd">            reduce_structure (None/str): Before generating the input files,</span>
+<span class="sd">                generate the reduced structure. Default (None), does not</span>
+<span class="sd">                alter the structure. Valid values: None, &quot;niggli&quot;, &quot;LLL&quot;.</span>
+<span class="sd">            vdw: Adds default parameters for van-der-Waals functionals supported</span>
+<span class="sd">                by VASP to INCAR. Supported functionals are: DFT-D2, undamped</span>
+<span class="sd">                DFT-D3, DFT-D3 with Becke-Jonson damping, Tkatchenko-Scheffler,</span>
+<span class="sd">                Tkatchenko-Scheffler with iterative Hirshfeld partitioning,</span>
+<span class="sd">                MBD@rSC, dDsC, Dion&#39;s vdW-DF, DF2, optPBE, optB88, optB86b and</span>
+<span class="sd">                rVV10.</span>
+<span class="sd">            use_structure_charge (bool): If set to True, then the public</span>
+<span class="sd">                variable used for setting the overall charge of the</span>
+<span class="sd">                structure (structure.charge) is used to set the NELECT</span>
+<span class="sd">                variable in the INCAR</span>
+<span class="sd">                Default is False (structure&#39;s overall charge is not used)</span>
+<span class="sd">            standardize (float): Whether to standardize to a primitive standard</span>
+<span class="sd">                cell. Defaults to False.</span>
+<span class="sd">            sym_prec (float): Tolerance for symmetry finding.</span>
+<span class="sd">            international_monoclinic (bool): Whether to use international convention</span>
+<span class="sd">                (vs Curtarolo) for monoclinic. Defaults True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">reduce_structure</span><span class="p">:</span>
             <span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_reduced_structure</span><span class="p">(</span><span class="n">reduce_structure</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">sort_structure</span><span class="p">:</span>
@@ -336,7 +379,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">force_gamma</span> <span class="o">=</span> <span class="n">force_gamma</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reduce_structure</span> <span class="o">=</span> <span class="n">reduce_structure</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">user_incar_settings</span> <span class="o">=</span> <span class="n">user_incar_settings</span> <span class="ow">or</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">user_kpoints_settings</span> <span class="o">=</span> <span class="n">user_kpoints_settings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">user_kpoints_settings</span> <span class="o">=</span> <span class="n">user_kpoints_settings</span> <span class="ow">or</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">user_potcar_settings</span> <span class="o">=</span> <span class="n">user_potcar_settings</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vdw</span> <span class="o">=</span> <span class="n">vdw</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">if</span> <span class="n">vdw</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">use_structure_charge</span> <span class="o">=</span> <span class="n">use_structure_charge</span>
@@ -365,7 +408,10 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_config_dict</span><span class="p">[</span><span class="s2">&quot;POTCAR&quot;</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">structure</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Structure</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Structure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">standardize</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">sym_prec</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">standardize_structure</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_structure</span><span class="p">,</span> <span class="n">sym_prec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sym_prec</span><span class="p">,</span>
@@ -374,7 +420,10 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_structure</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">incar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">incar</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Incar</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Incar</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">settings</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config_dict</span><span class="p">[</span><span class="s2">&quot;INCAR&quot;</span><span class="p">])</span>
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_incar_settings</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -467,11 +516,14 @@
         <span class="k">return</span> <span class="n">incar</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">poscar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">poscar</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Poscar</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Poscar</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Poscar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">nelect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">nelect</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Gets the default number of electrons for a given structure.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -492,9 +544,9 @@
             <span class="k">return</span> <span class="n">nelect</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">kpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">kpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Kpoints</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Writes out a KPOINTS file using the fully automated grid method. Uses</span>
+<span class="sd">        Returns a KPOINTS file using the fully automated grid method. Uses</span>
 <span class="sd">        Gamma centered meshes for hexagonal cells and Monk grids otherwise.</span>
 
 <span class="sd">        Algorithm:</span>
@@ -538,8 +590,18 @@
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
 
-<div class="viewcode-block" id="DictSet.write_input"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.DictSet.write_input">[docs]</a>    <span class="k">def</span> <span class="nf">write_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span>
-                    <span class="n">make_dir_if_not_present</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">include_cif</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="DictSet.write_input"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.DictSet.write_input">[docs]</a>    <span class="k">def</span> <span class="nf">write_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                    <span class="n">make_dir_if_not_present</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                    <span class="n">include_cif</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Writes out all input to a directory.</span>
+
+<span class="sd">        :param output_dir: Name of output dir.</span>
+<span class="sd">        :param make_dir_if_not_present: Makes the directory if it does not</span>
+<span class="sd">            exist.</span>
+<span class="sd">        :param include_cif: Whether to include a CIF file for easier reading.</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">write_input</span><span class="p">(</span>
             <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span>
             <span class="n">make_dir_if_not_present</span><span class="o">=</span><span class="n">make_dir_if_not_present</span><span class="p">,</span>
@@ -567,6 +629,10 @@
     <span class="n">CONFIG</span> <span class="o">=</span> <span class="n">_load_yaml_config</span><span class="p">(</span><span class="s2">&quot;MITRelaxSet&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param structure: Structure</span>
+<span class="sd">        :param kwargs: Same as those supported by DictSet.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">MITRelaxSet</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span></div>
 
@@ -582,6 +648,10 @@
     <span class="n">CONFIG</span> <span class="o">=</span> <span class="n">_load_yaml_config</span><span class="p">(</span><span class="s2">&quot;MPRelaxSet&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param structure: Structure</span>
+<span class="sd">        :param kwargs: Same as those supported by DictSet.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">MPRelaxSet</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span></div>
 
@@ -595,6 +665,10 @@
     <span class="n">CONFIG</span> <span class="o">=</span> <span class="n">_load_yaml_config</span><span class="p">(</span><span class="s2">&quot;MPRelaxSet&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param structure: Structure</span>
+<span class="sd">        :param kwargs: Same as those supported by DictSet.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_config_dict</span><span class="p">[</span><span class="s2">&quot;INCAR&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
             <span class="s2">&quot;ISMEAR&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
@@ -613,32 +687,37 @@
     <span class="n">CONFIG</span> <span class="o">=</span> <span class="n">_load_yaml_config</span><span class="p">(</span><span class="s2">&quot;MPHSERelaxSet&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param structure: Structure</span>
+<span class="sd">        :param kwargs: Same as those supported by DictSet.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">MPHSERelaxSet</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span></div>
 
 
 <div class="viewcode-block" id="MPStaticSet"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MPStaticSet">[docs]</a><span class="k">class</span> <span class="nc">MPStaticSet</span><span class="p">(</span><span class="n">MPRelaxSet</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Run a static calculation.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        structure (Structure): Structure from previous run.</span>
-<span class="sd">        prev_incar (Incar): Incar file from previous run.</span>
-<span class="sd">        prev_kpoints (Kpoints): Kpoints from previous run.</span>
-<span class="sd">        lepsilon (bool): Whether to add static dielectric calculation</span>
-<span class="sd">        reciprocal_density (int): For static calculations, we usually set the</span>
-<span class="sd">            reciprocal density by volume. This is a convenience arg to change</span>
-<span class="sd">            that, rather than using user_kpoints_settings. Defaults to 100,</span>
-<span class="sd">            which is ~50% more than that of standard relaxation calculations.</span>
-<span class="sd">        small_gap_multiply ([float, float]): If the gap is less than</span>
-<span class="sd">            1st index, multiply the default reciprocal_density by the 2nd</span>
-<span class="sd">            index.</span>
-<span class="sd">        **kwargs: kwargs supported by MPRelaxSet.</span>
+<span class="sd">    Creates input files for a static calculation.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">prev_incar</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prev_kpoints</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">lepsilon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">lcalcpol</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">reciprocal_density</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
                  <span class="n">small_gap_multiply</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): Structure from previous run.</span>
+<span class="sd">            prev_incar (Incar): Incar file from previous run.</span>
+<span class="sd">            prev_kpoints (Kpoints): Kpoints from previous run.</span>
+<span class="sd">            lepsilon (bool): Whether to add static dielectric calculation</span>
+<span class="sd">            reciprocal_density (int): For static calculations, we usually set the</span>
+<span class="sd">                reciprocal density by volume. This is a convenience arg to change</span>
+<span class="sd">                that, rather than using user_kpoints_settings. Defaults to 100,</span>
+<span class="sd">                which is ~50% more than that of standard relaxation calculations.</span>
+<span class="sd">            small_gap_multiply ([float, float]): If the gap is less than</span>
+<span class="sd">                1st index, multiply the default reciprocal_density by the 2nd</span>
+<span class="sd">                index.</span>
+<span class="sd">            **kwargs: kwargs supported by MPRelaxSet.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prev_incar</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">prev_incar</span> <span class="o">=</span> <span class="n">Incar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">prev_incar</span><span class="p">)</span>
@@ -655,6 +734,9 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">incar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Incar</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">parent_incar</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">incar</span>
         <span class="n">incar</span> <span class="o">=</span> <span class="n">Incar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prev_incar</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_incar</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> \
             <span class="n">Incar</span><span class="p">(</span><span class="n">parent_incar</span><span class="p">)</span>
@@ -708,7 +790,10 @@
         <span class="k">return</span> <span class="n">incar</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">kpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">kpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Kpoints</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Kpoints</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_config_dict</span><span class="p">[</span><span class="s2">&quot;KPOINTS&quot;</span><span class="p">][</span><span class="s2">&quot;reciprocal_density&quot;</span><span class="p">]</span> <span class="o">=</span> \
             <span class="bp">self</span><span class="o">.</span><span class="n">reciprocal_density</span>
         <span class="n">kpoints</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">kpoints</span>
@@ -792,25 +877,25 @@
 
 <span class="sd">    The &quot;Line&quot; mode is just like Uniform mode, but additionally adds</span>
 <span class="sd">    k-points along symmetry lines with zero weight.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        structure (Structure): Structure to compute</span>
-<span class="sd">        user_incar_settings (dict): A dict specifying additional incar</span>
-<span class="sd">            settings</span>
-<span class="sd">        added_kpoints (list): a list of kpoints (list of 3 number list)</span>
-<span class="sd">            added to the run. The k-points are in fractional coordinates</span>
-<span class="sd">        mode (str): &quot;Line&quot; - generate k-points along symmetry lines for</span>
-<span class="sd">            bandstructure. &quot;Uniform&quot; - generate uniform k-points grid.</span>
-<span class="sd">        reciprocal_density (int): k-point density to use for uniform mesh.</span>
-<span class="sd">        copy_chgcar (bool): Whether to copy the CHGCAR of a previous run.</span>
-<span class="sd">        kpoints_line_density (int): k-point density for high symmetry lines</span>
-<span class="sd">        **kwargs (dict): Any other parameters to pass into DictSet.</span>
-
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">user_incar_settings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">added_kpoints</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;Gap&quot;</span><span class="p">,</span> <span class="n">reciprocal_density</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">copy_chgcar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">kpoints_line_density</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): Structure to compute</span>
+<span class="sd">            user_incar_settings (dict): A dict specifying additional incar</span>
+<span class="sd">                settings</span>
+<span class="sd">            added_kpoints (list): a list of kpoints (list of 3 number list)</span>
+<span class="sd">                added to the run. The k-points are in fractional coordinates</span>
+<span class="sd">            mode (str): &quot;Line&quot; - generate k-points along symmetry lines for</span>
+<span class="sd">                bandstructure. &quot;Uniform&quot; - generate uniform k-points grid.</span>
+<span class="sd">            reciprocal_density (int): k-point density to use for uniform mesh.</span>
+<span class="sd">            copy_chgcar (bool): Whether to copy the CHGCAR of a previous run.</span>
+<span class="sd">            kpoints_line_density (int): k-point density for high symmetry lines</span>
+<span class="sd">            **kwargs (dict): Any other parameters to pass into DictSet.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">user_incar_settings</span> <span class="o">=</span> <span class="n">user_incar_settings</span> <span class="ow">or</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_config_dict</span><span class="p">[</span><span class="s2">&quot;INCAR&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
@@ -835,10 +920,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">copy_chgcar</span> <span class="o">=</span> <span class="n">copy_chgcar</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">kpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">kpts</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">weights</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">all_labels</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">def</span> <span class="nf">kpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Kpoints</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Kpoints</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kpts</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># type: List[Union[int, float, None]]</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># type: List[Union[float, None]]</span>
+        <span class="n">all_labels</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># type: List[Union[str, None]]</span>
         <span class="n">structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span>
 
         <span class="c1"># for both modes, include the Uniform mesh w/standard weights</span>
@@ -943,32 +1031,33 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Init a MPNonSCFSet. Typically, you would use the classmethod</span>
 <span class="sd">    from_prev_calc to initialize from a previous SCF run.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        structure (Structure): Structure to compute</span>
-<span class="sd">        prev_incar (Incar/string): Incar file from previous run.</span>
-<span class="sd">        mode (str): Line, Uniform or Boltztrap mode supported.</span>
-<span class="sd">        nedos (int): nedos parameter. Default to 2001.</span>
-<span class="sd">        reciprocal_density (int): density of k-mesh by reciprocal</span>
-<span class="sd">            volume (defaults to 100)</span>
-<span class="sd">        sym_prec (float): Symmetry precision (for Uniform mode).</span>
-<span class="sd">        kpoints_line_density (int): Line density for Line mode.</span>
-<span class="sd">        optics (bool): whether to add dielectric function</span>
-<span class="sd">        copy_chgcar: Whether to copy the old CHGCAR when starting from a</span>
-<span class="sd">            previous calculation.</span>
-<span class="sd">        nbands_factor (float): Multiplicative factor for NBANDS when starting</span>
-<span class="sd">            from a previous calculation. Choose a higher number if you are</span>
-<span class="sd">            doing an LOPTICS calculation.</span>
-<span class="sd">        small_gap_multiply ([float, float]): When starting from a previous</span>
-<span class="sd">            calculation, if the gap is less than 1st index, multiply the default</span>
-<span class="sd">            reciprocal_density by the 2nd index.</span>
-<span class="sd">        **kwargs: kwargs supported by MPRelaxSet.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">prev_incar</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;line&quot;</span><span class="p">,</span> <span class="n">nedos</span><span class="o">=</span><span class="mi">2001</span><span class="p">,</span> <span class="n">reciprocal_density</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">sym_prec</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
                  <span class="n">kpoints_line_density</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">optics</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">copy_chgcar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">nbands_factor</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span> <span class="n">small_gap_multiply</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): Structure to compute</span>
+<span class="sd">            prev_incar (Incar/string): Incar file from previous run.</span>
+<span class="sd">            mode (str): Line, Uniform or Boltztrap mode supported.</span>
+<span class="sd">            nedos (int): nedos parameter. Default to 2001.</span>
+<span class="sd">            reciprocal_density (int): density of k-mesh by reciprocal</span>
+<span class="sd">                volume (defaults to 100)</span>
+<span class="sd">            sym_prec (float): Symmetry precision (for Uniform mode).</span>
+<span class="sd">            kpoints_line_density (int): Line density for Line mode.</span>
+<span class="sd">            optics (bool): whether to add dielectric function</span>
+<span class="sd">            copy_chgcar: Whether to copy the old CHGCAR when starting from a</span>
+<span class="sd">                previous calculation.</span>
+<span class="sd">            nbands_factor (float): Multiplicative factor for NBANDS when starting</span>
+<span class="sd">                from a previous calculation. Choose a higher number if you are</span>
+<span class="sd">                doing an LOPTICS calculation.</span>
+<span class="sd">            small_gap_multiply ([float, float]): When starting from a previous</span>
+<span class="sd">                calculation, if the gap is less than 1st index, multiply the default</span>
+<span class="sd">                reciprocal_density by the 2nd index.</span>
+<span class="sd">            **kwargs: kwargs supported by MPRelaxSet.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prev_incar</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">prev_incar</span> <span class="o">=</span> <span class="n">Incar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">prev_incar</span><span class="p">)</span>
@@ -993,7 +1082,10 @@
                           <span class="s2">&quot;NEDOS for optics calculations.&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">incar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">incar</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Incar</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Incar</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">incar</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">incar</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_incar</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">incar</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_incar</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
@@ -1026,7 +1118,10 @@
         <span class="k">return</span> <span class="n">incar</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">kpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">kpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Kpoints</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Kpoints</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;line&quot;</span><span class="p">:</span>
             <span class="n">kpath</span> <span class="o">=</span> <span class="n">HighSymmKpath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
             <span class="n">frac_k_points</span><span class="p">,</span> <span class="n">k_points_labels</span> <span class="o">=</span> <span class="n">kpath</span><span class="o">.</span><span class="n">get_kpoints</span><span class="p">(</span>
@@ -1145,26 +1240,27 @@
 <div class="viewcode-block" id="MPSOCSet"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MPSOCSet">[docs]</a><span class="k">class</span> <span class="nc">MPSOCSet</span><span class="p">(</span><span class="n">MPStaticSet</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An input set for running spin-orbit coupling (SOC) calculations.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        structure (Structure): the structure must have the &#39;magmom&#39; site</span>
-<span class="sd">            property and each magnetic moment value must have 3</span>
-<span class="sd">            components. eg: ``magmom = [[0,0,2], ...]``</span>
-<span class="sd">        saxis (tuple): magnetic moment orientation</span>
-<span class="sd">        copy_chgcar: Whether to copy the old CHGCAR. Defaults to True.</span>
-<span class="sd">        nbands_factor (float): Multiplicative factor for NBANDS. Choose a</span>
-<span class="sd">            higher number if you are doing an LOPTICS calculation.</span>
-<span class="sd">        reciprocal_density (int): density of k-mesh by reciprocal volume.</span>
-<span class="sd">        small_gap_multiply ([float, float]): If the gap is less than</span>
-<span class="sd">            1st index, multiply the default reciprocal_density by the 2nd</span>
-<span class="sd">            index.</span>
-<span class="sd">        magmom (list[list[float]]): Override for the structure magmoms.</span>
-<span class="sd">        **kwargs: kwargs supported by MPStaticSet.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">saxis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">copy_chgcar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">nbands_factor</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span> <span class="n">reciprocal_density</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
                  <span class="n">small_gap_multiply</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">magmom</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): the structure must have the &#39;magmom&#39; site</span>
+<span class="sd">                property and each magnetic moment value must have 3</span>
+<span class="sd">                components. eg: ``magmom = [[0,0,2], ...]``</span>
+<span class="sd">            saxis (tuple): magnetic moment orientation</span>
+<span class="sd">            copy_chgcar: Whether to copy the old CHGCAR. Defaults to True.</span>
+<span class="sd">            nbands_factor (float): Multiplicative factor for NBANDS. Choose a</span>
+<span class="sd">                higher number if you are doing an LOPTICS calculation.</span>
+<span class="sd">            reciprocal_density (int): density of k-mesh by reciprocal volume.</span>
+<span class="sd">            small_gap_multiply ([float, float]): If the gap is less than</span>
+<span class="sd">                1st index, multiply the default reciprocal_density by the 2nd</span>
+<span class="sd">                index.</span>
+<span class="sd">            magmom (list[list[float]]): Override for the structure magmoms.</span>
+<span class="sd">            **kwargs: kwargs supported by MPStaticSet.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">structure</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;magmom&quot;</span><span class="p">)</span> <span class="ow">and</span>
                 <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">structure</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">magmom</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
@@ -1182,7 +1278,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">magmom</span> <span class="o">=</span> <span class="n">magmom</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">incar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">incar</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Incar</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Incar</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">incar</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">incar</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_incar</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">incar</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_incar</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
@@ -1280,21 +1379,22 @@
 <div class="viewcode-block" id="MPNMRSet"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MPNMRSet">[docs]</a><span class="k">class</span> <span class="nc">MPNMRSet</span><span class="p">(</span><span class="n">MPStaticSet</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Init a MPNMRSet.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        structure (Structure): Structure to compute</span>
-<span class="sd">        mode (str): The NMR calculation to run</span>
-<span class="sd">                        &quot;cs&quot;: for Chemical Shift</span>
-<span class="sd">                        &quot;efg&quot; for Electric Field Gradient</span>
-<span class="sd">        isotopes (list): list of Isotopes for quadrupole moments</span>
-<span class="sd">        prev_incar (Incar): Incar file from previous run.</span>
-<span class="sd">        reciprocal_density (int): density of k-mesh by reciprocal</span>
-<span class="sd">                                volume (defaults to 100)</span>
-<span class="sd">        **kwargs: kwargs supported by MPStaticSet.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;cs&quot;</span><span class="p">,</span> <span class="n">isotopes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">prev_incar</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reciprocal_density</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): Structure to compute</span>
+<span class="sd">            mode (str): The NMR calculation to run</span>
+<span class="sd">                            &quot;cs&quot;: for Chemical Shift</span>
+<span class="sd">                            &quot;efg&quot; for Electric Field Gradient</span>
+<span class="sd">            isotopes (list): list of Isotopes for quadrupole moments</span>
+<span class="sd">            prev_incar (Incar): Incar file from previous run.</span>
+<span class="sd">            reciprocal_density (int): density of k-mesh by reciprocal</span>
+<span class="sd">                                    volume (defaults to 100)</span>
+<span class="sd">            **kwargs: kwargs supported by MPStaticSet.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">isotopes</span> <span class="o">=</span> <span class="n">isotopes</span> <span class="k">if</span> <span class="n">isotopes</span> <span class="k">else</span> <span class="p">[]</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">prev_incar</span><span class="o">=</span><span class="n">prev_incar</span><span class="p">,</span>
@@ -1302,6 +1402,9 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">incar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Incar</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">incar</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">incar</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;cs&quot;</span><span class="p">:</span>
@@ -1351,15 +1454,18 @@
 
 <span class="sd">    To read the elastic constants, you may use the Outcar class which parses the</span>
 <span class="sd">    elastic constants.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        scale (float): POTIM parameter. The default of 0.015 is usually fine,</span>
-<span class="sd">            but some structures may require a smaller step.</span>
-<span class="sd">        user_incar_settings (dict): A dict specifying additional incar</span>
-<span class="sd">            settings.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">potim</span><span class="o">=</span><span class="mf">0.015</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            scale (float): POTIM parameter. The default of 0.015 is usually fine,</span>
+<span class="sd">                but some structures may require a smaller step.</span>
+<span class="sd">            user_incar_settings (dict): A dict specifying additional incar</span>
+<span class="sd">                settings.</span>
+<span class="sd">            kwargs:</span>
+<span class="sd">                Parameters supported by MPRelaxSet.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_config_dict</span><span class="p">[</span><span class="s2">&quot;INCAR&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;IBRION&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="s2">&quot;NFREE&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
                                            <span class="s2">&quot;POTIM&quot;</span><span class="p">:</span> <span class="n">potim</span><span class="p">})</span>
@@ -1380,28 +1486,6 @@
 <span class="sd">    mode=&quot;BSE&quot;. For all steps other than the first one (static), the</span>
 <span class="sd">    recommendation is to use from_prev_calculation on the preceding run in</span>
 <span class="sd">    the series.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        structure (Structure): Input structure.</span>
-<span class="sd">        prev_incar (Incar/string): Incar file from previous run.</span>
-<span class="sd">        mode (str): Supported modes are &quot;STATIC&quot; (default), &quot;DIAG&quot;, &quot;GW&quot;,</span>
-<span class="sd">            and &quot;BSE&quot;.</span>
-<span class="sd">        nbands (int): For subsequent calculations, it is generally</span>
-<span class="sd">            recommended to perform NBANDS convergence starting from the</span>
-<span class="sd">            NBANDS of the previous run for DIAG, and to use the exact same</span>
-<span class="sd">            NBANDS for GW and BSE. This parameter is used by</span>
-<span class="sd">            from_previous_calculation to set nband.</span>
-<span class="sd">        potcar_functional (str): Defaults to &quot;PBE_54&quot;.</span>
-<span class="sd">        copy_wavecar: Whether to copy the old WAVECAR, WAVEDER and associated</span>
-<span class="sd">            files when starting from a previous calculation.</span>
-<span class="sd">        nbands_factor (int): Multiplicative factor for NBANDS when starting</span>
-<span class="sd">            from a previous calculation. Only applies if mode==&quot;DIAG&quot;.</span>
-<span class="sd">            Need to be tested for convergence.</span>
-<span class="sd">        ncores (int): Numbers of cores used for the calculation. VASP will alter</span>
-<span class="sd">            NBANDS if it was not dividable by ncores. Only applies if</span>
-<span class="sd">            mode==&quot;DIAG&quot;.</span>
-<span class="sd">        **kwargs: All kwargs supported by DictSet. Typically,</span>
-<span class="sd">            user_incar_settings is a commonly used option.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">CONFIG</span> <span class="o">=</span> <span class="n">_load_yaml_config</span><span class="p">(</span><span class="s2">&quot;MVLGWSet&quot;</span><span class="p">)</span>
 
@@ -1411,6 +1495,29 @@
                  <span class="n">potcar_functional</span><span class="o">=</span><span class="s2">&quot;PBE_54&quot;</span><span class="p">,</span> <span class="n">reciprocal_density</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
                  <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;STATIC&quot;</span><span class="p">,</span> <span class="n">copy_wavecar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nbands_factor</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">ncores</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
                  <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): Input structure.</span>
+<span class="sd">            prev_incar (Incar/string): Incar file from previous run.</span>
+<span class="sd">            mode (str): Supported modes are &quot;STATIC&quot; (default), &quot;DIAG&quot;, &quot;GW&quot;,</span>
+<span class="sd">                and &quot;BSE&quot;.</span>
+<span class="sd">            nbands (int): For subsequent calculations, it is generally</span>
+<span class="sd">                recommended to perform NBANDS convergence starting from the</span>
+<span class="sd">                NBANDS of the previous run for DIAG, and to use the exact same</span>
+<span class="sd">                NBANDS for GW and BSE. This parameter is used by</span>
+<span class="sd">                from_previous_calculation to set nband.</span>
+<span class="sd">            potcar_functional (str): Defaults to &quot;PBE_54&quot;.</span>
+<span class="sd">            copy_wavecar: Whether to copy the old WAVECAR, WAVEDER and associated</span>
+<span class="sd">                files when starting from a previous calculation.</span>
+<span class="sd">            nbands_factor (int): Multiplicative factor for NBANDS when starting</span>
+<span class="sd">                from a previous calculation. Only applies if mode==&quot;DIAG&quot;.</span>
+<span class="sd">                Need to be tested for convergence.</span>
+<span class="sd">            ncores (int): Numbers of cores used for the calculation. VASP will alter</span>
+<span class="sd">                NBANDS if it was not dividable by ncores. Only applies if</span>
+<span class="sd">                mode==&quot;DIAG&quot;.</span>
+<span class="sd">            **kwargs: All kwargs supported by DictSet. Typically,</span>
+<span class="sd">                user_incar_settings is a commonly used option.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">MVLGWSet</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">prev_incar</span> <span class="o">=</span> <span class="n">prev_incar</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nbands</span> <span class="o">=</span> <span class="n">nbands</span>
@@ -1437,6 +1544,9 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">incar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Incar</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">parent_incar</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">incar</span>
         <span class="n">incar</span> <span class="o">=</span> <span class="n">Incar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prev_incar</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_incar</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> \
             <span class="n">Incar</span><span class="p">(</span><span class="n">parent_incar</span><span class="p">)</span>
@@ -1545,17 +1655,21 @@
 <span class="sd">    Class for writing a set of slab vasp runs,</span>
 <span class="sd">    including both slabs (along the c direction) and orient unit cells (bulk),</span>
 <span class="sd">    to ensure the same KPOINTS, POTCAR and INCAR criterion.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        k_product: default to 50, kpoint number * length for a &amp; b directions,</span>
-<span class="sd">            also for c direction in bulk calculations</span>
-<span class="sd">        bulk (bool): Set to True for bulk calculation. Defaults to False.</span>
-<span class="sd">        **kwargs: Other kwargs supported by :class:`DictSet`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">k_product</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">bulk</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">auto_dipole</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">set_mix</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sort_structure</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param structure: Structure</span>
+<span class="sd">        :param k_product: default to 50, kpoint number * length for a &amp; b</span>
+<span class="sd">            directions, also for c direction in bulk calculations</span>
+<span class="sd">        :param bulk:</span>
+<span class="sd">        :param auto_dipole:</span>
+<span class="sd">        :param set_mix:</span>
+<span class="sd">        :param sort_structure:</span>
+<span class="sd">        :param kwargs: Other kwargs supported by :class:`DictSet`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">sort_structure</span><span class="p">:</span>
@@ -1621,6 +1735,10 @@
         <span class="k">return</span> <span class="n">kpt</span>
 
 <div class="viewcode-block" id="MVLSlabSet.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MVLSlabSet.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param verbosity: Verbosity of dict. E.g., whether to include Structure.</span>
+<span class="sd">        :return: MSONAble dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">d</span> <span class="o">=</span> <span class="n">MSONable</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">verbosity</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;structure&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -1631,25 +1749,27 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class for writing a vasp input files for grain boundary calculations, slab</span>
 <span class="sd">    or bulk.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        structure(Structure): provide the structure</span>
-<span class="sd">        k_product: Kpoint number * length for a &amp; b directions, also for c</span>
-<span class="sd">            direction in bulk calculations. Default to 40.</span>
-<span class="sd">        slab_mode (bool): Defaults to False. Use default (False) for a</span>
-<span class="sd">            bulk supercell. Use True if you are performing calculations on a</span>
-<span class="sd">            slab-like (i.e., surface) of the GB, for example, when you are</span>
-<span class="sd">            calculating the work of separation.</span>
-<span class="sd">        is_metal (bool): Defaults to True. This determines whether an ISMEAR of</span>
-<span class="sd">            1 is used (for metals) or not (for insulators and semiconductors)</span>
-<span class="sd">            by default. Note that it does *not* override user_incar_settings,</span>
-<span class="sd">            which can be set by the user to be anything desired.</span>
-<span class="sd">        **kwargs:</span>
-<span class="sd">            Other kwargs supported by :class:`MPRelaxSet`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">k_product</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">slab_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">is_metal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure(Structure): provide the structure</span>
+<span class="sd">            k_product: Kpoint number * length for a &amp; b directions, also for c</span>
+<span class="sd">                direction in bulk calculations. Default to 40.</span>
+<span class="sd">            slab_mode (bool): Defaults to False. Use default (False) for a</span>
+<span class="sd">                bulk supercell. Use True if you are performing calculations on a</span>
+<span class="sd">                slab-like (i.e., surface) of the GB, for example, when you are</span>
+<span class="sd">                calculating the work of separation.</span>
+<span class="sd">            is_metal (bool): Defaults to True. This determines whether an ISMEAR of</span>
+<span class="sd">                1 is used (for metals) or not (for insulators and semiconductors)</span>
+<span class="sd">                by default. Note that it does *not* override user_incar_settings,</span>
+<span class="sd">                which can be set by the user to be anything desired.</span>
+<span class="sd">            **kwargs:</span>
+<span class="sd">                Other kwargs supported by :class:`MPRelaxSet`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">k_product</span> <span class="o">=</span> <span class="n">k_product</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">slab_mode</span> <span class="o">=</span> <span class="n">slab_mode</span>
@@ -1685,6 +1805,9 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">incar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Incar</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">incar</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">incar</span>
 
         <span class="c1"># The default incar setting is used for metallic system, for</span>
@@ -1727,15 +1850,16 @@
 <span class="sd">            Specifically, C_h, O_h, N_h, F_h, P_h, S_h, Cl_h</span>
 <span class="sd">        3. Released on Oct 28, 2018 by VASP. Please refer to VASP</span>
 <span class="sd">            Manual 1.2, 1.3 &amp; 10.2.1 for more details.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        structure (Structure): input structure.</span>
-<span class="sd">        potcar_functional (str): choose from &quot;PBE_52&quot; and &quot;PBE_54&quot;.</span>
-<span class="sd">        **kwargs: Other kwargs supported by :class:`DictSet`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">CONFIG</span> <span class="o">=</span> <span class="n">_load_yaml_config</span><span class="p">(</span><span class="s2">&quot;MVLRelax52Set&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">potcar_functional</span><span class="o">=</span><span class="s2">&quot;PBE_52&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): input structure.</span>
+<span class="sd">            potcar_functional (str): choose from &quot;PBE_52&quot; and &quot;PBE_54&quot;.</span>
+<span class="sd">            **kwargs: Other kwargs supported by :class:`DictSet`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">potcar_functional</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;PBE_52&quot;</span><span class="p">,</span> <span class="s2">&quot;PBE_54&quot;</span><span class="p">]:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Please select from PBE_52 and PBE_54!&quot;</span><span class="p">)</span>
 
@@ -1748,13 +1872,15 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class for writing NEB inputs. Note that EDIFF is not on a per atom</span>
 <span class="sd">    basis for this input set.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        unset_encut (bool): Whether to unset ENCUT.</span>
-<span class="sd">        **kwargs: Other kwargs supported by :class:`DictSet`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structures</span><span class="p">,</span> <span class="n">unset_encut</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structures: List of Structure objects.</span>
+<span class="sd">            unset_encut (bool): Whether to unset ENCUT.</span>
+<span class="sd">            **kwargs: Other kwargs supported by :class:`DictSet`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">structures</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;You need at least 3 structures for an NEB.&quot;</span><span class="p">)</span>
         <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;sort_structure&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
@@ -1775,10 +1901,16 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">poscar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Poscar for structure of first end point.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Poscar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">poscars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: List of Poscars.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">Poscar</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">]</span>
 
     <span class="nd">@staticmethod</span>
@@ -1852,23 +1984,25 @@
 
 <div class="viewcode-block" id="MITMDSet"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MITMDSet">[docs]</a><span class="k">class</span> <span class="nc">MITMDSet</span><span class="p">(</span><span class="n">MITRelaxSet</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Clas for writing a vasp md run. This DOES NOT do multiple stage</span>
+<span class="sd">    Class for writing a vasp md run. This DOES NOT do multiple stage</span>
 <span class="sd">    runs.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        structure (Structure): Input structure.</span>
-<span class="sd">        start_temp (int): Starting temperature.</span>
-<span class="sd">        end_temp (int): Final temperature.</span>
-<span class="sd">        nsteps (int): Number of time steps for simulations. NSW parameter.</span>
-<span class="sd">        time_step (int): The time step for the simulation. The POTIM</span>
-<span class="sd">            parameter. Defaults to 2fs.</span>
-<span class="sd">        spin_polarized (bool): Whether to do spin polarized calculations.</span>
-<span class="sd">            The ISPIN parameter. Defaults to False.</span>
-<span class="sd">        **kwargs: Other kwargs supported by :class:`DictSet`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">start_temp</span><span class="p">,</span> <span class="n">end_temp</span><span class="p">,</span> <span class="n">nsteps</span><span class="p">,</span> <span class="n">time_step</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
                  <span class="n">spin_polarized</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): Input structure.</span>
+<span class="sd">            start_temp (int): Starting temperature.</span>
+<span class="sd">            end_temp (int): Final temperature.</span>
+<span class="sd">            nsteps (int): Number of time steps for simulations. NSW parameter.</span>
+<span class="sd">            time_step (int): The time step for the simulation. The POTIM</span>
+<span class="sd">                parameter. Defaults to 2fs.</span>
+<span class="sd">            spin_polarized (bool): Whether to do spin polarized calculations.</span>
+<span class="sd">                The ISPIN parameter. Defaults to False.</span>
+<span class="sd">            **kwargs: Other kwargs supported by :class:`DictSet`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># MD default settings</span>
         <span class="n">defaults</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;TEBEG&#39;</span><span class="p">:</span> <span class="n">start_temp</span><span class="p">,</span> <span class="s1">&#39;TEEND&#39;</span><span class="p">:</span> <span class="n">end_temp</span><span class="p">,</span> <span class="s1">&#39;NSW&#39;</span><span class="p">:</span> <span class="n">nsteps</span><span class="p">,</span>
                     <span class="s1">&#39;EDIFF_PER_ATOM&#39;</span><span class="p">:</span> <span class="mf">0.000001</span><span class="p">,</span> <span class="s1">&#39;LSCALU&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
@@ -1899,6 +2033,9 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">kpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Kpoints</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Kpoints</span><span class="o">.</span><span class="n">gamma_automatic</span><span class="p">()</span></div>
 
 
@@ -1914,21 +2051,22 @@
 
 <span class="sd">    Class for writing a vasp md run. This DOES NOT do multiple stage runs.</span>
 <span class="sd">    Precision remains normal, to increase accuracy of stress tensor.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        structure (Structure): Input structure.</span>
-<span class="sd">        start_temp (int): Starting temperature.</span>
-<span class="sd">        end_temp (int): Final temperature.</span>
-<span class="sd">        nsteps (int): Number of time steps for simulations. NSW parameter.</span>
-<span class="sd">        time_step (int): The time step for the simulation. The POTIM</span>
-<span class="sd">            parameter. Defaults to 2fs.</span>
-<span class="sd">        spin_polarized (bool): Whether to do spin polarized calculations.</span>
-<span class="sd">            The ISPIN parameter. Defaults to False.</span>
-<span class="sd">        **kwargs: Other kwargs supported by :class:`DictSet`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">start_temp</span><span class="p">,</span> <span class="n">end_temp</span><span class="p">,</span> <span class="n">nsteps</span><span class="p">,</span>
                  <span class="n">spin_polarized</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): Input structure.</span>
+<span class="sd">            start_temp (int): Starting temperature.</span>
+<span class="sd">            end_temp (int): Final temperature.</span>
+<span class="sd">            nsteps (int): Number of time steps for simulations. NSW parameter.</span>
+<span class="sd">            time_step (int): The time step for the simulation. The POTIM</span>
+<span class="sd">                parameter. Defaults to 2fs.</span>
+<span class="sd">            spin_polarized (bool): Whether to do spin polarized calculations.</span>
+<span class="sd">                The ISPIN parameter. Defaults to False.</span>
+<span class="sd">            **kwargs: Other kwargs supported by :class:`DictSet`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># MD default settings</span>
         <span class="n">defaults</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;TEBEG&#39;</span><span class="p">:</span> <span class="n">start_temp</span><span class="p">,</span> <span class="s1">&#39;TEEND&#39;</span><span class="p">:</span> <span class="n">end_temp</span><span class="p">,</span> <span class="s1">&#39;NSW&#39;</span><span class="p">:</span> <span class="n">nsteps</span><span class="p">,</span>
@@ -1963,6 +2101,9 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">kpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Kpoints</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Kpoints</span><span class="o">.</span><span class="n">gamma_automatic</span><span class="p">()</span></div>
 
 
@@ -1973,21 +2114,22 @@
 <span class="sd">    Notes:</span>
 <span class="sd">        To eliminate Pulay stress, the default ENCUT is set to a rather large</span>
 <span class="sd">        value of ENCUT, which is 1.5 * ENMAX.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        structure (Structure): input structure.</span>
-<span class="sd">        start_temp (int): Starting temperature.</span>
-<span class="sd">        end_temp (int): Final temperature.</span>
-<span class="sd">        nsteps(int): Number of time steps for simulations. NSW parameter.</span>
-<span class="sd">        time_step (int): The time step for the simulation. The POTIM</span>
-<span class="sd">            parameter. Defaults to 2fs.</span>
-<span class="sd">        spin_polarized (bool): Whether to do spin polarized calculations.</span>
-<span class="sd">            The ISPIN parameter. Defaults to False.</span>
-<span class="sd">        **kwargs: Other kwargs supported by :class:`DictSet`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">start_temp</span><span class="p">,</span> <span class="n">end_temp</span><span class="p">,</span> <span class="n">nsteps</span><span class="p">,</span> <span class="n">time_step</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
                  <span class="n">spin_polarized</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): input structure.</span>
+<span class="sd">            start_temp (int): Starting temperature.</span>
+<span class="sd">            end_temp (int): Final temperature.</span>
+<span class="sd">            nsteps(int): Number of time steps for simulations. NSW parameter.</span>
+<span class="sd">            time_step (int): The time step for the simulation. The POTIM</span>
+<span class="sd">                parameter. Defaults to 2fs.</span>
+<span class="sd">            spin_polarized (bool): Whether to do spin polarized calculations.</span>
+<span class="sd">                The ISPIN parameter. Defaults to False.</span>
+<span class="sd">            **kwargs: Other kwargs supported by :class:`DictSet`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">user_incar_settings</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;user_incar_settings&quot;</span><span class="p">,</span> <span class="p">{})</span>
 
         <span class="c1"># NPT-AIMD default settings</span>
@@ -2030,17 +2172,18 @@
 <span class="sd">            kinetic energy-density</span>
 <span class="sd">            mkinetic energy-density pseudized</span>
 <span class="sd">            kinetic energy density (partial)</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        structure (Structure): input structure.</span>
-<span class="sd">        potcar_functional (str): choose from &quot;PBE_52&quot; and &quot;PBE_54&quot;.</span>
-<span class="sd">        vdw (str): set &quot;rVV10&quot; to enable SCAN+rVV10, which is a versatile</span>
-<span class="sd">            van der Waals density functional by combing the SCAN functional</span>
-<span class="sd">            with the rVV10 non-local correlation functional.</span>
-<span class="sd">        **kwargs: Other kwargs supported by :class:`DictSet`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">potcar_functional</span><span class="o">=</span><span class="s2">&quot;PBE_52&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): input structure.</span>
+<span class="sd">            potcar_functional (str): choose from &quot;PBE_52&quot; and &quot;PBE_54&quot;.</span>
+<span class="sd">            vdw (str): set &quot;rVV10&quot; to enable SCAN+rVV10, which is a versatile</span>
+<span class="sd">                van der Waals density functional by combing the SCAN functional</span>
+<span class="sd">                with the rVV10 non-local correlation functional.</span>
+<span class="sd">            **kwargs: Other kwargs supported by :class:`DictSet`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">potcar_functional</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;PBE_52&quot;</span><span class="p">,</span> <span class="s2">&quot;PBE_54&quot;</span><span class="p">]:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;SCAN calculations required PBE_52 or PBE_54!&quot;</span><span class="p">)</span>
 
@@ -2057,22 +2200,27 @@
 
 
 <div class="viewcode-block" id="LobsterSet"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.LobsterSet">[docs]</a><span class="k">class</span> <span class="nc">LobsterSet</span><span class="p">(</span><span class="n">MPRelaxSet</span><span class="p">):</span>
-    <span class="n">CONFIG</span> <span class="o">=</span> <span class="n">_load_yaml_config</span><span class="p">(</span><span class="s2">&quot;MPRelaxSet&quot;</span><span class="p">)</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Input set to prepare VASP runs that can be digested by Lobster (See cohp.de)</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        structure (Structure): input structure.</span>
-<span class="sd">        isym (int): ISYM entry for INCAR, only isym=-1 and isym=0 are allowed</span>
-<span class="sd">        ismear (int): ISMEAR entry for INCAR, only ismear=-5 and ismear=0 are allowed</span>
-<span class="sd">        reciprocal_density (int): density of k-mesh by reciprocal volume</span>
-<span class="sd">        potcar_functional (string): only PBE_54, PBE_52 and PBE are recommended at the moment</span>
-<span class="sd">        **kwargs: Other kwargs supported by :class:`DictSet`.</span>
-
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">isym</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">ismear</span><span class="o">=-</span><span class="mi">5</span><span class="p">,</span> <span class="n">reciprocal_density</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">potcar_functional</span><span class="o">=</span><span class="s2">&quot;PBE_54&quot;</span><span class="p">,</span>
+    <span class="n">CONFIG</span> <span class="o">=</span> <span class="n">_load_yaml_config</span><span class="p">(</span><span class="s2">&quot;MPRelaxSet&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">isym</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">ismear</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="n">reciprocal_density</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">potcar_functional</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PBE_54&quot;</span><span class="p">,</span> <span class="n">address_basis_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">user_supplied_basis</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): input structure.</span>
+<span class="sd">            isym (int): ISYM entry for INCAR, only isym=-1 and isym=0 are allowed</span>
+<span class="sd">            ismear (int): ISMEAR entry for INCAR, only ismear=-5 and ismear=0 are allowed</span>
+<span class="sd">            reciprocal_density (int): density of k-mesh by reciprocal volume</span>
+<span class="sd">            potcar_functional (string): only PBE_54, PBE_52 and PBE are recommended at the moment</span>
+<span class="sd">            user_supplied_basis (dict): dict including basis functions for all elements in structure,</span>
+<span class="sd">                e.g. {&quot;Fe&quot;: &quot;3d 3p 4s&quot;, &quot;O&quot;: &quot;2s 2p&quot;}; if not supplied, a standard basis is used</span>
+<span class="sd">            address_basis_file (str): address to a file similar to &quot;BASIS_PBE_54.yaml&quot; in pymatgen.io</span>
+<span class="sd">            **kwargs: Other kwargs supported by :class:`DictSet`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Make sure that all parameters are okay! This is a brand new implementation.&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">isym</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">or</span> <span class="n">isym</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
@@ -2103,9 +2251,22 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">isym</span> <span class="o">=</span> <span class="n">isym</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ismear</span> <span class="o">=</span> <span class="n">ismear</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">user_supplied_basis</span> <span class="o">=</span> <span class="n">user_supplied_basis</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">address_basis_file</span> <span class="o">=</span> <span class="n">address_basis_file</span>
         <span class="c1"># predefined basis! Check if the basis is okay! (charge spilling and bandoverlaps!)</span>
-        <span class="n">basis</span> <span class="o">=</span> <span class="n">Lobsterin</span><span class="o">.</span><span class="n">_get_basis</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span>
-                                     <span class="n">potcar_symbols</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">potcar_symbols</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">user_supplied_basis</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">address_basis_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">basis</span> <span class="o">=</span> <span class="n">Lobsterin</span><span class="o">.</span><span class="n">_get_basis</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span>
+                                         <span class="n">potcar_symbols</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">potcar_symbols</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">address_basis_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">basis</span> <span class="o">=</span> <span class="n">Lobsterin</span><span class="o">.</span><span class="n">_get_basis</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span>
+                                         <span class="n">potcar_symbols</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">potcar_symbols</span><span class="p">,</span> <span class="n">address_basis_file</span><span class="o">=</span><span class="n">address_basis_file</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">user_supplied_basis</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># test if all elements from structure are in user_supplied_basis</span>
+            <span class="k">for</span> <span class="n">atomtype</span> <span class="ow">in</span> <span class="n">structure</span><span class="o">.</span><span class="n">symbol_set</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">atomtype</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">user_supplied_basis</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;There are no basis functions for the atom type &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">atomtype</span><span class="p">))</span>
+            <span class="n">basis</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">user_supplied_basis</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+
         <span class="n">lobsterin</span> <span class="o">=</span> <span class="n">Lobsterin</span><span class="p">(</span><span class="n">settingsdict</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;basisfunctions&quot;</span><span class="p">:</span> <span class="n">basis</span><span class="p">})</span>
         <span class="n">nbands</span> <span class="o">=</span> <span class="n">lobsterin</span><span class="o">.</span><span class="n">_get_nbands</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">)</span>
 
@@ -2117,6 +2278,12 @@
 
 
 <div class="viewcode-block" id="get_vasprun_outcar"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.get_vasprun_outcar">[docs]</a><span class="k">def</span> <span class="nf">get_vasprun_outcar</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">parse_dos</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parse_eigen</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :param path: Path to get the vasprun.xml and OUTCAR.</span>
+<span class="sd">    :param parse_dos: Whether to parse dos. Defaults to True.</span>
+<span class="sd">    :param parse_eigen: Whether to parse eigenvalue. Defaults to True.</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
     <span class="n">vruns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;vasprun.xml*&quot;</span><span class="p">)))</span>
     <span class="n">outcars</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;OUTCAR*&quot;</span><span class="p">)))</span>
@@ -2216,6 +2383,9 @@
 
 
 <div class="viewcode-block" id="BadInputSetWarning"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.BadInputSetWarning">[docs]</a><span class="k">class</span> <span class="nc">BadInputSetWarning</span><span class="p">(</span><span class="ne">UserWarning</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Warning class for bad but legal inputs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">pass</span></div>
 
 
@@ -2293,7 +2463,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.10.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -2301,7 +2471,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

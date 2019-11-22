@@ -17,10 +17,10 @@ class CrystalAIResterTest(PymatgenTest):
         self.assertIn("log10K", models)
 
         self.assertAlmostEqual(m.predict_mp("formation_energy", "mp-1143"),
-                               -3.446291923522949)
+                               -3.446291923522949, 4)
         s = PymatgenTest.get_structure("Li2O")
         self.assertAlmostEqual(m.predict_structure("formation_energy", s),
-                               -2.015296220779419)
+                               -2.015296220779419, 4)
 
 
 if __name__ == "__main__":

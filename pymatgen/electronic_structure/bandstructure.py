@@ -14,7 +14,7 @@ import collections
 import warnings
 
 from monty.json import MSONable
-from pymatgen.core.periodic_table import get_el_sp, Specie
+from pymatgen.core.periodic_table import get_el_sp, Element
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.electronic_structure.core import Spin, Orbital
@@ -838,7 +838,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
                             old_dict['bands'][spin][k][v] = \
                                 old_dict['bands'][spin][k][v] + shift
             old_dict['efermi'] = old_dict['efermi'] + shift
-            return BandStructureSymmLine.from_dict(old_dict)
+        return self.from_dict(old_dict)
 
     def as_dict(self):
         """
@@ -965,70 +965,6 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
     Lobster subclass of BandStructure with customized functions.
     """
 
-    def apply_scissor(self, new_band_gap):
-        """
-        Apply a scissor operator (shift of the CBM) to fit the given band gap.
-        If it's a metal. We look for the band crossing the fermi level
-        and shift this one up. This will not work all the time for metals!
-
-        Args:
-            new_band_gap: the band gap the scissor band structure need to have.
-
-        Returns:
-            a BandStructureSymmLine object with the applied scissor shift
-        """
-        if self.is_metal():
-            # moves then the highest index band crossing the fermi level
-            # find this band...
-            max_index = -1000
-            # spin_index = None
-            for i in range(self.nb_bands):
-                below = False
-                above = False
-                for j in range(len(self.kpoints)):
-                    if self.bands[Spin.up][i][j] < self.efermi:
-                        below = True
-                    if self.bands[Spin.up][i][j] > self.efermi:
-                        above = True
-                if above and below:
-                    if i > max_index:
-                        max_index = i
-                        # spin_index = Spin.up
-                if self.is_spin_polarized:
-                    below = False
-                    above = False
-                    for j in range(len(self.kpoints)):
-                        if self.bands[Spin.down][i][j] < self.efermi:
-                            below = True
-                        if self.bands[Spin.down][i][j] > self.efermi:
-                            above = True
-                    if above and below:
-                        if i > max_index:
-                            max_index = i
-                            # spin_index = Spin.down
-            old_dict = self.as_dict()
-            shift = new_band_gap
-            for spin in old_dict['bands']:
-                for k in range(len(old_dict['bands'][spin])):
-                    for v in range(len(old_dict['bands'][spin][k])):
-                        if k >= max_index:
-                            old_dict['bands'][spin][k][v] = \
-                                old_dict['bands'][spin][k][v] + shift
-        else:
-
-            shift = new_band_gap - self.get_band_gap()['energy']
-            old_dict = self.as_dict()
-            for spin in old_dict['bands']:
-                for k in range(len(old_dict['bands'][spin])):
-                    for v in range(len(old_dict['bands'][spin][k])):
-                        if old_dict['bands'][spin][k][v] >= \
-                                old_dict['cbm']['energy']:
-                            old_dict['bands'][spin][k][v] = \
-                                old_dict['bands'][spin][k][v] + shift
-            old_dict['efermi'] = old_dict['efermi'] + shift
-
-            return LobsterBandStructureSymmLine.from_dict(old_dict)
-
     def as_dict(self):
         """
         Json-serializable dict representation of BandStructureSymmLine.
@@ -1095,7 +1031,6 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
                 structure = Structure.from_dict(d['structure'])
                 projections = {Spin(int(spin)): np.array(v)
                                for spin, v in d["projections"].items()}
-                print(projections)
 
             return LobsterBandStructureSymmLine(
                 d['kpoints'], {Spin(int(k)): d['bands'][k]
@@ -1160,7 +1095,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
                                           range(len(self.kpoints))):
                 for key, item in v[i][j].items():
                     for key2, item2 in item.items():
-                        specie = str(Specie(re.split(r"[0-9]+", key)[0]))
+                        specie = str(Element(re.split(r"[0-9]+", key)[0]))
                         result[spin][i][j][specie] += item2
         return result
 
@@ -1193,7 +1128,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
                                           range(len(self.kpoints))):
                 for key, item in v[i][j].items():
                     for key2, item2 in item.items():
-                        specie = str(Specie(re.split(r"[0-9]+", key)[0]))
+                        specie = str(Element(re.split(r"[0-9]+", key)[0]))
                         if get_el_sp(str(specie)) in el_orb_spec:
                             if key2 in el_orb_spec[get_el_sp(str(specie))]:
                                 result[spin][i][j][specie][key2] += item2

@@ -167,6 +167,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
 
     @property
     def filepath(self):
+        """Absolute path to pseudopotential file."""
         return os.path.abspath(self.path)
 
     @property
@@ -186,6 +187,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
 
     @property
     def type(self):
+        """Type of pseudo."""
         return self.__class__.__name__
 
     @property
@@ -245,6 +247,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
 
     @pmg_serialize
     def as_dict(self, **kwargs):
+        """Return dictionary for MSONable protocol."""
         return dict(
             basename=self.basename,
             type=self.type,
@@ -259,6 +262,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
 
     @classmethod
     def from_dict(cls, d):
+        """Build instance from dictionary (MSONable protocol)."""
         new = cls.from_file(d['filepath'])
 
         # Consistency test based on md5
@@ -352,7 +356,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
             ecut: Cutoff energy in Hartree.
             pawecutdg: Cutoff energy for the PAW double grid.
         """
-        from pymatgen.io.abinit.tasks import AbinitTask
+        from abipy.flowtk import AbinitTask
         from abipy.core.structure import Structure
         from abipy.abio.factories import gs_input
         from abipy.electrons.psps import PspsFile
@@ -566,10 +570,12 @@ class Hint:
 
     @pmg_serialize
     def as_dict(self):
+        """Return dictionary for MSONable protocol."""
         return dict(ecut=self.ecut, pawecutdg=self.pawecutdg)
 
     @classmethod
     def from_dict(cls, d):
+        """Build instance from dictionary (MSONable protocol)."""
         return cls(**{k: v for k, v in d.items() if not k.startswith("@")})
 
 
@@ -1669,6 +1675,7 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
     #    return ecut, pawecutdg
 
     def as_dict(self, **kwargs):
+        """Return dictionary for MSONable protocol."""
         d = {}
         for p in self:
             k, count = p.element.name, 1
@@ -1684,6 +1691,7 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
 
     @classmethod
     def from_dict(cls, d):
+        """Build instance from dictionary (MSONable protocol)."""
         pseudos = []
         dec = MontyDecoder()
         for k, v in d.items():
@@ -1875,5 +1883,8 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
         return self.__class__([p for p in self if p.element.row in rows])
 
     def select_family(self, family):
+        """
+        Return PseudoTable with element beloging to the specified family, e.g. familiy="alkaline"
+        """
         # e.g element.is_alkaline
         return self.__class__([p for p in self if getattr(p.element, "is_" + family)])

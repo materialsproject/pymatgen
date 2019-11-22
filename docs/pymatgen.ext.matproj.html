@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.ext.matproj module &#8212; pymatgen 2019.10.4 documentation</title>
+    <title>pymatgen.ext.matproj module &#8212; pymatgen 2019.11.11 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -238,6 +238,27 @@ e.g., mp-1234).</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A Dos object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.ext.matproj.MPRester.get_download_info">
+<code class="sig-name descname">get_download_info</code><span class="sig-paren">(</span><em class="sig-param">material_ids</em>, <em class="sig-param">task_types=None</em>, <em class="sig-param">file_patterns=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_download_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_download_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>get a list of URLs to retrieve raw VASP output files from the NoMaD repository</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>material_ids</strong> (<em>list</em>) – list of material identifiers (mp-id’s)</p></li>
+<li><p><strong>task_types</strong> (<em>list</em>) – list of task types to include in download (see TaskType Enum class)</p></li>
+<li><p><strong>file_patterns</strong> (<em>list</em>) – list of wildcard file names to include for each task</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a tuple of 1) a dictionary mapping material_ids to task_ids and
+task_types, and 2) a list of URLs to download zip archives from
+NoMaD repository. Each zip archive will contain a manifest.json with
+metadata info, e.g. the task/external_ids that belong to a directory</p>
 </dd>
 </dl>
 </dd></dl>
@@ -960,6 +981,83 @@ assimilate. Defaults to None, which means serial.</p></li>
 
 </dd></dl>
 
+<dl class="class">
+<dt id="pymatgen.ext.matproj.TaskType">
+<em class="property">class </em><code class="sig-name descname">TaskType</code><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#TaskType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.TaskType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>task types available in MP</p>
+<dl class="attribute">
+<dt id="pymatgen.ext.matproj.TaskType.GGAU_DEF">
+<code class="sig-name descname">GGAU_DEF</code><em class="property"> = 'GGA+U Deformation'</em><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGAU_DEF" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.ext.matproj.TaskType.GGAU_LINE">
+<code class="sig-name descname">GGAU_LINE</code><em class="property"> = 'GGA+U NSCF Line'</em><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGAU_LINE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.ext.matproj.TaskType.GGAU_OPT">
+<code class="sig-name descname">GGAU_OPT</code><em class="property"> = 'GGA+U Structure Optimization'</em><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGAU_OPT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.ext.matproj.TaskType.GGAU_STATIC">
+<code class="sig-name descname">GGAU_STATIC</code><em class="property"> = 'GGA+U Static'</em><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGAU_STATIC" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.ext.matproj.TaskType.GGAU_STATIC_DIEL">
+<code class="sig-name descname">GGAU_STATIC_DIEL</code><em class="property"> = 'GGA+U Static Dielectric'</em><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGAU_STATIC_DIEL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.ext.matproj.TaskType.GGAU_UNIFORM">
+<code class="sig-name descname">GGAU_UNIFORM</code><em class="property"> = 'GGA+U NSCF Uniform'</em><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGAU_UNIFORM" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.ext.matproj.TaskType.GGA_DEF">
+<code class="sig-name descname">GGA_DEF</code><em class="property"> = 'GGA Deformation'</em><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGA_DEF" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.ext.matproj.TaskType.GGA_LINE">
+<code class="sig-name descname">GGA_LINE</code><em class="property"> = 'GGA NSCF Line'</em><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGA_LINE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.ext.matproj.TaskType.GGA_OPT">
+<code class="sig-name descname">GGA_OPT</code><em class="property"> = 'GGA Structure Optimization'</em><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGA_OPT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.ext.matproj.TaskType.GGA_STATIC">
+<code class="sig-name descname">GGA_STATIC</code><em class="property"> = 'GGA Static'</em><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGA_STATIC" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.ext.matproj.TaskType.GGA_STATIC_DIEL">
+<code class="sig-name descname">GGA_STATIC_DIEL</code><em class="property"> = 'GGA Static Dielectric'</em><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGA_STATIC_DIEL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.ext.matproj.TaskType.GGA_UNIFORM">
+<code class="sig-name descname">GGA_UNIFORM</code><em class="property"> = 'GGA NSCF Uniform'</em><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.GGA_UNIFORM" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.ext.matproj.TaskType.LDA_STATIC_DIEL">
+<code class="sig-name descname">LDA_STATIC_DIEL</code><em class="property"> = 'LDA Static Dielectric'</em><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.LDA_STATIC_DIEL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.ext.matproj.TaskType.SCAN_OPT">
+<code class="sig-name descname">SCAN_OPT</code><em class="property"> = 'SCAN Structure Optimization'</em><a class="headerlink" href="#pymatgen.ext.matproj.TaskType.SCAN_OPT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
 
 
@@ -998,13 +1096,13 @@ assimilate. Defaults to None, which means serial.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.10.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -62,7 +62,7 @@ library by making your own contributions.  These contributions can be in the
 form of additional tools or modules you develop, or feature requests and bug
 reports. Please report any bugs and issues at pymatgen's [Github page]
 (https://github.com/materialsproject/pymatgen). For help with any pymatgen
-issues, please use the [Discourse page](https://pymatgen.discourse.group).
+issues, please use the [Discourse page](https://discuss.matsci.org/c/pymatgen).
 
 Why use pymatgen?
 =================
@@ -101,7 +101,7 @@ who require Python 2.7 should install pymatgen v2018.x.
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2019.10.4",
+    version="2019.11.11",
     cmdclass={'build_ext': build_ext},
     setup_requires=['numpy>=1.14.3', 'setuptools>=18.0'],
     python_requires='>=3.6',
@@ -113,7 +113,7 @@ setup(
         "provenance": ["pybtex"],
         "ase": ["ase>=3.3"],
         "vis": ["vtk>=6.0.0"],
-        "abinit": ["apscheduler", "netcdf4"],
+        "abinit": ["netcdf4"],
         ':python_version < "3.7"': [
             "dataclasses>=0.6",
         ]},
