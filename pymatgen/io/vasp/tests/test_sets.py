@@ -389,6 +389,22 @@ class MPStaticSetTest(PymatgenTest):
                                                   lcalcpol=True)
         self.assertTrue(lcalcpol_vis.incar["LCALCPOL"])
 
+    def test_user_incar_kspacing(self):
+        # Make sure user KSPACING settings properly overrides KPOINTS.
+        si = self.get_structure('Si')
+        vis = MPRelaxSet(si, user_incar_settings={"KSPACING": 0.22})
+        self.assertEqual(vis.incar["KSPACING"], 0.22)
+        self.assertEqual(vis.kpoints, None)
+
+    def test_kspacing_override(self):
+        # If KSPACING is set and user_kpoints_settings are given,
+        # make sure the user_kpoints_settings override KSPACING
+        si = self.get_structure('Si')
+        vis = MPRelaxSet(si, user_incar_settings={"KSPACING": 0.22},
+                         user_kpoints_settings={"reciprocal_density": 1000})
+        self.assertEqual(vis.incar.get("KSPACING"), None)
+        self.assertIsInstance(vis.kpoints, Kpoints)
+
     def test_override_from_prev_calc(self):
         # test override_from_prev
         prev_run = self.TEST_FILES_DIR / "relaxation"
