@@ -361,6 +361,7 @@ class Critic2Output(MSONable):
 
         self.nodes = {}
         self.edges = {}
+        self.processed_dict
 
         self._parse_stdout(critic2_stdout)
 
@@ -639,7 +640,7 @@ class Critic2Output(MSONable):
             return_dict["bonds"] = bonds
             return_dict["charges"] = charges
             # dumpfn(return_dict,"../processed_critic2.json")
-            return return_dict
+            self.processed_dict = return_dict
             
 
     def _add_node(self, idx, unique_idx, frac_coords):
