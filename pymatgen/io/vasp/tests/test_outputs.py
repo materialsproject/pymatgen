@@ -82,6 +82,12 @@ class VasprunTest(PymatgenTest):
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.hse06")
         self.assertIn(v.run_type, "HSE06")
 
+        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.dfpt.ionic")
+        self.assertIn(v.run_type, "GGA")
+
+        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.dfpt")
+        self.assertIn(v.run_type, "GGA+U")
+
     def test_vdw(self):
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.vdw")
         self.assertAlmostEqual(v.final_energy, -9.78310677)
