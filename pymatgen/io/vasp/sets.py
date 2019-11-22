@@ -1110,6 +1110,11 @@ class MPNonSCFSet(MPRelaxSet):
         """
         :return: Kpoints
         """
+        # override pymatgen kpoints if provided
+        user_kpoints = self.kwargs.get("user_kpoints_settings", None)
+        if isinstance(user_kpoints, Kpoints):
+            return user_kpoints
+
         if self.mode.lower() == "line":
             kpath = HighSymmKpath(self.structure)
             frac_k_points, k_points_labels = kpath.get_kpoints(
@@ -1140,12 +1145,7 @@ class MPNonSCFSet(MPRelaxSet):
         else:
             self._config_dict["KPOINTS"]["reciprocal_density"] = \
                 self.reciprocal_density
-            kpoints = super().kpoints
-
-        # override pymatgen kpoints if provided
-        user_kpoints = self.kwargs.get("user_kpoints_settings", None)
-        if isinstance(user_kpoints, Kpoints):
-            kpoints = user_kpoints
+            return super().kpoints
 
         return kpoints
 
