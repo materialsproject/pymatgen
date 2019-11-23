@@ -2040,8 +2040,9 @@ class VaspInput(dict, MSONable):
         if make_dir_if_not_present and not os.path.exists(output_dir):
             os.makedirs(output_dir)
         for k, v in self.items():
-            with zopen(os.path.join(output_dir, k), "wt") as f:
-                f.write(v.__str__())
+            if v is not None:
+                with zopen(os.path.join(output_dir, k), "wt") as f:
+                    f.write(v.__str__())
 
     @staticmethod
     def from_directory(input_dir, optional_files=None):
@@ -2059,8 +2060,13 @@ class VaspInput(dict, MSONable):
         sub_d = {}
         for fname, ftype in [("INCAR", Incar), ("KPOINTS", Kpoints),
                              ("POSCAR", Poscar), ("POTCAR", Potcar)]:
-            fullzpath = zpath(os.path.join(input_dir, fname))
-            sub_d[fname.lower()] = ftype.from_file(fullzpath)
+            try:
+                fullzpath = zpath(os.path.join(input_dir, fname))
+                sub_d[fname.lower()] = ftype.from_file(fullzpath)
+            except FileNotFoundError:  # handle the case where there is no KPOINTS file
+                sub_d[fname.lower()] = None
+                pass
+
         sub_d["optional_files"] = {}
         if optional_files is not None:
             for fname, ftype in optional_files.items():

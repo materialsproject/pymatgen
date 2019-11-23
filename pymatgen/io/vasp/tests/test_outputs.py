@@ -79,8 +79,21 @@ class VasprunTest(PymatgenTest):
                                        UserWarning))
 
     def test_runtype(self):
+
+        v = Vasprun(self.TEST_FILES_DIR / "vasprun.GW0.xml")
+        self.assertIn(v.run_type, "HF")
+
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.hse06")
         self.assertIn(v.run_type, "HSE06")
+
+        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.scan_rvv10")
+        self.assertIn(v.run_type, "SCAN+rVV10")
+
+        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.dfpt.ionic")
+        self.assertIn(v.run_type, "GGA")
+
+        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.dfpt")
+        self.assertIn(v.run_type, "GGA+U")
 
     def test_vdw(self):
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.vdw")
@@ -977,6 +990,12 @@ class OutcarTest(PymatgenTest):
         self.assertEqual(matrices[0][Spin.up][0][0], 1.0227)
         self.assertEqual(len(matrices[0][Spin.up]), 5)
         self.assertEqual(len(matrices[0][Spin.up][0]), 5)
+        self.assertTrue("onsite_density_matrices" in outcar.as_dict())
+        outcar = Outcar(self.TEST_FILES_DIR / "OUTCAR_merged_numbers")
+        matrices = outcar.data["onsite_density_matrices"]
+        self.assertEqual(matrices[0][Spin.up][0][-1], 0.0)
+        self.assertEqual(len(matrices[0][Spin.up]), 7)
+        self.assertEqual(len(matrices[0][Spin.up][0]), 7)
         self.assertTrue("onsite_density_matrices" in outcar.as_dict())
 
 

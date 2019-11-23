@@ -1492,21 +1492,19 @@ class GrainBoundaryTransformation(AbstractTransformation):
     A transformation that creates a gb from a bulk structure.
     """
 
-    def __init__(
-        self,
-        rotation_axis,
-        rotation_angle,
-        expand_times=4,
-        vacuum_thickness=0.0,
-        ab_shift=[0, 0],
-        normal=False,
-        ratio=None,
-        plane=None,
-        max_search=20,
-        tol_coi=1.0e-8,
-        rm_ratio=0.7,
-        quick_gen=False,
-    ):
+    def __init__(self,
+                 rotation_axis,
+                 rotation_angle,
+                 expand_times=4,
+                 vacuum_thickness=0.0,
+                 ab_shift=[0, 0],
+                 normal=False,
+                 ratio=None,
+                 plane=None,
+                 max_search=20,
+                 tol_coi=1.0e-8,
+                 rm_ratio=0.7,
+                 quick_gen=False):
         """
         Args:
             rotation_axis (list): Rotation axis of GB in the form of a list of integer
