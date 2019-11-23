@@ -654,7 +654,6 @@ def get_plotly_json(wulff_shape, color_set='PuBu',
                     custom_colors=custom_colors)
 
     planes_data = []
-    wulff_planes = []
     for plane in wulff_shape.facets:
         if len(plane.points) < 1:
             # empty, plane is not on_wulff.
@@ -670,23 +669,22 @@ def get_plotly_json(wulff_shape, color_set='PuBu',
             y_pts.append(p[1])
             z_pts.append(p[2])
 
+        # remove duplicate x y z pts to save time
         all_xyz = []
-        [all_xyz.append(list(coord)) for coord in np.array([x_pts, y_pts, z_pts]).T if list(coord) not in all_xyz]
-        all_xyz = np.array(all_xyz)
-        x_pts, y_pts, z_pts = all_xyz.T[0], all_xyz.T[1], all_xyz.T[2]
+        [all_xyz.append(list(coord)) for coord in np.array([x_pts, y_pts, z_pts]).T \
+         if list(coord) not in all_xyz]
+        x_pts, y_pts, z_pts = np.array(all_xyz).T[0],\
+                              np.array(all_xyz).T[1], \
+                              np.array(all_xyz).T[2]
         index_list = [int(i) for i in np.linspace(0, len(x_pts) - 1, len(x_pts))]
 
-        #         index_list = [int(i) for i in np.linspace(0, len(pt)-1, len(pt))]
         tri_indices = np.array([c for c in itertools.combinations(index_list, 3)]).T
-        print(len(tri_indices[0]))
         hkl = hkl_tuple_to_str(wulff_shape.miller_list[plane.index])
         planes_data.append(go.Mesh3d(x=x_pts, y=y_pts, z=z_pts,
                                      i=tri_indices[0], j=tri_indices[1], k=tri_indices[2],
                                      color='rgba(%.5f, %.5f, %.5f, %.5f)' % tuple(np.array(plane_color) * 255),
                                      text=[r'Miller index: %s\n $\gamma$=%.3f %s' \
-                                           % (hkl, plane.e_surf, units)] * len(x_pts),
-                                     name='',
-                                     ))
+                                           % (hkl, plane.e_surf, units)] * len(x_pts), name=''))
 
     xaxis = dict(
         title='',
@@ -722,5 +720,4 @@ def get_plotly_json(wulff_shape, color_set='PuBu',
     fig = go.Figure(data=planes_data)
     fig.update_layout(dict(scene=dict(xaxis=xaxis, yaxis=yaxis,
                                       zaxis=zaxis)))
-
     return fig
