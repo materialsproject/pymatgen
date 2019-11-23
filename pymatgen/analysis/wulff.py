@@ -25,6 +25,8 @@ import scipy as sp
 from scipy.spatial import ConvexHull
 import logging
 import warnings
+import itertools
+import plotly.graph_objs as go
 
 __author__ = 'Zihan Xu, Richard Tran, Shyue Ping Ong'
 __copyright__ = 'Copyright 2013, The Materials Virtual Lab'
@@ -491,6 +493,83 @@ class WulffShape:
             ax.axis('off')
         return plt
 
+    def get_plotly_json(self, color_set='PuBu',
+                        off_color='red', alpha=1,
+                        custom_colors={}, units='$Jm^{-2}$'):
+        color_list, color_proxy, color_proxy_on_wulff, \
+        miller_on_wulff, e_surf_on_wulff = self. \
+            _get_colors(color_set, alpha, off_color,
+                        custom_colors=custom_colors)
+
+        planes_data = []
+        for plane in self.facets:
+            if len(plane.points) < 1:
+                # empty, plane is not on_wulff.
+                continue
+
+            plane_color = color_list[plane.index]
+            plane_color = (1, 0, 0, 1) if plane_color == 'red' else plane_color
+
+            pt = self.get_line_in_facet(plane)
+            x_pts, y_pts, z_pts = [], [], []
+            for p in pt:
+                x_pts.append(p[0])
+                y_pts.append(p[1])
+                z_pts.append(p[2])
+
+            # remove duplicate x y z pts to save time
+            all_xyz = []
+            [all_xyz.append(list(coord)) for coord in np.array([x_pts, y_pts, z_pts]).T \
+             if list(coord) not in all_xyz]
+            x_pts, y_pts, z_pts = np.array(all_xyz).T[0], \
+                                  np.array(all_xyz).T[1], \
+                                  np.array(all_xyz).T[2]
+            index_list = [int(i) for i in np.linspace(0, len(x_pts) - 1, len(x_pts))]
+
+            tri_indices = np.array([c for c in itertools.combinations(index_list, 3)]).T
+            hkl = hkl_tuple_to_str(self.miller_list[plane.index])
+            planes_data.append(go.Mesh3d(x=x_pts, y=y_pts, z=z_pts,
+                                         i=tri_indices[0], j=tri_indices[1], k=tri_indices[2],
+                                         color='rgba(%.5f, %.5f, %.5f, %.5f)' % tuple(np.array(plane_color) * 255),
+                                         text=[r'Miller index: %s\n $\gamma$=%.3f %s' \
+                                               % (hkl, plane.e_surf, units)] * len(x_pts), name=''))
+
+        xaxis = dict(
+            title='',
+            autorange=True,
+            showgrid=False,
+            zeroline=False,
+            showline=False,
+            ticks="",
+            showticklabels=False,
+            showbackground=False
+        )
+        yaxis = dict(
+            title='',
+            autorange=True,
+            showgrid=False,
+            zeroline=False,
+            showline=False,
+            ticks="",
+            showticklabels=False,
+            showbackground=False
+        )
+        zaxis = dict(
+            title='',
+            autorange=True,
+            showgrid=False,
+            zeroline=False,
+            showline=False,
+            ticks="",
+            showticklabels=False,
+            showbackground=False
+        )
+
+        fig = go.Figure(data=planes_data)
+        fig.update_layout(dict(scene=dict(xaxis=xaxis, yaxis=yaxis,
+                                          zaxis=zaxis)))
+        return fig
+
     def _get_azimuth_elev(self, miller_index):
         """
         Args:
@@ -640,84 +719,3 @@ class WulffShape:
             all_edges.extend(edges)
 
         return len(all_edges)
-
-import itertools
-import plotly.graph_objs as go
-
-
-def get_plotly_json(wulff_shape, color_set='PuBu',
-                    off_color='red', alpha=1,
-                    custom_colors={}, units='$Jm^{-2}$'):
-    color_list, color_proxy, color_proxy_on_wulff, \
-    miller_on_wulff, e_surf_on_wulff = wulff_shape. \
-        _get_colors(color_set, alpha, off_color,
-                    custom_colors=custom_colors)
-
-    planes_data = []
-    for plane in wulff_shape.facets:
-        if len(plane.points) < 1:
-            # empty, plane is not on_wulff.
-            continue
-
-        plane_color = color_list[plane.index]
-        plane_color = (1, 0, 0, 1) if plane_color == 'red' else plane_color
-
-        pt = wulff_shape.get_line_in_facet(plane)
-        x_pts, y_pts, z_pts = [], [], []
-        for p in pt:
-            x_pts.append(p[0])
-            y_pts.append(p[1])
-            z_pts.append(p[2])
-
-        # remove duplicate x y z pts to save time
-        all_xyz = []
-        [all_xyz.append(list(coord)) for coord in np.array([x_pts, y_pts, z_pts]).T \
-         if list(coord) not in all_xyz]
-        x_pts, y_pts, z_pts = np.array(all_xyz).T[0],\
-                              np.array(all_xyz).T[1], \
-                              np.array(all_xyz).T[2]
-        index_list = [int(i) for i in np.linspace(0, len(x_pts) - 1, len(x_pts))]
-
-        tri_indices = np.array([c for c in itertools.combinations(index_list, 3)]).T
-        hkl = hkl_tuple_to_str(wulff_shape.miller_list[plane.index])
-        planes_data.append(go.Mesh3d(x=x_pts, y=y_pts, z=z_pts,
-                                     i=tri_indices[0], j=tri_indices[1], k=tri_indices[2],
-                                     color='rgba(%.5f, %.5f, %.5f, %.5f)' % tuple(np.array(plane_color) * 255),
-                                     text=[r'Miller index: %s\n $\gamma$=%.3f %s' \
-                                           % (hkl, plane.e_surf, units)] * len(x_pts), name=''))
-
-    xaxis = dict(
-        title='',
-        autorange=True,
-        showgrid=False,
-        zeroline=False,
-        showline=False,
-        ticks="",
-        showticklabels=False,
-        showbackground=False
-    )
-    yaxis = dict(
-        title='',
-        autorange=True,
-        showgrid=False,
-        zeroline=False,
-        showline=False,
-        ticks="",
-        showticklabels=False,
-        showbackground=False
-    )
-    zaxis = dict(
-        title='',
-        autorange=True,
-        showgrid=False,
-        zeroline=False,
-        showline=False,
-        ticks="",
-        showticklabels=False,
-        showbackground=False
-    )
-
-    fig = go.Figure(data=planes_data)
-    fig.update_layout(dict(scene=dict(xaxis=xaxis, yaxis=yaxis,
-                                      zaxis=zaxis)))
-    return fig
