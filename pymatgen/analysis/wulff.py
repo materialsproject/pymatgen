@@ -529,12 +529,15 @@ class WulffShape:
             hkl = hkl_tuple_to_str(self.miller_list[plane.index])
             planes_data.append(go.Mesh3d(x=x_pts, y=y_pts, z=z_pts,
                                          i=tri_indices[0], j=tri_indices[1], k=tri_indices[2],
-                                         color='rgba(%.5f, %.5f, %.5f, %.5f)' % tuple(np.array(plane_color) * 255),
+                                         color='rgba(%.5f, %.5f, %.5f, %.5f)' \
+                                               % tuple(np.array(plane_color) * 255),
                                          text=[r'Miller index: %s\n $\gamma$=%.3f %s' \
-                                               % (hkl, plane.e_surf, units)] * len(x_pts), name=''))
+                                               % (hkl, plane.e_surf, units)] * len(x_pts),
+                                         hoverinfo='text', name=''))
 
-        axis_dict = dict(title='', autorange=True, showgrid=False, zeroline=False, ticks="",
-                         showline=False, showticklabels=False, showbackground=False)
+        axis_dict = dict(title='', autorange=True, showgrid=False,
+                         zeroline=False, ticks="", showline=False,
+                         showticklabels=False, showbackground=False)
         fig = go.Figure(data=planes_data)
         fig.update_layout(dict(scene=dict(xaxis=axis_dict, yaxis=axis_dict,
                                           zaxis=axis_dict)))
