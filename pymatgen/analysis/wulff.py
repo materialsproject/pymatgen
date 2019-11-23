@@ -493,9 +493,8 @@ class WulffShape:
             ax.axis('off')
         return plt
 
-    def get_plotly_json(self, color_set='PuBu',
-                        off_color='red', alpha=1,
-                        custom_colors={}, units='$Jm^{-2}$'):
+    def get_plotly(self, color_set='PuBu', off_color='red', alpha=1,
+                   custom_colors={}, units='$Jm^{-2}$'):
         color_list, color_proxy, color_proxy_on_wulff, \
         miller_on_wulff, e_surf_on_wulff = self. \
             _get_colors(color_set, alpha, off_color,
@@ -534,40 +533,11 @@ class WulffShape:
                                          text=[r'Miller index: %s\n $\gamma$=%.3f %s' \
                                                % (hkl, plane.e_surf, units)] * len(x_pts), name=''))
 
-        xaxis = dict(
-            title='',
-            autorange=True,
-            showgrid=False,
-            zeroline=False,
-            showline=False,
-            ticks="",
-            showticklabels=False,
-            showbackground=False
-        )
-        yaxis = dict(
-            title='',
-            autorange=True,
-            showgrid=False,
-            zeroline=False,
-            showline=False,
-            ticks="",
-            showticklabels=False,
-            showbackground=False
-        )
-        zaxis = dict(
-            title='',
-            autorange=True,
-            showgrid=False,
-            zeroline=False,
-            showline=False,
-            ticks="",
-            showticklabels=False,
-            showbackground=False
-        )
-
+        axis_dict = dict(title='', autorange=True, showgrid=False, zeroline=False, ticks="",
+                         showline=False, showticklabels=False, showbackground=False)
         fig = go.Figure(data=planes_data)
-        fig.update_layout(dict(scene=dict(xaxis=xaxis, yaxis=yaxis,
-                                          zaxis=zaxis)))
+        fig.update_layout(dict(scene=dict(xaxis=axis_dict, yaxis=axis_dict,
+                                          zaxis=axis_dict)))
         return fig
 
     def _get_azimuth_elev(self, miller_index):
