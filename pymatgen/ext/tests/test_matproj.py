@@ -418,7 +418,8 @@ class MPResterTest(PymatgenTest):
             ]
         })
         prefix = 'http://labdev-nomad.esc.rzg.mpg.de/fairdi/nomad/mp/api/raw/query?'
-        #ids = 'mp-23494,mp-688563,mp-32800,mp-746913'
+        # previous test
+        # ids = 'mp-23494,mp-688563,mp-32800,mp-746913'
         ids = 'mp-669929,mp-23494,mp-739635,mp-32800'
         self.assertEqual(
             urls[0], f'{prefix}file_pattern=vasprun*&file_pattern=OUTCAR*&external_id={ids}'
