@@ -69,7 +69,7 @@ class MPResterTest(PymatgenTest):
                           260571, 92198, 165000, 155580, 38209, 161479, 153699,
                           260569, 260570, 200155, 260572, 181341, 181342,
                           72545, 56291, 97764, 162282, 155635],
-                         0]
+                         3.999999999]
 
         for (i, prop) in enumerate(props):
             if prop not in ['hubbards', 'unit_cell_formula', 'elements',
