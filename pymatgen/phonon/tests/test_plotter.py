@@ -88,7 +88,7 @@ class ThermoPlotterTest(unittest.TestCase):
         self.plotter.plot_entropy(5, 100, 5, show=False)
         self.plotter.plot_internal_energy(5, 100, 5, show=False)
         self.plotter.plot_helmholtz_free_energy(5, 100, 5, show=False)
-        self.plotter.plot_thermodynamic_properties(5, 100, 5, show=False)
+        self.plotter.plot_thermodynamic_properties(5, 100, 5, show=False, fig_close=True)
 
 
 if __name__ == "__main__":
