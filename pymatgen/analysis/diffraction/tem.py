@@ -47,7 +47,7 @@ class TEMDot:
         Args:
               hkl (3-tuple): The hkl plane that the point corresponds/is indexed to.
               d_spacing (float): The interplanar spacing of the dot.
-              film_radius (float): The radius of the dot on the film. Determined 
+              film_radius (float): The radius of the dot on the film. Determined
               by microscope aberration equations (ie Cs corrections and other such
               aberrations)
               intensity (float): The intensity of the dot. Determines its brightness
@@ -85,7 +85,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             debye_waller_factors ({element symbol: float}): Allows the
             specification of Debye-Waller factors. Note that these
             factors are temperature dependent.
-            cs (float): the chromatic aberration coefficient. set by default to 1 mm.   
+            cs (float): the chromatic aberration coefficient. set by default to 1 mm.
             later on: may want "number of iterations", "magnification", "critical value of beam",
             "twin direction" for certain materials, "sample thickness", and "excitation error s"
         """
@@ -221,12 +221,12 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     def electron_scattering_factors(self, structure: Structure, bragg_angles: Dict[Tuple[int, int, int], float]) \
             -> Dict[Element, Dict]:
         """
-        Calculates atomic scattering factors for electrons using the Mott-Bethe formula (1st order Born approximation). 
+        Calculates atomic scattering factors for electrons using the Mott-Bethe formula (1st order Born approximation).
         Args:
             structure (Structure): The input structure.
-            bragg_angles (dict of 3-tuple to float): The Bragg angles for each hkl plane.   
+            bragg_angles (dict of 3-tuple to float): The Bragg angles for each hkl plane.
         Returns:
-            dict from atomic symbol to another dict of hkl plane to factor 
+            dict from atomic symbol to another dict of hkl plane to factor
         """
         electron_scattering_factors = {}
         x_ray_factors = self.x_ray_factors(structure, bragg_angles)
@@ -248,7 +248,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         Calculates the scattering factor for the whole cell.
         Args:
             structure (Structure): The input structure.
-            bragg_angles (dict of 3-tuple to float): The Bragg angles for each hkl plane.   
+            bragg_angles (dict of 3-tuple to float): The Bragg angles for each hkl plane.
         Returns:
             dict of hkl plane (3-tuple) to scattering factor
         """
@@ -271,9 +271,9 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         Calculates cell intensity for each hkl plane. For simplicity's sake, take I = |F|**2.
         Args:
             structure (Structure): The input structure.
-            bragg_angles (dict of 3-tuple to float): The Bragg angles for each hkl plane.  
+            bragg_angles (dict of 3-tuple to float): The Bragg angles for each hkl plane.
         Returns:
-            dict of hkl plane to cell intensity 
+            dict of hkl plane to cell intensity
         """
         csf = self.cell_scattering_factors(structure, bragg_angles)
         plane = bragg_angles.keys()
@@ -337,9 +337,9 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         Normalizes the cell_intensity dict to 1, for use in plotting.
         Args:
             structure (Structure): The input structure.
-            bragg_angles (dict of 3-tuple to float): The Bragg angles for each hkl plane.  
+            bragg_angles (dict of 3-tuple to float): The Bragg angles for each hkl plane.
         Returns:
-            dict of hkl plane to normalized cell intensity 
+            dict of hkl plane to normalized cell intensity
         """
         normalized_cell_intensity = {}
         cell_intensity = self.cell_intensity(structure, bragg_angles)
