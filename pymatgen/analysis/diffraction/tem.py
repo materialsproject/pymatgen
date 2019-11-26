@@ -48,10 +48,10 @@ class TEMDot:
               hkl (3-tuple): The hkl plane that the point corresponds/is indexed to.
               d_spacing (float): The interplanar spacing of the dot.
               film_radius (float): The radius of the dot on the film. Determined 
-                  by microscope aberration equations (ie Cs corrections and other such
-                  aberrations)
+              by microscope aberration equations (ie Cs corrections and other such
+              aberrations)
               intensity (float): The intensity of the dot. Determines its brightness
-                  in the pattern, relative to those of the other dots.
+              in the pattern, relative to those of the other dots.
               position (Position): The xy-coordinates of the dot on the plot.
         """
         self.position = position
@@ -73,18 +73,18 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         Initializes the TEM calculator with a given radiation.
         Args:
             symprec (float): Symmetry precision for structure refinement. If
-                set to 0, no refinement is done. Otherwise, refinement is
-                performed using spglib with provided precision.
+            set to 0, no refinement is done. Otherwise, refinement is
+            performed using spglib with provided precision.
             voltage (float): The wavelength is a function of the TEM microscope's
-            	voltage. By default, set to 200 kV. Units in kV.
+            voltage. By default, set to 200 kV. Units in kV.
             beam_direction: The direction of the electron beam fired onto the sample.
-                By default, set to [0,0,1], which corresponds to the normal direction
-                of the sample plane.
+            By default, set to [0,0,1], which corresponds to the normal direction
+            of the sample plane.
             camera_length (int): The distance from the sample to the projected diffraction pattern.
-                By default, set to 160 cm. Units in cm.
+            By default, set to 160 cm. Units in cm.
             debye_waller_factors ({element symbol: float}): Allows the
-                specification of Debye-Waller factors. Note that these
-                factors are temperature dependent.
+            specification of Debye-Waller factors. Note that these
+            factors are temperature dependent.
             cs (float): the chromatic aberration coefficient. set by default to 1 mm.   
             later on: may want "number of iterations", "magnification", "critical value of beam",
             "twin direction" for certain materials, "sample thickness", and "excitation error s"
@@ -257,7 +257,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         scattering_factor_curr = 0
         for plane in bragg_angles:
             for site in structure:
-                for sp, occu in site.species.items():  # depending on how this iterates it may increase scatt by factor of 2.
+                for sp, occu in site.species.items():
                     g_dot_r = np.dot(np.array(plane), np.transpose(site.frac_coords))
                     scattering_factor_curr += electron_scattering_factors[sp.symbol][plane] * np.exp(
                         2j * np.pi * g_dot_r)
@@ -291,12 +291,12 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         Args:
             structure (Structure): Input structure
             scaled (bool): Whether to return scaled intensities. The maximum
-                peak is set to a value of 100. Defaults to True. Use False if
-                you need the absolute values to combine XRD plots.
+            peak is set to a value of 100. Defaults to True. Use False if
+            you need the absolute values to combine XRD plots.
             two_theta_range ([float of length 2]): Tuple for range of
-                two_thetas to calculate in degrees. Defaults to (0, 90). Set to
-                None if you want all diffracted beams within the limiting
-                sphere of radius 2 / wavelength.
+            two_thetas to calculate in degrees. Defaults to (0, 90). Set to
+            None if you want all diffracted beams within the limiting
+            sphere of radius 2 / wavelength.
         Returns:
             (XRDPattern)
         """
@@ -423,7 +423,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             first_point = point
             first_d = first_point_dict[point]
         spacings = self.get_interplanar_spacings(structure, points)
-        # second is the first non-parallel-to-first-point vector when sorted. note 000 is "parallel" to every plane vector.
+        # second is the first non-parallel-to-first-point vector when sorted.
+        # note 000 is "parallel" to every plane vector.
         for plane in sorted(spacings.keys()):
             second_point, second_d = plane, spacings[plane]
             if not self.is_parallel(first_point, second_point):
