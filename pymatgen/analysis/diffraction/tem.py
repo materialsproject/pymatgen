@@ -139,7 +139,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         """
         if any(type(n) is tuple for n in points):
             return points
-        if points.size ==  0:
+        if len(points) == 0:
             return []
         filtered = np.where(np.dot(np.array(self.beam_direction), np.transpose(points)) == laue_zone)
         result = points[filtered]
@@ -318,10 +318,10 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             hkls_crude.append(plane)
         for k in sorted(xy_pairs.keys()):
             v = xy_pairs[k]
-            fam = get_unique_families(hkls_crude)
             if v / max_intensity * 100 > AbstractDiffractionPatternCalculator.SCALED_INTENSITY_TOL:
                 x.append(k)
                 y.append(v)
+        fam = get_unique_families(hkls_crude)
         hkls.append([{"hkl": hkl, "multiplicity": mult}
                      for hkl, mult in fam.items()])
         for plane in fam:
@@ -368,7 +368,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             structure (Structure): The input structure.
             points (list): All points to be checked.
         Returns:
-            dict of hkl plane to interplanar distance.
+            A dict of a hkl plane to max interplanar distance.
         """
         max_d = -100
         max_d_plane = (0, 0, 1)
