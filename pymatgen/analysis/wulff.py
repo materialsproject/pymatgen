@@ -493,8 +493,9 @@ class WulffShape:
             ax.axis('off')
         return plt
 
-    def get_plotly(self, color_set='PuBu', off_color='red', alpha=1,
-                   custom_colors={}, units='$Jm^{-2}$'):
+    def get_plotly(self, color_set='PuBu', off_color='red',
+                   alpha=1, custom_colors={}, units='$Jm^{-2}$'):
+
         color_list, color_proxy, color_proxy_on_wulff, \
         miller_on_wulff, e_surf_on_wulff = self. \
             _get_colors(color_set, alpha, off_color,
@@ -533,14 +534,15 @@ class WulffShape:
                                                % tuple(np.array(plane_color) * 255),
                                          text=[r'Miller index: %s\n $\gamma$=%.3f %s' \
                                                % (hkl, plane.e_surf, units)] * len(x_pts),
-                                         hoverinfo='text', name=''))
+                                         hoverinfo='text', name='%s' %(hkl)))
 
         axis_dict = dict(title='', autorange=True, showgrid=False,
                          zeroline=False, ticks="", showline=False,
                          showticklabels=False, showbackground=False)
         fig = go.Figure(data=planes_data)
-        fig.update_layout(dict(scene=dict(xaxis=axis_dict, yaxis=axis_dict,
-                                          zaxis=axis_dict)))
+        fig.update_layout(dict(showlegend=True, scene=\
+            dict(xaxis=axis_dict, yaxis=axis_dict, zaxis=axis_dict)))
+
         return fig
 
     def _get_azimuth_elev(self, miller_index):
