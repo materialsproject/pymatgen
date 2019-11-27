@@ -1,5 +1,6 @@
 numpy==1.17.4
 pydispatcher==2.0.5
+plotly==4.0.0
 sympy==1.4
 requests==2.22.0
 monty==3.0.2
