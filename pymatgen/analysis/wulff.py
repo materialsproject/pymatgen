@@ -27,6 +27,7 @@ import logging
 import warnings
 import itertools
 import plotly.graph_objs as go
+from pymatgen.util.string import unicodeify_spacegroup
 
 __author__ = 'Zihan Xu, Richard Tran, Shyue Ping Ong'
 __copyright__ = 'Copyright 2013, The Materials Virtual Lab'
@@ -485,7 +486,7 @@ class WulffShape:
                 extend='both', ticks=bounds[:-1], spacing='proportional',
                 orientation='vertical')
             units = "$J/m^2$" if units_in_JPERM2 else r"$eV/\AA^2$"
-            cbar.set_label('Surface Energies (%s)' % (units), fontsize=100)
+            cbar.set_label('Surface Energies (%s)' % (units), fontsize=25)
 
         if grid_off:
             ax.grid('off')
@@ -494,21 +495,22 @@ class WulffShape:
         return plt
 
     def get_plotly(self, color_set='PuBu', off_color='red',
-                   alpha=1, custom_colors={}, units='$Jm^{-2}$'):
+                   alpha=1, custom_colors={}, units_in_JPERM2=True):
 
+        units = 'Jm⁻²' if units_in_JPERM2 else 'eVÅ⁻²'
         color_list, color_proxy, color_proxy_on_wulff, \
         miller_on_wulff, e_surf_on_wulff = self. \
             _get_colors(color_set, alpha, off_color,
                         custom_colors=custom_colors)
 
-        planes_data = []
+        planes_data, color_scale, ticktext, tickvals = [], [], [], []
         for plane in self.facets:
             if len(plane.points) < 1:
                 # empty, plane is not on_wulff.
                 continue
 
             plane_color = color_list[plane.index]
-            plane_color = (1, 0, 0, 1) if plane_color == 'red' else plane_color
+            plane_color = (1, 0, 0, 1) if plane_color == off_color else plane_color # set to red for now
 
             pt = self.get_line_in_facet(plane)
             x_pts, y_pts, z_pts = [], [], []
@@ -527,15 +529,41 @@ class WulffShape:
             index_list = [int(i) for i in np.linspace(0, len(x_pts) - 1, len(x_pts))]
 
             tri_indices = np.array([c for c in itertools.combinations(index_list, 3)]).T
-            hkl = hkl_tuple_to_str(self.miller_list[plane.index])
+            hkl = unicodeify_spacegroup(hkl_tuple_to_str(self.miller_list[plane.index]))
+            color = 'rgba(%.5f, %.5f, %.5f, %.5f)' % tuple(np.array(plane_color) * 255)
+            # note hoverinfo is incompatible with latex, need unicode instead
             planes_data.append(go.Mesh3d(x=x_pts, y=y_pts, z=z_pts,
                                          i=tri_indices[0], j=tri_indices[1], k=tri_indices[2],
-                                         color='rgba(%.5f, %.5f, %.5f, %.5f)' \
-                                               % tuple(np.array(plane_color) * 255),
-                                         text=[r'Miller index: %s\n $\gamma$=%.3f %s' \
-                                               % (hkl, plane.e_surf, units)] * len(x_pts),
-                                         hoverinfo='text', name='%s' %(hkl)))
+                                         hovertemplate="<br>%{text}<br>"+\
+                                                       "%s=%.3f %s<br>" %(u"\u03b3",
+                                                                          plane.e_surf,
+                                                                          units),
+                                         color=color, text=[r'Miller index: %s' \
+                                                             % (hkl)] * len(x_pts),
+                                         hoverinfo='name', name=''))
 
+            # normalize surface energy from a scale of 0 to 1 for colorbar
+            norm_e = (plane.e_surf-min(e_surf_on_wulff))/(max(e_surf_on_wulff)-min(e_surf_on_wulff))
+            c = [norm_e, color]
+            if c not in color_scale:
+                color_scale.append(c)
+                ticktext.append("%.3f" %(plane.e_surf))
+                tickvals.append(norm_e)
+
+        # Add colorbar
+        color_scale = sorted(color_scale, key=lambda c: c[0])
+
+        colorbar = go.Mesh3d(x=[0], y=[0], z=[0],
+                             colorbar = go.ColorBar(title={'text': r'Surface energy %s' %(units),
+                                                           'side': 'right',
+                                                           'font': {'size': 25}},
+                                                    ticktext=ticktext, tickvals=tickvals),
+                             colorscale=[[0,'rgb(255,255,255, 255)']]+color_scale,# fix the scale
+                             intensity=[0, 0.33, 0.66, 1], i=[0], j=[0], k=[0],
+                             name='y', showscale=True)
+        planes_data.append(colorbar)
+
+        # Format aesthetics: background, axis, etc.
         axis_dict = dict(title='', autorange=True, showgrid=False,
                          zeroline=False, ticks="", showline=False,
                          showticklabels=False, showbackground=False)
