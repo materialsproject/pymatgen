@@ -499,7 +499,7 @@ class WulffShape:
 
         units = 'Jm⁻²' if units_in_JPERM2 else 'eVÅ⁻²'
         color_list, color_proxy, color_proxy_on_wulff, \
-        miller_on_wulff, e_surf_on_wulff = self. \
+            miller_on_wulff, e_surf_on_wulff = self. \
             _get_colors(color_set, alpha, off_color,
                         custom_colors=custom_colors)
 
@@ -510,7 +510,7 @@ class WulffShape:
                 continue
 
             plane_color = color_list[plane.index]
-            plane_color = (1, 0, 0, 1) if plane_color == off_color else plane_color # set to red for now
+            plane_color = (1, 0, 0, 1) if plane_color == off_color else plane_color  # set to red for now
 
             pt = self.get_line_in_facet(plane)
             x_pts, y_pts, z_pts = [], [], []
@@ -521,11 +521,9 @@ class WulffShape:
 
             # remove duplicate x y z pts to save time
             all_xyz = []
-            [all_xyz.append(list(coord)) for coord in np.array([x_pts, y_pts, z_pts]).T \
+            [all_xyz.append(list(coord)) for coord in np.array([x_pts, y_pts, z_pts]).T
              if list(coord) not in all_xyz]
-            x_pts, y_pts, z_pts = np.array(all_xyz).T[0], \
-                                  np.array(all_xyz).T[1], \
-                                  np.array(all_xyz).T[2]
+            x_pts, y_pts, z_pts = np.array(all_xyz).T[0], np.array(all_xyz).T[1], np.array(all_xyz).T[2]
             index_list = [int(i) for i in np.linspace(0, len(x_pts) - 1, len(x_pts))]
 
             tri_indices = np.array([c for c in itertools.combinations(index_list, 3)]).T
@@ -536,16 +534,15 @@ class WulffShape:
             # note hoverinfo is incompatible with latex, need unicode instead
             planes_data.append(go.Mesh3d(x=x_pts, y=y_pts, z=z_pts,
                                          i=tri_indices[0], j=tri_indices[1], k=tri_indices[2],
-                                         hovertemplate="<br>%{text}<br>"+\
-                                                       "%s=%.3f %s<br>" %(u"\u03b3",
-                                                                          plane.e_surf,
-                                                                          units),
-                                         color=color, text=[r'Miller index: %s' \
-                                                             % (hkl)] * len(x_pts),
+                                         hovertemplate="<br>%{text}<br>" +
+                                                       "%s=%.3f %s<br>" % (u"\u03b3", plane.e_surf,
+                                                                           units),
+                                         color=color, text=[r'Miller index: %s'
+                                                            % hkl] * len(x_pts),
                                          hoverinfo='name', name=''))
 
             # normalize surface energy from a scale of 0 to 1 for colorbar
-            norm_e = (plane.e_surf-min(e_surf_on_wulff))/(max(e_surf_on_wulff)-min(e_surf_on_wulff))
+            norm_e = (plane.e_surf-min(e_surf_on_wulff))/(max(e_surf_on_wulff) - min(e_surf_on_wulff))
             c = [norm_e, color]
             if c not in color_scale:
                 color_scale.append(c)
@@ -555,13 +552,13 @@ class WulffShape:
         # Add colorbar
         color_scale = sorted(color_scale, key=lambda c: c[0])
         colorbar = go.Mesh3d(x=[0], y=[0], z=[0],
-                             colorbar = go.ColorBar(title={'text': r'Surface energy %s' %(units),
-                                                           'side': 'right',
-                                                           'font': {'size': 25}},
-                                                    ticktext=ticktext, tickvals=tickvals),
-                             colorscale=[[0,'rgb(255,255,255, 255)']]+color_scale,# fix the scale
-                             intensity=[0, 0.33, 0.66, 1], i=[0], j=[0], k=[0],
-                             name='y', showscale=True)
+                             colorbar=go.ColorBar(title={'text': r'Surface energy %s' %(units),
+                                                         'side': 'right',
+                                                         'font': {'size': 25}},
+                                                  ticktext=ticktext, tickvals=tickvals),
+                             colorscale=[[0,'rgb(255,255,255, 255)']]+color_scale,  # fix the scale
+                             intensity=[0, 0.33, 0.66, 1], i=[0],
+                             j=[0], k=[0], name='y', showscale=True)
         planes_data.append(colorbar)
 
         # Format aesthetics: background, axis, etc.
@@ -569,8 +566,9 @@ class WulffShape:
                          zeroline=False, ticks="", showline=False,
                          showticklabels=False, showbackground=False)
         fig = go.Figure(data=planes_data)
-        fig.update_layout(dict(showlegend=True, scene=\
-            dict(xaxis=axis_dict, yaxis=axis_dict, zaxis=axis_dict)))
+        fig.update_layout(dict(showlegend=True, scene=dict(xaxis=axis_dict,
+                                                           yaxis=axis_dict,
+                                                           zaxis=axis_dict)))
 
         return fig
 
