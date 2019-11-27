@@ -39,20 +39,25 @@ __date__ = 'May 5 2016'
 logger = logging.getLogger(__name__)
 
 
-def hkl_tuple_to_str(hkl):
+def hkl_tuple_to_str(hkl, unicode=False):
     """
     Prepare for display on plots
     "(hkl)" for surfaces
     Agrs:
         hkl: in the form of [h, k, l] or (h, k, l)
     """
-    str_format = '($'
+
+    str_format = '($' if not unicode else ''
     for x in hkl:
         if x < 0:
-            str_format += '\\overline{' + str(-x) + '}'
+            if unicode:
+                str_format += str(-x) + '\u0305'
+            else:
+                str_format += '\\overline{' + str(-x) + '}'
         else:
             str_format += str(x)
-    str_format += '$)'
+    if not unicode:
+        str_format += '$)'
     return str_format
 
 
@@ -529,8 +534,9 @@ class WulffShape:
             index_list = [int(i) for i in np.linspace(0, len(x_pts) - 1, len(x_pts))]
 
             tri_indices = np.array([c for c in itertools.combinations(index_list, 3)]).T
-            hkl = unicodeify_spacegroup(hkl_tuple_to_str(self.miller_list[plane.index]))
+            hkl = hkl_tuple_to_str(self.miller_list[plane.index], unicode=True)
             color = 'rgba(%.5f, %.5f, %.5f, %.5f)' % tuple(np.array(plane_color) * 255)
+
             # note hoverinfo is incompatible with latex, need unicode instead
             planes_data.append(go.Mesh3d(x=x_pts, y=y_pts, z=z_pts,
                                          i=tri_indices[0], j=tri_indices[1], k=tri_indices[2],
@@ -552,7 +558,6 @@ class WulffShape:
 
         # Add colorbar
         color_scale = sorted(color_scale, key=lambda c: c[0])
-
         colorbar = go.Mesh3d(x=[0], y=[0], z=[0],
                              colorbar = go.ColorBar(title={'text': r'Surface energy %s' %(units),
                                                            'side': 'right',
