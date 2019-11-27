@@ -528,7 +528,7 @@ class WulffShape:
 
             tri_indices = np.array([c for c in itertools.combinations(index_list, 3)]).T
             hkl = self.miller_list[plane.index]
-            hkl = unicodeify_spacegroup('(' + '%s'*len(hkl) %hkl +')')
+            hkl = unicodeify_spacegroup('(' + '%s' * len(hkl) % hkl + ')')
             color = 'rgba(%.5f, %.5f, %.5f, %.5f)' % tuple(np.array(plane_color) * 255)
 
             # note hoverinfo is incompatible with latex, need unicode instead
@@ -546,17 +546,17 @@ class WulffShape:
             c = [norm_e, color]
             if c not in color_scale:
                 color_scale.append(c)
-                ticktext.append("%.3f" %(plane.e_surf))
+                ticktext.append("%.3f" % plane.e_surf)
                 tickvals.append(norm_e)
 
         # Add colorbar
         color_scale = sorted(color_scale, key=lambda c: c[0])
         colorbar = go.Mesh3d(x=[0], y=[0], z=[0],
-                             colorbar=go.ColorBar(title={'text': r'Surface energy %s' %(units),
+                             colorbar=go.ColorBar(title={'text': r'Surface energy %s' % units,
                                                          'side': 'right',
                                                          'font': {'size': 25}},
                                                   ticktext=ticktext, tickvals=tickvals),
-                             colorscale=[[0,'rgb(255,255,255, 255)']]+color_scale,  # fix the scale
+                             colorscale=[[0, 'rgb(255,255,255, 255)']] + color_scale,  # fix the scale
                              intensity=[0, 0.33, 0.66, 1], i=[0],
                              j=[0], k=[0], name='y', showscale=True)
         planes_data.append(colorbar)
