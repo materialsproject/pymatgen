@@ -157,10 +157,11 @@ def unicodeify_spacegroup(spacegroup_symbol):
 
     overline = "\u0305"  # u"\u0304" (macron) is also an option
 
-    symbol = symbol.replace("$\\overline{", overline)
+    symbol = symbol.replace("$\\overline{", '')
     symbol = symbol.replace("$", "")
     symbol = symbol.replace("{", "")
-    symbol = symbol.replace("}", "")
+    # overline unicode symbol comes after the character with the overline
+    symbol = symbol.replace("}", overline)
 
     return symbol
 

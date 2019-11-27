@@ -39,25 +39,20 @@ __date__ = 'May 5 2016'
 logger = logging.getLogger(__name__)
 
 
-def hkl_tuple_to_str(hkl, unicode=False):
+def hkl_tuple_to_str(hkl):
     """
     Prepare for display on plots
     "(hkl)" for surfaces
     Agrs:
         hkl: in the form of [h, k, l] or (h, k, l)
     """
-
-    str_format = '($' if not unicode else ''
+    str_format = '($'
     for x in hkl:
         if x < 0:
-            if unicode:
-                str_format += str(-x) + '\u0305'
-            else:
-                str_format += '\\overline{' + str(-x) + '}'
+            str_format += '\\overline{' + str(-x) + '}'
         else:
             str_format += str(x)
-    if not unicode:
-        str_format += '$)'
+    str_format += '$)'
     return str_format
 
 
@@ -534,7 +529,8 @@ class WulffShape:
             index_list = [int(i) for i in np.linspace(0, len(x_pts) - 1, len(x_pts))]
 
             tri_indices = np.array([c for c in itertools.combinations(index_list, 3)]).T
-            hkl = hkl_tuple_to_str(self.miller_list[plane.index], unicode=True)
+            hkl = self.miller_list[plane.index]
+            hkl = unicodeify_spacegroup('(' + '%s'*len(hkl) %hkl +')')
             color = 'rgba(%.5f, %.5f, %.5f, %.5f)' % tuple(np.array(plane_color) * 255)
 
             # note hoverinfo is incompatible with latex, need unicode instead
