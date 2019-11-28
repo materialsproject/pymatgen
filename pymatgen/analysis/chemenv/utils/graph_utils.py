@@ -2,6 +2,8 @@ import networkx as nx
 import numpy as np
 from collections import deque
 from monty.json import MSONable
+import itertools
+import operator
 
 __author__ = 'waroquiers'
 
@@ -112,11 +114,11 @@ class SimpleGraphCycle(MSONable):
             raise ValueError('SimpleGraphCycle is not valid : {}'.format(msg))
 
     def _is_valid(self):
-        """Check if a cycle is valid.
+        """Check if a SimpleGraphCycle is valid.
 
         This method checks :
         - that there are no duplicate nodes,
-        :return: True if the cycle is valid, False otherwise.
+        :return: True if the SimpleGraphCycle is valid, False otherwise.
         """
         if len(self.nodes) != len(set(self.nodes)):  # Should not have duplicate nodes
             return False, 'Duplicate nodes.'
@@ -147,6 +149,11 @@ class SimpleGraphCycle(MSONable):
 
     def __len__(self):
         return len(self.nodes)
+
+    def __str__(self):
+        out = ['Simple cycle with nodes :']
+        out.extend([str(node) for node in self.nodes])
+        return '\n'.join(out)
 
     @classmethod
     def from_edges(cls, edges):
@@ -217,14 +224,13 @@ class MultiGraphCycle(MSONable):
         self.per = None
 
     def _is_valid(self):
-        """Check if a cycle is valid.
+        """Check if the MultiGraphCycle is valid.
 
         This method checks :
         - that the number of nodes and number of edges are equal,
         - that there are no duplicate nodes,
         - that edges in cycles with two nodes are different.
-        :param cycle: Cycle object
-        :return: True if the cycle is valid, False otherwise.
+        :return: True if the current MultiGraphCycle is valid, False otherwise.
         """
         if len(self.nodes) != len(self.edge_indices):  # Should have the same number of nodes and edges
             return False, 'Number of nodes different from number of edge indices.'
@@ -300,3 +306,47 @@ class MultiGraphCycle(MSONable):
         d['nodes'] = list(d['nodes'])
         d['edge_indices'] = list(d['edge_indices'])
         return d
+
+
+def get_all_elementary_cycles(graph):
+    if not isinstance(graph, nx.Graph):
+        raise TypeError("graph should be a networkx Graph object.")
+
+    cycle_basis = nx.cycle_basis(graph)
+
+    if len(cycle_basis) < 2:
+        return {SimpleGraphCycle(c) for c in cycle_basis}
+
+    all_edges_dict = {}
+    index2edge = []
+    nedges = 0
+    for n1, n2 in graph.edges:
+        all_edges_dict[(n1, n2)] = nedges
+        all_edges_dict[(n2, n1)] = nedges
+        index2edge.append((n1, n2))
+        nedges += 1
+    cycles_matrix = np.zeros(shape=(len(cycle_basis), nedges), dtype=np.bool)
+    for icycle, cycle in enumerate(cycle_basis):
+        for in1, n1 in enumerate(cycle):
+            n2 = cycle[(in1 + 1) % len(cycle)]
+            iedge = all_edges_dict[(n1, n2)]
+            cycles_matrix[icycle, iedge] = True
+
+    elementary_cycles_list = list()
+
+    for ncycles in range(1, len(cycle_basis) + 1):
+        for cycles_combination in itertools.combinations(cycles_matrix, ncycles):
+            edges_counts = np.array(np.mod(np.sum(cycles_combination, axis=0), 2), dtype=np.bool)
+            myedges = [edge for iedge, edge in enumerate(index2edge) if edges_counts[iedge]]
+            try:
+                sgc = SimpleGraphCycle.from_edges(myedges)
+            except ValueError as ve:
+                msg = ve.args[0]
+                if msg == 'SimpleGraphCycle is not valid : Duplicate nodes.':
+                    continue
+                elif msg == 'Could not construct a cycle from edges.':
+                    continue
+                raise
+            elementary_cycles_list.append(sgc)
+
+    return elementary_cycles_list

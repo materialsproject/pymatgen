@@ -282,28 +282,33 @@ class ConnectedComponent(MSONable):
             # because otherwise, the all_simple_paths algorithm fail when the source node is equal to the target node.
             paths = []
             #TODO: its probably possible to do just a dfs or bfs traversal instead of taking all simple paths!
-            for path in nx.all_simple_paths(my_simple_graph, test_node, test_node,
-                                            cutoff=len(self._connected_subgraph)):
-                path_indices = tuple([nodepath.isite for nodepath in path])
-                if path_indices not in paths:
-                    paths.append(path_indices)
-                else:
-                    continue
-                # TODO: there are some paths that appears twice for cycles, and there are some paths that should
-                # probably not be considered
-                this_path_deltas = [np.zeros(3, np.int)]
-                for (node1, node2) in [(node1, path[inode1 + 1]) for inode1, node1 in enumerate(path[:-1])]:
-                    this_path_deltas_new = []
-                    for key, edge_data in self._connected_subgraph[node1][node2].items():
-                        delta = get_delta(node1, node2, edge_data)
-                        for current_delta in this_path_deltas:
-                            this_path_deltas_new.append(current_delta + delta)
-                    this_path_deltas = this_path_deltas_new
-                this_node_cell_img_vectors.extend(this_path_deltas)
-                this_node_cell_img_vectors = get_linearly_independent_vectors(this_node_cell_img_vectors)
-                if len(this_node_cell_img_vectors) == 3:
-                    break
-            #independent_cell_img_vectors = get_linearly_independent_vectors(this_node_cell_img_vectors)
+            test_node_neighbors = my_simple_graph.neighbors(test_node)
+            for test_node_neighbor in test_node_neighbors:
+                for path in nx.all_simple_paths(my_simple_graph, test_node, test_node_neighbor,
+                                                cutoff=len(self._connected_subgraph)):
+                    path_indices = [nodepath.isite for nodepath in path]
+                    if path_indices == [test_node.isite, test_node_neighbor.isite]:
+                        continue
+                    path_indices.append(test_node.isite)
+                    path_indices = tuple(path_indices)
+                    if path_indices not in paths:
+                        paths.append(path_indices)
+                    else:
+                        continue
+                    # TODO: there are some paths that appears twice for cycles, and there are some paths that should
+                    # probably not be considered
+                    this_path_deltas = [np.zeros(3, np.int)]
+                    for (node1, node2) in [(node1, path[inode1 + 1]) for inode1, node1 in enumerate(path[:-1])]:
+                        this_path_deltas_new = []
+                        for key, edge_data in self._connected_subgraph[node1][node2].items():
+                            delta = get_delta(node1, node2, edge_data)
+                            for current_delta in this_path_deltas:
+                                this_path_deltas_new.append(current_delta + delta)
+                        this_path_deltas = this_path_deltas_new
+                    this_node_cell_img_vectors.extend(this_path_deltas)
+                    this_node_cell_img_vectors = get_linearly_independent_vectors(this_node_cell_img_vectors)
+                    if len(this_node_cell_img_vectors) == 3:
+                        break
             independent_cell_img_vectors = this_node_cell_img_vectors
             all_nodes_independent_cell_image_vectors.append(independent_cell_img_vectors)
             #If we have found that the sub structure network is 3D-connected, we can stop ...

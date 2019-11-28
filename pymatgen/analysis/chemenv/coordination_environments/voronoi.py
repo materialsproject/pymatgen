@@ -167,7 +167,7 @@ class DetailedVoronoiContainer(MSONable):
 
                     mindist = min([mindist, distances[ridge_point2]])
                     for iii, sss in enumerate(self.structure):
-                        if neighbors[ridge_point2].is_periodic_image(sss):
+                        if neighbors[ridge_point2].is_periodic_image(sss, tolerance=1.0e-6):
                             myindex = iii
                             break
                     results2.append({'site': neighbors[ridge_point2],
