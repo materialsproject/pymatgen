@@ -26,23 +26,14 @@ import itertools
 import logging
 import time
 from collections import OrderedDict
-
-from numpy.linalg import svd
-from numpy.linalg import norm
-from pymatgen.core.structure import Structure
-from pymatgen.core.lattice import Lattice
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.analysis.bond_valence import BVAnalyzer
-import numpy as np
-
 from random import shuffle
 
-from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane
-from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import \
-    collinear, separation_in_list
-from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import \
-    sort_separation, sort_separation_tuple
-from pymatgen.analysis.chemenv.utils.defs_utils import chemenv_citations
+import numpy as np
+from numpy.linalg import norm
+from numpy.linalg import svd
+from pymatgen.analysis.bond_valence import BVAnalyzer
+from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import \
+    MultiWeightsChemenvStrategy
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import \
     AllCoordinationGeometries
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import \
@@ -52,13 +43,20 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import \
     ChemicalEnvironments
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import \
-    StructureEnvironments
-from pymatgen.analysis.chemenv.coordination_environments.structure_environments import \
     LightStructureEnvironments
+from pymatgen.analysis.chemenv.coordination_environments.structure_environments import \
+    StructureEnvironments
 from pymatgen.analysis.chemenv.coordination_environments.voronoi import \
     DetailedVoronoiContainer
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import \
-    MultiWeightsChemenvStrategy
+from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane
+from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import \
+    collinear, separation_in_list
+from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import \
+    sort_separation, sort_separation_tuple
+from pymatgen.analysis.chemenv.utils.defs_utils import chemenv_citations
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 debug = False
 DIST_TOLERANCES = [0.02, 0.05, 0.1, 0.2, 0.3]
@@ -1638,7 +1636,7 @@ class LocalGeometryFinder:
                 perm1 = [separation_perm[ii] for ii in sep_perm]
                 pp = [perm1[ii] for ii in argref_separation]
                 # Skip permutations that have already been performed
-                if (not tested_permutations) and coordination_geometry.equivalent_indices is not None:
+                if isinstance(tested_permutations, set) and coordination_geometry.equivalent_indices is not None:
                     tuple_ref_perm = coordination_geometry.ref_permutation(pp)
                     if tuple_ref_perm in tested_permutations:
                         continue
