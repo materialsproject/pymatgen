@@ -1,6 +1,5 @@
 pybtex==0.22.2
 tqdm==4.39.0
-plotly==4.0.0
 pytest==5.3.0
 pytest-cov==2.8.1
 coverage==4.5.4
