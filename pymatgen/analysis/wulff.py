@@ -527,6 +527,7 @@ class WulffShape:
             index_list = [int(i) for i in np.linspace(0, len(x_pts) - 1, len(x_pts))]
 
             tri_indices = np.array([c for c in itertools.combinations(index_list, 3)]).T
+            print(len(tri_indices), 'gfdggfh')
             hkl = self.miller_list[plane.index]
             hkl = unicodeify_spacegroup('(' + '%s' * len(hkl) % hkl + ')')
             color = 'rgba(%.5f, %.5f, %.5f, %.5f)' % tuple(np.array(plane_color) * 255)
