@@ -1,8 +1,6 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
-
 """
 This module provides conversion between the Atomic Simulation Environment
 Atoms object and pymatgen Structure objects.
@@ -44,6 +42,9 @@ class AseAtomsAdaptor:
         """
         if not structure.is_ordered:
             raise ValueError("ASE Atoms only supports ordered structures")
+        if not ase_loaded:
+            raise ImportError("AseAtomsAdaptor requires ase package.\n"
+                              "Use `pip install ase` or `conda install ase -c conda-forge`")
         symbols = [str(site.specie.symbol) for site in structure]
         positions = [site.coords for site in structure]
         cell = structure.lattice.matrix
