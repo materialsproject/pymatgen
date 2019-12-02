@@ -1650,7 +1650,7 @@ class LocalGeometryFinder:
                 perm1 = [separation_perm[ii] for ii in sep_perm]
                 pp = [perm1[ii] for ii in argref_separation]
                 # Skip permutations that have already been performed
-                if (not tested_permutations) and coordination_geometry.equivalent_indices is not None:
+                if isinstance(tested_permutations, set) and coordination_geometry.equivalent_indices is not None:
                     tuple_ref_perm = coordination_geometry.ref_permutation(pp)
                     if tuple_ref_perm in tested_permutations:
                         continue

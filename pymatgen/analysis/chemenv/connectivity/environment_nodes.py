@@ -45,10 +45,14 @@ class AbstractEnvironmentNode(MSONable):
     def __eq__(self, other):
         return self.isite == other.isite
 
+    def __lt__(self, other):
+        return self.isite < other.isite
+
     def everything_equal(self, other):
         return self.__eq__(other) and self.central_site == other.central_site
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def coordination_environment(self):
         return
 
