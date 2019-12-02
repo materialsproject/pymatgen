@@ -409,6 +409,8 @@ class WulffShape:
                 index and value is the color. Undefined facets will use default
                 color site. Note: If you decide to set your own colors, it
                 probably won't make any sense to have the color bar on.
+            units_in_JPERM2 (bool): Units of surface energy, defaults to
+                Joules per square meter (True)
 
         Return:
             (matplotlib.pyplot)
@@ -496,6 +498,24 @@ class WulffShape:
 
     def get_plotly(self, color_set='PuBu', off_color='red',
                    alpha=1, custom_colors={}, units_in_JPERM2=True):
+        """
+        Get the Wulff shape as a plotly Figure object.
+
+        Args:
+            color_set: default is 'PuBu'
+            alpha (float): chosen from 0 to 1 (float), default is 1
+            off_color: Default color for facets not present on the Wulff shape.
+            custom_colors ({(h,k,l}: [r,g,b,alpha}): Customize color of each
+                facet with a dictionary. The key is the corresponding Miller
+                index and value is the color. Undefined facets will use default
+                color site. Note: If you decide to set your own colors, it
+                probably won't make any sense to have the color bar on.
+            units_in_JPERM2 (bool): Units of surface energy, defaults to
+                Joules per square meter (True)
+
+        Return:
+            (plotly.graph_objs.Figure)
+        """
 
         units = 'Jm⁻²' if units_in_JPERM2 else 'eVÅ⁻²'
         color_list, color_proxy, color_proxy_on_wulff, \
