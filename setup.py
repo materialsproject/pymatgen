@@ -108,7 +108,8 @@ setup(
     install_requires=["numpy>=1.14.3", "requests", "ruamel.yaml>=0.15.6",
                       "monty>=3.0.2", "scipy>=1.0.1", "pydispatcher>=2.0.5",
                       "tabulate", "spglib>=1.9.9.44", "networkx>=2.2",
-                      "matplotlib>=1.5", "palettable>=3.1.1", "sympy", "pandas"],
+                      "matplotlib>=1.5", "palettable>=3.1.1", "sympy",
+                      "pandas", "plotly>=4.1.1", "retrying>=1.3.3", "six>=1.11.0"],
     extras_require={
         "provenance": ["pybtex"],
         "ase": ["ase>=3.3"],
