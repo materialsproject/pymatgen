@@ -1,6 +1,6 @@
 pybtex==0.22.2
 tqdm==4.40.0
-pytest==5.3.0
+pytest==5.3.1
 pytest-cov==2.8.1
 coverage==4.5.4
 ase==3.18.1
