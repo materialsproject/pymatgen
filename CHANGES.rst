@@ -1,6 +1,11 @@
 Change log
 ==========
 
+v2019.12.3
+----------
+* Respect KSPACING in INCAR.
+* Bug fixes.
+
 v2019.11.11
 -----------
 * Extend grosspop class (@Jageo)
