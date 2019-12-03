@@ -128,7 +128,7 @@ setup(
         "pymatgen.analysis.structure_prediction": ["data/*.json", "*.yaml"],
         "pymatgen.io": ["*.yaml"],
         "pymatgen.io.vasp": ["*.yaml", "*.json"],
-        "pymatgen.io.lammps": ["templates/*.*"],
+        "pymatgen.io.lammps": ["templates/*.*", "*.yaml"],
         "pymatgen.io.feff": ["*.yaml"],
         "pymatgen.symmetry": ["*.yaml", "*.json", "*.sqlite"],
         "pymatgen.entries": ["*.yaml"],
