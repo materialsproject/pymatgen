@@ -160,6 +160,20 @@ class GrainBoundaryGeneratorTest(PymatgenTest):
         ab_len3 = np.linalg.norm(np.cross(lat_mat3[2], c_vec3))
         self.assertAlmostEqual(ab_len3, 0)
 
+        # test normal in tilt boundary
+        # The 'finfo(np.float32).eps' is the smallest representable positive number in float32,
+        # which has been introduced because comparing to just zero or one failed the test by rounding errors.
+        gb_cu_010_conv1 = self.GB_Cu_conv.gb_from_parameters(rotation_axis=[0, 1, 0],
+                                                             rotation_angle=36.8698976458,
+                                                             expand_times=1,
+                                                             vacuum_thickness=1.0,
+                                                             ab_shift=[0.0, 0.0],
+                                                             rm_ratio=0.0,
+                                                             plane=[0, 0, 1],
+                                                             normal=True)
+        self.assertTrue(np.all(-np.finfo(np.float32).eps <= gb_cu_010_conv1.frac_coords))
+        self.assertTrue(np.all(1 + np.finfo(np.float32).eps >= gb_cu_010_conv1.frac_coords))
+
         # from fcc conventional cell,axis [1,2,3], siamg 9
         gb_cu_123_conv1 = self.GB_Cu_conv.gb_from_parameters([1, 2, 3],
                                                              123.74898859588858,
