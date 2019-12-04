@@ -1,0 +1,46 @@
+Name: MP
+Advanced:
+  UCorrections:
+    O:
+      V: -1.635
+      Cr: -1.991
+      Mn: -1.603
+      Fe: -2.245
+      Co: -1.656
+      Ni: -2.734
+      Cu: 0.079
+      Mo: -3.057
+    F:
+      V: -1.635
+      Cr: -1.991
+      Mn: -1.603
+      Fe: -2.245
+      Co: -1.656
+      Ni: -2.734
+      Cu: 0.079
+      Mo: -3.057
+CompositionCorrections:
+  oxide: -0.731
+  peroxide: -0.476
+  superoxide: -0.162
+  ozonide: 0
+  sulfide: -0.633
+  Br: -0.538
+  I: -0.384
+  Se: -0.473
+  Si: 0.243
+  Sb: -0.188
+  Te: -0.418
+  F: -0.457
+  Cl: -0.583
+  N: -0.34
+  H: 0.819
+AqueousCompoundEnergies:
+  O2: -0.316731
+  N2: -0.295729
+  F2: -0.313025
+  Cl2: -0.344373
+  Br: -0.235039
+  Hg: -0.234421
+  H2: -3.6018845
+  H2O: -4.972
