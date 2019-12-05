@@ -22,9 +22,6 @@ from monty.dev import deprecated
 from pymatgen.io.vasp.sets import MITRelaxSet, MPRelaxSet
 from pymatgen.core.periodic_table import Element
 from pymatgen.analysis.structure_analyzer import oxide_type, sulfide_type
-from pymatgen import Composition
-from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.analysis.reaction_calculator import ComputedReaction
 
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
