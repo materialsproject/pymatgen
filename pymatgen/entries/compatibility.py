@@ -177,7 +177,7 @@ class GasCorrection(Correction):
     """
     Correct gas energies to obtain the right formation energies. Note that
     this depends on calculations being run within the same input set.
-    For old MaterialsProjectCompatibility.
+    For old MaterialsProjectCompatibility and MITCompatibility.
     """
 
     def __init__(self, config_file):
@@ -207,61 +207,6 @@ class GasCorrection(Correction):
             correction = (
                 self.cpd_energies[rform] * comp.num_atoms - entry.uncorrected_energy
             )
-
-        return correction, error
-
-    def __str__(self):
-        return "{} Gas Correction".format(self.name)
-
-
-@cached_class
-class MITGasCorrection(Correction):
-    """
-    Correct energies of diatomic gases to obtain the right formation energies. As
-    of pymatgen XXX, used only by the MITCompatibility class.
-
-    Note that this depends on calculations being run within the same input set.
-
-    References:
-        Persson, K. A.; Waldwick, B.; Lazic, P.; Ceder, G. Prediction of Solid-Aqueous
-        Equilibria: Scheme to Combine First-Principles Calculations of Solids with
-        Experimental Aqueous States. Phys. Rev. B - Condens. Matter Mater. Phys.
-        2012, 85 (23), 1–12. https://doi.org/10.1103/PhysRevB.85.235438.
-
-    For new MITCompatibility2020.
-    """
-
-    def __init__(self, config_file, error_file=None):
-        """
-        Args:
-            config_file: Path to the selected compatibility.yaml config file.
-            error_file: Path to the selected compatibilityErrors.yaml config file.
-        """
-        c = loadfn(config_file)
-        self.name = c["Name"]
-        self.cpd_energies = c["GasCorrections"]
-        if error_file:
-            e = loadfn(error_file)
-            self.cpd_errors = e["GasCorrections"]
-        else:
-            self.cpd_errors = defaultdict(float)
-
-    def get_correction(self, entry) -> Tuple[float, float]:
-        """
-        :param entry: A ComputedEntry/ComputedStructureEntry
-        :return: Correction, Uncertainty.
-        """
-        comp = entry.composition
-
-        correction = 0.0
-        error = 0.0
-
-        rform = entry.composition.reduced_formula
-        if rform in self.cpd_energies:
-            correction = (
-                self.cpd_energies[rform] * comp.num_atoms - entry.uncorrected_energy
-            )
-            error = self.cpd_errors[rform] * comp.num_atoms
 
         return correction, error
 
@@ -364,7 +309,7 @@ class CompositionCorrection(Correction):
     """
     Correct anion energies to obtain the right formation energies. Note that
     this depends on calculations being run within the same input set.
-    For new MaterialsProjectCompatibility2020 and MITCompatibility2020
+    For new MaterialsProjectCompatibility2020
     """
 
     def __init__(self, config_file, error_file=None, correct_peroxide=True):
@@ -942,44 +887,6 @@ class MITCompatibility(Compatibility):
         )
 
 
-class MITCompatibility2020(Compatibility):
-    """
-    This class implements the GGA/GGA+U mixing scheme, which allows mixing of
-    entries. Note that this should only be used for VASP calculations using the
-    MIT parameters (see pymatgen.io.vaspio_set MITVaspInputSet). Using
-    this compatibility scheme on runs with different parameters is not valid.
-    """
-
-    def __init__(
-        self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False
-    ):
-        """
-        Args:
-            compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
-                entries are excluded.  Advanced means mixing scheme is
-                implemented to make entries compatible with each other,
-                but entries which are supposed to be done in GGA+U will have the
-                equivalent GGA entries excluded. For example, Fe oxides should
-                have a U value under the Advanced scheme. A GGA Fe oxide run
-                will therefore be excluded under the scheme.
-            correct_peroxide: Specify whether peroxide/superoxide/ozonide
-                corrections are to be applied or not.
-            check_potcar_hash (bool): Use potcar hash to verify potcars are correct.
-        """
-        self.compat_type = compat_type
-        self.correct_peroxide = correct_peroxide
-        self.check_potcar_hash = check_potcar_hash
-        fp = os.path.join(MODULE_DIR, "MITCompatibility2020.yaml")
-        super().__init__(
-            [
-                PotcarCorrection(MITRelaxSet, check_hash=check_potcar_hash),
-                MITGasCorrection(fp),
-                CompositionCorrection(fp, correct_peroxide=correct_peroxide),
-                UCorrection(fp, MITRelaxSet, compat_type),
-            ]
-        )
-
-
 class MITAqueousCompatibility(Compatibility):
     """
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of
@@ -1018,45 +925,6 @@ class MITAqueousCompatibility(Compatibility):
                 PotcarCorrection(MITRelaxSet, check_hash=check_potcar_hash),
                 GasCorrection(fp),
                 AnionCorrection(fp, correct_peroxide=correct_peroxide),
-                UCorrection(fp, MITRelaxSet, compat_type),
-                AqueousCorrection(fp),
-            ]
-        )
-
-
-class MITAqueousCompatibility2020(Compatibility):
-    """
-    This class implements the GGA/GGA+U mixing scheme, which allows mixing of
-    entries. Note that this should only be used for VASP calculations using the
-    MIT parameters (see pymatgen.io.vaspio_set MITVaspInputSet). Using
-    this compatibility scheme on runs with different parameters is not valid.
-    """
-
-    def __init__(
-        self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False
-    ):
-        """
-        Args:
-            compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
-                entries are excluded.  Advanced means mixing scheme is
-                implemented to make entries compatible with each other,
-                but entries which are supposed to be done in GGA+U will have the
-                equivalent GGA entries excluded. For example, Fe oxides should
-                have a U value under the Advanced scheme. A GGA Fe oxide run
-                will therefore be excluded under the scheme.
-            correct_peroxide: Specify whether peroxide/superoxide/ozonide
-                corrections are to be applied or not.
-            check_potcar_hash (bool): Use potcar hash to verify potcars are correct.
-        """
-        self.compat_type = compat_type
-        self.correct_peroxide = correct_peroxide
-        self.check_potcar_hash = check_potcar_hash
-        fp = os.path.join(MODULE_DIR, "MITCompatibility2020.yaml")
-        super().__init__(
-            [
-                PotcarCorrection(MITRelaxSet, check_hash=check_potcar_hash),
-                MITGasCorrection(fp),
-                CompositionCorrection(fp, correct_peroxide=correct_peroxide),
                 UCorrection(fp, MITRelaxSet, compat_type),
                 AqueousCorrection(fp),
             ]
