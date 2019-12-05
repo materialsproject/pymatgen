@@ -10,12 +10,8 @@ import os
 import abc
 import warnings
 
-from collections import defaultdict, OrderedDict
+from collections import defaultdict
 from math import sqrt
-import numpy as np
-import matplotlib.pyplot as plt
-from scipy.optimize import curve_fit
-import ruamel.yaml
 
 from typing import Sequence, Tuple
 from monty.design_patterns import cached_class
@@ -29,7 +25,6 @@ from pymatgen.analysis.structure_analyzer import oxide_type, sulfide_type
 from pymatgen import Composition
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.analysis.reaction_calculator import ComputedReaction
-
 
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -47,6 +42,7 @@ class CompatibilityError(Exception):
     Exception class for Compatibility. Raised by attempting correction
     on incompatible calculation
     """
+
     pass
 
 
@@ -178,6 +174,7 @@ class PotcarCorrection(Correction):
     def __str__(self):
         return "{} Potcar Correction".format(self.input_set.__name__)
 
+
 @cached_class
 class GasCorrection(Correction):
     """
@@ -192,8 +189,8 @@ class GasCorrection(Correction):
             config_file: Path to the selected compatibility.yaml config file.
         """
         c = loadfn(config_file)
-        self.name = c['Name']
-        self.cpd_energies = c['Advanced']['CompoundEnergies']
+        self.name = c["Name"]
+        self.cpd_energies = c["Advanced"]["CompoundEnergies"]
 
     def get_correction(self, entry) -> Tuple[float, float]:
         """
@@ -204,8 +201,8 @@ class GasCorrection(Correction):
 
         correction = 0.0
 
-        #set error to 0 because old MPCompatibility doesn't have errors but Compatibility methods
-        #expects (correction, uncertainty)
+        # set error to 0 because old MPCompatibility doesn't have errors but Compatibility methods
+        # expects (correction, uncertainty)
         error = 0.0
 
         rform = entry.composition.reduced_formula
@@ -218,6 +215,7 @@ class GasCorrection(Correction):
 
     def __str__(self):
         return "{} Gas Correction".format(self.name)
+
 
 @cached_class
 class MITGasCorrection(Correction):
@@ -237,6 +235,11 @@ class MITGasCorrection(Correction):
     """
 
     def __init__(self, config_file, error_file=None):
+        """
+        Args:
+            config_file: Path to the selected compatibility.yaml config file.
+            error_file: Path to the selected compatibilityErrors.yaml config file.
+        """
         c = loadfn(config_file)
         self.name = c["Name"]
         self.cpd_energies = c["GasCorrections"]
@@ -268,6 +271,7 @@ class MITGasCorrection(Correction):
     def __str__(self):
         return "{} Gas Correction".format(self.name)
 
+
 @cached_class
 class AnionCorrection(Correction):
     """
@@ -285,10 +289,9 @@ class AnionCorrection(Correction):
                 corrections are to be applied or not.
         """
         c = loadfn(config_file)
-        self.oxide_correction = c['OxideCorrections']
-        self.sulfide_correction = c.get('SulfideCorrections', defaultdict(
-            float))
-        self.name = c['Name']
+        self.oxide_correction = c["OxideCorrections"]
+        self.sulfide_correction = c.get("SulfideCorrections", defaultdict(float))
+        self.name = c["Name"]
         self.correct_peroxide = correct_peroxide
 
     def get_correction(self, entry) -> Tuple[float, float]:
@@ -302,8 +305,8 @@ class AnionCorrection(Correction):
 
         correction = 0.0
 
-        #set error to 0 because old MPCompatibility doesn't have errors but Compatibility methods
-        #expects (correction, uncertainty)
+        # set error to 0 because old MPCompatibility doesn't have errors but Compatibility methods
+        # expects (correction, uncertainty)
         error = 0.0
         # Check for sulfide corrections
         if Element("S") in comp:
@@ -320,49 +323,44 @@ class AnionCorrection(Correction):
             if self.correct_peroxide:
                 if entry.data.get("oxide_type"):
                     if entry.data["oxide_type"] in self.oxide_correction:
-                        ox_corr = self.oxide_correction[
-                            entry.data["oxide_type"]]
+                        ox_corr = self.oxide_correction[entry.data["oxide_type"]]
                         correction += ox_corr * comp["O"]
                     if entry.data["oxide_type"] == "hydroxide":
                         ox_corr = self.oxide_correction["oxide"]
                         correction += ox_corr * comp["O"]
 
                 elif hasattr(entry, "structure"):
-                    ox_type, nbonds = oxide_type(entry.structure, 1.05,
-                                                 return_nbonds=True)
+                    ox_type, nbonds = oxide_type(
+                        entry.structure, 1.05, return_nbonds=True
+                    )
                     if ox_type in self.oxide_correction:
-                        correction += self.oxide_correction[ox_type] * \
-                                      nbonds
+                        correction += self.oxide_correction[ox_type] * nbonds
                     elif ox_type == "hydroxide":
-                        correction += self.oxide_correction["oxide"] * \
-                                      comp["O"]
+                        correction += self.oxide_correction["oxide"] * comp["O"]
                 else:
                     warnings.warn(
                         "No structure or oxide_type parameter present. Note "
                         "that peroxide/superoxide corrections are not as "
                         "reliable and relies only on detection of special"
-                        "formulas, e.g., Li2O2.")
+                        "formulas, e.g., Li2O2."
+                    )
                     rform = entry.composition.reduced_formula
                     if rform in UCorrection.common_peroxides:
-                        correction += self.oxide_correction["peroxide"] * \
-                                      comp["O"]
+                        correction += self.oxide_correction["peroxide"] * comp["O"]
                     elif rform in UCorrection.common_superoxides:
-                        correction += self.oxide_correction["superoxide"] * \
-                                      comp["O"]
+                        correction += self.oxide_correction["superoxide"] * comp["O"]
                     elif rform in UCorrection.ozonides:
-                        correction += self.oxide_correction["ozonide"] * \
-                                      comp["O"]
-                    elif Element("O") in comp.elements and len(comp.elements) \
-                            > 1:
-                        correction += self.oxide_correction['oxide'] * \
-                                      comp["O"]
+                        correction += self.oxide_correction["ozonide"] * comp["O"]
+                    elif Element("O") in comp.elements and len(comp.elements) > 1:
+                        correction += self.oxide_correction["oxide"] * comp["O"]
             else:
-                correction += self.oxide_correction['oxide'] * comp["O"]
+                correction += self.oxide_correction["oxide"] * comp["O"]
 
         return correction, error
 
     def __str__(self):
         return "{} Anion Correction".format(self.name)
+
 
 @cached_class
 class CompositionCorrection(Correction):
@@ -373,6 +371,13 @@ class CompositionCorrection(Correction):
     """
 
     def __init__(self, config_file, error_file=None, correct_peroxide=True):
+        """
+        Args:
+            config_file: Path to the selected compatibility.yaml config file.
+            error_file: Path to the selected compatibilityErrors.yaml config file.
+            correct_peroxide: Specify whether peroxide/superoxide/ozonide
+                corrections are to be applied or not.
+        """
         c = loadfn(config_file)
         self.comp_correction = c.get("CompositionCorrections", defaultdict(float))
         self.name = c["Name"]
@@ -381,8 +386,7 @@ class CompositionCorrection(Correction):
             e = loadfn(error_file)
             self.anion_errors = e.get("CompositionCorrections", defaultdict(float))
         else:
-            self.oxide_errors = defaultdict(float)
-            self.sulfide_errors = defaultdict(float)
+            self.anion_errors = defaultdict(float)
 
     def get_correction(self, entry) -> Tuple[float, float]:
         """
@@ -393,16 +397,10 @@ class CompositionCorrection(Correction):
 
         correction = 0.0
         error = 0.0
-        
-        # Check for diatomic gas corrections and skip other single elements
+
+        # Skip single elements
         if len(comp) == 1:
-            if self.name != 'MIT': # the MIT compatibility set still uses MITGasCorrection
-                for gas in ["H", "N", "F", "Cl"]:
-                    if Element(gas) in comp and gas in self.anion_correction:     
-                        correction += self.anion_correction[gas] * comp[gas]
-                        error = sqrt(error ** 2 + (self.anion_errors[gas] * comp[gas]) ** 2)
-            else:       
-                return 0.0, 0.0
+            return 0.0, 0.0
 
         # Check for sulfide corrections
         if Element("S") in comp:
@@ -503,6 +501,11 @@ class AqueousCorrection(Correction):
     """
 
     def __init__(self, config_file, error_file=None):
+        """
+        Args:
+            config_file: Path to the selected compatibility.yaml config file.
+            error_file: Path to the selected compatibilityErrors.yaml config file.
+        """
         c = loadfn(config_file)
         self.cpd_energies = c["AqueousCompoundEnergies"]
         self.name = c["Name"]
@@ -583,6 +586,19 @@ class UCorrection(Correction):
     ozonides = ["LiO3", "NaO3", "KO3", "NaO5"]
 
     def __init__(self, config_file, input_set, compat_type, error_file=None):
+        """
+        Args:
+            config_file: Path to the selected compatibility.yaml config file.
+            input_set: InputSet object (to check for the +U settings)
+            compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
+                entries are excluded.  Advanced means mixing scheme is
+                implemented to make entries compatible with each other,
+                but entries which are supposed to be done in GGA+U will have the
+                equivalent GGA entries excluded. For example, Fe oxides should
+                have a U value under the Advanced scheme. A GGA Fe oxide run
+                will therefore be excluded under the scheme.
+            error_file: Path to the selected compatibilityErrors.yaml config file.
+        """
         if compat_type not in ["GGA", "Advanced"]:
             raise CompatibilityError("Invalid compat_type {}".format(compat_type))
 
@@ -811,10 +827,15 @@ class MaterialsProjectCompatibility(Compatibility):
     valid.
     """
 
-    @deprecated(message=("MaterialsProjectCompatibility will be updated with new correction classes "
-            "as well as new values of corrections and uncertainties in 2020"))
-    def __init__(self, compat_type="Advanced", correct_peroxide=True,
-                 check_potcar_hash=False):
+    @deprecated(
+        message=(
+            "MaterialsProjectCompatibility will be updated with new correction classes "
+            "as well as new values of corrections and uncertainties in 2020"
+        )
+    )
+    def __init__(
+        self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False
+    ):
         """
         Args:
             compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
@@ -833,10 +854,14 @@ class MaterialsProjectCompatibility(Compatibility):
         self.check_potcar_hash = check_potcar_hash
         fp = os.path.join(MODULE_DIR, "MPCompatibility.yaml")
         super().__init__(
-            [PotcarCorrection(MPRelaxSet, check_hash=check_potcar_hash),
-             GasCorrection(fp),
-             AnionCorrection(fp, correct_peroxide=correct_peroxide),
-             UCorrection(fp, MPRelaxSet, compat_type)])
+            [
+                PotcarCorrection(MPRelaxSet, check_hash=check_potcar_hash),
+                GasCorrection(fp),
+                AnionCorrection(fp, correct_peroxide=correct_peroxide),
+                UCorrection(fp, MPRelaxSet, compat_type),
+            ]
+        )
+
 
 class MaterialsProjectCompatibility2020(Compatibility):
     """
@@ -850,6 +875,19 @@ class MaterialsProjectCompatibility2020(Compatibility):
     def __init__(
         self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False
     ):
+        """
+        Args:
+            compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
+                entries are excluded.  Advanced means mixing scheme is
+                implemented to make entries compatible with each other,
+                but entries which are supposed to be done in GGA+U will have the
+                equivalent GGA entries excluded. For example, Fe oxides should
+                have a U value under the Advanced scheme. A GGA Fe oxide run
+                will therefore be excluded under the scheme.
+            correct_peroxide: Specify whether peroxide/superoxide/ozonide
+                corrections are to be applied or not.
+            check_potcar_hash (bool): Use potcar hash to verify potcars are correct.
+        """
         self.compat_type = compat_type
         self.correct_peroxide = correct_peroxide
         self.check_potcar_hash = check_potcar_hash
@@ -865,6 +903,7 @@ class MaterialsProjectCompatibility2020(Compatibility):
             ]
         )
 
+
 class MITCompatibility(Compatibility):
     """
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of
@@ -873,9 +912,12 @@ class MITCompatibility(Compatibility):
     this compatibility scheme on runs with different parameters is not valid.
     """
 
-    @deprecated(message=("MITCompatibility will be updated with new correction classes in 2020"))
-    def __init__(self, compat_type="Advanced", correct_peroxide=True,
-                 check_potcar_hash=False):
+    @deprecated(
+        message=("MITCompatibility will be updated with new correction classes in 2020")
+    )
+    def __init__(
+        self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False
+    ):
         """
         Args:
             compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
@@ -894,10 +936,13 @@ class MITCompatibility(Compatibility):
         self.check_potcar_hash = check_potcar_hash
         fp = os.path.join(MODULE_DIR, "MITCompatibility.yaml")
         super().__init__(
-            [PotcarCorrection(MITRelaxSet, check_hash=check_potcar_hash),
-             GasCorrection(fp),
-             AnionCorrection(fp, correct_peroxide=correct_peroxide),
-             UCorrection(fp, MITRelaxSet, compat_type)])
+            [
+                PotcarCorrection(MITRelaxSet, check_hash=check_potcar_hash),
+                GasCorrection(fp),
+                AnionCorrection(fp, correct_peroxide=correct_peroxide),
+                UCorrection(fp, MITRelaxSet, compat_type),
+            ]
+        )
 
 
 class MITCompatibility2020(Compatibility):
@@ -911,6 +956,19 @@ class MITCompatibility2020(Compatibility):
     def __init__(
         self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False
     ):
+        """
+        Args:
+            compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
+                entries are excluded.  Advanced means mixing scheme is
+                implemented to make entries compatible with each other,
+                but entries which are supposed to be done in GGA+U will have the
+                equivalent GGA entries excluded. For example, Fe oxides should
+                have a U value under the Advanced scheme. A GGA Fe oxide run
+                will therefore be excluded under the scheme.
+            correct_peroxide: Specify whether peroxide/superoxide/ozonide
+                corrections are to be applied or not.
+            check_potcar_hash (bool): Use potcar hash to verify potcars are correct.
+        """
         self.compat_type = compat_type
         self.correct_peroxide = correct_peroxide
         self.check_potcar_hash = check_potcar_hash
@@ -924,6 +982,7 @@ class MITCompatibility2020(Compatibility):
             ]
         )
 
+
 class MITAqueousCompatibility(Compatibility):
     """
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of
@@ -932,9 +991,14 @@ class MITAqueousCompatibility(Compatibility):
     this compatibility scheme on runs with different parameters is not valid.
     """
 
-    @deprecated(message=("MITAqueousCompatibility will be updated with new correction classes in 2020"))
-    def __init__(self, compat_type="Advanced", correct_peroxide=True,
-                 check_potcar_hash=False):
+    @deprecated(
+        message=(
+            "MITAqueousCompatibility will be updated with new correction classes in 2020"
+        )
+    )
+    def __init__(
+        self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False
+    ):
         """
         Args:
             compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
@@ -953,10 +1017,15 @@ class MITAqueousCompatibility(Compatibility):
         self.check_potcar_hash = check_potcar_hash
         fp = os.path.join(MODULE_DIR, "MITCompatibility.yaml")
         super().__init__(
-            [PotcarCorrection(MITRelaxSet, check_hash=check_potcar_hash),
-             GasCorrection(fp),
-             AnionCorrection(fp, correct_peroxide=correct_peroxide),
-             UCorrection(fp, MITRelaxSet, compat_type), AqueousCorrection(fp)])
+            [
+                PotcarCorrection(MITRelaxSet, check_hash=check_potcar_hash),
+                GasCorrection(fp),
+                AnionCorrection(fp, correct_peroxide=correct_peroxide),
+                UCorrection(fp, MITRelaxSet, compat_type),
+                AqueousCorrection(fp),
+            ]
+        )
+
 
 class MITAqueousCompatibility2020(Compatibility):
     """
@@ -969,6 +1038,19 @@ class MITAqueousCompatibility2020(Compatibility):
     def __init__(
         self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False
     ):
+        """
+        Args:
+            compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
+                entries are excluded.  Advanced means mixing scheme is
+                implemented to make entries compatible with each other,
+                but entries which are supposed to be done in GGA+U will have the
+                equivalent GGA entries excluded. For example, Fe oxides should
+                have a U value under the Advanced scheme. A GGA Fe oxide run
+                will therefore be excluded under the scheme.
+            correct_peroxide: Specify whether peroxide/superoxide/ozonide
+                corrections are to be applied or not.
+            check_potcar_hash (bool): Use potcar hash to verify potcars are correct.
+        """
         self.compat_type = compat_type
         self.correct_peroxide = correct_peroxide
         self.check_potcar_hash = check_potcar_hash
@@ -983,6 +1065,7 @@ class MITAqueousCompatibility2020(Compatibility):
             ]
         )
 
+
 class MaterialsProjectAqueousCompatibility(Compatibility):
     """
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of
@@ -992,10 +1075,14 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
     valid.
     """
 
-    @deprecated(message=("MaterialsProjectAqueousCompatibility will be updated with new correction classes "
-        "as well as new values of corrections and uncertainties in 2020"))
-    def __init__(self, compat_type="Advanced", correct_peroxide=True,
-                 check_potcar_hash=False):
+    @deprecated(
+        message=(
+            "MaterialsProjectAqueousCompatibility will be updated with new correction classes in 2020"
+        )
+    )
+    def __init__(
+        self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False
+    ):
         """
         Args:
             compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
@@ -1014,10 +1101,15 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         self.check_potcar_hash = check_potcar_hash
         fp = os.path.join(MODULE_DIR, "MPCompatibility.yaml")
         super().__init__(
-            [PotcarCorrection(MPRelaxSet, check_hash=check_potcar_hash),
-             GasCorrection(fp),
-             AnionCorrection(fp, correct_peroxide=correct_peroxide),
-             UCorrection(fp, MPRelaxSet, compat_type), AqueousCorrection(fp)])
+            [
+                PotcarCorrection(MPRelaxSet, check_hash=check_potcar_hash),
+                GasCorrection(fp),
+                AnionCorrection(fp, correct_peroxide=correct_peroxide),
+                UCorrection(fp, MPRelaxSet, compat_type),
+                AqueousCorrection(fp),
+            ]
+        )
+
 
 class MaterialsProjectAqueousCompatibility2020(Compatibility):
     """
@@ -1031,6 +1123,19 @@ class MaterialsProjectAqueousCompatibility2020(Compatibility):
     def __init__(
         self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False
     ):
+        """
+        Args:
+            compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
+                entries are excluded.  Advanced means mixing scheme is
+                implemented to make entries compatible with each other,
+                but entries which are supposed to be done in GGA+U will have the
+                equivalent GGA entries excluded. For example, Fe oxides should
+                have a U value under the Advanced scheme. A GGA Fe oxide run
+                will therefore be excluded under the scheme.
+            correct_peroxide: Specify whether peroxide/superoxide/ozonide
+                corrections are to be applied or not.
+            check_potcar_hash (bool): Use potcar hash to verify potcars are correct.
+        """
         self.compat_type = compat_type
         self.correct_peroxide = correct_peroxide
         self.check_potcar_hash = check_potcar_hash
