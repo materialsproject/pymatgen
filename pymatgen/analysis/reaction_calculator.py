@@ -322,6 +322,8 @@ class Reaction(BalancedReaction):
         diff = self._num_comp - rank
         num_constraints = diff if diff >= 2 else 1
 
+        self._lowest_num_errors = np.inf  # an error is defined as a component changing sides or disappearing
+
         self._coeffs = self.balance_coeffs(comp_matrix, num_constraints)
         self._els = all_elems
 
@@ -332,7 +334,6 @@ class Reaction(BalancedReaction):
         first_product_idx = len(self._input_reactants)
 
         balanced = False
-        lowest_num_errors = np.inf
         best_soln = None
 
         for constraints in combinations(range(first_product_idx, self._num_comp), num_constraints):
@@ -347,10 +348,11 @@ class Reaction(BalancedReaction):
                 num_errors = np.sum(np.multiply(expected_signs, coeffs.T) < self.TOLERANCE)
 
                 if num_errors == 0:
+                    self._lowest_num_errors = 0
                     return np.squeeze(coeffs)
-                elif num_errors < lowest_num_errors:
+                elif num_errors < self._lowest_num_errors:
                     best_soln = coeffs
-                    lowest_num_errors = num_errors
+                    self._lowest_num_errors = num_errors
 
         if not balanced:
             raise ReactionError("Reaction cannot be balanced.")
