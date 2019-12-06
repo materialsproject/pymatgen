@@ -1076,7 +1076,61 @@ class MVLScanRelaxSetTest(PymatgenTest):
         self.assertEqual(v._config_dict["INCAR"]["METAGGA"], "SCAN")
         self.assertEqual(v.user_incar_settings["NSW"], 500)
 
+class MPScanRelaxSetTest(PymatgenTest):
+    def setUp(self):
+        file_path = self.TEST_FILES_DIR / 'POSCAR'
+        poscar = Poscar.from_file(file_path)
+        self.struct = poscar.structure
+        self.mp_scan_set = MPScanRelaxSet(self.struct,
+                                            potcar_functional="PBE_52",
+                                            user_incar_settings={"NSW": 500})
+        warnings.simplefilter("ignore")
 
+    def tearDown(self):
+        warnings.simplefilter("default")
+
+    def test_incar(self):
+        incar = self.mp_scan_set.incar
+        self.assertIn("METAGGA", incar)
+        self.assertIn("LASPH", incar)
+        self.assertIn("ADDGRID", incar)
+        self.assertEqual(incar["NSW"], 500)
+        # the default POTCAR contains metals
+        self.assertEqual(incar["KSPACING"], 0.22)
+        self.assertEqual(incar["ISMEAR"], 2)
+    
+    def test_nonmetal(self):
+        # Test that KSPACING and ISMEAR change with a nonmetal structure
+        file_path = self.TEST_FILES_DIR / 'POSCAR.O2'
+        struct = Poscar.from_file(file_path,check_for_POTCAR=False).structure
+        scan_nonmetal_set = MPScanRelaxSet(struct)
+        incar = scan_nonmetal_set.incar
+        self.assertEqual(incar["KSPACING"], 0.54)
+        self.assertEqual(incar["ISMEAR"], -5)
+        
+    # Test SCAN+rVV10
+    def test_rvv10(self):
+        scan_rvv10_set = MPScanRelaxSet(self.struct, vdw="rVV10")
+        self.assertIn("LUSE_VDW", scan_rvv10_set.incar)
+        self.assertEqual(scan_rvv10_set.incar["BPARAM"], 15.7)
+
+    def test_potcar(self):
+        self.assertEqual(self.mp_scan_set.potcar.functional, "PBE_52")
+
+        test_potcar_set_1 = MPScanRelaxSet(
+            self.struct, potcar_functional="PBE_54")
+        self.assertEqual(test_potcar_set_1.potcar.functional, "PBE_54")
+
+        self.assertRaises(ValueError, MPScanRelaxSet,
+                          self.struct, potcar_functional="PBE")
+
+    def test_as_from_dict(self):
+        d = self.mp_scan_set.as_dict()
+        v = dec.process_decoded(d)
+        self.assertEqual(type(v), MPScanRelaxSet)
+        self.assertEqual(v._config_dict["INCAR"]["METAGGA"], "SCAN")
+        self.assertEqual(v.user_incar_settings["NSW"], 500)
+        
 class FuncTest(PymatgenTest):
     def test_batch_write_input(self):
         structures = [PymatgenTest.get_structure("Li2O"),

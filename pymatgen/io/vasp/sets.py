@@ -535,15 +535,16 @@ class DictSet(VaspInputSet):
             Uses a simple approach scaling the number of divisions along each
             reciprocal lattice vector proportional to its length.
         """
-        settings = self.user_kpoints_settings or self._config_dict["KPOINTS"]
+        # Return None if KSPACING is present in the INCAR, because this will
+        # cause VASP to generate the kpoints automatically
+        if self.user_incar_settings.get("KSPACING") or self._config_dict["INCAR"].get("KSPACING"):
+            if self.user_kpoints_settings == {}:
+                return None
+
+        settings = self.user_kpoints_settings or self._config_dict.get("KPOINTS")
 
         if isinstance(settings, Kpoints):
             return settings
-
-        # Return None if KSPACING is present in the INCAR, because this will
-        # cause VASP to generate the kpoints automatically
-        if self.user_incar_settings.get("KSPACING") and self.user_kpoints_settings == {}:
-            return None
 
         # If grid_density is in the kpoints_settings use
         # Kpoints.automatic_density
@@ -642,6 +643,58 @@ class MPRelaxSet(DictSet):
         super().__init__(structure, MPRelaxSet.CONFIG, **kwargs)
         self.kwargs = kwargs
 
+class MPScanRelaxSet(DictSet):
+    """
+    Class for writing a relax input set using Strongly Constrained and
+    Appropriately Normed (SCAN) semilocal density functional.
+
+    Notes:
+        1. This functional is only available from VASP.5.4.3 upwards.
+
+        2. Meta-GGA calculations require POTCAR files that include
+        information on the kinetic energy density of the core-electrons,
+        i.e. "PBE_52" or "PBE_54". Make sure the POTCAR including the
+        following lines (see VASP wiki for more details):
+
+            $ grep kinetic POTCAR
+            kinetic energy-density
+            mkinetic energy-density pseudized
+            kinetic energy density (partial)
+    """
+    CONFIG = _load_yaml_config("MPSCANRelaxSet")
+
+    def __init__(self, structure, potcar_functional="PBE_52", **kwargs):
+        """
+        :param structure: Structure
+        :param vdw (str): set "rVV10" to enable SCAN+rVV10, which is a versatile
+                van der Waals density functional by combing the SCAN functional
+                with the rVV10 non-local correlation functional.
+        :param kwargs: Same as those supported by DictSet.
+        """
+        super().__init__(structure, MPScanRelaxSet.CONFIG, potcar_functional=potcar_functional,**kwargs)
+        self.kwargs = kwargs
+
+        if self.potcar_functional not in ["PBE_52", "PBE_54"]:
+            raise ValueError("SCAN calculations require PBE_52 or PBE_54!")
+        
+        updates = {}
+        # select the KSPACING and SIGMA parameters based on whether the input
+        # structure is a metal or non-metal
+        if structure.composition.contains_element_type('metal'):
+            updates["KSPACING"] = 0.22
+            updates["KGAMMA"] = True
+            updates["ISMEAR"] = 2 # use a different smearing settings for metals, per VASP guidelines. Use the default SIGMA=0.2
+            updates["SIGMA"] = 0.2
+        else:
+            updates["KSPACING"] = 0.54
+            updates["KGAMMA"] = True
+            updates["ISMEAR"] = -5 # use a different smearing settings for metals, per VASP guidelines. Use the default SIGMA=0.2
+            updates["SIGMA"] = 0.2
+
+        if kwargs.get("vdw", "").lower() == "rvv10":
+            updates["BPARAM"] = 15.7  # This is the correct BPARAM for SCAN+rVV10
+
+        self._config_dict["INCAR"].update(updates)
 
 class MPMetalRelaxSet(MPRelaxSet):
     """
