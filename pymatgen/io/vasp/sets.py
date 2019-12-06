@@ -668,7 +668,8 @@ class MPScanRelaxSet(DictSet):
         :param structure: Structure
         :param vdw (str): set "rVV10" to enable SCAN+rVV10, which is a versatile
                 van der Waals density functional by combing the SCAN functional
-                with the rVV10 non-local correlation functional.
+                with the rVV10 non-local correlation functional. rvv10 is the only
+                dispersion correction available for SCAN at this time.
         :param kwargs: Same as those supported by DictSet.
         """
         super().__init__(structure, MPScanRelaxSet.CONFIG, potcar_functional=potcar_functional,**kwargs)
@@ -691,8 +692,17 @@ class MPScanRelaxSet(DictSet):
             updates["ISMEAR"] = -5 # use a different smearing settings for metals, per VASP guidelines. Use the default SIGMA=0.2
             updates["SIGMA"] = 0.2
 
-        if kwargs.get("vdw", "").lower() == "rvv10":
-            updates["BPARAM"] = 15.7  # This is the correct BPARAM for SCAN+rVV10
+        if self.vdw:
+            if self.vdw != "rvv10":
+                warnings.warn("Use of van der waals functionals other than rVV10 "
+                                "with SCAN is not supported at this time. ")
+                # delete any vdw parameters that may have been added to the INCAR
+                vdw_par = loadfn(str(MODULE_DIR / "vdW_parameters.yaml"))
+                for k,v in vdw_par[self.vdw].items():
+                    try:
+                        del self._config_dict["INCAR"][k]
+                    except KeyError:
+                        pass
 
         self._config_dict["INCAR"].update(updates)
 

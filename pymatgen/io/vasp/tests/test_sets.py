@@ -4,6 +4,7 @@
 
 
 import unittest
+import pytest
 import os
 import tempfile
 from zipfile import ZipFile
@@ -1113,6 +1114,14 @@ class MPScanRelaxSetTest(PymatgenTest):
         scan_rvv10_set = MPScanRelaxSet(self.struct, vdw="rVV10")
         self.assertIn("LUSE_VDW", scan_rvv10_set.incar)
         self.assertEqual(scan_rvv10_set.incar["BPARAM"], 15.7)
+    
+    def test_other_vdw(self):
+        # should raise a warning.
+        # IVDW key should not be present in the incar
+        with pytest.warns(UserWarning, match=r'not supported at this time'):
+            scan_vdw_set = MPScanRelaxSet(self.struct, vdw="DFTD3")
+            self.assertNotIn("LUSE_VDW", scan_vdw_set.incar)
+            self.assertNotIn("IVDW", scan_vdw_set.incar)
 
     def test_potcar(self):
         self.assertEqual(self.mp_scan_set.potcar.functional, "PBE_52")
@@ -1130,7 +1139,7 @@ class MPScanRelaxSetTest(PymatgenTest):
         self.assertEqual(type(v), MPScanRelaxSet)
         self.assertEqual(v._config_dict["INCAR"]["METAGGA"], "SCAN")
         self.assertEqual(v.user_incar_settings["NSW"], 500)
-        
+
 class FuncTest(PymatgenTest):
     def test_batch_write_input(self):
         structures = [PymatgenTest.get_structure("Li2O"),
