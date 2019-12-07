@@ -658,6 +658,8 @@ class GrainBoundaryGenerator:
             all_sites = sites_away_gb + s_near_gb.sites
             gb_with_vac = Structure.from_sites(all_sites)
 
+        # move coordinates into the periodic cell.
+        gb_with_vac = fix_pbc(gb_with_vac, whole_lat.matrix)
         return GrainBoundary(whole_lat, gb_with_vac.species, gb_with_vac.cart_coords, rotation_axis,
                              rotation_angle, plane, join_plane, self.initial_structure,
                              vacuum_thickness, ab_shift, site_properties=gb_with_vac.site_properties,
