@@ -4,6 +4,7 @@
 
 
 import unittest
+import pytest
 import os
 import tempfile
 from zipfile import ZipFile
@@ -19,6 +20,52 @@ MODULE_DIR = Path(__file__).resolve().parent
 
 dec = MontyDecoder()
 
+class HashPotcarTest(PymatgenTest):
+
+    def setUp(self):
+        if "PMG_VASP_PSP_DIR" in os.environ:
+            self.pmg_dir = os.environ["PMG_VASP_PSP_DIR"]
+        else:
+            self.pmg_dir = ""
+
+        d = {'@module': 'pymatgen.core.structure',
+ '@class': 'Structure',
+ 'charge': None,
+ 'lattice': {'matrix': [[2.32547694, 0.0, -0.82218026],
+   [-1.16273847, 2.01392211, -0.82218026],
+   [0.0, 0.0, 2.46654077]],
+  'a': 2.4665407716892562,
+  'b': 2.4665407749920663,
+  'c': 2.46654077,
+  'alpha': 109.47122067561966,
+  'beta': 109.47122070274486,
+  'gamma': 109.47122053911131,
+  'volume': 11.55162296798055},
+ 'sites': [{'species': [{'element': 'Fe', 'occu': 1}],
+   'abc': [0.0, 0.0, 0.0],
+   'xyz': [0.0, 0.0, 0.0],
+   'label': 'Fe',
+   'properties': {'magmom': -2.279}}]}
+
+        self.struct = Structure.from_dict(d)
+    
+    def tearDown(self):
+        if self.pmg_dir == "":
+            del os.environ["PMG_VASP_PSP_DIR"]
+        else:
+            os.environ["PMG_VASP_PSP_DIR"] = self.pmg_dir
+
+    def test_bad_hash(self):
+        os.environ["PMG_VASP_PSP_DIR"] = str(self.TEST_FILES_DIR / "modified_potcars_data")
+        with pytest.raises(BadHashError): 
+            vis = MPRelaxSet(self.struct,potcar_functional="PBE",user_potcar_settings={"Fe":"Fe"})
+            print(vis.potcar.spec)
+
+    def test_data_hash_warning(self):
+        os.environ["PMG_VASP_PSP_DIR"] = str(self.TEST_FILES_DIR / "modified_potcars_header")
+        with pytest.warns(UserWarning, match="did not pass validation"):
+            vis = MPRelaxSet(self.struct,potcar_functional="PBE",user_potcar_settings={"Fe":"Fe"})
+            print(vis.potcar.spec)
 
 class MITMPRelaxSetTest(PymatgenTest):
     @classmethod

@@ -41,6 +41,7 @@ The above are recommendations. The following are UNBREAKABLE rules:
 
 import abc
 import re
+import os
 import glob
 import shutil
 import warnings
@@ -53,6 +54,7 @@ from monty.serialization import loadfn
 from monty.io import zopen
 from monty.dev import deprecated
 from zipfile import ZipFile
+from hashlib import md5
 
 from pymatgen.core.periodic_table import Specie, Element
 from pymatgen.core.structure import Structure
@@ -60,6 +62,7 @@ from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints, VaspInput
 from pymatgen.io.vasp.outputs import Vasprun, Outcar
 from pymatgen.io.lobster import Lobsterin
 from monty.json import MSONable
+from monty.serialization import loadfn
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.analysis.structure_matcher import StructureMatcher
@@ -125,8 +128,10 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         """
         Potcar object.
         """
-        return Potcar(self.potcar_symbols, functional=self.potcar_functional)
-
+        potcar = Potcar(self.potcar_symbols, functional=self.potcar_functional)
+        validate_potcar_hash(potcar)
+        return potcar
+    
     @property  # type: ignore
     @deprecated(message="Use the get_vasp_input() method instead.")
     def all_input(self):
@@ -2381,6 +2386,41 @@ class BadInputSetWarning(UserWarning):
     """
     pass
 
+
+class BadHashError(Exception):
+    """
+    Error raised when POTCAR hashes do not pass validation
+    """
+    pass
+
+def validate_potcar_hash(potcar: Potcar):
+    """
+    Validate POTCAR contents against pre-compiled hashes.
+
+    Two hashes are checked - "file hash" hashes the entire file.
+    "data hash" is the pymatgen-generated hash of just the POTCAR data.
+    A warning is raised if the data hash matches but the file hash does not
+    """
+    # # hashes computed from pseudopotential distributed with VASP 5.4.4
+    cwd = os.path.abspath(os.path.dirname(__file__))
+    pymatgen_hashes = loadfn(os.path.join(cwd, "vasp_potcar_pymatgen_hashes.json"))
+    file_hashes = loadfn(os.path.join(cwd,"vasp_potcar_file_hashes.json"))
+
+    key = potcar[0].functional_dir[potcar.functional]
+    
+    for psingle in potcar:
+        if psingle.hash != pymatgen_hashes[key][psingle.symbol]:
+            raise BadHashError("POTCAR data hash for POTCAR {} did not pass \
+                                validation. Verify the integrity of your \
+                                POTCAR files. ".format(psingle.symbol))
+    else:
+        file_hash = md5(psingle.data.encode('utf-8')).hexdigest()
+        if file_hash != file_hashes[key][psingle.symbol]:
+            warnings.warn("POTCAR file hash for POTCAR {} did not pass validation. \
+                            It is possible that the metadata in the POTCAR has changed. \
+                        We will continue loading the POTCAR because the hash of \
+                        the data itself has passed validation.".format(psingle.symbol)
+                        )
 
 def batch_write_input(structures, vasp_input_set=MPRelaxSet, output_dir=".",
                       make_dir_if_not_present=True, subfolder=None,
