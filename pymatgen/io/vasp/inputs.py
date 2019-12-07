@@ -1497,9 +1497,8 @@ OrbitalDescription = namedtuple('OrbitalDescription',
 
 class PotcarSingle:
     """
-    Object for a **single** POTCAR. The builder assumes the complete string is
-    the POTCAR contains the complete untouched data in "data" as a string and
-    a dict of keywords.
+    Object for a **single** POTCAR. The builder assumes the POTCAR contains 
+    the complete untouched data in "data" as a string and a dict of keywords.
 
     .. attribute:: data
 
@@ -1510,6 +1509,10 @@ class PotcarSingle:
         Keywords parsed from the POTCAR as a dict. All keywords are also
         accessible as attributes in themselves. E.g., potcar.enmax,
         potcar.encut, etc.
+    
+    md5 hashes of the entire POTCAR file and the actual data are validated
+    against a database of known good hashes. Appropriate warnings or errors
+    are raised if a POTCAR hash fails validation.
     """
     functional_dir = {"PBE": "POT_GGA_PAW_PBE",
                       "PBE_52": "POT_GGA_PAW_PBE_52",
@@ -1519,7 +1522,9 @@ class PotcarSingle:
                       "LDA_54": "POT_LDA_PAW_54",
                       "PW91": "POT_GGA_PAW_PW91",
                       "LDA_US": "POT_LDA_US",
-                      "PW91_US": "POT_GGA_US_PW91"}
+                      "PW91_US": "POT_GGA_US_PW91",
+                      "Perdew-Zunger81": "POT_LDA_PAW",
+                      }
 
     functional_tags = {"pe": {"name": "PBE", "class": "GGA"},
                        "91": {"name": "PW91", "class": "GGA"},
@@ -1565,11 +1570,16 @@ class PotcarSingle:
                        "RRKJ": _parse_list,
                        "GGA": _parse_list}
 
-    def __init__(self, data):
+    def __init__(self, data , symbol = None):
         """
         Args:
             data:
                 Complete and single potcar file as a string.
+            symbol:
+                POTCAR symbol corresponding to the filename suffix
+                e.g. "Tm_3" for POTCAR.TM_3". If not given, pymatgen 
+                will attempt to extract the symbol from the file itself.
+                However, this is not always reliable!
         """
         self.data = data  # raw POTCAR as a string
 
@@ -1643,6 +1653,15 @@ class PotcarSingle:
         PSCTR.update(self.keywords)
         self.PSCTR = OrderedDict(sorted(PSCTR.items(), key=lambda x: x[0]))
         self.hash = self.get_potcar_hash()
+    
+
+        if symbol:
+            self.symbol = symbol
+        else:
+            try:
+                self.symbol = self.keywords["TITEL"].split(" ")[1].strip()
+            except IndexError:
+                self.symbol = self.keywords["TITEL"].strip()
 
     def __str__(self):
         return self.data + "\n"
@@ -1682,16 +1701,20 @@ class PotcarSingle:
         :param filename: Filename.
         :return: PotcarSingle.
         """
+        match = re.search(r"(?<=POTCAR\.)(.*)(?=.gz)",str(filename))
+        if match:
+            symbol = match.group(0)
+            
         try:
             with zopen(filename, "rt") as f:
-                return PotcarSingle(f.read())
+                return PotcarSingle(f.read(),symbol=symbol)
         except UnicodeDecodeError:
             warnings.warn("POTCAR contains invalid unicode errors. "
                           "We will attempt to read it by ignoring errors.")
             import codecs
             with codecs.open(filename, "r", encoding="utf-8",
                              errors="ignore") as f:
-                return PotcarSingle(f.read())
+                return PotcarSingle(f.read(),symbol=symbol if symbol else None)
 
     @staticmethod
     def from_symbol_and_functional(symbol: str, functional: str = None):
@@ -1719,16 +1742,10 @@ class PotcarSingle:
             p = os.path.expanduser(p)
             p = zpath(p)
             if os.path.exists(p):
-                return PotcarSingle.from_file(p)
+                psingle = PotcarSingle.from_file(p)
+                return psingle
         raise IOError("You do not have the right POTCAR with functional " +
                       "{} and label {} in your VASP_PSP_DIR".format(functional, symbol))
-
-    @property
-    def symbol(self):
-        """
-        Symbol of POTCAR, e.g., Fe_pv
-        """
-        return self.keywords["TITEL"].split(" ")[1].strip()
 
     @property
     def element(self):
