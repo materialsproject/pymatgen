@@ -13,7 +13,7 @@ from pymatgen.entries.computed_entries import ComputedEntry
 from monty.json import MontyDecoder
 from monty.fractions import gcd_float
 
-from itertools import combinations
+from itertools import combinations, chain
 
 """
 This module provides classes that define a chemical reaction.
@@ -324,24 +324,31 @@ class Reaction(BalancedReaction):
 
         self._lowest_num_errors = np.inf  # an error is defined as a component changing sides or disappearing
 
-        self._coeffs = self.balance_coeffs(comp_matrix, num_constraints)
+        self._coeffs = self._balance_coeffs(comp_matrix, num_constraints)
         self._els = all_elems
 
-    def balance_coeffs(self, comp_matrix, num_constraints):
-        comp_and_constraints = np.append(comp_matrix, np.zeros((num_constraints, self._num_comp)), axis=0)
-        b = np.zeros((self._num_elems+num_constraints, 1))
-        b[-num_constraints:] = 1
+    def _balance_coeffs(self, comp_matrix, max_num_constraints):
         first_product_idx = len(self._input_reactants)
 
-        balanced = False
+        # start with adding simplest product constraints and work towards most complex reactant constraints
+        product_constraints = chain.from_iterable([combinations(range(first_product_idx, self._num_comp), n_constr)
+                                                   for n_constr in range(max_num_constraints, 0, -1)])
+        reactant_constraints = chain.from_iterable([combinations(range(0, first_product_idx), n_constr)
+                                                    for n_constr in range(max_num_constraints, 0, -1)])
         best_soln = None
+        balanced = False
 
-        for constraints in combinations(range(first_product_idx, self._num_comp), num_constraints):
-            test_comp_and_constraints = comp_and_constraints.copy()
+        for constraints in chain(product_constraints, reactant_constraints):
+            n_constr = len(constraints)
+
+            comp_and_constraints = np.append(comp_matrix, np.zeros((n_constr, self._num_comp)), axis=0)
+            b = np.zeros((self._num_elems + n_constr, 1))
+            b[-n_constr:] = 1 if min(constraints) >= first_product_idx else -1
+
             for num, idx in enumerate(constraints):
-                test_comp_and_constraints[self._num_elems + num, idx] = 1
+                comp_and_constraints[self._num_elems + num, idx] = 1  # arbitrarily fix coeff to 1
 
-            coeffs = np.matmul(np.linalg.pinv(test_comp_and_constraints), b)
+            coeffs = np.matmul(np.linalg.pinv(comp_and_constraints), b)
             if np.allclose(np.matmul(comp_matrix, coeffs), np.zeros((self._num_elems, 1))):
                 balanced = True
                 expected_signs = np.array([-1]*len(self._input_reactants) + [+1]*len(self._input_products))
@@ -351,8 +358,8 @@ class Reaction(BalancedReaction):
                     self._lowest_num_errors = 0
                     return np.squeeze(coeffs)
                 elif num_errors < self._lowest_num_errors:
-                    best_soln = coeffs
                     self._lowest_num_errors = num_errors
+                    best_soln = coeffs
 
         if not balanced:
             raise ReactionError("Reaction cannot be balanced.")
