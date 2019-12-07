@@ -2,6 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Module containing classes to generate grain boundaries.
+"""
+
 import numpy as np
 from fractions import Fraction
 from math import gcd, floor, cos
@@ -219,6 +223,10 @@ class GrainBoundary(Structure):
         return "\n".join(outs)
 
     def as_dict(self):
+        """
+        Returns:
+            Dictionary representation of GrainBoundary object
+        """
         d = super().as_dict()
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
@@ -234,6 +242,15 @@ class GrainBoundary(Structure):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Generates a GrainBoundary object from a dictionary created by as_dict().
+        
+        Args:
+            d: dict
+
+        Returns:
+            GrainBoundary object
+        """
         lattice = Lattice.from_dict(d["lattice"])
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
         s = Structure.from_sites(sites)
