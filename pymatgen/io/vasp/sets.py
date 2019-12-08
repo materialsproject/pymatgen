@@ -2692,9 +2692,15 @@ def validate_potcar_hash(potcar: Potcar):
     """
     Validate POTCAR contents against pre-compiled hashes.
 
-    Two hashes are checked - "file hash" hashes the entire file.
-    "data hash" is the pymatgen-generated hash of just the POTCAR data.
-    A warning is raised if the data hash matches but the file hash does not
+    Two hashes are checked - the "file hash" checks the md5 hash of
+    the entire file, including metadata. The "pymatgen hash" is computed
+    using the get_potcar_hash method and represents a hash of just the
+    POTCAR data (not metadata). Hashes of the POTCARs distributed with
+    VASP 5.4.4 are stored in 'vasp_potcar_file_hashes.json' and
+    'vasp_potcar_file_hashes.json'.
+
+    A warning is raised if the data hash passes validation but the
+    file hash does not.
     """
     # # hashes computed from pseudopotential distributed with VASP 5.4.4
     cwd = os.path.abspath(os.path.dirname(__file__))
