@@ -1826,12 +1826,12 @@ class PotcarSingle:
         self.hash = self.get_potcar_hash()
 
         if symbol:
-            self.symbol = symbol
+            self._symbol = symbol
         else:
             try:
-                self.symbol = self.keywords["TITEL"].split(" ")[1].strip()
+                self._symbol = self.keywords["TITEL"].split(" ")[1].strip()
             except IndexError:
-                self.symbol = self.keywords["TITEL"].strip()
+                self._symbol = self.keywords["TITEL"].strip()
 
     def __str__(self):
         return self.data + "\n"
@@ -1954,6 +1954,10 @@ class PotcarSingle:
         :return: Number of electrons
         """
         return self.zval
+
+    @property
+    def symbol(self):
+        return self._symbol
 
     @property
     def potential_type(self) -> str:
