@@ -1876,6 +1876,8 @@ class PotcarSingle:
         match = re.search(r"(?<=POTCAR\.)(.*)(?=.gz)", str(filename))
         if match:
             symbol = match.group(0)
+        else:
+            symbol = None
 
         try:
             with zopen(filename, "rt") as f:
