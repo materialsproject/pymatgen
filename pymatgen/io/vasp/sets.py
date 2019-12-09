@@ -62,7 +62,6 @@ from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints, VaspInput
 from pymatgen.io.vasp.outputs import Vasprun, Outcar
 from pymatgen.io.lobster import Lobsterin
 from monty.json import MSONable
-from monty.serialization import loadfn
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.analysis.structure_matcher import StructureMatcher
