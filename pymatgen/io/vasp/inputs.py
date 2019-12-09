@@ -1877,11 +1877,11 @@ class PotcarSingle:
         if match:
             symbol = match.group(0)
         else:
-            symbol = None
+            symbol = ""
 
         try:
             with zopen(filename, "rt") as f:
-                return PotcarSingle(f.read(), symbol=symbol)
+                return PotcarSingle(f.read(), symbol=symbol or None)
         except UnicodeDecodeError:
             warnings.warn(
                 "POTCAR contains invalid unicode errors. "
@@ -1890,7 +1890,7 @@ class PotcarSingle:
             import codecs
 
             with codecs.open(filename, "r", encoding="utf-8", errors="ignore") as f:
-                return PotcarSingle(f.read(), symbol=symbol if symbol else None)
+                return PotcarSingle(f.read(), symbol=symbol or None)
 
     @staticmethod
     def from_symbol_and_functional(symbol: str, functional: str = None):
