@@ -14,7 +14,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 8, 2012"
 
-from pymatgen.core.structure import Structure
+from pymatgen.core.structure import Molecule, Structure
 
 try:
     from ase import Atoms
@@ -25,16 +25,16 @@ except ImportError:
 
 class AseAtomsAdaptor:
     """
-    Adaptor serves as a bridge between ASE Atoms and pymatgen structure.
+    Adaptor serves as a bridge between ASE Atoms and pymatgen objects.
     """
 
     @staticmethod
     def get_atoms(structure, **kwargs):
         """
-        Returns ASE Atoms object from pymatgen structure.
+        Returns ASE Atoms object from pymatgen structure or molecule.
 
         Args:
-            structure: pymatgen.core.structure.Structure
+            structure: pymatgen.core.structure.Structure or pymatgen.core.structure.Molecule
             **kwargs: other keyword args to pass into the ASE Atoms constructor
 
         Returns:
@@ -47,9 +47,14 @@ class AseAtomsAdaptor:
                               "Use `pip install ase` or `conda install ase -c conda-forge`")
         symbols = [str(site.specie.symbol) for site in structure]
         positions = [site.coords for site in structure]
-        cell = structure.lattice.matrix
-        return Atoms(symbols=symbols, positions=positions, pbc=True,
-                     cell=cell, **kwargs)
+        if hasattr(structure, "lattice"):
+            cell = structure.lattice.matrix
+            pbc = True
+        else:
+            cell = None
+            pbc = None
+        return Atoms(symbols=symbols, positions=positions, pbc=pbc, cell=cell,
+                     **kwargs)
 
     @staticmethod
     def get_structure(atoms, cls=None):
@@ -70,3 +75,21 @@ class AseAtomsAdaptor:
         cls = Structure if cls is None else cls
         return cls(lattice, symbols, positions,
                    coords_are_cartesian=True)
+
+    @staticmethod
+    def get_molecule(atoms, cls=None):
+        """
+        Returns pymatgen molecule from ASE Atoms.
+
+        Args:
+            atoms: ASE Atoms object
+            cls: The Molecule class to instantiate (defaults to pymatgen molecule)
+
+        Returns:
+            Equivalent pymatgen.core.structure.Molecule
+        """
+        symbols = atoms.get_chemical_symbols()
+        positions = atoms.get_positions()
+
+        cls = Molecule if cls is None else cls
+        return cls(symbols, positions)
