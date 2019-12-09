@@ -51,13 +51,12 @@ class BalancedReaction(MSONable):
                 {Composition: amt}.
         """
         # sum reactants and products
-        all_reactants = sum([k * v for k, v in reactants_coeffs.items()],
-                            Composition({}))
-        all_products = sum([k * v for k, v in products_coeffs.items()],
-                           Composition({}))
+        all_reactants = sum(
+            [k * v for k, v in reactants_coeffs.items()], Composition({})
+        )
+        all_products = sum([k * v for k, v in products_coeffs.items()], Composition({}))
 
-        if not all_reactants.almost_equals(all_products, rtol=0,
-                                           atol=self.TOLERANCE):
+        if not all_reactants.almost_equals(all_products, rtol=0, atol=self.TOLERANCE):
             raise ReactionError("Reaction is unbalanced!")
 
         self._els = all_reactants.elements
@@ -69,8 +68,7 @@ class BalancedReaction(MSONable):
         self._coeffs = []
         self._els = []
         self._all_comp = []
-        for c in set(list(reactants_coeffs.keys()) +
-                     list(products_coeffs.keys())):
+        for c in set(list(reactants_coeffs.keys()) + list(products_coeffs.keys())):
             coeff = products_coeffs.get(c, 0) - reactants_coeffs.get(c, 0)
 
             if abs(coeff) > self.TOLERANCE:
@@ -88,8 +86,7 @@ class BalancedReaction(MSONable):
         Returns:
             reaction energy as a float.
         """
-        return sum([amt * energies[c] for amt, c in zip(self._coeffs,
-                                                        self._all_comp)])
+        return sum([amt * energies[c] for amt, c in zip(self._coeffs, self._all_comp)])
 
     def normalize_to(self, comp, factor=1):
         """
@@ -101,8 +98,7 @@ class BalancedReaction(MSONable):
             comp (Composition): Composition to normalize to
             factor (float): Factor to normalize to. Defaults to 1.
         """
-        scale_factor = abs(1 / self._coeffs[self._all_comp.index(comp)]
-                           * factor)
+        scale_factor = abs(1 / self._coeffs[self._all_comp.index(comp)] * factor)
         self._coeffs = [c * scale_factor for c in self._coeffs]
 
     def normalize_to_element(self, element, factor=1):
@@ -117,8 +113,8 @@ class BalancedReaction(MSONable):
         """
         all_comp = self._all_comp
         coeffs = self._coeffs
-        current_el_amount = sum([all_comp[i][element] * abs(coeffs[i])
-                                 for i in range(len(all_comp))]) / 2
+        current_el_amount = (sum([all_comp[i][element] * abs(coeffs[i])
+                                  for i in range(len(all_comp))]) / 2)
         scale_factor = factor / current_el_amount
         self._coeffs = [c * scale_factor for c in coeffs]
 
@@ -132,8 +128,8 @@ class BalancedReaction(MSONable):
         Returns:
             Amount of that element in the reaction.
         """
-        return sum([self._all_comp[i][element] * abs(self._coeffs[i])
-                    for i in range(len(self._all_comp))]) / 2
+        return (sum([self._all_comp[i][element] * abs(self._coeffs[i])
+                    for i in range(len(self._all_comp))]) / 2)
 
     @property
     def elements(self):
@@ -254,19 +250,21 @@ class BalancedReaction(MSONable):
         return entry
 
     def as_dict(self):
-        return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                "reactants": {str(comp): coeff
-                              for comp, coeff in self.reactants_coeffs.items()},
-                "products": {str(comp): coeff
-                             for comp, coeff in self.products_coeffs.items()}}
+        return {
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+            "reactants": {
+                str(comp): coeff for comp, coeff in self.reactants_coeffs.items()
+            },
+            "products": {
+                str(comp): coeff for comp, coeff in self.products_coeffs.items()
+            },
+        }
 
     @classmethod
     def from_dict(cls, d):
-        reactants = {Composition(comp): coeff
-                     for comp, coeff in d["reactants"].items()}
-        products = {Composition(comp): coeff
-                    for comp, coeff in d["products"].items()}
+        reactants = {Composition(comp): coeff for comp, coeff in d["reactants"].items()}
+        products = {Composition(comp): coeff for comp, coeff in d["products"].items()}
         return cls(reactants, products)
 
     @staticmethod
@@ -285,9 +283,13 @@ class BalancedReaction(MSONable):
         rct_str, prod_str = rxn_string.split("->")
 
         def get_comp_amt(comp_str):
-            return {Composition(m.group(2)): float(m.group(1) or 1)
-                    for m in re.finditer(r"([\d\.]*(?:[eE]-?[\d\.]+)?)\s*([A-Z][\w\.\(\)]*)",
-                                         comp_str)}
+            return {
+                Composition(m.group(2)): float(m.group(1) or 1)
+                for m in re.finditer(
+                    r"([\d\.]*(?:[eE]-?[\d\.]+)?)\s*([A-Z][\w\.\(\)]*)", comp_str
+                )
+            }
+
         return BalancedReaction(get_comp_amt(rct_str), get_comp_amt(prod_str))
 
 
@@ -295,8 +297,9 @@ class Reaction(BalancedReaction):
     """
     A more flexible class representing a Reaction. The reaction amounts will
     be automatically balanced. Reactants and products can swap sides so that
-    all coefficients are positive. Normalizes so that the *FIRST* product
-    (or products, if underdetermined) has a coefficient of one.
+    all coefficients are positive, however this class will find the solution
+    with the minimum number of swaps and coefficients of 0. Normalizes so that
+    the *FIRST* product (or products, if underdetermined) has a coefficient of one.
     """
 
     def __init__(self, reactants, products):
@@ -322,7 +325,7 @@ class Reaction(BalancedReaction):
         diff = self._num_comp - rank
         num_constraints = diff if diff >= 2 else 1
 
-        self._lowest_num_errors = np.inf  # an error is defined as a component changing sides or disappearing
+        self._lowest_num_errors = np.inf  # an error = a component changing sides or disappearing
 
         self._coeffs = self._balance_coeffs(comp_matrix, num_constraints)
         self._els = all_elems
@@ -330,28 +333,41 @@ class Reaction(BalancedReaction):
     def _balance_coeffs(self, comp_matrix, max_num_constraints):
         first_product_idx = len(self._input_reactants)
 
-        # start with adding simplest product constraints and work towards most complex reactant constraints
-        product_constraints = chain.from_iterable([combinations(range(first_product_idx, self._num_comp), n_constr)
-                                                   for n_constr in range(max_num_constraints, 0, -1)])
-        reactant_constraints = chain.from_iterable([combinations(range(0, first_product_idx), n_constr)
-                                                    for n_constr in range(max_num_constraints, 0, -1)])
+        # start with simplest product constraints, work towards most complex reactant constraints
+        product_constraints = chain.from_iterable(
+            [
+                combinations(range(first_product_idx, self._num_comp), n_constr)
+                for n_constr in range(max_num_constraints, 0, -1)
+            ]
+        )
+        reactant_constraints = chain.from_iterable(
+            [
+                combinations(range(0, first_product_idx), n_constr)
+                for n_constr in range(max_num_constraints, 0, -1)
+            ]
+        )
         best_soln = None
         balanced = False
 
         for constraints in chain(product_constraints, reactant_constraints):
             n_constr = len(constraints)
 
-            comp_and_constraints = np.append(comp_matrix, np.zeros((n_constr, self._num_comp)), axis=0)
+            comp_and_constraints = np.append(
+                comp_matrix, np.zeros((n_constr, self._num_comp)), axis=0
+            )
             b = np.zeros((self._num_elems + n_constr, 1))
             b[-n_constr:] = 1 if min(constraints) >= first_product_idx else -1
 
             for num, idx in enumerate(constraints):
-                comp_and_constraints[self._num_elems + num, idx] = 1  # arbitrarily fix coeff to 1
+                comp_and_constraints[self._num_elems + num, idx] = 1
+                # arbitrarily fix coeff to 1
 
             coeffs = np.matmul(np.linalg.pinv(comp_and_constraints), b)
+
             if np.allclose(np.matmul(comp_matrix, coeffs), np.zeros((self._num_elems, 1))):
                 balanced = True
-                expected_signs = np.array([-1]*len(self._input_reactants) + [+1]*len(self._input_products))
+                expected_signs = np.array([-1] * len(self._input_reactants) +
+                                          [+1] * len(self._input_products))
                 num_errors = np.sum(np.multiply(expected_signs, coeffs.T) < self.TOLERANCE)
 
                 if num_errors == 0:
@@ -364,8 +380,7 @@ class Reaction(BalancedReaction):
         if not balanced:
             raise ReactionError("Reaction cannot be balanced.")
 
-        coeffs = np.squeeze(best_soln)
-        return coeffs
+        return np.squeeze(best_soln)
 
     def copy(self):
         """
@@ -374,10 +389,12 @@ class Reaction(BalancedReaction):
         return Reaction(self.reactants, self.products)
 
     def as_dict(self):
-        return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                "reactants": [comp.as_dict() for comp in self._input_reactants],
-                "products": [comp.as_dict() for comp in self._input_products]}
+        return {
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+            "reactants": [comp.as_dict() for comp in self._input_reactants],
+            "products": [comp.as_dict() for comp in self._input_products],
+        }
 
     @classmethod
     def from_dict(cls, d):
@@ -415,12 +432,12 @@ class ComputedReaction(Reaction):
         self._reactant_entries = reactant_entries
         self._product_entries = product_entries
         self._all_entries = reactant_entries + product_entries
-        reactant_comp = set([e.composition
-                             .get_reduced_composition_and_factor()[0]
-                             for e in reactant_entries])
-        product_comp = set([e.composition
-                            .get_reduced_composition_and_factor()[0]
-                            for e in product_entries])
+        reactant_comp = set(
+            [e.composition.get_reduced_composition_and_factor()[0]
+                for e in reactant_entries])
+        product_comp = set(
+            [e.composition.get_reduced_composition_and_factor()[0]
+                for e in product_entries])
         super().__init__(list(reactant_comp), list(product_comp))
 
     @property
@@ -442,18 +459,19 @@ class ComputedReaction(Reaction):
         calc_energies = {}
 
         for entry in self._reactant_entries + self._product_entries:
-            (comp, factor) = \
-                entry.composition.get_reduced_composition_and_factor()
-            calc_energies[comp] = min(calc_energies.get(comp, float('inf')),
-                                      entry.energy / factor)
+            (comp, factor) = entry.composition.get_reduced_composition_and_factor()
+            calc_energies[comp] = min(
+                calc_energies.get(comp, float("inf")), entry.energy / factor)
 
         return self.calculate_energy(calc_energies)
 
     def as_dict(self):
-        return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                "reactants": [e.as_dict() for e in self._reactant_entries],
-                "products": [e.as_dict() for e in self._product_entries]}
+        return {
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+            "reactants": [e.as_dict() for e in self._reactant_entries],
+            "products": [e.as_dict() for e in self._product_entries],
+        }
 
     @classmethod
     def from_dict(cls, d):
