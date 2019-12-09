@@ -215,6 +215,7 @@ class GrainBoundary(Structure):
 
         def to_s(x, rjust=10):
             return ("%0.6f" % x).rjust(rjust)
+
         outs.append("abc   : " + " ".join([to_s(i) for i in self.lattice.abc]))
         outs.append("angles: " + " ".join([to_s(i) for i in self.lattice.angles]))
         outs.append("Sites ({i})".format(i=len(self)))
@@ -244,7 +245,7 @@ class GrainBoundary(Structure):
     def from_dict(cls, d):
         """
         Generates a GrainBoundary object from a dictionary created by as_dict().
-        
+
         Args:
             d: dict
 
