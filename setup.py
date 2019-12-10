@@ -101,7 +101,7 @@ who require Python 2.7 should install pymatgen v2018.x.
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2019.11.11",
+    version="2019.12.3",
     cmdclass={'build_ext': build_ext},
     setup_requires=['numpy>=1.14.3', 'setuptools>=18.0'],
     python_requires='>=3.6',
@@ -128,7 +128,7 @@ setup(
         "pymatgen.analysis.structure_prediction": ["data/*.json", "*.yaml"],
         "pymatgen.io": ["*.yaml"],
         "pymatgen.io.vasp": ["*.yaml", "*.json"],
-        "pymatgen.io.lammps": ["templates/*.*"],
+        "pymatgen.io.lammps": ["templates/*.*", "*.yaml"],
         "pymatgen.io.feff": ["*.yaml"],
         "pymatgen.symmetry": ["*.yaml", "*.json", "*.sqlite"],
         "pymatgen.entries": ["*.yaml"],

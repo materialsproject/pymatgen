@@ -40,4 +40,3 @@ df2:
     ZAB_VDW: -1.8867
 rvv10:
     LUSE_VDW: True
-    BPARAM: 15.7
