@@ -16,7 +16,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 8, 2012"
 
-from pymatgen.core.structure import Structure
+from pymatgen.core.structure import Structure, Molecule
 
 try:
     from ase import Atoms
@@ -69,3 +69,43 @@ class AseAtomsAdaptor:
         cls = Structure if cls is None else cls
         return cls(lattice, symbols, positions,
                    coords_are_cartesian=True)
+
+
+class AseAtomsMoleculeAdaptor:
+    """
+    Adaptor serves as a bridge between ASE Atoms and pymatgen molecule.
+    """
+
+    @staticmethod
+    def get_atoms(molecule, **kwargs):
+        """
+        Returns ASE Atoms object from pymatgen molecule.
+
+        Args:
+            molecule: pymatgen.core.structure.Molecule
+            **kwargs: other keyword args to pass into the ASE Atoms constructor
+
+        Returns:
+            ASE Atoms object
+        """
+        symbols = [str(site.specie.symbol) for site in molecule]
+        positions = [site.coords for site in molecule]
+        return Atoms(symbols=symbols, positions=positions, **kwargs)
+
+    @staticmethod
+    def get_molecule(atoms, cls=None):
+        """
+        Returns pymatgen molecule from ASE Atoms.
+
+        Args:
+            atoms: ASE Atoms object
+            cls: The Structure class to instantiate (defaults to pymatgen molecule)
+
+        Returns:
+            Equivalent pymatgen.core.structure.Molecule
+        """
+        symbols = atoms.get_chemical_symbols()
+        positions = atoms.get_positions()
+
+        cls = Molecule if cls is None else cls
+        return cls(symbols, positions, coords_are_cartesian=True)
