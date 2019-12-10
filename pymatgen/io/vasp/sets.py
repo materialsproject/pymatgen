@@ -684,13 +684,11 @@ class MPScanRelaxSet(DictSet):
         if structure.composition.contains_element_type('metal'):
             updates["KSPACING"] = 0.22
             updates["KGAMMA"] = True
-            updates["ISMEAR"] = 2 # use a different smearing settings for metals, per VASP guidelines. Use the default SIGMA=0.2
-            updates["SIGMA"] = 0.2
+            updates["ISMEAR"] = 2 # use a different smearing settings for metals, per VASP guidelines.
         else:
             updates["KSPACING"] = 0.54
             updates["KGAMMA"] = True
-            updates["ISMEAR"] = -5 # use a different smearing settings for metals, per VASP guidelines. Use the default SIGMA=0.2
-            updates["SIGMA"] = 0.2
+            updates["ISMEAR"] = -5 # use a different smearing settings for metals, per VASP guidelines.
 
         if self.vdw:
             if self.vdw != "rvv10":
