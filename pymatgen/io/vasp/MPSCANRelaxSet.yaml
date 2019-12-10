@@ -8,15 +8,16 @@ INCAR:
   EDIFFG: -0.02
   ENCUT: 520
   IBRION: 2
-  LCHARG: True
-  ICHARG: 1  # TODO - check whether this should be 0
+  ICHARG: 1
   ISIF: 3
   ISPIN: 2
   LORBIT: 11
   LASPH: True
   LREAL: AUTO
-  LWAVE: True # TODO - confirm that we want to output WAVECAR
-  LELF: True  # TODO - confirm that we want to output ELFCAR
+  LCHARG: True  # Output CHGCAR
+  LAECHG: True  # Output AECCAR
+  LELF: True  # Output ELFCAR
+  LVTOT: True # Output LOCPOT
   METAGGA: SCAN
   NELM: 200
   NSW: 99
