@@ -1157,15 +1157,17 @@ class MPScanRelaxSetTest(PymatgenTest):
         # the default POTCAR contains metals
         self.assertEqual(incar["KSPACING"], 0.22)
         self.assertEqual(incar["ISMEAR"], 2)
+        self.assertEqual(incar["SIGMA"], 0.2)
 
     def test_nonmetal(self):
         # Test that KSPACING and ISMEAR change with a nonmetal structure
         file_path = self.TEST_FILES_DIR / "POSCAR.O2"
         struct = Poscar.from_file(file_path, check_for_POTCAR=False).structure
-        scan_nonmetal_set = MPScanRelaxSet(struct)
+        scan_nonmetal_set = MPScanRelaxSet(struct, is_metallic=False)
         incar = scan_nonmetal_set.incar
         self.assertEqual(incar["KSPACING"], 0.54)
         self.assertEqual(incar["ISMEAR"], -5)
+        self.assertEqual(incar["SIGMA"], 0.05)
 
     # Test SCAN+rVV10
     def test_rvv10(self):

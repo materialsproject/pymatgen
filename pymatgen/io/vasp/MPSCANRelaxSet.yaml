@@ -13,7 +13,7 @@ INCAR:
   ISPIN: 2
   LORBIT: 11
   LASPH: True
-  LREAL: AUTO
+  LREAL: False
   LCHARG: True  # Output CHGCAR
   LAECHG: True  # Output AECCAR
   LELF: True  # Output ELFCAR
@@ -22,7 +22,6 @@ INCAR:
   NELM: 200
   NSW: 99
   PREC: Accurate
-  SIGMA: 0.05
 POTCAR:
   Ac: Ac
   Ag: Ag

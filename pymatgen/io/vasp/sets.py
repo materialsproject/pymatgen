@@ -714,13 +714,20 @@ class MPScanRelaxSet(DictSet):
 
     CONFIG = _load_yaml_config("MPSCANRelaxSet")
 
-    def __init__(self, structure, potcar_functional="PBE_52", **kwargs):
+    def __init__(
+        self, structure, potcar_functional="PBE_54", is_metallic=True, **kwargs
+    ):
         """
         :param structure: Structure
         :param vdw (str): set "rVV10" to enable SCAN+rVV10, which is a versatile
                 van der Waals density functional by combing the SCAN functional
                 with the rVV10 non-local correlation functional. rvv10 is the only
                 dispersion correction available for SCAN at this time.
+        :param: is_metallic (bool): Whether or not the structure is metallic
+                (i.e., conducting). Metallic systems are computed with a smaller
+                KSPACING (=0.22) and different smearing parameters (ISMEAR=2,
+                SIGMA=0.2), compared to non-metallic systems (KSPACING=0.54,
+                ISMEAR=-5, SIGMA=0.05).
         :param kwargs: Same as those supported by DictSet.
         """
         super().__init__(
@@ -729,6 +736,7 @@ class MPScanRelaxSet(DictSet):
             potcar_functional=potcar_functional,
             **kwargs
         )
+        self.is_metallic = is_metallic
         self.kwargs = kwargs
 
         if self.potcar_functional not in ["PBE_52", "PBE_54"]:
@@ -737,18 +745,16 @@ class MPScanRelaxSet(DictSet):
         updates = {}
         # select the KSPACING and SIGMA parameters based on whether the input
         # structure is a metal or non-metal
-        if structure.composition.contains_element_type("metal"):
+        if self.is_metallic:
             updates["KSPACING"] = 0.22
-            updates["KGAMMA"] = True
-            updates[
-                "ISMEAR"
-            ] = 2  # use a different smearing settings for metals, per VASP guidelines.
+            # use a different smearing settings for metals, per VASP guidelines.
+            updates["SIGMA"] = 0.2
+            updates["ISMEAR"] = 2
         else:
             updates["KSPACING"] = 0.54
-            updates["KGAMMA"] = True
-            updates[
-                "ISMEAR"
-            ] = -5  # use a different smearing settings for metals, per VASP guidelines.
+            # use a different smearing settings for metals, per VASP guidelines.
+            updates["ISMEAR"] = -5
+            updates["SIGMA"] = 0.05
 
         if self.vdw:
             if self.vdw != "rvv10":
