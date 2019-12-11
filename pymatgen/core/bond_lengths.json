@@ -162,7 +162,7 @@
     "bond_order": 1.0
   },
   {
-    "ref": "http://www.wiredchemist.com/chemistry/data/bond_energies_lengths.html",
+    "ref": "M. Carlotti, J. W. C. Johns, A. Trombetti, Canadian Journal of Physics, 1974, 52:340-344",
     "length": 1.25,
     "elements": [
       "N",
