@@ -751,7 +751,7 @@ class MPScanRelaxSet(DictSet):
             updates["SIGMA"] = 0.2
             updates["ISMEAR"] = 2
         else:
-            updates["KSPACING"] = 0.54
+            updates["KSPACING"] = 0.44
             # use a different smearing settings for metals, per VASP guidelines.
             updates["ISMEAR"] = -5
             updates["SIGMA"] = 0.05
