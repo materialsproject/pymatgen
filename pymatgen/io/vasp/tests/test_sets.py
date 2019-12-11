@@ -1165,7 +1165,7 @@ class MPScanRelaxSetTest(PymatgenTest):
         struct = Poscar.from_file(file_path, check_for_POTCAR=False).structure
         scan_nonmetal_set = MPScanRelaxSet(struct, is_metallic=False)
         incar = scan_nonmetal_set.incar
-        self.assertEqual(incar["KSPACING"], 0.54)
+        self.assertEqual(incar["KSPACING"], 0.44)
         self.assertEqual(incar["ISMEAR"], -5)
         self.assertEqual(incar["SIGMA"], 0.05)
 
