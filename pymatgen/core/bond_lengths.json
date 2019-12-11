@@ -163,6 +163,15 @@
   },
   {
     "ref": "",
+    "length": 1.25,
+    "elements": [
+      "N",
+      "N"
+    ],
+    "bond_order": 2.0
+  },
+  {
+    "ref": "",
     "length": 1.1,
     "elements": [
       "N",
