@@ -162,6 +162,15 @@
     "bond_order": 1.0
   },
   {
+    "ref": "M. Carlotti, J. W. C. Johns, A. Trombetti, Canadian Journal of Physics, 1974, 52:340-344",
+    "length": 1.25,
+    "elements": [
+      "N",
+      "N"
+    ],
+    "bond_order": 2.0
+  },
+  {
     "ref": "",
     "length": 1.1,
     "elements": [
