@@ -77,7 +77,7 @@ class MolecularOrbitals:
         """
         Returns:
             A list of atomic orbitals, sorted from lowest to highest energy.
-        
+
             The orbitals energies in eV are represented as
                 [['O', '1s', -18.758245], ['O', '2s', -0.871362], ['O', '2p', -0.338381]]
             Data is obtained from
