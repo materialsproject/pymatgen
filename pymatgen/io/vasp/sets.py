@@ -726,7 +726,7 @@ class MPScanRelaxSet(DictSet):
         :param: is_metallic (bool): Whether or not the structure is metallic
                 (i.e., conducting). Metallic systems are computed with a smaller
                 KSPACING (=0.22) and different smearing parameters (ISMEAR=2,
-                SIGMA=0.2), compared to non-metallic systems (KSPACING=0.54,
+                SIGMA=0.2), compared to non-metallic systems (KSPACING=0.44,
                 ISMEAR=-5, SIGMA=0.05).
         :param kwargs: Same as those supported by DictSet.
         """
