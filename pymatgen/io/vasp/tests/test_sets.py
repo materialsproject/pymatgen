@@ -533,6 +533,14 @@ class MPStaticSetTest(PymatgenTest):
 
         os.remove("MPStaticSet_spec.zip")
 
+    def test_conflicting_arguments(self):
+        with pytest.raises(ValueError, match="deprecated"):
+            si = self.get_structure("Si")
+            vis = MPStaticSet(si,
+                              potcar_functional="PBE",
+                              user_potcar_functional="PBE"
+                              )
+
     def tearDown(self):
         shutil.rmtree(self.tmp)
         warnings.simplefilter("default")
@@ -1262,6 +1270,10 @@ class MVLRelax52SetTest(PymatgenTest):
             ValueError, MVLRelax52Set, self.struct, potcar_functional="PBE"
         )
 
+    def test_potcar_functional_warning(self):
+        with pytest.warns(DeprecationWarning, match="argument is deprecated"):
+            test_potcar_set_1 = MVLRelax52Set(self.struct, potcar_functional="PBE_52")
+
     def test_as_from_dict(self):
         d = self.mvl_rlx_set.as_dict()
         v = dec.process_decoded(d)
@@ -1304,6 +1316,8 @@ class LobsterSetTest(PymatgenTest):
             self.struct,
             address_basis_file=os.path.join(MODULE_DIR, "../../BASIS_PBE_54.yaml"),
         )
+        with pytest.warns(BadInputSetWarning, match="Overriding the POTCAR"):
+            self.lobsterset6 = LobsterSet(self.struct)
 
     def test_incar(self):
         incar1 = self.lobsterset1.incar
