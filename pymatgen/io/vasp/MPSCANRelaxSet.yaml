@@ -2,13 +2,13 @@
 # using the Strong Constrained and Appropriately Normed (SCAN)
 # functional.
 INCAR:
-  ALGO: NORMAL
+  ALGO: ALL
   ADDGRID: True
   EDIFF: 1.e-05
   EDIFFG: -0.02
   ENCUT: 520
   IBRION: 2
-  ICHARG: 1
+  ICHARG: 2
   ISIF: 3
   ISPIN: 2
   LORBIT: 11
