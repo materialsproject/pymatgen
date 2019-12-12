@@ -4,7 +4,7 @@
 
 
 import unittest
-import pytest
+import pytest  # type: ignore
 import os
 import tempfile
 from zipfile import ZipFile
