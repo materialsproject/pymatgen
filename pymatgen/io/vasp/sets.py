@@ -264,6 +264,7 @@ class DictSet(VaspInputSet):
         constrain_total_magmom=False,
         sort_structure=True,
         potcar_functional=None,
+        user_potcar_functional=None,
         force_gamma=False,
         reduce_structure=None,
         vdw=None,
@@ -308,7 +309,7 @@ class DictSet(VaspInputSet):
                 files. Defaults to True, the behavior you would want most of the
                 time. This ensures that similar atomic species are grouped
                 together.
-            potcar_functional (str): Functional to use. Default (None) is to use
+            user_potcar_functional (str): Functional to use. Default (None) is to use
                 the functional in the config dictionary. Valid values:
                 "PBE", "PBE_52", "PBE_54", "LDA", "LDA_52", "LDA_54", "PW91",
                 "LDA_US", "PW91_US".
@@ -383,8 +384,16 @@ class DictSet(VaspInputSet):
         # read the POTCAR_FUNCTIONAL from the .yaml
         self.potcar_functional = self._config_dict.get("POTCAR_FUNCTIONAL", "PBE")
 
+        if potcar_functional is not None and user_potcar_functional is not None:
+            raise ValueError("Received both 'potcar_functional' and "
+                             "'user_potcar_functional arguments. 'potcar_functional "
+                             "is deprecated.")
         if potcar_functional:
+            warnings.warn("'potcar_functional' argument is deprecated. Use "
+                          "'user_potcar_functional' instead.", DeprecationWarning)
             self.potcar_functional = potcar_functional
+        elif user_potcar_functional:
+            self.potcar_functional = user_potcar_functional
 
         # warn if a user is overriding POTCAR_FUNCTIONAL
         if self.potcar_functional != self._config_dict.get("POTCAR_FUNCTIONAL"):
@@ -2047,20 +2056,24 @@ class MVLRelax52Set(DictSet):
 
     CONFIG = _load_yaml_config("MVLRelax52Set")
 
-    def __init__(self, structure, potcar_functional="PBE_52", **kwargs):
+    def __init__(self, structure, **kwargs):
         """
         Args:
             structure (Structure): input structure.
             potcar_functional (str): choose from "PBE_52" and "PBE_54".
             **kwargs: Other kwargs supported by :class:`DictSet`.
         """
-
-        super().__init__(
-            structure,
-            MVLRelax52Set.CONFIG,
-            potcar_functional=potcar_functional,
-            **kwargs
-        )
+        if kwargs.get("potcar_functional") or kwargs.get("user_potcar_functional"):
+            super().__init__(structure,
+                             MVLRelax52Set.CONFIG,
+                             **kwargs)
+        else:
+            super().__init__(
+                structure,
+                MVLRelax52Set.CONFIG,
+                user_potcar_functional="PBE_52",
+                **kwargs
+            )
         if self.potcar_functional not in ["PBE_52", "PBE_54"]:
             raise ValueError("Please select from PBE_52 and PBE_54!")
 
@@ -2444,10 +2457,10 @@ class MVLScanRelaxSet(MPRelaxSet):
             **kwargs: Other kwargs supported by :class:`DictSet`.
         """
         # choose PBE_52 unless the user specifies something else
-        if kwargs.get("potcar_functional"):
+        if kwargs.get("potcar_functional") or kwargs.get("user_potcar_functional"):
             super().__init__(structure, **kwargs)
         else:
-            super().__init__(structure, potcar_functional="PBE_52", **kwargs)
+            super().__init__(structure, user_potcar_functional="PBE_52", **kwargs)
 
         if self.potcar_functional not in ["PBE_52", "PBE_54"]:
             raise ValueError("SCAN calculations required PBE_52 or PBE_54!")
@@ -2507,10 +2520,10 @@ class LobsterSet(MPRelaxSet):
 
         # newest potcars are preferred
         # Choose PBE_54 unless the user specifies a different potcar_functional
-        if kwargs.get("potcar_functional"):
+        if kwargs.get("potcar_functional") or kwargs.get("user_potcar_functional"):
             super().__init__(structure, **kwargs)
         else:
-            super().__init__(structure, potcar_functional="PBE_54", **kwargs)
+            super().__init__(structure, user_potcar_functional="PBE_54", **kwargs)
 
         # reciprocal density
         if self.user_kpoints_settings is not None:
