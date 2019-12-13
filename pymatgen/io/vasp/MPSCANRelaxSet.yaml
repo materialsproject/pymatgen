@@ -14,6 +14,7 @@ INCAR:
   LORBIT: 11
   LASPH: True
   LREAL: False
+  LMIXTAU: True
   LCHARG: True  # Output CHGCAR
   LAECHG: True  # Output AECCAR
   LELF: True  # Output ELFCAR
