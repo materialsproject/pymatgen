@@ -1230,8 +1230,8 @@ class IStructure(SiteCollection, MSONable):
                               numerical_tol: float = 1e-8,
                               exclude_self: bool = True) -> Tuple[np.ndarray, ...]:
         """
-        A python version of getting neighbor_list. The returned values are a list of
-        numpy arrays [center_indices, points_indices, offset_vectors, distances].
+        A python version of getting neighbor_list. The returned values are a tuple of
+        numpy arrays (center_indices, points_indices, offset_vectors, distances).
         Atom `center_indices[i]` has neighbor atom `points_indices[i]` that is
         translated by `offset_vectors[i]` lattice vectors, and the distance is
         `distances[i]`.
@@ -1249,7 +1249,7 @@ class IStructure(SiteCollection, MSONable):
                 ok in most instances.
             exclude_self (bool): whether to exclude atom neighboring with itself within
                 numerical tolerance distance, default to True
-        Returns: [center_indices, points_indices, offset_vectors, distances]
+        Returns: (center_indices, points_indices, offset_vectors, distances)
         """
         neighbors = self.get_all_neighbors_py(r=r, include_index=True, include_image=True,
                                               sites=sites, numerical_tol=1e-8)
@@ -1277,8 +1277,8 @@ class IStructure(SiteCollection, MSONable):
         Get neighbor lists using numpy array representations without constructing
         Neighbor objects. If the cython extension is installed,  this method will
         be orders of magnitude faster than `get_all_neighbors`.
-        The returned values are a list of numpy arrays
-        [center_indices, points_indices, offset_vectors, distances].
+        The returned values are a tuple of numpy arrays
+        (center_indices, points_indices, offset_vectors, distances).
         Atom `center_indices[i]` has neighbor atom `points_indices[i]` that is
         translated by `offset_vectors[i]` lattice vectors, and the distance is
         `distances[i]`.
@@ -1296,7 +1296,7 @@ class IStructure(SiteCollection, MSONable):
                 ok in most instances.
             exclude_self (bool): whether to exclude atom neighboring with itself within
                 numerical tolerance distance, default to True
-        Returns: [center_indices, points_indices, offset_vectors, distances]
+        Returns: (center_indices, points_indices, offset_vectors, distances)
 
         """
         try:
