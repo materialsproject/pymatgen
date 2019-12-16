@@ -4,11 +4,12 @@
 
 
 import unittest
-import pytest
+import pytest  # type: ignore
 import os
 import tempfile
 from zipfile import ZipFile
 from monty.json import MontyDecoder
+from pymatgen import SETTINGS
 from pymatgen.io.vasp.sets import *
 from pymatgen.io.vasp.inputs import Poscar, Kpoints
 from pymatgen.core import Specie, Lattice, Structure
@@ -19,6 +20,58 @@ from pymatgen.io.vasp.outputs import Vasprun
 MODULE_DIR = Path(__file__).resolve().parent
 
 dec = MontyDecoder()
+
+
+class HashPotcarTest(PymatgenTest):
+    def setUp(self):
+        self.pmg_dir = os.environ.get("PMG_VASP_PSP_DIR", str(self.TEST_FILES_DIR))
+
+        d = {
+            "@module": "pymatgen.core.structure",
+            "@class": "Structure",
+            "charge": None,
+            "lattice": {
+                "matrix": [
+                    [2.32547694, 0.0, -0.82218026],
+                    [-1.16273847, 2.01392211, -0.82218026],
+                    [0.0, 0.0, 2.46654077],
+                ],
+                "a": 2.4665407716892562,
+                "b": 2.4665407749920663,
+                "c": 2.46654077,
+                "alpha": 109.47122067561966,
+                "beta": 109.47122070274486,
+                "gamma": 109.47122053911131,
+                "volume": 11.55162296798055,
+            },
+            "sites": [
+                {
+                    "species": [{"element": "Fe", "occu": 1}],
+                    "abc": [0.0, 0.0, 0.0],
+                    "xyz": [0.0, 0.0, 0.0],
+                    "label": "Fe",
+                    "properties": {"magmom": -2.279},
+                }
+            ],
+        }
+
+        self.struct = Structure.from_dict(d)
+
+    def tearDown(self):
+        SETTINGS["PMG_VASP_PSP_DIR"] = self.pmg_dir
+
+    def test_bad_hash(self):
+        SETTINGS["PMG_VASP_PSP_DIR"] = self.TEST_FILES_DIR / "modified_potcars_data"
+        with pytest.raises(BadHashError):
+            potcar = MPRelaxSet(self.struct, potcar_functional="PBE").potcar
+            print(potcar.spec)
+
+    def test_data_hash_warning(self):
+        SETTINGS["PMG_VASP_PSP_DIR"] = self.TEST_FILES_DIR / "modified_potcars_header"
+
+        with pytest.warns(UserWarning, match="did not pass validation"):
+            potcar = MPRelaxSet(
+                self.struct, potcar_functional="PBE").potcar
 
 
 class MITMPRelaxSetTest(PymatgenTest):
@@ -479,6 +532,14 @@ class MPStaticSetTest(PymatgenTest):
             self.assertEqual(spec, "Si")
 
         os.remove("MPStaticSet_spec.zip")
+
+    def test_conflicting_arguments(self):
+        with pytest.raises(ValueError, match="deprecated"):
+            si = self.get_structure("Si")
+            vis = MPStaticSet(si,
+                              potcar_functional="PBE",
+                              user_potcar_functional="PBE"
+                              )
 
     def tearDown(self):
         shutil.rmtree(self.tmp)
@@ -1275,6 +1336,10 @@ class MVLRelax52SetTest(PymatgenTest):
             ValueError, MVLRelax52Set, self.struct, potcar_functional="PBE"
         )
 
+    def test_potcar_functional_warning(self):
+        with pytest.warns(DeprecationWarning, match="argument is deprecated"):
+            test_potcar_set_1 = MVLRelax52Set(self.struct, potcar_functional="PBE_52")
+
     def test_as_from_dict(self):
         d = self.mvl_rlx_set.as_dict()
         v = dec.process_decoded(d)
@@ -1317,6 +1382,8 @@ class LobsterSetTest(PymatgenTest):
             self.struct,
             address_basis_file=os.path.join(MODULE_DIR, "../../BASIS_PBE_54.yaml"),
         )
+        with pytest.warns(BadInputSetWarning, match="Overriding the POTCAR"):
+            self.lobsterset6 = LobsterSet(self.struct)
 
     def test_incar(self):
         incar1 = self.lobsterset1.incar

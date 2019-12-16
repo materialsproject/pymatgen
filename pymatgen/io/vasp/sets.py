@@ -41,6 +41,7 @@ The above are recommendations. The following are UNBREAKABLE rules:
 
 import abc
 import re
+import os
 import glob
 import shutil
 import warnings
@@ -53,6 +54,7 @@ from monty.serialization import loadfn
 from monty.io import zopen
 from monty.dev import deprecated
 from zipfile import ZipFile
+from hashlib import md5
 
 from pymatgen.core.periodic_table import Specie, Element
 from pymatgen.core.structure import Structure
@@ -125,7 +127,9 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         """
         Potcar object.
         """
-        return Potcar(self.potcar_symbols, functional=self.potcar_functional)
+        potcar = Potcar(self.potcar_symbols, functional=self.potcar_functional)
+        validate_potcar_hash(potcar)
+        return potcar
 
     @property  # type: ignore
     @deprecated(message="Use the get_vasp_input() method instead.")
@@ -259,7 +263,8 @@ class DictSet(VaspInputSet):
         user_potcar_settings=None,
         constrain_total_magmom=False,
         sort_structure=True,
-        potcar_functional="PBE",
+        potcar_functional=None,
+        user_potcar_functional=None,
         force_gamma=False,
         reduce_structure=None,
         vdw=None,
@@ -304,8 +309,8 @@ class DictSet(VaspInputSet):
                 files. Defaults to True, the behavior you would want most of the
                 time. This ensures that similar atomic species are grouped
                 together.
-            potcar_functional (str): Functional to use. Default (None) is to use
-                the functional in Potcar.DEFAULT_FUNCTIONAL. Valid values:
+            user_potcar_functional (str): Functional to use. Default (None) is to use
+                the functional in the config dictionary. Valid values:
                 "PBE", "PBE_52", "PBE_54", "LDA", "LDA_52", "LDA_54", "PW91",
                 "LDA_US", "PW91_US".
             force_gamma (bool): Force gamma centered kpoint generation. Default
@@ -342,7 +347,6 @@ class DictSet(VaspInputSet):
         self.files_to_transfer = files_to_transfer or {}
         self.constrain_total_magmom = constrain_total_magmom
         self.sort_structure = sort_structure
-        self.potcar_functional = potcar_functional
         self.force_gamma = force_gamma
         self.reduce_structure = reduce_structure
         self.user_incar_settings = user_incar_settings or {}
@@ -377,6 +381,32 @@ class DictSet(VaspInputSet):
                     "functional. Supported functionals are "
                     "%s." % vdw_par.keys()
                 )
+        # read the POTCAR_FUNCTIONAL from the .yaml
+        self.potcar_functional = self._config_dict.get("POTCAR_FUNCTIONAL", "PBE")
+
+        if potcar_functional is not None and user_potcar_functional is not None:
+            raise ValueError("Received both 'potcar_functional' and "
+                             "'user_potcar_functional arguments. 'potcar_functional "
+                             "is deprecated.")
+        if potcar_functional:
+            warnings.warn("'potcar_functional' argument is deprecated. Use "
+                          "'user_potcar_functional' instead.", DeprecationWarning)
+            self.potcar_functional = potcar_functional
+        elif user_potcar_functional:
+            self.potcar_functional = user_potcar_functional
+
+        # warn if a user is overriding POTCAR_FUNCTIONAL
+        if self.potcar_functional != self._config_dict.get("POTCAR_FUNCTIONAL"):
+            warnings.warn(
+                "Overriding the POTCAR functional is generally not recommended "
+                " as it significantly affect the results of calculations and "
+                "compatibility with other calculations done with the same "
+                "input set. Note that some POTCAR symbols specified in "
+                "the configuration file may not be available in the selected "
+                "functional.",
+                BadInputSetWarning,
+            )
+
         if self.user_potcar_settings:
             warnings.warn(
                 "Overriding POTCARs is generally not recommended as it "
@@ -588,6 +618,14 @@ class DictSet(VaspInputSet):
 
         if isinstance(settings, Kpoints):
             return settings
+
+        # Return None if KSPACING is present in the INCAR, because this will
+        # cause VASP to generate the kpoints automatically
+        if (
+            self.user_incar_settings.get("KSPACING")
+            and self.user_kpoints_settings == {}
+        ):
+            return None
 
         # If grid_density is in the kpoints_settings use
         # Kpoints.automatic_density
@@ -1727,7 +1765,6 @@ class MVLGWSet(DictSet):
         structure,
         prev_incar=None,
         nbands=None,
-        potcar_functional="PBE_54",
         reciprocal_density=100,
         mode="STATIC",
         copy_wavecar=True,
@@ -1746,7 +1783,6 @@ class MVLGWSet(DictSet):
                 NBANDS of the previous run for DIAG, and to use the exact same
                 NBANDS for GW and BSE. This parameter is used by
                 from_previous_calculation to set nband.
-            potcar_functional (str): Defaults to "PBE_54".
             copy_wavecar: Whether to copy the old WAVECAR, WAVEDER and associated
                 files when starting from a previous calculation.
             nbands_factor (int): Multiplicative factor for NBANDS when starting
@@ -1761,7 +1797,6 @@ class MVLGWSet(DictSet):
         super().__init__(structure, MVLGWSet.CONFIG, **kwargs)
         self.prev_incar = prev_incar
         self.nbands = nbands
-        self.potcar_functional = potcar_functional
         self.reciprocal_density = reciprocal_density
         self.mode = mode.upper()
         if self.mode not in MVLGWSet.SUPPORTED_MODES:
@@ -2109,22 +2144,27 @@ class MVLRelax52Set(DictSet):
 
     CONFIG = _load_yaml_config("MVLRelax52Set")
 
-    def __init__(self, structure, potcar_functional="PBE_52", **kwargs):
+    def __init__(self, structure, **kwargs):
         """
         Args:
             structure (Structure): input structure.
             potcar_functional (str): choose from "PBE_52" and "PBE_54".
             **kwargs: Other kwargs supported by :class:`DictSet`.
         """
-        if potcar_functional not in ["PBE_52", "PBE_54"]:
+        if kwargs.get("potcar_functional") or kwargs.get("user_potcar_functional"):
+            super().__init__(structure,
+                             MVLRelax52Set.CONFIG,
+                             **kwargs)
+        else:
+            super().__init__(
+                structure,
+                MVLRelax52Set.CONFIG,
+                user_potcar_functional="PBE_52",
+                **kwargs
+            )
+        if self.potcar_functional not in ["PBE_52", "PBE_54"]:
             raise ValueError("Please select from PBE_52 and PBE_54!")
 
-        super().__init__(
-            structure,
-            MVLRelax52Set.CONFIG,
-            potcar_functional=potcar_functional,
-            **kwargs
-        )
         self.kwargs = kwargs
 
 
@@ -2495,20 +2535,23 @@ class MVLScanRelaxSet(MPRelaxSet):
             kinetic energy density (partial)
     """
 
-    def __init__(self, structure, potcar_functional="PBE_52", **kwargs):
+    def __init__(self, structure, **kwargs):
         r"""
         Args:
             structure (Structure): input structure.
-            potcar_functional (str): choose from "PBE_52" and "PBE_54".
             vdw (str): set "rVV10" to enable SCAN+rVV10, which is a versatile
                 van der Waals density functional by combing the SCAN functional
                 with the rVV10 non-local correlation functional.
             **kwargs: Other kwargs supported by :class:`DictSet`.
         """
-        if potcar_functional not in ["PBE_52", "PBE_54"]:
-            raise ValueError("SCAN calculations required PBE_52 or PBE_54!")
+        # choose PBE_52 unless the user specifies something else
+        if kwargs.get("potcar_functional") or kwargs.get("user_potcar_functional"):
+            super().__init__(structure, **kwargs)
+        else:
+            super().__init__(structure, user_potcar_functional="PBE_52", **kwargs)
 
-        super().__init__(structure, potcar_functional=potcar_functional, **kwargs)
+        if self.potcar_functional not in ["PBE_52", "PBE_54"]:
+            raise ValueError("SCAN calculations required PBE_52 or PBE_54!")
 
         updates = {
             "ADDGRID": True,
@@ -2539,7 +2582,6 @@ class LobsterSet(MPRelaxSet):
         isym: int = -1,
         ismear: int = -5,
         reciprocal_density: int = None,
-        potcar_functional: str = "PBE_54",
         address_basis_file: str = None,
         user_supplied_basis: dict = None,
         **kwargs
@@ -2550,7 +2592,6 @@ class LobsterSet(MPRelaxSet):
             isym (int): ISYM entry for INCAR, only isym=-1 and isym=0 are allowed
             ismear (int): ISMEAR entry for INCAR, only ismear=-5 and ismear=0 are allowed
             reciprocal_density (int): density of k-mesh by reciprocal volume
-            potcar_functional (string): only PBE_54, PBE_52 and PBE are recommended at the moment
             user_supplied_basis (dict): dict including basis functions for all elements in structure,
                 e.g. {"Fe": "3d 3p 4s", "O": "2s 2p"}; if not supplied, a standard basis is used
             address_basis_file (str): address to a file similar to "BASIS_PBE_54.yaml" in pymatgen.io
@@ -2566,7 +2607,11 @@ class LobsterSet(MPRelaxSet):
             raise ValueError("Lobster usually works with ismear=-5 or ismear=0")
 
         # newest potcars are preferred
-        super().__init__(structure, potcar_functional=potcar_functional, **kwargs)
+        # Choose PBE_54 unless the user specifies a different potcar_functional
+        if kwargs.get("potcar_functional") or kwargs.get("user_potcar_functional"):
+            super().__init__(structure, **kwargs)
+        else:
+            super().__init__(structure, user_potcar_functional="PBE_54", **kwargs)
 
         # reciprocal density
         if self.user_kpoints_settings is not None:
@@ -2753,6 +2798,57 @@ class BadInputSetWarning(UserWarning):
     """
 
     pass
+
+
+class BadHashError(Exception):
+    """
+    Error raised when POTCAR hashes do not pass validation
+    """
+
+    pass
+
+
+def validate_potcar_hash(potcar: Potcar):
+    """
+    Validate POTCAR contents against pre-compiled hashes.
+
+    Two hashes are checked - the "file hash" checks the md5 hash of
+    the entire file, including metadata. The "pymatgen hash" is computed
+    using the get_potcar_hash method and represents a hash of just the
+    PSCTR data in the header. Hashes of the POTCARs distributed with
+    VASP 5.4.4 are stored in 'vasp_potcar_file_hashes.json' and
+    'vasp_potcar_file_hashes.json'.
+
+    A warning is raised if the data hash passes validation but the
+    file hash does not.
+    """
+    # hashes computed from pseudopotential distributed with VASP 5.4.4
+    cwd = os.path.abspath(os.path.dirname(__file__))
+    pymatgen_hashes = loadfn(os.path.join(cwd, "vasp_potcar_pymatgen_hashes.json"))
+    file_hashes = loadfn(os.path.join(cwd, "vasp_potcar_file_hashes.json"))
+
+    key = potcar[0].functional_dir[potcar.functional]
+
+    for psingle in potcar:
+        if psingle.hash != pymatgen_hashes[key][psingle.symbol]:
+            raise BadHashError(
+                "POTCAR data hash for POTCAR {} did not pass \
+                                validation. Verify the integrity of your \
+                                POTCAR files. ".format(
+                    psingle.symbol
+                )
+            )
+    else:
+        file_hash = md5(psingle.data.encode("utf-8")).hexdigest()
+        if file_hash != file_hashes[key][psingle.symbol]:
+            warnings.warn(
+                "POTCAR file hash for POTCAR {} did not pass validation. \
+                            It is possible that the metadata in the POTCAR has changed. \
+                        We will continue loading the POTCAR because the hash of \
+                        the data itself has passed validation.".format(
+                    psingle.symbol
+                )
+            )
 
 
 def batch_write_input(

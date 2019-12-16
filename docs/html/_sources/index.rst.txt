@@ -146,12 +146,17 @@ installation process is using `conda <http://conda.pydata.org>`_. If you
 already have conda installed, pymatgen can be installed from the `conda-forge
 channel <https://anaconda.org/conda-forge>`_ using the following command::
 
-   conda install --channel conda-forge pymatgen
+    conda install --channel conda-forge pymatgen
+
+Note that you might need to ensure a relatively recent version of gcc is
+available to compile pymatgen. You can use conda to get that::
+
+    conda install gcc
 
 Pymatgen is under active development, and new features are added regularly. To
 upgrade pymatgen to the latest version, use the following command::
 
-   conda upgrade pymatgen
+    conda upgrade pymatgen
 
 Step-by-step instructions for all platforms are available at the
 :doc:`installation page </installation>`.
@@ -165,8 +170,10 @@ any system is to use pip::
 
     pip install pymatgen
 
-Wheels for Mac and Windows have been built for convenience. To upgrade pymatgen
-via pip::
+Wheels for Mac and Windows have been built for convenience. Similarly, you might
+need to ensure you have a relatively recent version of gcc.
+
+To upgrade pymatgen via pip::
 
     pip install --upgrade pymatgen
 
