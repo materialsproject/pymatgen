@@ -6,7 +6,7 @@
 Magnetic space groups.
 """
 
-import os 
+import os
 from fractions import Fraction
 import numpy as np
 from monty.design_patterns import cached_class

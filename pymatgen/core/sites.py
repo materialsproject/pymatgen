@@ -10,7 +10,9 @@ import collections
 import numpy as np
 from typing import Union, Dict, Tuple, List
 
+import json
 from monty.json import MSONable
+from monty.json import MontyDecoder, MontyEncoder
 from monty.dev import deprecated
 
 from pymatgen.core.lattice import Lattice
@@ -287,6 +289,8 @@ class Site(collections.abc.Hashable, MSONable):
                 sp = Element(sp_occu["element"])
             atoms_n_occu[sp] = sp_occu["occu"]
         props = d.get("properties", None)
+        for key in props.keys():
+            props[key] = json.loads(json.dumps(props[key], cls=MontyEncoder), cls=MontyDecoder)
         return cls(atoms_n_occu, d["xyz"], properties=props)
 
 
@@ -628,6 +632,7 @@ class PeriodicSite(Site, MSONable):
             d["label"] = self.species_string
 
         d["properties"] = self.properties
+
         return d
 
     @classmethod
@@ -655,5 +660,7 @@ class PeriodicSite(Site, MSONable):
                 sp = Element(sp_occu["element"])
             species[sp] = sp_occu["occu"]
         props = d.get("properties", None)
+        for key in props.keys():
+            props[key] = json.loads(json.dumps(props[key], cls=MontyEncoder), cls=MontyDecoder)
         lattice = lattice if lattice else Lattice.from_dict(d["lattice"])
         return cls(species, d["abc"], lattice, properties=props)

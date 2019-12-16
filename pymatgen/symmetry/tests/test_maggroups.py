@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import unittest 
+import unittest
 import numpy as np
 from pymatgen.core.lattice import Lattice
 from pymatgen.symmetry.maggroups import MagneticSpaceGroup

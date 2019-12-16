@@ -6,7 +6,7 @@
 Wrapper classes for Cif input and output from Structures.
 """
 
-import math 
+import math
 import re
 import os
 import textwrap
@@ -812,8 +812,8 @@ class CifParser:
                         "_space_group_magn.transform_BNS_Pp_abc") != "a,b,c;0,0,0":
 
                     jf = data.data.get("_space_group_magn.transform_BNS_Pp_abc")
-                    msg = MagneticSpaceGroup(id,jf)
-                    
+                    msg = MagneticSpaceGroup(id, jf)
+
             elif data.data.get("_space_group_magn.transform_BNS_Pp"):
                 return NotImplementedError(
                     "Incomplete specification to implement.")
