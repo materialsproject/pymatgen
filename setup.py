@@ -31,14 +31,14 @@ if sys.platform.startswith('win') and platform.machine().endswith('64'):
     extra_link_args.append('-Wl,--allow-multiple-definition')
 
 cpp_extra_link_args = extra_link_args
-cpp_extra_compile_args = ["-Wno-cpp", "-Wno-unused-function", "-O2", "-march=native", '-std=c++11']
+cpp_extra_compile_args = ["-Wno-cpp", "-Wno-unused-function", "-O2", "-march=native", '-std=c++0x']
 if sys.platform.startswith('darwin'):
     cpp_extra_compile_args.append("-stdlib=libc++")
     cpp_extra_link_args = ["-O2", "-march=native", '-stdlib=libc++']
 
 # https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options-listed-alphabetically?view=vs-2017
 if sys.platform.startswith('win'):
-    cpp_extra_compile_args = ['/w', '/O2', '/std:c++14']
+    cpp_extra_compile_args = ['/w', '/O2', '/std:c++0x']
     cpp_extra_link_args = extra_link_args
 
 long_desc = """
