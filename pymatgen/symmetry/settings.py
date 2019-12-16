@@ -6,7 +6,7 @@
 This module provides classes for non-standard space-group settings
 """
 
-from fractions import Fraction
+from fractions import Fraction 
 import numpy as np
 import re
 

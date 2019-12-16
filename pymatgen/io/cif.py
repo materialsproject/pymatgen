@@ -6,7 +6,7 @@
 Wrapper classes for Cif input and output from Structures.
 """
 
-import math
+import math 
 import re
 import os
 import textwrap
