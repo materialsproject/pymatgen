@@ -93,7 +93,7 @@ class SetChangeCheckTest(PymatgenTest):
             "MVLRelax52Set.yaml": "eb538ffb45c0cd13f13df48afc1e71c44d2e34b2",
             "MPHSERelaxSet.yaml": "01b080259186018b2233156006a5ebdd9172afaf",
             "VASPIncarBase.yaml": "10788d13605478628167c90af50d644a836e6db4",
-            "MPSCANRelaxSet.yaml": "c900779fe6a70b12a3fb0e3bfb4637a0280116e3",
+            "MPSCANRelaxSet.yaml": "0d5d2a5fb7d6d6322bccc993df1bc34c7a062e6b",
             "MPRelaxSet.yaml": "5426bc9e9b2584ca913051c715c715663860ea81",
             "MITRelaxSet.yaml": "07d1b896615c40d6b536f75c6aeaf89866e1795a",
             "vdW_parameters.yaml": "66541f58b221c8966109156f4f651b2ca8aa76da",
