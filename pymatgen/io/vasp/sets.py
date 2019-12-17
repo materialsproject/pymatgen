@@ -606,7 +606,15 @@ class DictSet(VaspInputSet):
             Uses a simple approach scaling the number of divisions along each
             reciprocal lattice vector proportional to its length.
         """
-        settings = self.user_kpoints_settings or self._config_dict["KPOINTS"]
+        # Return None if KSPACING is present in the INCAR, because this will
+        # cause VASP to generate the kpoints automatically
+        if self.user_incar_settings.get("KSPACING") or self._config_dict["INCAR"].get(
+            "KSPACING"
+        ):
+            if self.user_kpoints_settings == {}:
+                return None
+
+        settings = self.user_kpoints_settings or self._config_dict.get("KPOINTS")
 
         if isinstance(settings, Kpoints):
             return settings
@@ -721,6 +729,85 @@ class MPRelaxSet(DictSet):
         """
         super().__init__(structure, MPRelaxSet.CONFIG, **kwargs)
         self.kwargs = kwargs
+
+
+class MPScanRelaxSet(DictSet):
+    """
+    Class for writing a relax input set using Strongly Constrained and
+    Appropriately Normed (SCAN) semilocal density functional.
+
+    Notes:
+        1. This functional is only available from VASP.5.4.3 upwards.
+
+        2. Meta-GGA calculations require POTCAR files that include
+        information on the kinetic energy density of the core-electrons,
+        i.e. "PBE_52" or "PBE_54". Make sure the POTCARs include the
+        following lines (see VASP wiki for more details):
+
+            $ grep kinetic POTCAR
+            kinetic energy-density
+            mkinetic energy-density pseudized
+            kinetic energy density (partial)
+    """
+
+    CONFIG = _load_yaml_config("MPSCANRelaxSet")
+
+    def __init__(
+        self, structure, is_metallic=True, **kwargs
+    ):
+        """
+        :param structure: Structure
+        :param: is_metallic (bool): Whether or not the structure is metallic
+                (i.e., conducting). Metallic systems are computed with a smaller
+                KSPACING (=0.22) and different smearing parameters (ISMEAR=2,
+                SIGMA=0.2), compared to non-metallic systems (KSPACING=0.44,
+                ISMEAR=-5, SIGMA=0.05).
+        :param vdw (str): set "rVV10" to enable SCAN+rVV10, which is a versatile
+                van der Waals density functional by combing the SCAN functional
+                with the rVV10 non-local correlation functional. rvv10 is the only
+                dispersion correction available for SCAN at this time.
+        :param kwargs: Same as those supported by DictSet.
+        """
+        super().__init__(
+            structure,
+            MPScanRelaxSet.CONFIG,
+            **kwargs
+        )
+        self.is_metallic = is_metallic
+        self.kwargs = kwargs
+
+        if self.potcar_functional not in ["PBE_52", "PBE_54"]:
+            raise ValueError("SCAN calculations require PBE_52 or PBE_54!")
+
+        updates = {}
+        # select the KSPACING and SIGMA parameters based on whether the input
+        # structure is a metal or non-metal
+        if self.is_metallic:
+            updates["KSPACING"] = 0.22
+            # use a different smearing settings for metals, per VASP guidelines.
+            updates["SIGMA"] = 0.2
+            updates["ISMEAR"] = 2
+        else:
+            updates["KSPACING"] = 0.44
+            # use a different smearing settings for metals, per VASP guidelines.
+            updates["ISMEAR"] = -5
+            updates["SIGMA"] = 0.05
+
+        if self.vdw:
+            if self.vdw != "rvv10":
+                warnings.warn(
+                    "Use of van der waals functionals other than rVV10 "
+                    "with SCAN is not supported at this time. "
+                )
+                # delete any vdw parameters that may have been added to the INCAR
+                vdw_par = loadfn(str(MODULE_DIR / "vdW_parameters.yaml"))
+                for k, v in vdw_par[self.vdw].items():
+                    try:
+                        del self._config_dict["INCAR"][k]
+                    except KeyError:
+                        pass
+
+        self._config_dict["INCAR"].update(updates)
 
 
 class MPMetalRelaxSet(MPRelaxSet):

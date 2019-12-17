@@ -7,6 +7,7 @@ import unittest
 import pytest  # type: ignore
 import os
 import tempfile
+import hashlib
 from zipfile import ZipFile
 from monty.json import MontyDecoder
 from pymatgen import SETTINGS
@@ -70,8 +71,42 @@ class HashPotcarTest(PymatgenTest):
         SETTINGS["PMG_VASP_PSP_DIR"] = self.TEST_FILES_DIR / "modified_potcars_header"
 
         with pytest.warns(UserWarning, match="did not pass validation"):
-            potcar = MPRelaxSet(
-                self.struct, potcar_functional="PBE").potcar
+            potcar = MPRelaxSet(self.struct, potcar_functional="PBE").potcar
+
+
+class SetChangeCheckTest(PymatgenTest):
+    def test_sets_changed(self):
+        # WARNING!
+        # These tests will fail when you change an input set.
+        # They are included as a sanity check: if you want to change
+        # an input set, please make sure to notify the users for that set.
+        # For sets starting with "MVL" this is @shyuep, for sets starting
+        # with "MP" this is @shyuep and @mkhorton.
+        os.chdir(MODULE_DIR / "..")
+        input_sets = glob.glob("*.yaml")
+        hashes = {}
+        for input_set in input_sets:
+            with open(input_set, "r") as f:
+                hashes[input_set] = hashlib.sha1(f.read().encode("utf-8")).hexdigest()
+        known_hashes = {
+            "MVLGWSet.yaml": "594f90b32ac517df118f861acfad4ab0116d83ae",
+            "MVLRelax52Set.yaml": "eb538ffb45c0cd13f13df48afc1e71c44d2e34b2",
+            "MPHSERelaxSet.yaml": "01b080259186018b2233156006a5ebdd9172afaf",
+            "VASPIncarBase.yaml": "10788d13605478628167c90af50d644a836e6db4",
+            "MPSCANRelaxSet.yaml": "0d5d2a5fb7d6d6322bccc993df1bc34c7a062e6b",
+            "MPRelaxSet.yaml": "5426bc9e9b2584ca913051c715c715663860ea81",
+            "MITRelaxSet.yaml": "07d1b896615c40d6b536f75c6aeaf89866e1795a",
+            "vdW_parameters.yaml": "66541f58b221c8966109156f4f651b2ca8aa76da",
+        }
+        # assert hashes == known_hashes
+        if hashes != known_hashes:
+            raise UserWarning(
+                'These tests will fail when you change an input set. \
+                They are included as a sanity check: if you want to change \
+                an input set, please make sure to notify the users for that set. \
+                For sets starting with "MVL" this is @shyuep, for sets starting \
+                with "MP" this is @shyuep and @mkhorton.'
+            )
 
 
 class MITMPRelaxSetTest(PymatgenTest):
@@ -536,10 +571,7 @@ class MPStaticSetTest(PymatgenTest):
     def test_conflicting_arguments(self):
         with pytest.raises(ValueError, match="deprecated"):
             si = self.get_structure("Si")
-            vis = MPStaticSet(si,
-                              potcar_functional="PBE",
-                              user_potcar_functional="PBE"
-                              )
+            vis = MPStaticSet(si, potcar_functional="PBE", user_potcar_functional="PBE")
 
     def tearDown(self):
         shutil.rmtree(self.tmp)
@@ -1192,6 +1224,72 @@ class MVLScanRelaxSetTest(PymatgenTest):
         d = self.mvl_scan_set.as_dict()
         v = dec.process_decoded(d)
         self.assertEqual(type(v), MVLScanRelaxSet)
+        self.assertEqual(v._config_dict["INCAR"]["METAGGA"], "SCAN")
+        self.assertEqual(v.user_incar_settings["NSW"], 500)
+
+
+class MPScanRelaxSetTest(PymatgenTest):
+    def setUp(self):
+        file_path = self.TEST_FILES_DIR / "POSCAR"
+        poscar = Poscar.from_file(file_path)
+        self.struct = poscar.structure
+        self.mp_scan_set = MPScanRelaxSet(
+            self.struct, potcar_functional="PBE_52", user_incar_settings={"NSW": 500}
+        )
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.simplefilter("default")
+
+    def test_incar(self):
+        incar = self.mp_scan_set.incar
+        self.assertIn("METAGGA", incar)
+        self.assertIn("LASPH", incar)
+        self.assertIn("ADDGRID", incar)
+        self.assertEqual(incar["NSW"], 500)
+        # the default POTCAR contains metals
+        self.assertEqual(incar["KSPACING"], 0.22)
+        self.assertEqual(incar["ISMEAR"], 2)
+        self.assertEqual(incar["SIGMA"], 0.2)
+
+    def test_nonmetal(self):
+        # Test that KSPACING and ISMEAR change with a nonmetal structure
+        file_path = self.TEST_FILES_DIR / "POSCAR.O2"
+        struct = Poscar.from_file(file_path, check_for_POTCAR=False).structure
+        scan_nonmetal_set = MPScanRelaxSet(struct, is_metallic=False)
+        incar = scan_nonmetal_set.incar
+        self.assertEqual(incar["KSPACING"], 0.44)
+        self.assertEqual(incar["ISMEAR"], -5)
+        self.assertEqual(incar["SIGMA"], 0.05)
+
+    # Test SCAN+rVV10
+    def test_rvv10(self):
+        scan_rvv10_set = MPScanRelaxSet(self.struct, vdw="rVV10")
+        self.assertIn("LUSE_VDW", scan_rvv10_set.incar)
+        self.assertEqual(scan_rvv10_set.incar["BPARAM"], 15.7)
+
+    def test_other_vdw(self):
+        # should raise a warning.
+        # IVDW key should not be present in the incar
+        with pytest.warns(UserWarning, match=r"not supported at this time"):
+            scan_vdw_set = MPScanRelaxSet(self.struct, vdw="DFTD3")
+            self.assertNotIn("LUSE_VDW", scan_vdw_set.incar)
+            self.assertNotIn("IVDW", scan_vdw_set.incar)
+
+    def test_potcar(self):
+        self.assertEqual(self.mp_scan_set.potcar.functional, "PBE_52")
+
+        test_potcar_set_1 = MPScanRelaxSet(self.struct, potcar_functional="PBE_54")
+        self.assertEqual(test_potcar_set_1.potcar.functional, "PBE_54")
+
+        self.assertRaises(
+            ValueError, MPScanRelaxSet, self.struct, potcar_functional="PBE"
+        )
+
+    def test_as_from_dict(self):
+        d = self.mp_scan_set.as_dict()
+        v = dec.process_decoded(d)
+        self.assertEqual(type(v), MPScanRelaxSet)
         self.assertEqual(v._config_dict["INCAR"]["METAGGA"], "SCAN")
         self.assertEqual(v.user_incar_settings["NSW"], 500)
 
