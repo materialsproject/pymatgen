@@ -7,6 +7,7 @@ import unittest
 import pytest  # type: ignore
 import os
 import tempfile
+import hashlib
 from zipfile import ZipFile
 from monty.json import MontyDecoder
 from pymatgen import SETTINGS
@@ -70,8 +71,42 @@ class HashPotcarTest(PymatgenTest):
         SETTINGS["PMG_VASP_PSP_DIR"] = self.TEST_FILES_DIR / "modified_potcars_header"
 
         with pytest.warns(UserWarning, match="did not pass validation"):
-            potcar = MPRelaxSet(
-                self.struct, potcar_functional="PBE").potcar
+            potcar = MPRelaxSet(self.struct, potcar_functional="PBE").potcar
+
+
+class SetChangeCheckTest(PymatgenTest):
+    def test_sets_changed(self):
+        # WARNING!
+        # These tests will fail when you change an input set.
+        # They are included as a sanity check: if you want to change
+        # an input set, please make sure to notify the users for that set.
+        # For sets starting with "MVL" this is @shyuep, for sets starting
+        # with "MP" this is @shyuep and @mkhorton.
+        os.chdir(MODULE_DIR / "..")
+        input_sets = glob.glob("*.yaml")
+        hashes = {}
+        for input_set in input_sets:
+            with open(input_set, "r") as f:
+                hashes[input_set] = hashlib.sha1(f.read().encode("utf-8")).hexdigest()
+        known_hashes = {
+            "MVLGWSet.yaml": "594f90b32ac517df118f861acfad4ab0116d83ae",
+            "MVLRelax52Set.yaml": "eb538ffb45c0cd13f13df48afc1e71c44d2e34b2",
+            "MPHSERelaxSet.yaml": "01b080259186018b2233156006a5ebdd9172afaf",
+            "VASPIncarBase.yaml": "10788d13605478628167c90af50d644a836e6db4",
+            "MPSCANRelaxSet.yaml": "c900779fe6a70b12a3fb0e3bfb4637a0280116e3",
+            "MPRelaxSet.yaml": "5426bc9e9b2584ca913051c715c715663860ea81",
+            "MITRelaxSet.yaml": "07d1b896615c40d6b536f75c6aeaf89866e1795a",
+            "vdW_parameters.yaml": "66541f58b221c8966109156f4f651b2ca8aa76da",
+        }
+        # assert hashes == known_hashes
+        if hashes != known_hashes:
+            raise UserWarning(
+                'These tests will fail when you change an input set. \
+                They are included as a sanity check: if you want to change \
+                an input set, please make sure to notify the users for that set. \
+                For sets starting with "MVL" this is @shyuep, for sets starting \
+                with "MP" this is @shyuep and @mkhorton.'
+            )
 
 
 class MITMPRelaxSetTest(PymatgenTest):
@@ -536,10 +571,7 @@ class MPStaticSetTest(PymatgenTest):
     def test_conflicting_arguments(self):
         with pytest.raises(ValueError, match="deprecated"):
             si = self.get_structure("Si")
-            vis = MPStaticSet(si,
-                              potcar_functional="PBE",
-                              user_potcar_functional="PBE"
-                              )
+            vis = MPStaticSet(si, potcar_functional="PBE", user_potcar_functional="PBE")
 
     def tearDown(self):
         shutil.rmtree(self.tmp)
