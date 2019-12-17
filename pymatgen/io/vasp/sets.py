@@ -741,7 +741,7 @@ class MPScanRelaxSet(DictSet):
 
         2. Meta-GGA calculations require POTCAR files that include
         information on the kinetic energy density of the core-electrons,
-        i.e. "PBE_52" or "PBE_54". Make sure the POTCAR including the
+        i.e. "PBE_52" or "PBE_54". Make sure the POTCARs include the
         following lines (see VASP wiki for more details):
 
             $ grep kinetic POTCAR
@@ -753,25 +753,24 @@ class MPScanRelaxSet(DictSet):
     CONFIG = _load_yaml_config("MPSCANRelaxSet")
 
     def __init__(
-        self, structure, potcar_functional="PBE_54", is_metallic=True, **kwargs
+        self, structure, is_metallic=True, **kwargs
     ):
         """
         :param structure: Structure
-        :param vdw (str): set "rVV10" to enable SCAN+rVV10, which is a versatile
-                van der Waals density functional by combing the SCAN functional
-                with the rVV10 non-local correlation functional. rvv10 is the only
-                dispersion correction available for SCAN at this time.
         :param: is_metallic (bool): Whether or not the structure is metallic
                 (i.e., conducting). Metallic systems are computed with a smaller
                 KSPACING (=0.22) and different smearing parameters (ISMEAR=2,
                 SIGMA=0.2), compared to non-metallic systems (KSPACING=0.44,
                 ISMEAR=-5, SIGMA=0.05).
+        :param vdw (str): set "rVV10" to enable SCAN+rVV10, which is a versatile
+                van der Waals density functional by combing the SCAN functional
+                with the rVV10 non-local correlation functional. rvv10 is the only
+                dispersion correction available for SCAN at this time.
         :param kwargs: Same as those supported by DictSet.
         """
         super().__init__(
             structure,
             MPScanRelaxSet.CONFIG,
-            potcar_functional=potcar_functional,
             **kwargs
         )
         self.is_metallic = is_metallic

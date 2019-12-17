@@ -1,5 +1,5 @@
 # Default VASP settings for calculations in the Materials Project.
-# using the Strong Constrained and Appropriately Normed (SCAN)
+# using the Strongly Constrained and Appropriately Normed (SCAN)
 # functional.
 INCAR:
   ALGO: ALL
@@ -23,6 +23,7 @@ INCAR:
   NELM: 200
   NSW: 99
   PREC: Accurate
+POTCAR_FUNCTIONAL: PBE_54
 POTCAR:
   Ac: Ac
   Ag: Ag
