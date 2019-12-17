@@ -1,4 +1,4 @@
-# Default VASP settings for calculations in the Materials Project.
+# Default VASP settings for calculations in the Materials Project
 # using the Strongly Constrained and Appropriately Normed (SCAN)
 # functional.
 INCAR:
@@ -6,7 +6,7 @@ INCAR:
   ADDGRID: True
   EDIFF: 1.e-05
   EDIFFG: -0.02
-  ENCUT: 520
+  ENCUT: 680
   IBRION: 2
   ICHARG: 2
   ISIF: 3
