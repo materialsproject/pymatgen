@@ -240,7 +240,7 @@ class CoordinationGeometriesTest(PymatgenTest):
                          'IUCr : [2l]\n\n\\begin{center}\n\\includegraphics[scale=0.15]{images/L_2.png}\n'
                          '\\end{center}\n\n\\subsubsection*{A:2 : Angular}\n\nIUPAC : A-2\n\nIUCr : [2n]\n\n'
                          '\\begin{center}\n\\includegraphics[scale=0.15]{images/A_2.png}\n\\end{center}\n\n')
-        self.assertDictEqual(allcg.minpoints, {6: 2, 7: 2, 8: 2, 9: 2, 10: 2, 11: 2, 12: 2, 13: 3, 20: 3})
+        self.assertDictEqual(allcg.minpoints, {6: 2, 7: 2, 8: 2, 9: 2, 10: 2, 11: 2, 12: 2, 13: 3, 20: 2})
         self.assertDictEqual(allcg.maxpoints, {6: 5, 7: 5, 8: 6, 9: 7, 10: 6, 11: 5, 12: 8, 13: 6, 20: 10})
         self.assertDictEqual(allcg.maxpoints_inplane, {6: 5, 7: 5, 8: 6, 9: 7, 10: 6, 11: 5, 12: 8, 13: 6, 20: 10})
         self.assertDictEqual(allcg.separations_cg, {6: {(0, 3, 3): [u'O:6', u'T:6'],
