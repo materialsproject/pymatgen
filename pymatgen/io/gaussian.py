@@ -1378,7 +1378,7 @@ class GaussianOutput:
             A matplotlib plot.
         """
         from pymatgen.util.plotting import pretty_plot
-        from matplotlib.mlab import normpdf
+        from scipy.stats import norm
         plt = pretty_plot(12, 8)
 
         transitions = self.read_excitation_energies()
@@ -1394,7 +1394,7 @@ class GaussianOutput:
         # sum of gaussian functions
         spectre = np.zeros(npts)
         for trans in transitions:
-            spectre += trans[2] * normpdf(eneval, trans[0], sigma)
+            spectre += trans[2] * norm(eneval, trans[0], sigma)
         spectre /= spectre.max()
         plt.plot(lambdaval, spectre, "r-", label="spectre")
 

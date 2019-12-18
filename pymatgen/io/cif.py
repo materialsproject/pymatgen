@@ -1179,7 +1179,7 @@ class CifParser:
                 bibtex_entry.pop('page_last', None)
 
             # cite keys are given as cif-reference-idx in order they are found
-            entries['cif-reference-{}'.format(idx)] = Entry('article', list(bibtex_entry.items()))
+            entries['cifref{}'.format(idx)] = Entry('article', list(bibtex_entry.items()))
 
         return BibliographyData(entries).to_string(bib_format='bibtex')
 

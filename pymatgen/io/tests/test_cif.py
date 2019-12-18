@@ -174,7 +174,7 @@ class CifIOTest(PymatgenTest):
             self.assertEqual(s.formula, "V4 O6")
 
         bibtex_str = """
-@article{cif-reference-0,
+@article{cifref0,
     author = "Andersson, G.",
     title = "Studies on vanadium oxides. I. Phase analysis",
     journal = "Acta Chemica Scandinavica (1-27,1973-42,1988)",
@@ -1211,7 +1211,7 @@ loop_
 
     @unittest.skipIf(pybtex is None, "pybtex not present")
     def test_bibtex(self):
-        ref_bibtex_string = """@article{cif-reference-0,
+        ref_bibtex_string = """@article{cifref0,
     author = "Blanco, J.A.",
     journal = "PHYSICAL REVIEW B",
     volume = "73",

@@ -7,25 +7,26 @@ Module for reading Lobster output files. For more information
 on LOBSTER see www.cohp.de.
 """
 
-import re
-import numpy as np
 import collections
-import os
-from monty.io import zopen
-from monty.serialization import loadfn
-from monty.json import MSONable
 import fnmatch
 import itertools
+import os
+import re
 import warnings
-import spglib
-from typing import Dict, Any, Optional, List
 from collections import defaultdict
-from pymatgen.electronic_structure.core import Spin, Orbital
-from pymatgen.io.vasp.outputs import Vasprun
-from pymatgen.electronic_structure.dos import Dos, LobsterCompleteDos
-from pymatgen.electronic_structure.bandstructure import LobsterBandStructureSymmLine
+from typing import Dict, Any, Optional, List
+
+import numpy as np
+import spglib
+from monty.io import zopen
+from monty.json import MSONable
+from monty.serialization import loadfn
 from pymatgen.core.structure import Structure
+from pymatgen.electronic_structure.bandstructure import LobsterBandStructureSymmLine
+from pymatgen.electronic_structure.core import Spin, Orbital
+from pymatgen.electronic_structure.dos import Dos, LobsterCompleteDos
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Potcar
+from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 __author__ = "Janine George, Marco Esters"
@@ -372,6 +373,17 @@ class Doscar:
         if is_spin_polarized=False:
         tdensities[Spin.up]: numpy array of the total density of states
 
+
+    .. attribute:: itdensities:
+        itdensities[Spin.up]: numpy array of the total density of states for the Spin.up contribution at each of the
+            energies
+        itdensities[Spin.down]: numpy array of the total density of states for the Spin.down contribution at each of the
+            energies
+
+        if is_spin_polarized=False:
+        itdensities[Spin.up]: numpy array of the total density of states
+
+
     .. attribute:: is_spin_polarized
         Boolean. Tells if the system is spin polarized
 
@@ -395,6 +407,7 @@ class Doscar:
         doscar = self._doscar
 
         tdensities = {}
+        itdensities = {}
         f = open(doscar)
         natoms = int(f.readline().split()[0])
         efermi = float([f.readline() for nn in range(4)][3].split()[17])
@@ -422,6 +435,7 @@ class Doscar:
         energies = doshere[:, 0]
         if not self._is_spin_polarized:
             tdensities[Spin.up] = doshere[:, 1]
+            itdensities[Spin.up] = doshere[:, 2]
             pdoss = []
             spin = Spin.up
             for atom in range(natoms):
@@ -437,6 +451,8 @@ class Doscar:
         else:
             tdensities[Spin.up] = doshere[:, 1]
             tdensities[Spin.down] = doshere[:, 2]
+            itdensities[Spin.up] = doshere[:, 3]
+            itdensities[Spin.down] = doshere[:, 4]
             pdoss = []
             for atom in range(natoms):
                 pdos = defaultdict(dict)
@@ -453,11 +469,13 @@ class Doscar:
                     if j % 2 == 0:
                         orbnumber = orbnumber + 1
                 pdoss.append(pdos)
+
         self._efermi = efermi
         self._pdos = pdoss
         self._tdos = Dos(efermi, energies, tdensities)
         self._energies = energies
         self._tdensities = tdensities
+        self._itdensities = itdensities
         final_struct = self._final_structure
 
         pdossneu = {final_struct[i]: pdos for i, pdos in enumerate(self._pdos)}
@@ -486,18 +504,25 @@ class Doscar:
         return self._tdos
 
     @property
-    def energies(self) -> list:
+    def energies(self) -> np.array:
         """
         :return: Energies
         """
         return self._energies
 
     @property
-    def tdensities(self) -> list:
+    def tdensities(self) -> np.array:
         """
-        :return: total densities as a list
+        :return: total densities as a np.array
         """
         return self._tdensities
+
+    @property
+    def itdensities(self) -> np.array:
+        """
+        :return: integrated total densities as a np.array
+        """
+        return self._itdensities
 
     @property
     def is_spin_polarized(self) -> bool:
@@ -824,7 +849,7 @@ class Lobsterout:
         for row in data:
             splitrow = row.split()
             if len(splitrow) > 11:
-                if (splitrow[11]) == "threads":
+                if (splitrow[11]) == "threads" or (splitrow[11] == "thread"):
                     return splitrow[10]
 
     def _get_spillings(self, data, number_of_spins):
@@ -1885,3 +1910,24 @@ class Grosspop:
                 smalldict["Loewdin GP"][cleanline[0]] = float(cleanline[2])
                 if 'total' in cleanline[0]:
                     self.list_dict_grosspop.append(smalldict)
+
+    def get_structure_with_total_grosspop(self, structure_filename: str) -> Structure:
+        """
+        get a Structure with Mulliken and Loewdin total grosspopulations as site properties
+        Args:
+            structure_filename (str): filename of POSCAR
+        Returns:
+            Structure Object with Mulliken and Loewdin total grosspopulations as site properties
+        """
+
+        struct = Structure.from_file(structure_filename)
+        site_properties = {}  # type: Dict[str, Any]
+        mullikengp = []
+        loewdingp = []
+        for grosspop in self.list_dict_grosspop:
+            mullikengp.append(grosspop["Mulliken GP"]["total"])
+            loewdingp.append(grosspop["Loewdin GP"]["total"])
+
+        site_properties = {"Total Mulliken GP": mullikengp, "Total Loewdin GP": loewdingp}
+        new_struct = struct.copy(site_properties=site_properties)
+        return new_struct
