@@ -269,7 +269,7 @@ class ConnectedComponent(MSONable):
             raise ValueError('Algorithm "{}" is not allowed to compute periodicity'.format(algorithm))
 
     def compute_periodicity_all_simple_paths_algorithm(self):
-        self_loop_nodes = self._connected_subgraph.nodes_with_selfloops()
+        self_loop_nodes = list(nx.nodes_with_selfloops(self._connected_subgraph))
         all_nodes_independent_cell_image_vectors = []
         my_simple_graph = nx.Graph(self._connected_subgraph)
         for test_node in self._connected_subgraph.nodes():
@@ -283,7 +283,24 @@ class ConnectedComponent(MSONable):
             paths = []
             #TODO: its probably possible to do just a dfs or bfs traversal instead of taking all simple paths!
             test_node_neighbors = my_simple_graph.neighbors(test_node)
+            breaknodeloop = False
             for test_node_neighbor in test_node_neighbors:
+                # Special case for two nodes
+                if len(self._connected_subgraph[test_node][test_node_neighbor]) > 1:
+                    print(test_node)
+                    print(test_node_neighbor)
+                    this_path_deltas = []
+                    node_node_neighbor_edges_data = list(self._connected_subgraph[test_node][test_node_neighbor].values())
+                    for edge1_data, edge2_data in itertools.combinations(node_node_neighbor_edges_data, 2):
+                        delta1 = get_delta(test_node, test_node_neighbor, edge1_data)
+                        delta2 = get_delta(test_node_neighbor, test_node, edge2_data)
+                        this_path_deltas.append(delta1+delta2)
+                    print(this_path_deltas)
+                    this_node_cell_img_vectors.extend(this_path_deltas)
+                    this_node_cell_img_vectors = get_linearly_independent_vectors(this_node_cell_img_vectors)
+                    print(this_node_cell_img_vectors)
+                    if len(this_node_cell_img_vectors) == 3:
+                        break
                 for path in nx.all_simple_paths(my_simple_graph, test_node, test_node_neighbor,
                                                 cutoff=len(self._connected_subgraph)):
                     path_indices = [nodepath.isite for nodepath in path]
@@ -295,6 +312,7 @@ class ConnectedComponent(MSONable):
                         paths.append(path_indices)
                     else:
                         continue
+                    path.append(test_node)
                     # TODO: there are some paths that appears twice for cycles, and there are some paths that should
                     # probably not be considered
                     this_path_deltas = [np.zeros(3, np.int)]
@@ -308,7 +326,11 @@ class ConnectedComponent(MSONable):
                     this_node_cell_img_vectors.extend(this_path_deltas)
                     this_node_cell_img_vectors = get_linearly_independent_vectors(this_node_cell_img_vectors)
                     if len(this_node_cell_img_vectors) == 3:
+                        breaknodeloop = True
                         break
+                if breaknodeloop:
+                    break
+            this_node_cell_img_vectors = get_linearly_independent_vectors(this_node_cell_img_vectors)
             independent_cell_img_vectors = this_node_cell_img_vectors
             all_nodes_independent_cell_image_vectors.append(independent_cell_img_vectors)
             #If we have found that the sub structure network is 3D-connected, we can stop ...

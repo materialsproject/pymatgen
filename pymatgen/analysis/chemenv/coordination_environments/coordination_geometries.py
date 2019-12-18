@@ -222,12 +222,12 @@ class SeparationPlane(AbstractChemenvAlgorithm):
     def safe_separation_permutations(self, ordered_plane=False,
                                      ordered_point_groups=None,
                                      add_opposite=False):
-        s0 = range(len(self.point_groups[0]))
-        plane = range(len(self.point_groups[0]),
-                      len(self.point_groups[0]) + len(self.plane_points))
-        s1 = range(len(self.point_groups[0]) + len(self.plane_points),
-                   len(self.point_groups[0]) + len(self.plane_points) + len(
-                       self.point_groups[1]))
+        s0 = list(range(len(self.point_groups[0])))
+        plane = list(range(len(self.point_groups[0]),
+                           len(self.point_groups[0]) + len(self.plane_points)))
+        s1 = list(range(len(self.point_groups[0]) + len(self.plane_points),
+                        len(self.point_groups[0]) + len(self.plane_points) + len(
+                            self.point_groups[1])))
         ordered_point_groups = [False,
                                 False] if ordered_point_groups is None else ordered_point_groups
 
@@ -290,7 +290,8 @@ class SeparationPlane(AbstractChemenvAlgorithm):
     @classmethod
     def from_dict(cls, dd):
         eop = [np.array(eoperm) for eoperm in dd[
-            'explicit_optimized_permutations']] if 'explicit_optimized_permutations' in dd else None
+            'explicit_optimized_permutations']] if ('explicit_optimized_permutations' in dd and
+                                                    dd['explicit_optimized_permutations'] is not None) else None
         return cls(plane_points=dd['plane_points'],
                    mirror_plane=dd['mirror_plane'],
                    ordered_plane=dd['ordered_plane'],
@@ -319,9 +320,9 @@ class CoordinationGeometry:
     """
     Class used to store the ideal representation of a chemical environment or "coordination geometry"
     """
-    CSM_SKIP_SEPARATION_PLANE_ALGO = 10.0  # Default value of continuous symmetry measure below which no further
-
-    #  search is performed for the separation plane algorithms
+    # Default value of continuous symmetry measure beyond which no further
+    # search is performed for the separation plane algorithms
+    CSM_SKIP_SEPARATION_PLANE_ALGO = 10.0
 
     class NeighborsSetsHints:
 
@@ -427,8 +428,8 @@ class CoordinationGeometry:
         :param coordination: The coordination number of this coordination geometry (number of neighboring atoms).
         :param central_site: The coordinates of the central site of this coordination geometry.
         :param points: The list of the coordinates of all the points of this coordination geometry.
-        :param separation_planes: List of separation facets to help set up the permutations
-        :param permutation_safe_override: Computes all the permutations if set to True (overrides the plane separation
+        :param algorithms: List of algorithms used to identify this coordination geometry.
+        :param permutations_safe_override: Computes all the permutations if set to True (overrides the plane separation
             algorithms or any other algorithm, for testing purposes)
         :param plane_ordering_override: Computes all the permutations of the plane separation algorithm if set to False
             otherwise, uses the anticlockwise ordering of the separation facets (for testing purposes)
@@ -824,7 +825,7 @@ class AllCoordinationGeometries(dict):
         self.minpoints = {}
         self.maxpoints = {}
         self.separations_cg = {}
-        for cn in range(6, 14):
+        for cn in range(6, 21):
             for cg in self.get_implemented_geometries(coordination=cn):
                 if only_symbols is not None and cg.ce_symbol not in only_symbols:
                     continue
@@ -845,6 +846,13 @@ class AllCoordinationGeometries(dict):
 
     def __getitem__(self, key):
         return self.get_geometry_from_mp_symbol(key)
+
+    def __contains__(self, item):
+        try:
+            self[item]
+            return True
+        except LookupError:
+            return False
 
     def __repr__(self):
         """

@@ -642,7 +642,7 @@ class LocalGeometryFinder:
         if min_cn is None:
             min_cn = 1
         if max_cn is None:
-            max_cn = 13
+            max_cn = 20
         all_cns = range(min_cn, max_cn + 1)
         do_recompute = False
         if recompute is not None:
@@ -789,10 +789,12 @@ class LocalGeometryFinder:
             neighb_coords = nb_set.neighb_coords
         self.setup_local_geometry(isite, coords=neighb_coords, optimization=optimization)
         if optimization > 0:
+            logging.debug('Getting StructureEnvironments with optimized algorithm')
             nb_set.local_planes = OrderedDict()
             nb_set.separations = {}
             cncgsm = self.get_coordination_symmetry_measures_optim(nb_set=nb_set, optimization=optimization)
         else:
+            logging.debug('Getting StructureEnvironments with standard algorithm')
             cncgsm = self.get_coordination_symmetry_measures()
         for cg in cncgsm:
             other_csms = {
@@ -874,6 +876,8 @@ class LocalGeometryFinder:
             cg = self.allcg.get_geometry_from_IUPAC_symbol(symbol)
         elif symbol_type == 'MP' or symbol_type == 'mp_symbol':
             cg = self.allcg.get_geometry_from_mp_symbol(symbol)
+        elif symbol_type == 'CoordinationGeometry':
+            cg = symbol
         else:
             raise ValueError('Wrong mp_symbol to setup coordination geometry')
         neighb_coords = []
@@ -1174,6 +1178,8 @@ class LocalGeometryFinder:
 
         result_dict = {}
         for geometry in test_geometries:
+            logging.log(level=5, msg='Getting Continuous Symmetry Measure with Separation Plane '
+                                     'algorithm for geometry "{}"'.format(geometry.ce_symbol))
             self.perfect_geometry = AbstractGeometry.from_cg(
                 cg=geometry,
                 centering_type=self.centering_type,
@@ -1447,12 +1453,24 @@ class LocalGeometryFinder:
         """
         Returns the symmetry measures of the given coordination geometry "coordination_geometry" using separation
         facets to reduce the complexity of the system. Caller to the refined 2POINTS, 3POINTS and other ...
-        :param coordination_geometry: The coordination geometry to be investigated
-        :return: The symmetry measures for the given coordination geometry for each plane and permutation investigated
+        Args:
+            coordination_geometry: The coordination geometry to be investigated.
+            separation_plane_algo: Separation Plane algorithm used.
+            points_perfect: Points corresponding to the perfect geometry.
+            nb_set: Neighbor set for this set of points. (used to store already computed separation planes)
+            optimization: Optimization level (1 or 2).
+
+        Returns:
+            tuple: Continuous symmetry measures for the given coordination geometry for each plane and permutation
+                   investigated, corresponding permutations, corresponding algorithms,
+                   corresponding mappings from local to perfect environment and corresponding mappings
+                   from perfect to local environment.
         """
         if optimization == 2:
+            logging.log(level=5, msg='... using optimization = 2')
             cgcsmoptim = self._cg_csm_separation_plane_optim2
         elif optimization == 1:
+            logging.log(level=5, msg='... using optimization = 2')
             cgcsmoptim = self._cg_csm_separation_plane_optim1
         else:
             raise ValueError('Optimization should be 1 or 2')
@@ -1644,7 +1662,7 @@ class LocalGeometryFinder:
             else:
                 sep_perms = sepplane.permutations
 
-            plane_found = True
+            # plane_found = True
 
             for i_sep_perm, sep_perm in enumerate(sep_perms):
                 perm1 = [separation_perm[ii] for ii in sep_perm]
@@ -1678,9 +1696,15 @@ class LocalGeometryFinder:
                     sepplane.algorithm_type] * len(permutations)
         else:
             if plane_found:
-                return permutations_symmetry_measures, permutations, []
+                if testing:
+                    return permutations_symmetry_measures, permutations, [], []
+                else:
+                    return permutations_symmetry_measures, permutations, []
             else:
-                return None, None, None
+                if testing:
+                    return None, None, None, None
+                else:
+                    return None, None, None
 
     def _cg_csm_separation_plane_optim1(self, coordination_geometry,
                                         sepplane,

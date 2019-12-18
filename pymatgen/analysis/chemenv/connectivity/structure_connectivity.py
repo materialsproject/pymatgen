@@ -202,7 +202,8 @@ class StructureConnectivity(MSONable):
 
     def get_connected_components(self):
         connected_components = []
-        for graph in nx.connected_component_subgraphs(self._environment_subgraph):
+        for component_nodes in nx.connected_components(self._environment_subgraph):
+            graph = self._environment_subgraph.subgraph(component_nodes).copy()
             connected_components.append(ConnectedComponent.from_graph(graph))
         return connected_components
 
