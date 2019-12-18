@@ -803,6 +803,9 @@ class MPScanRelaxSet(DictSet):
         else:
             rmin = 25.22 - 1.87 * bandgap  # Eq. 25
             kspacing = 2 * np.pi * 1.0265 / (rmin - 1.0183)  # Eq. 29
+            # cap the KSPACING at a max of 0.44, per internal benchmarking
+            if kspacing > 0.44:
+                kspacing = 0.44
             updates["KSPACING"] = kspacing
             updates["ISMEAR"] = -5
             updates["SIGMA"] = 0.05
