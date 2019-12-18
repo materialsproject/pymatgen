@@ -1256,10 +1256,22 @@ class MPScanRelaxSetTest(PymatgenTest):
         # Test that KSPACING and ISMEAR change with a nonmetal structure
         file_path = self.TEST_FILES_DIR / "POSCAR.O2"
         struct = Poscar.from_file(file_path, check_for_POTCAR=False).structure
-        scan_nonmetal_set = MPScanRelaxSet(struct, is_metallic=False)
+        scan_nonmetal_set = MPScanRelaxSet(struct, bandgap=1.1)
         incar = scan_nonmetal_set.incar
-        self.assertEqual(incar["KSPACING"], 0.44)
+        self.assertAlmostEqual(incar["KSPACING"], 0.29125, places=5)
         self.assertEqual(incar["ISMEAR"], -5)
+        self.assertEqual(incar["SIGMA"], 0.05)
+
+    def test_incar_overrides(self):
+        # use 'user_incar_settings' to override the KSPACING, ISMEAR, and SIGMA
+        # parameters that MPScanSet normally determines
+        mp_scan_set2 = MPScanRelaxSet(
+            self.struct,
+            user_incar_settings={"KSPACING": 0.5, "ISMEAR": 0, "SIGMA": 0.05},
+        )
+        incar = mp_scan_set2.incar
+        self.assertEqual(incar["KSPACING"], 0.5)
+        self.assertEqual(incar["ISMEAR"], 0)
         self.assertEqual(incar["SIGMA"], 0.05)
 
     # Test SCAN+rVV10
@@ -1279,7 +1291,8 @@ class MPScanRelaxSetTest(PymatgenTest):
     def test_potcar(self):
         self.assertEqual(self.mp_scan_set.potcar.functional, "PBE_52")
 
-        test_potcar_set_1 = MPScanRelaxSet(self.struct, potcar_functional="PBE_54")
+        # the default functional should be PBE_54
+        test_potcar_set_1 = MPScanRelaxSet(self.struct)
         self.assertEqual(test_potcar_set_1.potcar.functional, "PBE_54")
 
         self.assertRaises(
