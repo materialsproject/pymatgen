@@ -763,16 +763,16 @@ class MPScanRelaxSet(DictSet):
             structure (Structure): Input structure.
             bandgap (int): Bandgap of the structure in eV. The bandgap is used to
                     compute the appropriate k-point density and determine the
-                    smearing settings. 
-                    
+                    smearing settings.
+
                     Metallic systems (default, bandgap = 0) use a KSPACING value of 0.22
                     and Methfessel-Paxton order 2 smearing (ISMEAR=2, SIGMA=0.2).
 
-                    Non-metallic systems (bandgap > 0) use the tetrahedron smearing 
-                    method (ISMEAR=-5, SIGMA=0.05). The KSPACING value is 
+                    Non-metallic systems (bandgap > 0) use the tetrahedron smearing
+                    method (ISMEAR=-5, SIGMA=0.05). The KSPACING value is
                     calculated from the bandgap via Eqs. 25 and 29 of Wisesa, McGill,
                     and Mueller [1] (see References). Note that if 'user_incar_settings'
-                    or 'user_kpoints_settings' override KSPACING, the calculation from 
+                    or 'user_kpoints_settings' override KSPACING, the calculation from
                     bandgap is not performed.
 
             vdw (str): set "rVV10" to enable SCAN+rVV10, which is a versatile
@@ -782,8 +782,8 @@ class MPScanRelaxSet(DictSet):
             **kwargs: Same as those supported by DictSet.
 
         References:
-            [1] P. Wisesa, K.A. McGill, T. Mueller, Efficient generation of 
-            generalized Monkhorst-Pack grids through the use of informatics, 
+            [1] P. Wisesa, K.A. McGill, T. Mueller, Efficient generation of
+            generalized Monkhorst-Pack grids through the use of informatics,
             Phys. Rev. B. 93 (2016) 1–10. doi:10.1103/PhysRevB.93.155109.
         """
         super().__init__(structure, MPScanRelaxSet.CONFIG, **kwargs)
