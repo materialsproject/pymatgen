@@ -385,12 +385,17 @@ class DictSet(VaspInputSet):
         self.potcar_functional = self._config_dict.get("POTCAR_FUNCTIONAL", "PBE")
 
         if potcar_functional is not None and user_potcar_functional is not None:
-            raise ValueError("Received both 'potcar_functional' and "
-                             "'user_potcar_functional arguments. 'potcar_functional "
-                             "is deprecated.")
+            raise ValueError(
+                "Received both 'potcar_functional' and "
+                "'user_potcar_functional arguments. 'potcar_functional "
+                "is deprecated."
+            )
         if potcar_functional:
-            warnings.warn("'potcar_functional' argument is deprecated. Use "
-                          "'user_potcar_functional' instead.", DeprecationWarning)
+            warnings.warn(
+                "'potcar_functional' argument is deprecated. Use "
+                "'user_potcar_functional' instead.",
+                DeprecationWarning,
+            )
             self.potcar_functional = potcar_functional
         elif user_potcar_functional:
             self.potcar_functional = user_potcar_functional
@@ -606,7 +611,15 @@ class DictSet(VaspInputSet):
             Uses a simple approach scaling the number of divisions along each
             reciprocal lattice vector proportional to its length.
         """
-        settings = self.user_kpoints_settings or self._config_dict["KPOINTS"]
+        # Return None if KSPACING is present in the INCAR, because this will
+        # cause VASP to generate the kpoints automatically
+        if self.user_incar_settings.get("KSPACING") or self._config_dict["INCAR"].get(
+            "KSPACING"
+        ):
+            if self.user_kpoints_settings == {}:
+                return None
+
+        settings = self.user_kpoints_settings or self._config_dict.get("KPOINTS")
 
         if isinstance(settings, Kpoints):
             return settings
@@ -721,6 +734,107 @@ class MPRelaxSet(DictSet):
         """
         super().__init__(structure, MPRelaxSet.CONFIG, **kwargs)
         self.kwargs = kwargs
+
+
+class MPScanRelaxSet(DictSet):
+    """
+    Class for writing a relax input set using Strongly Constrained and
+    Appropriately Normed (SCAN) semilocal density functional.
+
+    Notes:
+        1. This functional is only available from VASP.5.4.3 upwards.
+
+        2. Meta-GGA calculations require POTCAR files that include
+        information on the kinetic energy density of the core-electrons,
+        i.e. "PBE_52" or "PBE_54". Make sure the POTCARs include the
+        following lines (see VASP wiki for more details):
+
+            $ grep kinetic POTCAR
+            kinetic energy-density
+            mkinetic energy-density pseudized
+            kinetic energy density (partial)
+    """
+
+    CONFIG = _load_yaml_config("MPSCANRelaxSet")
+
+    def __init__(self, structure, bandgap=0, **kwargs):
+        """
+        Args:
+            structure (Structure): Input structure.
+            bandgap (int): Bandgap of the structure in eV. The bandgap is used to
+                    compute the appropriate k-point density and determine the
+                    smearing settings.
+
+                    Metallic systems (default, bandgap = 0) use a KSPACING value of 0.22
+                    and Methfessel-Paxton order 2 smearing (ISMEAR=2, SIGMA=0.2).
+
+                    Non-metallic systems (bandgap > 0) use the tetrahedron smearing
+                    method (ISMEAR=-5, SIGMA=0.05). The KSPACING value is
+                    calculated from the bandgap via Eqs. 25 and 29 of Wisesa, McGill,
+                    and Mueller [1] (see References). Note that if 'user_incar_settings'
+                    or 'user_kpoints_settings' override KSPACING, the calculation from
+                    bandgap is not performed.
+
+            vdw (str): set "rVV10" to enable SCAN+rVV10, which is a versatile
+                    van der Waals density functional by combing the SCAN functional
+                    with the rVV10 non-local correlation functional. rvv10 is the only
+                    dispersion correction available for SCAN at this time.
+            **kwargs: Same as those supported by DictSet.
+
+        References:
+            [1] P. Wisesa, K.A. McGill, T. Mueller, Efficient generation of
+            generalized Monkhorst-Pack grids through the use of informatics,
+            Phys. Rev. B. 93 (2016) 1–10. doi:10.1103/PhysRevB.93.155109.
+        """
+        super().__init__(structure, MPScanRelaxSet.CONFIG, **kwargs)
+        self.bandgap = bandgap
+        self.kwargs = kwargs
+
+        if self.potcar_functional not in ["PBE_52", "PBE_54"]:
+            raise ValueError("SCAN calculations require PBE_52 or PBE_54!")
+
+        # self.kwargs.get("user_incar_settings", {
+        updates = {}
+        # select the KSPACING and smearing parameters based on the bandgap
+        if self.bandgap == 0:
+            updates["KSPACING"] = 0.22
+            updates["SIGMA"] = 0.2
+            updates["ISMEAR"] = 2
+        else:
+            rmin = 25.22 - 1.87 * bandgap  # Eq. 25
+            kspacing = 2 * np.pi * 1.0265 / (rmin - 1.0183)  # Eq. 29
+            # cap the KSPACING at a max of 0.44, per internal benchmarking
+            if kspacing > 0.44:
+                kspacing = 0.44
+            updates["KSPACING"] = kspacing
+            updates["ISMEAR"] = -5
+            updates["SIGMA"] = 0.05
+
+        # Don't overwrite things the user has supplied
+        if kwargs.get("user_incar_settings", {}).get("KSPACING"):
+            del updates["KSPACING"]
+
+        if kwargs.get("user_incar_settings", {}).get("ISMEAR"):
+            del updates["ISMEAR"]
+
+        if kwargs.get("user_incar_settings", {}).get("SIGMA"):
+            del updates["SIGMA"]
+
+        if self.vdw:
+            if self.vdw != "rvv10":
+                warnings.warn(
+                    "Use of van der waals functionals other than rVV10 "
+                    "with SCAN is not supported at this time. "
+                )
+                # delete any vdw parameters that may have been added to the INCAR
+                vdw_par = loadfn(str(MODULE_DIR / "vdW_parameters.yaml"))
+                for k, v in vdw_par[self.vdw].items():
+                    try:
+                        del self._config_dict["INCAR"][k]
+                    except KeyError:
+                        pass
+
+        self._config_dict["INCAR"].update(updates)
 
 
 class MPMetalRelaxSet(MPRelaxSet):
@@ -2064,9 +2178,7 @@ class MVLRelax52Set(DictSet):
             **kwargs: Other kwargs supported by :class:`DictSet`.
         """
         if kwargs.get("potcar_functional") or kwargs.get("user_potcar_functional"):
-            super().__init__(structure,
-                             MVLRelax52Set.CONFIG,
-                             **kwargs)
+            super().__init__(structure, MVLRelax52Set.CONFIG, **kwargs)
         else:
             super().__init__(
                 structure,
