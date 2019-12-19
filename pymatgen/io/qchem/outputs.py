@@ -1003,7 +1003,7 @@ class QCOutput(MSONable):
         temp_dict = read_pattern(
             self.text, {
                 "final_energy":
-                    r"\s*SCF\s+energy in the final basis set\s+=\s*([\d\-\.]+)"
+                    r"\s*Total\s+energy in the final basis set\s+=\s*([\d\-\.]+)"
             })
 
         if temp_dict.get('final_energy') is None:
