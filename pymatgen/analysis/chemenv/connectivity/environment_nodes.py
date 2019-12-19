@@ -44,7 +44,11 @@ class AbstractEnvironmentNode(MSONable):
         return self.central_site.__hash__()
 
     def __eq__(self, other):
-        return self.isite == other.isite
+        # When relabelling nodes from a str or int to an EnvironmentNode in-place in a graph (e.g. in a
+        # ConnectedComponent), the comparison should return False when comparing the already relabelled nodes (e.g. as
+        # an EnvironmentNode) with those not yet relabelled (e.g. a str representing the isite). This is useful for
+        # serialization as a json/bson object.
+        return self.__class__ == other.__class__ and self.isite == other.isite
 
     def __lt__(self, other):
         # This simple "Less Than" operator allows to strictly sort environment nodes in a graph.

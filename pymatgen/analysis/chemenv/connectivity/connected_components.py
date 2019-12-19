@@ -258,6 +258,7 @@ class ConnectedComponent(MSONable):
                 else:
                     self._connected_subgraph.add_edge(env_node1, env_node2, key)
         else:
+            # TODO: should check a few requirements here ?
             self._connected_subgraph = graph
 
     def compute_periodicity(self, algorithm='all_simple_paths'):
@@ -277,7 +278,13 @@ class ConnectedComponent(MSONable):
             this_node_cell_img_vectors = []
             if test_node in self_loop_nodes:
                 for key, edge_data in self._connected_subgraph[test_node][test_node].items():
+                    if edge_data['delta'] == (0, 0, 0):
+                        raise ValueError('There should not be self loops with delta image = (0, 0, 0).')
                     this_node_cell_img_vectors.append(edge_data['delta'])
+            ndeltas = len(this_node_cell_img_vectors)
+            this_node_cell_img_vectors = get_linearly_independent_vectors(this_node_cell_img_vectors)
+            if len(this_node_cell_img_vectors) != ndeltas:
+                raise ValueError('There should not be self loops with the same (or opposite) delta image.')
             # Here, we adopt a cutoff equal to the size of the graph, contrary to the default of networkX (size - 1),
             # because otherwise, the all_simple_paths algorithm fail when the source node is equal to the target node.
             paths = []
@@ -287,18 +294,14 @@ class ConnectedComponent(MSONable):
             for test_node_neighbor in test_node_neighbors:
                 # Special case for two nodes
                 if len(self._connected_subgraph[test_node][test_node_neighbor]) > 1:
-                    print(test_node)
-                    print(test_node_neighbor)
                     this_path_deltas = []
                     node_node_neighbor_edges_data = list(self._connected_subgraph[test_node][test_node_neighbor].values())
                     for edge1_data, edge2_data in itertools.combinations(node_node_neighbor_edges_data, 2):
                         delta1 = get_delta(test_node, test_node_neighbor, edge1_data)
                         delta2 = get_delta(test_node_neighbor, test_node, edge2_data)
                         this_path_deltas.append(delta1+delta2)
-                    print(this_path_deltas)
                     this_node_cell_img_vectors.extend(this_path_deltas)
                     this_node_cell_img_vectors = get_linearly_independent_vectors(this_node_cell_img_vectors)
-                    print(this_node_cell_img_vectors)
                     if len(this_node_cell_img_vectors) == 3:
                         break
                 for path in nx.all_simple_paths(my_simple_graph, test_node, test_node_neighbor,
@@ -333,7 +336,7 @@ class ConnectedComponent(MSONable):
             this_node_cell_img_vectors = get_linearly_independent_vectors(this_node_cell_img_vectors)
             independent_cell_img_vectors = this_node_cell_img_vectors
             all_nodes_independent_cell_image_vectors.append(independent_cell_img_vectors)
-            #If we have found that the sub structure network is 3D-connected, we can stop ...
+            # If we have found that the sub structure network is 3D-connected, we can stop ...
             if len(independent_cell_img_vectors) == 3:
                 break
         self._periodicity_vectors = []
@@ -364,7 +367,7 @@ class ConnectedComponent(MSONable):
             if len(all_deltas) == 3:
                 self._periodicity_vectors = all_deltas
                 return
-        # One has to consider pairs of nodes with parallel edges (these are not considered in the simple graph cycles
+        # One has to consider pairs of nodes with parallel edges (these are not considered in the simple graph cycles)
         edges = my_simple_graph.edges()
         for n1, n2 in edges:
             if n1 == n2:
@@ -567,6 +570,40 @@ class ConnectedComponent(MSONable):
             raise RuntimeError('Could not find a centered graph.')
         return centered_connected_subgraph
 
+    @staticmethod
+    def _edgekey_to_edgedictkey(key):
+        if isinstance(key, int):
+            return str(key)
+        elif isinstance(key, str):
+            try:
+                int(key)
+                raise RuntimeError('Cannot pass an edge key which is a str '
+                                   'representation of an int')
+            except ValueError as ve:
+                return key
+        else:
+            raise ValueError('Edge key should be either a str or an int.')
+
+    @staticmethod
+    def _edgedictkey_to_edgekey(key):
+        if isinstance(key, int):
+            return key
+        elif isinstance(key, str):
+            try:
+                ikey = int(key)
+            except ValueError as ve:
+                return key
+        else:
+            raise ValueError('Edge key in a dict of dicts representation of a graph'
+                             'should be either a str or an int.')
+
+    @staticmethod
+    def _retuplify_edgedata(edata):
+        edata['delta'] = tuple(edata['delta'])
+        edata['ligands'] = [tuple([lig[0], tuple(lig[1])])
+                            for lig in edata['ligands']]
+        return edata
+
     def as_dict(self):
         """
         Bson-serializable dict representation of the ConnectedComponent object.
@@ -583,7 +620,8 @@ class ConnectedComponent(MSONable):
                 in2 = node2stringindex[n2]
                 new_dict_of_dicts[in1][in2] = {}
                 for ie, edge_data in edges_dict.items():
-                    new_dict_of_dicts[in1][in2][str(ie)] = jsanitize(edge_data)
+                    ied = self._edgekey_to_edgedictkey(ie)
+                    new_dict_of_dicts[in1][in2][ied] = edge_data
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "nodes": {strindex: (node.as_dict(), data) for strindex, (node, data) in nodes.items()},
@@ -599,9 +637,15 @@ class ConnectedComponent(MSONable):
         """
         nodes_map = {inode_str: EnvironmentNode.from_dict(nodedict)
                      for inode_str, (nodedict, nodedata) in d['nodes'].items()}
-        nodes_data = {inode_str: EnvironmentNode.from_dict(nodedict)
+        nodes_data = {inode_str: nodedata
                       for inode_str, (nodedict, nodedata) in d['nodes'].items()}
-        graph = nx.from_dict_of_dicts(d["graph"], multigraph_input=True)
+        dod = {}
+        for e1, e1dict in d['graph'].items():
+            dod[e1] = {}
+            for e2, e2dict in e1dict.items():
+                dod[e1][e2] = {cls._edgedictkey_to_edgekey(ied): cls._retuplify_edgedata(edata)
+                               for ied, edata in e2dict.items()}
+        graph = nx.from_dict_of_dicts(dod, create_using=nx.MultiGraph, multigraph_input=True)
         nx.set_node_attributes(graph, nodes_data)
         nx.relabel_nodes(graph, nodes_map, copy=False)
         return cls(graph=graph)
