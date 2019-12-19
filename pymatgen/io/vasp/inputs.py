@@ -1959,6 +1959,9 @@ class PotcarSingle:
 
     @property
     def symbol(self):
+        """
+        :return: The POTCAR symbol, e.g. W_pv
+        """
         return self._symbol
 
     @property
