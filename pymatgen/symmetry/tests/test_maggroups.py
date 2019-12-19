@@ -134,10 +134,10 @@ x+1/2, y+1/2, z, +1
 x+1/2, -y+1/2, -z, +1
 -x+1/2, y+1/2, -z+1/2, +1
 -x+1/2, -y+1/2, z+1/2, +1
-x+1/2, y+1, z+1/2, -1
-x+1, -y+1/2, -z+1/2, -1
--x+1, y+1/2, -z, -1
--x+1, -y+1/2, z, -1"""
+x+1/2, y, z+1/2, -1
+x, -y+1/2, -z+1/2, -1
+-x, y+1/2, -z, -1
+-x, -y+1/2, z, -1"""
         self.assertEqual(msg_3_symmops, msg_3_symmops_ref)
 
         msg_4_symmops = "\n".join([str(op) for op in self.msg_4.symmetry_ops])

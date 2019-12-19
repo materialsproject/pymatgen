@@ -164,6 +164,7 @@ class JonesFaithfulTransformation:
         W_ = np.matmul(np.matmul(Q, W), self.P)
         I = np.identity(3)
         w_ = np.matmul(Q, (w + np.matmul(W - I, self.p)))
+        w_ = np.mod(w_, 1.0)
         if isinstance(symmop, MagSymmOp):
             return MagSymmOp.from_rotation_and_translation_and_time_reversal(
                 rotation_matrix=W_, translation_vec=w_,

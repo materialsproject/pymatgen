@@ -38,7 +38,7 @@ class MagneticSpaceGroup(SymmetryGroup):
     """
     Representation of a magnetic space group.
     """
-    def __init__(self, id, jf_in="a,b,c;0,0,0"):
+    def __init__(self, id, setting_transformation="a,b,c;0,0,0"):
         """
         Initializes a MagneticSpaceGroup from its Belov, Neronova and
         Smirnova (BNS) number supplied as a list or its label supplied
@@ -124,12 +124,12 @@ class MagneticSpaceGroup(SymmetryGroup):
 
         # Jones Faithful transformation
         self.jf = JonesFaithfulTransformation.from_transformation_string("a,b,c;0,0,0")
-        if isinstance(jf_in, str):
-            if jf_in != "a,b,c;0,0,0":
-                self.jf = JonesFaithfulTransformation.from_transformation_string(jf_in)
-        elif isinstance(jf_in, JonesFaithfulTransformation):
-            if jf_in != self.jf:
-                self.jf = jf_in
+        if isinstance(setting_transformation, str):
+            if setting_transformation != "a,b,c;0,0,0":
+                self.jf = JonesFaithfulTransformation.from_transformation_string(setting_transformation)
+        elif isinstance(setting_transformation, JonesFaithfulTransformation):
+            if setting_transformation != self.jf:
+                self.jf = setting_transformation
 
         self._data['magtype'] = raw_data[0]  # int from 1 to 4
         self._data['bns_number'] = [raw_data[1], raw_data[2]]
@@ -345,9 +345,9 @@ class MagneticSpaceGroup(SymmetryGroup):
         ops = ops + centered_ops
 
         # apply jones faithful transformation
-        ops_jf = [self.jf.transform_symmop(op) for op in ops]
+        ops = [self.jf.transform_symmop(op) for op in ops]
 
-        return ops_jf
+        return ops
 
     def get_orbit(self, p, m, tol=1e-5):
         """
