@@ -149,7 +149,7 @@ class ConnectedComponentTest(PymatgenTest):
                        delta=(0, 0, 1), ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))])
         cc = ConnectedComponent(graph=graph)
         with pytest.raises(ValueError, match=r'There should not be self loops with the same '
-                                             '\(or opposite\) delta image\.'):
+                                             r'\x28or opposite\x29 delta image\x2E'):
             cc.compute_periodicity_all_simple_paths_algorithm()
 
         graph = nx.MultiGraph()
@@ -160,7 +160,7 @@ class ConnectedComponentTest(PymatgenTest):
                        delta=(-3, -2, 1), ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))])
         cc = ConnectedComponent(graph=graph)
         with pytest.raises(ValueError, match=r'There should not be self loops with the same '
-                                             '\(or opposite\) delta image\.'):
+                                             r'\x28or opposite\x29 delta image\x2E'):
             cc.compute_periodicity_all_simple_paths_algorithm()
 
         graph = nx.MultiGraph()
@@ -168,5 +168,6 @@ class ConnectedComponentTest(PymatgenTest):
         graph.add_edge(en1, en1, start=en1.isite, end=en1.isite,
                        delta=(0, 0, 0), ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))])
         cc = ConnectedComponent(graph=graph)
-        with pytest.raises(ValueError, match=r'There should not be self loops with delta image = \(0, 0, 0\)\.'):
+        with pytest.raises(ValueError, match=r'There should not be self loops with delta image = '
+                                             r'\x280, 0, 0\x29\x2E'):
             cc.compute_periodicity_all_simple_paths_algorithm()
