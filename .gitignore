@@ -28,4 +28,4 @@ gulptmp_4_1
 .coverage
 .*_cache
 # VS Code
-settings.json
+.vscode/*
