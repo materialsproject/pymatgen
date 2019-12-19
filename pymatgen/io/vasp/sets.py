@@ -385,12 +385,17 @@ class DictSet(VaspInputSet):
         self.potcar_functional = self._config_dict.get("POTCAR_FUNCTIONAL", "PBE")
 
         if potcar_functional is not None and user_potcar_functional is not None:
-            raise ValueError("Received both 'potcar_functional' and "
-                             "'user_potcar_functional arguments. 'potcar_functional "
-                             "is deprecated.")
+            raise ValueError(
+                "Received both 'potcar_functional' and "
+                "'user_potcar_functional arguments. 'potcar_functional "
+                "is deprecated."
+            )
         if potcar_functional:
-            warnings.warn("'potcar_functional' argument is deprecated. Use "
-                          "'user_potcar_functional' instead.", DeprecationWarning)
+            warnings.warn(
+                "'potcar_functional' argument is deprecated. Use "
+                "'user_potcar_functional' instead.",
+                DeprecationWarning,
+            )
             self.potcar_functional = potcar_functional
         elif user_potcar_functional:
             self.potcar_functional = user_potcar_functional
@@ -752,46 +757,68 @@ class MPScanRelaxSet(DictSet):
 
     CONFIG = _load_yaml_config("MPSCANRelaxSet")
 
-    def __init__(
-        self, structure, is_metallic=True, **kwargs
-    ):
+    def __init__(self, structure, bandgap=0, **kwargs):
         """
-        :param structure: Structure
-        :param: is_metallic (bool): Whether or not the structure is metallic
-                (i.e., conducting). Metallic systems are computed with a smaller
-                KSPACING (=0.22) and different smearing parameters (ISMEAR=2,
-                SIGMA=0.2), compared to non-metallic systems (KSPACING=0.44,
-                ISMEAR=-5, SIGMA=0.05).
-        :param vdw (str): set "rVV10" to enable SCAN+rVV10, which is a versatile
-                van der Waals density functional by combing the SCAN functional
-                with the rVV10 non-local correlation functional. rvv10 is the only
-                dispersion correction available for SCAN at this time.
-        :param kwargs: Same as those supported by DictSet.
+        Args:
+            structure (Structure): Input structure.
+            bandgap (int): Bandgap of the structure in eV. The bandgap is used to
+                    compute the appropriate k-point density and determine the
+                    smearing settings.
+
+                    Metallic systems (default, bandgap = 0) use a KSPACING value of 0.22
+                    and Methfessel-Paxton order 2 smearing (ISMEAR=2, SIGMA=0.2).
+
+                    Non-metallic systems (bandgap > 0) use the tetrahedron smearing
+                    method (ISMEAR=-5, SIGMA=0.05). The KSPACING value is
+                    calculated from the bandgap via Eqs. 25 and 29 of Wisesa, McGill,
+                    and Mueller [1] (see References). Note that if 'user_incar_settings'
+                    or 'user_kpoints_settings' override KSPACING, the calculation from
+                    bandgap is not performed.
+
+            vdw (str): set "rVV10" to enable SCAN+rVV10, which is a versatile
+                    van der Waals density functional by combing the SCAN functional
+                    with the rVV10 non-local correlation functional. rvv10 is the only
+                    dispersion correction available for SCAN at this time.
+            **kwargs: Same as those supported by DictSet.
+
+        References:
+            [1] P. Wisesa, K.A. McGill, T. Mueller, Efficient generation of
+            generalized Monkhorst-Pack grids through the use of informatics,
+            Phys. Rev. B. 93 (2016) 1–10. doi:10.1103/PhysRevB.93.155109.
         """
-        super().__init__(
-            structure,
-            MPScanRelaxSet.CONFIG,
-            **kwargs
-        )
-        self.is_metallic = is_metallic
+        super().__init__(structure, MPScanRelaxSet.CONFIG, **kwargs)
+        self.bandgap = bandgap
         self.kwargs = kwargs
 
         if self.potcar_functional not in ["PBE_52", "PBE_54"]:
             raise ValueError("SCAN calculations require PBE_52 or PBE_54!")
 
+        # self.kwargs.get("user_incar_settings", {
         updates = {}
-        # select the KSPACING and SIGMA parameters based on whether the input
-        # structure is a metal or non-metal
-        if self.is_metallic:
+        # select the KSPACING and smearing parameters based on the bandgap
+        if self.bandgap == 0:
             updates["KSPACING"] = 0.22
-            # use a different smearing settings for metals, per VASP guidelines.
             updates["SIGMA"] = 0.2
             updates["ISMEAR"] = 2
         else:
-            updates["KSPACING"] = 0.44
-            # use a different smearing settings for metals, per VASP guidelines.
+            rmin = 25.22 - 1.87 * bandgap  # Eq. 25
+            kspacing = 2 * np.pi * 1.0265 / (rmin - 1.0183)  # Eq. 29
+            # cap the KSPACING at a max of 0.44, per internal benchmarking
+            if kspacing > 0.44:
+                kspacing = 0.44
+            updates["KSPACING"] = kspacing
             updates["ISMEAR"] = -5
             updates["SIGMA"] = 0.05
+
+        # Don't overwrite things the user has supplied
+        if kwargs.get("user_incar_settings", {}).get("KSPACING"):
+            del updates["KSPACING"]
+
+        if kwargs.get("user_incar_settings", {}).get("ISMEAR"):
+            del updates["ISMEAR"]
+
+        if kwargs.get("user_incar_settings", {}).get("SIGMA"):
+            del updates["SIGMA"]
 
         if self.vdw:
             if self.vdw != "rvv10":
@@ -2151,9 +2178,7 @@ class MVLRelax52Set(DictSet):
             **kwargs: Other kwargs supported by :class:`DictSet`.
         """
         if kwargs.get("potcar_functional") or kwargs.get("user_potcar_functional"):
-            super().__init__(structure,
-                             MVLRelax52Set.CONFIG,
-                             **kwargs)
+            super().__init__(structure, MVLRelax52Set.CONFIG, **kwargs)
         else:
             super().__init__(
                 structure,
