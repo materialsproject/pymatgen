@@ -107,8 +107,10 @@ class ConnectedComponentTest(PymatgenTest):
                               i_central_site=3, ce_symbol='T:4')
         en2 = EnvironmentNode(central_site='Ag',
                               i_central_site=5, ce_symbol='T:4')
-        en3 = EnvironmentNode(central_site='Te',
+        en3 = EnvironmentNode(central_site='Ag',
                               i_central_site=8, ce_symbol='O:6')
+        en4 = EnvironmentNode(central_site='Fe',
+                              i_central_site=23, ce_symbol='C:8')
 
         graph = nx.MultiGraph()
         graph.add_nodes_from([en1, en2, en3])
@@ -118,6 +120,11 @@ class ConnectedComponentTest(PymatgenTest):
                        delta=(0, 0, 0), ligands=[(10, (0, 0, 1), (0, 0, 1)), (11, (0, 0, 1), (0, 0, 1))])
         cc = ConnectedComponent(graph=graph)
         assert cc.is_0d
+        assert not cc.is_1d
+        assert not cc.is_2d
+        assert not cc.is_3d
+        assert not cc.is_periodic
+        assert cc.periodicity == '0D'
 
         graph = nx.MultiGraph()
         graph.add_nodes_from([en1, en2, en3])
@@ -128,6 +135,11 @@ class ConnectedComponentTest(PymatgenTest):
         graph.add_edge(en2, en3, start=en2.isite, end=en3.isite,
                        delta=(0, 0, 1), ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))])
         cc = ConnectedComponent(graph=graph)
+        assert not cc.is_0d
+        assert cc.is_1d
+        assert not cc.is_2d
+        assert not cc.is_3d
+        assert cc.is_periodic
         assert cc.periodicity == '1D'
 
         graph = nx.MultiGraph()
@@ -141,6 +153,7 @@ class ConnectedComponentTest(PymatgenTest):
         cc = ConnectedComponent(graph=graph)
         assert cc.periodicity == '0D'
 
+        # Test errors when computing periodicity
         graph = nx.MultiGraph()
         graph.add_nodes_from([en1, en2, en3])
         graph.add_edge(en1, en1, start=en1.isite, end=en1.isite,
@@ -171,3 +184,57 @@ class ConnectedComponentTest(PymatgenTest):
         with pytest.raises(ValueError, match=r'There should not be self loops with delta image = '
                                              r'\x280, 0, 0\x29\x2E'):
             cc.compute_periodicity_all_simple_paths_algorithm()
+
+        # Test a 2d periodicity
+        graph = nx.MultiGraph()
+        graph.add_nodes_from([en1, en2, en3, en4])
+        graph.add_edge(en1, en2, start=en1.isite, end=en2.isite,
+                       delta=(0, 0, 0), ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))])
+        graph.add_edge(en1, en3, start=en1.isite, end=en3.isite,
+                       delta=(0, 0, 0), ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))])
+        graph.add_edge(en4, en2, start=en4.isite, end=en2.isite,
+                       delta=(0, 0, 0), ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))])
+        graph.add_edge(en3, en4, start=en4.isite, end=en3.isite,
+                       delta=(0, 0, 0), ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))])
+        graph.add_edge(en3, en4, start=en4.isite, end=en3.isite,
+                       delta=(0, -1, 0), ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))])
+        graph.add_edge(en3, en2, start=en2.isite, end=en3.isite,
+                       delta=(-1, -1, 0), ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))])
+        cc = ConnectedComponent(graph=graph)
+        assert not cc.is_0d
+        assert not cc.is_1d
+        assert cc.is_2d
+        assert not cc.is_3d
+        assert cc.is_periodic
+        assert cc.periodicity == '2D'
+        assert np.allclose(cc.periodicity_vectors, [np.array([0, 1, 0]), np.array([1, 1, 0])])
+        assert type(cc.periodicity_vectors) is list
+        assert cc.periodicity_vectors[0].dtype is np.dtype(int)
+
+        # Test a 3d periodicity
+        graph = nx.MultiGraph()
+        graph.add_nodes_from([en1, en2, en3, en4])
+        graph.add_edge(en1, en2, start=en1.isite, end=en2.isite,
+                       delta=(0, 0, 0), ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))])
+        graph.add_edge(en1, en3, start=en1.isite, end=en3.isite,
+                       delta=(0, 0, 0), ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))])
+        graph.add_edge(en4, en2, start=en4.isite, end=en2.isite,
+                       delta=(0, 0, 0), ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))])
+        graph.add_edge(en3, en4, start=en4.isite, end=en3.isite,
+                       delta=(0, 0, 0), ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))])
+        graph.add_edge(en3, en4, start=en4.isite, end=en3.isite,
+                       delta=(0, -1, 0), ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))])
+        graph.add_edge(en3, en2, start=en2.isite, end=en3.isite,
+                       delta=(-1, -1, 0), ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))])
+        graph.add_edge(en3, en3, start=en3.isite, end=en3.isite,
+                       delta=(-1, -1, -1), ligands=[(2, (0, 0, 1), (0, 0, 1)), (1, (0, 0, 1), (0, 0, 1))])
+        cc = ConnectedComponent(graph=graph)
+        assert not cc.is_0d
+        assert not cc.is_1d
+        assert not cc.is_2d
+        assert cc.is_3d
+        assert cc.is_periodic
+        assert cc.periodicity == '3D'
+        assert np.allclose(cc.periodicity_vectors, [np.array([0, 1, 0]), np.array([1, 1, 0]), np.array([1, 1, 1])])
+        assert type(cc.periodicity_vectors) is list
+        assert cc.periodicity_vectors[0].dtype is np.dtype(int)

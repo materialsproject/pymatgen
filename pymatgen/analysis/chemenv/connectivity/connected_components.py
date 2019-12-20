@@ -268,6 +268,7 @@ class ConnectedComponent(MSONable):
             self.compute_periodicity_cycle_basis()
         else:
             raise ValueError('Algorithm "{}" is not allowed to compute periodicity'.format(algorithm))
+        self._order_periodicity_vectors()
 
     def compute_periodicity_all_simple_paths_algorithm(self):
         self_loop_nodes = list(nx.nodes_with_selfloops(self._connected_subgraph))
@@ -454,6 +455,21 @@ class ConnectedComponent(MSONable):
         if self._periodicity_vectors is None:
             self.compute_periodicity()
         return len(self._periodicity_vectors) == 3
+
+    def _order_periodicity_vectors(self):
+        """Orders the periodicity vectors.
+
+        First, each vector is made such that the first non-zero dimension is positive.
+        e.g. a periodicity vector [0, -1, 1] is transformed to [0, 1, -1].
+        Then vectors are ordered
+        """
+        if len(self._periodicity_vectors) > 3:
+            raise ValueError('Number of periodicity vectors is larger than 3.')
+        for ipv, pv in enumerate(self._periodicity_vectors):
+            nonzeros = np.nonzero(pv)[0]
+            if (len(nonzeros) > 0) and (pv[nonzeros[0]] < 0):
+                self._periodicity_vectors[ipv] = -pv
+        self._periodicity_vectors = sorted(self._periodicity_vectors, key=lambda x: x.tolist())
 
     @property
     def periodicity_vectors(self):
