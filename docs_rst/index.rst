@@ -7,5 +7,6 @@
    usage
    team
    references
+   API Docs<modules>
 
 .. include:: introduction.rst
