@@ -209,7 +209,7 @@ List of Developers (A–Z)
    :alt: ORCID profile for 0000-0002-2516-9553
 
 
-**Dan Gunterr** |dangunter| |0000-0002-2779-2744|
+**Dan Gunter** |dangunter| |0000-0002-2779-2744|
 
 | LBNL
 .. |dangunter| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
@@ -624,7 +624,6 @@ List of Developers (A–Z)
 
 **Nils Zimmermann** |nisse3000| |0000-0003-1063-5926|
 
-| My kid (parental leave)
 .. |nisse3000| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
    :target: https://github.com/nisse3000
    :width: 16
