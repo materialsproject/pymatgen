@@ -392,7 +392,7 @@ class PhaseDiagramTest(unittest.TestCase):
                     Element("O"): -6.969907375000003}
 
         for elem, energy in cpresult.items():
-            self.assertAlmostEqual(cp1['FeO-LiFeO2-Fe3O4'][elem], energy)
+            self.assertAlmostEqual(cp1['Fe3O4-FeO-LiFeO2'][elem], energy)
 
         cp2 = self.pd.get_all_chempots(c2)
         cpresult = {Element("O"): -7.115354140000001,
