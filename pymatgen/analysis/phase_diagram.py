@@ -329,7 +329,9 @@ class PhaseDiagram(MSONable):
                 energy, energy_per_atom and composition.
             elements ([Element]): Optional list of elements in the phase
                 diagram. If set to None, the elements are determined from
-                the the entries themselves.
+                the the entries themselves and are sorted alphabetically.
+                If specified, element ordering (e.g. for pd coordinates)
+                is preserved.
         """
         if elements is None:
             elements = set()
