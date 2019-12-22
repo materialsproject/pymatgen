@@ -335,7 +335,8 @@ class PhaseDiagram(MSONable):
             elements = set()
             for entry in entries:
                 elements.update(entry.composition.elements)
-        elements = list(elements)
+            elements = sorted(list(elements))
+
         dim = len(elements)
 
         entries = sorted(entries, key=lambda e: e.composition.reduced_composition)
