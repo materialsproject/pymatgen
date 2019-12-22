@@ -269,7 +269,7 @@ class BalancedReaction(MSONable):
         """
         Args:
             d (dict): from as_dict()
-        
+
         Returns:
             A BalancedReaction object.
         """
@@ -415,7 +415,7 @@ class Reaction(BalancedReaction):
         """
         Args:
             d (dict): from as_dict()
-        
+
         Returns:
             A Reaction object.
         """
@@ -433,7 +433,7 @@ class ReactionError(Exception):
     def __init__(self, msg):
         """
         Create a ReactionError.
-        
+
         Args:
             msg (str): More information about the ReactionError.
         """
@@ -513,7 +513,7 @@ class ComputedReaction(Reaction):
         """
         Args:
             d (dict): from as_dict()
-        
+
         Returns:
             A ComputedReaction object.
         """
