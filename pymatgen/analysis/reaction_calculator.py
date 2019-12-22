@@ -2,6 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module provides classes that define a chemical reaction.
+"""
 
 import logging
 import numpy as np
@@ -14,10 +17,6 @@ from monty.json import MontyDecoder
 from monty.fractions import gcd_float
 
 from itertools import combinations, chain
-
-"""
-This module provides classes that define a chemical reaction.
-"""
 
 
 __author__ = "Shyue Ping Ong, Anubhav Jain"
@@ -250,6 +249,10 @@ class BalancedReaction(MSONable):
         return entry
 
     def as_dict(self):
+        """
+        Returns:
+            A dictionary representation of BalancedReaction.
+        """
         return {
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
@@ -263,6 +266,13 @@ class BalancedReaction(MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Args:
+            d (dict): from as_dict()
+        
+        Returns:
+            A BalancedReaction object.
+        """
         reactants = {Composition(comp): coeff for comp, coeff in d["reactants"].items()}
         products = {Composition(comp): coeff for comp, coeff in d["products"].items()}
         return cls(reactants, products)
@@ -389,6 +399,10 @@ class Reaction(BalancedReaction):
         return Reaction(self.reactants, self.products)
 
     def as_dict(self):
+        """
+        Returns:
+            A dictionary representation of Reaction.
+        """
         return {
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
@@ -398,6 +412,13 @@ class Reaction(BalancedReaction):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Args:
+            d (dict): from as_dict()
+        
+        Returns:
+            A Reaction object.
+        """
         reactants = [Composition(sym_amt) for sym_amt in d["reactants"]]
         products = [Composition(sym_amt) for sym_amt in d["products"]]
         return cls(reactants, products)
@@ -410,6 +431,12 @@ class ReactionError(Exception):
     """
 
     def __init__(self, msg):
+        """
+        Create a ReactionError.
+        
+        Args:
+            msg (str): More information about the ReactionError.
+        """
         self.msg = msg
 
     def __str__(self):
@@ -456,6 +483,10 @@ class ComputedReaction(Reaction):
 
     @property
     def calculated_reaction_energy(self):
+        """
+        Returns (float):
+            The calculated reaction energy.
+        """
         calc_energies = {}
 
         for entry in self._reactant_entries + self._product_entries:
@@ -466,6 +497,10 @@ class ComputedReaction(Reaction):
         return self.calculate_energy(calc_energies)
 
     def as_dict(self):
+        """
+        Returns:
+            A dictionary representation of ComputedReaction.
+        """
         return {
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
@@ -475,6 +510,13 @@ class ComputedReaction(Reaction):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Args:
+            d (dict): from as_dict()
+        
+        Returns:
+            A ComputedReaction object.
+        """
         dec = MontyDecoder()
         reactants = [dec.process_decoded(e) for e in d["reactants"]]
         products = [dec.process_decoded(e) for e in d["products"]]
