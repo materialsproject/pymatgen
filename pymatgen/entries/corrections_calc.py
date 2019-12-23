@@ -61,9 +61,9 @@ class CorrectionCalculator:
         "Fe",
         "Co",
         "Ni",
-        "Cu",
+        "W",
         "Mo",
-        "H"
+        "H",
     ]  # species that we're fitting corrections for
 
     def __init__(self, exp_gz: str, comp_gz: str) -> None:
@@ -167,7 +167,9 @@ class CorrectionCalculator:
         sigma[sigma == 0] = np.nan
 
         with w.catch_warnings():
-            w.simplefilter("ignore", category=RuntimeWarning)  # numpy raises warning if the entire array is nan values
+            w.simplefilter(
+                "ignore", category=RuntimeWarning
+            )  # numpy raises warning if the entire array is nan values
             mean_uncer = np.nanmean(sigma)
 
         sigma = np.where(np.isnan(sigma), mean_uncer, sigma)
@@ -365,7 +367,7 @@ class CorrectionCalculator:
             comp_corr[elem] = self.corrections_dict[elem][0]
             comp_corr_error[elem] = self.corrections_dict[elem][1]
 
-        for elem in ["V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Mo"]:
+        for elem in ["V", "Cr", "Mn", "Fe", "Co", "Ni", "W", "Mo"]:
             o[elem] = self.corrections_dict[elem][0]
             f[elem] = self.corrections_dict[elem][0]
 
