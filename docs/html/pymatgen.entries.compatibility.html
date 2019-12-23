@@ -8,10 +8,12 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.entries.compatibility module &mdash; pymatgen 2019.12.3 documentation</title>
+  <title>pymatgen.entries.compatibility module &mdash; pymatgen 2019.12.22 documentation</title>
   
 
   
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
   
   
   
@@ -39,6 +41,8 @@
   <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.entries.computed_entries module" href="pymatgen.entries.computed_entries.html" />
+    <link rel="prev" title="pymatgen.entries package" href="pymatgen.entries.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -69,7 +73,7 @@
             
             
               <div class="version">
-                2019.12.3
+                2019.12.22
               </div>
             
           
@@ -93,22 +97,40 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Requirements</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html#conda-based-install">Conda-based install</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html#potcar-setup">POTCAR Setup</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html#setup-for-developers-using-github">Setup for Developers (using GitHub)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html#installation-tips-for-optional-libraries">Installation tips for optional libraries</a></li>
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
 </ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#side-note-as-dict-from-dict">Side-note : as_dict / from_dict</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#structures-and-molecules">Structures and Molecules</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#entries-basic-analysis-unit">Entries - Basic analysis unit</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#pymatgen-borg-high-throughput-data-assimilation">pymatgen.borg - High-throughput data assimilation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#pymatgen-transformations">pymatgen.transformations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#pymatgen-alchemy-high-throughput-transformations">pymatgen.alchemy - High-throughput transformations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#pymatgen-matproj-rest-integration-with-the-materials-project-rest-api">pymatgen.matproj.rest - Integration with the Materials Project REST API</a></li>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 
             
@@ -154,6 +176,12 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.entries.html">pymatgen.entries package</a> &raquo;</li>
+        
       <li>pymatgen.entries.compatibility module</li>
     
     
@@ -181,31 +209,23 @@
 functionals.</p>
 <dl class="class">
 <dt id="pymatgen.entries.compatibility.AnionCorrection">
-<em class="property">class </em><code class="sig-name descname">AnionCorrection</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/entries/compatibility.py#L197-L284"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.AnionCorrection" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">AnionCorrection</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/entries/compatibility.py#L197-L284"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.AnionCorrection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.entries.compatibility.AnionCorrection" title="pymatgen.entries.compatibility.AnionCorrection"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.entries.compatibility.AnionCorrection</span></code></a></p>
 <p>Correct anion energies to obtain the right formation energies. Note that
 this depends on calculations being run within the same input set.</p>
-<p>Pass through…
-:param args:
-:param kwargs:
-:return:</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.entries.compatibility.AqueousCorrection">
-<em class="property">class </em><code class="sig-name descname">AqueousCorrection</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/entries/compatibility.py#L288-L323"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.AqueousCorrection" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">AqueousCorrection</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/entries/compatibility.py#L288-L323"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.AqueousCorrection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.entries.compatibility.AqueousCorrection" title="pymatgen.entries.compatibility.AqueousCorrection"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.entries.compatibility.AqueousCorrection</span></code></a></p>
 <p>This class implements aqueous phase compound corrections for elements
 and H2O.</p>
-<p>Pass through…
-:param args:
-:param kwargs:
-:return:</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.entries.compatibility.Compatibility">
-<em class="property">class </em><code class="sig-name descname">Compatibility</code><span class="sig-paren">(</span><em class="sig-param">corrections: Sequence</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/entries/compatibility.py#L410-L535"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.Compatibility" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Compatibility</code><span class="sig-paren">(</span><em class="sig-param">corrections: Sequence</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/entries/compatibility.py#L410-L535"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.Compatibility" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>The Compatibility class combines a list of corrections to be applied to
 an entry or a set of entries. Note that some of the Corrections have
@@ -221,7 +241,7 @@ MITCompatibility subclasses instead.</p>
 </dl>
 <dl class="method">
 <dt id="pymatgen.entries.compatibility.Compatibility.explain">
-<code class="sig-name descname">explain</code><span class="sig-paren">(</span><em class="sig-param">entry</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/entries/compatibility.py#L513-L535"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.Compatibility.explain" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">explain</code><span class="sig-paren">(</span><em class="sig-param">entry</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/entries/compatibility.py#L513-L535"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.Compatibility.explain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prints an explanation of the corrections that are being applied for a
 given compatibility scheme. Inspired by the “explain” methods in many
 database methodologies.</p>
@@ -234,7 +254,7 @@ database methodologies.</p>
 
 <dl class="method">
 <dt id="pymatgen.entries.compatibility.Compatibility.get_corrections_dict">
-<code class="sig-name descname">get_corrections_dict</code><span class="sig-paren">(</span><em class="sig-param">entry</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/entries/compatibility.py#L446-L461"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.Compatibility.get_corrections_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_corrections_dict</code><span class="sig-paren">(</span><em class="sig-param">entry</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/entries/compatibility.py#L446-L461"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.Compatibility.get_corrections_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the corrections applied to a particular entry.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -251,7 +271,7 @@ database methodologies.</p>
 
 <dl class="method">
 <dt id="pymatgen.entries.compatibility.Compatibility.get_explanation_dict">
-<code class="sig-name descname">get_explanation_dict</code><span class="sig-paren">(</span><em class="sig-param">entry</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/entries/compatibility.py#L476-L511"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.Compatibility.get_explanation_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_explanation_dict</code><span class="sig-paren">(</span><em class="sig-param">entry</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/entries/compatibility.py#L476-L511"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.Compatibility.get_explanation_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provides an explanation dict of the corrections that are being applied
 for a given compatibility scheme. Inspired by the “explain” methods
 in many database methodologies.</p>
@@ -272,7 +292,7 @@ in many database methodologies.</p>
 
 <dl class="method">
 <dt id="pymatgen.entries.compatibility.Compatibility.process_entries">
-<code class="sig-name descname">process_entries</code><span class="sig-paren">(</span><em class="sig-param">entries</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/entries/compatibility.py#L463-L474"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.Compatibility.process_entries" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">process_entries</code><span class="sig-paren">(</span><em class="sig-param">entries</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/entries/compatibility.py#L463-L474"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.Compatibility.process_entries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process a sequence of entries with the chosen Compatibility scheme.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -287,7 +307,7 @@ are not compatible are excluded.</p>
 
 <dl class="method">
 <dt id="pymatgen.entries.compatibility.Compatibility.process_entry">
-<code class="sig-name descname">process_entry</code><span class="sig-paren">(</span><em class="sig-param">entry</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/entries/compatibility.py#L428-L444"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.Compatibility.process_entry" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">process_entry</code><span class="sig-paren">(</span><em class="sig-param">entry</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/entries/compatibility.py#L428-L444"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.Compatibility.process_entry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process a single entry with the chosen Corrections.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -304,7 +324,7 @@ returned.</p>
 
 <dl class="exception">
 <dt id="pymatgen.entries.compatibility.CompatibilityError">
-<em class="property">exception </em><code class="sig-name descname">CompatibilityError</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/entries/compatibility.py#L34-L39"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.CompatibilityError" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="sig-name descname">CompatibilityError</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/entries/compatibility.py#L34-L39"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.CompatibilityError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Exception class for Compatibility. Raised by attempting correction
 on incompatible calculation</p>
@@ -312,7 +332,7 @@ on incompatible calculation</p>
 
 <dl class="class">
 <dt id="pymatgen.entries.compatibility.Correction">
-<em class="property">class </em><code class="sig-name descname">Correction</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/entries/compatibility.py#L42-L80"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.Correction" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Correction</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/entries/compatibility.py#L42-L80"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.Correction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A Correction class is a pre-defined scheme for correction a computed
 entry based on the type and chemistry of the structure and the
@@ -320,7 +340,7 @@ calculation parameters. All Correction classes must implement a
 correct_entry method.</p>
 <dl class="method">
 <dt id="pymatgen.entries.compatibility.Correction.correct_entry">
-<code class="sig-name descname">correct_entry</code><span class="sig-paren">(</span><em class="sig-param">entry</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/entries/compatibility.py#L66-L80"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.Correction.correct_entry" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">correct_entry</code><span class="sig-paren">(</span><em class="sig-param">entry</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/entries/compatibility.py#L66-L80"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.Correction.correct_entry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Corrects a single entry.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -337,7 +357,7 @@ correct_entry method.</p>
 
 <dl class="method">
 <dt id="pymatgen.entries.compatibility.Correction.get_correction">
-<em class="property">abstract </em><code class="sig-name descname">get_correction</code><span class="sig-paren">(</span><em class="sig-param">entry</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/entries/compatibility.py#L50-L64"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.Correction.get_correction" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">get_correction</code><span class="sig-paren">(</span><em class="sig-param">entry</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/entries/compatibility.py#L50-L64"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.Correction.get_correction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns correction for a single entry.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -356,19 +376,15 @@ correct_entry method.</p>
 
 <dl class="class">
 <dt id="pymatgen.entries.compatibility.GasCorrection">
-<em class="property">class </em><code class="sig-name descname">GasCorrection</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/entries/compatibility.py#L163-L193"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.GasCorrection" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">GasCorrection</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/entries/compatibility.py#L163-L193"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.GasCorrection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.entries.compatibility.GasCorrection" title="pymatgen.entries.compatibility.GasCorrection"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.entries.compatibility.GasCorrection</span></code></a></p>
 <p>Correct gas energies to obtain the right formation energies. Note that
 this depends on calculations being run within the same input set.</p>
-<p>Pass through…
-:param args:
-:param kwargs:
-:return:</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.entries.compatibility.MITAqueousCompatibility">
-<em class="property">class </em><code class="sig-name descname">MITAqueousCompatibility</code><span class="sig-paren">(</span><em class="sig-param">compat_type='Advanced'</em>, <em class="sig-param">correct_peroxide=True</em>, <em class="sig-param">check_potcar_hash=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/entries/compatibility.py#L607-L638"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.MITAqueousCompatibility" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">MITAqueousCompatibility</code><span class="sig-paren">(</span><em class="sig-param">compat_type='Advanced'</em>, <em class="sig-param">correct_peroxide=True</em>, <em class="sig-param">check_potcar_hash=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/entries/compatibility.py#L607-L638"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.MITAqueousCompatibility" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.entries.compatibility.Compatibility" title="pymatgen.entries.compatibility.Compatibility"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.entries.compatibility.Compatibility</span></code></a></p>
 <p>This class implements the GGA/GGA+U mixing scheme, which allows mixing of
 entries. Note that this should only be used for VASP calculations using the
@@ -394,7 +410,7 @@ corrections are to be applied or not.</p></li>
 
 <dl class="class">
 <dt id="pymatgen.entries.compatibility.MITCompatibility">
-<em class="property">class </em><code class="sig-name descname">MITCompatibility</code><span class="sig-paren">(</span><em class="sig-param">compat_type='Advanced'</em>, <em class="sig-param">correct_peroxide=True</em>, <em class="sig-param">check_potcar_hash=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/entries/compatibility.py#L573-L604"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.MITCompatibility" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">MITCompatibility</code><span class="sig-paren">(</span><em class="sig-param">compat_type='Advanced'</em>, <em class="sig-param">correct_peroxide=True</em>, <em class="sig-param">check_potcar_hash=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/entries/compatibility.py#L573-L604"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.MITCompatibility" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.entries.compatibility.Compatibility" title="pymatgen.entries.compatibility.Compatibility"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.entries.compatibility.Compatibility</span></code></a></p>
 <p>This class implements the GGA/GGA+U mixing scheme, which allows mixing of
 entries. Note that this should only be used for VASP calculations using the
@@ -420,7 +436,7 @@ corrections are to be applied or not.</p></li>
 
 <dl class="class">
 <dt id="pymatgen.entries.compatibility.MaterialsProjectAqueousCompatibility">
-<em class="property">class </em><code class="sig-name descname">MaterialsProjectAqueousCompatibility</code><span class="sig-paren">(</span><em class="sig-param">compat_type='Advanced'</em>, <em class="sig-param">correct_peroxide=True</em>, <em class="sig-param">check_potcar_hash=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/entries/compatibility.py#L641-L673"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.MaterialsProjectAqueousCompatibility" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">MaterialsProjectAqueousCompatibility</code><span class="sig-paren">(</span><em class="sig-param">compat_type='Advanced'</em>, <em class="sig-param">correct_peroxide=True</em>, <em class="sig-param">check_potcar_hash=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/entries/compatibility.py#L641-L673"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.MaterialsProjectAqueousCompatibility" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.entries.compatibility.Compatibility" title="pymatgen.entries.compatibility.Compatibility"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.entries.compatibility.Compatibility</span></code></a></p>
 <p>This class implements the GGA/GGA+U mixing scheme, which allows mixing of
 entries. Note that this should only be used for VASP calculations using the
@@ -447,7 +463,7 @@ corrections are to be applied or not.</p></li>
 
 <dl class="class">
 <dt id="pymatgen.entries.compatibility.MaterialsProjectCompatibility">
-<em class="property">class </em><code class="sig-name descname">MaterialsProjectCompatibility</code><span class="sig-paren">(</span><em class="sig-param">compat_type='Advanced'</em>, <em class="sig-param">correct_peroxide=True</em>, <em class="sig-param">check_potcar_hash=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/entries/compatibility.py#L538-L570"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.MaterialsProjectCompatibility" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">MaterialsProjectCompatibility</code><span class="sig-paren">(</span><em class="sig-param">compat_type='Advanced'</em>, <em class="sig-param">correct_peroxide=True</em>, <em class="sig-param">check_potcar_hash=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/entries/compatibility.py#L538-L570"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.MaterialsProjectCompatibility" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.entries.compatibility.Compatibility" title="pymatgen.entries.compatibility.Compatibility"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.entries.compatibility.Compatibility</span></code></a></p>
 <p>This class implements the GGA/GGA+U mixing scheme, which allows mixing of
 entries. Note that this should only be used for VASP calculations using the
@@ -474,7 +490,7 @@ corrections are to be applied or not.</p></li>
 
 <dl class="class">
 <dt id="pymatgen.entries.compatibility.PotcarCorrection">
-<em class="property">class </em><code class="sig-name descname">PotcarCorrection</code><span class="sig-paren">(</span><em class="sig-param">input_set</em>, <em class="sig-param">check_hash=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/entries/compatibility.py#L83-L159"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.PotcarCorrection" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">PotcarCorrection</code><span class="sig-paren">(</span><em class="sig-param">input_set</em>, <em class="sig-param">check_hash=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/entries/compatibility.py#L83-L159"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.PotcarCorrection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.entries.compatibility.Correction" title="pymatgen.entries.compatibility.Correction"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.entries.compatibility.Correction</span></code></a></p>
 <p>Checks that POTCARs are valid within a pre-defined input set. This
 ensures that calculations performed using different InputSets are not
@@ -503,7 +519,7 @@ Defaults to True</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.entries.compatibility.PotcarCorrection.get_correction">
-<code class="sig-name descname">get_correction</code><span class="sig-paren">(</span><em class="sig-param">entry</em><span class="sig-paren">)</span> &#x2192; float<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/entries/compatibility.py#L130-L156"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.PotcarCorrection.get_correction" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_correction</code><span class="sig-paren">(</span><em class="sig-param">entry</em><span class="sig-paren">)</span> &#x2192; float<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/entries/compatibility.py#L130-L156"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.PotcarCorrection.get_correction" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>entry</strong> – A ComputedEntry/ComputedStructureEntry</p>
@@ -518,7 +534,7 @@ Defaults to True</p></li>
 
 <dl class="class">
 <dt id="pymatgen.entries.compatibility.UCorrection">
-<em class="property">class </em><code class="sig-name descname">UCorrection</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/entries/compatibility.py#L327-L407"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.UCorrection" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">UCorrection</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/entries/compatibility.py#L327-L407"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.UCorrection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.entries.compatibility.UCorrection" title="pymatgen.entries.compatibility.UCorrection"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.entries.compatibility.UCorrection</span></code></a></p>
 <p>This class implements the GGA/GGA+U mixing scheme, which allows mixing of
 entries. Entry.parameters must contain a “hubbards” key which is a dict
@@ -530,10 +546,6 @@ If the “hubbards” key is missing, a GGA run is assumed.</p>
 pymatgen.apps.borg package and obtained via the MaterialsProject REST
 interface using the pymatgen.matproj.rest package will automatically have
 these fields populated.</p>
-<p>Pass through…
-:param args:
-:param kwargs:
-:return:</p>
 </dd></dl>
 
 </div>

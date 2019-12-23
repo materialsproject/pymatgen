@@ -8,10 +8,12 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.analysis.fragmenter module &mdash; pymatgen 2019.12.3 documentation</title>
+  <title>pymatgen.analysis.fragmenter module &mdash; pymatgen 2019.12.22 documentation</title>
   
 
   
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
   
   
   
@@ -39,6 +41,8 @@
   <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.analysis.functional_groups module" href="pymatgen.analysis.functional_groups.html" />
+    <link rel="prev" title="pymatgen.analysis.find_dimension module" href="pymatgen.analysis.find_dimension.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -69,7 +73,7 @@
             
             
               <div class="version">
-                2019.12.3
+                2019.12.22
               </div>
             
           
@@ -93,22 +97,40 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Requirements</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html#conda-based-install">Conda-based install</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html#potcar-setup">POTCAR Setup</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html#setup-for-developers-using-github">Setup for Developers (using GitHub)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html#installation-tips-for-optional-libraries">Installation tips for optional libraries</a></li>
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
 </ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#side-note-as-dict-from-dict">Side-note : as_dict / from_dict</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#structures-and-molecules">Structures and Molecules</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#entries-basic-analysis-unit">Entries - Basic analysis unit</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#pymatgen-borg-high-throughput-data-assimilation">pymatgen.borg - High-throughput data assimilation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#pymatgen-transformations">pymatgen.transformations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#pymatgen-alchemy-high-throughput-transformations">pymatgen.alchemy - High-throughput transformations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#pymatgen-matproj-rest-integration-with-the-materials-project-rest-api">pymatgen.matproj.rest - Integration with the Materials Project REST API</a></li>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 
             
@@ -154,6 +176,12 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.analysis.html">pymatgen.analysis package</a> &raquo;</li>
+        
       <li>pymatgen.analysis.fragmenter module</li>
     
     
@@ -180,7 +208,7 @@
 <p>Perform fragmentation of molecules.</p>
 <dl class="class">
 <dt id="pymatgen.analysis.fragmenter.Fragmenter">
-<em class="property">class </em><code class="sig-name descname">Fragmenter</code><span class="sig-paren">(</span><em class="sig-param">molecule</em>, <em class="sig-param">edges=None</em>, <em class="sig-param">depth=1</em>, <em class="sig-param">open_rings=False</em>, <em class="sig-param">use_metal_edge_extender=False</em>, <em class="sig-param">opt_steps=10000</em>, <em class="sig-param">prev_unique_frag_dict=None</em>, <em class="sig-param">assume_previous_thoroughness=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/analysis/fragmenter.py#L27-L285"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.fragmenter.Fragmenter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Fragmenter</code><span class="sig-paren">(</span><em class="sig-param">molecule</em>, <em class="sig-param">edges=None</em>, <em class="sig-param">depth=1</em>, <em class="sig-param">open_rings=False</em>, <em class="sig-param">use_metal_edge_extender=False</em>, <em class="sig-param">opt_steps=10000</em>, <em class="sig-param">prev_unique_frag_dict=None</em>, <em class="sig-param">assume_previous_thoroughness=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/analysis/fragmenter.py#L27-L285"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.fragmenter.Fragmenter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Molecule fragmenter class.</p>
 <p>Standard constructor for molecule fragmentation</p>
@@ -224,13 +252,13 @@ miss some unique subfragments.</p></li>
 
 <dl class="function">
 <dt id="pymatgen.analysis.fragmenter.metal_edge_extender">
-<code class="sig-name descname">metal_edge_extender</code><span class="sig-paren">(</span><em class="sig-param">mol_graph</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/analysis/fragmenter.py#L303-L341"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.fragmenter.metal_edge_extender" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">metal_edge_extender</code><span class="sig-paren">(</span><em class="sig-param">mol_graph</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/analysis/fragmenter.py#L303-L341"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.fragmenter.metal_edge_extender" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function to identify and add missed edges in ionic bonding of Li and Mg ions.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.analysis.fragmenter.open_ring">
-<code class="sig-name descname">open_ring</code><span class="sig-paren">(</span><em class="sig-param">mol_graph</em>, <em class="sig-param">bond</em>, <em class="sig-param">opt_steps</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/analysis/fragmenter.py#L288-L300"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.fragmenter.open_ring" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">open_ring</code><span class="sig-paren">(</span><em class="sig-param">mol_graph</em>, <em class="sig-param">bond</em>, <em class="sig-param">opt_steps</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/analysis/fragmenter.py#L288-L300"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.fragmenter.open_ring" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function to actually open a ring using OpenBabel’s local opt. Given a molecule
 graph and a bond, convert the molecule graph into an OpenBabel molecule, remove
 the given bond, perform the local opt with the number of steps determined by

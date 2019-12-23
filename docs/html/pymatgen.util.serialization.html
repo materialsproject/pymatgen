@@ -8,10 +8,12 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.util.serialization module &mdash; pymatgen 2019.12.3 documentation</title>
+  <title>pymatgen.util.serialization module &mdash; pymatgen 2019.12.22 documentation</title>
   
 
   
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
   
   
   
@@ -39,6 +41,8 @@
   <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.util.string module" href="pymatgen.util.string.html" />
+    <link rel="prev" title="pymatgen.util.sequence module" href="pymatgen.util.sequence.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -69,7 +73,7 @@
             
             
               <div class="version">
-                2019.12.3
+                2019.12.22
               </div>
             
           
@@ -93,22 +97,40 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Requirements</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html#conda-based-install">Conda-based install</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html#potcar-setup">POTCAR Setup</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html#setup-for-developers-using-github">Setup for Developers (using GitHub)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html#installation-tips-for-optional-libraries">Installation tips for optional libraries</a></li>
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
 </ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#side-note-as-dict-from-dict">Side-note : as_dict / from_dict</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#structures-and-molecules">Structures and Molecules</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#entries-basic-analysis-unit">Entries - Basic analysis unit</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#pymatgen-borg-high-throughput-data-assimilation">pymatgen.borg - High-throughput data assimilation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#pymatgen-transformations">pymatgen.transformations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#pymatgen-alchemy-high-throughput-transformations">pymatgen.alchemy - High-throughput transformations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#pymatgen-matproj-rest-integration-with-the-materials-project-rest-api">pymatgen.matproj.rest - Integration with the Materials Project REST API</a></li>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 
             
@@ -154,6 +176,12 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.util.html">pymatgen.util package</a> &raquo;</li>
+        
       <li>pymatgen.util.serialization module</li>
     
     
@@ -181,13 +209,13 @@
 monty.json and monty.serialization documentation.</p>
 <dl class="class">
 <dt id="pymatgen.util.serialization.PmgPickler">
-<em class="property">class </em><code class="sig-name descname">PmgPickler</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/util/serialization.py#L52-L68"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.PmgPickler" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">PmgPickler</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/util/serialization.py#L52-L68"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.PmgPickler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_pickle.Pickler</span></code></p>
 <p>Persistence of External Objects as described in section 12.1.5.1 of
 <a class="reference external" href="https://docs.python.org/3/library/pickle.html">https://docs.python.org/3/library/pickle.html</a></p>
 <dl class="method">
 <dt id="pymatgen.util.serialization.PmgPickler.persistent_id">
-<code class="sig-name descname">persistent_id</code><span class="sig-paren">(</span><em class="sig-param">obj</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/util/serialization.py#L58-L68"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.PmgPickler.persistent_id" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">persistent_id</code><span class="sig-paren">(</span><em class="sig-param">obj</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/util/serialization.py#L58-L68"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.PmgPickler.persistent_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Instead of pickling as a regular class instance, we emit a
 persistent ID.</p>
 </dd></dl>
@@ -196,13 +224,13 @@ persistent ID.</p>
 
 <dl class="class">
 <dt id="pymatgen.util.serialization.PmgUnpickler">
-<em class="property">class </em><code class="sig-name descname">PmgUnpickler</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/util/serialization.py#L71-L98"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.PmgUnpickler" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">PmgUnpickler</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/util/serialization.py#L71-L98"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.PmgUnpickler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_pickle.Unpickler</span></code></p>
 <p>Persistence of External Objects as described in section 12.1.5.1 of
 <a class="reference external" href="https://docs.python.org/3/library/pickle.html">https://docs.python.org/3/library/pickle.html</a></p>
 <dl class="method">
 <dt id="pymatgen.util.serialization.PmgUnpickler.persistent_load">
-<code class="sig-name descname">persistent_load</code><span class="sig-paren">(</span><em class="sig-param">pid</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/util/serialization.py#L77-L98"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.PmgUnpickler.persistent_load" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">persistent_load</code><span class="sig-paren">(</span><em class="sig-param">pid</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/util/serialization.py#L77-L98"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.PmgUnpickler.persistent_load" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method is invoked whenever a persistent ID is encountered.
 Here, pid is the tuple returned by PmgPickler.</p>
 </dd></dl>
@@ -211,7 +239,7 @@ Here, pid is the tuple returned by PmgPickler.</p>
 
 <dl class="class">
 <dt id="pymatgen.util.serialization.SlotPickleMixin">
-<em class="property">class </em><code class="sig-name descname">SlotPickleMixin</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/util/serialization.py#L127-L141"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.SlotPickleMixin" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">SlotPickleMixin</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/util/serialization.py#L127-L141"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.SlotPickleMixin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This mixin makes it possible to pickle/unpickle objects with __slots__
 defined.</p>
@@ -219,14 +247,14 @@ defined.</p>
 
 <dl class="function">
 <dt id="pymatgen.util.serialization.json_pretty_dump">
-<code class="sig-name descname">json_pretty_dump</code><span class="sig-paren">(</span><em class="sig-param">obj</em>, <em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/util/serialization.py#L43-L49"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.json_pretty_dump" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">json_pretty_dump</code><span class="sig-paren">(</span><em class="sig-param">obj</em>, <em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/util/serialization.py#L43-L49"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.json_pretty_dump" title="Permalink to this definition">¶</a></dt>
 <dd><p>Serialize obj as a JSON formatted stream to the given filename (
 pretty printing version)</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.serialization.pmg_pickle_dump">
-<code class="sig-name descname">pmg_pickle_dump</code><span class="sig-paren">(</span><em class="sig-param">obj</em>, <em class="sig-param">filobj</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/util/serialization.py#L115-L124"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.pmg_pickle_dump" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">pmg_pickle_dump</code><span class="sig-paren">(</span><em class="sig-param">obj</em>, <em class="sig-param">filobj</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/util/serialization.py#L115-L124"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.pmg_pickle_dump" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dump an object to a pickle file using PmgPickler.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -241,7 +269,7 @@ pretty printing version)</p>
 
 <dl class="function">
 <dt id="pymatgen.util.serialization.pmg_pickle_load">
-<code class="sig-name descname">pmg_pickle_load</code><span class="sig-paren">(</span><em class="sig-param">filobj</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/util/serialization.py#L101-L112"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.pmg_pickle_load" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">pmg_pickle_load</code><span class="sig-paren">(</span><em class="sig-param">filobj</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/util/serialization.py#L101-L112"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.pmg_pickle_load" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads a pickle file and deserialize it with PmgUnpickler.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -258,7 +286,7 @@ pretty printing version)</p>
 
 <dl class="function">
 <dt id="pymatgen.util.serialization.pmg_serialize">
-<code class="sig-name descname">pmg_serialize</code><span class="sig-paren">(</span><em class="sig-param">method</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/util/serialization.py#L25-L40"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.pmg_serialize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">pmg_serialize</code><span class="sig-paren">(</span><em class="sig-param">method</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/util/serialization.py#L25-L40"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.serialization.pmg_serialize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decorator for methods that add MSON serializations keys
 to the dictionary. See documentation of MSON for more details</p>
 </dd></dl>

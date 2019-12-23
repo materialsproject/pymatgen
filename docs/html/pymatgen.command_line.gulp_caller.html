@@ -8,10 +8,12 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.command_line.gulp_caller module &mdash; pymatgen 2019.12.3 documentation</title>
+  <title>pymatgen.command_line.gulp_caller module &mdash; pymatgen 2019.12.22 documentation</title>
   
 
   
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
   
   
   
@@ -39,6 +41,8 @@
   <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.command_line.mcsqs_caller module" href="pymatgen.command_line.mcsqs_caller.html" />
+    <link rel="prev" title="pymatgen.command_line.enumlib_caller module" href="pymatgen.command_line.enumlib_caller.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -69,7 +73,7 @@
             
             
               <div class="version">
-                2019.12.3
+                2019.12.22
               </div>
             
           
@@ -93,22 +97,40 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Requirements</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html#conda-based-install">Conda-based install</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html#potcar-setup">POTCAR Setup</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html#setup-for-developers-using-github">Setup for Developers (using GitHub)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html#installation-tips-for-optional-libraries">Installation tips for optional libraries</a></li>
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
 </ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#side-note-as-dict-from-dict">Side-note : as_dict / from_dict</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#structures-and-molecules">Structures and Molecules</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#entries-basic-analysis-unit">Entries - Basic analysis unit</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#pymatgen-borg-high-throughput-data-assimilation">pymatgen.borg - High-throughput data assimilation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#pymatgen-transformations">pymatgen.transformations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#pymatgen-alchemy-high-throughput-transformations">pymatgen.alchemy - High-throughput transformations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#pymatgen-matproj-rest-integration-with-the-materials-project-rest-api">pymatgen.matproj.rest - Integration with the Materials Project REST API</a></li>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 
             
@@ -154,6 +176,12 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.command_line.html">pymatgen.command_line package</a> &raquo;</li>
+        
       <li>pymatgen.command_line.gulp_caller module</li>
     
     
@@ -182,7 +210,7 @@
 WARNING: you need to have GULP installed on your system.</p>
 <dl class="class">
 <dt id="pymatgen.command_line.gulp_caller.BuckinghamPotential">
-<em class="property">class </em><code class="sig-name descname">BuckinghamPotential</code><span class="sig-paren">(</span><em class="sig-param">bush_lewis_flag</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/command_line/gulp_caller.py#L626-L700"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.BuckinghamPotential" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">BuckinghamPotential</code><span class="sig-paren">(</span><em class="sig-param">bush_lewis_flag</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/command_line/gulp_caller.py#L626-L700"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.BuckinghamPotential" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Generate the Buckingham Potential Table from the bush.lib and lewis.lib.</p>
 <p>Ref:
@@ -194,7 +222,7 @@ G.V. Lewis and C.R.A. Catlow, J. Phys. C: Solid State Phys., 18,
 
 <dl class="class">
 <dt id="pymatgen.command_line.gulp_caller.GulpCaller">
-<em class="property">class </em><code class="sig-name descname">GulpCaller</code><span class="sig-paren">(</span><em class="sig-param">cmd='gulp'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/command_line/gulp_caller.py#L462-L534"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpCaller" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">GulpCaller</code><span class="sig-paren">(</span><em class="sig-param">cmd='gulp'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/command_line/gulp_caller.py#L462-L534"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpCaller" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to run gulp from commandline</p>
 <p>Initialize with the executable if not in the standard path</p>
@@ -205,7 +233,7 @@ G.V. Lewis and C.R.A. Catlow, J. Phys. C: Solid State Phys., 18,
 </dl>
 <dl class="method">
 <dt id="pymatgen.command_line.gulp_caller.GulpCaller.run">
-<code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param">gin</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/command_line/gulp_caller.py#L492-L534"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpCaller.run" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param">gin</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/command_line/gulp_caller.py#L492-L534"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpCaller.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run GULP using the gin as input</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -224,7 +252,7 @@ G.V. Lewis and C.R.A. Catlow, J. Phys. C: Solid State Phys., 18,
 
 <dl class="exception">
 <dt id="pymatgen.command_line.gulp_caller.GulpConvergenceError">
-<em class="property">exception </em><code class="sig-name descname">GulpConvergenceError</code><span class="sig-paren">(</span><em class="sig-param">msg=''</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/command_line/gulp_caller.py#L612-L623"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpConvergenceError" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="sig-name descname">GulpConvergenceError</code><span class="sig-paren">(</span><em class="sig-param">msg=''</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/command_line/gulp_caller.py#L612-L623"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpConvergenceError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Exception class for GULP.
 Raised when proper convergence is not reached in Mott-Littleton
@@ -233,7 +261,7 @@ defect energy optimisation procedure in GULP</p>
 
 <dl class="exception">
 <dt id="pymatgen.command_line.gulp_caller.GulpError">
-<em class="property">exception </em><code class="sig-name descname">GulpError</code><span class="sig-paren">(</span><em class="sig-param">msg</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/command_line/gulp_caller.py#L599-L609"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpError" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="sig-name descname">GulpError</code><span class="sig-paren">(</span><em class="sig-param">msg</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/command_line/gulp_caller.py#L599-L609"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Exception class for GULP.
 Raised when the GULP gives an error</p>
@@ -241,12 +269,12 @@ Raised when the GULP gives an error</p>
 
 <dl class="class">
 <dt id="pymatgen.command_line.gulp_caller.GulpIO">
-<em class="property">class </em><code class="sig-name descname">GulpIO</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/command_line/gulp_caller.py#L79-L459"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">GulpIO</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/command_line/gulp_caller.py#L79-L459"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>To generate GULP input and process output</p>
 <dl class="method">
 <dt id="pymatgen.command_line.gulp_caller.GulpIO.buckingham_input">
-<code class="sig-name descname">buckingham_input</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">keywords</em>, <em class="sig-param">library=None</em>, <em class="sig-param">uc=True</em>, <em class="sig-param">valence_dict=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/command_line/gulp_caller.py#L218-L237"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.buckingham_input" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">buckingham_input</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">keywords</em>, <em class="sig-param">library=None</em>, <em class="sig-param">uc=True</em>, <em class="sig-param">valence_dict=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/command_line/gulp_caller.py#L218-L237"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.buckingham_input" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets a GULP input for an oxide structure and buckingham potential
 from library.</p>
 <dl class="field-list simple">
@@ -264,7 +292,7 @@ from library.</p>
 
 <dl class="method">
 <dt id="pymatgen.command_line.gulp_caller.GulpIO.buckingham_potential">
-<code class="sig-name descname">buckingham_potential</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">val_dict=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/command_line/gulp_caller.py#L239-L308"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.buckingham_potential" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">buckingham_potential</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">val_dict=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/command_line/gulp_caller.py#L239-L308"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.buckingham_potential" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate species, buckingham, and spring options for an oxide structure
 using the parameters in default libraries.</p>
 <dl class="simple">
@@ -289,17 +317,17 @@ dict, where El is element.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.command_line.gulp_caller.GulpIO.get_energy">
-<code class="sig-name descname">get_energy</code><span class="sig-paren">(</span><em class="sig-param">gout</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/command_line/gulp_caller.py#L364-L374"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.get_energy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_energy</code><span class="sig-paren">(</span><em class="sig-param">gout</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/command_line/gulp_caller.py#L364-L374"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.get_energy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.command_line.gulp_caller.GulpIO.get_relaxed_structure">
-<code class="sig-name descname">get_relaxed_structure</code><span class="sig-paren">(</span><em class="sig-param">gout</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/command_line/gulp_caller.py#L376-L459"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.get_relaxed_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_relaxed_structure</code><span class="sig-paren">(</span><em class="sig-param">gout</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/command_line/gulp_caller.py#L376-L459"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.get_relaxed_structure" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.command_line.gulp_caller.GulpIO.keyword_line">
-<code class="sig-name descname">keyword_line</code><span class="sig-paren">(</span><em class="sig-param">*args</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/command_line/gulp_caller.py#L84-L96"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.keyword_line" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">keyword_line</code><span class="sig-paren">(</span><em class="sig-param">*args</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/command_line/gulp_caller.py#L84-L96"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.keyword_line" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if the input args are proper gulp keywords and
 generates the 1st line of gulp input. Full keywords are expected.</p>
 <dl class="field-list simple">
@@ -311,7 +339,7 @@ generates the 1st line of gulp input. Full keywords are expected.</p>
 
 <dl class="method">
 <dt id="pymatgen.command_line.gulp_caller.GulpIO.library_line">
-<code class="sig-name descname">library_line</code><span class="sig-paren">(</span><em class="sig-param">file_name</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/command_line/gulp_caller.py#L183-L216"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.library_line" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">library_line</code><span class="sig-paren">(</span><em class="sig-param">file_name</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/command_line/gulp_caller.py#L183-L216"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.library_line" title="Permalink to this definition">¶</a></dt>
 <dd><p>Specifies GULP library file to read species and potential parameters.
 If using library don’t specify species and potential
 in the input file and vice versa. Make sure the elements of
@@ -328,7 +356,7 @@ structure are in the library file.</p>
 
 <dl class="method">
 <dt id="pymatgen.command_line.gulp_caller.GulpIO.specie_potential_lines">
-<code class="sig-name descname">specie_potential_lines</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">potential</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/command_line/gulp_caller.py#L157-L181"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.specie_potential_lines" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">specie_potential_lines</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">potential</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/command_line/gulp_caller.py#L157-L181"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.specie_potential_lines" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates GULP input specie and potential string for pymatgen
 structure.</p>
 <dl class="field-list simple">
@@ -357,7 +385,7 @@ input.</p>
 
 <dl class="method">
 <dt id="pymatgen.command_line.gulp_caller.GulpIO.structure_lines">
-<code class="sig-name descname">structure_lines</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">cell_flg=True</em>, <em class="sig-param">frac_flg=True</em>, <em class="sig-param">anion_shell_flg=True</em>, <em class="sig-param">cation_shell_flg=False</em>, <em class="sig-param">symm_flg=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/command_line/gulp_caller.py#L98-L155"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.structure_lines" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">structure_lines</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">cell_flg=True</em>, <em class="sig-param">frac_flg=True</em>, <em class="sig-param">anion_shell_flg=True</em>, <em class="sig-param">cation_shell_flg=False</em>, <em class="sig-param">symm_flg=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/command_line/gulp_caller.py#L98-L155"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.structure_lines" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates GULP input string corresponding to pymatgen structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -387,7 +415,7 @@ written.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.command_line.gulp_caller.GulpIO.tersoff_input">
-<code class="sig-name descname">tersoff_input</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">periodic=False</em>, <em class="sig-param">uc=True</em>, <em class="sig-param">*keywords</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/command_line/gulp_caller.py#L310-L329"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.tersoff_input" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">tersoff_input</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">periodic=False</em>, <em class="sig-param">uc=True</em>, <em class="sig-param">*keywords</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/command_line/gulp_caller.py#L310-L329"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.tersoff_input" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets a GULP input with Tersoff potential for an oxide structure</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -405,7 +433,7 @@ boundary conditions are used</p></li>
 
 <dl class="method">
 <dt id="pymatgen.command_line.gulp_caller.GulpIO.tersoff_potential">
-<code class="sig-name descname">tersoff_potential</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/command_line/gulp_caller.py#L331-L362"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.tersoff_potential" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">tersoff_potential</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/command_line/gulp_caller.py#L331-L362"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.tersoff_potential" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate the species, tersoff potential lines for an oxide structure</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -418,14 +446,14 @@ boundary conditions are used</p></li>
 
 <dl class="class">
 <dt id="pymatgen.command_line.gulp_caller.TersoffPotential">
-<em class="property">class </em><code class="sig-name descname">TersoffPotential</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/command_line/gulp_caller.py#L703-L716"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.TersoffPotential" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">TersoffPotential</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/command_line/gulp_caller.py#L703-L716"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.TersoffPotential" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Generate Tersoff Potential Table from “OxideTersoffPotentialentials” file</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.command_line.gulp_caller.get_energy_buckingham">
-<code class="sig-name descname">get_energy_buckingham</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">gulp_cmd='gulp'</em>, <em class="sig-param">keywords=('optimise'</em>, <em class="sig-param">'conp'</em>, <em class="sig-param">'qok')</em>, <em class="sig-param">valence_dict=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/command_line/gulp_caller.py#L552-L571"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.get_energy_buckingham" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_energy_buckingham</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">gulp_cmd='gulp'</em>, <em class="sig-param">keywords=('optimise'</em>, <em class="sig-param">'conp'</em>, <em class="sig-param">'qok')</em>, <em class="sig-param">valence_dict=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/command_line/gulp_caller.py#L552-L571"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.get_energy_buckingham" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the energy of a structure using Buckingham potential.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -442,7 +470,7 @@ neutral.</p></li>
 
 <dl class="function">
 <dt id="pymatgen.command_line.gulp_caller.get_energy_relax_structure_buckingham">
-<code class="sig-name descname">get_energy_relax_structure_buckingham</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">gulp_cmd='gulp'</em>, <em class="sig-param">keywords=('optimise'</em>, <em class="sig-param">'conp')</em>, <em class="sig-param">valence_dict=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/command_line/gulp_caller.py#L574-L596"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.get_energy_relax_structure_buckingham" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_energy_relax_structure_buckingham</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">gulp_cmd='gulp'</em>, <em class="sig-param">keywords=('optimise'</em>, <em class="sig-param">'conp')</em>, <em class="sig-param">valence_dict=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/command_line/gulp_caller.py#L574-L596"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.get_energy_relax_structure_buckingham" title="Permalink to this definition">¶</a></dt>
 <dd><p>Relax a structure and compute the energy using Buckingham potential.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -459,7 +487,7 @@ neutral.</p></li>
 
 <dl class="function">
 <dt id="pymatgen.command_line.gulp_caller.get_energy_tersoff">
-<code class="sig-name descname">get_energy_tersoff</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">gulp_cmd='gulp'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.3/pymatgen/command_line/gulp_caller.py#L537-L549"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.get_energy_tersoff" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_energy_tersoff</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">gulp_cmd='gulp'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/command_line/gulp_caller.py#L537-L549"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.get_energy_tersoff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the energy of a structure using Tersoff potential.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
