@@ -123,6 +123,7 @@ INCAR:
   SIGMA: 0.05
 KPOINTS:
   length: 25
+POTCAR_FUNCTIONAL: PBE
 POTCAR:
   Ac:
     symbol: Ac

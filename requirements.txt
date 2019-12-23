@@ -1,6 +1,6 @@
-numpy==1.17.2
+numpy==1.18.0
 pydispatcher==2.0.5
-sympy==1.4
+sympy==1.5
 requests==2.22.0
 monty==2.0.6
 ruamel.yaml==0.16.5
