@@ -7,6 +7,7 @@ import os
 import xml.etree.cElementTree as ET
 from pymatgen.io.exciting import ExcitingInput
 from pymatgen.core import Structure, Lattice
+from pymatgen.util.testing import PymatgenTest
 
 """
 Tests the module to parse exciting input
@@ -24,7 +25,7 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
 
 
-class ExcitingInputTest(unittest.TestCase):
+class ExcitingInputTest(PymatgenTest):
     def test_fromfile(self):
         # Test for the import of a structure directly from an exciting
         # input file
@@ -33,7 +34,7 @@ class ExcitingInputTest(unittest.TestCase):
         lattice = [[0.0, 2.81, 2.81], [2.81, 0.0, 2.81], [2.81, 2.81, 0.0]]
         atoms = ['Na', 'Cl']
         fraccoords = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]
-        self.assertEqual(lattice, excin.structure.lattice.matrix.tolist())
+        self.assertArrayAlmostEqual(lattice, excin.structure.lattice.matrix.tolist())
         self.assertEqual(atoms,
                          [site.specie.symbol for site in excin.structure])
         self.assertEqual(fraccoords, [site.frac_coords.tolist() for site in
