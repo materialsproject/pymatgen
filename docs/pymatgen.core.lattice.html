@@ -1,20 +1,48 @@
 
-<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta charset="utf-8" />
-    <title>pymatgen.core.lattice module &#8212; pymatgen 2019.11.11 documentation</title>
-    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.core.lattice module &mdash; pymatgen 2019.12.22 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.core.lattice.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.core.libxcfunc module" href="pymatgen.core.libxcfunc.html" />
+    <link rel="prev" title="pymatgen.core.ion module" href="pymatgen.core.ion.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -22,31 +50,165 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
-      </ul>
-    </div>  
+</head>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2019.12.22
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.core.html">pymatgen.core package</a> &raquo;</li>
+        
+      <li>pymatgen.core.lattice module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.core.lattice.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="module-pymatgen.core.lattice">
 <span id="pymatgen-core-lattice-module"></span><h1>pymatgen.core.lattice module<a class="headerlink" href="#module-pymatgen.core.lattice" title="Permalink to this headline">¶</a></h1>
 <p>Defines the classes relating to 3D lattices.</p>
 <dl class="class">
 <dt id="pymatgen.core.lattice.Lattice">
-<em class="property">class </em><code class="sig-name descname">Lattice</code><span class="sig-paren">(</span><em class="sig-param">matrix: Union[List[float], List[List[float]], numpy.ndarray]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Lattice</code><span class="sig-paren">(</span><em class="sig-param">matrix: Union[List[float], List[List[float]], numpy.ndarray]</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L36-L1433"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>A lattice object.  Essentially a matrix with conversion matrices. In
 general, it is assumed that length units are in Angstroms and angles are in
@@ -69,31 +231,31 @@ with lattice vectors [10, 0, 0], [20, 10, 0] and [0, 0, 30].</p>
 </dl>
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.a">
-<em class="property">property </em><code class="sig-name descname">a</code><a class="headerlink" href="#pymatgen.core.lattice.Lattice.a" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">a</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.a" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>a</em> lattice parameter.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.abc">
-<em class="property">property </em><code class="sig-name descname">abc</code><a class="headerlink" href="#pymatgen.core.lattice.Lattice.abc" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">abc</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.abc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Lengths of the lattice vectors, i.e. (a, b, c)</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.alpha">
-<em class="property">property </em><code class="sig-name descname">alpha</code><a class="headerlink" href="#pymatgen.core.lattice.Lattice.alpha" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">alpha</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.alpha" title="Permalink to this definition">¶</a></dt>
 <dd><p>Angle alpha of lattice in degrees.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.angles">
-<em class="property">property </em><code class="sig-name descname">angles</code><a class="headerlink" href="#pymatgen.core.lattice.Lattice.angles" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">angles</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.angles" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the angles (alpha, beta, gamma) of the lattice.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><em class="sig-param">verbosity: int = 0</em><span class="sig-paren">)</span> &#x2192; Dict<a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><em class="sig-param">verbosity: int = 0</em><span class="sig-paren">)</span> &#x2192; Dict<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L543-L571"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Json-serialization dict representation of the Lattice.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -105,31 +267,31 @@ matrix representation. Set to 1 for more details.</p>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.b">
-<em class="property">property </em><code class="sig-name descname">b</code><a class="headerlink" href="#pymatgen.core.lattice.Lattice.b" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">b</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.b" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>b</em> lattice parameter.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.beta">
-<em class="property">property </em><code class="sig-name descname">beta</code><a class="headerlink" href="#pymatgen.core.lattice.Lattice.beta" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">beta</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.beta" title="Permalink to this definition">¶</a></dt>
 <dd><p>Angle beta of lattice in degrees.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.c">
-<em class="property">property </em><code class="sig-name descname">c</code><a class="headerlink" href="#pymatgen.core.lattice.Lattice.c" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">c</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.c" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>c</em> lattice parameter.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.copy">
-<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.copy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L125-L127"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.copy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deep copy of self.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.cubic">
-<em class="property">static </em><code class="sig-name descname">cubic</code><span class="sig-paren">(</span><em class="sig-param">a: float</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.cubic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.cubic" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">cubic</code><span class="sig-paren">(</span><em class="sig-param">a: float</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L210-L221"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.cubic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience constructor for a cubic lattice.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -143,7 +305,7 @@ matrix representation. Set to 1 for more details.</p>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.d_hkl">
-<code class="sig-name descname">d_hkl</code><span class="sig-paren">(</span><em class="sig-param">miller_index: Union[List[float], numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.d_hkl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.d_hkl" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">d_hkl</code><span class="sig-paren">(</span><em class="sig-param">miller_index: Union[List[float], numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; float<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L195-L208"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.d_hkl" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the distance between the hkl plane and the origin</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -157,7 +319,7 @@ matrix representation. Set to 1 for more details.</p>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.dot">
-<code class="sig-name descname">dot</code><span class="sig-paren">(</span><em class="sig-param">coords_a: Union[List[float], numpy.ndarray], coords_b: Union[List[float], numpy.ndarray], frac_coords: bool = False</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.dot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.dot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">dot</code><span class="sig-paren">(</span><em class="sig-param">coords_a: Union[List[float], numpy.ndarray], coords_b: Union[List[float], numpy.ndarray], frac_coords: bool = False</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L1003-L1038"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.dot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the scalar product of vector(s).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -175,7 +337,7 @@ corresponds to fractional or cartesian coordinates.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.find_all_mappings">
-<code class="sig-name descname">find_all_mappings</code><span class="sig-paren">(</span><em class="sig-param">other_lattice: pymatgen.core.lattice.Lattice</em>, <em class="sig-param">ltol: float = 1e-05</em>, <em class="sig-param">atol: float = 1</em>, <em class="sig-param">skip_rotation_matrix: bool = False</em><span class="sig-paren">)</span> &#x2192; Iterator[Tuple[pymatgen.core.lattice.Lattice, Optional[numpy.ndarray], numpy.ndarray]]<a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.find_all_mappings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.find_all_mappings" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">find_all_mappings</code><span class="sig-paren">(</span><em class="sig-param">other_lattice: pymatgen.core.lattice.Lattice</em>, <em class="sig-param">ltol: float = 1e-05</em>, <em class="sig-param">atol: float = 1</em>, <em class="sig-param">skip_rotation_matrix: bool = False</em><span class="sig-paren">)</span> &#x2192; Iterator[Tuple[pymatgen.core.lattice.Lattice, Optional[numpy.ndarray], numpy.ndarray]]<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L573-L650"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.find_all_mappings" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds all mappings between current lattice and another lattice.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters</dt>
@@ -208,7 +370,7 @@ lattice, i.e., aligned_matrix = np.dot(scale_matrix, self.matrix)</p>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.find_mapping">
-<code class="sig-name descname">find_mapping</code><span class="sig-paren">(</span><em class="sig-param">other_lattice: pymatgen.core.lattice.Lattice</em>, <em class="sig-param">ltol: float = 1e-05</em>, <em class="sig-param">atol: float = 1</em>, <em class="sig-param">skip_rotation_matrix: bool = False</em><span class="sig-paren">)</span> &#x2192; Optional[Tuple[pymatgen.core.lattice.Lattice, Optional[numpy.ndarray], numpy.ndarray]]<a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.find_mapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.find_mapping" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">find_mapping</code><span class="sig-paren">(</span><em class="sig-param">other_lattice: pymatgen.core.lattice.Lattice</em>, <em class="sig-param">ltol: float = 1e-05</em>, <em class="sig-param">atol: float = 1</em>, <em class="sig-param">skip_rotation_matrix: bool = False</em><span class="sig-paren">)</span> &#x2192; Optional[Tuple[pymatgen.core.lattice.Lattice, Optional[numpy.ndarray], numpy.ndarray]]<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L652-L691"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.find_mapping" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds a mapping between current lattice and another lattice. There
 are an infinite number of choices of basis vectors for two entirely
 equivalent lattices. This method returns a mapping that maps
@@ -243,7 +405,7 @@ lattice, i.e., aligned_matrix = np.dot(scale_matrix, self.matrix)</p>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.from_dict">
-<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d: Dict</em>, <em class="sig-param">fmt: str = None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d: Dict</em>, <em class="sig-param">fmt: str = None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L368-L391"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a Lattice from a dictionary containing the a, b, c, alpha, beta,
 and gamma parameters if fmt is None.</p>
 <p>If fmt == “abivars”, the function build a <cite>Lattice</cite> object from a
@@ -255,12 +417,12 @@ If acell is not given, the Abinit default is used i.e. [1,1,1] Bohr</p>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.from_lengths_and_angles">
-<em class="property">static </em><code class="sig-name descname">from_lengths_and_angles</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pymatgen.core.lattice.Lattice.from_lengths_and_angles" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_lengths_and_angles</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/../../../../../../usr/local/miniconda3/envs/py37/lib/python3.7/site-packages/monty/dev.py#L40-L54"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.from_lengths_and_angles" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.from_parameters">
-<em class="property">classmethod </em><code class="sig-name descname">from_parameters</code><span class="sig-paren">(</span><em class="sig-param">a: float</em>, <em class="sig-param">b: float</em>, <em class="sig-param">c: float</em>, <em class="sig-param">alpha: float</em>, <em class="sig-param">beta: float</em>, <em class="sig-param">gamma: float</em>, <em class="sig-param">vesta: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.from_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.from_parameters" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_parameters</code><span class="sig-paren">(</span><em class="sig-param">a: float</em>, <em class="sig-param">b: float</em>, <em class="sig-param">c: float</em>, <em class="sig-param">alpha: float</em>, <em class="sig-param">beta: float</em>, <em class="sig-param">gamma: float</em>, <em class="sig-param">vesta: bool = False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L313-L366"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.from_parameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a Lattice using unit cell lengths and angles (in degrees).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -282,13 +444,13 @@ If acell is not given, the Abinit default is used i.e. [1,1,1] Bohr</p>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.gamma">
-<em class="property">property </em><code class="sig-name descname">gamma</code><a class="headerlink" href="#pymatgen.core.lattice.Lattice.gamma" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">gamma</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.gamma" title="Permalink to this definition">¶</a></dt>
 <dd><p>Angle gamma of lattice in degrees.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.get_all_distances">
-<code class="sig-name descname">get_all_distances</code><span class="sig-paren">(</span><em class="sig-param">fcoords1: Union[List[float], numpy.ndarray, List[Union[List[float], numpy.ndarray]]], fcoords2: Union[List[float], numpy.ndarray, List[Union[List[float], numpy.ndarray]]]</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.get_all_distances"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_all_distances" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_all_distances</code><span class="sig-paren">(</span><em class="sig-param">fcoords1: Union[List[float], numpy.ndarray, List[Union[List[float], numpy.ndarray]]], fcoords2: Union[List[float], numpy.ndarray, List[Union[List[float], numpy.ndarray]]]</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L1282-L1305"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_all_distances" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the distances between two lists of coordinates taking into
 account periodic boundary conditions and the lattice. Note that this
 computes an MxN array of distances (i.e. the distance between each
@@ -312,7 +474,7 @@ fcoords1[i] and fcoords2[j] is distances[i,j]</p>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.get_brillouin_zone">
-<code class="sig-name descname">get_brillouin_zone</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List[List[numpy.ndarray]]<a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.get_brillouin_zone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_brillouin_zone" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_brillouin_zone</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List[List[numpy.ndarray]]<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L990-L1001"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_brillouin_zone" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the Wigner-Seitz cell for the reciprocal lattice, aka the
 Brillouin Zone.</p>
 <dl class="field-list simple">
@@ -327,7 +489,7 @@ represent a square facet.</p>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.get_cartesian_coords">
-<code class="sig-name descname">get_cartesian_coords</code><span class="sig-paren">(</span><em class="sig-param">fractional_coords: Union[List[float], numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.get_cartesian_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_cartesian_coords" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_cartesian_coords</code><span class="sig-paren">(</span><em class="sig-param">fractional_coords: Union[List[float], numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L151-L161"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_cartesian_coords" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the cartesian coordinates given fractional coordinates.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -341,7 +503,7 @@ represent a square facet.</p>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.get_distance_and_image">
-<code class="sig-name descname">get_distance_and_image</code><span class="sig-paren">(</span><em class="sig-param">frac_coords1: Union[List[float], numpy.ndarray], frac_coords2: Union[List[float], numpy.ndarray], jimage: Union[List[int], numpy.ndarray, None] = None</em><span class="sig-paren">)</span> &#x2192; Tuple[float, numpy.ndarray]<a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.get_distance_and_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_distance_and_image" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_distance_and_image</code><span class="sig-paren">(</span><em class="sig-param">frac_coords1: Union[List[float], numpy.ndarray], frac_coords2: Union[List[float], numpy.ndarray], jimage: Union[List[int], numpy.ndarray, None] = None</em><span class="sig-paren">)</span> &#x2192; Tuple[float, numpy.ndarray]<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L1327-L1366"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_distance_and_image" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets distance between two frac_coords assuming periodic boundary
 conditions. If the index jimage is not specified it selects the j
 image nearest to the i atom and returns the distance and jimage
@@ -374,14 +536,14 @@ equal to distance.</p>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.get_frac_coords_from_lll">
-<code class="sig-name descname">get_frac_coords_from_lll</code><span class="sig-paren">(</span><em class="sig-param">lll_frac_coords: Union[List[float], numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.get_frac_coords_from_lll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_frac_coords_from_lll" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_frac_coords_from_lll</code><span class="sig-paren">(</span><em class="sig-param">lll_frac_coords: Union[List[float], numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L793-L798"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_frac_coords_from_lll" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given fractional coordinates in the lll basis, returns corresponding
 fractional coordinates in the lattice basis.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.get_fractional_coords">
-<code class="sig-name descname">get_fractional_coords</code><span class="sig-paren">(</span><em class="sig-param">cart_coords: Union[List[float], numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.get_fractional_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_fractional_coords" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_fractional_coords</code><span class="sig-paren">(</span><em class="sig-param">cart_coords: Union[List[float], numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L163-L173"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_fractional_coords" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the fractional coordinates given cartesian coordinates.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -395,14 +557,14 @@ fractional coordinates in the lattice basis.</p>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.get_lll_frac_coords">
-<code class="sig-name descname">get_lll_frac_coords</code><span class="sig-paren">(</span><em class="sig-param">frac_coords: Union[List[float], numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.get_lll_frac_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_lll_frac_coords" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_lll_frac_coords</code><span class="sig-paren">(</span><em class="sig-param">frac_coords: Union[List[float], numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L786-L791"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_lll_frac_coords" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given fractional coordinates in the lattice basis, returns corresponding
 fractional coordinates in the lll basis.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.get_lll_reduced_lattice">
-<code class="sig-name descname">get_lll_reduced_lattice</code><span class="sig-paren">(</span><em class="sig-param">delta: float = 0.75</em><span class="sig-paren">)</span> &#x2192; pymatgen.core.lattice.Lattice<a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.get_lll_reduced_lattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_lll_reduced_lattice" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_lll_reduced_lattice</code><span class="sig-paren">(</span><em class="sig-param">delta: float = 0.75</em><span class="sig-paren">)</span> &#x2192; pymatgen.core.lattice.Lattice<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L693-L700"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_lll_reduced_lattice" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>delta</strong> – Delta parameter.</p>
@@ -415,7 +577,7 @@ fractional coordinates in the lll basis.</p>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.get_miller_index_from_coords">
-<code class="sig-name descname">get_miller_index_from_coords</code><span class="sig-paren">(</span><em class="sig-param">coords: Union[List[float], numpy.ndarray], coords_are_cartesian: bool = True, round_dp: int = 4, verbose: bool = True</em><span class="sig-paren">)</span> &#x2192; Tuple[int, int, int]<a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.get_miller_index_from_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_miller_index_from_coords" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_miller_index_from_coords</code><span class="sig-paren">(</span><em class="sig-param">coords: Union[List[float], numpy.ndarray], coords_are_cartesian: bool = True, round_dp: int = 4, verbose: bool = True</em><span class="sig-paren">)</span> &#x2192; Tuple[int, int, int]<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L1368-L1408"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_miller_index_from_coords" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the Miller index of a plane from a list of site coordinates.</p>
 <p>A minimum of 3 sets of coordinates are required. If more than 3 sets of
 coordinates are given, the best plane that minimises the distance to all
@@ -446,7 +608,7 @@ miller index to.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.get_niggli_reduced_lattice">
-<code class="sig-name descname">get_niggli_reduced_lattice</code><span class="sig-paren">(</span><em class="sig-param">tol: float = 1e-05</em><span class="sig-paren">)</span> &#x2192; pymatgen.core.lattice.Lattice<a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.get_niggli_reduced_lattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_niggli_reduced_lattice" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_niggli_reduced_lattice</code><span class="sig-paren">(</span><em class="sig-param">tol: float = 1e-05</em><span class="sig-paren">)</span> &#x2192; pymatgen.core.lattice.Lattice<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L800-L938"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_niggli_reduced_lattice" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the Niggli reduced lattice using the numerically stable algo
 proposed by R. W. Grosse-Kunstleve, N. K. Sauter, &amp; P. D. Adams,
 Acta Crystallographica Section A Foundations of Crystallography, 2003,
@@ -464,7 +626,7 @@ result in stable behavior for most cases.</p>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.get_points_in_sphere">
-<code class="sig-name descname">get_points_in_sphere</code><span class="sig-paren">(</span><em class="sig-param">frac_points: List[Union[List[float], numpy.ndarray]], center: Union[List[float], numpy.ndarray], r: float, zip_results=True</em><span class="sig-paren">)</span> &#x2192; Union[List[Tuple[numpy.ndarray, float, int, numpy.ndarray]], List[numpy.ndarray]]<a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.get_points_in_sphere"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_points_in_sphere" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_points_in_sphere</code><span class="sig-paren">(</span><em class="sig-param">frac_points: List[Union[List[float], numpy.ndarray]], center: Union[List[float], numpy.ndarray], r: float, zip_results=True</em><span class="sig-paren">)</span> &#x2192; Union[List[Tuple[numpy.ndarray, float, int, numpy.ndarray]], List[numpy.ndarray]]<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L1056-L1128"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_points_in_sphere" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find all points within a sphere from the point taking into account
 periodic boundary conditions. This includes sites in other periodic
 images.</p>
@@ -506,12 +668,12 @@ point, or return the raw fcoord, dist, index arrays</p></li>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.get_points_in_sphere_old">
-<code class="sig-name descname">get_points_in_sphere_old</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_points_in_sphere_old" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_points_in_sphere_old</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/../../../../../../usr/local/miniconda3/envs/py37/lib/python3.7/site-packages/monty/dev.py#L40-L54"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_points_in_sphere_old" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.get_points_in_sphere_py">
-<code class="sig-name descname">get_points_in_sphere_py</code><span class="sig-paren">(</span><em class="sig-param">frac_points: List[Union[List[float], numpy.ndarray]], center: Union[List[float], numpy.ndarray], r: float, zip_results=True</em><span class="sig-paren">)</span> &#x2192; Union[List[Tuple[numpy.ndarray, float, int, numpy.ndarray]], List[numpy.ndarray]]<a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.get_points_in_sphere_py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_points_in_sphere_py" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_points_in_sphere_py</code><span class="sig-paren">(</span><em class="sig-param">frac_points: List[Union[List[float], numpy.ndarray]], center: Union[List[float], numpy.ndarray], r: float, zip_results=True</em><span class="sig-paren">)</span> &#x2192; Union[List[Tuple[numpy.ndarray, float, int, numpy.ndarray]], List[numpy.ndarray]]<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L1130-L1178"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_points_in_sphere_py" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find all points within a sphere from the point taking into account
 periodic boundary conditions. This includes sites in other periodic
 images.</p>
@@ -553,7 +715,7 @@ point, or return the raw fcoord, dist, index arrays</p></li>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.get_recp_symmetry_operation">
-<code class="sig-name descname">get_recp_symmetry_operation</code><span class="sig-paren">(</span><em class="sig-param">symprec: float = 0.01</em><span class="sig-paren">)</span> &#x2192; List<a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.get_recp_symmetry_operation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_recp_symmetry_operation" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_recp_symmetry_operation</code><span class="sig-paren">(</span><em class="sig-param">symprec: float = 0.01</em><span class="sig-paren">)</span> &#x2192; List<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L1410-L1433"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_recp_symmetry_operation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find the symmetric operations of the reciprocal lattice,
 to be used for hkl transformations
 :param symprec: default is 0.001</p>
@@ -561,7 +723,7 @@ to be used for hkl transformations
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.get_vector_along_lattice_directions">
-<code class="sig-name descname">get_vector_along_lattice_directions</code><span class="sig-paren">(</span><em class="sig-param">cart_coords: Union[List[float], numpy.ndarray]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.get_vector_along_lattice_directions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_vector_along_lattice_directions" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_vector_along_lattice_directions</code><span class="sig-paren">(</span><em class="sig-param">cart_coords: Union[List[float], numpy.ndarray]</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L175-L193"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_vector_along_lattice_directions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the coordinates along lattice directions given cartesian coordinates.</p>
 <p>Note, this is different than a projection of the cartesian vector along the
 lattice parameters. It is simply the fractional coordinates multiplied by the
@@ -581,7 +743,7 @@ class in <cite>pymatgen.analysis.ferroelectricity.polarization</cite>.</p>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.get_wigner_seitz_cell">
-<code class="sig-name descname">get_wigner_seitz_cell</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List[List[numpy.ndarray]]<a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.get_wigner_seitz_cell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_wigner_seitz_cell" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_wigner_seitz_cell</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List[List[numpy.ndarray]]<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L963-L988"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.get_wigner_seitz_cell" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the Wigner-Seitz cell for the given lattice.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -595,7 +757,7 @@ represent a square facet.</p>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.hexagonal">
-<em class="property">static </em><code class="sig-name descname">hexagonal</code><span class="sig-paren">(</span><em class="sig-param">a: float</em>, <em class="sig-param">c: float</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.hexagonal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.hexagonal" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">hexagonal</code><span class="sig-paren">(</span><em class="sig-param">a: float</em>, <em class="sig-param">c: float</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L270-L282"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.hexagonal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience constructor for a hexagonal lattice.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -612,13 +774,13 @@ represent a square facet.</p>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.inv_matrix">
-<em class="property">property </em><code class="sig-name descname">inv_matrix</code><a class="headerlink" href="#pymatgen.core.lattice.Lattice.inv_matrix" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">inv_matrix</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.inv_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Inverse of lattice matrix.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.is_hexagonal">
-<code class="sig-name descname">is_hexagonal</code><span class="sig-paren">(</span><em class="sig-param">hex_angle_tol: float = 5</em>, <em class="sig-param">hex_length_tol: float = 0.01</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.is_hexagonal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.is_hexagonal" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">is_hexagonal</code><span class="sig-paren">(</span><em class="sig-param">hex_angle_tol: float = 5</em>, <em class="sig-param">hex_length_tol: float = 0.01</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L1307-L1325"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.is_hexagonal" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -634,7 +796,7 @@ represent a square facet.</p>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.is_orthogonal">
-<em class="property">property </em><code class="sig-name descname">is_orthogonal</code><a class="headerlink" href="#pymatgen.core.lattice.Lattice.is_orthogonal" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">is_orthogonal</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.is_orthogonal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Whether all angles are 90 degrees.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -645,7 +807,7 @@ represent a square facet.</p>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.lengths">
-<em class="property">property </em><code class="sig-name descname">lengths</code><a class="headerlink" href="#pymatgen.core.lattice.Lattice.lengths" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">lengths</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.lengths" title="Permalink to this definition">¶</a></dt>
 <dd><p>The lengths (a, b, c) of the lattice.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -656,12 +818,12 @@ represent a square facet.</p>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.lengths_and_angles">
-<em class="property">property </em><code class="sig-name descname">lengths_and_angles</code><a class="headerlink" href="#pymatgen.core.lattice.Lattice.lengths_and_angles" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">lengths_and_angles</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.lengths_and_angles" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.lll_inverse">
-<em class="property">property </em><code class="sig-name descname">lll_inverse</code><a class="headerlink" href="#pymatgen.core.lattice.Lattice.lll_inverse" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">lll_inverse</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.lll_inverse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Inverse of self.lll_mapping.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -672,7 +834,7 @@ represent a square facet.</p>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.lll_mapping">
-<em class="property">property </em><code class="sig-name descname">lll_mapping</code><a class="headerlink" href="#pymatgen.core.lattice.Lattice.lll_mapping" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">lll_mapping</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.lll_mapping" title="Permalink to this definition">¶</a></dt>
 <dd><p>The mapping between the LLL reduced lattice and the original
 lattice.</p>
 <dl class="field-list simple">
@@ -684,7 +846,7 @@ lattice.</p>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.lll_matrix">
-<em class="property">property </em><code class="sig-name descname">lll_matrix</code><a class="headerlink" href="#pymatgen.core.lattice.Lattice.lll_matrix" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">lll_matrix</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.lll_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>The matrix for LLL reduction</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -695,19 +857,19 @@ lattice.</p>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.matrix">
-<em class="property">property </em><code class="sig-name descname">matrix</code><a class="headerlink" href="#pymatgen.core.lattice.Lattice.matrix" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">matrix</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Copy of matrix representing the Lattice</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.metric_tensor">
-<em class="property">property </em><code class="sig-name descname">metric_tensor</code><a class="headerlink" href="#pymatgen.core.lattice.Lattice.metric_tensor" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">metric_tensor</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.metric_tensor" title="Permalink to this definition">¶</a></dt>
 <dd><p>The metric tensor of the lattice.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.monoclinic">
-<em class="property">static </em><code class="sig-name descname">monoclinic</code><span class="sig-paren">(</span><em class="sig-param">a: float</em>, <em class="sig-param">b: float</em>, <em class="sig-param">c: float</em>, <em class="sig-param">beta: float</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.monoclinic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.monoclinic" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">monoclinic</code><span class="sig-paren">(</span><em class="sig-param">a: float</em>, <em class="sig-param">b: float</em>, <em class="sig-param">c: float</em>, <em class="sig-param">beta: float</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L252-L268"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.monoclinic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience constructor for a monoclinic lattice.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -728,7 +890,7 @@ beta between lattice vectors a and c.</p>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.norm">
-<code class="sig-name descname">norm</code><span class="sig-paren">(</span><em class="sig-param">coords: Union[List[float], numpy.ndarray], frac_coords: bool = True</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.norm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.norm" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">norm</code><span class="sig-paren">(</span><em class="sig-param">coords: Union[List[float], numpy.ndarray], frac_coords: bool = True</em><span class="sig-paren">)</span> &#x2192; float<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L1040-L1054"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.norm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the norm of vector(s).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -746,7 +908,7 @@ cartesian coordinates.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.orthorhombic">
-<em class="property">static </em><code class="sig-name descname">orthorhombic</code><span class="sig-paren">(</span><em class="sig-param">a: float</em>, <em class="sig-param">b: float</em>, <em class="sig-param">c: float</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.orthorhombic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.orthorhombic" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">orthorhombic</code><span class="sig-paren">(</span><em class="sig-param">a: float</em>, <em class="sig-param">b: float</em>, <em class="sig-param">c: float</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L237-L250"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.orthorhombic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience constructor for an orthorhombic lattice.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -764,7 +926,7 @@ cartesian coordinates.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.parameters">
-<em class="property">property </em><code class="sig-name descname">parameters</code><a class="headerlink" href="#pymatgen.core.lattice.Lattice.parameters" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">parameters</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.parameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>(a, b, c, alpha, beta, gamma).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -775,7 +937,7 @@ cartesian coordinates.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.reciprocal_lattice">
-<em class="property">property </em><code class="sig-name descname">reciprocal_lattice</code><a class="headerlink" href="#pymatgen.core.lattice.Lattice.reciprocal_lattice" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">reciprocal_lattice</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.reciprocal_lattice" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the reciprocal lattice. Note that this is the standard
 reciprocal lattice used for solid state physics with a factor of 2 *
 pi. If you are looking for the crystallographic reciprocal lattice,
@@ -785,14 +947,14 @@ The property is lazily generated for efficiency.</p>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.reciprocal_lattice_crystallographic">
-<em class="property">property </em><code class="sig-name descname">reciprocal_lattice_crystallographic</code><a class="headerlink" href="#pymatgen.core.lattice.Lattice.reciprocal_lattice_crystallographic" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">reciprocal_lattice_crystallographic</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.reciprocal_lattice_crystallographic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the <em>crystallographic</em> reciprocal lattice, i.e., no factor of
 2 * pi.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.rhombohedral">
-<em class="property">static </em><code class="sig-name descname">rhombohedral</code><span class="sig-paren">(</span><em class="sig-param">a: float</em>, <em class="sig-param">alpha: float</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.rhombohedral"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.rhombohedral" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">rhombohedral</code><span class="sig-paren">(</span><em class="sig-param">a: float</em>, <em class="sig-param">alpha: float</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L284-L296"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.rhombohedral" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience constructor for a rhombohedral lattice.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -809,7 +971,7 @@ The property is lazily generated for efficiency.</p>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.scale">
-<code class="sig-name descname">scale</code><span class="sig-paren">(</span><em class="sig-param">new_volume: float</em><span class="sig-paren">)</span> &#x2192; pymatgen.core.lattice.Lattice<a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.scale"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.scale" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">scale</code><span class="sig-paren">(</span><em class="sig-param">new_volume: float</em><span class="sig-paren">)</span> &#x2192; pymatgen.core.lattice.Lattice<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L940-L961"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.scale" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a new Lattice with volume new_volume by performing a
 scaling of the lattice vectors so that length proportions and angles
 are preserved.</p>
@@ -825,7 +987,7 @@ are preserved.</p>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.tetragonal">
-<em class="property">static </em><code class="sig-name descname">tetragonal</code><span class="sig-paren">(</span><em class="sig-param">a: float</em>, <em class="sig-param">c: float</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.tetragonal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.tetragonal" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">tetragonal</code><span class="sig-paren">(</span><em class="sig-param">a: float</em>, <em class="sig-param">c: float</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L223-L235"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.tetragonal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience constructor for a tetragonal lattice.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -842,7 +1004,7 @@ are preserved.</p>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.volume">
-<em class="property">property </em><code class="sig-name descname">volume</code><a class="headerlink" href="#pymatgen.core.lattice.Lattice.volume" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">volume</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.volume" title="Permalink to this definition">¶</a></dt>
 <dd><p>Volume of the unit cell.</p>
 </dd></dl>
 
@@ -850,7 +1012,7 @@ are preserved.</p>
 
 <dl class="function">
 <dt id="pymatgen.core.lattice.find_neighbors">
-<code class="sig-name descname">find_neighbors</code><span class="sig-paren">(</span><em class="sig-param">label: numpy.ndarray</em>, <em class="sig-param">nx: int</em>, <em class="sig-param">ny: int</em>, <em class="sig-param">nz: int</em><span class="sig-paren">)</span> &#x2192; List[numpy.ndarray]<a class="reference internal" href="_modules/pymatgen/core/lattice.html#find_neighbors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.find_neighbors" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">find_neighbors</code><span class="sig-paren">(</span><em class="sig-param">label: numpy.ndarray</em>, <em class="sig-param">nx: int</em>, <em class="sig-param">ny: int</em>, <em class="sig-param">nz: int</em><span class="sig-paren">)</span> &#x2192; List[numpy.ndarray]<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L1656-L1684"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.find_neighbors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a cube index, find the neighbor cube indices</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -867,7 +1029,7 @@ are preserved.</p>
 
 <dl class="function">
 <dt id="pymatgen.core.lattice.get_integer_index">
-<code class="sig-name descname">get_integer_index</code><span class="sig-paren">(</span><em class="sig-param">miller_index: Sequence[float], round_dp: int = 4, verbose: bool = True</em><span class="sig-paren">)</span> &#x2192; Tuple[int, int, int]<a class="reference internal" href="_modules/pymatgen/core/lattice.html#get_integer_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.get_integer_index" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_integer_index</code><span class="sig-paren">(</span><em class="sig-param">miller_index: Sequence[float], round_dp: int = 4, verbose: bool = True</em><span class="sig-paren">)</span> &#x2192; Tuple[int, int, int]<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L1436-L1489"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.get_integer_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Attempt to convert a vector of floats to whole numbers.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -889,7 +1051,7 @@ miller index to.</p></li>
 
 <dl class="function">
 <dt id="pymatgen.core.lattice.get_points_in_spheres">
-<code class="sig-name descname">get_points_in_spheres</code><span class="sig-paren">(</span><em class="sig-param">all_coords: numpy.ndarray</em>, <em class="sig-param">center_coords: numpy.ndarray</em>, <em class="sig-param">r: float</em>, <em class="sig-param">pbc: Union[bool</em>, <em class="sig-param">List[bool]] = True</em>, <em class="sig-param">numerical_tol: float = 1e-08</em>, <em class="sig-param">lattice: pymatgen.core.lattice.Lattice = None</em>, <em class="sig-param">return_fcoords: bool = False</em><span class="sig-paren">)</span> &#x2192; List[List[Tuple[numpy.ndarray, float, int, numpy.ndarray]]]<a class="reference internal" href="_modules/pymatgen/core/lattice.html#get_points_in_spheres"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.get_points_in_spheres" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_points_in_spheres</code><span class="sig-paren">(</span><em class="sig-param">all_coords: numpy.ndarray</em>, <em class="sig-param">center_coords: numpy.ndarray</em>, <em class="sig-param">r: float</em>, <em class="sig-param">pbc: Union[bool</em>, <em class="sig-param">List[bool]] = True</em>, <em class="sig-param">numerical_tol: float = 1e-08</em>, <em class="sig-param">lattice: pymatgen.core.lattice.Lattice = None</em>, <em class="sig-param">return_fcoords: bool = False</em><span class="sig-paren">)</span> &#x2192; List[List[Tuple[numpy.ndarray, float, int, numpy.ndarray]]]<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/lattice.py#L1492-L1611"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.get_points_in_spheres" title="Permalink to this definition">¶</a></dt>
 <dd><p>For each point in <cite>center_coords</cite>, get all the neighboring points in <cite>all_coords</cite> that are within the
 cutoff radius <cite>r</cite>.</p>
 <dl class="field-list simple">
@@ -913,49 +1075,44 @@ cutoff radius <cite>r</cite>.</p>
 </div>
 
 
+           </div>
+           
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/pymatgen.core.lattice.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.11.11 documentation</a> &#187;</li> 
-      </ul>
-    </div>
+          <footer>
+  
 
-    <div class="footer" role="contentinfo">
-        &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
-    </div>
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
 the JavaScript coming from www.google-analytics.com.
@@ -970,5 +1127,6 @@ the JavaScript coming from www.google-analytics.com.
 </script>
 </div>
 
-  </body>
+
+</body>
 </html>
