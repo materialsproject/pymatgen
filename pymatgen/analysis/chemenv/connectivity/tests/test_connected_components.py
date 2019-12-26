@@ -257,7 +257,7 @@ class ConnectedComponentTest(PymatgenTest):
         assert type(cc.periodicity_vectors) is list
         assert cc.periodicity_vectors[0].dtype is np.dtype(int)
 
-    def test_periodicity_real_systems(self):
+    def test_real_systems(self):
         # Initialize geometry and connectivity finders
         strat = SimplestChemenvStrategy()
         lgf = LocalGeometryFinder()
@@ -282,11 +282,262 @@ class ConnectedComponentTest(PymatgenTest):
         sc = cf.get_structure_connectivity(lse)
         assert len(sc.environment_subgraphs) == 0  # Connected component not computed by default
         ccs = sc.get_connected_components()  # by default, will use all the environments (O:6 and T:4 here)
-        assert list(sc.environment_subgraphs.keys()) == ['O:6-T:4']  # Now connected components for the defaults are there
+        assert list(sc.environment_subgraphs.keys()) == ['O:6-T:4']  # Now the default components are there
         assert len(sc.environment_subgraphs) == 1
         assert len(ccs) == 1
         cc = ccs[0]
+        assert len(cc) == 12
         assert cc.periodicity == '3D'
+        assert cc.description() == """Connected component with environment nodes :
+Node #0 Li (O:6)
+Node #1 Li (O:6)
+Node #2 Li (O:6)
+Node #3 Li (O:6)
+Node #4 Fe (O:6)
+Node #5 Fe (O:6)
+Node #6 Fe (O:6)
+Node #7 Fe (O:6)
+Node #8 P (T:4)
+Node #9 P (T:4)
+Node #10 P (T:4)
+Node #11 P (T:4)"""
+        assert cc.description(full=True) == """Connected component with environment nodes :
+Node #0 Li (O:6), connected to :
+  - Node #1 Li (O:6) with delta image cells
+     (-1 0 1)
+     (-1 1 1)
+  - Node #4 Fe (O:6) with delta image cells
+     (-1 1 1)
+     (0 1 1)
+  - Node #5 Fe (O:6) with delta image cells
+     (0 0 1)
+  - Node #6 Fe (O:6) with delta image cells
+     (-1 1 0)
+  - Node #7 Fe (O:6) with delta image cells
+     (-1 0 0)
+     (0 0 0)
+  - Node #8 P (T:4) with delta image cells
+     (-1 0 1)
+     (0 0 1)
+  - Node #11 P (T:4) with delta image cells
+     (-1 1 0)
+     (0 1 0)
+Node #1 Li (O:6), connected to :
+  - Node #0 Li (O:6) with delta image cells
+     (1 -1 -1)
+     (1 0 -1)
+  - Node #4 Fe (O:6) with delta image cells
+     (0 0 0)
+     (1 0 0)
+  - Node #5 Fe (O:6) with delta image cells
+     (1 0 0)
+  - Node #6 Fe (O:6) with delta image cells
+     (0 0 -1)
+  - Node #7 Fe (O:6) with delta image cells
+     (0 0 -1)
+     (1 0 -1)
+  - Node #8 P (T:4) with delta image cells
+     (0 0 0)
+     (1 0 0)
+  - Node #11 P (T:4) with delta image cells
+     (0 0 -1)
+     (1 0 -1)
+Node #2 Li (O:6), connected to :
+  - Node #3 Li (O:6) with delta image cells
+     (0 0 0)
+     (0 1 0)
+  - Node #4 Fe (O:6) with delta image cells
+     (0 1 0)
+  - Node #5 Fe (O:6) with delta image cells
+     (0 0 0)
+     (1 0 0)
+  - Node #6 Fe (O:6) with delta image cells
+     (-1 1 0)
+     (0 1 0)
+  - Node #7 Fe (O:6) with delta image cells
+     (0 0 0)
+  - Node #9 P (T:4) with delta image cells
+     (0 1 0)
+     (1 1 0)
+  - Node #10 P (T:4) with delta image cells
+     (-1 0 0)
+     (0 0 0)
+Node #3 Li (O:6), connected to :
+  - Node #2 Li (O:6) with delta image cells
+     (0 -1 0)
+     (0 0 0)
+  - Node #4 Fe (O:6) with delta image cells
+     (0 0 0)
+  - Node #5 Fe (O:6) with delta image cells
+     (0 0 0)
+     (1 0 0)
+  - Node #6 Fe (O:6) with delta image cells
+     (-1 0 0)
+     (0 0 0)
+  - Node #7 Fe (O:6) with delta image cells
+     (0 0 0)
+  - Node #9 P (T:4) with delta image cells
+     (0 0 0)
+     (1 0 0)
+  - Node #10 P (T:4) with delta image cells
+     (-1 0 0)
+     (0 0 0)
+Node #4 Fe (O:6), connected to :
+  - Node #0 Li (O:6) with delta image cells
+     (0 -1 -1)
+     (1 -1 -1)
+  - Node #1 Li (O:6) with delta image cells
+     (-1 0 0)
+     (0 0 0)
+  - Node #2 Li (O:6) with delta image cells
+     (0 -1 0)
+  - Node #3 Li (O:6) with delta image cells
+     (0 0 0)
+  - Node #5 Fe (O:6) with delta image cells
+     (0 -1 0)
+     (0 0 0)
+     (1 -1 0)
+     (1 0 0)
+  - Node #8 P (T:4) with delta image cells
+     (0 -1 0)
+     (0 0 0)
+  - Node #9 P (T:4) with delta image cells
+     (0 0 0)
+     (1 0 0)
+  - Node #11 P (T:4) with delta image cells
+     (0 0 -1)
+Node #5 Fe (O:6), connected to :
+  - Node #0 Li (O:6) with delta image cells
+     (0 0 -1)
+  - Node #1 Li (O:6) with delta image cells
+     (-1 0 0)
+  - Node #2 Li (O:6) with delta image cells
+     (-1 0 0)
+     (0 0 0)
+  - Node #3 Li (O:6) with delta image cells
+     (-1 0 0)
+     (0 0 0)
+  - Node #4 Fe (O:6) with delta image cells
+     (-1 0 0)
+     (-1 1 0)
+     (0 0 0)
+     (0 1 0)
+  - Node #8 P (T:4) with delta image cells
+     (-1 0 0)
+     (0 0 0)
+  - Node #9 P (T:4) with delta image cells
+     (0 0 0)
+     (0 1 0)
+  - Node #10 P (T:4) with delta image cells
+     (-1 0 0)
+Node #6 Fe (O:6), connected to :
+  - Node #0 Li (O:6) with delta image cells
+     (1 -1 0)
+  - Node #1 Li (O:6) with delta image cells
+     (0 0 1)
+  - Node #2 Li (O:6) with delta image cells
+     (0 -1 0)
+     (1 -1 0)
+  - Node #3 Li (O:6) with delta image cells
+     (0 0 0)
+     (1 0 0)
+  - Node #7 Fe (O:6) with delta image cells
+     (0 -1 0)
+     (0 0 0)
+     (1 -1 0)
+     (1 0 0)
+  - Node #9 P (T:4) with delta image cells
+     (1 0 0)
+  - Node #10 P (T:4) with delta image cells
+     (0 -1 0)
+     (0 0 0)
+  - Node #11 P (T:4) with delta image cells
+     (0 0 0)
+     (1 0 0)
+Node #7 Fe (O:6), connected to :
+  - Node #0 Li (O:6) with delta image cells
+     (0 0 0)
+     (1 0 0)
+  - Node #1 Li (O:6) with delta image cells
+     (-1 0 1)
+     (0 0 1)
+  - Node #2 Li (O:6) with delta image cells
+     (0 0 0)
+  - Node #3 Li (O:6) with delta image cells
+     (0 0 0)
+  - Node #6 Fe (O:6) with delta image cells
+     (-1 0 0)
+     (-1 1 0)
+     (0 0 0)
+     (0 1 0)
+  - Node #8 P (T:4) with delta image cells
+     (0 0 1)
+  - Node #10 P (T:4) with delta image cells
+     (-1 0 0)
+     (0 0 0)
+  - Node #11 P (T:4) with delta image cells
+     (0 0 0)
+     (0 1 0)
+Node #8 P (T:4), connected to :
+  - Node #0 Li (O:6) with delta image cells
+     (0 0 -1)
+     (1 0 -1)
+  - Node #1 Li (O:6) with delta image cells
+     (-1 0 0)
+     (0 0 0)
+  - Node #4 Fe (O:6) with delta image cells
+     (0 0 0)
+     (0 1 0)
+  - Node #5 Fe (O:6) with delta image cells
+     (0 0 0)
+     (1 0 0)
+  - Node #7 Fe (O:6) with delta image cells
+     (0 0 -1)
+Node #9 P (T:4), connected to :
+  - Node #2 Li (O:6) with delta image cells
+     (-1 -1 0)
+     (0 -1 0)
+  - Node #3 Li (O:6) with delta image cells
+     (-1 0 0)
+     (0 0 0)
+  - Node #4 Fe (O:6) with delta image cells
+     (-1 0 0)
+     (0 0 0)
+  - Node #5 Fe (O:6) with delta image cells
+     (0 -1 0)
+     (0 0 0)
+  - Node #6 Fe (O:6) with delta image cells
+     (-1 0 0)
+Node #10 P (T:4), connected to :
+  - Node #2 Li (O:6) with delta image cells
+     (0 0 0)
+     (1 0 0)
+  - Node #3 Li (O:6) with delta image cells
+     (0 0 0)
+     (1 0 0)
+  - Node #5 Fe (O:6) with delta image cells
+     (1 0 0)
+  - Node #6 Fe (O:6) with delta image cells
+     (0 0 0)
+     (0 1 0)
+  - Node #7 Fe (O:6) with delta image cells
+     (0 0 0)
+     (1 0 0)
+Node #11 P (T:4), connected to :
+  - Node #0 Li (O:6) with delta image cells
+     (0 -1 0)
+     (1 -1 0)
+  - Node #1 Li (O:6) with delta image cells
+     (-1 0 1)
+     (0 0 1)
+  - Node #4 Fe (O:6) with delta image cells
+     (0 0 1)
+  - Node #6 Fe (O:6) with delta image cells
+     (-1 0 0)
+     (0 0 0)
+  - Node #7 Fe (O:6) with delta image cells
+     (0 -1 0)
+     (0 0 0)"""
         # Get the connectivity for T:4 and O:6 separately and check results
         # Only tetrahedral
         sc.setup_environment_subgraph(environments_symbols=['T:4'])
@@ -343,6 +594,28 @@ class ConnectedComponentTest(PymatgenTest):
         assert len(ccs) == 2
         for cc in ccs:
             assert cc.periodicity == '1D'
+            assert len(cc) == 2
+        sorted_ccs = sorted(ccs, key=lambda x: sorted(x.graph.nodes())[0])  # Sort connected components as they might
+                                                                            # come in a different order depending on
+                                                                            # the algorithm used to get them.
+        assert sorted_ccs[0].description(full=True) == """Connected component with environment nodes :
+Node #0 Li (O:6), connected to :
+  - Node #1 Li (O:6) with delta image cells
+     (1 -1 1)
+     (1 0 1)
+Node #1 Li (O:6), connected to :
+  - Node #0 Li (O:6) with delta image cells
+     (-1 0 -1)
+     (-1 1 -1)"""
+        assert sorted_ccs[1].description(full=True) == """Connected component with environment nodes :
+Node #2 Li (O:6), connected to :
+  - Node #3 Li (O:6) with delta image cells
+     (0 -1 0)
+     (0 0 0)
+Node #3 Li (O:6), connected to :
+  - Node #2 Li (O:6) with delta image cells
+     (0 0 0)
+     (0 1 0)"""
         # Get the connectivity for Mn octahedral only
         ccs = sc.get_connected_components(environments_symbols=['O:6'], only_atoms=['Mn'])
         assert list(sc.environment_subgraphs.keys()) == ['O:6-T:4', 'O:6#Li', 'O:6#Mn']

@@ -267,6 +267,9 @@ class ConnectedComponent(MSONable):
             # TODO: should check a few requirements here ?
             self._connected_subgraph = graph
 
+    def __len__(self):
+        return len(self.graph)
+
     def compute_periodicity(self, algorithm='all_simple_paths'):
         if algorithm == 'all_simple_paths':
             self.compute_periodicity_all_simple_paths_algorithm()
@@ -468,23 +471,34 @@ class ConnectedComponent(MSONable):
             self.compute_periodicity()
         return len(self._periodicity_vectors) == 3
 
-    def _order_periodicity_vectors(self):
-        """Orders the periodicity vectors.
+    @staticmethod
+    def _order_vectors(vectors):
+        """Orders vectors.
 
         First, each vector is made such that the first non-zero dimension is positive.
         Example: a periodicity vector [0, -1, 1] is transformed to [0, 1, -1].
         Then vectors are ordered based on their first element, then (if the first element
-        is identical) based on their second element and then (if the first and second element
-        are identical) based on their third element.
+        is identical) based on their second element, then (if the first and second element
+        are identical) based on their third element and so on ...
         Example: [[1, 1, 0], [0, 1, -1], [0, 1, 1]] is ordered as [[0, 1, -1], [0, 1, 1], [1, 1, 0]]
+        """
+        for ipv, pv in enumerate(vectors):
+            nonzeros = np.nonzero(pv)[0]
+            if (len(nonzeros) > 0) and (pv[nonzeros[0]] < 0):
+                vectors[ipv] = -pv
+        return sorted(vectors, key=lambda x: x.tolist())
+
+    def _order_periodicity_vectors(self):
+        """Orders the periodicity vectors.
         """
         if len(self._periodicity_vectors) > 3:
             raise ValueError('Number of periodicity vectors is larger than 3.')
-        for ipv, pv in enumerate(self._periodicity_vectors):
-            nonzeros = np.nonzero(pv)[0]
-            if (len(nonzeros) > 0) and (pv[nonzeros[0]] < 0):
-                self._periodicity_vectors[ipv] = -pv
-        self._periodicity_vectors = sorted(self._periodicity_vectors, key=lambda x: x.tolist())
+        self._periodicity_vectors = self._order_vectors(self._periodicity_vectors)
+        # for ipv, pv in enumerate(self._periodicity_vectors):
+        #     nonzeros = np.nonzero(pv)[0]
+        #     if (len(nonzeros) > 0) and (pv[nonzeros[0]] < 0):
+        #         self._periodicity_vectors[ipv] = -pv
+        # self._periodicity_vectors = sorted(self._periodicity_vectors, key=lambda x: x.tolist())
 
     @property
     def periodicity_vectors(self):
@@ -715,3 +729,19 @@ class ConnectedComponent(MSONable):
             ConnectedComponent: The connected component representing the links of a given set of environments.
         """
         return cls(graph=g)
+
+    def description(self, full=False):
+        out = ['Connected component with environment nodes :']
+        if not full:
+            out.extend([str(en) for en in sorted(self.graph.nodes())])
+            return '\n'.join(out)
+        for en in sorted(self.graph.nodes()):
+            out.append('{}, connected to :'.format(str(en)))
+            en_neighbs = nx.neighbors(self.graph, en)
+            for en_neighb in sorted(en_neighbs):
+                out.append('  - {} with delta image cells'.format(en_neighb))
+                all_deltas = sorted([get_delta(node1=en, node2=en_neighb,
+                                               edge_data=edge_data).tolist()
+                                     for iedge, edge_data in self.graph[en][en_neighb].items()])
+                out.extend(['     ({:d} {:d} {:d})'.format(delta[0], delta[1], delta[2]) for delta in all_deltas])
+        return '\n'.join(out)

@@ -17,7 +17,7 @@ json_files_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 class EnvironmentNodesTest(PymatgenTest):
 
     def test_equal(self):
-        s = PymatgenTest.get_structure('SiO2')
+        s = self.get_structure('SiO2')
         en = EnvironmentNode(central_site=s[0], i_central_site=0, ce_symbol='T:4')
 
         en1 = EnvironmentNode(central_site=s[2], i_central_site=0, ce_symbol='T:4')
@@ -37,8 +37,8 @@ class EnvironmentNodesTest(PymatgenTest):
         assert en.everything_equal(en4)
 
     def test_as_dict(self):
-        s = PymatgenTest.get_structure('SiO2')
-        en = EnvironmentNode(central_site=s[2], i_central_site=3, ce_symbol='T:4')
+        s = self.get_structure('SiO2')
+        en = EnvironmentNode(central_site=s[2], i_central_site=2, ce_symbol='T:4')
 
         en_from_dict = EnvironmentNode.from_dict(en.as_dict())
         assert en.everything_equal(en_from_dict)
@@ -46,6 +46,11 @@ class EnvironmentNodesTest(PymatgenTest):
         bson_data = bson.BSON.encode(en.as_dict())
         en_from_bson = EnvironmentNode.from_dict(bson_data.decode())
         assert en.everything_equal(en_from_bson)
+
+    def test_str(self):
+        s = self.get_structure('SiO2')
+        en = EnvironmentNode(central_site=s[2], i_central_site=2, ce_symbol='T:4')
+        assert str(en) == 'Node #2 Si (T:4)'
 
 
 if __name__ == "__main__":

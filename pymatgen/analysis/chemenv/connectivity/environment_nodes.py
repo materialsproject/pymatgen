@@ -148,7 +148,7 @@ class AbstractEnvironmentNode(MSONable):
 
     def __str__(self):
         """String representation of the AbstractEnvironmentNode."""
-        return 'Node #{:d} ({})'.format(self.isite, self.coordination_environment)
+        return 'Node #{:d} {} ({})'.format(self.isite, self.atom_symbol, self.coordination_environment)
 
 
 class EnvironmentNode(AbstractEnvironmentNode):
