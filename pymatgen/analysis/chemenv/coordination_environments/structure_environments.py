@@ -1431,6 +1431,11 @@ class LightStructureEnvironments(MSONable):
                 return True
         return False
 
+    def environments_identified(self):
+        return set(ce['ce_symbol']
+                   for celist in self.coordination_environments if celist is not None
+                   for ce in celist)
+
     @property
     def uniquely_determines_coordination_environments(self):
         """

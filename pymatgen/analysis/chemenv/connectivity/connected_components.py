@@ -92,56 +92,56 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
     return e
 
 
-def get_ordered_path_isites(path):
-    i_smallest = np.argmin(path)
-    if path[np.mod(i_smallest + 1, len(path))] > path[np.mod(i_smallest - 1, len(path))]:
-        return tuple([path[np.mod(ii, len(path))] for ii in range(i_smallest, i_smallest + len(path))])
-    else:
-        return tuple([path[np.mod(ii, len(path))] for ii in range(i_smallest, i_smallest - len(path), - 1)])
+# def get_ordered_path_isites(path):
+#     i_smallest = np.argmin(path)
+#     if path[np.mod(i_smallest + 1, len(path))] > path[np.mod(i_smallest - 1, len(path))]:
+#         return tuple([path[np.mod(ii, len(path))] for ii in range(i_smallest, i_smallest + len(path))])
+#     else:
+#         return tuple([path[np.mod(ii, len(path))] for ii in range(i_smallest, i_smallest - len(path), - 1)])
 
 
-def get_ordered_node_group(node_group):
-    min_groups = [np.min(gg) for gg in node_group]
-    isorted = np.argsort(min_groups)
-    return tuple([tuple(sorted(node_group[ii])) for ii in isorted])
+# def get_ordered_node_group(node_group):
+#     min_groups = [np.min(gg) for gg in node_group]
+#     isorted = np.argsort(min_groups)
+#     return tuple([tuple(sorted(node_group[ii])) for ii in isorted])
 
 
-def all_pairs_combinations(even_length_list, return_indices=False):
-    indices_list = list(range(len(even_length_list)))
-    pairs_combinations = []
-    groups = []
-    opposite_groups = []
-    for group in itertools.combinations(indices_list, len(even_length_list) / 2):
-        opposite_group = tuple(set(indices_list) - set(group))
-        if group not in groups and opposite_group not in groups:
-            groups.append(group)
-            opposite_groups.append(opposite_group)
-    for igroup, group in enumerate(groups):
-        for group_perm in itertools.permutations(opposite_groups[igroup]):
-            combination = tuple(tuple(sorted([group[ii], group_perm[ii]])) for ii in range(len(group)))
-            if not combination in pairs_combinations:
-                pairs_combinations.append(combination)
-    if return_indices:
-        return pairs_combinations
-    return [[(even_length_list[pair[0]],
-              even_length_list[pair[1]]) for pair in pair_combi] for pair_combi in pairs_combinations]
+# def all_pairs_combinations(even_length_list, return_indices=False):
+#     indices_list = list(range(len(even_length_list)))
+#     pairs_combinations = []
+#     groups = []
+#     opposite_groups = []
+#     for group in itertools.combinations(indices_list, len(even_length_list) / 2):
+#         opposite_group = tuple(set(indices_list) - set(group))
+#         if group not in groups and opposite_group not in groups:
+#             groups.append(group)
+#             opposite_groups.append(opposite_group)
+#     for igroup, group in enumerate(groups):
+#         for group_perm in itertools.permutations(opposite_groups[igroup]):
+#             combination = tuple(tuple(sorted([group[ii], group_perm[ii]])) for ii in range(len(group)))
+#             if not combination in pairs_combinations:
+#                 pairs_combinations.append(combination)
+#     if return_indices:
+#         return pairs_combinations
+#     return [[(even_length_list[pair[0]],
+#               even_length_list[pair[1]]) for pair in pair_combi] for pair_combi in pairs_combinations]
 
 
-def cycle_contains_edge(cycle, edge):
-    found = 0
-    for cycle_edge in cycle:
-        if cycle_edge[0] == edge[0] and cycle_edge[1] == edge[1] and cycle_edge[2] == edge[2]:
-            found = 1
-            break
-        elif cycle_edge[0] == edge[1] and cycle_edge[1] == edge[0] and cycle_edge[2] == edge[2]:
-            found = -1
-            break
-    if found == 0:
-        return False
-    delta = np.zeros(3, np.int)
-    for n1, n2, key, data in cycle:
-        delta += get_delta(n1, n2, data)
-    return tuple(found*delta)
+# def cycle_contains_edge(cycle, edge):
+#     found = 0
+#     for cycle_edge in cycle:
+#         if cycle_edge[0] == edge[0] and cycle_edge[1] == edge[1] and cycle_edge[2] == edge[2]:
+#             found = 1
+#             break
+#         elif cycle_edge[0] == edge[1] and cycle_edge[1] == edge[0] and cycle_edge[2] == edge[2]:
+#             found = -1
+#             break
+#     if found == 0:
+#         return False
+#     delta = np.zeros(3, np.int)
+#     for n1, n2, key, data in cycle:
+#         delta += get_delta(n1, n2, data)
+#     return tuple(found*delta)
 
 
 def make_supergraph(graph, multiplicity, periodicity_vectors):
@@ -206,16 +206,22 @@ def make_supergraph(graph, multiplicity, periodicity_vectors):
 
 class ConnectedComponent(MSONable):
     """
-    Class used to describe the connected components in a structure in terms of coordination environments
+    Class used to describe the connected components in a structure in terms of coordination environments.
     """
 
     def __init__(self, environments=None, links=None, environments_data=None, links_data=None, graph=None):
         """
+        Constructor for the ConnectedComponent object.
 
-        :param environments: list of environments
-        :param links:
-        :param environments_data:
-        :param links_data:
+        Args:
+            environments:
+            links:
+            environments_data:
+            links_data:
+            graph:
+
+        Returns:
+            ConnectedComponent: Instance of this class
         """
         self._periodicity_vectors = None
         self._primitive_reduced_connected_subgraph = None
@@ -426,6 +432,12 @@ class ConnectedComponent(MSONable):
 
     @property
     def graph(self):
+        """Return the graph of this connected component.
+
+        Returns:
+            MultiGraph: Networkx MultiGraph object with environment as nodes and links between these nodes as edges
+                        with information about the image cell difference if any.
+        """
         return self._connected_subgraph
 
     @property
@@ -460,8 +472,11 @@ class ConnectedComponent(MSONable):
         """Orders the periodicity vectors.
 
         First, each vector is made such that the first non-zero dimension is positive.
-        e.g. a periodicity vector [0, -1, 1] is transformed to [0, 1, -1].
-        Then vectors are ordered
+        Example: a periodicity vector [0, -1, 1] is transformed to [0, 1, -1].
+        Then vectors are ordered based on their first element, then (if the first element
+        is identical) based on their second element and then (if the first and second element
+        are identical) based on their third element.
+        Example: [[1, 1, 0], [0, 1, -1], [0, 1, 1]] is ordered as [[0, 1, -1], [0, 1, 1], [1, 1, 0]]
         """
         if len(self._periodicity_vectors) > 3:
             raise ValueError('Number of periodicity vectors is larger than 3.')
@@ -594,7 +609,7 @@ class ConnectedComponent(MSONable):
             try:
                 int(key)
                 raise RuntimeError('Cannot pass an edge key which is a str '
-                                   'representation of an int')
+                                   'representation of an int.')
             except ValueError as ve:
                 return key
         else:
@@ -615,6 +630,24 @@ class ConnectedComponent(MSONable):
 
     @staticmethod
     def _retuplify_edgedata(edata):
+        """
+        Private method used to cast back lists to tuples where applicable in an edge data.
+
+        The format of the edge data is :
+        {'start': STARTINDEX, 'end': ENDINDEX, 'delta': TUPLE(DELTAX, DELTAY, DELTAZ),
+         'ligands': [TUPLE(LIGAND_1_INDEX, TUPLE(DELTAX_START_LIG_1, DELTAY_START_LIG_1, DELTAZ_START_LIG_1),
+                                           TUPLE(DELTAX_END_LIG_1, DELTAY_END_LIG_1, DELTAZ_END_LIG_1)),
+                     TUPLE(LIGAND_2_INDEX, ...),
+                     ... ]}
+        When serializing to json/bson, these tuples are transformed into lists. This method transforms these lists
+        back to tuples.
+
+        Args:
+            edata (dict): Edge data dictionary with possibly the above tuples as lists.
+
+        Returns:
+            dict: Edge data dictionary with the lists tranformed back into tuples when applicable.
+        """
         edata['delta'] = tuple(edata['delta'])
         edata['ligands'] = [tuple([lig[0], tuple(lig[1])])
                             for lig in edata['ligands']]
@@ -623,7 +656,9 @@ class ConnectedComponent(MSONable):
     def as_dict(self):
         """
         Bson-serializable dict representation of the ConnectedComponent object.
-        :return: Bson-serializable dict representation of the ConnectedComponent object.
+
+        Returns:
+            dict: Bson-serializable dict representation of the ConnectedComponent object.
         """
         nodes = {'{:d}'.format(node.isite): (node, data) for node, data in self._connected_subgraph.nodes(data=True)}
         node2stringindex = {node: strindex for strindex, (node, data) in nodes.items()}
@@ -648,8 +683,11 @@ class ConnectedComponent(MSONable):
         """
         Reconstructs the ConnectedComponent object from a dict representation of the
         ConnectedComponent object created using the as_dict method.
-        :param d: dict representation of the ConnectedComponent object
-        :return: ConnectedComponent object
+
+        Args:
+            d (dict): dict representation of the ConnectedComponent object
+        Returns:
+            ConnectedComponent: The connected component representing the links of a given set of environments.
         """
         nodes_map = {inode_str: EnvironmentNode.from_dict(nodedict)
                      for inode_str, (nodedict, nodedata) in d['nodes'].items()}
@@ -670,7 +708,10 @@ class ConnectedComponent(MSONable):
     def from_graph(cls, g):
         """
         Constructor for the ConnectedComponent object from a graph of the connected component
-        :param g: Graph of the connected component
-        :return: ConnectedComponent object
+
+        Args:
+            g (MultiGraph): Graph of the connected component.
+        Returns:
+            ConnectedComponent: The connected component representing the links of a given set of environments.
         """
         return cls(graph=g)
