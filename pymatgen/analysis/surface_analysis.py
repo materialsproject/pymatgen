@@ -3,6 +3,27 @@
 # Distributed under the terms of the MIT License.
 
 """
+This module defines tools to analyze surface and adsorption related
+quantities as well as related plots. If you use this module, please
+consider citing the following works::
+
+    R. Tran, Z. Xu, B. Radhakrishnan, D. Winston, W. Sun, K. A. Persson,
+    S. P. Ong, "Surface Energies of Elemental Crystals", Scientific
+    Data, 2016, 3:160080, doi: 10.1038/sdata.2016.80.
+
+    and
+
+    Kang, S., Mo, Y., Ong, S. P., & Ceder, G. (2014). Nanoscale
+    stabilization of sodium oxides: Implications for Na-O2 batteries.
+    Nano Letters, 14(2), 1016–1020. https://doi.org/10.1021/nl404557w
+
+    and
+
+    Montoya, J. H., & Persson, K. A. (2017). A high-throughput framework
+        for determining adsorption energies on solid surfaces. Npj
+        Computational Materials, 3(1), 14.
+        https://doi.org/10.1038/s41524-017-0017-z
+
 TODO:
     -Still assumes individual elements have their own chempots
         in a molecular adsorbate instead of considering a single
@@ -15,16 +36,15 @@ TODO:
         user does not need to generate a dict
 """
 
-
 import numpy as np
 import itertools
 import warnings
-import random, copy
-from sympy import Symbol, Number
+import random
+import copy
+from sympy import Symbol
 from sympy.solvers import linsolve, solve
 
 from pymatgen.core.composition import Composition
-from pymatgen import Structure
 from pymatgen.core.surface import get_slab_regions
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -41,29 +61,6 @@ __maintainer__ = "Richard Tran"
 __credits__ = "Joseph Montoya, Xianguo Li"
 __email__ = "rit001@eng.ucsd.edu"
 __date__ = "8/24/17"
-
-"""
-This module defines tools to analyze surface and adsorption related
-quantities as well as related plots. If you use this module, please
-consider citing the following works::
-
-    R. Tran, Z. Xu, B. Radhakrishnan, D. Winston, W. Sun, K. A. Persson,
-        S. P. Ong, "Surface Energies of Elemental Crystals", Scientific
-        Data, 2016, 3:160080, doi: 10.1038/sdata.2016.80.
-
-    and
-
-    Kang, S., Mo, Y., Ong, S. P., & Ceder, G. (2014). Nanoscale
-        stabilization of sodium oxides: Implications for Na-O2 batteries.
-        Nano Letters, 14(2), 1016–1020. https://doi.org/10.1021/nl404557w
-
-    and
-
-    Montoya, J. H., & Persson, K. A. (2017). A high-throughput framework
-        for determining adsorption energies on solid surfaces. Npj
-        Computational Materials, 3(1), 14.
-        https://doi.org/10.1038/s41524-017-0017-z
-"""
 
 
 class SlabEntry(ComputedStructureEntry):
@@ -128,8 +125,7 @@ class SlabEntry(ComputedStructureEntry):
         self.label = label
         self.adsorbates = [] if not adsorbates else adsorbates
         self.clean_entry = clean_entry
-        self.ads_entries_dict = {str(list(ads.composition.as_dict().keys())[0]): \
-                                     ads for ads in self.adsorbates}
+        self.ads_entries_dict = {str(list(ads.composition.as_dict().keys())[0]): ads for ads in self.adsorbates}
         self.mark = marker
         self.color = color
 
@@ -167,8 +163,7 @@ class SlabEntry(ComputedStructureEntry):
         n = self.get_unit_primitive_area
         Nads = self.Nads_in_slab
 
-        BE = (self.energy - n * self.clean_entry.energy) / Nads - \
-             sum([ads.energy_per_atom for ads in self.adsorbates])
+        BE = (self.energy - n * self.clean_entry.energy) / Nads - sum([ads.energy_per_atom for ads in self.adsorbates])
         return BE * Nads if eads else BE
 
     def surface_energy(self, ucell_entry, ref_entries=None):
@@ -203,13 +198,11 @@ class SlabEntry(ComputedStructureEntry):
         gamma = (Symbol("E_surf") - Symbol("Ebulk")) / (2 * Symbol("A"))
         ucell_comp = ucell_entry.composition
         ucell_reduced_comp = ucell_comp.reduced_composition
-        ref_entries_dict = {str(list(ref.composition.as_dict().keys())[0]): \
-                                ref for ref in ref_entries}
+        ref_entries_dict = {str(list(ref.composition.as_dict().keys())[0]): ref for ref in ref_entries}
         ref_entries_dict.update(self.ads_entries_dict)
 
         # Calculate Gibbs free energy of the bulk per unit formula
-        gbulk = ucell_entry.energy / \
-                ucell_comp.get_integer_formula_and_factor()[1]
+        gbulk = ucell_entry.energy / ucell_comp.get_integer_formula_and_factor()[1]
 
         # First we get the contribution to the bulk energy
         # from each element with an existing ref_entry.
@@ -231,7 +224,6 @@ class SlabEntry(ComputedStructureEntry):
         se = gamma.subs({Symbol("E_surf"): self.energy, Symbol("Ebulk"): bulk_energy,
                          Symbol("A"): self.surface_area})
 
-
         return float(se) if type(se).__name__ == "Float" else se
 
     @property
@@ -252,7 +244,6 @@ class SlabEntry(ComputedStructureEntry):
         Returns the primitive unit surface area density of the
             adsorbate.
         """
-
         unit_a = self.get_unit_primitive_area
         Nsurfs = self.Nsurfs_ads_in_slab
         Nads = self.Nads_in_slab
@@ -263,8 +254,7 @@ class SlabEntry(ComputedStructureEntry):
         """
         Returns the TOTAL number of adsorbates in the slab on BOTH sides
         """
-        return sum([self.composition.as_dict()[a] for a \
-                    in self.ads_entries_dict.keys()])
+        return sum([self.composition.as_dict()[a] for a in self.ads_entries_dict.keys()])
 
     @property
     def Nsurfs_ads_in_slab(self):
@@ -274,17 +264,16 @@ class SlabEntry(ComputedStructureEntry):
 
         struct = self.structure
         weights = [s.species.weight for s in struct]
-        center_of_mass = np.average(struct.frac_coords,
-                                    weights=weights, axis=0)
+        center_of_mass = np.average(struct.frac_coords, weights=weights, axis=0)
 
         Nsurfs = 0
         # Are there adsorbates on top surface?
-        if any([site.species_string in self.ads_entries_dict.keys() for \
-                site in struct if site.frac_coords[2] > center_of_mass[2]]):
+        if any([site.species_string in self.ads_entries_dict.keys()
+                for site in struct if site.frac_coords[2] > center_of_mass[2]]):
             Nsurfs += 1
         # Are there adsorbates on bottom surface?
-        if any([site.species_string in self.ads_entries_dict.keys() for \
-                site in struct if site.frac_coords[2] < center_of_mass[2]]):
+        if any([site.species_string in self.ads_entries_dict.keys()
+                for site in struct if site.frac_coords[2] < center_of_mass[2]]):
             Nsurfs += 1
 
         return Nsurfs
@@ -301,7 +290,7 @@ class SlabEntry(ComputedStructureEntry):
         label = d["label"]
         coverage = d["coverage"]
         adsorbates = d["adsorbates"]
-        clean_entry = d["clean_entry"] = self.clean_entry
+        clean_entry = d["clean_entry"]
 
         return SlabEntry(structure, energy, miller_index, label=label,
                          coverage=coverage, adsorbates=adsorbates,
@@ -489,6 +478,7 @@ class SurfaceEnergyPlotter:
         """
 
         all_delu_dict = self.set_all_variables(delu_dict, delu_default)
+
         def get_coeffs(e):
             coeffs = []
             for du in all_delu_dict.keys():
@@ -857,18 +847,15 @@ class SurfaceEnergyPlotter:
         else:
             clean_comp = entry.composition.reduced_composition
 
-
         mark = '--' if ucell_comp != clean_comp else '-'
 
         delu_dict = self.set_all_variables(delu_dict, delu_default)
         delu_dict[ref_delu] = chempot_range[0]
         gamma_min = self.as_coeffs_dict[entry]
-        gamma_min = gamma_min if type(gamma_min).__name__ == \
-                                 "float" else sub_chempots(gamma_min, delu_dict)
+        gamma_min = gamma_min if type(gamma_min).__name__ == "float" else sub_chempots(gamma_min, delu_dict)
         delu_dict[ref_delu] = chempot_range[1]
         gamma_max = self.as_coeffs_dict[entry]
-        gamma_max = gamma_max if type(gamma_max).__name__ == \
-                                 "float" else sub_chempots(gamma_max, delu_dict)
+        gamma_max = gamma_max if type(gamma_max).__name__ == "float" else sub_chempots(gamma_max, delu_dict)
         gamma_range = [gamma_min, gamma_max]
 
         se_range = np.array(gamma_range) * EV_PER_ANG2_TO_JOULES_PER_M2 \
@@ -1264,7 +1251,6 @@ class SurfaceEnergyPlotter:
 
         return all_delu_dict
 
-
         # def surface_phase_diagram(self, y_param, x_param, miller_index):
         #     return
         #
@@ -1282,6 +1268,7 @@ class SurfaceEnergyPlotter:
         # def broken_bond_vs_gamma(self):
         #
         #     return
+
 
 def entry_dict_from_list(all_slab_entries):
     """
@@ -1380,7 +1367,7 @@ class WorkFunctionAnalyzer:
 
         # ensure shift between 0 and 1
         if shift < 0:
-            shift += -1*int(shift) + 1
+            shift += -1 * int(shift) + 1
         elif shift >= 1:
             shift -= int(shift)
         self.shift = shift
@@ -1415,13 +1402,10 @@ class WorkFunctionAnalyzer:
         # a rough appr. of the potential in the interior of the slab
         bulk_p = []
         for r in self.slab_regions:
-            bulk_p.extend([p for i, p in enumerate(self.locpot_along_c) if \
-                           r[1] >= self.along_c[i] > r[0]])
+            bulk_p.extend([p for i, p in enumerate(self.locpot_along_c) if r[1] >= self.along_c[i] > r[0]])
         if len(self.slab_regions) > 1:
-            bulk_p.extend([p for i, p in enumerate(self.locpot_along_c) if \
-                           self.slab_regions[1][1] <= self.along_c[i]])
-            bulk_p.extend([p for i, p in enumerate(self.locpot_along_c) if \
-                           self.slab_regions[0][0] >= self.along_c[i]])
+            bulk_p.extend([p for i, p in enumerate(self.locpot_along_c) if self.slab_regions[1][1] <= self.along_c[i]])
+            bulk_p.extend([p for i, p in enumerate(self.locpot_along_c) if self.slab_regions[0][0] >= self.along_c[i]])
         self.ave_bulk_p = np.mean(bulk_p)
 
         # shift independent quantities
@@ -1430,7 +1414,7 @@ class WorkFunctionAnalyzer:
         # get the work function
         self.work_function = self.vacuum_locpot - self.efermi
         # for setting ylim and annotating
-        self.ave_locpot = (self.vacuum_locpot-min(self.locpot_along_c))/2
+        self.ave_locpot = (self.vacuum_locpot - min(self.locpot_along_c)) / 2
 
     def get_locpot_along_slab_plot(self, label_energies=True,
                                    plt=None, label_fontsize=10):
@@ -1484,7 +1468,7 @@ class WorkFunctionAnalyzer:
             plt = self.get_labels(plt, label_fontsize=label_fontsize)
         plt.xlim([0, 1])
         plt.ylim([min(self.locpot_along_c),
-                  self.vacuum_locpot+self.ave_locpot*0.2])
+                  self.vacuum_locpot + self.ave_locpot * 0.2])
         plt.xlabel(r"Fractional coordinates ($\hat{c}$)", fontsize=25)
         plt.xticks(fontsize=15, rotation=45)
         plt.ylabel(r"Potential (eV)", fontsize=25)
@@ -1503,42 +1487,42 @@ class WorkFunctionAnalyzer:
 
         # center of vacuum and bulk region
         if len(self.slab_regions) > 1:
-            label_in_vac = (self.slab_regions[0][1] + self.slab_regions[1][0])/2
-            if abs(self.slab_regions[0][0]-self.slab_regions[0][1]) > \
-                    abs(self.slab_regions[1][0]-self.slab_regions[1][1]):
-                label_in_bulk = self.slab_regions[0][1]/2
+            label_in_vac = (self.slab_regions[0][1] + self.slab_regions[1][0]) / 2
+            if abs(self.slab_regions[0][0] - self.slab_regions[0][1]) > \
+                    abs(self.slab_regions[1][0] - self.slab_regions[1][1]):
+                label_in_bulk = self.slab_regions[0][1] / 2
             else:
                 label_in_bulk = (self.slab_regions[1][1] + self.slab_regions[1][0]) / 2
         else:
-            label_in_bulk = (self.slab_regions[0][0] + self.slab_regions[0][1])/2
-            if self.slab_regions[0][0] > 1-self.slab_regions[0][1]:
+            label_in_bulk = (self.slab_regions[0][0] + self.slab_regions[0][1]) / 2
+            if self.slab_regions[0][0] > 1 - self.slab_regions[0][1]:
                 label_in_vac = self.slab_regions[0][0] / 2
             else:
                 label_in_vac = (1 + self.slab_regions[0][1]) / 2
 
-        plt.plot([0, 1], [self.vacuum_locpot]*2, 'b--', zorder=-5, linewidth=1)
-        xy = [label_in_bulk, self.vacuum_locpot+self.ave_locpot*0.05]
-        plt.annotate(r"$V_{vac}=%.2f$" %(self.vacuum_locpot), xy=xy,
+        plt.plot([0, 1], [self.vacuum_locpot] * 2, 'b--', zorder=-5, linewidth=1)
+        xy = [label_in_bulk, self.vacuum_locpot + self.ave_locpot * 0.05]
+        plt.annotate(r"$V_{vac}=%.2f$" % (self.vacuum_locpot), xy=xy,
                      xytext=xy, color='b', fontsize=label_fontsize)
 
         # label the fermi energy
-        plt.plot([0, 1], [self.efermi]*2, 'g--',
+        plt.plot([0, 1], [self.efermi] * 2, 'g--',
                  zorder=-5, linewidth=3)
-        xy = [label_in_bulk, self.efermi+self.ave_locpot*0.05]
-        plt.annotate(r"$E_F=%.2f$" %(self.efermi), xytext=xy,
+        xy = [label_in_bulk, self.efermi + self.ave_locpot * 0.05]
+        plt.annotate(r"$E_F=%.2f$" % (self.efermi), xytext=xy,
                      xy=xy, fontsize=label_fontsize, color='g')
 
         # label the bulk-like locpot
-        plt.plot([0, 1], [self.ave_bulk_p]*2, 'r--', linewidth=1., zorder=-1)
+        plt.plot([0, 1], [self.ave_bulk_p] * 2, 'r--', linewidth=1., zorder=-1)
         xy = [label_in_vac, self.ave_bulk_p + self.ave_locpot * 0.05]
         plt.annotate(r"$V^{interior}_{slab}=%.2f$" % (self.ave_bulk_p),
                      xy=xy, xytext=xy, color='r', fontsize=label_fontsize)
 
         # label the work function as a barrier
-        plt.plot([label_in_vac]*2, [self.efermi, self.vacuum_locpot],
+        plt.plot([label_in_vac] * 2, [self.efermi, self.vacuum_locpot],
                  'k--', zorder=-5, linewidth=2)
         xy = [label_in_vac, self.efermi + self.ave_locpot * 0.05]
-        plt.annotate(r"$\Phi=%.2f$" %(self.work_function),
+        plt.annotate(r"$\Phi=%.2f$" % (self.work_function),
                      xy=xy, xytext=xy, fontsize=label_fontsize)
 
         return plt
@@ -1559,12 +1543,12 @@ class WorkFunctionAnalyzer:
         Returns a bool (whether or not the work function is converged)
         """
 
-        conv_within = tol*(max(self.locpot_along_c)-min(self.locpot_along_c))
-        min_points = int(min_points_frac*len(self.locpot_along_c))
+        conv_within = tol * (max(self.locpot_along_c) - min(self.locpot_along_c))
+        min_points = int(min_points_frac * len(self.locpot_along_c))
         peak_i = self.locpot_along_c.index(self.vacuum_locpot)
         all_flat = []
         for i in range(len(self.along_c)):
-            if peak_i - min_points < i <  peak_i + min_points:
+            if peak_i - min_points < i < peak_i + min_points:
                 if abs(self.vacuum_locpot - self.locpot_along_c[i]) > conv_within:
                     all_flat.append(False)
                 else:
@@ -1573,6 +1557,16 @@ class WorkFunctionAnalyzer:
 
     @staticmethod
     def from_files(poscar_filename, locpot_filename, outcar_filename, shift=0, blength=3.5):
+        """
+
+        :param poscar_filename: POSCAR file
+        :param locpot_filename: LOCPOT file
+        :param outcar_filename: OUTCAR file
+        :param shift: shift
+        :param blength: The longest bond length in the material.
+            Used to handle pbc for noncontiguous slab layers
+        :return: WorkFunctionAnalyzer
+        """
         p = Poscar.from_file(poscar_filename)
         l = Locpot.from_file(locpot_filename)
         o = Outcar(outcar_filename)
@@ -1703,10 +1697,10 @@ class NanoscaleStability:
         new_r = new_r / 10 if r_units == "nanometers" else new_r
         e = (Ebulk + tot_wulff_se)
         e = e / 1000 if e_units == "keV" else e
-        e = e / ((4/3)*np.pi*new_r**3) if normalize else e
+        e = e / ((4 / 3) * np.pi * new_r ** 3) if normalize else e
         bulk_struct = bulk_entry.structure
-        density = len(bulk_struct)/bulk_struct.lattice.volume
-        e = e/(density*w_vol) if scale_per_atom else e
+        density = len(bulk_struct) / bulk_struct.lattice.volume
+        e = e / (density * w_vol) if scale_per_atom else e
 
         return e, new_r
 
@@ -1716,7 +1710,7 @@ class NanoscaleStability:
         Args:
             bulk_entry (ComputedStructureEntry): Entry of the corresponding bulk.
         """
-        return bulk_entry.energy/bulk_entry.structure.lattice.volume
+        return bulk_entry.energy / bulk_entry.structure.lattice.volume
 
     def scaled_wulff(self, wulffshape, r):
         """
@@ -1735,7 +1729,7 @@ class NanoscaleStability:
         """
 
         # get the scaling ratio for the energies
-        r_ratio = r/wulffshape.effective_radius
+        r_ratio = r / wulffshape.effective_radius
         miller_list = wulffshape.miller_energy_dict.keys()
         # Normalize the magnitude of the facet normal vectors
         # of the Wulff shape by the minimum surface energy.
@@ -1790,10 +1784,10 @@ class NanoscaleStability:
             gform_list.append(gform)
             r_list.append(r)
 
-        ru = "nm" if r_units == "nanometers" else "\AA"
-        plt.xlabel(r"Particle radius ($%s$)" %(ru))
-        eu = "$%s/%s^3$" %(e_units, ru)
-        plt.ylabel(r"$G_{form}$ (%s)" %(eu))
+        ru = "nm" if r_units == "nanometers" else r"\AA"
+        plt.xlabel(r"Particle radius ($%s$)" % (ru))
+        eu = "$%s/%s^3$" % (e_units, ru)
+        plt.ylabel(r"$G_{form}$ (%s)" % (eu))
 
         plt.plot(r_list, gform_list, label=label)
 
@@ -1847,6 +1841,7 @@ class NanoscaleStability:
         #     def __init__(self, entry):
         #         self.entry = entry
 
+
 def sub_chempots(gamma_dict, chempots):
     """
     Uses dot product of numpy array to sub chemical potentials
@@ -1872,4 +1867,3 @@ def sub_chempots(gamma_dict, chempots):
             chempot_vals.append(chempots[k])
 
     return np.dot(coeffs, chempot_vals)
-

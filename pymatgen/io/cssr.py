@@ -2,16 +2,16 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import re
-
-from monty.io import zopen
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
 
 """
 This module provides input and output from the CSSR file format.
 """
 
+import re
+
+from monty.io import zopen
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -25,12 +25,13 @@ class Cssr:
     """
     Basic object for working with Cssr file. Right now, only conversion from
     a Structure to a Cssr file is supported.
-
-    Args:
-        structure (Structure/IStructure): A structure to create the Cssr object.
     """
 
     def __init__(self, structure):
+        """
+        Args:
+            structure (Structure/IStructure): A structure to create the Cssr object.
+        """
         if not structure.is_ordered:
             raise ValueError("Cssr file can only be constructed from ordered "
                              "structure")
@@ -74,7 +75,7 @@ class Cssr:
         lengths = [float(i) for i in toks]
         toks = lines[1].split()
         angles = [float(i) for i in toks[0:3]]
-        latt = Lattice.from_lengths_and_angles(lengths, angles)
+        latt = Lattice.from_parameters(*lengths, *angles)
         sp = []
         coords = []
         for l in lines[4:]:

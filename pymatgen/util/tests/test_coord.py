@@ -3,18 +3,6 @@
 # Distributed under the terms of the MIT License.
 
 
-"""
-Created on Apr 25, 2012
-"""
-
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Apr 25, 2012"
-
 import random
 from pymatgen.core.lattice import Lattice
 from pymatgen.util.coord import *
@@ -39,10 +27,10 @@ class CoordUtilsTest(PymatgenTest):
                                        atol=0.15))
 
     def test_is_coord_subset(self):
-        c1 = [0,0,0]
-        c2 = [0,1.2,-1]
-        c3 = [3,2,1]
-        c4 = [3-9e-9, 2-9e-9, 1-9e-9]
+        c1 = [0, 0, 0]
+        c2 = [0, 1.2, -1]
+        c3 = [3, 2, 1]
+        c4 = [3 - 9e-9, 2 - 9e-9, 1 - 9e-9]
         self.assertTrue(is_coord_subset([c1, c2, c3], [c1, c4, c2]))
         self.assertTrue(is_coord_subset([c1], [c2, c1]))
         self.assertTrue(is_coord_subset([c1, c2], [c2, c1]))
@@ -50,15 +38,15 @@ class CoordUtilsTest(PymatgenTest):
         self.assertFalse(is_coord_subset([c1, c2], [c2]))
 
     def test_coord_list_mapping(self):
-        c1 = [0,.124,0]
-        c2 = [0,1.2,-1]
-        c3 = [3,2,1]
+        c1 = [0, .124, 0]
+        c2 = [0, 1.2, -1]
+        c3 = [3, 2, 1]
         a = np.array([c1, c2])
         b = np.array([c3, c2, c1])
         inds = coord_list_mapping(a, b)
         self.assertTrue(np.allclose(a, b[inds]))
-        self.assertRaises(Exception, coord_list_mapping, [c1,c2], [c2,c3])
-        self.assertRaises(Exception, coord_list_mapping, [c2], [c2,c2])
+        self.assertRaises(Exception, coord_list_mapping, [c1, c2], [c2, c3])
+        self.assertRaises(Exception, coord_list_mapping, [c2], [c2, c2])
 
     def test_coord_list_mapping_pbc(self):
         c1 = [0.1, 0.2, 0.3]
@@ -73,8 +61,8 @@ class CoordUtilsTest(PymatgenTest):
         diff = a - b[inds]
         diff -= np.round(diff)
         self.assertTrue(np.allclose(diff, 0))
-        self.assertRaises(Exception, coord_list_mapping_pbc, [c1,c2], [c2,c3])
-        self.assertRaises(Exception, coord_list_mapping_pbc, [c2], [c2,c2])
+        self.assertRaises(Exception, coord_list_mapping_pbc, [c1, c2], [c2, c3])
+        self.assertRaises(Exception, coord_list_mapping_pbc, [c2], [c2, c2])
 
     def test_find_in_coord_list(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
@@ -132,7 +120,7 @@ class CoordUtilsTest(PymatgenTest):
         c1 = [0, 0, 0]
         c2 = [0, 1.2, -1]
         c3 = [2.3, 0, 1]
-        c4 = [1.3-9e-9, -1-9e-9, 1-9e-9]
+        c4 = [1.3 - 9e-9, -1 - 9e-9, 1 - 9e-9]
         self.assertTrue(is_coord_subset_pbc([c1, c2, c3], [c1, c4, c2]))
         self.assertTrue(is_coord_subset_pbc([c1], [c2, c1]))
         self.assertTrue(is_coord_subset_pbc([c1, c2], [c2, c1]))
@@ -156,38 +144,37 @@ class CoordUtilsTest(PymatgenTest):
         self.assertFalse(is_coord_subset_pbc([c1], [c2, c1], mask=mask3))
         self.assertTrue(is_coord_subset_pbc([c1], [c1, c2], mask=mask3))
 
-
     def test_lattice_points_in_supercell(self):
         supercell = np.array([[1, 3, 5], [-3, 2, 3], [-5, 3, 1]])
         points = lattice_points_in_supercell(supercell)
         self.assertAlmostEqual(len(points), abs(np.linalg.det(supercell)))
         self.assertGreaterEqual(np.min(points), -1e-10)
-        self.assertLessEqual(np.max(points), 1-1e-10)
+        self.assertLessEqual(np.max(points), 1 - 1e-10)
 
         supercell = np.array([[-5, -5, -3], [0, -4, -2], [0, -5, -2]])
         points = lattice_points_in_supercell(supercell)
         self.assertAlmostEqual(len(points), abs(np.linalg.det(supercell)))
         self.assertGreaterEqual(np.min(points), -1e-10)
-        self.assertLessEqual(np.max(points), 1-1e-10)
+        self.assertLessEqual(np.max(points), 1 - 1e-10)
 
     def test_barycentric(self):
-        #2d test
+        # 2d test
         simplex1 = np.array([[0.3, 0.1], [0.2, -1.2], [1.3, 2.3]])
         pts1 = np.array([[0.6, 0.1], [1.3, 2.3], [0.5, 0.5], [.7, 1]])
         output1 = barycentric_coords(pts1, simplex1)
-        #do back conversion to cartesian
+        # do back conversion to cartesian
         o_dot_s = np.sum(output1[:, :, None] * simplex1[None, :, :], axis=1)
         self.assertTrue(np.allclose(pts1, o_dot_s))
 
-        #do 3d tests
+        # do 3d tests
         simplex2 = np.array([[0, 0, 1], [0, 1, 0], [1, 0, 0], [0, 0, 0]])
-        pts2 = np.array([[0, 0, 1], [0, 0.5, 0.5], [1./3, 1./3, 1./3]])
+        pts2 = np.array([[0, 0, 1], [0, 0.5, 0.5], [1. / 3, 1. / 3, 1. / 3]])
         output2 = barycentric_coords(pts2, simplex2)
         self.assertTrue(np.allclose(output2[1], [0.5, 0.5, 0, 0]))
-        #do back conversion to cartesian
+        # do back conversion to cartesian
         o_dot_s = np.sum(output2[:, :, None] * simplex2[None, :, :], axis=1)
         self.assertTrue(np.allclose(pts2, o_dot_s))
-        #test single point
+        # test single point
         self.assertTrue(np.allclose(output2[2],
                                     barycentric_coords(pts2[2], simplex2)))
 
@@ -197,24 +184,23 @@ class CoordUtilsTest(PymatgenTest):
                             [0.9, 0.9, 0.8],
                             [0.1, 0.0, 0.5],
                             [0.9, 0.7, 0.0]])
-        lattice = Lattice.from_lengths_and_angles([8, 8, 4],
-                                                  [90, 76, 58])
+        lattice = Lattice.from_parameters(8, 8, 4, 90, 76, 58)
         expected = np.array([[0.000, 3.015, 4.072, 3.519, 3.245],
                              [3.015, 0.000, 3.207, 1.131, 4.453],
                              [4.072, 3.207, 0.000, 2.251, 1.788],
                              [3.519, 1.131, 2.251, 0.000, 3.852]])
 
         vectors = pbc_shortest_vectors(lattice, fcoords[:-1], fcoords)
-        dists = np.sum(vectors**2, axis = -1)**0.5
+        dists = np.sum(vectors ** 2, axis=-1) ** 0.5
         self.assertArrayAlmostEqual(dists, expected, 3)
 
-        #now try with small loop threshold
+        # now try with small loop threshold
         from pymatgen.util import coord
         prev_threshold = coord.LOOP_THRESHOLD
         coord.LOOP_THRESHOLD = 0
 
         vectors = pbc_shortest_vectors(lattice, fcoords[:-1], fcoords)
-        dists = np.sum(vectors**2, axis = -1)**0.5
+        dists = np.sum(vectors ** 2, axis=-1) ** 0.5
         self.assertArrayAlmostEqual(dists, expected, 3)
 
         coord.LOOP_THRESHOLD = prev_threshold
@@ -225,6 +211,7 @@ class CoordUtilsTest(PymatgenTest):
         self.assertAlmostEqual(get_angle(v1, v2), 54.7356103172)
         self.assertAlmostEqual(get_angle(v1, v2, units="radians"),
                                0.9553166181245092)
+
 
 class SimplexTest(PymatgenTest):
 
@@ -261,7 +248,7 @@ class SimplexTest(PymatgenTest):
 
     def test_volume(self):
         # Should be value of a right tetrahedron.
-        self.assertAlmostEqual(self.simplex.volume, 1/6)
+        self.assertAlmostEqual(self.simplex.volume, 1 / 6)
 
     def test_str(self):
         self.assertTrue(str(self.simplex).startswith("3-simplex in 4D space"))
@@ -282,7 +269,7 @@ class SimplexTest(PymatgenTest):
         point2 = [0.5, 0.7]
         intersections = s.line_intersection(point1, point2)
         expected = np.array([[1.13333333, 0.06666667],
-                             [ 0.8,  0.4]])
+                             [0.8, 0.4]])
         self.assertArrayAlmostEqual(intersections, expected)
 
         # intersection through point and face
@@ -301,16 +288,16 @@ class SimplexTest(PymatgenTest):
         self.assertArrayAlmostEqual(intersections, expected)
 
         # 3d intersection through edge and face
-        point1 = [0.5, 0, 0] # edge point
-        point2 = [0.5, 0.5, 0.5] # in simplex
-        expected = np.array([[ 0.5, 0.25, 0.25],
-                             [ 0.5, 0. , 0. ]])
+        point1 = [0.5, 0, 0]  # edge point
+        point2 = [0.5, 0.5, 0.5]  # in simplex
+        expected = np.array([[0.5, 0.25, 0.25],
+                             [0.5, 0., 0.]])
         intersections = self.simplex.line_intersection(point1, point2)
         self.assertArrayAlmostEqual(intersections, expected)
 
         # 3d intersection through edge only
-        point1 = [0.5, 0, 0] # edge point
-        point2 = [0.5, 0.5, -0.5] # outside simplex
+        point1 = [0.5, 0, 0]  # edge point
+        point2 = [0.5, 0.5, -0.5]  # outside simplex
         expected = np.array([[0.5, 0., 0.]])
         intersections = self.simplex.line_intersection(point1, point2)
         self.assertArrayAlmostEqual(intersections, expected)
@@ -341,4 +328,5 @@ class SimplexTest(PymatgenTest):
 
 if __name__ == "__main__":
     import unittest
+
     unittest.main()

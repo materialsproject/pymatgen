@@ -2,6 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Module containing classes to generate grain boundaries.
+"""
+
 import numpy as np
 from fractions import Fraction
 from math import gcd, floor, cos
@@ -208,19 +212,22 @@ class GrainBoundary(Structure):
             "Join plane: %s" % (self.join_plane,),
             "vacuum thickness: %s" % (self.vacuum_thickness,),
             "ab_shift: %s" % (self.ab_shift,), ]
-        to_s = lambda x: "%0.6f" % x
-        outs.append("abc   : " + " ".join([to_s(i).rjust(10)
-                                           for i in self.lattice.abc]))
-        outs.append("angles: " + " ".join([to_s(i).rjust(10)
-                                           for i in self.lattice.angles]))
+
+        def to_s(x, rjust=10):
+            return ("%0.6f" % x).rjust(rjust)
+
+        outs.append("abc   : " + " ".join([to_s(i) for i in self.lattice.abc]))
+        outs.append("angles: " + " ".join([to_s(i) for i in self.lattice.angles]))
         outs.append("Sites ({i})".format(i=len(self)))
         for i, site in enumerate(self):
-            outs.append(" ".join([str(i + 1), site.species_string,
-                                  " ".join([to_s(j).rjust(12)
-                                            for j in site.frac_coords])]))
+            outs.append(" ".join([str(i + 1), site.species_string, " ".join([to_s(j, 12) for j in site.frac_coords])]))
         return "\n".join(outs)
 
     def as_dict(self):
+        """
+        Returns:
+            Dictionary representation of GrainBoundary object
+        """
         d = super().as_dict()
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
@@ -236,6 +243,15 @@ class GrainBoundary(Structure):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Generates a GrainBoundary object from a dictionary created by as_dict().
+
+        Args:
+            d: dict
+
+        Returns:
+            GrainBoundary object
+        """
         lattice = Lattice.from_dict(d["lattice"])
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
         s = Structure.from_sites(sites)
@@ -567,7 +583,7 @@ class GrainBoundaryGenerator:
             normal_v_plane = np.cross(t_matrix[0], t_matrix[1])
             unit_normal_v = normal_v_plane / np.linalg.norm(normal_v_plane)
             unit_ab_adjust = (t_matrix[2] - np.dot(unit_normal_v, t_matrix[2]) * unit_normal_v) \
-                             / np.dot(unit_normal_v, t_matrix[2])
+                / np.dot(unit_normal_v, t_matrix[2])
         else:
             oriended_unit_cell = top_grain.copy()
             unit_ab_adjust = 0.0
@@ -631,8 +647,7 @@ class GrainBoundaryGenerator:
 
         # construct the coords, move top grain with translation_v
         all_coords = []
-        grain_labels = bottom_grain.site_properties['grain_label'] \
-                       + top_grain.site_properties['grain_label']
+        grain_labels = bottom_grain.site_properties['grain_label'] + top_grain.site_properties['grain_label']
         for site in bottom_grain:
             all_coords.append(site.coords)
         for site in top_grain:
@@ -661,6 +676,8 @@ class GrainBoundaryGenerator:
             all_sites = sites_away_gb + s_near_gb.sites
             gb_with_vac = Structure.from_sites(all_sites)
 
+        # move coordinates into the periodic cell.
+        gb_with_vac = fix_pbc(gb_with_vac, whole_lat.matrix)
         return GrainBoundary(whole_lat, gb_with_vac.species, gb_with_vac.cart_coords, rotation_axis,
                              rotation_angle, plane, join_plane, self.initial_structure,
                              vacuum_thickness, ab_shift, site_properties=gb_with_vac.site_properties,

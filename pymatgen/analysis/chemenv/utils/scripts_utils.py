@@ -3,21 +3,16 @@
 # Distributed under the terms of the MIT License.
 
 
-
 from pymatgen.ext.matproj import MPRester
 from pymatgen.io.cif import CifParser
+
 try:
-    import vtk
     from pymatgen.vis.structure_vtk import StructureVis
     no_vis = False
 except ImportError:
-    StructureVis = None
+    StructureVis = None  # type: ignore
     no_vis = True
 
-try:
-    input = raw_input
-except NameError:
-    pass
 
 from pymatgen.core.sites import PeriodicSite
 import re
@@ -29,8 +24,6 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_f
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import rotateCoords
 from pymatgen.analysis.chemenv.utils.defs_utils import chemenv_citations
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimplestChemenvStrategy
-#from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimpleAbundanceChemenvStrategy
-#from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import TargettedPenaltiedAbundanceChemenvStrategy
 from pymatgen.core.structure import Molecule
 from collections import OrderedDict
 import numpy as np
@@ -47,13 +40,12 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-
-
-strategies_class_lookup = OrderedDict()
+strategies_class_lookup = OrderedDict()  # type: dict
 strategies_class_lookup['SimplestChemenvStrategy'] = SimplestChemenvStrategy
 
-#strategies_class_lookup['SimpleAbundanceChemenvStrategy'] = SimpleAbundanceChemenvStrategy
-#strategies_class_lookup['TargettedPenaltiedAbundanceChemenvStrategy'] = TargettedPenaltiedAbundanceChemenvStrategy
+
+# strategies_class_lookup['SimpleAbundanceChemenvStrategy'] = SimpleAbundanceChemenvStrategy
+# strategies_class_lookup['TargettedPenaltiedAbundanceChemenvStrategy'] = TargettedPenaltiedAbundanceChemenvStrategy
 
 
 def draw_cg(vis, site, neighbors, cg=None, perm=None, perfect2local_map=None,
@@ -116,7 +108,7 @@ def draw_cg(vis, site, neighbors, cg=None, perm=None, perfect2local_map=None,
             scale = csm_info['other_symmetry_measures']['scaling_factor_{}'.format(csm_suffix)]
             points = perfect_geometry.points_wcs_ctwcc()
             rotated_points = rotateCoords(points, rot)
-            points = [scale*pp + trans for pp in rotated_points]
+            points = [scale * pp + trans for pp in rotated_points]
             if 'wcs' in csm_suffix:
                 ef_points = points[1:]
             else:
@@ -128,13 +120,11 @@ def draw_cg(vis, site, neighbors, cg=None, perm=None, perfect2local_map=None,
                                        start=0, end=360, opacity=1)
 
 
-
-
 # Visualizing a coordination geometry
 def visualize(cg, zoom=None, vis=None, myfactor=1.0, view_index=True, faces_color_override=None):
     if vis is None:
         vis = StructureVis(show_polyhedron=False, show_unit_cell=False)
-    myspecies = ["O"] * (cg.coordination_number+1)
+    myspecies = ["O"] * (cg.coordination_number + 1)
     myspecies[0] = "Cu"
     coords = [np.zeros(3, np.float) + cg.central_site]
 
@@ -174,7 +164,7 @@ def compute_environments(chemenv_configuration):
     lgf.setup_parameters()
     allcg = AllCoordinationGeometries()
     strategy_class = strategies_class_lookup[chemenv_configuration.package_options['default_strategy']['strategy']]
-    #TODO: Add the possibility to change the parameters and save them in the chemenv_configuration
+    # TODO: Add the possibility to change the parameters and save them in the chemenv_configuration
     default_strategy = strategy_class()
     default_strategy.setup_options(chemenv_configuration.package_options['default_strategy']['strategy_options'])
     max_dist_factor = chemenv_configuration.package_options['default_max_distance_factor']
@@ -238,26 +228,23 @@ def compute_environments(chemenv_configuration):
                     if len(ces) == 0:
                         continue
                     comp = site.species
-                    #ce = strategy.get_site_coordination_environment(site)
+                    # ce = strategy.get_site_coordination_environment(site)
                     if strategy.uniquely_determines_coordination_environments:
                         ce = ces[0]
                         if ce is None:
                             continue
                         thecg = allcg.get_geometry_from_mp_symbol(ce[0])
-                        mystring = 'Environment for site #{} {} ({}) : {} ({})\n'.format(str(isite),
-                                                                                         comp.get_reduced_formula_and_factor()[0],
-                                                                                         str(comp),
-                                                                                         thecg.name,
-                                                                                         ce[0])
+                        mystring = 'Environment for site #{} {} ({}) : {} ({})\n'.format(
+                            str(isite), comp.get_reduced_formula_and_factor()[0],
+                            str(comp), thecg.name, ce[0])
                     else:
-                        mystring = 'Environments for site #{} {} ({}) : \n'.format(str(isite),
-                                                                                   comp.get_reduced_formula_and_factor()[0],
-                                                                                   str(comp))
+                        mystring = 'Environments for site #{} {} ({}) : \n'.format(
+                            str(isite), comp.get_reduced_formula_and_factor()[0], str(comp))
                         for ce in ces:
                             cg = allcg.get_geometry_from_mp_symbol(ce[0])
                             csm = ce[1]['other_symmetry_measures']['csm_wcs_ctwcc']
                             mystring += ' - {} ({}): {:.2f} % (csm : {:2f})\n'.format(cg.name, cg.mp_symbol,
-                                                                                      100.0*ce[2],
+                                                                                      100.0 * ce[2],
                                                                                       csm)
                     if test in ['d', 'g'] and strategy.uniquely_determines_coordination_environments:
                         if thecg.mp_symbol != UNCLEAR_ENVIRONMENT_SYMBOL:
@@ -269,20 +256,21 @@ def compute_environments(chemenv_configuration):
                     print(mystring)
             if test == 'g':
                 while True:
-                    test = input('Enter index of site(s) (e.g. 0 1 2, separated by spaces) for which you want to see the grid of parameters : ')
+                    test = input(
+                        'Enter index of site(s) (e.g. 0 1 2, separated by spaces) for which you want to see the grid '
+                        'of parameters : ')
                     try:
-                         indices=[int(x) for x in test.split()]
-                         print(str(indices))
-                         for isite in indices:
-                             if isite <0:
-                                 raise IndexError
-                             se.plot_environments(isite, additional_condition=se.AC.ONLY_ACB)
-                         break
+                        indices = [int(x) for x in test.split()]
+                        print(str(indices))
+                        for isite in indices:
+                            if isite < 0:
+                                raise IndexError
+                            se.plot_environments(isite, additional_condition=se.AC.ONLY_ACB)
+                        break
                     except ValueError:
-                         print('This is not a valid site')
+                        print('This is not a valid site')
                     except IndexError:
-                         print('This site is out of the site range')
-
+                        print('This site is out of the site range')
 
             if no_vis:
                 test = input('Go to next structure ? ("y" to do so)')
@@ -300,10 +288,10 @@ def compute_environments(chemenv_configuration):
                             for i0 in range(int(nns[0])):
                                 for i1 in range(int(nns[1])):
                                     for i2 in range(int(nns[2])):
-                                        mydeltas.append(np.array([1.0*i0, 1.0*i1, 1.0*i2], np.float))
+                                        mydeltas.append(np.array([1.0 * i0, 1.0 * i1, 1.0 * i2], np.float))
                             break
 
-                        except (ValueError,IndexError):
+                        except (ValueError, IndexError):
                             print('Not a valid multiplicity')
                 else:
                     mydeltas = [np.zeros(3, np.float)]

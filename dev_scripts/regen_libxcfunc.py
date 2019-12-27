@@ -14,32 +14,34 @@ import json
 
 from collections import OrderedDict
 
+
 def parse_libxc_docs(path):
     """
     Parse libxc_docs.txt file, return dictionary with mapping:
     libxc_id --> info_dict
     """
-    def parse_section(section):
-	d = {}
-	for l in section:
-	    key, value = l.split(":")
-	    key = key.strip()
-	    d[key] = value.strip()
 
-	return int(d["Number"]), d
+    def parse_section(section):
+        d = {}
+        for l in section:
+            key, value = l.split(":")
+            key = key.strip()
+            d[key] = value.strip()
+
+        return int(d["Number"]), d
 
     d = OrderedDict()
     with open(path, "rt") as fh:
-	section = []
-	for line in fh:
-	    if not line.startswith("-"):
-		section.append(line)
-	    else:
-		num, entry = parse_section(section)
-		assert num not in d
-		d[num] = entry
-		section = []
-	assert not section
+        section = []
+        for line in fh:
+            if not line.startswith("-"):
+                section.append(line)
+            else:
+                num, entry = parse_section(section)
+                assert num not in d
+                d[num] = entry
+                section = []
+        assert not section
 
     return d
 
@@ -60,12 +62,14 @@ def write_libxc_docs_json(xcfuncs, jpath):
         # Descriptions are optional
         for opt in ("Description 1", "Description 2"):
             desc = d.get(opt)
-            if desc is not None: xcfuncs[num][opt] = desc
+            if desc is not None:
+                xcfuncs[num][opt] = desc
 
     with open(jpath, "wt") as fh:
         json.dump(xcfuncs, fh)
 
     return xcfuncs
+
 
 def main():
     """Main function."""
@@ -106,7 +110,7 @@ def main():
     start = lines.index("#begin_include_dont_touch\n")
     stop = lines.index("#end_include_dont_touch\n")
     lines.insert(stop, enum_list)
-    del lines[start+1:stop]
+    del lines[start + 1:stop]
 
     # [2] write new py module
     with open(xcfuncpy_path, "wt") as fh:

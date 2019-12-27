@@ -31,7 +31,7 @@ class Prismatic:
         l = self.structure.lattice
         lines = [self.comment, "{} {} {}".format(l.a, l.b, l.c)]
         for site in self.structure:
-            for sp, occu in site.species_and_occu.items():
+            for sp, occu in site.species.items():
                 lines.append(
                     "{} {} {} {} {} {}".format(
                         sp.Z,

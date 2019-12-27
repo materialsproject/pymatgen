@@ -2,22 +2,21 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module provides classes that operate on points or vectors in 3D space.
+"""
 
-import numpy as np
 import re
 from math import sin, cos, pi, sqrt
 import string
 import warnings
 
+import numpy as np
+
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.string import transformation_to_string
 
 from monty.json import MSONable
-
-"""
-This module provides classes that operate on points or vectors in 3D space.
-"""
-
 
 __author__ = "Shyue Ping Ong, Shyam Dwaraknath, Matthew Horton"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -382,19 +381,18 @@ class SymmOp(MSONable):
         return SymmOp(m)
 
     def as_dict(self):
-        d = {"@module": self.__class__.__module__,
-             "@class": self.__class__.__name__,
-             "matrix": self.affine_matrix.tolist(), "tolerance": self.tol}
-        return d
+        """
+        :return: MSONAble dict.
+        """
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "matrix": self.affine_matrix.tolist(), "tolerance": self.tol}
 
     def as_xyz_string(self):
         """
         Returns a string of the form 'x, y, z', '-x, -y, z',
         '-y+1/2, x+1/2, z+1/2', etc. Only works for integer rotation matrices
         """
-        xyz = ['x', 'y', 'z']
-        strings = []
-
         # test for invalid rotation matrix
         if not np.all(np.isclose(self.rotation_matrix,
                                  np.round(self.rotation_matrix))):
@@ -435,6 +433,10 @@ class SymmOp(MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        :param d: dict
+        :return: SymmOp from dict representation.
+        """
         return cls(d["matrix"], d["tolerance"])
 
 
@@ -462,7 +464,7 @@ class MagSymmOp(SymmOp):
             tol (float): Tolerance for determining if matrices are equal.
         """
         SymmOp.__init__(self, affine_transformation_matrix, tol=tol)
-        if time_reversal != 1 and time_reversal != -1:
+        if time_reversal not in (-1, 1):
             raise Exception(
                 "Time reversal operator not well defined: {0}, {1}".format(time_reversal,
                                                                            type(time_reversal)))
@@ -489,7 +491,7 @@ class MagSymmOp(SymmOp):
     def operate_magmom(self, magmom):
         """
         Apply time reversal operator on the magnetic moment. Note that
-        magnetic moments transform as axial vectors, not polar vectors. 
+        magnetic moments transform as axial vectors, not polar vectors.
 
         See 'Symmetry and magnetic structures', Rodríguez-Carvajal and
         Bourée for a good discussion. DOI: 10.1051/epjconf/20122200010
@@ -514,11 +516,11 @@ class MagSymmOp(SymmOp):
     def from_symmop(cls, symmop, time_reversal):
         """
         Initialize a MagSymmOp from a SymmOp and time reversal operator.
-        
+
         Args:
             symmop (SymmOp): SymmOp
             time_reversal (int): Time reversal operator, +1 or -1.
-        
+
         Returns:
             MagSymmOp object
         """
@@ -559,7 +561,7 @@ class MagSymmOp(SymmOp):
         symmop = SymmOp.from_xyz_string(xyzt_string.rsplit(',', 1)[0])
         try:
             time_reversal = int(xyzt_string.rsplit(',', 1)[1])
-        except:
+        except Exception:
             raise Exception("Time reversal operator could not be parsed.")
         return MagSymmOp.from_symmop(symmop, time_reversal)
 
@@ -572,6 +574,9 @@ class MagSymmOp(SymmOp):
         return xyzt_string + ", {:+}".format(self.time_reversal)
 
     def as_dict(self):
+        """
+        :return: MSONABle dict
+        """
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "matrix": self.affine_matrix.tolist(), "tolerance": self.tol,
@@ -579,5 +584,9 @@ class MagSymmOp(SymmOp):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        :param d: dict
+        :return: MagneticSymmOp from dict representation.
+        """
         return cls(d["matrix"], tol=d["tolerance"],
                    time_reversal=d["time_reversal"])

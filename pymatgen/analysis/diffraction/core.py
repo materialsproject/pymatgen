@@ -117,7 +117,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
             if two_theta_range[0] <= two_theta <= two_theta_range[1]:
                 label = ", ".join([str(hkl["hkl"]) for hkl in hkls])
                 ax.plot([two_theta, two_theta], [0, i], color='k',
-                         linewidth=3, label=label)
+                        linewidth=3, label=label)
                 if annotate_peaks:
                     ax.annotate(label, xy=[two_theta, i],
                                 xytext=[two_theta, i], fontsize=fontsize)
@@ -188,24 +188,11 @@ def get_unique_families(hkls):
     Returns:
         {hkl: multiplicity}: A dict with unique hkl and multiplicity.
     """
-    def is_perm(A, B):
-        if len(A) != len(B):
-            return False
-        counts = {}
-        for a in A:
-            if a in counts:
-                counts[a] = counts[a] + 1
-            else:
-                counts[a] = 1
-        for b in B:
-            if b in counts:
-                if counts[b] == 0:
-                    return False
-                else:
-                    counts[b] = counts[b] - 1
-            else:
-                return False
-        return True
+    # TODO: Definitely can be sped up.
+    def is_perm(hkl1, hkl2):
+        h1 = np.abs(hkl1)
+        h2 = np.abs(hkl2)
+        return all([i == j for i, j in zip(sorted(h1), sorted(h2))])
 
     unique = collections.defaultdict(list)
     for hkl1 in hkls:

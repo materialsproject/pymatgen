@@ -11,7 +11,6 @@ import requests
 import tempfile
 import shutil
 import os
-from monty.tempfile import ScratchDir
 
 from pymatgen.io.vasp.inputs import Kpoints
 
@@ -22,26 +21,26 @@ __email__ = "montoyjh@lbl.gov"
 __date__ = "June 22, 2017"
 
 
-def get_kpoints(structure, min_distance=0, min_total_kpoints=1, 
-                kppra=None, gap_distance=7, remove_symmetry=None, 
+def get_kpoints(structure, min_distance=0, min_total_kpoints=1,
+                kppra=None, gap_distance=7, remove_symmetry=None,
                 include_gamma="auto", header="simple", incar=None):
     """
     Get kpoints object from JHU servlet, per Wisesa-McGill-Mueller
     methodology.  Refer to http://muellergroup.jhu.edu/K-Points.html
-    and P. Wisesa, K. A. McGill, T. Mueller, Phys. Rev. B 93, 
+    and P. Wisesa, K. A. McGill, T. Mueller, Phys. Rev. B 93,
     155109 (2016)
 
     Args:
         structure (Structure): structure object
-        min_distance (float): The minimum allowed distance 
-            between lattice points on the real-space superlattice 
-        min_total_kpoints (int): The minimum allowed number of 
+        min_distance (float): The minimum allowed distance
+            between lattice points on the real-space superlattice
+        min_total_kpoints (int): The minimum allowed number of
             total k-points in the Brillouin zone.
         kppra (float): minimum k-points per reciprocal atom.
         gap_distance (float): auto-detection threshold for
             non-periodicity (in slabs, nanowires, etc.)
         remove_symmetry (string): optional flag to control
-            symmetry options, can be none, structural, 
+            symmetry options, can be none, structural,
             time_reversal, or all
         include_gamma (string or bool): whether to include
             gamma point
@@ -65,7 +64,7 @@ def get_kpoints(structure, min_distance=0, min_total_kpoints=1,
     precalc_file = open("PRECALC", 'w+')
     poscar_file = open("POSCAR", 'w+')
     incar_file = open("INCAR", 'w+')
-    
+
     precalc_file.write(precalc)
     poscar_file.write(structure.to("POSCAR"))
     files = [("fileupload", precalc_file),
@@ -73,13 +72,13 @@ def get_kpoints(structure, min_distance=0, min_total_kpoints=1,
     if incar:
         incar_file.write(incar.get_string())
         files.append(("fileupload", incar_file))
-    
+
     precalc_file.seek(0)
     poscar_file.seek(0)
     incar_file.seek(0)
-    
+
     r = requests.post(url, files=files)
-    
+
     precalc_file.close()
     poscar_file.close()
     incar_file.close()

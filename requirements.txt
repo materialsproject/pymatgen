@@ -1,14 +1,14 @@
-numpy==1.16.4
+numpy==1.18.0
 pydispatcher==2.0.5
-sympy==1.4
+sympy==1.5
 requests==2.22.0
-monty==2.0.4
-ruamel.yaml==0.15.96
-scipy==1.2.1
-tabulate==0.8.3
-matplotlib==3.1.0
-palettable==3.1.1
-spglib==1.12.2.post0
-pandas==0.24.2
-networkx==2.2
+monty==3.0.2
+ruamel.yaml==0.16.5
+scipy==1.4.1
+tabulate==0.8.6
+matplotlib==3.1.2
+palettable==3.3.0
+spglib==1.14.1.post0
+pandas==0.25.3
+networkx==2.4
 dataclasses>=0.6; python_version < '3.7'

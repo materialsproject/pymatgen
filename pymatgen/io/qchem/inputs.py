@@ -70,7 +70,7 @@ class QCInput(MSONable):
         #   - Has a valid job_type or jobtype
 
         valid_job_types = [
-            "opt", "optimization", "sp", "freq", "frequency", "nmr"
+            "opt", "optimization", "sp", "freq", "frequency", "force", "nmr"
         ]
 
         if "basis" not in self.rem:
@@ -138,7 +138,7 @@ class QCInput(MSONable):
         opt = None
         pcm = None
         solvent = None
-        smx=None
+        smx = None
         if "opt" in sections:
             opt = cls.read_opt(string)
         if "pcm" in sections:
@@ -245,8 +245,12 @@ class QCInput(MSONable):
         smx_list = []
         smx_list.append("$smx")
         for key, value in smx.items():
-            smx_list.append("   {key} {value}".format(
-                key=key, value=value))
+            if value == "tetrahydrofuran":
+                smx_list.append("   {key} {value}".format(
+                    key=key, value="thf"))
+            else:
+                smx_list.append("   {key} {value}".format(
+                    key=key, value=value))
         smx_list.append("$end")
         return '\n'.join(smx_list)
 
@@ -276,7 +280,7 @@ class QCInput(MSONable):
         patterns = {
             "read": r"^\s*\$molecule\n\s*(read)",
             "charge": r"^\s*\$molecule\n\s*((?:\-)*\d+)\s+\d",
-            "spin_mult": r"^\s*\$molecule\n\s*\d+\s*(\d)"
+            "spin_mult": r"^\s*\$molecule\n\s(?:\-)*\d+\s*(\d)"
         }
         matches = read_pattern(string, patterns)
         if "read" in matches.keys():
@@ -424,4 +428,6 @@ class QCInput(MSONable):
             return {}
         else:
             smx = {key: val for key, val in smx_table[0]}
+            if smx["solvent"] == "tetrahydrofuran":
+                smx["solvent"] = "thf"
             return smx

@@ -2,13 +2,13 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import abc
-
-from monty.json import MSONable, MontyDecoder
-
 """
 Defines an abstract base class contract for Transformation object.
 """
+
+import abc
+
+from monty.json import MSONable
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"

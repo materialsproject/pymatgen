@@ -1,11 +1,10 @@
-
 import unittest
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.tensors import Tensor
-from pymatgen.analysis.elasticity.strain import Strain, Deformation,\
-        convert_strain_to_deformation, DeformedStructureSet
+from pymatgen.analysis.elasticity.strain import Strain, Deformation, \
+    convert_strain_to_deformation, DeformedStructureSet
 from pymatgen.util.testing import PymatgenTest
 import numpy as np
 import warnings
@@ -66,13 +65,12 @@ class DeformationTest(PymatgenTest):
 
         # Check convention for applying transformation
         for vec, defo_vec in zip(self.structure.lattice.matrix,
-                strained_non.lattice.matrix):
+                                 strained_non.lattice.matrix):
             new_vec = np.dot(self.non_ind_defo, np.transpose(vec))
             self.assertArrayAlmostEqual(new_vec, defo_vec)
         for coord, defo_coord in zip(self.structure.cart_coords, strained_non.cart_coords):
             new_coord = np.dot(self.non_ind_defo, np.transpose(coord))
             self.assertArrayAlmostEqual(new_coord, defo_coord)
-
 
 
 class StrainTest(PymatgenTest):
@@ -138,8 +136,8 @@ class StrainTest(PymatgenTest):
                                      [0, 1, 0],
                                      [0, 0, 1]])
         symm_dfm = Strain(self.no_dfm).get_deformation_matrix(shape="symmetric")
-        self.assertArrayAlmostEqual(symm_dfm, [[0.99995,0.0099995, 0],
-                                               [0.0099995,1.00015, 0],
+        self.assertArrayAlmostEqual(symm_dfm, [[0.99995, 0.0099995, 0],
+                                               [0.0099995, 1.00015, 0],
                                                [0, 0, 1]])
         self.assertArrayAlmostEqual(self.no_dfm.get_deformation_matrix(),
                                     [[1, 0.02, 0],

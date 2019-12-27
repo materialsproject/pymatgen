@@ -118,5 +118,6 @@ class FuncUtilsTest(unittest.TestCase):
         self.assertEqual(delta_csm_ratio_function.evaluate(8.0), 1.0)
         self.assertEqual(delta_csm_ratio_function.evaluate(12.0), 1.0)
 
+
 if __name__ == "__main__":
     unittest.main()

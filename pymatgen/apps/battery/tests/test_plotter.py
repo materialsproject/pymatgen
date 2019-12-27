@@ -3,18 +3,6 @@
 # Distributed under the terms of the MIT License.
 
 
-'''
-Created on Jul 15, 2012
-'''
-
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
-__date__ = "Jul 15, 2012"
-
 import unittest
 import json
 import os
@@ -52,5 +40,4 @@ class VoltageProfilePlotterTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

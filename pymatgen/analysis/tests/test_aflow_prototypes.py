@@ -6,10 +6,10 @@
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.analysis.aflow_prototypes import AflowPrototypeMatcher
 
+
 class AflowPrototypeMatcherTest(PymatgenTest):
 
     def test_prototype_matching(self):
-
         af = AflowPrototypeMatcher()
 
         struct = self.get_structure('Sn')

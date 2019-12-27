@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-'''
+"""
 Developer script to convert yaml periodic table to json format.
 Created on Nov 15, 2011
-'''
+"""
 
 from __future__ import division
 import json
@@ -55,11 +55,11 @@ def parse_oxi_state():
         oxistates = []
         common_oxi = []
         for tok in re.split('<td>', line.strip()):
-            m2 = re.match("<b>([A-Z][a-z]*)</b>", tok)
+            m2 = re.match(r"<b>([A-Z][a-z]*)</b>", tok)
             if m2:
                 el = m2.group(1)
             else:
-                m3 = re.match("(<b>)*([\+\-]\d)(</b>)*", tok)
+                m3 = re.match(r"(<b>)*([\+\-]\d)(</b>)*", tok)
                 if m3:
                     oxistates.append(int(m3.group(2)))
                     if m3.group(1):
@@ -124,17 +124,17 @@ def parse_radii():
         el = toks[1]
         try:
             atomic_radii = float(toks[3]) / 100
-        except:
+        except Exception:
             atomic_radii = toks[3]
 
         try:
             atomic_radii_calc = float(toks[4]) / 100
-        except:
+        except Exception:
             atomic_radii_calc = toks[4]
 
         try:
             vdw_radii = float(toks[5]) / 100
-        except:
+        except Exception:
             vdw_radii = toks[5]
 
         if el in data:
@@ -267,4 +267,4 @@ def gen_iupac_ordering():
 
 if __name__ == "__main__":
     parse_shannon_radii()
-    #gen_periodic_table()
+    # gen_periodic_table()

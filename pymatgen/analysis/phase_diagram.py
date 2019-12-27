@@ -2,6 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module defines tools to generate and analyze phase diagrams.
+"""
 
 import re
 import collections
@@ -23,10 +26,6 @@ from pymatgen.util.plotting import pretty_plot
 from pymatgen.analysis.reaction_calculator import Reaction, \
     ReactionError
 
-"""
-This module defines tools to generate and analyze phase diagrams.
-"""
-
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
@@ -34,7 +33,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "May 16, 2011"
-
 
 logger = logging.getLogger(__name__)
 
@@ -60,21 +58,22 @@ class PDEntry(MSONable):
     .. attribute:: attribute
 
         A arbitrary attribute.
-
-    Args:
-        composition (Composition): Composition
-        energy (float): Energy for composition.
-        name (str): Optional parameter to name the entry. Defaults to the
-            reduced chemical formula.
-        attribute: Optional attribute of the entry. This can be used to
-            specify that the entry is a newly found compound, or to specify a
-            particular label for the entry, or else ... Used for further
-            analysis and plotting purposes. An attribute can be anything
-            but must be MSONable.
     """
 
     def __init__(self, composition: Composition, energy: float,
                  name: str = None, attribute: object = None):
+        """
+        Args:
+            composition (Composition): Composition
+            energy (float): Energy for composition.
+            name (str): Optional parameter to name the entry. Defaults to the
+                reduced chemical formula.
+            attribute: Optional attribute of the entry. This can be used to
+                specify that the entry is a newly found compound, or to specify a
+                particular label for the entry, or else ... Used for further
+                analysis and plotting purposes. An attribute can be anything
+                but must be MSONable.
+        """
         self.energy = energy
         self.composition = Composition(composition)
         self.name = name if name else self.composition.reduced_formula
@@ -102,6 +101,9 @@ class PDEntry(MSONable):
         return self.__repr__()
 
     def as_dict(self):
+        """
+        :return: MSONable dict.
+        """
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "composition": self.composition.as_dict(),
@@ -120,6 +122,10 @@ class PDEntry(MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        :param d: Dict representation
+        :return: PDEntry
+        """
         return cls(Composition(d["composition"]), d["energy"],
                    d["name"] if "name" in d else None,
                    d["attribute"] if "attribute" in d else None)
@@ -130,15 +136,16 @@ class GrandPotPDEntry(PDEntry):
     A grand potential pd entry object encompassing all relevant data for phase
     diagrams.  Chemical potentials are given as a element-chemical potential
     dict.
-
-    Args:
-        entry: A PDEntry-like object.
-        chempots: Chemical potential specification as {Element: float}.
-        name: Optional parameter to name the entry. Defaults to the reduced
-            chemical formula of the original entry.
     """
 
     def __init__(self, entry, chempots, name=None):
+        """
+        Args:
+            entry: A PDEntry-like object.
+            chempots: Chemical potential specification as {Element: float}.
+            name: Optional parameter to name the entry. Defaults to the reduced
+                chemical formula of the original entry.
+        """
         comp = entry.composition
         self.original_entry = entry
         self.original_comp = comp
@@ -169,6 +176,9 @@ class GrandPotPDEntry(PDEntry):
         return self.__repr__()
 
     def as_dict(self):
+        """
+        :return: MSONAble dict
+        """
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "entry": self.original_entry.as_dict(),
@@ -177,6 +187,10 @@ class GrandPotPDEntry(PDEntry):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        :param d: Dict representation
+        :return: PDStructureEntry
+        """
         chempots = {Element(symbol): u for symbol, u in d["chempots"].items()}
         entry = MontyDecoder().process_decoded(d["entry"])
         return cls(entry, chempots, d["name"])
@@ -196,13 +210,14 @@ class TransformedPDEntry(PDEntry):
     transformed to a different composition coordinate space. It is used in the
     construction of phase diagrams that do not have elements as the terminal
     compositions.
-
-    Args:
-        comp (Composition): Transformed composition as a Composition.
-        original_entry (PDEntry): Original entry that this entry arose from.
     """
 
     def __init__(self, comp, original_entry):
+        """
+        Args:
+            comp (Composition): Transformed composition as a Composition.
+            original_entry (PDEntry): Original entry that this entry arose from.
+        """
         super().__init__(comp, original_entry.energy)
         self.original_entry = original_entry
         self.name = original_entry.name
@@ -217,8 +232,7 @@ class TransformedPDEntry(PDEntry):
 
     def __repr__(self):
         output = ["TransformedPDEntry {}".format(self.composition),
-                  " with original composition {}"
-                      .format(self.original_entry.composition),
+                  " with original composition {}".format(self.original_entry.composition),
                   ", E = {:.4f}".format(self.original_entry.energy)]
         return "".join(output)
 
@@ -226,6 +240,9 @@ class TransformedPDEntry(PDEntry):
         return self.__repr__()
 
     def as_dict(self):
+        """
+        :return: MSONable dict
+        """
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "entry": self.original_entry.as_dict(),
@@ -233,6 +250,10 @@ class TransformedPDEntry(PDEntry):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        :param d: Dict representation
+        :return: TransformedPDEntry
+        """
         entry = MontyDecoder().process_decoded(d["entry"])
         return cls(d["composition"], entry)
 
@@ -317,14 +338,12 @@ class PhaseDiagram(MSONable):
         elements = list(elements)
         dim = len(elements)
 
-        get_reduced_comp = lambda e: e.composition.reduced_composition
-
-        entries = sorted(entries, key=get_reduced_comp)
+        entries = sorted(entries, key=lambda e: e.composition.reduced_composition)
 
         el_refs = {}
         min_entries = []
         all_entries = []
-        for c, g in itertools.groupby(entries, key=get_reduced_comp):
+        for c, g in itertools.groupby(entries, key=lambda e: e.composition.reduced_composition):
             g = list(g)
             min_entry = min(g, key=lambda e: e.energy_per_atom)
             if c.is_element:
@@ -398,6 +417,9 @@ class PhaseDiagram(MSONable):
 
     @property
     def all_entries_hulldata(self):
+        """
+        :return: The actual ndarray used to construct the convex hull.
+        """
         data = []
         for entry in self.all_entries:
             comp = entry.composition
@@ -461,6 +483,9 @@ class PhaseDiagram(MSONable):
         return "\n".join(output)
 
     def as_dict(self):
+        """
+        :return: MSONAble dict
+        """
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "all_entries": [e.as_dict() for e in self.all_entries],
@@ -468,6 +493,10 @@ class PhaseDiagram(MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        :param d: Dict representation
+        :return: PhaseDiagram
+        """
         entries = [MontyDecoder().process_decoded(dd) for dd in d["all_entries"]]
         elements = [Element.from_dict(dd) for dd in d["elements"]]
         return cls(entries, elements)
@@ -599,11 +628,23 @@ class PhaseDiagram(MSONable):
                                                  allow_negative=True)[1]
 
     def get_composition_chempots(self, comp):
+        """
+        Get the chemical potentials for all elements at a given composition.
+
+        :param comp: Composition
+        :return: Dict of chemical potentials.
+        """
         facet = self._get_facet_and_simplex(comp)[0]
         return self._get_facet_chempots(facet)
 
     def get_all_chempots(self, comp):
-        #note the top part takes from format of _get_facet_and_simplex,
+        """
+        Get chemical potentials at a given compositon.
+
+        :param comp: Composition
+        :return: Chemical potentials.
+        """
+        # note the top part takes from format of _get_facet_and_simplex,
         #   but wants to return all facets rather than the first one that meets this criteria
         c = self.pd_coords(comp)
         allfacets = []
@@ -730,7 +771,6 @@ class PhaseDiagram(MSONable):
             'reaction': Reaction Object], ...]
         """
         element = get_el_sp(element)
-        element = Element(element.symbol)
 
         if element not in self.elements:
             raise ValueError("get_transition_chempots can only be called with"
@@ -834,7 +874,7 @@ class PhaseDiagram(MSONable):
             [e for e in self.elements if e != dep_elt])
 
         for e in self.elements:
-            if not e in target_comp.elements:
+            if e not in target_comp.elements:
                 target_comp = target_comp + Composition({e: 0.0})
         coeff = [-target_comp[e] for e in self.elements if e != dep_elt]
         for e in chempot_ranges.keys():
@@ -849,8 +889,7 @@ class PhaseDiagram(MSONable):
                         res = {}
                         for i in range(len(elts)):
                             res[elts[i]] = v[i] + muref[i]
-                        res[dep_elt] = (np.dot(v + muref, coeff) + ef) / \
-                                       target_comp[dep_elt]
+                        res[dep_elt] = (np.dot(v + muref, coeff) + ef) / target_comp[dep_elt]
                         already_in = False
                         for di in all_coords:
                             dict_equals = True
@@ -887,7 +926,7 @@ class PhaseDiagram(MSONable):
         chempot_ranges = self.get_chempot_range_map(
             [e for e in self.elements if e != open_elt])
         for e in self.elements:
-            if not e in target_comp.elements:
+            if e not in target_comp.elements:
                 target_comp = target_comp + Composition({e: 0.0})
         coeff = [-target_comp[e] for e in self.elements if e != open_elt]
         max_open = -float('inf')
@@ -903,15 +942,11 @@ class PhaseDiagram(MSONable):
                 for s in chempot_ranges[e]:
                     for v in s._coords:
                         all_coords.append(v)
-                        if (np.dot(v + muref, coeff) + ef) / target_comp[
-                                open_elt] > max_open:
-                            max_open = (np.dot(v + muref, coeff) + ef) / \
-                                       target_comp[open_elt]
+                        if (np.dot(v + muref, coeff) + ef) / target_comp[open_elt] > max_open:
+                            max_open = (np.dot(v + muref, coeff) + ef) / target_comp[open_elt]
                             max_mus = v
-                        if (np.dot(v + muref, coeff) + ef) / target_comp[
-                                open_elt] < min_open:
-                            min_open = (np.dot(v + muref, coeff) + ef) / \
-                                       target_comp[open_elt]
+                        if (np.dot(v + muref, coeff) + ef) / target_comp[open_elt] < min_open:
+                            min_open = (np.dot(v + muref, coeff) + ef) / target_comp[open_elt]
                             min_mus = v
         elts = [e for e in self.elements if e != open_elt]
         res = {}
@@ -980,6 +1015,9 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
         return "\n".join(output)
 
     def as_dict(self):
+        """
+        :return: MSONable dict
+        """
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "all_entries": [e.as_dict() for e in self.all_entries],
@@ -988,6 +1026,10 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        :param d: Dict representation
+        :return: GrandPotentialPhaseDiagram
+        """
         entries = MontyDecoder().process_decoded(d["all_entries"])
         elements = MontyDecoder().process_decoded(d["elements"])
         return cls(entries, d["chempots"], elements)
@@ -1078,6 +1120,9 @@ class CompoundPhaseDiagram(PhaseDiagram):
         return new_entries, sp_mapping
 
     def as_dict(self):
+        """
+        :return: MSONable dict
+        """
         return {
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
@@ -1089,6 +1134,10 @@ class CompoundPhaseDiagram(PhaseDiagram):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        :param d: Dict Representation
+        :return: CompoundPhaseDiagram
+        """
         dec = MontyDecoder()
         entries = dec.process_decoded(d["original_entries"])
         terminal_compositions = dec.process_decoded(d["terminal_compositions"])
@@ -1097,13 +1146,14 @@ class CompoundPhaseDiagram(PhaseDiagram):
 
 
 class ReactionDiagram:
+    """
+    Analyzes the possible reactions between a pair of compounds, e.g.,
+    an electrolyte and an electrode.
+    """
 
     def __init__(self, entry1, entry2, all_entries, tol=1e-4,
                  float_fmt="%.4f"):
         """
-        Analyzes the possible reactions between a pair of compounds, e.g.,
-        an electrolyte and an electrode.
-
         Args:
             entry1 (ComputedEntry): Entry for 1st component. Note that
                 corrections, if any, must already be pre-applied. This is to
@@ -1148,7 +1198,8 @@ class ReactionDiagram:
         rxn_entries = []
         done = []
 
-        fmt = lambda fl: float_fmt % fl
+        def fmt(fl):
+            return float_fmt % fl
 
         for facet in pd.facets:
             for face in itertools.combinations(facet, len(facet) - 1):
@@ -1208,7 +1259,7 @@ class ReactionDiagram:
                             Composition(dict(zip(elements, comp))),
                             energy=energy, attribute=rxn_str)
                         rxn_entries.append(entry)
-                except np.linalg.LinAlgError as ex:
+                except np.linalg.LinAlgError:
                     logger.debug("Reactants = %s" % (", ".join([
                         entry1.composition.reduced_formula,
                         entry2.composition.reduced_formula])))
@@ -1222,9 +1273,9 @@ class ReactionDiagram:
         self.entry2 = entry2
         self.rxn_entries = rxn_entries
         self.labels = collections.OrderedDict()
-        for i, e in enumerate(rxn_entries): 
+        for i, e in enumerate(rxn_entries):
             self.labels[str(i + 1)] = e.attribute
-            e.name = str(i + 1) 
+            e.name = str(i + 1)
         self.all_entries = all_entries
         self.pd = pd
 
@@ -1246,7 +1297,7 @@ class ReactionDiagram:
             self.rxn_entries + [entry1, entry2],
             [Composition(entry1.composition.reduced_formula),
              Composition(entry2.composition.reduced_formula)],
-            normalize_terminal_compositions=False) 
+            normalize_terminal_compositions=False)
         return cpd
 
 
@@ -1280,23 +1331,24 @@ def get_facets(qhull_data, joggle=False):
 class PDPlotter:
     """
     A plotter class for phase diagrams.
-
-    Args:
-        phasediagram: PhaseDiagram object.
-        show_unstable (float): Whether unstable phases will be plotted as
-            well as red crosses. If a number > 0 is entered, all phases with
-            ehull < show_unstable will be shown.
-        \\*\\*plotkwargs: Keyword args passed to matplotlib.pyplot.plot. Can
-            be used to customize markers etc. If not set, the default is
-            {
-                "markerfacecolor": (0.2157, 0.4941, 0.7216),
-                "markersize": 10,
-                "linewidth": 3
-            }
-
     """
 
     def __init__(self, phasediagram, show_unstable=0, **plotkwargs):
+        r"""
+
+        Args:
+            phasediagram: PhaseDiagram object.
+            show_unstable (float): Whether unstable phases will be plotted as
+                well as red crosses. If a number > 0 is entered, all phases with
+                ehull < show_unstable will be shown.
+            **plotkwargs: Keyword args passed to matplotlib.pyplot.plot. Can
+                be used to customize markers etc. If not set, the default is
+                {
+                    "markerfacecolor": (0.2157, 0.4941, 0.7216),
+                    "markersize": 10,
+                    "linewidth": 3
+                }
+        """
         # note: palettable imports matplotlib
         from palettable.colorbrewer.qualitative import Set1_3
 
@@ -1377,6 +1429,15 @@ class PDPlotter:
 
     def get_plot(self, label_stable=True, label_unstable=True, ordering=None,
                  energy_colormap=None, process_attributes=False, plt=None):
+        """
+        :param label_stable: Whether to label stable compounds.
+        :param label_unstable: Whether to label unstable compounds.
+        :param ordering: Ordering of vertices.
+        :param energy_colormap: Colormap for coloring energy.
+        :param process_attributes: Whether to process the attributes.
+        :param plt: Existing plt object if plotting multiple phase diagrams.
+        :return: matplotlib.pyplot.
+        """
         if self._dim < 4:
             plt = self._get_2d_plot(label_stable, label_unstable, ordering,
                                     energy_colormap, plt=plt,
@@ -1420,9 +1481,9 @@ class PDPlotter:
         evolution = pd.get_element_profile(element, comp)
         num_atoms = evolution[0]["reaction"].reactants[0].num_atoms
         element_energy = evolution[0]['chempot']
+        x1, x2, y1 = None, None, None
         for i, d in enumerate(evolution):
             v = -(d["chempot"] - element_energy)
-            print ("index= %s, -\u0394\u03BC=%.4f(eV)," % (i, v), d["reaction"])
             if i != 0:
                 plt.plot([x2, x2], [y1, d["evolution"] / num_atoms],
                          'k', linewidth=2.5)
@@ -1450,12 +1511,12 @@ class PDPlotter:
         return plt
 
     def show(self, *args, **kwargs):
-        """
+        r"""
         Draws the phase diagram using Matplotlib and show it.
 
         Args:
-            \\*args: Passed to get_plot.
-            \\*\\*kwargs: Passed to get_plot.
+            *args: Passed to get_plot.
+            **kwargs: Passed to get_plot.
         """
         self.get_plot(*args, **kwargs).show()
 
@@ -1488,7 +1549,7 @@ class PDPlotter:
                 #  ICSD or from the MP) one.
                 for x, y in labels.keys():
                     if labels[(x, y)].attribute is None or \
-                                    labels[(x, y)].attribute == "existing":
+                            labels[(x, y)].attribute == "existing":
                         plt.plot(x, y, "ko", **self.plotkwargs)
                     else:
                         plt.plot(x, y, "k*", **self.plotkwargs)
@@ -1519,7 +1580,7 @@ class PDPlotter:
             if process_attributes:
                 for x, y in labels.keys():
                     if labels[(x, y)].attribute is None or \
-                                    labels[(x, y)].attribute == "existing":
+                            labels[(x, y)].attribute == "existing":
                         plt.plot(x, y, "o", markerfacecolor=vals_stable[ii],
                                  markersize=12)
                     else:
@@ -1627,9 +1688,6 @@ class PDPlotter:
                 'Energy [meV/at] above hull (in red)\nInverse energy ['
                 'meV/at] above hull (in green)',
                 rotation=-90, ha='left', va='center')
-            ticks = cbar.ax.get_yticklabels()
-            # cbar.ax.set_yticklabels(['${v}$'.format(
-            #     v=float(t.get_text().strip('$'))*1000.0) for t in ticks])
         f = plt.gcf()
         f.set_size_inches((8, 6))
         plt.subplots_adjust(left=0.09, right=0.98, top=0.98, bottom=0.07)
@@ -1670,7 +1728,7 @@ class PDPlotter:
         return plt
 
     def write_image(self, stream, image_format="svg", **kwargs):
-        """
+        r"""
         Writes the phase diagram to an image in a stream.
 
         Args:
@@ -1679,7 +1737,7 @@ class PDPlotter:
             image_format
                 format for image. Can be any of matplotlib supported formats.
                 Defaults to svg for best results for vector graphics.
-            \\*\\*kwargs: Pass through to get_plot functino.
+            **kwargs: Pass through to get_plot functino.
         """
         plt = self.get_plot(**kwargs)
 
@@ -1732,9 +1790,7 @@ class PDPlotter:
             coords = []
             contain_zero = any([comp.get_atomic_fraction(el) == 0
                                 for el in elements])
-            is_boundary = (not contain_zero) and \
-                          sum([comp.get_atomic_fraction(el) for el in
-                               elements]) == 1
+            is_boundary = (not contain_zero) and sum([comp.get_atomic_fraction(el) for el in elements]) == 1
             for line in lines:
                 (x, y) = line.coords.transpose()
                 plt.plot(x, y, "k-")
@@ -1939,8 +1995,7 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
             yup = coord[1]
             nameup = stable_entries[coord].name
 
-    if (not nameup in ordering) or (not nameright in ordering) or \
-            (not nameleft in ordering):
+    if (nameup not in ordering) or (nameright not in ordering) or (nameleft not in ordering):
         raise ValueError(
             'Error in ordering_phase_diagram : \n"{up}", "{left}" and "{'
             'right}"'
@@ -1971,10 +2026,8 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
                 newx = np.zeros_like(x)
                 newy = np.zeros_like(y)
                 for ii, xx in enumerate(x):
-                    newx[ii] = c120 * (xx - cc[0]) - s120 * (y[ii] - cc[1]) + \
-                               cc[0]
-                    newy[ii] = s120 * (xx - cc[0]) + c120 * (y[ii] - cc[1]) + \
-                               cc[1]
+                    newx[ii] = c120 * (xx - cc[0]) - s120 * (y[ii] - cc[1]) + cc[0]
+                    newy[ii] = s120 * (xx - cc[0]) + c120 * (y[ii] - cc[1]) + cc[1]
                 newlines.append([newx, newy])
             newstable_entries = {
                 (c120 * (c[0] - cc[0]) - s120 * (c[1] - cc[1]) + cc[0],
@@ -2013,10 +2066,8 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
                 newx = np.zeros_like(x)
                 newy = np.zeros_like(y)
                 for ii, xx in enumerate(x):
-                    newx[ii] = c240 * (xx - cc[0]) - s240 * (y[ii] - cc[1]) + \
-                               cc[0]
-                    newy[ii] = s240 * (xx - cc[0]) + c240 * (y[ii] - cc[1]) + \
-                               cc[1]
+                    newx[ii] = c240 * (xx - cc[0]) - s240 * (y[ii] - cc[1]) + cc[0]
+                    newy[ii] = s240 * (xx - cc[0]) + c240 * (y[ii] - cc[1]) + cc[1]
                 newlines.append([newx, newy])
             newstable_entries = {
                 (c240 * (c[0] - cc[0]) - s240 * (c[1] - cc[1]) + cc[0],

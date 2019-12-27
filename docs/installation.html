@@ -1,23 +1,48 @@
 
-<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta charset="utf-8" />
-    <title>Requirements &#8212; pymatgen 2019.7.2 documentation</title>
-    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Installation &mdash; pymatgen 2019.12.22 documentation</title>
+  
+
+  
+  
     <link rel="shortcut icon" href="_static/favicon.ico"/>
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orginstallation.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Overview" href="usage.html" />
-    <link rel="prev" title="Introduction" href="index.html" />
+    <link rel="next" title="Change log" href="change_log.html" />
+    <link rel="prev" title="Introduction" href="introduction.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -25,56 +50,167 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="usage.html" title="Overview"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="index.html" title="Introduction"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.2 documentation</a> &#187;</li> 
-      </ul>
-    </div>  
+</head>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
             
-  <div class="section" id="requirements">
-<h1>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h1>
+            
+              <div class="version">
+                2019.12.22
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#requirements">Requirements</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#optional-dependencies">Optional dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#optional-non-python-programs">Optional non-Python programs</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#conda-based-install">Conda-based install</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#step-1-install-conda">Step 1: Install conda</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-2b-optional-create-a-conda-environment">Step 2b: (Optional) Create a conda environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-3-install-pymatgen">Step 3: Install pymatgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-4-optional-install-enumlib-and-bader-only-for-osx-and-linux">Step 4: (Optional) Install enumlib and bader (only for OSX and Linux)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#potcar-setup">POTCAR Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setup-for-developers-using-github">Setup for Developers (using GitHub)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#step-1-preparing-your-system">Step 1: Preparing your system</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#windows">Windows</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mac-osx">Mac OSX</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#linux">Linux</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#step-2-install-pymatgen-in-developmental-mode">Step 2: Install pymatgen in developmental mode</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#installation-tips-for-optional-libraries">Installation tips for optional libraries</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#vtk-on-mac-os-x-tested-on-v7-0">VTK on Mac OS X (tested on v7.0)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openbabel-mac-os-x-tested-on-v2-3-2">OpenBabel Mac OS X (tested on v2.3.2)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#zeo">Zeo++</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">API Docs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Installation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/installation.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
 <p>All required dependencies should be automatically taken care of if you
 install pymatgen using easy_install or pip. Otherwise, these packages should
 be available on <a class="reference external" href="http://pypi.python.org">PyPI</a>.</p>
-<ol class="arabic simple">
-<li><p>Python 2.7-3.x supported. <strong>It is highly recommended that you use latest
-Python 3.x unless you know you need other dependencies that works with
-Python 2.x only.</strong></p></li>
-<li><p>numpy&gt;=1.14</p></li>
-<li><p>scipy&gt;=1.0.1</p></li>
-<li><p>matplotlib&gt;=1.5+</p></li>
-<li><p>monty&gt;=0.9.6</p></li>
-<li><p>requests&gt;=2.0+</p></li>
-<li><p>pybtex</p></li>
-<li><p>pyyaml</p></li>
-<li><p>tabulate</p></li>
-<li><p>six</p></li>
-</ol>
-<p>Most of these are fairly easy to install. The well-established numpy and scipy
-should have ready-made installation packages for all platforms. The rest are
-pure/semi-pure Python packages that installs without any issues with pip and
-easy_install.</p>
 <div class="section" id="optional-dependencies">
-<h2>Optional dependencies<a class="headerlink" href="#optional-dependencies" title="Permalink to this headline">¶</a></h2>
+<h3>Optional dependencies<a class="headerlink" href="#optional-dependencies" title="Permalink to this headline">¶</a></h3>
 <p>Optional libraries that are required if you need certain features.</p>
 <ol class="arabic simple">
 <li><p>sympy: For defect generation and analysis.</p></li>
@@ -91,11 +227,11 @@ and OpenBabel’s OBMol. Opens up input and output support for the very large
 number of input and output formats supported by OpenBabel.</p></li>
 <li><p>networkx: For graph analysis associated with critic2 topological analysis
 of electron charge densities, pygraphviz is also required for visualization.</p></li>
-<li><p>nose - For unittesting. Not optional for developers.</p></li>
+<li><p>pytest - For unittesting. Not optional for developers.</p></li>
 </ol>
 </div>
 <div class="section" id="optional-non-python-programs">
-<h2>Optional non-Python programs<a class="headerlink" href="#optional-non-python-programs" title="Permalink to this headline">¶</a></h2>
+<h3>Optional non-Python programs<a class="headerlink" href="#optional-non-python-programs" title="Permalink to this headline">¶</a></h3>
 <p>Optional non-python libraries (because no good python alternative exists at
 the moment) required only for certain features:</p>
 <ol class="arabic simple">
@@ -132,14 +268,14 @@ using critic2.</p></li>
 </div>
 </div>
 <div class="section" id="conda-based-install">
-<h1>Conda-based install<a class="headerlink" href="#conda-based-install" title="Permalink to this headline">¶</a></h1>
+<h2>Conda-based install<a class="headerlink" href="#conda-based-install" title="Permalink to this headline">¶</a></h2>
 <p>For these instructions, we will assume the <strong>64-bit</strong> versions of all OSes.
 For OSX and Linux, both latest Python 3.x adn 2.7 are supported. For Windows,
 only latest Python 3.x is supported. Most common functionality should work
 out of the box on Windows, but some specialized analyses relying on external
 programs may require you to compile those programs from source.</p>
 <div class="section" id="step-1-install-conda">
-<h2>Step 1: Install conda<a class="headerlink" href="#step-1-install-conda" title="Permalink to this headline">¶</a></h2>
+<h3>Step 1: Install conda<a class="headerlink" href="#step-1-install-conda" title="Permalink to this headline">¶</a></h3>
 <p>Download and install the version of conda for your operating system from
 <a class="reference external" href="http://conda.pydata.org/miniconda.html">http://conda.pydata.org/miniconda.html</a>. For Windows, <strong>make sure it is the
 Miniconda3 installer</strong>, and simply double-click the exe file. For Linux or Mac,
@@ -155,7 +291,7 @@ run:</p>
 the environmental variables added by conda to be loaded.</p>
 </div>
 <div class="section" id="step-2b-optional-create-a-conda-environment">
-<h2>Step 2b: (Optional) Create a conda environment<a class="headerlink" href="#step-2b-optional-create-a-conda-environment" title="Permalink to this headline">¶</a></h2>
+<h3>Step 2b: (Optional) Create a conda environment<a class="headerlink" href="#step-2b-optional-create-a-conda-environment" title="Permalink to this headline">¶</a></h3>
 <p>If you are working with many python packages, it is generally recommended you
 create a separate environment for each of your packages. For example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">--</span><span class="n">name</span> <span class="n">my_pymatgen</span> <span class="n">python</span>
@@ -165,11 +301,10 @@ create a separate environment for each of your packages. For example:</p>
 </div>
 </div>
 <div class="section" id="step-3-install-pymatgen">
-<h2>Step 3: Install pymatgen<a class="headerlink" href="#step-3-install-pymatgen" title="Permalink to this headline">¶</a></h2>
-<p>You can install pymatgen via conda as well via the <a class="reference external" href="https://anaconda.org/matsci">matsci channel on
-Anaconda cloud</a> maintained by the Materials
-Virtual Lab:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">--</span><span class="n">channel</span> <span class="n">matsci</span> <span class="n">pymatgen</span>
+<h3>Step 3: Install pymatgen<a class="headerlink" href="#step-3-install-pymatgen" title="Permalink to this headline">¶</a></h3>
+<p>You can install pymatgen via conda as well via the conda-forge channel on
+Anaconda cloud:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">--</span><span class="n">channel</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span> <span class="n">pymatgen</span>
 </pre></div>
 </div>
 <p>If the above fails, try using conda to install some critical dependencies and
@@ -180,27 +315,21 @@ then do pip install:</p>
 </div>
 </div>
 <div class="section" id="step-4-optional-install-enumlib-and-bader-only-for-osx-and-linux">
-<h2>Step 4: (Optional) Install enumlib and bader (only for OSX and Linux)<a class="headerlink" href="#step-4-optional-install-enumlib-and-bader-only-for-osx-and-linux" title="Permalink to this headline">¶</a></h2>
+<h3>Step 4: (Optional) Install enumlib and bader (only for OSX and Linux)<a class="headerlink" href="#step-4-optional-install-enumlib-and-bader-only-for-osx-and-linux" title="Permalink to this headline">¶</a></h3>
 <p>If you would like to use the enumeration capabilities powered by Gus Hart’s
 enumlib or perform Bader charge analysis powered by the Bader analysis code
-of the Henkelmann group, the <a class="reference external" href="https://anaconda.org/matsci">matsci channel on Anaconda cloud</a> has builds for enumlib and bader for OSX and
-Linux (sorry, Windows users, you are on your own as the develpers of these
-packages do not support Windows):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">--</span><span class="n">channel</span> <span class="n">matsci</span> <span class="n">bader</span>
-<span class="n">conda</span> <span class="n">install</span> <span class="o">--</span><span class="n">channel</span> <span class="n">matsci</span> <span class="n">enumlib</span>
-</pre></div>
-</div>
-<p>If the above fails, you can also try installing these from source using the pmg
+of the Henkelmann group, please try installing these from source using the pmg
 command line tool as follows:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pmg</span> <span class="n">config</span> <span class="o">--</span><span class="n">install</span> <span class="n">enumlib</span>
 <span class="n">pmg</span> <span class="n">config</span> <span class="o">--</span><span class="n">install</span> <span class="n">bader</span>
 </pre></div>
 </div>
-<p>Then put these in your PATH somewhere.</p>
+<p>Then put these in your PATH somewhere. You can also download the source of
+these from the official repos and follow the compile instructions.</p>
 </div>
 </div>
 <div class="section" id="potcar-setup">
-<h1>POTCAR Setup<a class="headerlink" href="#potcar-setup" title="Permalink to this headline">¶</a></h1>
+<h2>POTCAR Setup<a class="headerlink" href="#potcar-setup" title="Permalink to this headline">¶</a></h2>
 <p>For the code to generate POTCAR files, it needs to know where the VASP
 pseudopotential files are.  We are not allowed to distribute these under the
 VASP license. The good news is that the <cite>pmg</cite> command line utility includes a
@@ -266,11 +395,11 @@ from these other functionals with Materials Project data.</p>
 </div>
 </div>
 <div class="section" id="setup-for-developers-using-github">
-<h1>Setup for Developers (using GitHub)<a class="headerlink" href="#setup-for-developers-using-github" title="Permalink to this headline">¶</a></h1>
+<h2>Setup for Developers (using GitHub)<a class="headerlink" href="#setup-for-developers-using-github" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="step-1-preparing-your-system">
-<h2>Step 1: Preparing your system<a class="headerlink" href="#step-1-preparing-your-system" title="Permalink to this headline">¶</a></h2>
+<h3>Step 1: Preparing your system<a class="headerlink" href="#step-1-preparing-your-system" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="windows">
-<h3>Windows<a class="headerlink" href="#windows" title="Permalink to this headline">¶</a></h3>
+<h4>Windows<a class="headerlink" href="#windows" title="Permalink to this headline">¶</a></h4>
 <ol class="arabic simple">
 <li><p>Download Microsoft Visual Studio 2015 (the free Community Edition) is fine.</p></li>
 <li><p>Install Visual Studio 2015, but <em>make sure that you select More Options -&gt;
@@ -279,7 +408,7 @@ default, Visual Studio does not install Visual C++, which is needed.</p></li>
 </ol>
 </div>
 <div class="section" id="mac-osx">
-<h3>Mac OSX<a class="headerlink" href="#mac-osx" title="Permalink to this headline">¶</a></h3>
+<h4>Mac OSX<a class="headerlink" href="#mac-osx" title="Permalink to this headline">¶</a></h4>
 <ol class="arabic">
 <li><p>Download and install Xcode. Afterwards, install the XCode command line
 tools by typing the following in a terminal:</p>
@@ -292,7 +421,7 @@ tools by typing the following in a terminal:</p>
 </ol>
 </div>
 <div class="section" id="linux">
-<h3>Linux<a class="headerlink" href="#linux" title="Permalink to this headline">¶</a></h3>
+<h4>Linux<a class="headerlink" href="#linux" title="Permalink to this headline">¶</a></h4>
 <ol class="arabic simple">
 <li><p>Usually no preparation is needed as most of the standard compilers should
 already be available.</p></li>
@@ -300,7 +429,7 @@ already be available.</p></li>
 </div>
 </div>
 <div class="section" id="step-2-install-pymatgen-in-developmental-mode">
-<h2>Step 2: Install pymatgen in developmental mode<a class="headerlink" href="#step-2-install-pymatgen-in-developmental-mode" title="Permalink to this headline">¶</a></h2>
+<h3>Step 2: Install pymatgen in developmental mode<a class="headerlink" href="#step-2-install-pymatgen-in-developmental-mode" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic">
 <li><p>Make sure you have git and <a class="reference external" href="https://git-lfs.github.com/">git-lfs</a> installed.
 Clone the repo at <a class="reference external" href="https://github.com/materialsproject/pymatgen">https://github.com/materialsproject/pymatgen</a>.</p></li>
@@ -321,7 +450,7 @@ you start coding. It will make integration much easier.</p>
 </div>
 </div>
 <div class="section" id="installation-tips-for-optional-libraries">
-<h1>Installation tips for optional libraries<a class="headerlink" href="#installation-tips-for-optional-libraries" title="Permalink to this headline">¶</a></h1>
+<h2>Installation tips for optional libraries<a class="headerlink" href="#installation-tips-for-optional-libraries" title="Permalink to this headline">¶</a></h2>
 <p>This section provides a guide for installing various optional libraries used in
 pymatgen.  Some of the python libraries are rather tricky to build in certain
 operating systems, especially for users unfamiliar with building C/C++ code.
@@ -329,7 +458,7 @@ Please feel free to send in suggestions to update the instructions based on
 your experiences. In all the instructions, it is assumed that you have standard
 gcc and other compilers (e.g., Xcode on Macs) already installed.</p>
 <div class="section" id="vtk-on-mac-os-x-tested-on-v7-0">
-<h2>VTK on Mac OS X (tested on v7.0)<a class="headerlink" href="#vtk-on-mac-os-x-tested-on-v7-0" title="Permalink to this headline">¶</a></h2>
+<h3>VTK on Mac OS X (tested on v7.0)<a class="headerlink" href="#vtk-on-mac-os-x-tested-on-v7-0" title="Permalink to this headline">¶</a></h3>
 <p>The easiest is to install cmake from
 <a class="reference external" href="http://cmake.org/cmake/resources/software.html">http://cmake.org/cmake/resources/software.html</a>.</p>
 <p>Type the following:</p>
@@ -369,7 +498,7 @@ installed. You can test this by going into a python terminal and trying:</p>
 </div>
 </div>
 <div class="section" id="openbabel-mac-os-x-tested-on-v2-3-2">
-<h2>OpenBabel Mac OS X (tested on v2.3.2)<a class="headerlink" href="#openbabel-mac-os-x-tested-on-v2-3-2" title="Permalink to this headline">¶</a></h2>
+<h3>OpenBabel Mac OS X (tested on v2.3.2)<a class="headerlink" href="#openbabel-mac-os-x-tested-on-v2-3-2" title="Permalink to this headline">¶</a></h3>
 <p><strong>Anaconda install</strong></p>
 <p>If you are using anaconda (and have pymatgen installed in your anaconda environment), you should be
 able to install openbabel with a single command:</p>
@@ -458,7 +587,7 @@ you may need to add the following into your .bash_profile:</p>
 </ol>
 </div>
 <div class="section" id="zeo">
-<h2>Zeo++<a class="headerlink" href="#zeo" title="Permalink to this headline">¶</a></h2>
+<h3>Zeo++<a class="headerlink" href="#zeo" title="Permalink to this headline">¶</a></h3>
 <p>If you use the defects analysis package, you will need to installZeo++/Voro++.
 Here are the steps you need to follow (thanks to Bharat)</p>
 <p>Download and install Voro++:</p>
@@ -512,96 +641,47 @@ can do using pymatgen:</p>
 </div>
 </div>
 </div>
-
-
-          </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Requirements</a><ul>
-<li><a class="reference internal" href="#optional-dependencies">Optional dependencies</a></li>
-<li><a class="reference internal" href="#optional-non-python-programs">Optional non-Python programs</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#conda-based-install">Conda-based install</a><ul>
-<li><a class="reference internal" href="#step-1-install-conda">Step 1: Install conda</a></li>
-<li><a class="reference internal" href="#step-2b-optional-create-a-conda-environment">Step 2b: (Optional) Create a conda environment</a></li>
-<li><a class="reference internal" href="#step-3-install-pymatgen">Step 3: Install pymatgen</a></li>
-<li><a class="reference internal" href="#step-4-optional-install-enumlib-and-bader-only-for-osx-and-linux">Step 4: (Optional) Install enumlib and bader (only for OSX and Linux)</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#potcar-setup">POTCAR Setup</a></li>
-<li><a class="reference internal" href="#setup-for-developers-using-github">Setup for Developers (using GitHub)</a><ul>
-<li><a class="reference internal" href="#step-1-preparing-your-system">Step 1: Preparing your system</a><ul>
-<li><a class="reference internal" href="#windows">Windows</a></li>
-<li><a class="reference internal" href="#mac-osx">Mac OSX</a></li>
-<li><a class="reference internal" href="#linux">Linux</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#step-2-install-pymatgen-in-developmental-mode">Step 2: Install pymatgen in developmental mode</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#installation-tips-for-optional-libraries">Installation tips for optional libraries</a><ul>
-<li><a class="reference internal" href="#vtk-on-mac-os-x-tested-on-v7-0">VTK on Mac OS X (tested on v7.0)</a></li>
-<li><a class="reference internal" href="#openbabel-mac-os-x-tested-on-v2-3-2">OpenBabel Mac OS X (tested on v2.3.2)</a></li>
-<li><a class="reference internal" href="#zeo">Zeo++</a></li>
-</ul>
-</li>
-</ul>
-
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="index.html"
-                        title="previous chapter">Introduction</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="usage.html"
-                        title="next chapter">Overview</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/installation.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="usage.html" title="Overview"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="index.html" title="Introduction"
-             >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.2 documentation</a> &#187;</li> 
-      </ul>
-    </div>
 
-    <div class="footer" role="contentinfo">
-        &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
-    </div>
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
 the JavaScript coming from www.google-analytics.com.
@@ -616,5 +696,6 @@ the JavaScript coming from www.google-analytics.com.
 </script>
 </div>
 
-  </body>
+
+</body>
 </html>
