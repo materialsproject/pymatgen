@@ -6,7 +6,6 @@ from typing import Union, List
 from pathlib import Path
 import numpy as np
 
-
 """
 This module defines convenience types for type hinting purposes.
 Type hinting is new to pymatgen, so this module is subject to

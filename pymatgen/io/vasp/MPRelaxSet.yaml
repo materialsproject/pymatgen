@@ -79,6 +79,7 @@ INCAR:
   SIGMA: 0.05
 KPOINTS:
   reciprocal_density: 64
+POTCAR_FUNCTIONAL: PBE
 POTCAR:
   Ac: Ac
   Ag: Ag

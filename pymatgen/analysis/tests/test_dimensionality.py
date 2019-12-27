@@ -1,6 +1,6 @@
 import os
 import networkx as nx
-
+import warnings
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.core.structure import Structure
 from pymatgen.analysis.local_env import CrystalNN
@@ -9,7 +9,7 @@ from pymatgen.analysis.dimensionality import (
     get_dimensionality_larsen, calculate_dimensionality_of_site,
     get_structure_components, zero_d_graph_to_molecule_graph)
 from pymatgen.util.testing import PymatgenTest
-
+import unittest
 from monty.serialization import loadfn
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -39,6 +39,10 @@ class LarsenDimensionalityTest(PymatgenTest):
             ['H', 'C', 'N'],
             [[0.752, 0.752, 0.000], [0.004, 0.004, 0.], [0.272, 0.272, 0.]])
         self.mol_structure = cnn.get_bonded_structure(mol_structure)
+        warnings.simplefilter("ignore")
+
+    def tearDown(self) -> None:
+        warnings.simplefilter("default")
 
     def test_get_dimensionality(self):
         self.assertEqual(get_dimensionality_larsen(self.lifepo), 3)
@@ -159,3 +163,7 @@ class GoraiDimensionalityTest(PymatgenTest):
         self.assertEqual(get_dimensionality_gorai(s), 1)
         self.assertEqual(get_dimensionality_gorai(s, bonds={("Cs", "Cl"): 3.7}),
                          3)
+
+
+if __name__ == "__main__":
+    unittest.main()

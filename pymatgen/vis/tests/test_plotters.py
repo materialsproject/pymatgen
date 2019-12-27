@@ -8,7 +8,6 @@ import json
 
 from monty.json import MontyDecoder
 import numpy as np
-import matplotlib
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.analysis.xas.spectrum import XANES
@@ -35,6 +34,7 @@ class SpectrumPlotterTest(PymatgenTest):
         plt = self.plotter.get_plot()
         self.plotter.save_plot("spectrum_plotter_test.eps")
         os.remove("spectrum_plotter_test.eps")
+        plt.close('all')
 
     def test_get_stacked_plot(self):
         self.plotter = SpectrumPlotter(yshift=0.2, stack=True)
@@ -43,6 +43,8 @@ class SpectrumPlotterTest(PymatgenTest):
         xanes.y += np.random.randn(len(xanes.y)) * 0.005
         self.plotter.add_spectrum("Pd2O + noise", xanes, "r")
         plt = self.plotter.get_plot()
+        plt.close('all')
+
 
 if __name__ == '__main__':
     unittest.main()

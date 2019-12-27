@@ -3,18 +3,6 @@
 # Distributed under the terms of the MIT License.
 
 
-"""
-Created on Nov 14, 2012
-"""
-
-
-__author__ = "Anubhav Jain"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Anubhav Jain"
-__email__ = "ajain@lbl.gov"
-__date__ = "Nov 14, 2012"
-
 import unittest
 import os
 
@@ -30,12 +18,16 @@ class FuncTest(PymatgenTest):
     def test_micro_pyawk(self):
         filename = os.path.join(test_dir, "OUTCAR")
         data = []
+
         def f(x, y):
             data.append(y.group(1).strip())
 
-        f2 = lambda x, y: y
+        def f2(x, y):
+            return y
+
         micro_pyawk(filename, [["POTCAR:(.*)", f2, f]])
         self.assertEqual(len(data), 6)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,21 +1,48 @@
 
-<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta charset="utf-8" />
-    <title>pymatgen &#8212; pymatgen 2019.7.2 documentation</title>
-    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen &mdash; pymatgen 2019.12.22 documentation</title>
+  
+
+  
+  
     <link rel="shortcut icon" href="_static/favicon.ico"/>
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgmodules.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen package" href="pymatgen.html" />
+    <link rel="prev" title="References" href="references.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -23,24 +50,129 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.2 documentation</a> &#187;</li> 
-      </ul>
-    </div>  
+</head>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2019.12.22
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Docs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.html">pymatgen package</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>pymatgen</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/modules.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="pymatgen">
 <h1>pymatgen<a class="headerlink" href="#pymatgen" title="Permalink to this headline">¶</a></h1>
@@ -118,7 +250,6 @@
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html">pymatgen.analysis.elasticity.elastic module</a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.analysis.elasticity.strain.html">pymatgen.analysis.elasticity.strain module</a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.analysis.elasticity.stress.html">pymatgen.analysis.elasticity.stress module</a></li>
-<li class="toctree-l7"><a class="reference internal" href="pymatgen.analysis.elasticity.tensors.html">pymatgen.analysis.elasticity.tensors module</a></li>
 </ul>
 </li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.analysis.elasticity.html#module-pymatgen.analysis.elasticity">Module contents</a></li>
@@ -154,6 +285,7 @@
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.magnetism.html">pymatgen.analysis.magnetism package</a><ul>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.analysis.magnetism.html#submodules">Submodules</a><ul>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html">pymatgen.analysis.magnetism.analyzer module</a></li>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.analysis.magnetism.heisenberg.html">pymatgen.analysis.magnetism.heisenberg module</a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.analysis.magnetism.jahnteller.html">pymatgen.analysis.magnetism.jahnteller module</a></li>
 </ul>
 </li>
@@ -211,6 +343,7 @@
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.path_finder.html">pymatgen.analysis.path_finder module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.phase_diagram.html">pymatgen.analysis.phase_diagram module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.piezo.html">pymatgen.analysis.piezo module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.piezo_sensitivity.html">pymatgen.analysis.piezo_sensitivity module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.pourbaix_diagram.html">pymatgen.analysis.pourbaix_diagram module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.quasiharmonic.html">pymatgen.analysis.quasiharmonic module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.reaction_calculator.html">pymatgen.analysis.reaction_calculator module</a></li>
@@ -289,6 +422,8 @@
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.command_line.critic2_caller.html">pymatgen.command_line.critic2_caller module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.command_line.enumlib_caller.html">pymatgen.command_line.enumlib_caller module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.command_line.gulp_caller.html">pymatgen.command_line.gulp_caller module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.command_line.mcsqs_caller.html">pymatgen.command_line.mcsqs_caller module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.command_line.vampire_caller.html">pymatgen.command_line.vampire_caller module</a></li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html#module-pymatgen.command_line">Module contents</a></li>
@@ -346,7 +481,6 @@
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.entries.computed_entries.html">pymatgen.entries.computed_entries module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.entries.entry_tools.html">pymatgen.entries.entry_tools module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.entries.exp_entries.html">pymatgen.entries.exp_entries module</a></li>
-<li class="toctree-l5"><a class="reference internal" href="pymatgen.entries.post_processors_abc.html">pymatgen.entries.post_processors_abc module</a></li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html#module-pymatgen.entries">Module contents</a></li>
@@ -376,30 +510,20 @@
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.io.abinit.abiinspect.html">pymatgen.io.abinit.abiinspect module</a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html">pymatgen.io.abinit.abiobjects module</a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html">pymatgen.io.abinit.abitimer module</a></li>
-<li class="toctree-l7"><a class="reference internal" href="pymatgen.io.abinit.calculations.html">pymatgen.io.abinit.calculations module</a></li>
-<li class="toctree-l7"><a class="reference internal" href="pymatgen.io.abinit.db.html">pymatgen.io.abinit.db module</a></li>
-<li class="toctree-l7"><a class="reference internal" href="pymatgen.io.abinit.events.html">pymatgen.io.abinit.events module</a></li>
-<li class="toctree-l7"><a class="reference internal" href="pymatgen.io.abinit.flows.html">pymatgen.io.abinit.flows module</a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.io.abinit.helpers.html">pymatgen.io.abinit.helpers module</a></li>
-<li class="toctree-l7"><a class="reference internal" href="pymatgen.io.abinit.launcher.html">pymatgen.io.abinit.launcher module</a></li>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.io.abinit.inputs.html">pymatgen.io.abinit.inputs module</a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.io.abinit.netcdf.html">pymatgen.io.abinit.netcdf module</a></li>
-<li class="toctree-l7"><a class="reference internal" href="pymatgen.io.abinit.nodes.html">pymatgen.io.abinit.nodes module</a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html">pymatgen.io.abinit.pseudos module</a></li>
-<li class="toctree-l7"><a class="reference internal" href="pymatgen.io.abinit.qadapters.html">pymatgen.io.abinit.qadapters module</a></li>
-<li class="toctree-l7"><a class="reference internal" href="pymatgen.io.abinit.qjobs.html">pymatgen.io.abinit.qjobs module</a></li>
-<li class="toctree-l7"><a class="reference internal" href="pymatgen.io.abinit.qutils.html">pymatgen.io.abinit.qutils module</a></li>
-<li class="toctree-l7"><a class="reference internal" href="pymatgen.io.abinit.scheduler_error_handlers.html">pymatgen.io.abinit.scheduler_error_handlers module</a></li>
-<li class="toctree-l7"><a class="reference internal" href="pymatgen.io.abinit.scheduler_error_parsers.html">pymatgen.io.abinit.scheduler_error_parsers module</a></li>
-<li class="toctree-l7"><a class="reference internal" href="pymatgen.io.abinit.tasks.html">pymatgen.io.abinit.tasks module</a></li>
-<li class="toctree-l7"><a class="reference internal" href="pymatgen.io.abinit.utils.html">pymatgen.io.abinit.utils module</a></li>
-<li class="toctree-l7"><a class="reference internal" href="pymatgen.io.abinit.works.html">pymatgen.io.abinit.works module</a></li>
-<li class="toctree-l7"><a class="reference internal" href="pymatgen.io.abinit.wrappers.html">pymatgen.io.abinit.wrappers module</a></li>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.io.abinit.variable.html">pymatgen.io.abinit.variable module</a></li>
 </ul>
 </li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.abinit.html#module-pymatgen.io.abinit">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.exciting.html">pymatgen.io.exciting package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.exciting.html#subpackages">Subpackages</a><ul class="simple">
+</ul>
+</li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.exciting.html#submodules">Submodules</a><ul>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.io.exciting.inputs.html">pymatgen.io.exciting.inputs module</a></li>
 </ul>
@@ -479,11 +603,15 @@
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.phonopy.html">pymatgen.io.phonopy module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.prismatic.html">pymatgen.io.prismatic module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.pwscf.html">pymatgen.io.pwscf module</a></li>
-<li class="toctree-l5"><a class="reference internal" href="pymatgen.io.qchem_deprecated.html">pymatgen.io.qchem_deprecated module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.io.shengbte.html">pymatgen.io.shengbte module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.xcrysden.html">pymatgen.io.xcrysden module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.xr.html">pymatgen.io.xr module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.xyz.html">pymatgen.io.xyz module</a></li>
-<li class="toctree-l5"><a class="reference internal" href="pymatgen.io.zeopp.html">pymatgen.io.zeopp module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.io.zeopp.html">pymatgen.io.zeopp module</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.zeopp.html#zeo-installation-steps">Zeo++ Installation Steps:</a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.zeopp.html#zeo-post-installation-checking">Zeo++ Post-Installation Checking:</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html#module-pymatgen.io">Module contents</a></li>
@@ -496,6 +624,7 @@
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html#submodules">Submodules</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.optimization.linear_assignment.html">pymatgen.optimization.linear_assignment module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.optimization.linear_assignment_numpy.html">pymatgen.optimization.linear_assignment_numpy module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.optimization.neighbors.html">pymatgen.optimization.neighbors module</a></li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html#module-pymatgen.optimization">Module contents</a></li>
@@ -508,6 +637,7 @@
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html#submodules">Submodules</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.phonon.bandstructure.html">pymatgen.phonon.bandstructure module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.phonon.dos.html">pymatgen.phonon.dos module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.phonon.ir_spectra.html">pymatgen.phonon.ir_spectra module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.phonon.plotter.html">pymatgen.phonon.plotter module</a></li>
 </ul>
 </li>
@@ -524,6 +654,7 @@
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.symmetry.groups.html">pymatgen.symmetry.groups module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.symmetry.maggroups.html">pymatgen.symmetry.maggroups module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.symmetry.settings.html">pymatgen.symmetry.settings module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.symmetry.site_symmetries.html">pymatgen.symmetry.site_symmetries module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.symmetry.structure.html">pymatgen.symmetry.structure module</a></li>
 </ul>
 </li>
@@ -594,49 +725,44 @@
 </div>
 
 
+           </div>
+           
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/modules.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.2 documentation</a> &#187;</li> 
-      </ul>
-    </div>
+          <footer>
+  
 
-    <div class="footer" role="contentinfo">
-        &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
-    </div>
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
 the JavaScript coming from www.google-analytics.com.
@@ -651,5 +777,6 @@ the JavaScript coming from www.google-analytics.com.
 </script>
 </div>
 
-  </body>
+
+</body>
 </html>

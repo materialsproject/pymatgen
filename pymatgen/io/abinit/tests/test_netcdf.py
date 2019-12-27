@@ -15,9 +15,9 @@ try:
 except ImportError:
     netCDF4 = None
 
-
 _test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                          'test_files', "abinit")
+
 
 def ref_file(filename):
     return os.path.join(_test_dir, filename)
@@ -26,7 +26,7 @@ def ref_file(filename):
 class ETSF_Reader_TestCase(PymatgenTest):
 
     def setUp(self):
-        formulas = ["Si2",]
+        formulas = ["Si2", ]
         self.GSR_paths = d = {}
         for formula in formulas:
             d[formula] = ref_file(formula + "_GSR.nc")
@@ -41,13 +41,13 @@ class ETSF_Reader_TestCase(PymatgenTest):
 
         ref_int_values = {
             "space_group": 227,
-            "number_of_states": np.reshape([15, 15], (1,2)),
+            "number_of_states": np.reshape([15, 15], (1, 2)),
         }
 
         ref_float_values = {
             "etotal": -8.85911566912484,
             "primitive_vectors": np.reshape([0, 5.125, 5.125, 5.125, 0, 5.125,
-                                             5.125, 5.125, 0], (3,3)),
+                                             5.125, 5.125, 0], (3, 3)),
         }
 
         with ETSF_Reader(path) as data:
@@ -70,7 +70,7 @@ class ETSF_Reader_TestCase(PymatgenTest):
                 value = data.read_value(varname)
                 print(varname, value)
                 self.assertArrayAlmostEqual(value, float_ref)
-            #assert 0
+            # assert 0
 
             # Reading non-existent variables or dims should raise
             # a subclass of NetcdReaderError
@@ -93,5 +93,5 @@ class ETSF_Reader_TestCase(PymatgenTest):
 
             # Read ixc.
             # TODO: Upgrade GSR file.
-            #xc = data.read_abinit_xcfunc()
-            #assert xc == "LDA"
+            # xc = data.read_abinit_xcfunc()
+            # assert xc == "LDA"

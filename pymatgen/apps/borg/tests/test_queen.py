@@ -27,22 +27,23 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 
 
 class BorgQueenTest(unittest.TestCase):
+    def setUp(self):
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.simplefilter("default")
 
     def test_get_data(self):
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            drone = VaspToComputedEntryDrone()
-            self.queen = BorgQueen(drone, test_dir, 1)
-            data = self.queen.get_data()
-            self.assertEqual(len(data), 11)
+        drone = VaspToComputedEntryDrone()
+        self.queen = BorgQueen(drone, test_dir, 1)
+        data = self.queen.get_data()
+        self.assertEqual(len(data), 11)
 
     def test_load_data(self):
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            drone = VaspToComputedEntryDrone()
-            queen = BorgQueen(drone)
-            queen.load_data(os.path.join(test_dir, "assimilated.json"))
-            self.assertEqual(len(queen.get_data()), 1)
+        drone = VaspToComputedEntryDrone()
+        queen = BorgQueen(drone)
+        queen.load_data(os.path.join(test_dir, "assimilated.json"))
+        self.assertEqual(len(queen.get_data()), 1)
 
 
 if __name__ == "__main__":

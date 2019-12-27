@@ -9,7 +9,6 @@ import os
 
 from pymatgen.io.feff.outputs import LDos, Xmu
 
-
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
 test_dir_reci = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
@@ -72,10 +71,10 @@ class XmuTest(unittest.TestCase):
         filepath1 = os.path.join(test_dir, 'xmu.dat')
         filepath2 = os.path.join(test_dir, 'feff.inp')
         x = Xmu.from_file(filepath1, filepath2)
-        data=x.data.tolist()
-        d=x.as_dict()
+        data = x.data.tolist()
+        d = x.as_dict()
         x2 = Xmu.from_dict(d)
-        data2= x2.data.tolist()
+        data2 = x2.data.tolist()
         self.assertEqual(data, data2, "Xmu to and from dict does not match")
 
 

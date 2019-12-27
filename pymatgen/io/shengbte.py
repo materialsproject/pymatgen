@@ -8,7 +8,7 @@ from monty.json import MSONable
 
 try:
     import f90nml
-except:
+except Exception:
     f90nml = None
 
 """
@@ -131,12 +131,12 @@ class Control(dict, MSONable):
         control_str = str(alloc_nml) + "\n"
 
         crystal_dict = {k: self[k] for k in self.crystal_keys
-                      if k in self and self[k] is not None}
+                        if k in self and self[k] is not None}
         crystal_nml = f90nml.Namelist({"crystal": crystal_dict})
         control_str += str(crystal_nml) + "\n"
 
         params_dict = {k: self[k] for k in self.params_keys
-                      if k in self and self[k] is not None}
+                       if k in self and self[k] is not None}
         params_nml = f90nml.Namelist({"parameters": params_dict})
         control_str += str(params_nml) + "\n"
 

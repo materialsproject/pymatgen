@@ -625,7 +625,7 @@ $rem
 $end
 """
         qcinp = QCInput.from_string(str_molecule)
-        self.assertEqual(str_molecule,str(qcinp))
+        self.assertEqual(str_molecule, str(qcinp))
 
     def test_write_file_from_OptSet(self):
         from pymatgen.io.qchem.sets import OptSet
@@ -638,7 +638,6 @@ $end
         for key in test_dict:
             self.assertEqual(test_dict[key], test_ref_dict[key])
         os.remove(os.path.join(os.path.dirname(__file__), "test.qin"))
-
 
 
 if __name__ == "__main__":

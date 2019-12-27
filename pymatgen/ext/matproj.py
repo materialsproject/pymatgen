@@ -2,33 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
-import sys
-import itertools
-import json
-import platform
-import re
-import warnings
-from time import sleep
-
-from monty.json import MontyDecoder, MontyEncoder
-
-from copy import deepcopy
-
-from pymatgen import SETTINGS, __version__ as pmg_version
-
-from pymatgen.core.composition import Composition
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Structure
-
-from pymatgen.entries.computed_entries import ComputedEntry, \
-    ComputedStructureEntry
-from pymatgen.entries.exp_entries import ExpEntry
-
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-
-from pymatgen.util.sequence import get_chunks, PBar
-
 """
 This module provides classes to interface with the Materials Project REST
 API v2 to enable the creation of data structures and pymatgen objects using
@@ -39,6 +12,35 @@ Materials Project, and obtain an API key by going to your dashboard at
 https://www.materialsproject.org/dashboard.
 """
 
+import sys
+import itertools
+import json
+import platform
+import re
+import warnings
+from time import sleep
+import requests
+from monty.json import MontyDecoder, MontyEncoder
+
+from enum import Enum, unique
+from collections import defaultdict
+from copy import deepcopy
+
+from pymatgen import SETTINGS, __version__ as pmg_version
+
+from pymatgen.core.composition import Composition
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.structure import Structure
+from pymatgen.core.surface import get_symmetrically_equivalent_miller_indices
+
+from pymatgen.entries.computed_entries import ComputedEntry, \
+    ComputedStructureEntry
+from pymatgen.entries.exp_entries import ExpEntry
+
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+from pymatgen.util.sequence import get_chunks, PBar
+
 __author__ = "Shyue Ping Ong, Shreyas Cholia"
 __credits__ = "Anubhav Jain"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -46,6 +48,25 @@ __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Feb 22, 2013"
+
+
+@unique
+class TaskType(Enum):
+    """task types available in MP"""
+    GGA_OPT = "GGA Structure Optimization"
+    GGAU_OPT = "GGA+U Structure Optimization"
+    SCAN_OPT = "SCAN Structure Optimization"
+    GGA_LINE = "GGA NSCF Line"
+    GGAU_LINE = "GGA+U NSCF Line"
+    GGA_UNIFORM = "GGA NSCF Uniform"
+    GGAU_UNIFORM = "GGA+U NSCF Uniform"
+    GGA_STATIC = "GGA Static"
+    GGAU_STATIC = "GGA+U Static"
+    GGA_STATIC_DIEL = "GGA Static Dielectric"
+    GGAU_STATIC_DIEL = "GGA+U Static Dielectric"
+    GGA_DEF = "GGA Deformation"
+    GGAU_DEF = "GGA+U Deformation"
+    LDA_STATIC_DIEL = "LDA Static Dielectric"
 
 
 class MPRester:
@@ -62,24 +83,6 @@ class MPRester:
 
     For more advanced uses of the Materials API, please consult the API
     documentation at https://github.com/materialsproject/mapidoc.
-
-    Args:
-        api_key (str): A String API key for accessing the MaterialsProject
-            REST interface. Please obtain your API key at
-            https://www.materialsproject.org/dashboard. If this is None,
-            the code will check if there is a "PMG_MAPI_KEY" setting.
-            If so, it will use that environment variable. This makes
-            easier for heavy users to simply add this environment variable to
-            their setups and MPRester can then be called without any arguments.
-        endpoint (str): Url of endpoint to access the MaterialsProject REST
-            interface. Defaults to the standard Materials Project REST
-            address at "https://materialsproject.org/rest/v2", but
-            can be changed to other urls implementing a similar interface.
-        include_user_agent (bool): If True, will include a user agent with the
-            HTTP request including information on pymatgen and system version
-            making the API request. This helps MP support pymatgen users, and
-            is similar to what most web browsers send with each page request.
-            Set to False to disable the user agent.
     """
 
     supported_properties = ("energy", "energy_per_atom", "volume",
@@ -101,6 +104,25 @@ class MPRester:
                                  "band_gap", "density", "icsd_id", "cif")
 
     def __init__(self, api_key=None, endpoint=None, include_user_agent=True):
+        """
+        Args:
+            api_key (str): A String API key for accessing the MaterialsProject
+                REST interface. Please obtain your API key at
+                https://www.materialsproject.org/dashboard. If this is None,
+                the code will check if there is a "PMG_MAPI_KEY" setting.
+                If so, it will use that environment variable. This makes
+                easier for heavy users to simply add this environment variable to
+                their setups and MPRester can then be called without any arguments.
+            endpoint (str): Url of endpoint to access the MaterialsProject REST
+                interface. Defaults to the standard Materials Project REST
+                address at "https://materialsproject.org/rest/v2", but
+                can be changed to other urls implementing a similar interface.
+            include_user_agent (bool): If True, will include a user agent with the
+                HTTP request including information on pymatgen and system version
+                making the API request. This helps MP support pymatgen users, and
+                is similar to what most web browsers send with each page request.
+                Set to False to disable the user agent.
+        """
         if api_key is not None:
             self.api_key = api_key
         else:
@@ -114,20 +136,10 @@ class MPRester:
         if self.preamble != "https://materialsproject.org/rest/v2":
             warnings.warn("Non-default endpoint used: {}".format(self.preamble))
 
-        import requests
-        if sys.version_info[0] < 3:
-            try:
-                from pybtex import __version__
-            except ImportError:
-                warnings.warn("If you query for structure data encoded using MP's "
-                              "Structure Notation Language (SNL) format and you use "
-                              "`mp_decode=True` (the default) for MPRester queries, "
-                              "you should install dependencies via "
-                              "`pip install pymatgen[matproj.snl]`.")
         self.session = requests.Session()
         self.session.headers = {"x-api-key": self.api_key}
         if include_user_agent:
-            pymatgen_info = "pymatgen/"+pmg_version
+            pymatgen_info = "pymatgen/" + pmg_version
             python_info = "Python/{}.{}.{}".format(
                 sys.version_info.major, sys.version_info.minor, sys.version_info.micro)
             platform_info = "{}/{}".format(platform.system(), platform.release())
@@ -257,14 +269,14 @@ class MPRester:
         """
         return self._make_request("/materials/%s/doc" % materials_id,
                                   mp_decode=False)
-    
+
     def get_xas_data(self, material_id, absorbing_element):
         """
-        Get X-ray absorption spectroscopy data for absorbing element in the 
-        structure corresponding to a material_id. Only X-ray Absorption Near Edge 
+        Get X-ray absorption spectroscopy data for absorbing element in the
+        structure corresponding to a material_id. Only X-ray Absorption Near Edge
         Structure (XANES) for K-edge is supported.
-        
-        REST Endpoint: 
+
+        REST Endpoint:
         https://www.materialsproject.org/materials/<mp-id>/xas/<absorbing_element>.
 
         Args:
@@ -276,7 +288,7 @@ class MPRester:
                                      prop="elements")[0]["elements"]
         if absorbing_element not in element_list:
             raise ValueError(
-                "{} element not contained in corresponding structure with "\
+                "{} element not contained in corresponding structure with "
                 "mp_id: {}".format(absorbing_element, material_id))
         data = self._make_request(
             "/materials/{}/xas/{}".format(material_id, absorbing_element),
@@ -416,7 +428,7 @@ class MPRester:
         else:
             criteria = chemsys_formula_id_criteria
         data = self.query(criteria, props)
-        
+
         entries = []
         for d in data:
             d["potcar_symbols"] = [
@@ -494,22 +506,20 @@ class MPRester:
                 raise ValueError("Reference solid not contained in entry list")
             stable_ref = sorted(refs, key=lambda x: x.data['e_above_hull'])[0]
             rf = stable_ref.composition.get_reduced_composition_and_factor()[1]
-            solid_diff = ion_ref_pd.get_form_energy(stable_ref) \
-                         - i_d['Reference solid energy'] * rf
+            solid_diff = ion_ref_pd.get_form_energy(stable_ref) - i_d['Reference solid energy'] * rf
             elt = i_d['Major_Elements'][0]
-            correction_factor = ion_entry.ion.composition[elt] \
-                                / stable_ref.composition[elt]
+            correction_factor = ion_entry.ion.composition[elt] / stable_ref.composition[elt]
             ion_entry.energy += solid_diff * correction_factor
             pbx_entries.append(PourbaixEntry(ion_entry, 'ion-{}'.format(n)))
 
         # Construct the solid pourbaix entries from filtered ion_ref entries
         extra_elts = set(ion_ref_elts) - {Element(s) for s in chemsys} \
-                     - {Element('H'), Element('O')}
+            - {Element('H'), Element('O')}
         for entry in ion_ref_entries:
             entry_elts = set(entry.composition.elements)
             # Ensure no OH chemsys or extraneous elements from ion references
-            if not (entry_elts <= {Element('H'), Element('O')} or \
-                            extra_elts.intersection(entry_elts)):
+            if not (entry_elts <= {Element('H'), Element('O')} or
+                    extra_elts.intersection(entry_elts)):
                 # replace energy with formation energy, use dict to
                 # avoid messing with the ion_ref_pd and to keep all old params
                 form_e = ion_ref_pd.get_form_energy(entry)
@@ -662,8 +672,9 @@ class MPRester:
         creating phase diagrams of entire chemical systems.
 
         Args:
-            elements ([str]): List of element symbols, e.g., ["Li", "Fe",
-                "O"].
+            elements (str or [str]): Chemical system string comprising element
+                symbols separated by dashes, e.g., "Li-Fe-O" or List of element
+                symbols, e.g., ["Li", "Fe", "O"].
             compatible_only (bool): Whether to return only "compatible"
                 entries. Compatible entries are entries that have been
                 processed using the MaterialsProjectCompatibility class,
@@ -683,16 +694,21 @@ class MPRester:
 
         Returns:
             List of ComputedEntries.
+
         """
-        entries = []
+        if isinstance(elements, str):
+            elements = elements.split('-')
+
+        all_chemsyses = []
         for i in range(len(elements)):
             for els in itertools.combinations(elements, i + 1):
-                entries.extend(
-                    self.get_entries(
-                        "-".join(els), compatible_only=compatible_only,
-                        inc_structure=inc_structure,
-                        property_data=property_data,
-                        conventional_unit_cell=conventional_unit_cell))
+                all_chemsyses.append('-'.join(sorted(els)))
+
+        entries = self.get_entries({"chemsys": {"$in": all_chemsyses}},
+                                   compatible_only=compatible_only,
+                                   inc_structure=inc_structure,
+                                   property_data=property_data,
+                                   conventional_unit_cell=conventional_unit_cell)
         return entries
 
     def get_exp_thermo_data(self, formula):
@@ -725,7 +741,7 @@ class MPRester:
 
     def query(self, criteria, properties, chunk_size=500, max_tries_per_chunk=5,
               mp_decode=True):
-        """
+        r"""
 
         Performs an advanced query using MongoDB-like syntax for directly
         querying the Materials Project database. This allows one to perform
@@ -759,8 +775,8 @@ class MPRester:
 
                 Other syntax examples:
                 mp-1234: Interpreted as a Materials ID.
-                Fe2O3 or \\*2O3: Interpreted as reduced formulas.
-                Li-Fe-O or \\*-Fe-O: Interpreted as chemical systems.
+                Fe2O3 or *2O3: Interpreted as reduced formulas.
+                Li-Fe-O or *-Fe-O: Interpreted as chemical systems.
 
                 You can mix and match with spaces, which are interpreted as
                 "OR". E.g. "mp-1234 FeO" means query for all compounds with
@@ -1098,18 +1114,17 @@ class MPRester:
             Cohesive energy (eV).
         """
         entry = self.get_entry_by_material_id(material_id)
-        ebulk = entry.energy / \
-                entry.composition.get_integer_formula_and_factor()[1]
+        ebulk = entry.energy / entry.composition.get_integer_formula_and_factor()[1]
         comp_dict = entry.composition.reduced_composition.as_dict()
 
         isolated_atom_e_sum, n = 0, 0
         for el in comp_dict.keys():
             e = self._make_request("/element/%s/tasks/isolated_atom" % (el),
-                                  mp_decode=False)[0]
+                                   mp_decode=False)[0]
             isolated_atom_e_sum += e['output']["final_energy_per_atom"] * comp_dict[el]
             n += comp_dict[el]
         ecoh_per_formula = isolated_atom_e_sum - ebulk
-        return ecoh_per_formula/n if per_atom else ecoh_per_formula
+        return ecoh_per_formula / n if per_atom else ecoh_per_formula
 
     def get_reaction(self, reactants, products):
         """
@@ -1136,7 +1151,7 @@ class MPRester:
         Args:
             material_id (str): Materials Project material_id, e.g. 'mp-123'.
             orient (list) : substrate orientation to look for
-            number (int) : number of substrates to return;
+            number (int) : number of substrates to return
                 n=0 returns all available matches
         Returns:
             list of dicts with substrate matches
@@ -1183,12 +1198,13 @@ class MPRester:
             req += "?include_structures=true"
 
         if miller_index:
-            abs_miller_index = [abs(i) for i in miller_index]
-            sorted_miller_index = sorted(abs_miller_index, key=int, reverse=True)
             surf_data_dict = self._make_request(req)
             surf_list = surf_data_dict['surfaces']
+            ucell = self.get_structure_by_material_id(material_id,
+                                                      conventional_unit_cell=True)
+            eq_indices = get_symmetrically_equivalent_miller_indices(ucell, miller_index)
             for one_surf in surf_list:
-                if one_surf['miller_index'] == sorted_miller_index:
+                if tuple(one_surf['miller_index']) in eq_indices:
                     return one_surf
         else:
             return self._make_request(req)
@@ -1203,7 +1219,7 @@ class MPRester:
             pymatgen.analysis.wulff.WulffShape
         """
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-        from pymatgen.analysis.wulff import WulffShape, hkl_tuple_to_str
+        from pymatgen.analysis.wulff import WulffShape
 
         structure = self.get_structure_by_material_id(material_id)
         surfaces = self.get_surface_data(material_id)["surfaces"]
@@ -1255,23 +1271,23 @@ class MPRester:
                    "chemsys": chemsys,
                    "sigma": sigma,
                    "gb_plane": gb_plane,
-                   "rotation_axis":rotation_axis}
+                   "rotation_axis": rotation_axis}
 
         if include_work_of_separation and material_id:
             list_of_gbs = self._make_request("/grain_boundaries",
-                               payload=payload)
+                                             payload=payload)
             for i, gb_dict in enumerate(list_of_gbs):
                 gb_energy = gb_dict['gb_energy']
                 gb_plane_int = gb_dict['gb_plane']
                 surface_energy = self.get_surface_data(material_id=material_id,
                                                        miller_index=gb_plane_int)['surface_energy']
-                wsep = 2 * surface_energy - gb_energy # calculate the work of separation
+                wsep = 2 * surface_energy - gb_energy  # calculate the work of separation
                 gb_dict['work_of_separation'] = wsep
             return list_of_gbs
 
         else:
             return self._make_request("/grain_boundaries",
-                                  payload=payload)
+                                      payload=payload)
 
     def get_interface_reactions(self, reactant1, reactant2,
                                 open_el=None, relative_mu=None,
@@ -1308,6 +1324,53 @@ class MPRester:
                    "use_hull_energy": use_hull_energy}
         return self._make_request("/interface_reactions",
                                   payload=payload, method="POST")
+
+    def get_download_info(self, material_ids, task_types=None, file_patterns=None):
+        """
+        get a list of URLs to retrieve raw VASP output files from the NoMaD repository
+
+        Args:
+            material_ids (list): list of material identifiers (mp-id's)
+            task_types (list): list of task types to include in download (see TaskType Enum class)
+            file_patterns (list): list of wildcard file names to include for each task
+
+        Returns:
+            a tuple of 1) a dictionary mapping material_ids to task_ids and
+            task_types, and 2) a list of URLs to download zip archives from
+            NoMaD repository. Each zip archive will contain a manifest.json with
+            metadata info, e.g. the task/external_ids that belong to a directory
+        """
+        # task_id's correspond to NoMaD external_id's
+        task_types = [t.value for t in task_types if isinstance(t, TaskType)] if task_types else []
+
+        meta = defaultdict(list)
+        for doc in self.query({'material_id': {'$in': material_ids}},
+                              ['material_id', 'blessed_tasks']):
+
+            for task_type, task_id in doc['blessed_tasks'].items():
+                if task_types and task_type not in task_types:
+                    continue
+                meta[doc["material_id"]].append(
+                    {'task_id': task_id, 'task_type': task_type}
+                )
+
+        if not meta:
+            raise ValueError('No tasks found.')
+
+        # return a list of URLs for NoMaD Downloads containing the list of files
+        # for every external_id in `task_ids`
+        prefix = 'http://labdev-nomad.esc.rzg.mpg.de/fairdi/nomad/mp/api/raw/query?'
+        if file_patterns is not None:
+            for file_pattern in file_patterns:
+                prefix += f'file_pattern={file_pattern}&'
+        prefix += 'external_id='
+
+        # NOTE: IE has 2kb URL char limit
+        nmax = int((2000 - len(prefix)) / 11)  # mp-<7-digit> + , = 11
+        task_ids = [t['task_id'] for tl in meta.values() for t in tl]
+        chunks = get_chunks(task_ids, size=nmax)
+        urls = [prefix + ','.join(tids) for tids in chunks]
+        return meta, urls
 
     @staticmethod
     def parse_criteria(criteria_string):

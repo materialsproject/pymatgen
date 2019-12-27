@@ -2,8 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
-
 """
 Development script of the ChemEnv utility to get the explicit permutations for coordination environments identified
 with the explicit permutations algorithms (typically with coordination numbers <= 6)
@@ -21,7 +19,6 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_f
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import ExplicitPermutationsAlgorithm
 
-
 import numpy as np
 import itertools
 import json
@@ -37,7 +34,7 @@ if __name__ == '__main__':
     # Choose the geometry
     allcg = AllCoordinationGeometries()
     while True:
-        cg_symbol = raw_input('Enter symbol of the geometry for which you want to get the explicit permutations : ')
+        cg_symbol = input('Enter symbol of the geometry for which you want to get the explicit permutations : ')
         try:
             cg = allcg[cg_symbol]
             break
@@ -90,7 +87,7 @@ if __name__ == '__main__':
         else:
             raise ValueError('WRONG ALGORITHM !')
 
-    test = raw_input('Save it ? ("y" to confirm)')
+    test = input('Save it ? ("y" to confirm)')
     if test == 'y':
         if len(cg.algorithms) != 1:
             raise ValueError('Multiple algorithms !')

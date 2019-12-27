@@ -16,6 +16,7 @@ def get_chunks(sequence, size=1):
     return [sequence[i * size:(i + 1) * size]
             for i in range(chunks)]
 
+
 class PBarSafe:
     def __init__(self, total):
         self.total = total
@@ -30,9 +31,10 @@ class PBarSafe:
         print("{} of {} done {:.1%}".format(
             self.done, self.total, self.done / self.total))
 
+
 try:
     # noinspection PyUnresolvedReferences
-    if get_ipython().__class__.__name__ == 'ZMQInteractiveShell':
+    if get_ipython().__class__.__name__ == 'ZMQInteractiveShell':  # type: ignore
         from tqdm import tqdm_notebook as PBar
     else:  # likely 'TerminalInteractiveShell'
         from tqdm import tqdm as PBar

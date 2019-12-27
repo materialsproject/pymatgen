@@ -142,5 +142,6 @@ class FunctionalGroupExtractorTest(unittest.TestCase):
         total_count = sum([c["count"] for c in categorized.values()])
         self.assertEqual(total_count, 2)
 
+
 if __name__ == "__main__":
     unittest.main()
