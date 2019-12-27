@@ -10,8 +10,8 @@ import scipy.constants as sc
 import pandas as pd
 from IPython.display import set_matplotlib_formats
 from pymatgen import Structure, Element
-from pymatgen.analysis.diffraction.core import DiffractionPattern, AbstractDiffractionPatternCalculator, \
-    get_unique_families
+from pymatgen.analysis.diffraction.core import DiffractionPattern,\
+    AbstractDiffractionPatternCalculator
 
 with open(os.path.join(os.path.dirname(__file__),
                        "atomic_scattering_params.json")) as f:
@@ -31,6 +31,7 @@ __version__ = "0.1"
 __maintainer__ = "Frank Wan respect for S.P.O"
 __email__ = "fwan@berkeley.edu, yhljason@berkeley.edu"
 __date__ = "06/19/2019, updated 10/2019"
+
 
 class TEMCalculator(AbstractDiffractionPatternCalculator):
     """
