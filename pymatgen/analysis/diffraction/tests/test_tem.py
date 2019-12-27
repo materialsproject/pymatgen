@@ -5,11 +5,11 @@
 import unittest
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.analysis.diffraction.tem import TEMDot
 from pymatgen.analysis.diffraction.tem import TEMCalculator
 from pymatgen.util.testing import PymatgenTest
+from collections import namedtuple
 import numpy as np
-from prettytable import PrettyTable
+import pandas as pd
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 import matplotlib as mpl
@@ -216,16 +216,15 @@ class XRDCalculatorTest(PymatgenTest):
         points = c.generate_points(-2, 2)
         structure = self.get_structure("Si")
         dots = c.TEM_dots(structure, points)
-        print(type(dots[0]))
-        self.assertTrue(all([isinstance(x, TEMDot) for x in dots]))
+        self.assertTrue(all([isinstance(x, tuple) for x in dots]))
 
-    def test_get_pattern_2d(self):
-        # All dependencies in get_pattern_2d method are tested.
-        # Only make sure result is a prettytable.
+    def test_get_pattern(self):
+        # All dependencies in get_pattern method are tested.
+        # Only make sure result is a pd dataframe.
         c = TEMCalculator()
         points = c.generate_points(-2, 2)
         structure = self.get_structure("Si")
-        self.assertTrue(isinstance(c.get_pattern_2d(structure), PrettyTable))
+        self.assertTrue(isinstance(c.get_pattern(structure), pd.DataFrame))
 
 
 if __name__ == '__main__':

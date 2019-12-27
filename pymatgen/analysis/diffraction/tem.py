@@ -17,13 +17,10 @@ with open(os.path.join(os.path.dirname(__file__),
                        "atomic_scattering_params.json")) as f:
     ATOMIC_SCATTERING_PARAMS = json.load(f)
 set_matplotlib_formats('retina')
-poff.init_notebook_mode(connected=True)
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 # tempattern inherits from diffractionpattern
-# TODO: Change prettytable to pandas dataframe. Delete poltly dependency for now, and implement matplotlib. Have a\
-# object that is similar to DiffractionPattern (pretty much just get_pattern_2d).
 """
 This module implements a TEM pattern calculator.
 """
@@ -270,11 +267,11 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         field_names = ["Pos", "(hkl)", "Intnsty (norm)", "Film rad", "Interplanar Spacing"]
         rows_list = []
         for dot in TEM_dots:
-            dict1.clear()
+            dict1 = {}
             dict1 = {'Pos': dot.position, '(hkl)': dot.hkl, 'Intnsty (norm)': dot.intensity,
                      'Film rad': dot.film_radius, 'Interplanar Spacing': dot.d_spacing}
             rows_list.append(dict1)
-        df = pd.DataFrame(rows_list, index=field_names)
+        df = pd.DataFrame(rows_list, columns=field_names)
         return df
 
     def normalized_cell_intensity(self, structure: Structure, bragg_angles: Dict[Tuple[int, int, int], float]) \
