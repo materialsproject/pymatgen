@@ -188,7 +188,6 @@ def get_unique_families(hkls):
     Returns:
         {hkl: multiplicity}: A dict with unique hkl and multiplicity.
     """
-    # TODO: Definitely can be sped up.
     def is_perm(A, B):
         if len(A) != len(B):
             return False

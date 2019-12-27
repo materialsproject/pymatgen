@@ -94,7 +94,7 @@ class XRDCalculatorTest(PymatgenTest):
             self.assertAlmostEqual(spacings_mono[p], 0.84450786041677972)
 
     def test_bragg_angles(self):
-        # Tests that the appropriate bragg angle is returned
+        # Tests that the appropriate bragg angle is returned.
         c = TEMCalculator()
         latt = Lattice.cubic(4.209)
         cubic = Structure(latt, ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
@@ -105,7 +105,7 @@ class XRDCalculatorTest(PymatgenTest):
             self.assertAlmostEqual(angles[p], 2.4417132161608178e-12)
 
     def test_get_s2(self):
-        # Tests that the appropriate s2 factor is
+        # Tests that the appropriate s2 factor is returned.
         c = TEMCalculator()
         latt = Lattice.cubic(4.209)
         cubic = Structure(latt, ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])

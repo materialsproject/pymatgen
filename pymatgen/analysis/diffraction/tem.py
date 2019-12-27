@@ -1,15 +1,14 @@
 from __future__ import division, print_function, unicode_literals
 import json
 import os
+from collections import namedtuple
 from fractions import Fraction
 from typing import List, Dict, Tuple
 import numpy as np
-import plotly.graph_objs as go
-import plotly.offline as poff
 import scipy as sc
 import scipy.constants as sc
+import pandas as pd
 from IPython.display import set_matplotlib_formats
-from prettytable import PrettyTable
 from pymatgen import Structure, Element
 from pymatgen.analysis.diffraction.core import DiffractionPattern, AbstractDiffractionPatternCalculator, \
     get_unique_families
@@ -23,43 +22,18 @@ poff.init_notebook_mode(connected=True)
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 # tempattern inherits from diffractionpattern
-
+# TODO: Change prettytable to pandas dataframe. Delete poltly dependency for now, and implement matplotlib. Have a\
+# object that is similar to DiffractionPattern (pretty much just get_pattern_2d).
 """
 This module implements a TEM pattern calculator.
 """
 # Credit to Dr. Shyue Ping Ong for the template of the calculator
-__author__ = "Frank Wan, modified by JasonL"
+__author__ = "Frank Wan, modified by Jason L"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Frank Wan respect for S.P.O"
 __email__ = "fwan@berkeley.edu, yhljason@berkeley.edu"
 __date__ = "06/19/2019, updated 10/2019"
-
-
-class TEMDot:
-    """
-    Instantatiates a point on the TEM diffraction pattern.
-    """
-
-    def __init__(self, position: List[float], hkl: List[int], intensity: float, film_radius: float,
-                 d_spacing: float) -> None:
-        """
-        Args:
-              hkl (3-tuple): The hkl plane that the point corresponds/is indexed to.
-              d_spacing (float): The interplanar spacing of the dot.
-              film_radius (float): The radius of the dot on the film. Determined
-              by microscope aberration equations (ie Cs corrections and other such
-              aberrations)
-              intensity (float): The intensity of the dot. Determines its brightness
-              in the pattern, relative to those of the other dots.
-              position (Position): The xy-coordinates of the dot on the plot.
-        """
-        self.position = position
-        self.hkl = hkl
-        self.intensity = intensity
-        self.film_radius = film_radius
-        self.d_spacing = d_spacing
-
 
 class TEMCalculator(AbstractDiffractionPatternCalculator):
     """
@@ -285,51 +259,23 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     def get_pattern(self, structure: Structure, scaled: bool = True, two_theta_range: tuple = (0, 90)) \
             -> DiffractionPattern:
         """
-        Calculates the diffraction pattern for a structure. As you'll find out if you try to run this method,
-        xrd-relevant info is tem-irrelevant. only included to satisfy the requirements of a subclass. Also,
-        runtime is a bit long for this method.
-        Args:
-            structure (Structure): Input structure
-            scaled (bool): Whether to return scaled intensities. The maximum
-            peak is set to a value of 100. Defaults to True. Use False if
-            you need the absolute values to combine XRD plots.
-            two_theta_range ([float of length 2]): Tuple for range of
-            two_thetas to calculate in degrees. Defaults to (0, 90). Set to
-            None if you want all diffracted beams within the limiting
-            sphere of radius 2 / wavelength.
-        Returns:
-            (XRDPattern)
+            Returns all relevant TEM DP info in a pandas dataframe.
+            Args:
+                structure (Structure): The input structure.
+            Returns:
+                PandasDataFrame
         """
         points = self.generate_points(-10, 11)
-        points_filtered = self.zone_axis_filter(points)
-        interplanar_spacings = self.get_interplanar_spacings(structure, points_filtered)
-        bragg_angles = self.bragg_angles(interplanar_spacings)
-        cell_intensity = self.cell_intensity(structure, bragg_angles)
-        max_intensity = max([v for v in cell_intensity.values()])
-        x = []
-        y = []
-        hkls = []
-        d_hkls = []
-        # creates a dict of 2thetas to cell_intensities
-        xy_pairs = {}
-        hkls_crude = []
-        for plane in cell_intensity:
-            xy_pairs[2 * bragg_angles[plane]] = cell_intensity[plane]
-            hkls_crude.append(plane)
-        for k in sorted(xy_pairs.keys()):
-            v = xy_pairs[k]
-            if v / max_intensity * 100 > AbstractDiffractionPatternCalculator.SCALED_INTENSITY_TOL:
-                x.append(k)
-                y.append(v)
-        fam = get_unique_families(hkls_crude)
-        hkls.append([{"hkl": hkl, "multiplicity": mult}
-                     for hkl, mult in fam.items()])
-        for plane in fam:
-            d_hkls.append(bragg_angles[plane])
-        tem = DiffractionPattern(x, y, hkls, d_hkls)
-        if scaled:
-            tem.normalize(mode="max", value=100)
-        return tem
+        TEM_dots = self.TEM_dots(structure, points)
+        field_names = ["Pos", "(hkl)", "Intnsty (norm)", "Film rad", "Interplanar Spacing"]
+        rows_list = []
+        for dot in TEM_dots:
+            dict1.clear()
+            dict1 = {'Pos': dot.position, '(hkl)': dot.hkl, 'Intnsty (norm)': dot.intensity,
+                     'Film rad': dot.film_radius, 'Interplanar Spacing': dot.d_spacing}
+            rows_list.append(dict1)
+        df = pd.DataFrame(rows_list, index=field_names)
+        return df
 
     def normalized_cell_intensity(self, structure: Structure, bragg_angles: Dict[Tuple[int, int, int], float]) \
             -> Dict[Tuple[int, int, int], Dict]:
@@ -459,7 +405,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
 
     def TEM_dots(self, structure: Structure, points: list) -> list:
         """
-        Generates all TEM_dot objects that will appear on the 2D diffraction pattern.
+        Generates all TEM_dot as named tuples that will appear on the 2D diffraction pattern.
         Args:
             structure (Structure): The input structure.
             points (list): All points to be checked.
@@ -472,115 +418,12 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         cell_intensity = self.normalized_cell_intensity(structure, bragg_angles)
         positions = self.get_positions(structure, points)
         for plane in cell_intensity.keys():
+            dot = namedtuple('TEM_dot', ['position', 'hkl', 'intensity', 'film_radius', 'd_spacing'])
             position = positions[plane]
             hkl = plane
             intensity = cell_intensity[plane]
             film_radius = 0.91 * (10 ** -3 * self.cs * self.wavelength_rel() ** 3) ** Fraction('1/4')
             d_spacing = interplanar_spacings[plane]
-            dot = TEMDot(position, hkl, intensity, film_radius, d_spacing)
-            dots.append(dot)
+            TEM_dot = dot(position, hkl, intensity, film_radius, d_spacing)
+            dots.append(TEM_dot)
         return dots
-
-    def show_plot_2d(self, structure: Structure):
-        """
-        Generates the 2D diffraction pattern of the input structure.
-        Args:
-            structure (Structure): The input structure.
-        Returns:
-            none (shows 2D DP)
-        """
-        points = self.generate_points(-10, 11)
-        TEM_dots = self.TEM_dots(structure, points)
-        xs = []
-        ys = []
-        hkls = []
-        intensities = []
-
-        for dot in TEM_dots:
-            position = np.array([dot.position[0], dot.position[1]])
-            xs.append(dot.position[0])
-            ys.append(dot.position[1])
-            hkls.append(dot.hkl)
-            intensities.append(dot.intensity)
-
-        data = [
-            go.Scatter(
-                x=xs,
-                y=ys,
-                text=hkls,
-                hoverinfo='text',
-                mode='markers',
-                marker=dict(
-                    size=8,
-                    cmax=1,
-                    cmin=0,
-                    color=intensities,
-                    colorbar=dict(
-                        title='Colorbar',
-                        yanchor='top'
-                    ),
-                    colorscale=[[0, 'black'], [1.0, 'white']]
-                ),
-                showlegend=False
-            ), go.Scatter(
-                x=[0],
-                y=[0],
-                text="(0, 0, 0): Direct beam",
-                hoverinfo='text',
-                mode='markers',
-                marker=dict(
-                    size=14,
-                    cmax=1,
-                    cmin=0,
-                    color='white'
-                ),
-            )
-        ]
-        layout = go.Layout(
-            title='2D Diffraction Pattern<br>Beam Direction: ' + ''.join(str(e) for e in self.beam_direction),
-            font=dict(
-                family='Comic Sans, monospace',
-                size=18,
-                color='#7f7f7f'),
-            hovermode='closest',
-            xaxis=dict(
-                autorange=True,
-                showgrid=False,
-                zeroline=False,
-                showline=False,
-                ticks='',
-                showticklabels=False
-            ),
-            yaxis=dict(
-                autorange=True,
-                showgrid=False,
-                zeroline=False,
-                showline=False,
-                ticks='',
-                showticklabels=False,
-            ),
-            width=600,
-            height=600,
-            paper_bgcolor='rgba(100,110,110,0.5)',
-            plot_bgcolor='black'
-        )
-
-        fig = go.Figure(data=data, layout=layout)
-        poff.iplot(fig, filename='stuff')
-
-    def get_pattern_2d(self, structure: Structure) -> PrettyTable:
-        """
-        Returns all relevant TEM DP info in a PrettyTable.
-        Args:
-            structure (Structure): The input structure.
-        Returns:
-            PrettyTable
-        """
-        points = self.generate_points(-10, 11)
-        TEM_dots = self.TEM_dots(structure, points)
-        table = PrettyTable()
-        table.field_names = ["Pos", "(hkl)", "Intnsty (norm)", "Film rad", "Interplanar Spacing"]
-        for dot in TEM_dots:
-            position = np.array([dot.position[0], dot.position[1]])
-            table.add_row([position, dot.hkl, dot.intensity, dot.film_radius, dot.d_spacing])
-        return table
