@@ -168,7 +168,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         return s2
 
     def x_ray_factors(self, structure: Structure, bragg_angles: Dict[Tuple[int, int, int], float]) \
-            -> Dict[Element, Dict]:
+            -> Dict[str, Dict[Tuple[int, int, int], float]]:
         """
         Calculates x-ray factors, which are required to calculate atomic scattering factors. Method partially inspired
         by the equivalent process in the xrd module.
@@ -194,7 +194,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         return x_ray_factors
 
     def electron_scattering_factors(self, structure: Structure, bragg_angles: Dict[Tuple[int, int, int], float]) \
-            -> Dict[Element, Dict]:
+            -> Dict[str, Dict[Tuple[int, int, int], float]]:
         """
         Calculates atomic scattering factors for electrons using the Mott-Bethe formula (1st order Born approximation).
         Args:
