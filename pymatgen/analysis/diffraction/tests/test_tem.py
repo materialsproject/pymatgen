@@ -2,6 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Unit tests for TEM calculator.
+"""
+
 import unittest
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
@@ -157,18 +161,6 @@ class XRDCalculatorTest(PymatgenTest):
         angles = c.bragg_angles(spacings)
         cellint = c.cell_intensity(cubic, angles)
         self.assertAlmostEqual(cellint[(-10, 3, 0)], 3.85559045441675e-18)
-
-    def test_get_pattern(self):
-        c = TEMCalculator()
-        latt = Lattice.cubic(4.209)
-        cubic = Structure(latt, ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
-        tem = c.get_pattern(cubic, two_theta_range=(0, 90))
-        self.assertAlmostEqual(tem.x[0], 4.67747420e-13)
-        self.assertAlmostEqual(tem.y[0], 2.44434019e+01)
-        self.assertAlmostEqual(tem.d_hkls[0], 3.307473724811734e-12)
-        self.assertAlmostEqual(tem.x[1], 6.61494745e-13)
-        self.assertAlmostEqual(tem.y[1], 100)
-        self.assertAlmostEqual(tem.d_hkls[1], 3.1464489680415293e-12)
 
     def test_normalized_cell_intensity(self):
         c = TEMCalculator()

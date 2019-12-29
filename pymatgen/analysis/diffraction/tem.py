@@ -1,30 +1,32 @@
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+"""
+This module implements a TEM pattern calculator.
+"""
+
 from __future__ import division, print_function, unicode_literals
 import json
 import os
 from collections import namedtuple
 from fractions import Fraction
 from typing import List, Dict, Tuple
-import numpy as np
-import scipy as sc
-import scipy.constants as sc
-import pandas as pd
-from IPython.display import set_matplotlib_formats
-from pymatgen import Structure, Element
-from pymatgen.analysis.diffraction.core import DiffractionPattern,\
-    AbstractDiffractionPatternCalculator
+import numpy as np  # type: ignore
+import scipy.constants as sc  # type: ignore
+import pandas as pd  # type: ignore
+from pymatgen import Structure, Element  # type: ignore
+from pymatgen.analysis.diffraction.core import AbstractDiffractionPatternCalculator  # type: ignore
 
 with open(os.path.join(os.path.dirname(__file__),
                        "atomic_scattering_params.json")) as f:
     ATOMIC_SCATTERING_PARAMS = json.load(f)
-set_matplotlib_formats('retina')
+
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-# tempattern inherits from diffractionpattern
-"""
-This module implements a TEM pattern calculator.
-"""
 # Credit to Dr. Shyue Ping Ong for the template of the calculator
+
 __author__ = "Frank Wan, modified by Jason L"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "0.1"
@@ -37,10 +39,10 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     """
     Computes the TEM pattern of a crystal structure for multiple Laue zones.
     """
-    wavelength_cache = {}
 
-    def __init__(self, symprec: float = None, voltage: float = 200, beam_direction: List[int] = [0, 0, 1],
-                 camera_length: int = 160, debye_waller_factors: Dict[str, float] = None, cs: float = 1) -> None:
+    def __init__(self, wavelength_cache: Dict[float, float] = {}, symprec: float = None, voltage: float = 200,
+                 beam_direction: List[int] = [0, 0, 1], camera_length: int = 160,
+                 debye_waller_factors: Dict[str, float] = None, cs: float = 1) -> None:
         """
         Initializes the TEM calculator with a given radiation.
         Args:
@@ -61,6 +63,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             later on: may want "number of iterations", "magnification", "critical value of beam",
             "twin direction" for certain materials, "sample thickness", and "excitation error s"
         """
+        self.wavelength_cache = wavelength_cache
         self.symprec = symprec
         self.voltage = voltage
         self.beam_direction = beam_direction
@@ -109,14 +112,14 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         Returns:
             list of 3-tuples
         """
-        if any(type(n) is tuple for n in points):
+        if any(isinstance(n, tuple) for n in points):
             return points
         if len(points) == 0:
             return []
         filtered = np.where(np.dot(np.array(self.beam_direction), np.transpose(points)) == laue_zone)
         result = points[filtered]
         result_tuples = [tuple(x) for x in result.tolist()]
-        return result_tuples
+        return result_tuples  # type: ignore
 
     def get_interplanar_spacings(self, structure: Structure, points: List[Tuple[int, int, int]]) \
             -> Dict[Tuple[int, int, int], float]:
@@ -215,7 +218,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         return electron_scattering_factors
 
     def cell_scattering_factors(self, structure: Structure, bragg_angles: Dict[Tuple[int, int, int], float]) \
-            -> Dict[Tuple[int, int, int], Dict]:
+            -> Dict[Tuple[int, int, int], int]:
         """
         Calculates the scattering factor for the whole cell.
         Args:
@@ -238,7 +241,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         return cell_scattering_factors
 
     def cell_intensity(self, structure: Structure, bragg_angles: Dict[Tuple[int, int, int], float]) \
-            -> Dict[Tuple[int, int, int], Dict]:
+            -> Dict[Tuple[int, int, int], float]:
         """
         Calculates cell intensity for each hkl plane. For simplicity's sake, take I = |F|**2.
         Args:
@@ -255,7 +258,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         return cell_intensity
 
     def get_pattern(self, structure: Structure, scaled: bool = True, two_theta_range: tuple = (0, 90)) \
-            -> DiffractionPattern:
+            -> pd.DataFrame:
         """
             Returns all relevant TEM DP info in a pandas dataframe.
             Args:
@@ -276,7 +279,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         return df
 
     def normalized_cell_intensity(self, structure: Structure, bragg_angles: Dict[Tuple[int, int, int], float]) \
-            -> Dict[Tuple[int, int, int], Dict]:
+            -> Dict[Tuple[int, int, int], float]:
         """
         Normalizes the cell_intensity dict to 1, for use in plotting.
         Args:
@@ -305,7 +308,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         """
         return np.array_equal(np.cross(np.asarray(plane), np.asarray(other_plane)), np.array([0, 0, 0]))
 
-    def get_first_point(self, structure: Structure, points: list) -> Dict[Tuple[int, int, int], int]:
+    def get_first_point(self, structure: Structure, points: list) -> Dict[Tuple[int, int, int], float]:
         """
         Gets the first point to be plotted in the 2D DP, corresponding to maximum d/minimum R.
         Args:
@@ -314,7 +317,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         Returns:
             A dict of a hkl plane to max interplanar distance.
         """
-        max_d = -100
+        max_d = -100.0
         max_d_plane = (0, 0, 1)
         points = self.zone_axis_filter(points)
         spacings = self.get_interplanar_spacings(structure, points)
@@ -373,8 +376,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             second_point, second_d = plane, spacings[plane]
             if not self.is_parallel(first_point, second_point):
                 break
-        p1 = list(first_point)
-        p2 = list(second_point)
+        p1 = first_point
+        p2 = second_point
         if (0, 0, 0) in points:
             points.remove((0, 0, 0))
         points.remove(first_point)
