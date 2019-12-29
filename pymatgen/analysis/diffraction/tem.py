@@ -15,7 +15,7 @@ from typing import List, Dict, Tuple
 import numpy as np  # type: ignore
 import scipy.constants as sc  # type: ignore
 import pandas as pd  # type: ignore
-from pymatgen import Structure, Element  # type: ignore
+from pymatgen import Structure  # type: ignore
 from pymatgen.analysis.diffraction.core import AbstractDiffractionPatternCalculator  # type: ignore
 
 with open(os.path.join(os.path.dirname(__file__),

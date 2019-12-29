@@ -11,12 +11,8 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.analysis.diffraction.tem import TEMCalculator
 from pymatgen.util.testing import PymatgenTest
-from collections import namedtuple
 import numpy as np
 import pandas as pd
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-
-import matplotlib as mpl
 
 __author__ = "Frank Wan"
 __copyright__ = "Copyright 2019, The Materials Project"
