@@ -448,9 +448,19 @@ class MITMPRelaxSetTest(PymatgenTest):
         for f in ["INCAR", "KPOINTS", "POSCAR", "POTCAR"]:
             self.assertTrue(os.path.exists(f))
         self.assertFalse(os.path.exists("Fe4P4O16.cif"))
+
         self.mitset.write_input(".", make_dir_if_not_present=True, include_cif=True)
         self.assertTrue(os.path.exists("Fe4P4O16.cif"))
         for f in ["INCAR", "KPOINTS", "POSCAR", "POTCAR", "Fe4P4O16.cif"]:
+            os.remove(f)
+
+        self.mitset.write_input(".", make_dir_if_not_present=True, potcar_spec=True)
+
+        for f in ["INCAR", "KPOINTS", "POSCAR"]:
+            self.assertTrue(os.path.exists(f))
+        self.assertFalse(os.path.exists("POTCAR"))
+        self.assertTrue(os.path.exists("POTCAR.spec"))
+        for f in ["INCAR", "KPOINTS", "POSCAR", "POTCAR.spec"]:
             os.remove(f)
 
     def test_user_potcar_settings(self):
