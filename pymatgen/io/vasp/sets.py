@@ -177,7 +177,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
                 not have a license to specific Potcar files. Given a "POTCAR.spec",
                 the specific POTCAR file can be re-generated using pymatgen with the
                 "generate_potcar" function in the pymatgen CLI.
-            zip_output (bool): If True, output will be zipped into a file with the 
+            zip_output (bool): If True, output will be zipped into a file with the
                 same name as the InputSet (e.g., MPStaticSet.zip)
         """
         vinput = self.get_vasp_input()
@@ -201,11 +201,11 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
             s = vinput["POSCAR"].structure
             cifname = Path(output_dir) / ("%s.cif" % re.sub(r"\s", "", s.formula))
             s.to(filename=cifname)
-        
+
         if zip_output:
             filename = self.__class__.__name__ + ".zip"
             with ZipFile(filename, "w") as zip:
-                for file in ["INCAR","POSCAR","KPOINTS","POTCAR","POTCAR.spec",cifname]:
+                for file in ["INCAR", "POSCAR", "KPOINTS", "POTCAR", "POTCAR.spec", cifname]:
                     try:
                         zip.write(file)
                         os.remove(file)
@@ -2925,7 +2925,7 @@ def batch_write_input(
                 not have a license to specific Potcar files. Given a "POTCAR.spec",
                 the specific POTCAR file can be re-generated using pymatgen with the
                 "generate_potcar" function in the pymatgen CLI.
-        zip_output (bool): If True, output will be zipped into a file with the 
+        zip_output (bool): If True, output will be zipped into a file with the
             same name as the InputSet (e.g., MPStaticSet.zip)
         **kwargs: Additional kwargs are passed to the vasp_input_set class
             in addition to structure.
