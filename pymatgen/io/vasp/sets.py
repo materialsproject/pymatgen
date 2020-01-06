@@ -161,7 +161,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         )
 
     def write_input(self, output_dir, make_dir_if_not_present=True, include_cif=False,
-                    potcar_spec=False):
+                    potcar_spec=False, zip_output=False):
         """
         Writes a set of VASP input to a directory.
 
@@ -177,6 +177,8 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
                 not have a license to specific Potcar files. Given a "POTCAR.spec",
                 the specific POTCAR file can be re-generated using pymatgen with the
                 "generate_potcar" function in the pymatgen CLI.
+            zip_output (bool): If True, output will be zipped into a file with the 
+                same name as the InputSet (e.g., MPStaticSet.zip)
         """
         vinput = self.get_vasp_input()
 
@@ -194,42 +196,21 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         else:
             vinput.write_input(output_dir, make_dir_if_not_present=make_dir_if_not_present)
 
+        cifname = ""
         if include_cif:
             s = vinput["POSCAR"].structure
-            fname = Path(output_dir) / ("%s.cif" % re.sub(r"\s", "", s.formula))
-            s.to(filename=fname)
-
-    def write_spec(self, filename=None, readme=None):
-        """
-        Write a set of the VASP input files to a zip file, WITHOUT the Potcar
-        file. The Potcar file will instead be written as a "POTCAR.spec". This is
-        intended to help sharing an input set with people who might not have a license
-        to specific Potcar files.
-
-        Given a "POTCAR.spec", the specific POTCAR file can be re-generated using
-        pymatgen with the "generate_potcar" function in the pymatgen CLI when set
-        up with a corresponding directory of POTCAR files.
-
-        Args:
-            filename (str): Filename to output as zip file, will default to name
-            of input set.
-            readme (str): Additional file to include as README
-        """
-
-        if not filename:
-            filename = self.__class__.__name__ + "_spec.zip"
-        if not filename.endswith(".zip"):
-            filename += ".zip"
-
-        with ZipFile(filename, "w") as zip:
-            zip.writestr("INCAR", str(self.incar))
-            zip.writestr("POSCAR", str(self.poscar))
-            zip.writestr("KPOINTS", str(self.kpoints))
-            zip.writestr("POTCAR.spec", "\n".join(self.potcar_symbols))
-            if readme:
-                zip.writestr("README", readme)
-            # TODO: should write transformations.json also where appropriate
-            # cannot import TransformedStructure due to circular import
+            cifname = Path(output_dir) / ("%s.cif" % re.sub(r"\s", "", s.formula))
+            s.to(filename=cifname)
+        
+        if zip_output:
+            filename = self.__class__.__name__ + ".zip"
+            with ZipFile(filename, "w") as zip:
+                for file in ["INCAR","POSCAR","KPOINTS","POTCAR","POTCAR.spec",cifname]:
+                    try:
+                        zip.write(file)
+                        os.remove(file)
+                    except FileNotFoundError:
+                        pass
 
     def as_dict(self, verbosity=2):
         """
@@ -691,6 +672,7 @@ class DictSet(VaspInputSet):
         make_dir_if_not_present: bool = True,
         include_cif: bool = False,
         potcar_spec: bool = False,
+        zip_output: bool = False,
     ):
         """
         Writes out all input to a directory.
@@ -712,7 +694,8 @@ class DictSet(VaspInputSet):
             output_dir=output_dir,
             make_dir_if_not_present=make_dir_if_not_present,
             include_cif=include_cif,
-            potcar_spec=potcar_spec
+            potcar_spec=potcar_spec,
+            zip_output=zip_output
         )
         for k, v in self.files_to_transfer.items():
             with zopen(v, "rb") as fin, zopen(str(Path(output_dir) / k), "wb") as fout:
@@ -2912,6 +2895,8 @@ def batch_write_input(
     subfolder=None,
     sanitize=False,
     include_cif=False,
+    potcar_spec=False,
+    zip_output=False,
     **kwargs
 ):
     """
@@ -2935,6 +2920,13 @@ def batch_write_input(
             Defaults to False.
         include_cif (bool): Whether to output a CIF as well. CIF files are
             generally better supported in visualization programs.
+        potcar_spec (bool): Instead of writing the POTCAR, write a "POTCAR.spec".
+                This is intended to help sharing an input set with people who might
+                not have a license to specific Potcar files. Given a "POTCAR.spec",
+                the specific POTCAR file can be re-generated using pymatgen with the
+                "generate_potcar" function in the pymatgen CLI.
+        zip_output (bool): If True, output will be zipped into a file with the 
+            same name as the InputSet (e.g., MPStaticSet.zip)
         **kwargs: Additional kwargs are passed to the vasp_input_set class
             in addition to structure.
     """
@@ -2953,6 +2945,8 @@ def batch_write_input(
             str(d),
             make_dir_if_not_present=make_dir_if_not_present,
             include_cif=include_cif,
+            potcar_spec=potcar_spec,
+            zip_output=zip_output,
         )
 
 
