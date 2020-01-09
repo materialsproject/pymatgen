@@ -101,7 +101,9 @@ class StructureConnectivity(MSONable):
                 if isite == nb_index_unitcell:
                     for (isite1, ineighb1, data1) in existing_edges:
                         if isite1 == ineighb1:
-                            if np.allclose(data1['delta'], nb_image_cell) or np.allclose(data1['delta'], -nb_image_cell):
+                            if np.allclose(data1['delta'],
+                                           nb_image_cell) or np.allclose(data1['delta'],
+                                                                         -nb_image_cell):
                                 exists = True
                                 break
                 else:
@@ -161,7 +163,8 @@ class StructureConnectivity(MSONable):
                                                             ce_this_site)
                             self._environment_subgraph.add_node(env_node)
                     else:
-                        #TODO : add the possibility of a "constraint" on the minimum percentage of the atoms on the site
+                        #  TODO: add the possibility of a "constraint" on the minimum percentage
+                        #        of the atoms on the site
                         this_site_elements = [sp.symbol for sp in
                                               self.light_structure_environments.structure[isite].species_and_occu]
                         for elem_symbol in this_site_elements:

@@ -305,7 +305,8 @@ class ConnectedComponent(MSONable):
                 # Special case for two nodes
                 if len(self._connected_subgraph[test_node][test_node_neighbor]) > 1:
                     this_path_deltas = []
-                    node_node_neighbor_edges_data = list(self._connected_subgraph[test_node][test_node_neighbor].values())
+                    node_node_neighbor_edges_data = list(self._connected_subgraph[test_node]
+                                                         [test_node_neighbor].values())
                     for edge1_data, edge2_data in itertools.combinations(node_node_neighbor_edges_data, 2):
                         delta1 = get_delta(test_node, test_node_neighbor, edge1_data)
                         delta2 = get_delta(test_node_neighbor, test_node, edge2_data)
@@ -538,13 +539,15 @@ class ConnectedComponent(MSONable):
             # Loop on nodes in this level of the tree
             for node in current_nodes:
                 inode += 1
-                logging.debug('  In node #{:d}/{:d} in level {:d} ({})'.format(inode, len(current_nodes), tree_level, str(node)))
+                logging.debug('  In node #{:d}/{:d} in level {:d} ({})'.format(inode, len(current_nodes),
+                                                                               tree_level, str(node)))
                 node_neighbors = list(tree.neighbors(n=node))
                 node_edges = centered_connected_subgraph.edges(nbunch=[node],
                                                                data=True, keys=True)
                 # Loop on neighbors of a node (from the tree used)
                 for inode_neighbor, node_neighbor in enumerate(node_neighbors):
-                    logging.debug('    Testing neighbor #{:d}/{:d} ({}) of node #{:d} ({})'.format(inode_neighbor, len(node_neighbors),
+                    logging.debug('    Testing neighbor #{:d}/{:d} ({}) of node #{:d} ({})'.format(inode_neighbor,
+                                                                                                   len(node_neighbors),
                                                                                                    node_neighbor,
                                                                                                    inode,
                                                                                                    node))
@@ -563,7 +566,8 @@ class ConnectedComponent(MSONable):
                                 else:
                                     raise ValueError("Should not be here ...")
                             ddeltas.append(thisdelta)
-                    logging.debug('        ddeltas : {}'.format(', '.join(['({})'.format(', '.join(str(ddd) for ddd in dd))
+                    logging.debug('        ddeltas : {}'.format(', '.join(['({})'.format(', '.join(str(ddd)
+                                                                                                   for ddd in dd))
                                                                            for dd in ddeltas])))
                     if ddeltas.count((0, 0, 0)) > 1:
                         raise ValueError('Should not have more than one 000 delta ...')

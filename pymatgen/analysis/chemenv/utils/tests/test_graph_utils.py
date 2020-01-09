@@ -541,7 +541,8 @@ class GraphUtilsTest(PymatgenTest):
             mgc = MultiGraphCycle([FakeNodeWithEqLtMethods(inode) for inode in inodes],
                                   edge_indices=[iedge for iedge in iedges])
             strnodes = ', '.join([str(i) for i in inodes])
-            self.assertEqual(mgc.nodes, nodes_ref, msg='Nodes not equal for inodes = ({})'.format(', '.join([str(i) for i in inodes])))
+            self.assertEqual(mgc.nodes, nodes_ref,
+                             msg='Nodes not equal for inodes = ({})'.format(', '.join([str(i) for i in inodes])))
             self.assertEqual(mgc.edge_indices, edges_ref, msg='Edges not equal for inodes = ({})'.format(strnodes))
 
 

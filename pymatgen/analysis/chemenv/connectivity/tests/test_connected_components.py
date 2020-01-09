@@ -583,7 +583,8 @@ Node #11 P (T:4), connected to :
         sc = cf.get_structure_connectivity(lse)
         assert len(sc.environment_subgraphs) == 0  # Connected component not computed by default
         ccs = sc.get_connected_components()  # by default, will use all the environments (O:6 and T:4 here)
-        assert list(sc.environment_subgraphs.keys()) == ['O:6-T:4']  # Now connected components for the defaults are there
+        # Now connected components for the defaults are there :
+        assert list(sc.environment_subgraphs.keys()) == ['O:6-T:4']
         assert len(sc.environment_subgraphs) == 1
         assert len(ccs) == 1
         cc = ccs[0]
@@ -595,9 +596,10 @@ Node #11 P (T:4), connected to :
         for cc in ccs:
             assert cc.periodicity == '1D'
             assert len(cc) == 2
-        sorted_ccs = sorted(ccs, key=lambda x: sorted(x.graph.nodes())[0])  # Sort connected components as they might
-                                                                            # come in a different order depending on
-                                                                            # the algorithm used to get them.
+        # Sort connected components as they might
+        # come in a different order depending on
+        # the algorithm used to get them.
+        sorted_ccs = sorted(ccs, key=lambda x: sorted(x.graph.nodes())[0])
         assert sorted_ccs[0].description(full=True) == """Connected component with environment nodes :
 Node #0 Li (O:6), connected to :
   - Node #1 Li (O:6) with delta image cells

@@ -67,7 +67,8 @@ class AbstractEnvironmentNode(MSONable):
         return
 
     # def number_of_neighboring_coordination_environments(self, environments_subgraph):
-    #     # One cannot use the MultiGraph.neighbors(self) method because for self-loops, it yields the neighbor only once
+    #     # One cannot use the MultiGraph.neighbors(self) method because for self-loops,
+    #     # it yields the neighbor only once
     #     incident_edges = environments_subgraph.edges(self)
     #     count = 0
     #     for edge in incident_edges:
