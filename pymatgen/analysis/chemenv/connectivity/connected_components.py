@@ -622,7 +622,7 @@ class ConnectedComponent(MSONable):
                 int(key)
                 raise RuntimeError('Cannot pass an edge key which is a str '
                                    'representation of an int.')
-            except ValueError as ve:
+            except ValueError:
                 return key
         else:
             raise ValueError('Edge key should be either a str or an int.')
