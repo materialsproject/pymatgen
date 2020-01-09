@@ -30,10 +30,6 @@ from random import shuffle
 
 import numpy as np
 from numpy.linalg import norm
-from pymatgen.core.periodic_table import Specie
-from pymatgen.core.structure import Structure
-from pymatgen.core.lattice import Lattice
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from numpy.linalg import svd
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import \
@@ -61,6 +57,7 @@ from pymatgen.analysis.chemenv.utils.defs_utils import chemenv_citations
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.core.periodic_table import Specie
 
 debug = False
 DIST_TOLERANCES = [0.02, 0.05, 0.1, 0.2, 0.3]

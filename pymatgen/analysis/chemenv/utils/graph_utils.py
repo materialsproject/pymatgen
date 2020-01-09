@@ -1,6 +1,5 @@
 import networkx as nx
 import numpy as np
-from collections import deque
 from monty.json import MSONable
 import itertools
 import operator

@@ -1,24 +1,19 @@
 from __future__ import print_function
-from pymatgen.analysis.chemenv.utils.graph_utils import get_all_simple_paths_edges
 from pymatgen.analysis.chemenv.utils.graph_utils import get_delta
-from monty.json import jsanitize
 
 __author__ = 'waroquiers'
 
 from monty.json import MSONable
 from pymatgen.analysis.chemenv.utils.chemenv_errors import ChemenvError
 import networkx as nx
-from networkx.algorithms import isomorphism
-from networkx.algorithms.traversal import bfs_successors
 from networkx.algorithms.traversal import bfs_tree
 from networkx.algorithms.components import is_connected
 import numpy as np
-from pymatgen.analysis.chemenv.utils.math_utils import divisors, get_linearly_independent_vectors
+from pymatgen.analysis.chemenv.utils.math_utils import get_linearly_independent_vectors
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import EnvironmentNode
 import itertools
 from matplotlib.patches import FancyArrowPatch, Circle
 import logging
-from collections import deque
 
 
 def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
@@ -39,7 +34,6 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
             rad = (rad + np.sign(rad) * 0.1) * -1
         alpha = 0.5
         color = 'k'
-        periodicity_colors = ['r', 'g', 'b']
         periodic_color = 'r'
 
         delta = get_delta(u, v, d)
@@ -639,8 +633,8 @@ class ConnectedComponent(MSONable):
             return key
         elif isinstance(key, str):
             try:
-                ikey = int(key)
-            except ValueError as ve:
+                int(key)
+            except ValueError:
                 return key
         else:
             raise ValueError('Edge key in a dict of dicts representation of a graph'
