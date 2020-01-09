@@ -140,14 +140,6 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         """
             Initializes a separation plane for a given perfect coordination geometry
 
-            :param mirror_plane: True if the separation plane is a mirror plane, in which case there is a correspondence
-                of the points in each point_group (can reduce the number of permutations)
-            :param ordered_plane : True if the order of the points in the plane can be taken into account to reduce the
-                number of permutations
-            :param plane_points: Indices of the points that are in the plane in the perfect structure (and should be
-                found in the defective one as well)
-            :param point_groups: The two groups of points separated by the plane
-
         Args:
             plane_points: Indices of the points that are in the plane in the perfect structure (and should be
                 found in the defective one as well).
@@ -540,23 +532,6 @@ class CoordinationGeometry:
         """
         Initializes one "coordination geometry" according to [Pure Appl. Chem., Vol. 79, No. 10, pp. 1779--1799, 2007]
         and [Acta Cryst. A, Vol. 46, No. 1, pp. 1--11, 1990].
-        :param mp_symbol: Symbol used internally for the coordination geometry.
-        :param name: Name of the coordination geometry.
-        :param alternative_names: Alternative names for this coordination geometry.
-        :param IUPAC_symbol: The IUPAC symbol of this coordination geometry.
-        :param IUCr_symbol: The IUCr symbol of this coordination geometry.
-        :param coordination: The coordination number of this coordination geometry (number of neighboring atoms).
-        :param central_site: The coordinates of the central site of this coordination geometry.
-        :param points: The list of the coordinates of all the points of this coordination geometry.
-        :param algorithms: List of algorithms used to identify this coordination geometry.
-        :param permutations_safe_override: Computes all the permutations if set to True (overrides the plane separation
-            algorithms or any other algorithm, for testing purposes)
-        :param plane_ordering_override: Computes all the permutations of the plane separation algorithm if set to False
-            otherwise, uses the anticlockwise ordering of the separation facets (for testing purposes)
-        :param deactivate: deactivates this coordination geometry in the search
-        :param faces : list of the faces with their vertices given in a clockwise or anticlockwise order, for drawing
-            purposes
-        :param : list of edges, for drawing purposes
 
         Args:
             mp_symbol: Symbol used internally for the coordination geometry.
@@ -956,10 +931,12 @@ class AllCoordinationGeometries(dict):
 
     def __init__(self, permutations_safe_override=False, only_symbols=None):
         """
-            Initializes the list of Coordination Geometries
-            :param permutations_safe_override:
-            :param only_symbols:
-            """
+        Initializes the list of Coordination Geometries.
+
+        Args:
+            permutations_safe_override: Whether to use safe permutations.
+            only_symbols: Whether to restrict the list of environments to be identified.
+        """
         dict.__init__(self)
         self.cg_list = list()
         if only_symbols is None:
