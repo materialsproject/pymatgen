@@ -30,33 +30,6 @@ from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
 from pymatgen.analysis.chemenv.utils.math_utils import normal_cdf_step
 
 
-
-
-# def from_bson_voronoi_list(bson_nb_voro_list, structure):
-#     """
-#     Returns the voronoi_list needed for the VoronoiContainer object from a bson-encoded voronoi_list.
-#
-#     Args:
-#         bson_nb_voro_list: List of periodic sites involved in the Voronoi.
-#         structure: Structure object.
-#
-#     Returns:
-#         The voronoi_list needed for the VoronoiContainer (with PeriodicSites as keys of the dictionary - not
-#         allowed in the BSON format).
-#     """
-#     voronoi_list = [None] * len(bson_nb_voro_list)
-#     for isite, voro in enumerate(bson_nb_voro_list):
-#         if voro is None or voro == 'None':
-#             continue
-#         voronoi_list[isite] = []
-#         for psd, dd in voro:
-#             struct_site = structure[dd['index']]
-#             periodic_site = PeriodicSite(struct_site._species, struct_site.frac_coords + psd[1],
-#                                          struct_site._lattice, properties=struct_site.properties)
-#             voronoi_list[isite].append((periodic_site, dd))
-#     return voronoi_list
-
-
 def from_bson_voronoi_list2(bson_nb_voro_list2, structure):
     """
     Returns the voronoi_list needed for the VoronoiContainer object from a bson-encoded voronoi_list.
