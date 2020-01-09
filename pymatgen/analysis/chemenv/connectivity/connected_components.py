@@ -44,7 +44,7 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
 
         delta = get_delta(u, v, d)
 
-        #center = get_center_of_arc(n1.center, n2.center, rad)
+        # center = get_center_of_arc(n1.center, n2.center, rad)
         n1center = np.array(n1.center)
         n2center = np.array(n2.center)
         midpoint = (n1center + n2center) / 2
@@ -284,7 +284,7 @@ class ConnectedComponent(MSONable):
         all_nodes_independent_cell_image_vectors = []
         my_simple_graph = nx.Graph(self._connected_subgraph)
         for test_node in self._connected_subgraph.nodes():
-            #TODO: do we need to go through all test nodes ?
+            # TODO: do we need to go through all test nodes ?
             this_node_cell_img_vectors = []
             if test_node in self_loop_nodes:
                 for key, edge_data in self._connected_subgraph[test_node][test_node].items():
@@ -298,7 +298,7 @@ class ConnectedComponent(MSONable):
             # Here, we adopt a cutoff equal to the size of the graph, contrary to the default of networkX (size - 1),
             # because otherwise, the all_simple_paths algorithm fail when the source node is equal to the target node.
             paths = []
-            #TODO: its probably possible to do just a dfs or bfs traversal instead of taking all simple paths!
+            # TODO: its probably possible to do just a dfs or bfs traversal instead of taking all simple paths!
             test_node_neighbors = my_simple_graph.neighbors(test_node)
             breaknodeloop = False
             for test_node_neighbor in test_node_neighbors:
@@ -414,7 +414,7 @@ class ConnectedComponent(MSONable):
             shown_graph = graph
 
         plt.figure()
-        #pos = nx.spring_layout(shown_graph)
+        # pos = nx.spring_layout(shown_graph)
         if drawing_type == 'internal':
             pos = nx.shell_layout(shown_graph)
             ax = plt.gca()
@@ -424,7 +424,7 @@ class ConnectedComponent(MSONable):
             plt.axis('off')
             if save_file is not None:
                 plt.savefig(save_file)
-            #nx.draw(self._connected_subgraph)
+            # nx.draw(self._connected_subgraph)
         elif drawing_type == 'draw_graphviz':
             import networkx
             networkx.nx_pydot.graphviz_layout(shown_graph)

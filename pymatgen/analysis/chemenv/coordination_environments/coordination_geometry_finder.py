@@ -564,7 +564,7 @@ class LocalGeometryFinder:
                     self.valences = [int(site.specie.oxi_state) for site in self.structure]
                 else:
                     self.valences = valences
-            except:
+            except AttributeError:
                 self.valences = valences
         else:
             self.valences = valences
