@@ -8,7 +8,10 @@ import os
 import shutil
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import get_environment_node, EnvironmentNode
 from pymatgen.util.testing import PymatgenTest
-import bson
+try:
+    import bson
+except ModuleNotFoundError:
+    bson = None
 
 json_files_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "..",
                               'test_files', "chemenv", "json_test_files")
@@ -43,9 +46,10 @@ class EnvironmentNodesTest(PymatgenTest):
         en_from_dict = EnvironmentNode.from_dict(en.as_dict())
         assert en.everything_equal(en_from_dict)
 
-        bson_data = bson.BSON.encode(en.as_dict())
-        en_from_bson = EnvironmentNode.from_dict(bson_data.decode())
-        assert en.everything_equal(en_from_bson)
+        if bson is not None:
+            bson_data = bson.BSON.encode(en.as_dict())
+            en_from_bson = EnvironmentNode.from_dict(bson_data.decode())
+            assert en.everything_equal(en_from_bson)
 
     def test_str(self):
         s = self.get_structure('SiO2')

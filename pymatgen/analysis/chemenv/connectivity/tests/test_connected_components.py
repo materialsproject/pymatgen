@@ -15,7 +15,10 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
 
-import bson
+try:
+    import bson
+except ModuleNotFoundError:
+    bson = None
 import json
 import pytest
 import numpy as np
@@ -94,9 +97,12 @@ class ConnectedComponentTest(PymatgenTest):
 
         ccfromdict = ConnectedComponent.from_dict(cc.as_dict())
         ccfromjson = ConnectedComponent.from_dict(json.loads(json.dumps(cc.as_dict())))
-        bson_data = bson.BSON.encode(cc.as_dict())
-        ccfrombson = ConnectedComponent.from_dict(bson_data.decode())
-        for loaded_cc in [ccfromdict, ccfromjson, ccfrombson]:
+        loaded_cc_list = [ccfromdict, ccfromjson]
+        if bson is not None:
+            bson_data = bson.BSON.encode(cc.as_dict())
+            ccfrombson = ConnectedComponent.from_dict(bson_data.decode())
+            loaded_cc_list.append(ccfrombson)
+        for loaded_cc in loaded_cc_list:
             assert loaded_cc.graph.number_of_nodes() == 3
             assert loaded_cc.graph.number_of_edges() == 2
             assert set(list(cc.graph.nodes())) == set(list(loaded_cc.graph.nodes()))
