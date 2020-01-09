@@ -47,6 +47,18 @@ class StructureEnvironments(MSONable):
         """
 
         def __init__(self, structure, isite, detailed_voronoi, site_voronoi_indices, sources=None):
+            """
+            Constructor for NeighborsSet.
+
+            Args:
+                structure: Structure object.
+                isite: Index of the site for which neighbors are stored in this NeighborsSet.
+                detailed_voronoi: Corresponding DetailedVoronoiContainer object containing all the possible
+                    neighbors of the give site.
+                site_voronoi_indices: Indices of the voronoi sites in the DetailedVoronoiContainer object that
+                    make up this NeighborsSet.
+                sources: Sources for this NeighborsSet, i.e. how this NeighborsSet was generated.
+            """
             self.structure = structure
             self.isite = isite
             self.detailed_voronoi = detailed_voronoi
@@ -1180,7 +1192,7 @@ class LightStructureEnvironments(MSONable):
     Class used to store the chemical environments of a given structure obtained from a given ChemenvStrategy. Currently,
     only strategies leading to the determination of a unique environment for each site is allowed
     This class does not store all the information contained in the StructureEnvironments object, only the coordination
-    environment found
+    environment found.
     """
     DELTA_MAX_OXIDATION_STATE = 0.1
     DEFAULT_STATISTICS_FIELDS = ['anion_list', 'anion_atom_list', 'cation_list', 'cation_atom_list',
@@ -1199,6 +1211,15 @@ class LightStructureEnvironments(MSONable):
         """
 
         def __init__(self, structure, isite, all_nbs_sites, all_nbs_sites_indices):
+            """
+            Constructor for NeighborsSet.
+
+            Args:
+                structure: Structure object.
+                isite: Index of the site for which neighbors are stored in this NeighborsSet.
+                all_nbs_sites: All the possible neighbors for this site.
+                all_nbs_sites_indices: Indices of the sites in all_nbs_sites that make up this NeighborsSet.
+            """
             self.structure = structure
             self.isite = isite
             self.all_nbs_sites = all_nbs_sites
