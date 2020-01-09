@@ -64,7 +64,8 @@ class MolecularOrbitals:
 
     def max_electronegativity(self):
         """
-        returns the maximum pairwise electronegativity difference
+        Returns:
+            The maximum pairwise electronegativity difference.
         """
         maximum = 0
         for e1, e2 in combinations(self.elements, 2):
@@ -74,7 +75,13 @@ class MolecularOrbitals:
 
     def aos_as_list(self):
         """
-        Returns a list of atomic orbitals, sorted from lowest to highest energy
+        Returns:
+            A list of atomic orbitals, sorted from lowest to highest energy.
+
+            The orbitals energies in eV are represented as
+                [['O', '1s', -18.758245], ['O', '2s', -0.871362], ['O', '2p', -0.338381]]
+            Data is obtained from
+            https://www.nist.gov/pml/data/atomic-reference-data-electronic-structure-calculations
         """
         return sorted(chain.from_iterable(
             [self.aos[el] * int(self.composition[el]) for el in self.elements]
@@ -83,7 +90,8 @@ class MolecularOrbitals:
     def obtain_band_edges(self):
         """
         Fill up the atomic orbitals with available electrons.
-        Return HOMO, LUMO, and whether it's a metal.
+        Returns:
+            HOMO, LUMO, and whether it's a metal.
         """
         orbitals = self.aos_as_list()
         electrons = Composition(self.composition).total_electrons

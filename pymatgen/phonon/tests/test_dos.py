@@ -37,11 +37,11 @@ class DosTest(PymatgenTest):
         self.assertMSONable(self.dos)
 
     def test_thermodynamic_functions(self):
-        self.assertAlmostEqual(self.dos.cv(300, structure=self.structure), 48.049349514094615)
-        self.assertAlmostEqual(self.dos.internal_energy(300, structure=self.structure), 15527.592023296782)
-        self.assertAlmostEqual(self.dos.helmholtz_free_energy(300, structure=self.structure), -6998.026586063017)
-        self.assertAlmostEqual(self.dos.entropy(300, structure=self.structure), 75.085395923749076)
-        self.assertAlmostEqual(self.dos.zero_point_energy(structure=self.structure), 4847.4624833147582)
+        self.assertAlmostEqual(self.dos.cv(300, structure=self.structure), 48.049366665412485, 4)
+        self.assertAlmostEqual(self.dos.internal_energy(300, structure=self.structure), 15527.596956593827, 4)
+        self.assertAlmostEqual(self.dos.helmholtz_free_energy(300, structure=self.structure), -6998.034212172695, 4)
+        self.assertAlmostEqual(self.dos.entropy(300, structure=self.structure), 75.08543723748751, 4)
+        self.assertAlmostEqual(self.dos.zero_point_energy(structure=self.structure), 4847.462485708741, 4)
 
 
 class CompleteDosTest(PymatgenTest):

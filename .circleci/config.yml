@@ -80,7 +80,7 @@ jobs:
             rm vasp_data.gz
             rm pmg.cif
             rm POSCAR.pmg
-            if [ "$CI_PULL_REQUEST" == "" ]; then coveralls; fi
+            # if [ "$CI_PULL_REQUEST" == "" ]; then coveralls; fi
           no_output_timeout: 3600
       - store_artifacts:
           path: coverage_reports/
