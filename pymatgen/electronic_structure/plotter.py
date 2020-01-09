@@ -211,7 +211,7 @@ class DosPlotter:
         plt.xlabel('Energies (eV)')
         plt.ylabel('Density of states')
 
-        plt.axhline(y=0,color='k',linestyle='--',linewidth=2)
+        plt.axhline(y=0, color='k', linestyle='--', linewidth=2)
         plt.legend()
         leg = plt.gca().get_legend()
         ltext = leg.get_texts()  # all the text.Text instance in the legend
