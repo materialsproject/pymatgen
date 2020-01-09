@@ -9,7 +9,7 @@ import shutil
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import get_environment_node, EnvironmentNode
 from pymatgen.util.testing import PymatgenTest
 try:
-    import bson
+    import bson  # type: ignore  # Ignore bson import for mypy
 except ModuleNotFoundError:
     bson = None
 

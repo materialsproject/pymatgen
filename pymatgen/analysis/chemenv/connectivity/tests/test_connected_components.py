@@ -16,11 +16,11 @@ from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
 
 try:
-    import bson
+    import bson  # type: ignore  # Ignore bson import for mypy
 except ModuleNotFoundError:
     bson = None
 import json
-import pytest
+import pytest  # type: ignore  # Ignore pytest import for mypy
 import numpy as np
 import copy
 import os
