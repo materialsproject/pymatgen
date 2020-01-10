@@ -193,10 +193,15 @@ to see full list of choices.
 
 .. note::
 
-    The Materials Project uses the 2012 versions of the VASP pseudopotentials.
-    As such, the pymatgen compatibility package assume this version. If you use
-    any functional other than PBE, note that you should not be combining results
-    from these other functionals with Materials Project data.
+    The Materials Project currently uses older versions of the VASP pseudopotentials
+    for maximum compatibility with historical data, rather than the current 52/54 
+    pseudopotentials. This setting can be overriden by the user if desired.
+    As such, current versions of pymatgen will check the hashes of your pseudopotentials
+    when constructing input sets to ensure the correct, compatible pseudopotential sets are
+    used, so that total energies can be compared to those in the Materials Project database.
+    If you use any functional other than PBE, note that you should not be combining results
+    from these other functionals with Materials Project data. For up-to-date information
+    on this, please consult the Materials Project documentation.
 
 Setup for Developers (using GitHub)
 ===================================
