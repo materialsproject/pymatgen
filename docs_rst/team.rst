@@ -18,7 +18,7 @@ A list of pymatgen developers can also be found `on GitHub`_.
 Lead Maintainers
 ================
 
-**Shyue Ping Ong** |shyuep| |0000-0001-7777-8871|
+| **Shyue Ping Ong** |shyuep| |0000-0001-7777-8871|
 | Founding developer of *pymatgen*
 | Associate Professor, Department of NanoEngineering
 | University of California, San Diego
@@ -35,7 +35,7 @@ Lead Maintainers
    :height: 16
    :alt: ORCID profile for 0000-0001-5726-2587
 
-**Matthew Horton** |mkhorton| |0000-0001-7777-8871|
+| **Matthew Horton** |mkhorton| |0000-0001-7777-8871|
 | Materials Project Staff, Persson Group Member
 | Lawrence Berkeley National Laboratory
 
