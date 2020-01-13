@@ -448,9 +448,19 @@ class MITMPRelaxSetTest(PymatgenTest):
         for f in ["INCAR", "KPOINTS", "POSCAR", "POTCAR"]:
             self.assertTrue(os.path.exists(f))
         self.assertFalse(os.path.exists("Fe4P4O16.cif"))
+
         self.mitset.write_input(".", make_dir_if_not_present=True, include_cif=True)
         self.assertTrue(os.path.exists("Fe4P4O16.cif"))
         for f in ["INCAR", "KPOINTS", "POSCAR", "POTCAR", "Fe4P4O16.cif"]:
+            os.remove(f)
+
+        self.mitset.write_input(".", make_dir_if_not_present=True, potcar_spec=True)
+
+        for f in ["INCAR", "KPOINTS", "POSCAR"]:
+            self.assertTrue(os.path.exists(f))
+        self.assertFalse(os.path.exists("POTCAR"))
+        self.assertTrue(os.path.exists("POTCAR.spec"))
+        for f in ["INCAR", "KPOINTS", "POSCAR", "POTCAR.spec"]:
             os.remove(f)
 
     def test_user_potcar_settings(self):
@@ -552,13 +562,13 @@ class MPStaticSetTest(PymatgenTest):
         vis = MPStaticSet(original_structure, standardize=True)
         self.assertFalse(sm.fit(vis.structure, original_structure))
 
-    def test_write_spec(self):
+    def test_write_input_zipped(self):
 
         vis = MPStaticSet(self.get_structure("Si"))
-        vis.write_spec()
+        vis.write_input(output_dir=".", potcar_spec=True, zip_output=True)
 
-        self.assertTrue(os.path.exists("MPStaticSet_spec.zip"))
-        with ZipFile("MPStaticSet_spec.zip", "r") as zip:
+        self.assertTrue(os.path.exists("MPStaticSet.zip"))
+        with ZipFile("MPStaticSet.zip", "r") as zip:
             contents = zip.namelist()
             self.assertSetEqual(
                 set(contents), {"INCAR", "POSCAR", "POTCAR.spec", "KPOINTS"}
@@ -566,7 +576,7 @@ class MPStaticSetTest(PymatgenTest):
             spec = zip.open("POTCAR.spec", "r").read().decode()
             self.assertEqual(spec, "Si")
 
-        os.remove("MPStaticSet_spec.zip")
+        os.remove("MPStaticSet.zip")
 
     def test_conflicting_arguments(self):
         with pytest.raises(ValueError, match="deprecated"):

@@ -64,7 +64,7 @@ class DiffusionAnalyzerTest(PymatgenTest):
             d = DiffusionAnalyzer.from_dict(dd)
             # large tolerance because scipy constants changed between 0.16.1 and 0.17
             self.assertAlmostEqual(d.conductivity, 74.165372613735684, 4)
-            self.assertAlmostEqual(d.chg_conductivity, 232.827958801, 4)
+            self.assertAlmostEqual(d.chg_conductivity, 232.8278799754324, 4)
             self.assertAlmostEqual(d.diffusivity, 1.16083658794e-06, 7)
             self.assertAlmostEqual(d.chg_diffusivity, 3.64565578208e-06, 7)
             self.assertAlmostEqual(d.conductivity_std_dev, 0.0097244677795984488, 7)
@@ -135,7 +135,7 @@ class DiffusionAnalyzerTest(PymatgenTest):
             self.assertAlmostEqual(d.conductivity, 74.165372613735684, 4)
             self.assertAlmostEqual(d.diffusivity, 1.14606446822e-06, 7)
             self.assertAlmostEqual(d.haven_ratio, 0.318541610489, 6)
-            self.assertAlmostEqual(d.chg_conductivity, 232.827958801, 4)
+            self.assertAlmostEqual(d.chg_conductivity, 232.8278799754324, 4)
             self.assertAlmostEqual(d.chg_diffusivity, 3.64565578208e-06, 7)
 
             d = DiffusionAnalyzer(d.structure, d.disp, d.specie, d.temperature,
@@ -185,8 +185,8 @@ class DiffusionAnalyzerTest(PymatgenTest):
             dd = json.load(f)
             d = DiffusionAnalyzer.from_dict(dd)
             # large tolerance because scipy constants changed between 0.16.1 and 0.17
-            self.assertAlmostEqual(d.conductivity, 499.15058192970508, 4)
-            self.assertAlmostEqual(d.chg_conductivity, 1219.59633107, 4)
+            self.assertAlmostEqual(d.conductivity, 499.1504129387108, 4)
+            self.assertAlmostEqual(d.chg_conductivity, 1219.5959181678043, 4)
             self.assertAlmostEqual(d.diffusivity, 8.40265434771e-06, 7)
             self.assertAlmostEqual(d.chg_diffusivity, 2.05305709033e-05, 6)
             self.assertAlmostEqual(d.conductivity_std_dev, 0.10368477696021029, 7)
@@ -255,14 +255,14 @@ class DiffusionAnalyzerTest(PymatgenTest):
 
             d = DiffusionAnalyzer(d.structure, d.disp, d.specie, d.temperature,
                                   d.time_step, d.step_skip, smoothed="max")
-            self.assertAlmostEqual(d.conductivity, 499.15058192970508, 4)
+            self.assertAlmostEqual(d.conductivity, 499.1504129387108, 4)
             self.assertAlmostEqual(d.diffusivity, 8.40265434771e-06, 7)
             self.assertAlmostEqual(d.haven_ratio, 0.409275240679, 7)
             self.assertAlmostEqual(d.chg_diffusivity, 2.05305709033e-05, 7)
 
             d = DiffusionAnalyzer(d.structure, d.disp, d.specie, d.temperature,
                                   d.time_step, d.step_skip, smoothed=False)
-            self.assertAlmostEqual(d.conductivity, 406.5965396, 4)
+            self.assertAlmostEqual(d.conductivity, 406.5964019770787, 4)
             self.assertAlmostEqual(d.diffusivity, 6.8446082e-06, 7)
             self.assertAlmostEqual(d.chg_diffusivity, 1.03585877962e-05, 6)
             self.assertAlmostEqual(d.haven_ratio, 0.6607665413, 6)
@@ -271,11 +271,11 @@ class DiffusionAnalyzerTest(PymatgenTest):
                                   d.time_step, d.step_skip,
                                   smoothed="constant", avg_nsteps=100)
 
-            self.assertAlmostEqual(d.conductivity, 425.7789898, 4)
+            self.assertAlmostEqual(d.conductivity, 425.77884571149525, 4)
             self.assertAlmostEqual(d.diffusivity, 7.167523809142514e-06, 7)
             self.assertAlmostEqual(d.chg_diffusivity, 9.33480892187e-06, 6)
             self.assertAlmostEqual(d.haven_ratio, 0.767827586952, 6)
-            self.assertAlmostEqual(d.chg_conductivity, 554.524214937, 6)
+            self.assertAlmostEqual(d.chg_conductivity, 554.5240271992852, 6)
 
             # Can't average over 2000 steps because this is a 1000-step run.
             self.assertRaises(ValueError, DiffusionAnalyzer,
@@ -287,10 +287,10 @@ class DiffusionAnalyzerTest(PymatgenTest):
                 list(d.get_drift_corrected_structures()),
                 d.specie, d.temperature, d.time_step,
                 d.step_skip, smoothed=d.smoothed, avg_nsteps=100)
-            self.assertAlmostEqual(d.conductivity, 425.77898986201302, 4)
+            self.assertAlmostEqual(d.conductivity, 425.7788457114952, 4)
             self.assertAlmostEqual(d.diffusivity, 7.1675238091425148e-06, 7)
             self.assertAlmostEqual(d.haven_ratio, 0.767827586952, 7)
-            self.assertAlmostEqual(d.chg_conductivity, 554.524214937, 6)
+            self.assertAlmostEqual(d.chg_conductivity, 554.5240271992852, 6)
 
             d.export_msdt("test.csv")
             with open("test.csv") as f:

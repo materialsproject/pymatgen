@@ -1913,7 +1913,21 @@ space_group_encoding:
     order: 8
     patterson_symmetry: Ammm (Cmmm)
     point_group: mm2
+  Aea2:
+    enc: 03aODDbOOOjDDO0
+    full_symbol: Aea2
+    int_number: 41
+    order: 8
+    patterson_symmetry: Ammm (Cmmm)
+    point_group: mm2
   Abm2:
+    enc: 03aODDbOOOjODO0
+    full_symbol: Aem2
+    int_number: 39
+    order: 8
+    patterson_symmetry: Ammm (Cmmm)
+    point_group: mm2
+  Aem2:
     enc: 03aODDbOOOjODO0
     full_symbol: Aem2
     int_number: 39
@@ -1997,6 +2011,13 @@ space_group_encoding:
     order: 16
     patterson_symmetry: Cmmm
     point_group: mmm
+  Ccce:
+    enc: 04aDDObDDOcOOOhODD1OBB
+    full_symbol: C2/c2/c2/e
+    int_number: 68
+    order: 16
+    patterson_symmetry: Cmmm
+    point_group: mmm
   Cccm:
     enc: 13aDDObOOOcOOD0
     full_symbol: C2/c2/c2/m
@@ -2033,6 +2054,13 @@ space_group_encoding:
     patterson_symmetry: Cmmm
     point_group: mm2
   Cmma:
+    enc: 13aDDObODOcODO0
+    full_symbol: C2/m2/m2/e
+    int_number: 67
+    order: 16
+    patterson_symmetry: Cmmm
+    point_group: mmm
+  Cmme:
     enc: 13aDDObODOcODO0
     full_symbol: C2/m2/m2/e
     int_number: 67

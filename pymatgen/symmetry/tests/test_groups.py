@@ -51,6 +51,13 @@ class PointGroupTest(unittest.TestCase):
 
 class SpaceGroupTest(unittest.TestCase):
 
+    def test_renamed_e_symbols(self):
+        sg = SpaceGroup.from_int_number(64)
+        assert sg.symbol == "Cmce"
+        for sym, num in (("Aem2", 39), ("Aea2", 41), ("Cmce", 64),
+                         ("Cmme", 67), ("Ccce", 68)):
+            assert SpaceGroup(sym).int_number == num
+
     def test_abbrev_symbols(self):
         sg = SpaceGroup("P2/c")
         self.assertEqual(sg.int_number, 13)

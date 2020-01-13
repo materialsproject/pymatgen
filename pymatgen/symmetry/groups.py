@@ -21,8 +21,6 @@ from monty.serialization import loadfn
 from pymatgen.core.operations import SymmOp
 from monty.design_patterns import cached_class
 
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2013, The Materials Virtual Lab"
 
 SYMM_DATA = None
 
@@ -508,6 +506,9 @@ def sg_symbol_from_int_number(int_number, hexagonal=True):
     if len(syms) == 0:
         raise ValueError("Invalid international number!")
     if len(syms) == 2:
+        for sym in syms:
+            if "e" in sym:
+                return sym
         if hexagonal:
             syms = list(filter(lambda s: s.endswith("H"), syms))
         else:

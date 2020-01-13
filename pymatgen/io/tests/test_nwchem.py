@@ -380,11 +380,11 @@ class NwOutputTest(unittest.TestCase):
         self.assertEqual(-1, nwo[-1]["charge"])
         self.assertEqual(len(nwo), 5)
         self.assertAlmostEqual(-1102.6224491715582, nwo[0]["energies"][-1], 2)
-        self.assertAlmostEqual(-1102.9986291578023, nwo[2]["energies"][-1])
+        self.assertAlmostEqual(-1102.9986291578023, nwo[2]["energies"][-1], 3)
         self.assertAlmostEqual(-11156.354030653656,
-                               nwo_cosmo[5]["energies"][0]["cosmo scf"])
+                               nwo_cosmo[5]["energies"][0]["cosmo scf"], 3)
         self.assertAlmostEqual(-11153.374133394364,
-                               nwo_cosmo[5]["energies"][0]["gas phase"])
+                               nwo_cosmo[5]["energies"][0]["gas phase"], 3)
         self.assertAlmostEqual(-11156.353632962995,
                                nwo_cosmo[5]["energies"][0]["sol phase"], 2)
         self.assertAlmostEqual(-11168.818934311605,
@@ -418,7 +418,7 @@ class NwOutputTest(unittest.TestCase):
         ie = (nwo[4]["energies"][-1] - nwo[2]["energies"][-1])
         ea = (nwo[2]["energies"][-1] - nwo[3]["energies"][-1])
         self.assertAlmostEqual(0.7575358648355177, ie)
-        self.assertAlmostEqual(-14.997877958701338, ea)
+        self.assertAlmostEqual(-14.997877958701338, ea, 3)
         self.assertEqual(nwo[4]["basis_set"]["C"]["description"],
                          "6-311++G**")
 

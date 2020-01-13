@@ -178,7 +178,7 @@ class EOSTest(PymatgenTest):
         self.assertAlmostEqual(mp153_known_v0_vinet, fit.v0, places=4)
 
         # expt. value 35.5, known fit 36.16
-        self.assertAlmostEqual(fit.b0_GPa, 36.16258657649159)
+        self.assertAlmostEqual(fit.b0_GPa, 36.16258687442761, 4)
 
         # Si
 
@@ -271,7 +271,7 @@ class EOSTest(PymatgenTest):
         self.assertAlmostEqual(mp149_known_v0_vinet, fit.v0, places=4)
 
         # expt. value 97.9, known fit 88.39
-        self.assertAlmostEqual(fit.b0_GPa, 88.38629264585195)
+        self.assertAlmostEqual(fit.b0_GPa, 88.38629337404822, 4)
 
         # Ti
 
@@ -364,7 +364,7 @@ class EOSTest(PymatgenTest):
         self.assertAlmostEqual(mp72_known_v0_vinet, fit.v0, places=4)
 
         # expt. value 107.3, known fit 112.63
-        self.assertAlmostEqual(fit.b0_GPa, 112.62927094503254)
+        self.assertAlmostEqual(fit.b0_GPa, 112.62927187296167, 4)
 
     def test_numerical_eoswrapper(self):
         # using numerical eos directly vs via EOS wrapper
