@@ -8,6 +8,7 @@ import pickle
 import timeit
 
 from pymatgen.util.testing import PymatgenTest
+from pymatgen.electronic_structure.core import Magmom
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.lattice import Lattice
@@ -22,6 +23,8 @@ class SiteTest(PymatgenTest):
                                     [0.25, 0.35, 0.45])
         self.propertied_site = Site("Fe2+", [0.25, 0.35, 0.45],
                                     {'magmom': 5.1, 'charge': 4.2})
+        self.propertied_magmomvector_site = Site("Fe2+", [0.25, 0.35, 0.45],
+                                                 {'magmom': Magmom([2.6, 2.6, 3.5]), 'charge': 4.2})
         self.dummy_site = Site("X", [0, 0, 0])
 
     def test_properties(self):
@@ -39,6 +42,10 @@ class SiteTest(PymatgenTest):
         d = self.propertied_site.as_dict()
         site = Site.from_dict(d)
         self.assertEqual(site.properties["magmom"], 5.1)
+        self.assertEqual(site.properties["charge"], 4.2)
+        d = self.propertied_magmomvector_site.as_dict()
+        site = Site.from_dict(d)
+        self.assertEqual(site.properties["magmom"], Magmom([2.6, 2.6, 3.5]))
         self.assertEqual(site.properties["charge"], 4.2)
         d = self.dummy_site.as_dict()
         site = Site.from_dict(d)
