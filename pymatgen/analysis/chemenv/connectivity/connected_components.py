@@ -285,10 +285,10 @@ class ConnectedComponent(MSONable):
                     if edge_data['delta'] == (0, 0, 0):
                         raise ValueError('There should not be self loops with delta image = (0, 0, 0).')
                     this_node_cell_img_vectors.append(edge_data['delta'])
-            ndeltas = len(this_node_cell_img_vectors)
+            for d1, d2 in itertools.combinations(this_node_cell_img_vectors, 2):
+                if d1 == d2 or d1 == tuple(-ii for ii in d2):
+                    raise ValueError('There should not be self loops with the same (or opposite) delta image.')
             this_node_cell_img_vectors = get_linearly_independent_vectors(this_node_cell_img_vectors)
-            if len(this_node_cell_img_vectors) != ndeltas:
-                raise ValueError('There should not be self loops with the same (or opposite) delta image.')
             # Here, we adopt a cutoff equal to the size of the graph, contrary to the default of networkX (size - 1),
             # because otherwise, the all_simple_paths algorithm fail when the source node is equal to the target node.
             paths = []
