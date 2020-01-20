@@ -3,6 +3,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+A master convenience script with many tools for vasp and structure analysis.
+"""
 
 import argparse
 import sys
@@ -18,20 +21,15 @@ from pymatgen.cli.pmg_potcar import generate_potcar
 from pymatgen.cli.pmg_plot import plot
 from pymatgen.cli.pmg_structure import analyze_structures
 from pymatgen.cli.pmg_query import do_query
-
-"""
-A master convenience script with many tools for vasp and structure analysis.
-"""
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "5.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "ongsp@ucsd.edu"
-__date__ = "Sep 19 2016"
+from pymatgen import __version__
 
 
 def parse_view(args):
+    """
+    Handle view commands.
+
+    :param args: Args from command.
+    """
     from pymatgen.vis.structure_vtk import StructureVis
     excluded_bonding_elements = args.exclude_bonding[0].split(",") \
         if args.exclude_bonding else []
@@ -42,6 +40,11 @@ def parse_view(args):
 
 
 def diff_incar(args):
+    """
+    Handle diff commands.
+
+    :param args: Args from command.
+    """
     filepath1 = args.incars[0]
     filepath2 = args.incars[1]
     incar1 = Incar.from_file(filepath1)
@@ -66,15 +69,17 @@ def diff_incar(args):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="""
+    """
+    Handle main.
+    """
+    parser = argparse.ArgumentParser(
+        description="""
     pmg is a convenient script that uses pymatgen to perform many
     analyses, plotting and format conversions. This script works based on
     several sub-commands with their own options. To see the options for the
     sub-commands, type "pmg sub-command -h".""",
-                                     epilog="""
-    Author: Shyue Ping Ong
-    Version: {}
-    Last updated: {}""".format(__version__, __date__))
+        epilog="""Version: {}""".format(__version__)
+    )
 
     subparsers = parser.add_subparsers()
 
@@ -131,9 +136,8 @@ def main():
         "-v", "--verbose", dest="verbose", action="store_true",
         help="Verbose mode. Provides detailed output on progress.")
     parser_analyze.add_argument(
-        "-d", "--detailed", dest="detailed", action="store_true",
-        help="Detailed, but slower mode. Parses vasprun.xml instead of "
-             "separate vasp outputs.")
+        "-q", "--quick", dest="quick", action="store_true",
+        help="Faster mode, but less detailed information. Parses individual vasp files.")
     parser_analyze.add_argument(
         "-s", "--sort", dest="sort", choices=["energy_per_atom", "filename"],
         default="energy_per_atom",
@@ -272,10 +276,9 @@ def main():
                        help="List of POTCAR symbols. Use -f to set "
                             "functional. Defaults to PBE.")
     group.add_argument("-r", "--recursive", dest="recursive",
-                       type=str, nargs="+",
+                       type=str,
                        help="Dirname to find and generate from POTCAR.spec.")
     parser_potcar.set_defaults(func=generate_potcar)
-
 
     try:
         import argcomplete

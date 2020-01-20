@@ -24,6 +24,7 @@ This module implements input and output processing from Nwchem.
 2015/09/21 - Xin Chen (chenxin13@mails.tsinghua.edu.cn):
 
     NwOutput will read new kinds of data:
+
         1. normal hessian matrix.       ["hessian"]
         2. projected hessian matrix.    ["projected_hessian"]
         3. normal frequencies.          ["normal_frequencies"]
@@ -33,6 +34,7 @@ This module implements input and output processing from Nwchem.
 
 2015/10/12 - Xin Chen
     NwOutput will read new kinds of data:
+
         1. forces.                      ["forces"]
 
 """
@@ -43,7 +45,6 @@ __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "6/5/13"
-
 
 NWCHEM_BASIS_LIBRARY = None
 if os.environ.get("NWCHEM_BASIS_LIBRARY"):
@@ -180,7 +181,7 @@ $theory_spec
 """)
 
         output = t.substitute(
-            title=self.title, charge=self.charge,
+            title=self.title, charge=int(self.charge),
             spinmult=self.spin_multiplicity,
             basis_set_option=self.basis_set_option,
             bset_spec="\n".join(bset_spec),
@@ -469,7 +470,7 @@ class NwInput(MSONable):
                            basis_set_option=basis_set_option,
                            theory_directives=theory_directives.get(toks[1])))
             elif toks[0].lower() == "memory":
-                    memory_options = ' '.join(toks[1:])
+                memory_options = ' '.join(toks[1:])
             else:
                 directives.append(l.strip().split())
 
@@ -670,8 +671,11 @@ class NwOutput:
             "geom_binvr: #indep variables incorrect": "autoz error",
             "dft optimize failed": "Geometry optimization failed"}
 
-        fort2py = lambda x: x.replace("D", "e")
-        isfloatstring = lambda s: s.find(".") == -1
+        def fort2py(x):
+            return x.replace("D", "e")
+
+        def isfloatstring(s):
+            return s.find(".") == -1
 
         parse_hess = False
         parse_proj_hess = False
@@ -831,13 +835,11 @@ class NwOutput:
                     cosmo_scf_energy = energies[-1]
                     energies[-1] = dict()
                     energies[-1].update({"cosmo scf": cosmo_scf_energy})
-                    energies[-1].update({"gas phase":
-                                         Energy(m.group(1), "Ha").to("eV")})
+                    energies[-1].update({"gas phase": Energy(m.group(1), "Ha").to("eV")})
 
                 m = energy_sol_patt.search(l)
                 if m:
-                    energies[-1].update(
-                        {"sol phase": Energy(m.group(1), "Ha").to("eV")})
+                    energies[-1].update({"sol phase": Energy(m.group(1), "Ha").to("eV")})
 
                 m = preamble_patt.search(l)
                 if m:
@@ -892,10 +894,10 @@ class NwOutput:
 
         if frequencies:
             for freq, mode in frequencies:
-                mode[:] = zip(*[iter(mode)]*3)
+                mode[:] = zip(*[iter(mode)] * 3)
         if normal_frequencies:
             for freq, mode in normal_frequencies:
-                mode[:] = zip(*[iter(mode)]*3)
+                mode[:] = zip(*[iter(mode)] * 3)
         if hessian:
             n = len(hessian)
             for i in range(n):

@@ -9,7 +9,6 @@ import subprocess
 import itertools
 import logging
 import glob
-import warnings
 
 import numpy as np
 from monty.fractions import lcm
@@ -185,7 +184,7 @@ class EnumlibAdaptor:
                 ordered_sites.append(sites)
             else:
                 sp_label = []
-                species = {k: v for k, v in sites[0].species_and_occu.items()}
+                species = {k: v for k, v in sites[0].species.items()}
                 if sum(species.values()) < 1 - EnumlibAdaptor.amount_tol:
                     # Let us first make add a dummy element for every single
                     # site whose total occupancies don't sum to 1.
@@ -257,13 +256,11 @@ class EnumlibAdaptor:
 
         output.append("{} {}".format(self.min_cell_size, self.max_cell_size))
         output.append(str(self.enum_precision_parameter))
-        output.append("partial")
+        output.append("full")
 
         ndisordered = sum([len(s) for s in disordered_sites])
-        base = int(ndisordered*lcm(*[f.limit_denominator(ndisordered *
-                                          self.max_cell_size).denominator
-                                       for f in map(fractions.Fraction,
-                                                    index_amounts)]))
+        base = int(ndisordered*lcm(*[f.limit_denominator(ndisordered * self.max_cell_size).denominator
+                                     for f in map(fractions.Fraction, index_amounts)]))
 
         # This multiplicative factor of 10 is to prevent having too small bases
         # which can lead to rounding issues in the next step.
@@ -365,7 +362,7 @@ class EnumlibAdaptor:
                         site_properties[k] = [v]
             ordered_structure = Structure(
                 original_latt,
-                [site.species_and_occu for site in self.ordered_sites],
+                [site.species for site in self.ordered_sites],
                 [site.frac_coords for site in self.ordered_sites],
                 site_properties=site_properties
             )
@@ -391,20 +388,22 @@ class EnumlibAdaptor:
                                       for row in transformation]
                     logger.debug("Supercell matrix: {}".format(transformation))
                     s = ordered_structure * transformation
-                    sites.extend([site.to_unit_cell for site in s])
+                    sites.extend([site.to_unit_cell() for site in s])
                     super_latt = sites[-1].lattice
                 else:
                     super_latt = new_latt
 
                 for site in sub_structure:
                     if site.specie.symbol != "X":  # We exclude vacancies.
-                        sites.append(PeriodicSite(site.species_and_occu,
-                                                  site.frac_coords,
-                                                  super_latt,
-                                                  properties=disordered_site_properties)
-                                     .to_unit_cell)
+                        sites.append(
+                            PeriodicSite(site.species,
+                                         site.frac_coords,
+                                         super_latt,
+                                         to_unit_cell=True,
+                                         properties=disordered_site_properties)
+                        )
                     else:
-                        warnings.warn("Skipping sites that include species X.")
+                        logger.debug("Skipping sites that include species X.")
                 structs.append(Structure.from_sites(sorted(sites)))
 
         logger.debug("Read in a total of {} structures.".format(num_structs))

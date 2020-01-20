@@ -10,22 +10,8 @@ import json
 from pymatgen.core.structure import Molecule
 from pymatgen.io.nwchem import NwTask, NwInput, NwInputError, NwOutput
 
-"""
-This module supports the generation and parsing of input and output file for
-nwchem.
-"""
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "6/6/13"
-
-
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files', "nwchem")
-
 
 coords = [[0.000000, 0.000000, 0.000000],
           [0.000000, 0.000000, 1.089000],
@@ -63,7 +49,6 @@ task dft optimize"""
         self.assertEqual(str(t), ans)
 
     def test_str_and_from_string(self):
-
         ans = """title "dft optimize"
 charge 0
 basis cartesian
@@ -320,7 +305,7 @@ task dft energy
         self.assertEqual(nwi.memory_options, "total 1000 mb stack 400 mb")
         self.assertEqual(nwi.tasks[0].basis_set["C"], "6-31++G*")
         self.assertEqual(nwi.tasks[-1].basis_set["C"], "6-311++G**")
-        #Try a simplified input.
+        # Try a simplified input.
         str_inp = """start H4C1
 geometry units angstroms
  C 0.0 0.0 0.0
@@ -395,11 +380,11 @@ class NwOutputTest(unittest.TestCase):
         self.assertEqual(-1, nwo[-1]["charge"])
         self.assertEqual(len(nwo), 5)
         self.assertAlmostEqual(-1102.6224491715582, nwo[0]["energies"][-1], 2)
-        self.assertAlmostEqual(-1102.9986291578023, nwo[2]["energies"][-1])
+        self.assertAlmostEqual(-1102.9986291578023, nwo[2]["energies"][-1], 3)
         self.assertAlmostEqual(-11156.354030653656,
-                               nwo_cosmo[5]["energies"][0]["cosmo scf"])
+                               nwo_cosmo[5]["energies"][0]["cosmo scf"], 3)
         self.assertAlmostEqual(-11153.374133394364,
-                               nwo_cosmo[5]["energies"][0]["gas phase"])
+                               nwo_cosmo[5]["energies"][0]["gas phase"], 3)
         self.assertAlmostEqual(-11156.353632962995,
                                nwo_cosmo[5]["energies"][0]["sol phase"], 2)
         self.assertAlmostEqual(-11168.818934311605,
@@ -433,7 +418,7 @@ class NwOutputTest(unittest.TestCase):
         ie = (nwo[4]["energies"][-1] - nwo[2]["energies"][-1])
         ea = (nwo[2]["energies"][-1] - nwo[3]["energies"][-1])
         self.assertAlmostEqual(0.7575358648355177, ie)
-        self.assertAlmostEqual(-14.997877958701338, ea)
+        self.assertAlmostEqual(-14.997877958701338, ea, 3)
         self.assertEqual(nwo[4]["basis_set"]["C"]["description"],
                          "6-311++G**")
 
@@ -450,12 +435,12 @@ class NwOutputTest(unittest.TestCase):
         self.assertEqual(nwo[-1]["errors"][0], "autoz error")
 
         nwo = NwOutput(os.path.join(test_dir,
-                       "anthrachinon_wfs_16_ethyl.nwout"))
+                                    "anthrachinon_wfs_16_ethyl.nwout"))
         self.assertTrue(nwo[-1]["has_error"])
         self.assertEqual(nwo[-1]["errors"][0],
                          "Geometry optimization failed")
         nwo = NwOutput(os.path.join(test_dir,
-                       "anthrachinon_wfs_15_carboxyl.nwout"))
+                                    "anthrachinon_wfs_15_carboxyl.nwout"))
         self.assertEqual(nwo[1]['frequencies'][0][0], -70.47)
         self.assertEqual(len(nwo[1]['frequencies'][0][1]), 27)
         self.assertEqual(nwo[1]['frequencies'][-1][0], 3696.74)

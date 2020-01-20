@@ -2,6 +2,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+from __future__ import division
 
 import warnings
 import numpy as np
@@ -203,8 +204,7 @@ class InterfacialReactivity:
         Returns:
             Reaction energy.
         """
-        return self.pd.get_hull_energy(self.comp1 * x + self.comp2 * (1-x)) - \
-            self.e1 * x - self.e2 * (1-x)
+        return self.pd.get_hull_energy(self.comp1 * x + self.comp2 * (1 - x)) - self.e1 * x - self.e2 * (1 - x)
 
     def _get_reaction(self, x):
         """
@@ -217,7 +217,7 @@ class InterfacialReactivity:
         Returns:
             Reaction object.
         """
-        mix_comp = self.comp1 * x + self.comp2 * (1-x)
+        mix_comp = self.comp1 * x + self.comp2 * (1 - x)
         decomp = self.pd.get_decomposition(mix_comp)
 
         # Uses original composition for reactants.
@@ -235,10 +235,11 @@ class InterfacialReactivity:
         product = [Composition(k.name) for k, v in decomp.items()]
         reaction = Reaction(reactant, product)
 
-        if np.isclose(x, 1):
-            reaction.normalize_to(self.c1_original, 1)
+        x_original = self._get_original_composition_ratio(reaction)
+        if np.isclose(x_original, 1):
+            reaction.normalize_to(self.c1_original, x_original)
         else:
-            reaction.normalize_to(self.c2_original, 1)
+            reaction.normalize_to(self.c2_original, 1 - x_original)
         return reaction
 
     def _get_elmt_amt_in_rxt(self, rxt):
@@ -283,7 +284,7 @@ class InterfacialReactivity:
         Returns:
             Mixing ratio in c1 - c2 tie line, a float between 0 and 1.
         """
-        return x * factor2 / ((1-x) * factor1 + x * factor2)
+        return x * factor2 / ((1 - x) * factor1 + x * factor2)
 
     @staticmethod
     def _reverse_convert(x, factor1, factor2):
@@ -303,7 +304,7 @@ class InterfacialReactivity:
         Returns:
             Mixing ratio in comp1 - comp2 tie line, a float between 0 and 1.
         """
-        return x * factor1 / ((1-x) * factor2 + x * factor1)
+        return x * factor1 / ((1 - x) * factor2 + x * factor1)
 
     def get_kinks(self):
         """
@@ -330,7 +331,7 @@ class InterfacialReactivity:
             energy_kink = [self._get_energy(x) for x in x_kink]
             react_kink = [self._get_reaction(x) for x in x_kink]
             num_atoms = [(x * self.comp1.num_atoms +
-                          (1-x) * self.comp2.num_atoms) for x in x_kink]
+                          (1 - x) * self.comp2.num_atoms) for x in x_kink]
             energy_per_rxt_formula = [energy_kink[i] *
                                       self._get_elmt_amt_in_rxt(
                                           react_kink[i]) /
@@ -341,13 +342,11 @@ class InterfacialReactivity:
             for i in reversed(critical_comp):
                 # Gets mixing ratio x at kinks.
                 c = self.pd.pd_coords(i)
-                x = np.linalg.norm(c - c2_coord) / \
-                    np.linalg.norm(c1_coord - c2_coord)
+                x = np.linalg.norm(c - c2_coord) / np.linalg.norm(c1_coord - c2_coord)
                 # Modifies mixing ratio in case compositions self.comp1 and
                 # self.comp2 are not normalized.
                 x = x * n2 / (n1 + x * (n2 - n1))
-                n_atoms = x * self.comp1.num_atoms \
-                    + (1-x) * self.comp2.num_atoms
+                n_atoms = x * self.comp1.num_atoms + (1 - x) * self.comp2.num_atoms
                 # Converts mixing ratio in comp1 - comp2 tie line to that in
                 # c1 - c2 tie line.
                 x_converted = InterfacialReactivity._convert(
@@ -359,38 +358,53 @@ class InterfacialReactivity:
                 # Gets balanced reaction at kinks
                 rxt = self._get_reaction(x)
                 react_kink.append(rxt)
-                rxt_energy = normalized_energy * \
-                    self._get_elmt_amt_in_rxt(rxt) / \
-                    n_atoms
+                rxt_energy = normalized_energy * self._get_elmt_amt_in_rxt(rxt) / n_atoms
                 energy_per_rxt_formula.append(
                     rxt_energy *
                     InterfacialReactivity.EV_TO_KJ_PER_MOL)
-        index_kink = range(1, len(critical_comp)+1)
+        index_kink = range(1, len(critical_comp) + 1)
         return zip(index_kink, x_kink, energy_kink, react_kink,
                    energy_per_rxt_formula)
 
     def get_critical_original_kink_ratio(self):
         """
-        Returns a list of mixing ratio for each kink between ORIGINAL
+        Returns a list of molar mixing ratio for each kink between ORIGINAL
         (instead of processed) reactant compositions. This is the
         same list as mixing ratio obtained from get_kinks method
         if self.norm = False.
 
         Returns:
-            A list of floats representing mixing ratios between original
-            reactant compositions for each kink.
+            A list of floats representing molar mixing ratios between
+            the original reactant compositions for each kink.
         """
         ratios = []
         if self.c1_original == self.c2_original:
             return [0, 1]
         reaction_kink = [k[3] for k in self.get_kinks()]
         for rxt in reaction_kink:
-            c1_coeff = rxt.get_coeff(self.c1_original) \
-                if self.c1_original in rxt.reactants else 0
-            c2_coeff = rxt.get_coeff(self.c2_original) \
-                if self.c2_original in rxt.reactants else 0
-            ratios.append(abs(c1_coeff / (c1_coeff + c2_coeff)))
+            ratios.append(abs(self._get_original_composition_ratio(rxt)))
         return ratios
+
+    def _get_original_composition_ratio(self, reaction):
+        """
+        Returns the molar mixing ratio between the reactants with ORIGINAL (
+        instead of processed) compositions for a reaction.
+
+        Args:
+            reaction (Reaction): Reaction object that contains the original
+                reactant compositions.
+
+        Returns:
+            The molar mixing ratio between the original reactant
+            compositions for a reaction.
+        """
+        if self.c1_original == self.c2_original:
+            return 1
+        c1_coeff = reaction.get_coeff(self.c1_original) \
+            if self.c1_original in reaction.reactants else 0
+        c2_coeff = reaction.get_coeff(self.c2_original) \
+            if self.c2_original in reaction.reactants else 0
+        return c1_coeff * 1.0 / (c1_coeff + c2_coeff)
 
     def labels(self):
         """
@@ -470,14 +484,10 @@ class InterfacialReactivity:
         Returns:
             [(reactant1, no_mixing_energy1),(reactant2,no_mixing_energy2)].
         """
-        assert self.grand == 1, \
-            'Please provide grand potential phase diagram ' \
-            'for computing no_mixing_energy!'
+        assert self.grand == 1, 'Please provide grand potential phase diagram for computing no_mixing_energy!'
 
-        energy1 = self.pd.get_hull_energy(self.comp1) - \
-            self._get_grand_potential(self.c1)
-        energy2 = self.pd.get_hull_energy(self.comp2) - \
-            self._get_grand_potential(self.c2)
+        energy1 = self.pd.get_hull_energy(self.comp1) - self._get_grand_potential(self.c1)
+        energy2 = self.pd.get_hull_energy(self.comp2) - self._get_grand_potential(self.c2)
         unit = 'eV/f.u.'
         if self.norm:
             unit = 'eV/atom'
@@ -530,10 +540,9 @@ class InterfacialReactivity:
         Cp_std = Cp_dict[element]
         S_std = S_dict[element]
         PV_correction = ideal_gas_const * temp * np.log(pres / std_pres)
-        TS_correction = - Cp_std * (temp * np.log(temp)
-                                    - std_temp * np.log(std_temp)) \
-                        + Cp_std * (temp - std_temp) * (1 + np.log(std_temp)) \
-                        - S_std * (temp - std_temp)
+        TS_correction = - Cp_std * (temp * np.log(temp) - std_temp * np.log(std_temp)) \
+            + Cp_std * (temp - std_temp) * (1 + np.log(std_temp)) \
+            - S_std * (temp - std_temp)
 
         dG = PV_correction + TS_correction
         # Convert to eV/molecule unit.

@@ -2,18 +2,16 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module provides classes to identify optimal substrates for film growth
+"""
+
 from itertools import product
 import numpy as np
 
 from pymatgen.analysis.elasticity.strain import Deformation
 from pymatgen.core.surface import (SlabGenerator,
                                    get_symmetrically_distinct_miller_indices)
-
-from math import gcd
-
-"""
-This module provides classes to identify optimal substrates for film growth
-"""
 
 __author__ = "Shyam Dwaraknath"
 __copyright__ = "Copyright 2016, The Materials Project"
@@ -30,9 +28,7 @@ class ZSLGenerator:
     of lattice vector matching for heterostructural interfaces proposed by
     Zur and McGill:
     Journal of Applied Physics 55 (1984), 378 ; doi: 10.1063/1.333084
-
     The process of generating all possible matching super lattices is:
-
     1.) Reduce the surface lattice vectors and calculate area for the surfaces
     2.) Generate all super lattice transformations within a maximum allowed area
         limit that give nearly equal area super-lattices for the two
@@ -50,7 +46,6 @@ class ZSLGenerator:
         """
         Intialize a Zur Super Lattice Generator for a specific film and
             substrate
-
         Args:
             max_area_ratio_tol(float): Max tolerance on ratio of
                 super-lattices to consider equal
@@ -69,7 +64,6 @@ class ZSLGenerator:
         """
         Determine if two sets of vectors are the same within length and angle
         tolerances
-
         Args:
             vec_set1(array[array]): an array of two vectors
             vec_set2(array[array]): second array of two vectors
@@ -78,10 +72,10 @@ class ZSLGenerator:
                 self.max_length_tol):
             return False
         elif (np.absolute(rel_strain(vec_set1[1], vec_set2[1])) >
-                  self.max_length_tol):
+              self.max_length_tol):
             return False
         elif (np.absolute(rel_angle(vec_set1, vec_set2)) >
-                  self.max_angle_tol):
+              self.max_angle_tol):
             return False
         else:
             return True
@@ -92,11 +86,9 @@ class ZSLGenerator:
         area of the unit cell area for the film and substrate. The
         transformation sets map the film and substrate unit cells to super
         lattices with a maximum area
-
         Args:
             film_area(int): the unit cell area for the film
             substrate_area(int): the unit cell area for the substrate
-
         Returns:
             transformation_sets: a set of transformation_sets defined as:
                 1.) the transformation matricies for the film to create a
@@ -121,7 +113,6 @@ class ZSLGenerator:
         Applies the transformation_sets to the film and substrate vectors
         to generate super-lattices and checks if they matches.
         Returns all matching vectors sets.
-
         Args:
             transformation_sets(array): an array of transformation sets:
                 each transformation set is an array with the (i,j)
@@ -129,7 +120,6 @@ class ZSLGenerator:
                 corresponds to, an array with all possible transformations
                 for the film area multiple i and another array for the
                 substrate area multiple j.
-
             film_vectors(array): film vectors to generate super lattices
             substrate_vectors(array): substrate vectors to generate super
                 lattices
@@ -142,10 +132,11 @@ class ZSLGenerator:
 
             substrates = [reduce_vectors(*np.dot(s, substrate_vectors)) for s in substrate_transformations]
 
-            # Check if equivelant super lattices
-            for f, s in product(films, substrates):
+            # Check if equivalant super lattices
+            for (f_trans, s_trans), (f, s) in zip(product(film_transformations, substrate_transformations),
+                                                  product(films, substrates)):
                 if self.is_same_vectors(f, s):
-                    yield [f, s]
+                    yield [f, s, f_trans, s_trans]
 
     def __call__(self, film_vectors, substrate_vectors, lowest=False):
         """
@@ -165,16 +156,17 @@ class ZSLGenerator:
                                                     film_vectors,
                                                     substrate_vectors):
             # Yield the match area, the miller indicies,
-            yield self.match_as_dict(match[0], match[1], film_vectors, substrate_vectors, vec_area(*match[0]))
+            yield self.match_as_dict(match[0], match[1], film_vectors, substrate_vectors, vec_area(*match[0]),
+                                     match[2], match[3])
 
             # Just want lowest match per direction
             if (lowest):
                 break
 
-    def match_as_dict(self, film_sl_vectors, substrate_sl_vectors, film_vectors, substrate_vectors, match_area):
+    def match_as_dict(self, film_sl_vectors, substrate_sl_vectors, film_vectors, substrate_vectors, match_area,
+                      film_transformation, substrate_transformation):
         """
         Returns dict which contains ZSL match
-
         Args:
             film_miller(array)
             substrate_miller(array)
@@ -185,6 +177,8 @@ class ZSLGenerator:
         d["match_area"] = match_area
         d["film_vecs"] = np.asarray(film_vectors)
         d["sub_vecs"] = np.asarray(substrate_vectors)
+        d["film_transformation"] = np.asarray(film_transformation)
+        d["substrate_transformation"] = np.asarray(substrate_transformation)
 
         return d
 
@@ -285,12 +279,12 @@ class SubstrateAnalyzer:
             for match in self.zsl(film_vectors, substrate_vectors, lowest):
                 match['film_miller'] = film_miller
                 match['sub_miller'] = substrate_miller
-                if (elasticity_tensor is not None):
+                if elasticity_tensor is not None:
                     energy, strain = self.calculate_3D_elastic_energy(
                         film, match, elasticity_tensor, include_strain=True)
                     match["elastic_energy"] = energy
                     match["strain"] = strain
-                if (ground_state_energy is not 0):
+                if ground_state_energy != 0:
                     match['total_energy'] = match.get('elastic_energy', 0) + ground_state_energy
 
                 yield match

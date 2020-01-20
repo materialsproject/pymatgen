@@ -2,11 +2,19 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Common test support for pymatgen test scripts.
+
+This single module should provide all the common functionality for pymatgen
+tests in a single location, so that test scripts can just import it and work
+right away.
+"""
+
 import unittest
 import tempfile
-import numpy.testing.utils as nptu
+import numpy.testing as nptu
 from io import open
-import os
+from pathlib import Path
 import json
 
 from monty.json import MontyDecoder
@@ -16,14 +24,6 @@ from monty.dev import requires
 
 from pymatgen import SETTINGS, MPRester
 
-"""
-Common test support for pymatgen test scripts.
-
-This single module should provide all the common functionality for pymatgen
-tests in a single location, so that test scripts can just import it and work
-right away.
-"""
-
 
 class PymatgenTest(unittest.TestCase):
     """
@@ -31,24 +31,35 @@ class PymatgenTest(unittest.TestCase):
     that support the comparison of arrays.
     """
     _multiprocess_shared_ = True
-    MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-    STRUCTURES_DIR = os.path.join(MODULE_DIR, "structures")
-
+    MODULE_DIR = Path(__file__).absolute().parent
+    STRUCTURES_DIR = MODULE_DIR / "structures"
+    TEST_FILES_DIR = MODULE_DIR / ".." / ".." / "test_files"
     """
     Dict for test structures to aid testing.
     """
     TEST_STRUCTURES = {}
-    for fn in os.listdir(STRUCTURES_DIR):
-        TEST_STRUCTURES[fn.rsplit(".", 1)[0]] = loadfn(os.path.join(
-            STRUCTURES_DIR, fn), cls=MontyDecoder)
+    for fn in STRUCTURES_DIR.iterdir():
+        TEST_STRUCTURES[fn.name.rsplit(".", 1)[0]] = loadfn(str(fn))
 
     @classmethod
     def get_structure(cls, name):
+        """
+        Get a structure from the template directories.
+
+        :param name: Name of a structure.
+        :return: Structure
+        """
         return cls.TEST_STRUCTURES[name].copy()
 
     @classmethod
     @requires(SETTINGS.get("PMG_MAPI_KEY"), "PMG_MAPI_KEY needs to be set.")
     def get_mp_structure(cls, mpid):
+        """
+        Get a structure from MP.
+
+        :param mpid: Materials Project id.
+        :return: Structure
+        """
         m = MPRester()
         return m.get_structure_by_material_id(mpid)
 
@@ -63,6 +74,36 @@ class PymatgenTest(unittest.TestCase):
                                         verbose)
 
     @staticmethod
+    def assertDictsAlmostEqual(actual, desired, decimal=7, err_msg='',
+                               verbose=True):
+        """
+        Tests if two arrays are almost equal to a tolerance. The CamelCase
+        naming is so that it is consistent with standard unittest methods.
+        """
+
+        for k, v in actual.items():
+            if k not in desired:
+                return False
+            v2 = desired[k]
+            if isinstance(v, dict):
+                pass_test = PymatgenTest.assertDictArraysAlmostEqual(
+                    v, v2, decimal=decimal, err_msg=err_msg, verbose=verbose)
+                if not pass_test:
+                    return False
+            elif isinstance(v, (list, tuple)):
+                pass_test = nptu.assert_almost_equal(v, v2, decimal, err_msg,
+                                                     verbose)
+                if not pass_test:
+                    return False
+            elif isinstance(v, (int, float)):
+                pass_test = PymatgenTest.assertAlmostEqual(v, v2)
+                if not pass_test:
+                    return False
+            else:
+                assert v == v2
+        return True
+
+    @staticmethod
     def assertArrayEqual(actual, desired, err_msg='', verbose=True):
         """
         Tests if two arrays are equal. The CamelCase naming is so that it is
@@ -70,6 +111,22 @@ class PymatgenTest(unittest.TestCase):
         """
         return nptu.assert_equal(actual, desired, err_msg=err_msg,
                                  verbose=verbose)
+
+    @staticmethod
+    def assertStrContentEqual(actual, desired, err_msg='', verbose=True):
+        """
+        Tests if two strings are equal, ignoring things like trailing spaces,
+        etc.
+        """
+        lines1 = actual.split("\n")
+        lines2 = desired.split("\n")
+        if len(lines1) != len(lines2):
+            return False
+        failed = []
+        for l1, l2 in zip(lines1, lines2):
+            if l1.strip() != l2.strip():
+                failed.append("%s != %s" % (l1, l2))
+        return len(failed) == 0
 
     def serialize_with_pickle(self, objects, protocols=None, test_eq=True):
         """

@@ -15,18 +15,6 @@ from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.transformations.standard_transformations import *
 from pymatgen.symmetry.structure import SymmetrizedStructure
 
-'''
-Created on Sep 23, 2011
-'''
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Sep 23, 2011"
-
-
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
@@ -256,7 +244,7 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
                                                      "O": -2})
         s = t1.apply_transformation(p.structure)
         t = PartialRemoveSpecieTransformation("Li+", 0.5,
-            PartialRemoveSpecieTransformation.ALGO_BEST_FIRST)
+                                              PartialRemoveSpecieTransformation.ALGO_BEST_FIRST)
         self.assertEqual(len(t.apply_transformation(s)), 26)
 
 
@@ -402,6 +390,22 @@ class PrimitiveCellTransformationTest(unittest.TestCase):
                          PrimitiveCellTransformation)
 
 
+class ConventionalCellTransformationTest(unittest.TestCase):
+    def test_apply_transformation(self):
+        t = ConventionalCellTransformation()
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0.75, 0.75, 0.75])
+        coords.append([0.5, 0.5, 0.5])
+        coords.append([0.25, 0.25, 0.25])
+        lattice = Lattice([[3.8401979337, 0.00, 0.00],
+                           [1.9200989668, 3.3257101909, 0.00],
+                           [0.00, -2.2171384943, 3.1355090603]])
+        struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
+        conventional_struct = t.apply_transformation(struct)
+        self.assertEqual(conventional_struct.lattice.alpha, 90)
+
+
 class PerturbStructureTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
         t = PerturbStructureTransformation(0.05)
@@ -425,6 +429,16 @@ class PerturbStructureTransformationTest(unittest.TestCase):
             self.assertAlmostEqual(site.distance(struct[i]), 0.05)
 
         d = t.as_dict()
+        self.assertEqual(type(PerturbStructureTransformation.from_dict(d)),
+                         PerturbStructureTransformation)
+
+        t2 = PerturbStructureTransformation(0.05, 0)
+        transformed_s2 = t2.apply_transformation(struct)
+        for i, site in enumerate(transformed_s2):
+            self.assertLessEqual(site.distance(struct[i]), 0.05)
+            self.assertGreaterEqual(site.distance(struct[i]), 0)
+
+        d = t2.as_dict()
         self.assertEqual(type(PerturbStructureTransformation.from_dict(d)),
                          PerturbStructureTransformation)
 
@@ -464,26 +478,26 @@ class DiscretizeOccupanciesTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
         l = Lattice.cubic(4)
         s_orig = Structure(l, [{"Li": 0.19, "Na": 0.19, "K": 0.62}, {"O": 1}],
-                      [[0, 0, 0], [0.5, 0.5, 0.5]])
+                           [[0, 0, 0], [0.5, 0.5, 0.5]])
         dot = DiscretizeOccupanciesTransformation(max_denominator=5, tol=0.5)
         s = dot.apply_transformation(s_orig)
-        self.assertEqual(dict(s[0].species_and_occu), {Element("Li"): 0.2,
-                                                       Element("Na"): 0.2,
-                                                       Element("K"): 0.6})
+        self.assertEqual(dict(s[0].species), {Element("Li"): 0.2,
+                                              Element("Na"): 0.2,
+                                              Element("K"): 0.6})
 
         dot = DiscretizeOccupanciesTransformation(max_denominator=5, tol=0.01)
         self.assertRaises(RuntimeError, dot.apply_transformation, s_orig)
 
         s_orig_2 = Structure(l, [{"Li": 0.5, "Na": 0.25, "K": 0.25}, {"O": 1}],
-                      [[0, 0, 0], [0.5, 0.5, 0.5]])
+                             [[0, 0, 0], [0.5, 0.5, 0.5]])
 
         dot = DiscretizeOccupanciesTransformation(max_denominator=9, tol=0.25,
                                                   fix_denominator=False)
 
         s = dot.apply_transformation(s_orig_2)
-        self.assertEqual(dict(s[0].species_and_occu), {Element("Li"): Fraction(1/2),
-                                                       Element("Na"): Fraction(1/4),
-                                                       Element("K"): Fraction(1/4)})
+        self.assertEqual(dict(s[0].species), {Element("Li"): Fraction(1 / 2),
+                                              Element("Na"): Fraction(1 / 4),
+                                              Element("K"): Fraction(1 / 4)})
 
         dot = DiscretizeOccupanciesTransformation(max_denominator=9, tol=0.05,
                                                   fix_denominator=True)
@@ -495,7 +509,7 @@ class ChargedCellTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
         l = Lattice.cubic(4)
         s_orig = Structure(l, [{"Li": 0.19, "Na": 0.19, "K": 0.62}, {"O": 1}],
-                      [[0, 0, 0], [0.5, 0.5, 0.5]])
+                           [[0, 0, 0], [0.5, 0.5, 0.5]])
         cct = ChargedCellTransformation(charge=3)
         s = cct.apply_transformation(s_orig)
         self.assertEqual(s.charge, 3)
@@ -504,7 +518,6 @@ class ChargedCellTransformationTest(unittest.TestCase):
 class ScaleToRelaxedTransformationTest(unittest.TestCase):
 
     def test_apply_transformation(self):
-
         # Test on slab relaxation where volume is fixed
         f = os.path.join(test_dir, "surface_tests")
         Cu_fin = Structure.from_file(os.path.join(f, 'Cu_slab_fin.cif'))

@@ -3,20 +3,14 @@
 # Distributed under the terms of the MIT License.
 
 
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Aug 26, 2012"
-
 import unittest
 
 from pymatgen.util.string import formula_double_format, latexify, \
     latexify_spacegroup, transformation_to_string, htmlify, unicodeify, \
-    disordered_formula
+    disordered_formula, unicodeify_spacegroup, unicodeify_species
 
 from pymatgen.core import Structure
+
 
 class FuncTest(unittest.TestCase):
 
@@ -41,6 +35,8 @@ class FuncTest(unittest.TestCase):
                          "Li₃Fe₂(PO₄)₃")
         self.assertRaises(ValueError, unicodeify,
                           "Li0.2Na0.8Cl")
+        self.assertEqual(unicodeify_species("O2+"), "O²⁺")
+        self.assertEqual(unicodeify_spacegroup("F-3m"), "F̅3m")
 
     def test_formula_double_format(self):
         self.assertEqual(formula_double_format(1.00), "")
@@ -69,7 +65,6 @@ class FuncTest(unittest.TestCase):
         self.assertEqual(s, transformation_to_string(m, t))
 
     def test_disordered_formula(self):
-
         disordered_struct = Structure([[10, 0, 0], [0, 10, 0], [0, 0, 10]],
                                       [{'Cu': 0.25, 'Au': 0.75}],
                                       [[0, 0, 0]])

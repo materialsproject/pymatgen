@@ -25,16 +25,15 @@ class DefectTransformation(AbstractTransformation):
         """
         :param scaling_matrix: Supercell scaling matrix
         :param defect: Defect pymatgen object
-                NOTE: defect.bulk_structure should be same as provided structure in the apply_transformation step
+            NOTE: defect.bulk_structure should be same as provided structure in the apply_transformation step
         """
         self.scaling_matrix = scaling_matrix
         self.defect = defect
 
     def apply_transformation(self, structure):
         """
-        :param structure (bulk structure to be scaled up - typically conventional unit cell)
-        :return:
-            defect_structure, with charge applied
+        :param structure: (bulk structure to be scaled up - typically conventional unit cell)
+        :return: defect_structure, with charge applied
         """
         if structure != self.defect.bulk_structure:
             raise ValueError("Defect bulk_structure is not the same as input structure.")

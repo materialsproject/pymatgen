@@ -13,13 +13,11 @@ from pymatgen.io.lammps.data import LammpsData
 
 from pymatgen.io.lammps.inputs import LammpsRun, write_lammps_inputs
 
-
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         "test_files", "lammps")
 
 
 class LammpsRunTest(unittest.TestCase):
-
     maxDiff = None
 
     def test_md(self):

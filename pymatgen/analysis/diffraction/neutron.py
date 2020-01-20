@@ -9,7 +9,7 @@ import os
 import numpy as np
 import json
 
-from .core import DiffractionPattern, DiffractionPatternCalculator, \
+from .core import DiffractionPattern, AbstractDiffractionPatternCalculator, \
     get_unique_families
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
@@ -24,19 +24,19 @@ __maintainer__ = "Yuta Suzuki"
 __email__ = "resnant@outlook.jp"
 __date__ = "4/19/18"
 
-
 with open(os.path.join(os.path.dirname(__file__),
                        "neutron_scattering_length.json")) as f:
     # This table was cited from "Neutron Data Booklet" 2nd ed (Old City 2003).
     ATOMIC_SCATTERING_LEN = json.load(f)
 
 
-class NDCalculator(DiffractionPatternCalculator):
+class NDCalculator(AbstractDiffractionPatternCalculator):
     """
     Computes the powder neutron diffraction pattern of a crystal structure.
     This code is a slight modification of XRDCalculator in
     pymatgen.analysis.diffraction.xrd. See it for details of the algorithm.
     Main changes by using neutron instead of X-ray are as follows:
+
     1. Atomic scattering length is a constant.
     2. Polarization correction term of Lorentz factor is unnecessary.
 
@@ -113,7 +113,7 @@ class NDCalculator(DiffractionPatternCalculator):
         dwfactors = []
 
         for site in structure:
-            for sp, occu in site.species_and_occu.items():
+            for sp, occu in site.species.items():
                 try:
                     c = ATOMIC_SCATTERING_LEN[sp.symbol]
                 except KeyError:
@@ -148,7 +148,7 @@ class NDCalculator(DiffractionPatternCalculator):
                 s = g_hkl / 2
 
                 # Calculate Debye-Waller factor
-                dw_correction = np.exp(-dwfactors * (s**2))
+                dw_correction = np.exp(-dwfactors * (s ** 2))
 
                 # Vectorized computation of g.r for all fractional coords and
                 # hkl.
@@ -200,4 +200,3 @@ class NDCalculator(DiffractionPatternCalculator):
         if scaled:
             nd.normalize(mode="max", value=100)
         return nd
-

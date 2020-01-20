@@ -68,10 +68,8 @@ class ContainsSpecieFilter(AbstractStructureFilter):
         # set up lists to compare
         if not self._strict:
             # compare by atomic number
-            atomic_number = lambda x: x.Z
-            filter_set = set(map(atomic_number, self._species))
-            structure_set = set(map(atomic_number,
-                                structure.composition.elements))
+            filter_set = set([sp.Z for sp in self._species])
+            structure_set = set([sp.Z for sp in structure.composition.elements])
         else:
             # compare by specie or element object
             filter_set = set(self._species)
@@ -130,15 +128,15 @@ class SpecieProximityFilter(AbstractStructureFilter):
     def test(self, structure):
         all_species = set(self.specie_and_min_dist.keys())
         for site in structure:
-            species = site.species_and_occu.keys()
+            species = site.species.keys()
             sp_to_test = set(species).intersection(all_species)
             if sp_to_test:
                 max_r = max([self.specie_and_min_dist[sp]
                              for sp in sp_to_test])
                 nn = structure.get_neighbors(site, max_r)
                 for sp in sp_to_test:
-                    for (nnsite, dist) in nn:
-                        if sp in nnsite.species_and_occu.keys():
+                    for nnsite, dist, *_ in nn:
+                        if sp in nnsite.species.keys():
                             if dist < self.specie_and_min_dist[sp]:
                                 return False
         return True

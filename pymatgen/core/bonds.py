@@ -2,6 +2,11 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This class implements definitions for various kinds of bonds. Typically used in
+Molecule analysis.
+"""
+
 import os
 import json
 import collections
@@ -9,18 +14,10 @@ import warnings
 
 from pymatgen.core.periodic_table import Element
 
-"""
-This class implements definitions for various kinds of bonds. Typically used in
-Molecule analysis.
-"""
-
-
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
-__date__ = "Jul 26, 2012"
 
 
 def _load_bond_length_data():
@@ -77,8 +74,8 @@ class CovalentBond:
             Float value of bond order. For example, for C-C bond in
             benzene, return 1.7.
         """
-        sp1 = list(self.site1.species_and_occu.keys())[0]
-        sp2 = list(self.site2.species_and_occu.keys())[0]
+        sp1 = list(self.site1.species.keys())[0]
+        sp2 = list(self.site2.species.keys())[0]
         dist = self.site1.distance(self.site2)
         return get_bond_order(sp1, sp2, dist, tol, default_bl)
 
@@ -100,8 +97,8 @@ class CovalentBond:
         Returns:
             Boolean indicating whether two sites are bonded.
         """
-        sp1 = list(site1.species_and_occu.keys())[0]
-        sp2 = list(site2.species_and_occu.keys())[0]
+        sp1 = list(site1.species.keys())[0]
+        sp2 = list(site2.species.keys())[0]
         dist = site1.distance(site2)
         syms = tuple(sorted([sp1.symbol, sp2.symbol]))
         if syms in bond_lengths:
@@ -112,7 +109,7 @@ class CovalentBond:
                 if dist < (1 + tol) * v:
                     return True
             return False
-        elif default_bl:
+        if default_bl:
             return dist < (1 + tol) * default_bl
         raise ValueError("No bond data for elements {} - {}".format(*syms))
 
@@ -145,10 +142,9 @@ def obtain_all_bond_lengths(sp1, sp2, default_bl=None):
     syms = tuple(sorted([sp1, sp2]))
     if syms in bond_lengths:
         return bond_lengths[syms].copy()
-    elif default_bl is not None:
+    if default_bl is not None:
         return {1: default_bl}
-    else:
-        raise ValueError("No bond data for elements {} - {}".format(*syms))
+    raise ValueError("No bond data for elements {} - {}".format(*syms))
 
 
 def get_bond_order(sp1, sp2, dist, tol=0.2, default_bl=None):
@@ -176,16 +172,15 @@ def get_bond_order(sp1, sp2, dist, tol=0.2, default_bl=None):
     # Transform bond lengths dict to list assuming bond data is successive
     # and add an imaginary bond 0 length
     lengths_list = [all_lengths[1] * (1 + tol)] + \
-                   [all_lengths[idx+1] for idx in range(len(all_lengths))]
+                   [all_lengths[idx + 1] for idx in range(len(all_lengths))]
     trial_bond_order = 0
     while trial_bond_order < len(lengths_list):
         if lengths_list[trial_bond_order] < dist:
             if trial_bond_order == 0:
                 return trial_bond_order
-            else:
-                low_bl = lengths_list[trial_bond_order]
-                high_bl = lengths_list[trial_bond_order - 1]
-                return trial_bond_order - (dist - low_bl) / (high_bl - low_bl)
+            low_bl = lengths_list[trial_bond_order]
+            high_bl = lengths_list[trial_bond_order - 1]
+            return trial_bond_order - (dist - low_bl) / (high_bl - low_bl)
         trial_bond_order += 1
     # Distance shorter than the shortest bond length stored,
     # check if the distance is too short

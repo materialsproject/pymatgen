@@ -2,6 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module implements classes to perform bond valence analyses.
+"""
 
 import collections
 import numpy as np
@@ -9,16 +12,11 @@ import operator
 import os
 import functools
 from math import exp, sqrt
-
 from monty.serialization import loadfn
 
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.periodic_table import get_el_sp
-
-"""
-This module implements classes to perform bond valence analyses.
-"""
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -57,18 +55,16 @@ def calculate_bv_sum(site, nn_list, scale_factor=1.0):
     Calculates the BV sum of a site.
 
     Args:
-        site:
-            The site
-        nn_list:
-            List of nearest neighbors in the format [(nn_site, dist), ...].
-        scale_factor:
-            A scale factor to be applied. This is useful for scaling distance,
-            esp in the case of calculation-relaxed structures which may tend
-            to under (GGA) or over bind (LDA).
+        site (PeriodicSite): The central site to calculate the bond valence
+        nn_list ([Neighbor]): A list of namedtuple Neighbors having "distance"
+            and "site" attributes
+        scale_factor (float): A scale factor to be applied. This is useful for
+            scaling distance, esp in the case of calculation-relaxed structures
+            which may tend to under (GGA) or over bind (LDA).
     """
     el1 = Element(site.specie.symbol)
     bvsum = 0
-    for (nn, dist) in nn_list:
+    for nn in nn_list:
         el2 = Element(nn.specie.symbol)
         if (el1 in ELECTRONEG or el2 in ELECTRONEG) and el1 != el2:
             r1 = BV_PARAMS[el1]["r"]
@@ -77,7 +73,7 @@ def calculate_bv_sum(site, nn_list, scale_factor=1.0):
             c2 = BV_PARAMS[el2]["c"]
             R = r1 + r2 - r1 * r2 * (sqrt(c1) - sqrt(c2)) ** 2 / \
                 (c1 * r1 + c2 * r2)
-            vij = exp((R - dist * scale_factor) / 0.31)
+            vij = exp((R - nn.nn_distance * scale_factor) / 0.31)
             bvsum += vij * (1 if el1.X < el2.X else -1)
     return bvsum
 
@@ -87,14 +83,12 @@ def calculate_bv_sum_unordered(site, nn_list, scale_factor=1):
     Calculates the BV sum of a site for unordered structures.
 
     Args:
-        site:
-            The site
-        nn_list:
-            List of nearest neighbors in the format [(nn_site, dist), ...].
-        scale_factor:
-            A scale factor to be applied. This is useful for scaling distance,
-            esp in the case of calculation-relaxed structures which may tend
-            to under (GGA) or over bind (LDA).
+        site (PeriodicSite): The central site to calculate the bond valence
+        nn_list ([Neighbor]): A list of namedtuple Neighbors having "distance"
+            and "site" attributes
+        scale_factor (float): A scale factor to be applied. This is useful for
+            scaling distance, esp in the case of calculation-relaxed structures
+            which may tend to under (GGA) or over bind (LDA).
     """
     # If the site "site" has N partial occupations as : f_{site}_0,
     # f_{site}_1, ... f_{site}_N of elements
@@ -105,10 +99,10 @@ def calculate_bv_sum_unordered(site, nn_list, scale_factor=1):
     # \sum_{nn} \sum_j^N \sum_k^{N_{nn}} f_{site}_j f_{nn_i}_k vij_full
     # where vij_full is the valence bond of the fully occupied bond
     bvsum = 0
-    for specie1, occu1 in site.species_and_occu.items():
+    for specie1, occu1 in site.species.items():
         el1 = Element(specie1.symbol)
-        for (nn, dist) in nn_list:
-            for specie2, occu2 in nn.species_and_occu.items():
+        for nn in nn_list:
+            for specie2, occu2 in nn.species.items():
                 el2 = Element(specie2.symbol)
                 if (el1 in ELECTRONEG or el2 in ELECTRONEG) and el1 != el2:
                     r1 = BV_PARAMS[el1]["r"]
@@ -117,7 +111,7 @@ def calculate_bv_sum_unordered(site, nn_list, scale_factor=1):
                     c2 = BV_PARAMS[el2]["c"]
                     R = r1 + r2 - r1 * r2 * (sqrt(c1) - sqrt(c2)) ** 2 / \
                         (c1 * r1 + c2 * r2)
-                    vij = exp((R - dist * scale_factor) / 0.31)
+                    vij = exp((R - nn.nn_distance * scale_factor) / 0.31)
                     bvsum += occu1 * occu2 * vij * (1 if el1.X < el2.X else -1)
     return bvsum
 
@@ -209,7 +203,7 @@ class BVAnalyzer:
         bv_sum = calculate_bv_sum_unordered(
             site, nn, scale_factor=self.dist_scale_factor)
         prob = {}
-        for specie, occu in site.species_and_occu.items():
+        for specie, occu in site.species.items():
             el = specie.symbol
 
             prob[el] = {}
@@ -265,7 +259,7 @@ class BVAnalyzer:
 
         # Sort the equivalent sites by decreasing electronegativity.
         equi_sites = sorted(equi_sites,
-                            key=lambda sites: -sites[0].species_and_occu
+                            key=lambda sites: -sites[0].species
                             .average_electroneg)
 
         # Get a list of valences and probabilities for each symmetrically
@@ -295,7 +289,7 @@ class BVAnalyzer:
                 full_all_prob.extend(prob.values())
                 vals = []
                 for (elsp, occ) in get_z_ordered_elmap(
-                        test_site.species_and_occu):
+                        test_site.species):
                     val = list(prob[elsp.symbol].keys())
                     # Sort valences in order of decreasing probability.
                     val = sorted(val, key=lambda v: -prob[elsp.symbol][v])
@@ -371,7 +365,7 @@ class BVAnalyzer:
             fractions = []
             elements = []
             for sites in equi_sites:
-                for sp, occu in get_z_ordered_elmap(sites[0].species_and_occu):
+                for sp, occu in get_z_ordered_elmap(sites[0].species):
                     elements.append(sp.symbol)
                     fractions.append(occu)
             fractions = np.array(fractions, np.float)
@@ -391,17 +385,16 @@ class BVAnalyzer:
                 jj = 0
                 for i, sites in enumerate(equi_sites):
                     for specie, occu in get_z_ordered_elmap(
-                            sites[0].species_and_occu):
+                            sites[0].species):
                         el_oxi[specie.symbol].append(v_set[jj])
                         jj += 1
                 max_diff = max([max(v) - min(v) for v in el_oxi.values()])
                 if max_diff > 2:
                     return
 
-                score = six.moves.reduce(
-                    operator.mul,
-                    [all_prob[attrib[iv]][elements[iv]][vv]
-                     for iv, vv in enumerate(v_set)])
+                score = functools.reduce(operator.mul,
+                                         [all_prob[attrib[iv]][elements[iv]][vv]
+                                          for iv, vv in enumerate(v_set)])
                 if score > self._best_score:
                     self._best_vset = v_set
                     self._best_score = score
@@ -506,23 +499,22 @@ def get_z_ordered_elmap(comp):
 
 
 def add_oxidation_state_by_site_fraction(structure, oxidation_states):
-        """
-        Add oxidation states to a structure by fractional site.
+    """
+    Add oxidation states to a structure by fractional site.
 
-        Args:
-            oxidation_states (list): List of list of oxidation states for each
-                site fraction for each site.
-                E.g., [[2, 4], [3], [-2], [-2], [-2]]
-        """
-        try:
-            for i, site in enumerate(structure):
-                new_sp = collections.defaultdict(float)
-                for j, (el, occu) in enumerate(get_z_ordered_elmap(site
-                        .species_and_occu)):
-                    specie = Specie(el.symbol, oxidation_states[i][j])
-                    new_sp[specie] += occu
-                structure[i] = new_sp
-            return structure
-        except IndexError:
-            raise ValueError("Oxidation state of all sites must be "
-                             "specified in the list.")
+    Args:
+        oxidation_states (list): List of list of oxidation states for each
+            site fraction for each site.
+            E.g., [[2, 4], [3], [-2], [-2], [-2]]
+    """
+    try:
+        for i, site in enumerate(structure):
+            new_sp = collections.defaultdict(float)
+            for j, (el, occu) in enumerate(get_z_ordered_elmap(site.species)):
+                specie = Specie(el.symbol, oxidation_states[i][j])
+                new_sp[specie] += occu
+            structure[i] = new_sp
+        return structure
+    except IndexError:
+        raise ValueError("Oxidation state of all sites must be "
+                         "specified in the list.")

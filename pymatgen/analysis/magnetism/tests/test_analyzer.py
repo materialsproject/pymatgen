@@ -6,11 +6,17 @@ from pymatgen.core import Specie, Element, Lattice, Structure
 from pymatgen.io.cif import CifParser
 from pymatgen.analysis.magnetism import *
 
+from monty.os.path import which
+
 import os
 import unittest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
+
+enum_cmd = which("enum.x") or which("multienum.x")
+makestr_cmd = which("makestr.x") or which("makeStr.x") or which("makeStr.py")
+enumlib_present = enum_cmd and makestr_cmd
 
 
 class CollinearMagneticStructureAnalyzerTest(unittest.TestCase):
@@ -87,7 +93,6 @@ class CollinearMagneticStructureAnalyzerTest(unittest.TestCase):
         warnings.simplefilter("default")
 
     def test_get_representations(self):
-
         # tests to convert between storing magnetic moment information
         # on site_properties or on Specie 'spin' property
 
@@ -110,7 +115,6 @@ class CollinearMagneticStructureAnalyzerTest(unittest.TestCase):
         self.assertRaises(NotImplementedError, CollinearMagneticStructureAnalyzer, self.Fe)
 
     def test_matches(self):
-
         self.assertTrue(self.NiO.matches(self.NiO_AFM_111))
         self.assertTrue(self.NiO.matches(self.NiO_AFM_001))
 
@@ -136,7 +140,6 @@ class CollinearMagneticStructureAnalyzerTest(unittest.TestCase):
         self.assertFalse(msa.matches_ordering(self.NiO_AFM_001_opposite))
 
     def test_modes(self):
-
         mode = "none"
         msa = CollinearMagneticStructureAnalyzer(self.NiO,
                                                  overwrite_magmom_mode=mode)
@@ -174,8 +177,12 @@ class CollinearMagneticStructureAnalyzerTest(unittest.TestCase):
         magmoms = msa.structure.site_properties['magmom']
         self.assertEqual(magmoms, [1, 0])
 
-    def test_get_ferromagnetic_structure(self):
+    def test_net_positive(self):
+        msa = CollinearMagneticStructureAnalyzer(self.NiO_unphysical)
+        magmoms = msa.structure.site_properties['magmom']
+        self.assertEqual(magmoms, [3, 0, 0, 0])
 
+    def test_get_ferromagnetic_structure(self):
         msa = CollinearMagneticStructureAnalyzer(self.NiO,
                                                  overwrite_magmom_mode="replace_all_if_undefined")
         s1 = msa.get_ferromagnetic_structure()
@@ -184,7 +191,7 @@ class CollinearMagneticStructureAnalyzerTest(unittest.TestCase):
         self.assertListEqual(s1_magmoms, s1_magmoms_ref)
 
         msa2 = CollinearMagneticStructureAnalyzer(self.NiO_AFM_111,
-                                                 overwrite_magmom_mode="replace_all_if_undefined")
+                                                  overwrite_magmom_mode="replace_all_if_undefined")
         s2 = msa.get_ferromagnetic_structure(make_primitive=False)
         s2_magmoms = [float(m) for m in s2.site_properties['magmom']]
         s2_magmoms_ref = [5.0, 0.0]
@@ -194,7 +201,6 @@ class CollinearMagneticStructureAnalyzerTest(unittest.TestCase):
         self.assertTrue(CollinearMagneticStructureAnalyzer(s1).matches_ordering(s2_prim))
 
     def test_magnetic_properties(self):
-
         msa = CollinearMagneticStructureAnalyzer(self.GdB4)
         self.assertFalse(msa.is_collinear)
 
@@ -212,11 +218,10 @@ class CollinearMagneticStructureAnalyzerTest(unittest.TestCase):
                                                  overwrite_magmom_mode="replace_all_if_undefined")
         self.assertEqual(msa.number_of_magnetic_sites, 4)
         self.assertEqual(msa.number_of_unique_magnetic_sites(), 1)
-        self.assertEqual(msa.types_of_magnetic_specie, [Element('Ni')])
+        self.assertEqual(msa.types_of_magnetic_specie, (Element.Ni,))
         self.assertEqual(msa.get_exchange_group_info(), ('Fm-3m', 225))
 
     def test_str(self):
-
         msa = CollinearMagneticStructureAnalyzer(self.NiO_AFM_001)
 
         ref_msa_str = """Structure Summary
@@ -239,32 +244,75 @@ Magmoms Sites
                          "\n".join(ref_msa_str.split("\n")[-5:-1]))
 
     def test_round_magmoms(self):
-
         struct = self.NiO_AFM_001.copy()
         struct.add_site_property('magmom', [-5.0143, -5.02, 0.147, 0.146])
 
         msa = CollinearMagneticStructureAnalyzer(struct, round_magmoms=0.001, make_primitive=False)
-        self.assertTrue(np.allclose(msa.magmoms, [-5.0171, -5.0171, 0.1465, 0.1465]))
+        self.assertTrue(np.allclose(msa.magmoms, [5.0171, 5.0171, -0.1465, -0.1465]))
         self.assertAlmostEqual(msa.magnetic_species_and_magmoms['Ni'], 5.0171)
         self.assertAlmostEqual(msa.magnetic_species_and_magmoms['O'], 0.1465)
 
         struct.add_site_property('magmom', [-5.0143, 4.5, 0.147, 0.146])
         msa = CollinearMagneticStructureAnalyzer(struct, round_magmoms=0.001, make_primitive=False)
-        self.assertTrue(np.allclose(msa.magmoms, [-5.0143, 4.5, 0.1465, 0.1465]))
+        self.assertTrue(np.allclose(msa.magmoms, [5.0143, -4.5, -0.1465, -0.1465]))
         self.assertAlmostEqual(msa.magnetic_species_and_magmoms['Ni'][0], 4.5)
         self.assertAlmostEqual(msa.magnetic_species_and_magmoms['Ni'][1], 5.0143)
         self.assertAlmostEqual(msa.magnetic_species_and_magmoms['O'], 0.1465)
-        
+
+
+class MagneticStructureEnumeratorTest(unittest.TestCase):
+
+    @unittest.skipIf(not enumlib_present, "enumlib not present")
+    def test_ordering_enumeration(self):
+        # simple afm
+        structure = Structure.from_file(
+            os.path.join(test_dir, "magnetic_orderings/LaMnO3.json"))
+        enumerator = MagneticStructureEnumerator(structure)
+        self.assertEqual(enumerator.input_origin, "afm")
+
+        # ferrimagnetic (Cr produces net spin)
+        structure = Structure.from_file(
+            os.path.join(test_dir, "magnetic_orderings/Cr2NiO4.json"))
+        enumerator = MagneticStructureEnumerator(structure)
+        print(enumerator.input_origin)
+        self.assertEqual(enumerator.input_origin, "ferri_by_Cr")
+
+        # antiferromagnetic on single magnetic site
+        structure = Structure.from_file(
+            os.path.join(test_dir, "magnetic_orderings/Cr2WO6.json"))
+        enumerator = MagneticStructureEnumerator(structure)
+        self.assertEqual(enumerator.input_origin, "afm_by_Cr")
+
+        # afm requiring large cell size
+        # (enable for further development of workflow, too slow for CI)
+
+        # structure = Structure.from_file(os.path.join(ref_dir, "CuO.json"))
+        # enumerator = MagneticOrderingsenumerator(structure, default_magmoms={'Cu': 1.73},
+        #                         transformation_kwargs={'max_cell_size': 4})
+        # self.assertEqual(enumerator.input_origin, "afm")
+
+        # antiferromagnetic by structural motif
+        structure = Structure.from_file(
+            os.path.join(test_dir, "magnetic_orderings/Ca3Co2O6.json"))
+        enumerator = MagneticStructureEnumerator(
+            structure,
+            strategies=("antiferromagnetic_by_motif",),
+            # this example just misses default cut-off, so do not truncate
+            truncate_by_symmetry=False,
+            transformation_kwargs={"max_cell_size": 2},
+        )
+        self.assertEqual(enumerator.input_origin, "afm_by_motif_2a")
+
 
 class MagneticDeformationTest(unittest.TestCase):
 
     def test_magnetic_deformation(self):
-
         test_structs = loadfn(os.path.join(test_dir, 'magnetic_deformation.json'))
         mag_def = magnetic_deformation(test_structs[0], test_structs[1])
 
         self.assertEqual(mag_def.type, "NM-FM")
         self.assertAlmostEqual(mag_def.deformation, 5.0130859485170971)
+
 
 if __name__ == '__main__':
     unittest.main()

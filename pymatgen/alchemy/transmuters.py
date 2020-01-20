@@ -13,8 +13,6 @@ It also includes the helper function, batch_write_vasp_input to generate an
 entire directory of vasp input files for running.
 """
 
-
-
 __author__ = "Shyue Ping Ong, Will Richards"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
@@ -279,8 +277,8 @@ class CifTransmuter(StandardTransmuter):
             tstruct = TransformedStructure.from_cif_string("\n".join(data), [],
                                                            primitive)
             transformed_structures.append(tstruct)
-        super(CifTransmuter, self).__init__(transformed_structures,
-                                    transformations, extend_collection)
+        super().__init__(transformed_structures, transformations,
+                         extend_collection)
 
     @staticmethod
     def from_filenames(filenames, transformations=None, primitive=True,
@@ -321,8 +319,8 @@ class PoscarTransmuter(StandardTransmuter):
     def __init__(self, poscar_string, transformations=None,
                  extend_collection=False):
         tstruct = TransformedStructure.from_poscar_string(poscar_string, [])
-        super(PoscarTransmuter, self).__init__([tstruct], transformations,
-                                    extend_collection=extend_collection)
+        super().__init__([tstruct], transformations,
+                         extend_collection=extend_collection)
 
     @staticmethod
     def from_filenames(poscar_filenames, transformations=None,

@@ -28,6 +28,12 @@ class ElementTestCase(PymatgenTest):
         # Test caching
         self.assertEqual(id(Element("Fe")), id(Element("Fe")))
 
+    def test_is_metal(self):
+        for metal in ["Fe", "Eu", "Li", "Ca", "In"]:
+            self.assertTrue(Element(metal).is_metal)
+        for non_metal in ["Ge", "Si", "O", "He"]:
+            self.assertFalse(Element(non_metal).is_metal)
+
     def test_nan_X(self):
         self.assertTrue(math.isnan(Element.He.X))
         els = sorted([Element.He, Element.H, Element.F])
@@ -383,11 +389,6 @@ class DummySpecieTestCase(unittest.TestCase):
         r = sorted([Element.Fe, DummySpecie("X")])
         self.assertEqual(r, [DummySpecie("X"), Element.Fe])
         self.assertTrue(DummySpecie("X", 3) < DummySpecie("X", 4))
-
-    def test_safe_from_composition(self):
-        c = Composition({'Xa': 1, 'Fe': 1})
-        self.assertEqual(DummySpecie.safe_from_composition(c).symbol, 'Xb')
-        self.assertEqual(DummySpecie.safe_from_composition(c, 1).symbol, 'Xb')
 
 
 class FuncTest(unittest.TestCase):

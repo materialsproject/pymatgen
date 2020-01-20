@@ -3,13 +3,19 @@
 # Distributed under the terms of the MIT License.
 
 
+import os
 import unittest
 import numpy as np
 
 from pymatgen.core import Structure
 from pymatgen.core.sites import PeriodicSite
-from pymatgen.analysis.defects.core import Vacancy, Interstitial, Substitution, DefectEntry
+from pymatgen.analysis.defects.core import Vacancy, Interstitial, Substitution, \
+    DefectEntry, create_saturated_interstitial_structure
 from pymatgen.util.testing import PymatgenTest
+
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
+                        'test_files')
+
 
 class DefectsCoreTest(PymatgenTest):
     def test_vacancy(self):
@@ -54,15 +60,15 @@ class DefectsCoreTest(PymatgenTest):
         # Test composition
         self.assertEqual(dict(vac.defect_composition.as_dict()), {"V": 2, "O": 3})
 
-        # test lattice value error occurs for differnet lattices
+        # test lattice value error occurs for different lattices
         sc_scaled_struc = struc.copy()
         sc_scaled_struc.make_supercell(2)
-        self.assertRaises( ValueError, Vacancy, struc, sc_scaled_struc[V_index])
-        self.assertRaises( ValueError, Vacancy, sc_scaled_struc, struc[V_index])
+        self.assertRaises(ValueError, Vacancy, struc, sc_scaled_struc[V_index])
+        self.assertRaises(ValueError, Vacancy, sc_scaled_struc, struc[V_index])
 
-        # test that structure has all velocities equal to [0., 0., 0.](previously caused failures for structure printing)
-        # self.assertTrue( (np.array(sc_scaled_struc.site_properties['velocities']) == 0.).all())
-        # self.assertEqual( len(sc_scaled_struc.site_properties['velocities']), len(sc_scaled_struc))
+        # test value error raised for site not in the structure
+        non_site = PeriodicSite("V", struc[V_index].frac_coords + [0., 0., .1], struc.lattice)
+        self.assertRaises(ValueError, Vacancy, struc, non_site)
 
     def test_interstitial(self):
         struc = PymatgenTest.get_structure("VO2")
@@ -101,23 +107,22 @@ class DefectsCoreTest(PymatgenTest):
 
         # test multiplicity
         interstitial = Interstitial(struc, int_site)
-        self.assertEqual(interstitial.multiplicity, 1.0)
+        self.assertEqual(interstitial.multiplicity, 8.0)
 
+        # test manual setting of multiplicity
         interstitial = Interstitial(struc, int_site, multiplicity=4.0)
         self.assertEqual(interstitial.multiplicity, 4.0)
 
-        # Test composoition
+        # Test composition
         self.assertEqual(dict(interstitial.defect_composition.as_dict()), {"V": 3, "O": 4})
 
-        # test that structure has all velocities equal if velocities previously existed
+        # test that structure generation doesn't break if velocities existed previously
         # (previously caused failures for structure printing)
-        vel_struc = Structure( struc.lattice, struc.species, struc.frac_coords,
-                               site_properties= {'velocities': [[0., 0., 0.]]*len(struc) } )
+        vel_struc = Structure(struc.lattice, struc.species, struc.frac_coords,
+                              site_properties={'velocities': [[0., 0., 0.]] * len(struc)})
         interstitial = Interstitial(vel_struc, int_site, charge=-1.0)
         int_struc = interstitial.generate_defect_structure(1)
-
-        self.assertTrue( (np.array(int_struc.site_properties['velocities']) == 0.).all())
-        self.assertEqual( len(int_struc.site_properties['velocities']), len(int_struc))
+        self.assertTrue('velocities' not in int_struc.site_properties)
 
     def test_substitution(self):
         struc = PymatgenTest.get_structure("VO2")
@@ -164,16 +169,104 @@ class DefectsCoreTest(PymatgenTest):
         # Test composition
         self.assertEqual(dict(substitution.defect_composition.as_dict()), {"V": 2, "Sr": 1, "O": 3})
 
-        # test that structure has all velocities equal if velocities previously existed
+        # test that structure generation doesn't break if velocities existed previously
         # (previously caused failures for structure printing)
-        vel_struc = Structure( struc.lattice, struc.species, struc.frac_coords,
-                               site_properties= {'velocities': [[0., 0., 0.]]*len(struc) } )
+        vel_struc = Structure(struc.lattice, struc.species, struc.frac_coords,
+                              site_properties={'velocities': [[0., 0., 0.]] * len(struc)})
         substitution = Substitution(vel_struc, sub_site)
         sub_struc = substitution.generate_defect_structure(1)
 
-        self.assertTrue( (np.array(sub_struc.site_properties['velocities']) == 0.).all())
-        self.assertEqual( len(sub_struc.site_properties['velocities']), len(sub_struc))
+        self.assertTrue('velocities' not in sub_struc.site_properties)
 
+        # test value error raised for site not in the structure
+        non_site = PeriodicSite("Sr", struc[V_index].frac_coords - [0., 0., .1], struc.lattice)
+        self.assertRaises(ValueError, Substitution, struc, non_site)
+
+
+class create_saturated_interstitial_structureTest(PymatgenTest):
+
+    def test_sublattice_generation(self):
+        struc = PymatgenTest.get_structure("CsCl")
+        sc_struc = struc.copy()
+        sc_struc.make_supercell(3)
+
+        # test for vacancy and sub (should not change structure)
+        Cs_index = sc_struc.indices_from_symbol("Cs")[0]
+        cs_vac = Vacancy(sc_struc, sc_struc[Cs_index])
+        decorated_cs_vac = create_saturated_interstitial_structure(cs_vac)
+        self.assertEqual(len(decorated_cs_vac), len(sc_struc))
+
+        Cl_index = sc_struc.indices_from_symbol("Cl")[0]
+
+        cl_vac = Vacancy(sc_struc, sc_struc[Cl_index])
+        decorated_cl_vac = create_saturated_interstitial_structure(cl_vac)
+        self.assertEqual(len(decorated_cl_vac), len(sc_struc))
+
+        sub_site = PeriodicSite("Sr", sc_struc[Cs_index].coords, sc_struc.lattice,
+                                coords_are_cartesian=True)
+
+        sub = Substitution(sc_struc, sub_site)
+        decorated_sub = create_saturated_interstitial_structure(sub)
+        self.assertEqual(len(decorated_sub), len(sc_struc))
+
+        # test interstitial in symmorphic structure type
+        inter_site = PeriodicSite("H", [0., 1.05225, 2.1045], struc.lattice,
+                                  coords_are_cartesian=True)  # voronoi type
+        interstitial = Interstitial(struc, inter_site)
+        decorated_inter = create_saturated_interstitial_structure(interstitial)
+        self.assertEqual(len(decorated_inter), 14)
+
+        inter_site = PeriodicSite("H", [0.10021429, 0.10021429, 2.1045], struc.lattice,
+                                  coords_are_cartesian=True)  # InFit type
+        interstitial = Interstitial(struc, inter_site)
+        decorated_inter = create_saturated_interstitial_structure(interstitial)
+        self.assertEqual(len(decorated_inter), 14)
+
+        inter_site = PeriodicSite("H", [4.10878571, 1.10235714, 2.1045], struc.lattice,
+                                  coords_are_cartesian=True)  # InFit type
+        interstitial = Interstitial(struc, inter_site)
+        decorated_inter = create_saturated_interstitial_structure(interstitial)
+        self.assertEqual(len(decorated_inter), 26)
+
+        inter_site = PeriodicSite("H", [0., 0., 0.5], struc.lattice,
+                                  coords_are_cartesian=False)  # a reasonable guess type
+        interstitial = Interstitial(struc, inter_site)
+        decorated_inter = create_saturated_interstitial_structure(interstitial)
+        self.assertEqual(len(decorated_inter), 5)
+
+        # test interstitial in non-symmorphic structure type
+        # (voronoi and InFit generator of different types...)
+        ns_struc = Structure.from_file(os.path.join(test_dir, "CuCl.cif"))
+
+        inter_site = PeriodicSite("H", [0.45173594, 0.41157895, 5.6604067], ns_struc.lattice,
+                                  coords_are_cartesian=True)  # InFit type
+        interstitial = Interstitial(ns_struc, inter_site)
+        decorated_inter = create_saturated_interstitial_structure(interstitial)
+        self.assertEqual(len(decorated_inter), 40)
+
+        inter_site = PeriodicSite("H", [0.47279906, 0.82845998, 5.62015285], ns_struc.lattice,
+                                  coords_are_cartesian=True)  # InFit type
+        interstitial = Interstitial(ns_struc, inter_site)
+        decorated_inter = create_saturated_interstitial_structure(interstitial)
+        self.assertEqual(len(decorated_inter), 40)
+
+        inter_site = PeriodicSite("H", [0.70845255, 6.50298148, 5.16979425], ns_struc.lattice,
+                                  coords_are_cartesian=True)  # InFit type
+        interstitial = Interstitial(ns_struc, inter_site)
+        decorated_inter = create_saturated_interstitial_structure(interstitial)
+        self.assertEqual(len(decorated_inter), 40)
+
+        inter_site = PeriodicSite("H", [0.98191329, 0.36460337, 4.64718203], ns_struc.lattice,
+                                  coords_are_cartesian=True)  # InFit type
+        interstitial = Interstitial(ns_struc, inter_site)
+        decorated_inter = create_saturated_interstitial_structure(interstitial)
+        self.assertEqual(len(decorated_inter), 40)
+
+        inter_site = PeriodicSite("H", [0.39286561, 3.92702149, 1.05802631], ns_struc.lattice,
+                                  coords_are_cartesian=True)  # InFit type
+        interstitial = Interstitial(ns_struc, inter_site)
+        decorated_inter = create_saturated_interstitial_structure(interstitial)
+        self.assertEqual(len(decorated_inter), 40)
 
 
 class DefectEntryTest(PymatgenTest):

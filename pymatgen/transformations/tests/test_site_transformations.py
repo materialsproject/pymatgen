@@ -3,18 +3,6 @@
 # Distributed under the terms of the MIT License.
 
 
-"""
-Created on Mar 15, 2012
-"""
-
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Mar 15, 2012"
-
 import unittest
 
 import numpy as np
@@ -28,11 +16,10 @@ from pymatgen.util.testing import PymatgenTest
 
 from monty.os.path import which
 
-
 enumlib_present = which('multienum.x') and which('makestr.x')
 
 
-class TranslateSitesTransformationTest(unittest.TestCase):
+class TranslateSitesTransformationTest(PymatgenTest):
 
     def setUp(self):
         coords = list()
@@ -58,9 +45,8 @@ class TranslateSitesTransformationTest(unittest.TestCase):
         self.assertTrue(np.allclose(s[1].frac_coords, [0.475, 0.575, 0.675]))
         inv_t = t.inverse
         s = inv_t.apply_transformation(s)
-        self.assertTrue(np.allclose(s[0].frac_coords, [0, 0, 0]))
+        self.assertAlmostEqual(s[0].distance_and_image_from_frac_coords([0, 0, 0])[0], 0)
         self.assertTrue(np.allclose(s[1].frac_coords, [0.375, 0.375, 0.375]))
-        str(t)
 
     def test_apply_transformation_site_by_site(self):
         t = TranslateSitesTransformation([0, 1], [[0.1, 0.2, 0.3],
@@ -70,14 +56,13 @@ class TranslateSitesTransformationTest(unittest.TestCase):
         self.assertTrue(np.allclose(s[1].frac_coords, [0.3, 0.3, 0.3]))
         inv_t = t.inverse
         s = inv_t.apply_transformation(s)
-        self.assertTrue(np.allclose(s[0].frac_coords, [0, 0, 0]))
-        self.assertTrue(np.allclose(s[1].frac_coords, [0.375, 0.375, 0.375]))
-        str(t)
+        self.assertAlmostEqual(s[0].distance_and_image_from_frac_coords([0, 0, 0])[0], 0)
+        self.assertArrayAlmostEqual(s[1].frac_coords, [0.375, 0.375, 0.375])
 
     def test_to_from_dict(self):
         d1 = TranslateSitesTransformation([0], [0.1, 0.2, 0.3]).as_dict()
         d2 = TranslateSitesTransformation([0, 1], [[0.1, 0.2, 0.3],
-                                                  [-0.075, -0.075, -0.075]]).as_dict()
+                                                   [-0.075, -0.075, -0.075]]).as_dict()
         t1 = TranslateSitesTransformation.from_dict(d1)
         t2 = TranslateSitesTransformation.from_dict(d2)
         s1 = t1.apply_transformation(self.struct)
@@ -112,7 +97,6 @@ class ReplaceSiteSpeciesTransformationTest(unittest.TestCase):
         t = ReplaceSiteSpeciesTransformation({0: "Na"})
         s = t.apply_transformation(self.struct)
         self.assertEqual(s.formula, "Na1 Li3 O4")
-        str(t)
 
     def test_to_from_dict(self):
         d = ReplaceSiteSpeciesTransformation({0: "Na"}).as_dict()
@@ -144,7 +128,6 @@ class RemoveSitesTransformationTest(unittest.TestCase):
         t = RemoveSitesTransformation(range(2))
         s = t.apply_transformation(self.struct)
         self.assertEqual(s.formula, "Li2 O4")
-        str(t)
 
     def test_to_from_dict(self):
         d = RemoveSitesTransformation(range(2)).as_dict()
@@ -179,7 +162,7 @@ class InsertSitesTransformationTest(unittest.TestCase):
         self.assertEqual(s.formula, "Li4 Mn1 Fe1 O4")
         t = InsertSitesTransformation(["Fe", "Mn"], [[0.001, 0, 0],
                                                      [0.1, 0.2, 0.2]])
-        #Test validate proximity
+        # Test validate proximity
         self.assertRaises(ValueError, t.apply_transformation, self.struct)
 
     def test_to_from_dict(self):
@@ -273,7 +256,7 @@ class AddSitePropertyTransformationTest(PymatgenTest):
         s = self.get_structure("Li2O2")
         sd = [[True, True, True] for site in s.sites]
         bader = np.random.random(s.num_sites).tolist()
-        site_props = {"selective_dynamics" : sd, "bader": bader}
+        site_props = {"selective_dynamics": sd, "bader": bader}
         trans = AddSitePropertyTransformation(site_props)
         manually_set = s.copy()
         for prop, value in site_props.items():
@@ -283,6 +266,7 @@ class AddSitePropertyTransformationTest(PymatgenTest):
             self.assertArrayAlmostEqual(trans_set.site_properties[prop],
                                         manually_set.site_properties[prop])
 
+
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
+    # import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

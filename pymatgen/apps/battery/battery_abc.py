@@ -3,7 +3,7 @@
 # Distributed under the terms of the MIT License.
 
 
-from collections import Sequence
+from collections.abc import Sequence
 import abc
 
 from monty.json import MSONable

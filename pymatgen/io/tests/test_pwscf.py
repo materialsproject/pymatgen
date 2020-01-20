@@ -8,16 +8,9 @@ import os
 from pymatgen.io.pwscf import PWInput, PWInputError, PWOutput
 from pymatgen.util.testing import PymatgenTest
 
-__author__ = 'Shyue Ping Ong'
-__copyright__ = 'Copyright 2013, The Materials Project'
-__version__ = '0.1'
-__maintainer__ = 'Shyue Ping Ong'
-__email__ = 'ongsp@ucsd.edu'
-__date__ = '3/28/15'
-
-
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
+
 
 class PWInputTest(PymatgenTest):
 
@@ -83,6 +76,7 @@ class PWOuputTest(PymatgenTest):
         self.assertAlmostEqual(self.pwout.get_celldm(1), 10.323)
         for i in range(2, 7):
             self.assertAlmostEqual(self.pwout.get_celldm(i), 0)
+
 
 if __name__ == '__main__':
     unittest.main()

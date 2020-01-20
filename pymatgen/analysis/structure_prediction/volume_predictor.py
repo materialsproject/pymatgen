@@ -2,6 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Predict volumes of crystal structures.
+"""
 
 import warnings
 import os
@@ -17,7 +20,7 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 bond_params = loadfn(os.path.join(MODULE_DIR, 'DLS_bond_params.yaml'))
 
 
-def is_ox(structure):
+def _is_ox(structure):
     comp = structure.composition
     for k in comp.keys():
         try:
@@ -53,6 +56,7 @@ class RLSVolumePredictor:
     def predict(self, structure, ref_structure):
         """
         Given a structure, returns the predicted volume.
+
         Args:
             structure (Structure): structure w/unknown volume
             ref_structure (Structure): A reference structure with a similar
@@ -73,10 +77,10 @@ class RLSVolumePredictor:
                 # Use BV analyzer to determine oxidation states only if the
                 # oxidation states are not already specified in the structure
                 # and use_bv is true.
-                if (not is_ox(structure)) and self.use_bv:
+                if (not _is_ox(structure)) and self.use_bv:
                     a = BVAnalyzer()
                     structure = a.get_oxi_state_decorated_structure(structure)
-                if (not is_ox(ref_structure)) and self.use_bv:
+                if (not _is_ox(ref_structure)) and self.use_bv:
                     a = BVAnalyzer()
                     ref_structure = a.get_oxi_state_decorated_structure(
                         ref_structure)
@@ -100,7 +104,7 @@ class RLSVolumePredictor:
                     denominator += k.ionic_radius * v ** (1 / 3)
 
                 return ref_structure.volume * (numerator / denominator) ** 3
-            except Exception as ex:
+            except Exception:
                 warnings.warn("Exception occured. Will attempt atomic radii.")
                 # If error occurs during use of ionic radii scheme, pass
                 # and see if we can resolve it using atomic radii.
@@ -143,9 +147,13 @@ class DLSVolumePredictor:
     """
     Data-mined lattice scaling (DLS) scheme that relies on data-mined bond
     lengths to predict the crystal volume of a given structure.
+
+    As of 2/12/19, we suggest this method be used in conjunction with
+    min_scaling and max_scaling to prevent instances of very large, unphysical
+    predicted volumes found in a small subset of structures.
     """
 
-    def __init__(self, cutoff=4.0):
+    def __init__(self, cutoff=4.0, min_scaling=0.5, max_scaling=1.5):
         """
         Args:
             cutoff (float): cutoff radius added to site radius for finding
@@ -153,9 +161,16 @@ class DLSVolumePredictor:
                 structure guess is extremely bad (atoms way too far apart). In
                 all other instances, increasing cutoff gives same answer
                 but takes more time.
+            min_scaling (float): if not None, this will ensure that the new
+                volume is at least this fraction of the original (preventing
+                too-small volumes)
+            max_scaling (float): if not None, this will ensure that the new
+                volume is at most this fraction of the original (preventing
+                too-large volumes)
         """
-
         self.cutoff = cutoff
+        self.min_scaling = min_scaling
+        self.max_scaling = max_scaling
 
     def predict(self, structure, icsd_vol=False):
         """
@@ -202,16 +217,16 @@ class DLSVolumePredictor:
                                                         sp1.atomic_radius +
                                                         self.cutoff)
 
-            for site2, dist in neighbors:
-                sp2 = site2.specie
+            for nn in neighbors:
+                sp2 = nn.specie
 
                 if sp1 in bp_dict and sp2 in bp_dict:
                     expected_dist = bp_dict[sp1] + bp_dict[sp2]
                 else:
                     expected_dist = sp1.atomic_radius + sp2.atomic_radius
 
-                if not smallest_ratio or dist / expected_dist < smallest_ratio:
-                    smallest_ratio = dist / expected_dist
+                if not smallest_ratio or nn.nn_distance / expected_dist < smallest_ratio:
+                    smallest_ratio = nn.nn_distance / expected_dist
 
         if not smallest_ratio:
             raise ValueError("Could not find any bonds within the given cutoff "
@@ -222,6 +237,11 @@ class DLSVolumePredictor:
         # icsd volume fudge factor
         if icsd_vol:
             volume_factor *= 1.05
+
+        if self.min_scaling:
+            volume_factor = max(self.min_scaling, volume_factor)
+        if self.max_scaling:
+            volume_factor = min(self.max_scaling, volume_factor)
 
         return structure.volume * volume_factor
 
@@ -237,5 +257,4 @@ class DLSVolumePredictor:
         """
         new_structure = structure.copy()
         new_structure.scale_lattice(self.predict(structure, icsd_vol=icsd_vol))
-
         return new_structure

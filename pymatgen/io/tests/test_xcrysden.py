@@ -21,7 +21,41 @@ class XSFTest(PymatgenTest):
         xsf = XSF(structure)
         self.assertTrue(structure, XSF.from_string(xsf.to_string()))
 
+    def test_xsf_symbolparse(self):
+        """
+        Ensure that the same structure is parsed
+        even if the atomic symbol / number convention
+        is different.
+        """
+
+        test_string = """
+CRYSTAL
+PRIMVEC
+       11.45191956     0.00000000     0.00000000
+        5.72596044     9.91765288     0.00000000
+      -14.31490370    -8.26471287    23.37613199
+PRIMCOORD
+1 1
+H     -0.71644986    -0.41364333     1.19898200     0.00181803     0.00084718     0.00804832
+"""
+        structure = XSF.from_string(test_string).structure
+        self.assertEqual(str(structure.species[0]), 'H')
+        test_string2 = """
+CRYSTAL
+PRIMVEC
+       11.45191956     0.00000000     0.00000000
+        5.72596044     9.91765288     0.00000000
+      -14.31490370    -8.26471287    23.37613199
+PRIMCOORD
+1 1
+1     -0.71644986    -0.41364333     1.19898200     0.00181803     0.00084718     0.00804832
+"""
+
+        structure2 = XSF.from_string(test_string2).structure
+        self.assertEqual(structure, structure2)
+
 
 if __name__ == "__main__":
     import unittest
+
     unittest.main()
