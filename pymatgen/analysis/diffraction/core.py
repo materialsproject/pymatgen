@@ -8,9 +8,6 @@ This module implements core classes for calculation of diffraction patterns.
 
 import collections
 import abc
-
-import numpy as np
-
 from pymatgen.core.spectrum import Spectrum
 from pymatgen.util.plotting import add_fig_kwargs
 
@@ -188,11 +185,25 @@ def get_unique_families(hkls):
     Returns:
         {hkl: multiplicity}: A dict with unique hkl and multiplicity.
     """
-    # TODO: Definitely can be sped up.
-    def is_perm(hkl1, hkl2):
-        h1 = np.abs(hkl1)
-        h2 = np.abs(hkl2)
-        return all([i == j for i, j in zip(sorted(h1), sorted(h2))])
+
+    def is_perm(A, B):
+        if len(A) != len(B):
+            return False
+        counts = {}
+        for a in A:
+            if a in counts:
+                counts[a] = counts[a] + 1
+            else:
+                counts[a] = 1
+        for b in B:
+            if b in counts:
+                if counts[b] == 0:
+                    return False
+                else:
+                    counts[b] = counts[b] - 1
+            else:
+                return False
+        return True
 
     unique = collections.defaultdict(list)
     for hkl1 in hkls:
