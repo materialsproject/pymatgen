@@ -1496,7 +1496,7 @@ class MPNonSCFSet(MPRelaxSet):
             emax = max([eigs.max() for eigs in vasprun.eigenvalues.values()])
             emin = min([eigs.min() for eigs in vasprun.eigenvalues.values()])
             self.nedos = int((emax - emin) / self.dedos) 
-            
+
         return self
 
     @classmethod
