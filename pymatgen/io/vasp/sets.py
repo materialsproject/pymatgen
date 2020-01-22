@@ -1360,7 +1360,7 @@ class MPNonSCFSet(MPRelaxSet):
 
         if self.mode.lower() == "uniform":
             # use tetrahedron method for DOS and optics calculations
-            incar.update({"ISMEAR": -5, "ISYM": 1})
+            incar.update({"ISMEAR": -5})
         else:
             # if line mode, can't use ISMEAR=-5; also use small sigma to avoid
             # partial occupancies for small band gap materials.
