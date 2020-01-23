@@ -15,25 +15,28 @@ from typing import List, Dict, Tuple
 import numpy as np  # type: ignore
 import scipy.constants as sc  # type: ignore
 import pandas as pd  # type: ignore
-import matplotlib.pyplot as plt # type: ignore
+import plotly.graph_objs as go  # type: ignore
+import plotly.offline as poff  # type: ignore
+from IPython.display import set_matplotlib_formats  # type: ignore
 from pymatgen import Structure  # type: ignore
 from pymatgen.analysis.diffraction.core import AbstractDiffractionPatternCalculator  # type: ignore
 
 with open(os.path.join(os.path.dirname(__file__),
                        "atomic_scattering_params.json")) as f:
     ATOMIC_SCATTERING_PARAMS = json.load(f)
-
+set_matplotlib_formats('retina')
+poff.init_notebook_mode(connected=True)
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 # Credit to Dr. Shyue Ping Ong for the template of the calculator
 
-__author__ = "Frank Wan, modified by Jason L"
+__author__ = "Frank Wan, Jason L"
 __copyright__ = "Copyright 2018, The Materials Project"
-__version__ = "0.1"
+__version__ = "0.2"
 __maintainer__ = "Frank Wan respect for S.P.O"
 __email__ = "fwan@berkeley.edu, yhljason@berkeley.edu"
-__date__ = "06/19/2019, updated 10/2019"
+__date__ = "06/19/2019, updated 01/2020"
 
 
 class TEMCalculator(AbstractDiffractionPatternCalculator):
@@ -429,3 +432,89 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             TEM_dot = dot(position, hkl, intensity, film_radius, d_spacing)
             dots.append(TEM_dot)
         return dots
+
+    def show_plot_2d(self, structure: Structure):
+        """
+        Generates the 2D diffraction pattern of the input structure.
+        Args:
+            structure (Structure): The input structure.
+        Returns:
+            none (shows 2D DP)
+        """
+        points = self.generate_points(-10, 11)
+        TEM_dots = self.TEM_dots(structure, points)
+        xs = []
+        ys = []
+        hkls = []
+        intensities = []
+
+        for dot in TEM_dots:
+            xs.append(dot.position[0])
+            ys.append(dot.position[1])
+            hkls.append(dot.hkl)
+            intensities.append(dot.intensity)
+
+        data = [
+            go.Scatter(
+                x=xs,
+                y=ys,
+                text=hkls,
+                hoverinfo='text',
+                mode='markers',
+                marker=dict(
+                    size=8,
+                    cmax=1,
+                    cmin=0,
+                    color=intensities,
+                    colorbar=dict(
+                        title='Colorbar',
+                        yanchor='top'
+                    ),
+                    colorscale=[[0, 'black'], [1.0, 'white']]
+                ),
+                showlegend=False
+            ), go.Scatter(
+                x=[0],
+                y=[0],
+                text="(0, 0, 0): Direct beam",
+                hoverinfo='text',
+                mode='markers',
+                marker=dict(
+                    size=14,
+                    cmax=1,
+                    cmin=0,
+                    color='white'
+                ),
+            )
+        ]
+        layout = go.Layout(
+            title='2D Diffraction Pattern<br>Beam Direction: ' + ''.join(str(e) for e in self.beam_direction),
+            font=dict(
+                family='Comic Sans, monospace',
+                size=18,
+                color='#7f7f7f'),
+            hovermode='closest',
+            xaxis=dict(
+                autorange=True,
+                showgrid=False,
+                zeroline=False,
+                showline=False,
+                ticks='',
+                showticklabels=False
+            ),
+            yaxis=dict(
+                autorange=True,
+                showgrid=False,
+                zeroline=False,
+                showline=False,
+                ticks='',
+                showticklabels=False,
+            ),
+            width=600,
+            height=600,
+            paper_bgcolor='rgba(100,110,110,0.5)',
+            plot_bgcolor='black'
+        )
+
+        fig = go.Figure(data=data, layout=layout)
+        poff.iplot(fig, filename='stuff')
