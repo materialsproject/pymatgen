@@ -1246,15 +1246,18 @@ class ReactionDiagram:
                             fmt(c1), r1.reduced_formula,
                             fmt(c2), r2.reduced_formula)
                         products = []
+                        product_entries = []
 
                         energy = - (x * entry1.energy_per_atom +
                                     (1 - x) * entry2.energy_per_atom)
+
                         for c, e in zip(coeffs[:-1], face_entries):
                             if c > tol:
                                 r = e.composition.reduced_composition
                                 products.append("%s %s" % (
                                     fmt(c / r.num_atoms * factor),
                                     r.reduced_formula))
+                                product_entries.append((c, e))
                                 energy += c * e.energy_per_atom
 
                         rxn_str += " + ".join(products)
@@ -1262,6 +1265,7 @@ class ReactionDiagram:
                         entry = PDEntry(
                             Composition(dict(zip(elements, comp))),
                             energy=energy, attribute=rxn_str)
+                        entry.decomposition = product_entries
                         rxn_entries.append(entry)
                 except np.linalg.LinAlgError:
                     logger.debug("Reactants = %s" % (", ".join([

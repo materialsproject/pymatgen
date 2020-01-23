@@ -1277,7 +1277,6 @@ class MPNonSCFSet(MPRelaxSet):
         prev_incar=None,
         mode="line",
         nedos=2001,
-        dedos=0.005,
         reciprocal_density=100,
         sym_prec=0.1,
         kpoints_line_density=20,
@@ -1317,7 +1316,6 @@ class MPNonSCFSet(MPRelaxSet):
         self.prev_incar = prev_incar
         self.kwargs = kwargs
         self.nedos = nedos
-        self.dedos = dedos
         self.reciprocal_density = reciprocal_density
         self.sym_prec = sym_prec
         self.kpoints_line_density = kpoints_line_density
@@ -1363,7 +1361,8 @@ class MPNonSCFSet(MPRelaxSet):
 
         if self.mode.lower() == "uniform":
             # use tetrahedron method for DOS and optics calculations
-            incar.update({"ISMEAR": -5})
+
+            incar.update({"ISMEAR": -5, "ISYM": 2})
         else:
             # if line mode, can't use ISMEAR=-5; also use small sigma to avoid
             # partial occupancies for small band gap materials.
