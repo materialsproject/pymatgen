@@ -407,6 +407,13 @@ class StructureMatcher(MSONable):
             fu = s2.composition.num_atoms / s1.composition.num_atoms
         elif self._supercell_size == 'volume':
             fu = s2.volume / s1.volume
+        elif isinstance(self._supercell_size, tuple):
+            s1comp, s2comp = 0, 0
+            for el in self._supercell_size:
+                el = get_el_sp(el)
+                s1comp += s1.composition[el]
+                s2comp += s2.composition[el]
+            fu = s2comp / s1comp
         else:
             try:
                 el = get_el_sp(self._supercell_size)
