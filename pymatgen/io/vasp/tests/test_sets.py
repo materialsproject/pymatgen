@@ -660,7 +660,7 @@ class MPNonSCFSetTest(PymatgenTest):
         vis.override_from_prev_calc(prev_calc_dir=prev_run)
         self.assertEqual(vis.incar["ISMEAR"], -5)
 
-        vis = MPNonSCFSet(_dummy_structure, mode="Uniform",nedos=0)
+        vis = MPNonSCFSet(_dummy_structure, mode="Uniform", nedos=0)
         vis.override_from_prev_calc(prev_calc_dir=prev_run)
         self.assertEqual(vis.incar["NEDOS"], 12217)
         
