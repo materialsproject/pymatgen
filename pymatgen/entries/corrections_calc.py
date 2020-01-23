@@ -389,7 +389,7 @@ class CorrectionCalculator:
         compatibility_error["Advanced"] = advanced_error
         compatibility_error["CompositionCorrections"] = comp_corr_error
 
-        fn = name + "Compatibility.yaml"
+        fn = name + "Compatibility2020.yaml"
 
         file = open(fn, "w")
         yaml = ruamel.yaml.YAML()
@@ -398,7 +398,7 @@ class CorrectionCalculator:
         yaml.dump(compatibility, file)
         file.close()
 
-        fn = name + "CompatibilityUncertainties.yaml"
+        fn = name + "CompatibilityUncertainties2020.yaml"
         file = open(fn, "w")
         yaml = ruamel.yaml.YAML()
         yaml.Representer.add_representer(OrderedDict, yaml.Representer.represent_dict)

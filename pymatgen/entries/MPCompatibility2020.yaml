@@ -34,7 +34,7 @@ CompositionCorrections:
   F: -0.457
   Cl: -0.583
   N: -0.332
-  H: 0.817
+  H: -0.184
 AqueousCompoundEnergies:
   O2: -0.316731
   N2: -0.295729
