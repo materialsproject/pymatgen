@@ -604,7 +604,7 @@ class MPNonSCFSetTest(PymatgenTest):
         self.assertEqual(vis.incar["ISMEAR"], -5)
 
         # check uniform mode with automatic nedos
-        vis = MPNonSCFSet.from_prev_calc(prev_calc_dir=prev_run, mode="Uniform"
+        vis = MPNonSCFSet.from_prev_calc(prev_calc_dir=prev_run, mode="Uniform",
                                          nedos=0)
         self.assertEqual(vis.incar["NEDOS"], 12217)
 
