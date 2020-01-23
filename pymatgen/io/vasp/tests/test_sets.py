@@ -602,6 +602,7 @@ class MPNonSCFSetTest(PymatgenTest):
         # check uniform mode
         vis = MPNonSCFSet.from_prev_calc(prev_calc_dir=prev_run, mode="Uniform")
         self.assertEqual(vis.incar["ISMEAR"], -5)
+        self.assertEqual(vis.incar["ISYM"], 2)
 
         # test line mode
         vis = MPNonSCFSet.from_prev_calc(
