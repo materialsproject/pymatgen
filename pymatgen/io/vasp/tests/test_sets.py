@@ -655,6 +655,7 @@ class MPNonSCFSetTest(PymatgenTest):
         vis = MPNonSCFSet(_dummy_structure, mode="Uniform")
         vis.override_from_prev_calc(prev_calc_dir=prev_run)
         self.assertEqual(vis.incar["ISMEAR"], -5)
+        self.assertEqual(vis.incar["ISYM"], 2)
 
         # test line mode
         vis = MPNonSCFSet(
@@ -719,6 +720,7 @@ class MPNonSCFSetTest(PymatgenTest):
         # check NEDOS and ISMEAR set correctly
         self.assertEqual(vis.incar["NEDOS"], 2001)
         self.assertEqual(vis.incar["ISMEAR"], -5)
+        self.assertEqual(vis.incar["ISYM"], 2)
 
         self.assertTrue(vis.incar["LOPTICS"])
         self.assertEqual(vis.kpoints.style, Kpoints.supported_modes.Gamma)
