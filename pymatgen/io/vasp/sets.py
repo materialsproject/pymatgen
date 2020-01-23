@@ -1358,7 +1358,7 @@ class MPNonSCFSet(MPRelaxSet):
 
         if self.mode.lower() == "uniform":
             # use tetrahedron method for DOS and optics calculations
-            incar.update({"ISMEAR": -5})
+            incar.update({"ISMEAR": -5, "ISYM": 2})
         else:
             # if line mode, can't use ISMEAR=-5; also use small sigma to avoid
             # partial occupancies for small band gap materials.
@@ -1488,7 +1488,6 @@ class MPNonSCFSet(MPRelaxSet):
                 self.kpoints_line_density = (
                     self.kpoints_line_density * self.small_gap_multiply[1]
                 )
-
         return self
 
     @classmethod
