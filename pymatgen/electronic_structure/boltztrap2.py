@@ -226,13 +226,13 @@ class VasprunLoader:
         # for iband in range(len(self.ebands)):
         # BoltzTraP2.misc.info(iband, bandmin[iband], bandmax[iband], (
         # (bandmin[iband] < emax) & (bandmax[iband] > emin)))
-        self.ebands = self.ebands[nemin:nemax]
+        self.ebands = self.ebands[nemin: nemax + 1]
 
         if isinstance(self.proj, np.ndarray):
-            self.proj = self.proj[:, nemin:nemax, :, :]
+            self.proj = self.proj[:, nemin: nemax + 1, :, :]
 
         if self.mommat is not None:
-            self.mommat = self.mommat[:, nemin:nemax, :]
+            self.mommat = self.mommat[:, nemin: nemax + 1, :]
         # Removing bands may change the number of valence electrons
         if self.nelect is not None:
             self.nelect -= self.dosweight * nemin
