@@ -147,6 +147,24 @@ class PhaseDiagramTest(unittest.TestCase):
             lines, stable_entries, unstable_entries = plotter.pd_plot_data
             self.assertEqual(lines[0][1], [0, 0])
 
+    def test_ordering(self):
+        # Test sorting of elements
+        entries = [ComputedEntry(Composition(formula), 0)
+                   for formula in ['O', 'N', 'Fe']]
+        pd = PhaseDiagram(entries)
+        sorted_elements = (Element('Fe'), Element('N'), Element('O'))
+        self.assertEqual(tuple(pd.elements), sorted_elements)
+
+        entries.reverse()
+        pd = PhaseDiagram(entries)
+        self.assertEqual(tuple(pd.elements), sorted_elements)
+
+        # Test manual specification of order
+        ordering = [Element(elt_string)
+                    for elt_string in ['O', 'N', 'Fe']]
+        pd = PhaseDiagram(entries, elements=ordering)
+        self.assertEqual(tuple(pd.elements), tuple(ordering))
+
     def test_stable_entries(self):
         stable_formulas = [ent.composition.reduced_formula
                            for ent in self.pd.stable_entries]
@@ -374,7 +392,7 @@ class PhaseDiagramTest(unittest.TestCase):
                     Element("O"): -6.969907375000003}
 
         for elem, energy in cpresult.items():
-            self.assertAlmostEqual(cp1['FeO-LiFeO2-Fe3O4'][elem], energy)
+            self.assertAlmostEqual(cp1['Fe3O4-FeO-LiFeO2'][elem], energy)
 
         cp2 = self.pd.get_all_chempots(c2)
         cpresult = {Element("O"): -7.115354140000001,

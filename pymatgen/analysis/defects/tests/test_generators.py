@@ -96,7 +96,7 @@ class VoronoiInterstitialGeneratorTest(PymatgenTest):
         self.assertArrayAlmostEqual(ints[0].site.coords, (1.5177146, 2.6784354, 3.9481299))
         self.assertArrayAlmostEqual(ints[1].site.coords, (1.7357692, 3.8392513, 3.8392513))
         # self.assertArrayAlmostEqual(ints[2].site.coords, (1.5177146, 3.7168193, 3.7168193))
-        self.assertArrayAlmostEqual(ints[2].site.coords, (2.2765713, 2.2575138, 4.5150233))
+        self.assertArrayAlmostEqual(ints[2].site.coords, [2.2765713, 4.5150233, 2.2575138])
 
 
 class SimpleChargeGeneratorTest(PymatgenTest):
