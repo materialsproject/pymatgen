@@ -180,20 +180,22 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
             zip_output (bool): If True, output will be zipped into a file with the
                 same name as the InputSet (e.g., MPStaticSet.zip)
         """
-        vinput = self.get_vasp_input()
-
         if potcar_spec:
             if make_dir_if_not_present and not os.path.exists(output_dir):
                 os.makedirs(output_dir)
 
-            for k, v in vinput.items():
-                if k == "POTCAR":
-                    with zopen(os.path.join(output_dir, "POTCAR.spec"), "wt") as f:
-                        f.write("\n".join(self.potcar_symbols))
-                elif v is not None:
+            with zopen(os.path.join(output_dir, "POTCAR.spec"), "wt") as f:
+                f.write("\n".join(self.potcar_symbols))
+
+            for k, v in {"INCAR": self.incar,
+                         "POSCAR": self.poscar,
+                         "KPOINTS": self.kpoints
+                         }.items():
+                if k is not None:
                     with zopen(os.path.join(output_dir, k), "wt") as f:
                         f.write(v.__str__())
         else:
+            vinput = self.get_vasp_input()
             vinput.write_input(output_dir, make_dir_if_not_present=make_dir_if_not_present)
 
         cifname = ""
@@ -1356,7 +1358,7 @@ class MPNonSCFSet(MPRelaxSet):
 
         if self.mode.lower() == "uniform":
             # use tetrahedron method for DOS and optics calculations
-            incar.update({"ISMEAR": -5})
+            incar.update({"ISMEAR": -5, "ISYM": 2})
         else:
             # if line mode, can't use ISMEAR=-5; also use small sigma to avoid
             # partial occupancies for small band gap materials.
@@ -1486,7 +1488,6 @@ class MPNonSCFSet(MPRelaxSet):
                 self.kpoints_line_density = (
                     self.kpoints_line_density * self.small_gap_multiply[1]
                 )
-
         return self
 
     @classmethod

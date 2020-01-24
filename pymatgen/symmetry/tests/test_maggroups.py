@@ -22,6 +22,7 @@ class MagneticSpaceGroupTest(PymatgenTest):
         self.msg_1 = MagneticSpaceGroup([70, 530])
         self.msg_2 = MagneticSpaceGroup([62, 448])
         self.msg_3 = MagneticSpaceGroup([20, 37])
+        self.msg_4 = MagneticSpaceGroup([2, 7], "c,1/4a+1/4b,-1/2a+1/2b;0,0,0")
 
     def test_init(self):
         # test init with the following space group:
@@ -133,11 +134,18 @@ x+1/2, y+1/2, z, +1
 x+1/2, -y+1/2, -z, +1
 -x+1/2, y+1/2, -z+1/2, +1
 -x+1/2, -y+1/2, z+1/2, +1
-x+1/2, y+1, z+1/2, -1
-x+1, -y+1/2, -z+1/2, -1
--x+1, y+1/2, -z, -1
--x+1, -y+1/2, z, -1"""
+x+1/2, y, z+1/2, -1
+x, -y+1/2, -z+1/2, -1
+-x, y+1/2, -z, -1
+-x, -y+1/2, z, -1"""
         self.assertEqual(msg_3_symmops, msg_3_symmops_ref)
+
+        msg_4_symmops = "\n".join([str(op) for op in self.msg_4.symmetry_ops])
+        msg_4_symmops_ref = """x, y, z, +1
+-x, -y, -z, +1
+x+1/2, y, z, -1
+-x+1/2, -y, -z, -1"""
+        self.assertEqual(msg_4_symmops, msg_4_symmops_ref)
 
     def test_equivalence_to_spacegroup(self):
 
