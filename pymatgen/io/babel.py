@@ -11,7 +11,7 @@ from monty.dev import requires
 
 try:
     import openbabel as ob
-    import pybel as pb
+    from openbabel import pybel as pb
 except Exception:
     pb = None
     ob = None
