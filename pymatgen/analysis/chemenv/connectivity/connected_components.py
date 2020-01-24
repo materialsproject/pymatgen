@@ -4,6 +4,7 @@ from pymatgen.analysis.chemenv.utils.graph_utils import get_delta
 __author__ = 'waroquiers'
 
 from monty.json import MSONable
+from monty.json import jsanitize
 from pymatgen.analysis.chemenv.utils.chemenv_errors import ChemenvError
 import networkx as nx
 from networkx.algorithms.traversal import bfs_tree
@@ -661,7 +662,7 @@ class ConnectedComponent(MSONable):
             dict: Edge data dictionary with the lists tranformed back into tuples when applicable.
         """
         edata['delta'] = tuple(edata['delta'])
-        edata['ligands'] = [tuple([lig[0], tuple(lig[1])])
+        edata['ligands'] = [tuple([lig[0], tuple(lig[1]), tuple(lig[2])])
                             for lig in edata['ligands']]
         return edata
 
@@ -684,7 +685,7 @@ class ConnectedComponent(MSONable):
                 new_dict_of_dicts[in1][in2] = {}
                 for ie, edge_data in edges_dict.items():
                     ied = self._edgekey_to_edgedictkey(ie)
-                    new_dict_of_dicts[in1][in2][ied] = edge_data
+                    new_dict_of_dicts[in1][in2][ied] = jsanitize(edge_data)
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "nodes": {strindex: (node.as_dict(), data) for strindex, (node, data) in nodes.items()},
