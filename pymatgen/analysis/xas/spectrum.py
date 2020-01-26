@@ -5,13 +5,11 @@
 """
 This module defines classes to represent all xas and stitching methods
 """
-
-from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.core.spectrum import Spectrum
+import math
 from scipy.interpolate import interp1d
 import numpy as np
-import math
-
+from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.core.spectrum import Spectrum
 
 __author__ = "Chen Zheng, Yiming Chen"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -212,4 +210,3 @@ def stitch_l23(l2_xanes, l3_xanes, num_samples=200):
     energy = np.linspace(min(l3_xanes.x), max(l2_xanes.x), num=num_samples)
     mu = [i + j for i, j in zip(l2_f(energy), l3_f(energy))]
     return (energy, mu)
-

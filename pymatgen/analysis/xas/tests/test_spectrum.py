@@ -90,8 +90,5 @@ class StitchTest(PymatgenTest):
         self.assertRaises(ValueError, stitch_l23, l2_xanes, l3_xanes)
 
 
-
-
-
 if __name__ == '__main__':
     unittest.main()
