@@ -58,7 +58,7 @@ class XANES(Spectrum):
         # Wavenumber, k is calculated based on equation
         #             k^2=2*m/(hbar)^2*(E-E0)
         self.k = [np.sqrt((i-self.e0) / 3.8537) if i > self.e0 else
-                           -np.sqrt((self.e0-i) / 3.8537) for i in self.x]
+                  -np.sqrt((self.e0-i) / 3.8537) for i in self.x]
 
     def __str__(self):
         return "%s %s Edge for %s: %s" % (
@@ -212,3 +212,4 @@ def stitch_l23(l2_xanes, l3_xanes, num_samples=200):
     energy = np.linspace(min(l3_xanes.x), max(l2_xanes.x), num=num_samples)
     mu = [i + j for i, j in zip(l2_f(energy), l3_f(energy))]
     return (energy, mu)
+
