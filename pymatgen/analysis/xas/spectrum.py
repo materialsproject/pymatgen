@@ -7,7 +7,6 @@ This module defines classes to represent all xas and stitching methods
 """
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.core import Element
 from pymatgen.core.spectrum import Spectrum
 from scipy.interpolate import interp1d
 import numpy as np
@@ -58,8 +57,8 @@ class XANES(Spectrum):
         self.e0 = self.x[np.argmax(np.gradient(self.y) / np.gradient(self.x))]
         # Wavenumber, k is calculated based on equation
         #             k^2=2*m/(hbar)^2*(E-E0)
-        self.k = [np.sqrt((i-self.e0)/3.854) if i > self.e0 else
-                           -np.sqrt((self.e0-i)/3.854) for i in self.x]
+        self.k = [np.sqrt((i-self.e0) / 3.8537) if i > self.e0 else
+                           -np.sqrt((self.e0-i) / 3.8537) for i in self.x]
 
     def __str__(self):
         return "%s %s Edge for %s: %s" % (
@@ -104,8 +103,8 @@ class EXAFS(Spectrum):
         self.e0 = self.x[np.argmax(np.gradient(self.y) / np.gradient(self.x))]
         # Wavenumber, k is calculated based on equation
         #             k^2=2*m/(hbar)^2*(E-E0)
-        self.k = [np.sqrt((i-self.e0)/3.854) if i > self.e0 else
-                  -np.sqrt((self.e0-i)/3.854) for i in self.x]
+        self.k = [np.sqrt((i-self.e0) / 3.8537) if i > self.e0 else
+                  -np.sqrt((self.e0-i) / 3.8537) for i in self.x]
 
     def __str__(self):
         return "%s %s Edge for %s: %s" % (
@@ -132,7 +131,7 @@ def stitch_xanes_exafs(xanes, exafs, num_samples=500):
         num_samples(int): Number of samples for interpolation.
 
     Returns:
-        tuple: a plottable (x, y) pair for the full XAS spectrum
+        tuple: A plottable (x, y) pair for the full XAS spectrum
     """
     m = StructureMatcher()
     if not m.fit(xanes.structure, exafs.structure):
@@ -148,11 +147,11 @@ def stitch_xanes_exafs(xanes, exafs, num_samples=500):
     wavenumber.extend(xanes.k[:idx])
 
     # for 3 < k < max(xanes_k)
-    ks, fs = [], []
-    for k in np.linspace(3, max(xanes.k), 50):
-        f = np.cos((math.pi / 2) * (k - 3)) ** 2
+    fs = []
+    ks = np.linspace(3, max(xanes.k), 50)
+    for k in ks:
+        f = np.cos((math.pi / 2) * (k - 3) / (max(xanes.k) - 3)) ** 2
         fs.append(f)
-        ks.append(k)
     f_xanes = interp1d(
         np.asarray(xanes.k), np.asarray(xanes.y),
         bounds_error=False, fill_value=0)
@@ -178,14 +177,14 @@ def stitch_xanes_exafs(xanes, exafs, num_samples=500):
     wavenumber = np.linspace(min(wavenumber), max(wavenumber),
                              num=num_samples)
     mu = f_final(wavenumber)
-    energy = [3.854 * i ** 2 + xanes.e0 if i > 0
-              else -3.854 * i ** 2 + xanes.e0 for i in wavenumber]
+    energy = [3.8537 * i ** 2 + xanes.e0 if i > 0
+              else -3.8537 * i ** 2 + xanes.e0 for i in wavenumber]
     return (energy, mu)
 
 
 def stitch_l23(l2_xanes, l3_xanes, num_samples=200):
     """
-    Stitch separate L2 and L3 XANES object to get the L2,3 XANES for elements with
+    Stitch individual L2 and L3 XANES object to get the L2,3 XANES for elements with
         atomic number <=30 so that the edge energies for L2 and L3 are close enough.
 
 
@@ -195,7 +194,7 @@ def stitch_l23(l2_xanes, l3_xanes, num_samples=200):
         num_samples(int): Number of samples for interpolation.
 
     Returns:
-        tuple: a plottable (x, y) pair for L2,3-edge spectrum
+        tuple: A plottable (x, y) pair for L2,3 edge spectrum
     """
     m = StructureMatcher()
     if not m.fit(l2_xanes.structure, l3_xanes.structure):

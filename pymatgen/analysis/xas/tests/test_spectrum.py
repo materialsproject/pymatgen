@@ -2,13 +2,14 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import os
 from pymatgen.analysis.xas.spectrum import *
-import unittest
 from pymatgen.util.testing import PymatgenTest
-import json
+from pymatgen.core import Element
 from monty.json import MontyDecoder
 import numpy as np
+import unittest
+import json
+import os
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         "test_files/spectrum_test")
