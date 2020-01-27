@@ -10,7 +10,7 @@ from monty.json import MontyDecoder
 import numpy as np
 
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.analysis.xas.spectrum import XANES
+from pymatgen.analysis.xas.spectrum import XAS
 from pymatgen.vis.plotters import SpectrumPlotter
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -22,7 +22,7 @@ with open(os.path.join(test_dir, 'LiCoO2_k_xanes.json')) as fp:
 
 class SpectrumPlotterTest(PymatgenTest):
     def setUp(self):
-        self.xanes = XANES.from_dict(spect_data_dict)
+        self.xanes = XAS.from_dict(spect_data_dict)
 
     def test_get_plot(self):
         self.plotter = SpectrumPlotter(yshift=0.2)
