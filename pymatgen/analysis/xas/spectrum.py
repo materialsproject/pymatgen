@@ -10,6 +10,7 @@ from scipy.interpolate import interp1d
 import numpy as np
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.spectrum import Spectrum
+from typing import List
 
 __author__ = "Chen Zheng, Yiming Chen"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -116,21 +117,21 @@ class XAS(Spectrum):
                                  "edge can be stitched in XAFS mode.")
             if self.spectrum_type == other.spectrum_type:
                 raise ValueError("Please provide one XANES and one EXAFS spectrum.")
+
             xanes = self if self.spectrum_type == "XANES" else other
             exafs = self if self.spectrum_type == "EXAFS" else other
-
             if max(xanes.x) < min(exafs.x):
                 raise ValueError(
                     "Energy overlap between XANES and EXAFS is needed for stitching")
 
             # for k <= 3
-            wavenumber, mu = [], []
+            wavenumber, mu = [], []  # type: List[float],  List[float]
             idx = xanes.k.index(min(self.k, key=lambda x: (abs(x - 3), x)))
             mu.extend(xanes.y[:idx])
             wavenumber.extend(xanes.k[:idx])
 
             # for 3 < k < max(xanes.k)
-            fs = []
+            fs = []  # type: List[float]
             ks = np.linspace(3, max(xanes.k), 50)
             for k in ks:
                 f = np.cos((math.pi / 2) * (k - 3) / (max(xanes.k) - 3)) ** 2
@@ -157,13 +158,13 @@ class XAS(Spectrum):
             f_final = interp1d(
                 np.asarray(wavenumber), np.asarray(mu), bounds_error=False,
                 fill_value=0)
-            wavenumber = np.linspace(min(wavenumber), max(wavenumber),
-                                     num=num_samples)
-            mu = f_final(wavenumber)
-            energy = [3.8537 * i ** 2 + xanes.e0 if i > 0 else
-                      -3.8537 * i ** 2 + xanes.e0 for i in wavenumber]
-            return XAS(energy, mu, self.structure, self.absorption_element,
-                       xanes.edge, "XAFS")
+            wavenumber_final = np.linspace(min(wavenumber), max(wavenumber),
+                                           num=num_samples)
+            mu_final = f_final(wavenumber_final)
+            energy_final = [3.8537 * i ** 2 + xanes.e0 if i > 0 else
+                            -3.8537 * i ** 2 + xanes.e0 for i in wavenumber_final]
+            return XAS(energy_final, mu_final, self.structure,
+                       self.absorption_element, xanes.edge, "XAFS")
 
         if mode == "L23":
             if not self.spectrum_type == "XANES" and \
