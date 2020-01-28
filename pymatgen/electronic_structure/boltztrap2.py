@@ -75,38 +75,58 @@ class BandstructureLoader:
 
         self.atoms = AseAtomsAdaptor.get_atoms(self.structure)
         self.proj = None
+        if bs_obj.projections:
+            self.proj = {sp:p.transpose((1, 0, 3, 2)) for sp,p in bs_obj.projections.items()}
+            
+        e = np.array(list(bs_obj.bands.values()))
+        e = e.reshape(-1,e.shape[-1])
+        self.ebands = e * units.eV
 
-        if len(bs_obj.bands) == 1:
-            e = list(bs_obj.bands.values())[0]
-            self.ebands = e * units.eV
-            self.dosweight = 2.0
-            if bs_obj.projections:
-                self.proj = bs_obj.projections[Spin.up].transpose((1, 0, 3, 2))
+        if bs_obj.is_spin_polarized:
+            self.dosweight = 1.
+        else:
+            self.dosweight = 2.
+        
+        # if len(bs_obj.bands) == 1:
+        #     e = np.array(bs_obj.bands.values())
+        #     self.ebands = e * units.eV
+        #     self.dosweight = 2.0
+        #     if bs_obj.projections:
+        #         self.proj = bs_obj.projections[Spin.up].transpose((1, 0, 3, 2))
 
-        elif len(bs_obj.bands) == 2:
-            if not spin:
-                raise BaseException("spin-polarized bs, you need to select a spin")
-            elif spin in (-1, 1):
-                e = bs_obj.bands[Spin(spin)]
-                self.ebands = e * units.eV
-                self.dosweight = 1.0
-                if bs_obj.projections:
-                    self.proj = bs_obj.projections[Spin(spin)].transpose((1, 0, 3, 2))
+        # elif len(bs_obj.bands) == 2:
+        #     if not spin:
+        #         raise BaseException("spin-polarized bs, you need to select a spin")
+        #     elif spin in (-1, 1):
+        #         e = bs_obj.bands[Spin(spin)]
+        #         self.ebands = e * units.eV
+        #         self.dosweight = 1.0
+        #         if bs_obj.projections:
+        #             self.proj = bs_obj.projections[Spin(spin)].transpose((1, 0, 3, 2))
 
         self.lattvec = self.atoms.get_cell().T * units.Angstrom
         self.mommat = None
         self.magmom = None
         self.fermi = bs_obj.efermi * units.eV
-
-        self.nelect = nelect
         self.UCvol = self.structure.volume * units.Angstrom ** 3
 
-        self.spin = spin
+#        self.spin = spin
 
-        if not bs_obj.is_metal() and not spin:
-            self.vbm_idx = list(bs_obj.get_vbm()['band_index'].values())[0][-1]
-            self.cbm_idx = list(bs_obj.get_cbm()['band_index'].values())[0][0]
-
+        if not bs_obj.is_metal():
+            self.vbm_idx = max(bs_obj.get_vbm()['band_index'][Spin.up] +
+                               bs_obj.get_vbm()['band_index'][Spin.down])
+            self.cbm_idx = min(bs_obj.get_cbm()['band_index'][Spin.up] +
+                               bs_obj.get_cbm()['band_index'][Spin.down])
+            self.vbm = bs_obj.get_vbm()['energy']
+            self.cbm = bs_obj.get_cbm()['energy']
+            self.nelect = self.vbm_idx * self.dosweight
+        else:
+            self.vbm_idx = None
+            self.cbm_idx = None
+            self.vbm = self.fermi
+            self.cbm = self.fermi
+            self.nelect = nelect
+            
     def get_lattvec(self):
         """
         :return: The lattice vectors.
@@ -121,39 +141,54 @@ class BandstructureLoader:
         """Cut out bands outside the range (emin,emax)"""
         bandmin = np.min(self.ebands, axis=1)
         bandmax = np.max(self.ebands, axis=1)
-        ii = np.nonzero(bandmin < emax)
-        nemax = ii[0][-1]
-        ii = np.nonzero(bandmax > emin)
-        nemin = ii[0][0]
-        # BoltzTraP2.misc.info("BANDANA output")
-        # for iband in range(len(self.ebands)):
-        # BoltzTraP2.misc.info(iband, bandmin[iband], bandmax[iband], (
-        # (bandmin[iband] < emax) & (bandmax[iband] > emin)))
-        self.ebands = self.ebands[nemin:nemax + 1]
+        ntoolow = np.count_nonzero(bandmax <= emin)
+        accepted = np.logical_and(bandmin < emax, bandmax > emin)
+        self.ebands = self.ebands[accepted]
 
-        if isinstance(self.proj, np.ndarray):
-            self.proj = self.proj[:, nemin:nemax + 1, :, :]
+        
+        #ii = np.nonzero(bandmin < emax)
+        # nemax = ii[0][-1]
+        # ii = np.nonzero(bandmax > emin)
+        # nemin = ii[0][0]
+        # # BoltzTraP2.misc.info("BANDANA output")
+        # # for iband in range(len(self.ebands)):
+        # # BoltzTraP2.misc.info(iband, bandmin[iband], bandmax[iband], (
+        # # (bandmin[iband] < emax) & (bandmax[iband] > emin)))
+        # self.ebands = self.ebands[emin:nemax + 1]
+
+        if self.proj:
+            if len(self.proj) == 2:
+                h = int(len(accepted)/2)
+                self.proj[Spin.up] = self.proj[Spin.up][:, accepted[:h], :, :]
+                self.proj[Spin.down] = self.proj[Spin.down][:, accepted[h:], :, :]
+            elif len(self.proj) == 1:
+                self.proj[Spin.up] = self.proj[Spin.up][:, accepted, :, :]
+
+#            self.proj = self.proj[:, nemin:nemax + 1, :, :]
 
         if self.mommat is not None:
-            self.mommat = self.mommat[:, nemin:nemax + 1, :]
+            self.mommat = self.mommat[:, accepted, :]
         # Removing bands may change the number of valence electrons
         if self.nelect is not None:
-            self.nelect -= self.dosweight * nemin
-        return nemin, nemax
+            self.nelect -= self.dosweight * ntoolow
+        return accepted
 
     def set_upper_lower_bands(self, e_lower, e_upper):
         """
             Set fake upper/lower bands, useful to set the same energy
             range in the spin up/down bands when calculating the DOS
         """
+        # WARNING: the following does not work anymore in case of spin
+        # polarized due to the concatenation of bands !
         lower_band = e_lower * np.ones((1, self.ebands.shape[1]))
         upper_band = e_upper * np.ones((1, self.ebands.shape[1]))
 
         self.ebands = np.vstack((lower_band, self.ebands, upper_band))
-        if isinstance(self.proj, np.ndarray):
-            proj_lower = self.proj[:, 0:1, :, :]
-            proj_upper = self.proj[:, -1:, :, :]
-            self.proj = np.concatenate((proj_lower, self.proj, proj_upper), axis=1)
+        if self.proj:
+            for sp in self.proj:
+                proj_lower = self.proj[sp][:, 0:1, :, :]
+                proj_upper = self.proj[sp][:, -1:, :, :]
+                self.proj[sp] = np.concatenate((proj_lower, self.proj[sp], proj_upper), axis=1)
 
     def get_volume(self):
         """
@@ -198,6 +233,20 @@ class VasprunLoader:
             self.fermi = vrun_obj.efermi * units.eV
             self.nelect = vrun_obj.parameters['NELECT']
             self.UCvol = self.structure.volume * units.Angstrom ** 3
+
+        bs_obj = vrun_obj.get_band_structure()
+        if not bs_obj.is_metal():
+            self.vbm_idx = max(bs_obj.get_vbm()['band_index'][Spin.up] +
+                               bs_obj.get_vbm()['band_index'][Spin.down])
+            self.cbm_idx = min(bs_obj.get_cbm()['band_index'][Spin.up] +
+                               bs_obj.get_cbm()['band_index'][Spin.down])
+            self.vbm = bs_obj.get_vbm()['energy']
+            self.cbm = bs_obj.get_cbm()['energy']
+        else:
+            self.vbm_idx = None
+            self.cbm_idx = None
+            self.vbm = self.fermi
+            self.cbm = self.fermi
 
     def from_file(self, vasprun_file):
         """Get a vasprun.xml file and return a VasprunLoader"""
@@ -276,8 +325,9 @@ class BztInterpolator:
         self.data = data
         num_kpts = self.data.kpoints.shape[0]
         self.efermi = self.data.fermi
-        self.nemin, self.nemax = self.data.bandana(emin=self.efermi - (energy_range * units.eV),
-                                                   emax=self.efermi + (energy_range * units.eV))
+        middle_gap_en = (self.data.cbm + self.data.vbm) / 2 
+        self.accepted = self.data.bandana(emin=(middle_gap_en - energy_range) * units.eV,
+                                                   emax=(middle_gap_en + energy_range) * units.eV)
         self.equivalences = sphere.get_equivalences(self.data.atoms, self.data.magmom,
                                                     num_kpts * lpfac)
         self.coeffs = fite.fitde3D(self.data, self.equivalences)
