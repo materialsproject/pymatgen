@@ -62,29 +62,43 @@ class XASTest(PymatgenTest):
     def test_str(self):
         self.assertIsNotNone(str(self.k_xanes))
 
-    def test_stitch_xanes_exafs(self):
-        xas_x, xas_y = XAS.stitch_xanes_exafs(self.k_xanes, self.k_exafs)
-        self.assertEqual(len(xas_x), 500)
-        self.assertAlmostEqual(min(xas_x), min(self.k_xanes.x), 2)
-        self.assertAlmostEqual(max(xas_y), max(self.k_xanes.y), 2)
-        self.assertAlmostEqual(xas_x[np.argmax(np.gradient(xas_y) /
-                                               np.gradient(xas_x))],
+    def test_stitch_xafs(self):
+        self.assertRaises(ValueError, XAS.stitch, self.k_xanes, self.k_exafs,
+                          mode="invalid")
+        xafs = XAS.stitch(self.k_xanes, self.k_exafs, mode="XAFS")
+        self.assertIsInstance(xafs, XAS)
+        self.assertEqual("XAFS", xafs.spectrum_type)
+        self.assertEqual(len(xafs.x), 500)
+        self.assertAlmostEqual(min(xafs.x), min(self.k_xanes.x), 2)
+        self.assertAlmostEqual(max(xafs.y), max(self.k_xanes.y), 2)
+        self.assertAlmostEqual(xafs.x[np.argmax(np.gradient(xafs.y) /
+                                                np.gradient(xafs.x))],
                                self.k_xanes.e0, 2)
-        self.assertRaises(ValueError, XAS.stitch_xanes_exafs,
-                          self.k_xanes, self.l2_xanes)
+        self.assertRaises(ValueError, XAS.stitch,
+                          self.k_xanes, self.l2_xanes, mode="XAFS")
         self.k_xanes.x = np.zeros(100)
-        self.assertRaises(ValueError, XAS.stitch_xanes_exafs,
+        self.assertRaises(ValueError, XAS.stitch,
                           self.k_xanes, self.k_exafs)
+        self.k_xanes.absorption_element = Element("Li")
+        self.assertRaises(ValueError, XAS.stitch,
+                          self.k_xanes, self.k_exafs, mode="XAFS")
 
     def test_stitch_l23(self):
-        l23_x, l23_y = XAS.stitch_l23(self.l2_xanes, self.l3_xanes, 100)
-        self.assertAlmostEqual(min(l23_x), min(self.l3_xanes.x), 3)
-        self.assertAlmostEqual(max(l23_x), max(self.l2_xanes.x), 3)
-        self.assertTrue(np.greater_equal(l23_y, self.l2_xanes.y).all())
-        self.assertEqual(len(l23_x), 100)
+        l23 = XAS.stitch(self.l2_xanes, self.l3_xanes, 100, mode="L23")
+        self.assertIsInstance(l23, XAS)
+        self.assertEqual("L23", l23.edge)
+        self.assertAlmostEqual(min(l23.x), min(self.l3_xanes.x), 3)
+        self.assertAlmostEqual(max(l23.x), max(self.l2_xanes.x), 3)
+        self.assertTrue(np.greater_equal(l23.y, self.l2_xanes.y).all())
+        self.assertEqual(len(l23.x), 100)
+        self.l2_xanes.spectrum_type = "EXAFS"
+        self.assertRaises(ValueError,  XAS.stitch,
+                          self.l2_xanes, self.l3_xanes, mode="L23")
         self.l2_xanes.absorption_element = Element("Pt")
-        self.assertRaises(ValueError, XAS.stitch_l23,
-                          self.l2_xanes, self.l3_xanes)
+        self.assertRaises(ValueError, XAS.stitch,
+                          self.l2_xanes, self.l3_xanes, mode="L23")
+        self.assertRaises(ValueError, XAS.stitch,
+                          self.k_xanes, self.l3_xanes, mode="L23")
 
 
 if __name__ == '__main__':

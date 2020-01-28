@@ -77,103 +77,120 @@ class XAS(Spectrum):
             super(XAS, self).__str__()
         )
 
-    @classmethod
-    def stitch_xanes_exafs(cls, xanes, exafs, num_samples=500):
-        """
-        Stitch XANES and EXAFS object to get the full XAS spectrum.
+    def stitch(self, other: 'XAS', num_samples: int = 500, mode: str = "XAFS") \
+            -> 'XAS':
 
-        The stitching will be based on wavenumber, k.
+        """
+        Stitch XAS objects to get the full XAFS spectrum or L23 edge XANES
+        spectrum depending on the mode.
+
+        1. Use XAFS mode for stitching XANES and EXAFS with same absorption edge.
+            The stitching will be performed based on wavenumber, k.
             for k <= 3, XAS(k) = XAS[XANES(k)]
             for 3 < k < max(xanes_k), will interpolate according to
                 XAS(k)=f(k)*mu[XANES(k)]+(1-f(k))*mu[EXAFS(k)]
                 where f(k)=cos^2((pi/2) (k-3)/(max(xanes_k)-3)
             for k > max(xanes_k), XAS(k) = XAS[EXAFS(k)]
+        2. Use L23 mode for stitching L2 and L3 edge XANES for elements with
+            atomic number <=30.
 
         Args:
-            xanes(XANES): XANES object.
-            exafs(EXAFS): EXAFS object.
+            other: Another XAS object.
             num_samples(int): Number of samples for interpolation.
+            mode(str): Either XAFS mode for stitching XANES and EXAFS
+                        or L23 mode for stitching L2 and L3.
 
         Returns:
-            tuple: A plottable (x, y) pair for the full XAS spectrum
+            XAS object: The stitched spectrum.
         """
         m = StructureMatcher()
-        if not m.fit(xanes.structure, exafs.structure):
-            raise ValueError("The input structures from XANES and EXAFS mismatch")
-        if max(xanes.x) < min(exafs.x):
+        if not m.fit(self.structure, other.structure):
             raise ValueError(
-                "Energy overlap between XANES and EXAFS is needed for stitching")
+                "The input structures from spectra mismatch")
+        if not self.absorption_element == other.absorption_element:
+            raise ValueError("The absorption element from spectra are not the same")
 
-        # for k <= 3
-        wavenumber, mu = [], []
-        idx = xanes.k.index(min(xanes.k, key=lambda x: (abs(x - 3), x)))
-        mu.extend(xanes.y[:idx])
-        wavenumber.extend(xanes.k[:idx])
+        if mode == "XAFS":
+            if not self.edge == other.edge:
+                raise ValueError("Only spectrum with the same absorption "
+                                 "edge can be stitched in XAFS mode.")
+            if self.spectrum_type == other.spectrum_type:
+                raise ValueError("Please provide one XANES and one EXAFS spectrum.")
+            xanes = self if self.spectrum_type == "XANES" else other
+            exafs = self if self.spectrum_type == "EXAFS" else other
 
-        # for 3 < k < max(xanes_k)
-        fs = []
-        ks = np.linspace(3, max(xanes.k), 50)
-        for k in ks:
-            f = np.cos((math.pi / 2) * (k - 3) / (max(xanes.k) - 3)) ** 2
-            fs.append(f)
-        f_xanes = interp1d(
-            np.asarray(xanes.k), np.asarray(xanes.y),
-            bounds_error=False, fill_value=0)
-        f_exafs = interp1d(
-            np.asarray(exafs.k), np.asarray(exafs.y),
-            bounds_error=False, fill_value=0)
-        mu_xanes = f_xanes(ks)
-        mu_exafs = f_exafs(ks)
-        mus = [fs[i] * mu_xanes[i] + (1 - fs[i]) * mu_exafs[i] for i in
-               np.arange(len(ks))]
-        mu.extend(mus)
-        wavenumber.extend(ks)
+            if max(xanes.x) < min(exafs.x):
+                raise ValueError(
+                    "Energy overlap between XANES and EXAFS is needed for stitching")
 
-        # for k > max(xanes_k)
-        idx = exafs.k.index(min(exafs.k, key=lambda x: (abs(x - max(xanes.k)))))
-        mu.extend(exafs.y[idx:])
-        wavenumber.extend(exafs.k[idx:])
+            # for k <= 3
+            wavenumber, mu = [], []
+            idx = xanes.k.index(min(self.k, key=lambda x: (abs(x - 3), x)))
+            mu.extend(xanes.y[:idx])
+            wavenumber.extend(xanes.k[:idx])
 
-        # interpolation
-        f_final = interp1d(
-            np.asarray(wavenumber), np.asarray(mu), bounds_error=False,
-            fill_value=0)
-        wavenumber = np.linspace(min(wavenumber), max(wavenumber),
+            # for 3 < k < max(xanes.k)
+            fs = []
+            ks = np.linspace(3, max(xanes.k), 50)
+            for k in ks:
+                f = np.cos((math.pi / 2) * (k - 3) / (max(xanes.k) - 3)) ** 2
+                fs.append(f)
+            f_xanes = interp1d(
+                np.asarray(xanes.k), np.asarray(xanes.y),
+                bounds_error=False, fill_value=0)
+            f_exafs = interp1d(
+                np.asarray(exafs.k), np.asarray(exafs.y),
+                bounds_error=False, fill_value=0)
+            mu_xanes = f_xanes(ks)
+            mu_exafs = f_exafs(ks)
+            mus = [fs[i] * mu_xanes[i] + (1 - fs[i]) * mu_exafs[i] for i in
+                   np.arange(len(ks))]
+            mu.extend(mus)
+            wavenumber.extend(ks)
+
+            # for k > max(xanes.k)
+            idx = exafs.k.index(min(exafs.k, key=lambda x: (abs(x - max(xanes.k)))))
+            mu.extend(exafs.y[idx:])
+            wavenumber.extend(exafs.k[idx:])
+
+            # interpolation
+            f_final = interp1d(
+                np.asarray(wavenumber), np.asarray(mu), bounds_error=False,
+                fill_value=0)
+            wavenumber = np.linspace(min(wavenumber), max(wavenumber),
+                                     num=num_samples)
+            mu = f_final(wavenumber)
+            energy = [3.8537 * i ** 2 + xanes.e0 if i > 0 else
+                      -3.8537 * i ** 2 + xanes.e0 for i in wavenumber]
+            return XAS(energy, mu, self.structure, self.absorption_element,
+                       xanes.edge, "XAFS")
+
+        if mode == "L23":
+            if not self.spectrum_type == "XANES" and \
+                    other.spectrum_type == "XANES":
+                raise ValueError("Only XANES spectrum can be stitched in "
+                                 "L23 mode.")
+            if self.edge not in ["L2", "L3"] or other.edge not in ["L2", "L3"]:
+                raise ValueError("Only L2 and L3 edge spectrum can be stitched "
+                                 "in L23 mode.")
+            l2_xanes = self if self.edge == "L2" else other
+            l3_xanes = self if self.edge == "L3" else other
+            if l2_xanes.absorption_element.number > 30:
+                raise ValueError(
+                    "Does not support L2,3-edge XANES for {} element"
+                    .format(l2_xanes.absorption_element))
+
+            l2_f = interp1d(
+                l2_xanes.x, l2_xanes.y, bounds_error=False, fill_value=0)
+            # will add value of l3.y[-1] to avoid sudden change in absorption coeff.
+            l3_f = interp1d(
+                l3_xanes.x, l3_xanes.y, bounds_error=False,
+                fill_value=l3_xanes.y[-1])
+            energy = np.linspace(min(l3_xanes.x), max(l2_xanes.x),
                                  num=num_samples)
-        mu = f_final(wavenumber)
-        energy = [3.8537 * i ** 2 + xanes.e0 if i > 0 else
-                  -3.8537 * i ** 2 + xanes.e0 for i in wavenumber]
-        return (energy, mu)
+            mu = [i + j for i, j in zip(l2_f(energy), l3_f(energy))]
+            return XAS(energy, mu, self.structure, self.absorption_element,
+                       "L23", "XANES")
 
-    @classmethod
-    def stitch_l23(cls, l2_xanes, l3_xanes, num_samples=200):
-        """
-        Stitch individual L2 and L3 XANES object to get the L2,3 XANES for
-        elements with atomic number <=30 so that the edge energies for L2
-        and L3 are close enough.
-
-
-        Args:
-            l2_xanes(XANES): XANES object for L2 edge.
-            l3_xanes(EXAFS): EXAFS object for L3 edge.
-            num_samples(int): Number of samples for interpolation.
-
-        Returns:
-            tuple: A plottable (x, y) pair for L2,3 edge spectrum
-        """
-        m = StructureMatcher()
-        if not m.fit(l2_xanes.structure, l3_xanes.structure):
-            raise ValueError(
-                "The structures for L2-edge XANES and L3-edge XANES mismatch")
-        if l2_xanes.absorption_element.number > 30:
-            raise ValueError("Does not support L2,3-edge XANES for {} element"
-                             .format(l2_xanes.absorption_element))
-
-        l2_f = interp1d(
-            l2_xanes.x, l2_xanes.y, bounds_error=False, fill_value=0)
-        # will add value of l3.y[-1] to avoid sudden change in absorption coeff.
-        l3_f = interp1d(
-            l3_xanes.x, l3_xanes.y, bounds_error=False, fill_value=l3_xanes.y[-1])
-        energy = np.linspace(min(l3_xanes.x), max(l2_xanes.x), num=num_samples)
-        mu = [i + j for i, j in zip(l2_f(energy), l3_f(energy))]
-        return (energy, mu)
+        else:
+            raise ValueError("Invalid mode. Only XAFS and L23 are supported.")
