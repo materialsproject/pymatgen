@@ -2837,9 +2837,9 @@ class BadInputSetWarning(UserWarning):
     pass
 
 
-class BadHashError(Exception):
+class BadHashWarning(UserWarning):
     """
-    Error raised when POTCAR hashes do not pass validation
+    Warning raised when POTCAR hashes do not pass validation
     """
 
     pass
@@ -2856,8 +2856,8 @@ def validate_potcar_hash(potcar: Potcar):
     VASP 5.4.4 are stored in 'vasp_potcar_file_hashes.json' and
     'vasp_potcar_file_hashes.json'.
 
-    A warning is raised if the data hash passes validation but the
-    file hash does not.
+    A BadHashWarning is raised if either the data hash or the file hash do
+    not pass validation.
     """
     # hashes computed from pseudopotential distributed with VASP 5.4.4
     cwd = os.path.abspath(os.path.dirname(__file__))
@@ -2868,12 +2868,13 @@ def validate_potcar_hash(potcar: Potcar):
 
     for psingle in potcar:
         if psingle.hash != pymatgen_hashes[key][psingle.symbol]:
-            raise BadHashError(
+            warnings.warn(
                 "POTCAR data hash for POTCAR {} did not pass \
                                 validation. Verify the integrity of your \
                                 POTCAR files. ".format(
                     psingle.symbol
-                )
+                ),
+                BadHashWarning
             )
     else:
         file_hash = md5(psingle.data.encode("utf-8")).hexdigest()
@@ -2884,7 +2885,8 @@ def validate_potcar_hash(potcar: Potcar):
                         We will continue loading the POTCAR because the hash of \
                         the data itself has passed validation.".format(
                     psingle.symbol
-                )
+                ),
+                BadHashWarning
             )
 
 

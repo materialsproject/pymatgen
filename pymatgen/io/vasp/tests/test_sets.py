@@ -61,16 +61,16 @@ class HashPotcarTest(PymatgenTest):
     def tearDown(self):
         SETTINGS["PMG_VASP_PSP_DIR"] = self.pmg_dir
 
-    def test_bad_hash(self):
+    def test_bad_hash_warning(self):
         SETTINGS["PMG_VASP_PSP_DIR"] = self.TEST_FILES_DIR / "modified_potcars_data"
-        with pytest.raises(BadHashError):
+        with pytest.warns(BadHashWarning, match="POTCAR data hash"):
             potcar = MPRelaxSet(self.struct, potcar_functional="PBE").potcar
             print(potcar.spec)
 
     def test_data_hash_warning(self):
         SETTINGS["PMG_VASP_PSP_DIR"] = self.TEST_FILES_DIR / "modified_potcars_header"
 
-        with pytest.warns(UserWarning, match="did not pass validation"):
+        with pytest.warns(BadHashWarning, match="did not pass validation"):
             potcar = MPRelaxSet(self.struct, potcar_functional="PBE").potcar
 
 
