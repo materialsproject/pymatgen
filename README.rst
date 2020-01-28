@@ -1,6 +1,3 @@
-COUOUC@
-
-
 **Official docs:** http://www.pymatgen.org
 
 .. image:: https://circleci.com/gh/materialsproject/pymatgen.svg?style=shield&circle-token=:circle-token
