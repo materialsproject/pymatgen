@@ -12,7 +12,7 @@ import json
 import os
 from collections import namedtuple
 from fractions import Fraction
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, cast
 import numpy as np  # type: ignore
 import scipy.constants as sc  # type: ignore
 import pandas as pd  # type: ignore
@@ -122,8 +122,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             return []
         filtered = np.where(np.dot(np.array(self.beam_direction), np.transpose(points)) == laue_zone)
         result = points[filtered]
-        result_tuples = [tuple(x) for x in result.tolist()]
-        return result_tuples  # type: ignore
+        result_tuples = cast(List[Tuple[int, int, int]], [tuple(x) for x in result.tolist()])
+        return result_tuples
 
     def get_interplanar_spacings(self, structure: Structure, points: List[Tuple[int, int, int]]) \
             -> Dict[Tuple[int, int, int], float]:
@@ -261,7 +261,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         cell_intensity = dict(zip(plane, cell_intensity_val))
         return cell_intensity
 
-    def get_pattern(self, structure: Structure, scaled: bool = True, two_theta_range: tuple = (0, 90)) \
+    def get_pattern(self, structure: Structure) \
             -> pd.DataFrame:
         """
             Returns all relevant TEM DP info in a pandas dataframe.
