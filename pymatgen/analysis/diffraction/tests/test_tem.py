@@ -219,5 +219,6 @@ class XRDCalculatorTest(PymatgenTest):
         structure = self.get_structure("Si")
         self.assertTrue(isinstance(c.show_plot_2d(structure), go.Figure))
 
+
 if __name__ == '__main__':
     unittest.main()
