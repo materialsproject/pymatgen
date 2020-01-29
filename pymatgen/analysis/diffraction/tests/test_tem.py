@@ -7,13 +7,13 @@ Unit tests for TEM calculator.
 """
 
 import unittest
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
-from pymatgen.analysis.diffraction.tem import TEMCalculator
-from pymatgen.util.testing import PymatgenTest
-import numpy as np
-import pandas as pd
-import plotly.graph_objs as go
+from pymatgen.core.lattice import Lattice  # type: ignore
+from pymatgen.core.structure import Structure  # type: ignore
+from pymatgen.analysis.diffraction.tem import TEMCalculator  # type: ignore
+from pymatgen.util.testing import PymatgenTest  # type: ignore
+import numpy as np  # type: ignore
+import pandas as pd  # type: ignore
+import plotly.graph_objs as go  # type: ignore
 
 __author__ = "Frank Wan, Jason Liang"
 __copyright__ = "Copyright 2019, The Materials Project"
