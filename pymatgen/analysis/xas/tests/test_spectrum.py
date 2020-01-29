@@ -79,7 +79,7 @@ class XASTest(PymatgenTest):
         self.k_xanes.x = np.zeros(100)
         self.assertRaises(ValueError, XAS.stitch,
                           self.k_xanes, self.k_exafs)
-        self.k_xanes.absorption_element = Element("Li")
+        self.k_xanes.absorbing_element = Element("Pt")
         self.assertRaises(ValueError, XAS.stitch,
                           self.k_xanes, self.k_exafs, mode="XAFS")
 
@@ -94,7 +94,7 @@ class XASTest(PymatgenTest):
         self.l2_xanes.spectrum_type = "EXAFS"
         self.assertRaises(ValueError,  XAS.stitch,
                           self.l2_xanes, self.l3_xanes, mode="L23")
-        self.l2_xanes.absorption_element = Element("Pt")
+        self.l2_xanes.absorbing_element = Element("Pt")
         self.assertRaises(ValueError, XAS.stitch,
                           self.l2_xanes, self.l3_xanes, mode="L23")
         self.assertRaises(ValueError, XAS.stitch,

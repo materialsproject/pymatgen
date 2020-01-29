@@ -28,7 +28,7 @@ class XAS(Spectrum):
         x: A sequence of x-ray energies in eV
         y: A sequence of mu(E)
         structure (Structure): Structure associated with the spectrum
-        absorption_element (Element): Element associated with the spectrum
+        absorbing_element (Element): Element associated with the spectrum
         edge (str): Absorption edge associated with the spectrum
         spectrum_type (str): 'XANES' or 'EXAFS'
 
@@ -39,8 +39,8 @@ class XAS(Spectrum):
     .. attribute: y
         The sequence of mu(E)
 
-    .. attribute: absorption_element
-        The absorption_element of the spectrum
+    .. attribute: absorbing_element
+        The absorbing_element of the spectrum
 
     .. attribute: edge
         The edge of the spectrum
@@ -52,16 +52,16 @@ class XAS(Spectrum):
     XLABEL = 'Energy'
     YLABEL = 'Intensity'
 
-    def __init__(self, x, y, structure, absorption_element, edge="K",
+    def __init__(self, x, y, structure, absorbing_element, edge="K",
                  spectrum_type="XANES"):
         """
         Initializes a spectrum object.
         """
 
-        super(XAS, self).__init__(x, y, structure, absorption_element,
+        super(XAS, self).__init__(x, y, structure, absorbing_element,
                                   edge)
         self.structure = structure
-        self.absorption_element = absorption_element
+        self.absorbing_element = absorbing_element
         self.edge = edge
         self.spectrum_type = spectrum_type
         self.e0 = self.x[np.argmax(np.gradient(self.y) /
@@ -73,7 +73,7 @@ class XAS(Spectrum):
 
     def __str__(self):
         return "%s %s Edge %s for %s: %s" % (
-            self.absorption_element, self.edge, self.spectrum_type,
+            self.absorbing_element, self.edge, self.spectrum_type,
             self.structure.composition.reduced_formula,
             super(XAS, self).__str__()
         )
@@ -108,15 +108,16 @@ class XAS(Spectrum):
         if not m.fit(self.structure, other.structure):
             raise ValueError(
                 "The input structures from spectra mismatch")
-        if not self.absorption_element == other.absorption_element:
-            raise ValueError("The absorption element from spectra are not the same")
+        if not self.absorbing_element == other.absorbing_element:
+            raise ValueError("The absorbing element from spectra are different")
 
         if mode == "XAFS":
             if not self.edge == other.edge:
                 raise ValueError("Only spectrum with the same absorption "
                                  "edge can be stitched in XAFS mode.")
             if self.spectrum_type == other.spectrum_type:
-                raise ValueError("Please provide one XANES and one EXAFS spectrum.")
+                raise ValueError("Need one XANES and one EXAFS spectrum to "
+                                 "stitch in XAFS mode")
 
             xanes = self if self.spectrum_type == "XANES" else other
             exafs = self if self.spectrum_type == "EXAFS" else other
@@ -164,22 +165,23 @@ class XAS(Spectrum):
             energy_final = [3.8537 * i ** 2 + xanes.e0 if i > 0 else
                             -3.8537 * i ** 2 + xanes.e0 for i in wavenumber_final]
             return XAS(energy_final, mu_final, self.structure,
-                       self.absorption_element, xanes.edge, "XAFS")
+                       self.absorbing_element, xanes.edge, "XAFS")
 
         if mode == "L23":
             if not self.spectrum_type == "XANES" and \
                     other.spectrum_type == "XANES":
                 raise ValueError("Only XANES spectrum can be stitched in "
                                  "L23 mode.")
-            if self.edge not in ["L2", "L3"] or other.edge not in ["L2", "L3"]:
-                raise ValueError("Only L2 and L3 edge spectrum can be stitched "
+            if self.edge not in ["L2", "L3"] or other.edge not in ["L2", "L3"] \
+                    or self.edge == other.edge:
+                raise ValueError("Need one L2 and one L3 edge spectrum to stitch"
                                  "in L23 mode.")
             l2_xanes = self if self.edge == "L2" else other
             l3_xanes = self if self.edge == "L3" else other
-            if l2_xanes.absorption_element.number > 30:
+            if l2_xanes.absorbing_element.number > 30:
                 raise ValueError(
                     "Does not support L2,3-edge XANES for {} element"
-                    .format(l2_xanes.absorption_element))
+                    .format(l2_xanes.absorbing_element))
 
             l2_f = interp1d(
                 l2_xanes.x, l2_xanes.y, bounds_error=False, fill_value=0)
@@ -190,7 +192,7 @@ class XAS(Spectrum):
             energy = np.linspace(min(l3_xanes.x), max(l2_xanes.x),
                                  num=num_samples)
             mu = [i + j for i, j in zip(l2_f(energy), l3_f(energy))]
-            return XAS(energy, mu, self.structure, self.absorption_element,
+            return XAS(energy, mu, self.structure, self.absorbing_element,
                        "L23", "XANES")
 
         else:
