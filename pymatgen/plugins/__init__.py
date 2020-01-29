@@ -1,5 +1,5 @@
 """
-API for implementing plugins for pymatgen.
+Plugin architecture for pymatgen.
 """
 
 import pkg_resources
