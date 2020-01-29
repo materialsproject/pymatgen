@@ -13,13 +13,14 @@ from pymatgen.analysis.diffraction.tem import TEMCalculator
 from pymatgen.util.testing import PymatgenTest
 import numpy as np
 import pandas as pd
+import plotly.graph_objs as go
 
-__author__ = "Frank Wan"
+__author__ = "Frank Wan, Jason Liang"
 __copyright__ = "Copyright 2019, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Frank Wan"
-__email__ = "fwan@berkeley.edu"
-__date__ = "7/9/19"
+__version__ = "0.2"
+__maintainer__ = "Jason Liang"
+__email__ = "fwan@berkeley.edu, yhljason@berkeley.edu"
+__date__ = "1/28/20"
 
 
 class XRDCalculatorTest(PymatgenTest):
@@ -203,17 +204,20 @@ class XRDCalculatorTest(PymatgenTest):
         c = TEMCalculator()
         points = c.generate_points(-2, 2)
         structure = self.get_structure("Si")
-        dots = c.TEM_dots(structure, points)
+        dots = c.tem_dots(structure, points)
         self.assertTrue(all([isinstance(x, tuple) for x in dots]))
 
     def test_get_pattern(self):
         # All dependencies in get_pattern method are tested.
         # Only make sure result is a pd dataframe.
         c = TEMCalculator()
-        points = c.generate_points(-2, 2)
         structure = self.get_structure("Si")
         self.assertTrue(isinstance(c.get_pattern(structure), pd.DataFrame))
 
+    def test_show_plot_2d(self):
+        c = TEMCalculator()
+        structure = self.get_structure("Si")
+        self.assertTrue(isinstance(c.show_plot_2d(structure), go.Figure))
 
 if __name__ == '__main__':
     unittest.main()

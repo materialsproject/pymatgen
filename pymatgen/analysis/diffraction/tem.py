@@ -1,6 +1,7 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
+# Credit to Dr. Shyue Ping Ong for the template of the calculator
 
 """
 This module implements a TEM pattern calculator.
@@ -26,10 +27,6 @@ with open(os.path.join(os.path.dirname(__file__),
     ATOMIC_SCATTERING_PARAMS = json.load(f)
 set_matplotlib_formats('retina')
 poff.init_notebook_mode(connected=True)
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-# Credit to Dr. Shyue Ping Ong for the template of the calculator
 
 __author__ = "Frank Wan, Jason L"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -44,18 +41,19 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     Computes the TEM pattern of a crystal structure for multiple Laue zones.
     """
 
-    def __init__(self, wavelength_cache: Dict[float, float] = {}, symprec: float = None, voltage: float = 200,
-                 beam_direction: List[int] = [0, 0, 1], camera_length: int = 160,
+    def __init__(self, wavelength_cache: Dict[float, float] = None, symprec: float = None, voltage: float = 200,
+                 beam_direction: Tuple[int, int, int] = (0, 0, 1), camera_length: int = 160,
                  debye_waller_factors: Dict[str, float] = None, cs: float = 1) -> None:
         """
         Initializes the TEM calculator with a given radiation.
         Args:
+            wavelength_cache (dict) : A wavelength to voltage reference for later use.
             symprec (float): Symmetry precision for structure refinement. If
             set to 0, no refinement is done. Otherwise, refinement is
             performed using spglib with provided precision.
             voltage (float): The wavelength is a function of the TEM microscope's
             voltage. By default, set to 200 kV. Units in kV.
-            beam_direction: The direction of the electron beam fired onto the sample.
+            beam_direction (tuple): The direction of the electron beam fired onto the sample.
             By default, set to [0,0,1], which corresponds to the normal direction
             of the sample plane.
             camera_length (int): The distance from the sample to the projected diffraction pattern.
@@ -77,13 +75,15 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
 
     def wavelength_rel(self) -> float:
         """
-        Calculates the wavelength of the electron beam with relativstic kinematic effects taken
+        Calculates the wavelength of the electron beam with relativistic kinematic effects taken
         into account (electrons are way faster than X-rays, so you can't neglect these effects).
         Args:
             none
         Returns:
             relativisticWavelength (in meters)
         """
+        if self.wavelength_cache is None:
+            self.wavelength_cache = {}
         if self.voltage in self.wavelength_cache:
             return self.wavelength_cache[self.voltage]
         wavelength_rel = sc.h / np.sqrt(2 * sc.m_e * sc.e * 1000 * self.voltage *
@@ -271,7 +271,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                 PandasDataFrame
         """
         points = self.generate_points(-10, 11)
-        TEM_dots = self.TEM_dots(structure, points)
+        TEM_dots = self.tem_dots(structure, points)
         field_names = ["Pos", "(hkl)", "Intnsty (norm)", "Film rad", "Interplanar Spacing"]
         rows_list = []
         for dot in TEM_dots:
@@ -408,7 +408,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
 
         return positions
 
-    def TEM_dots(self, structure: Structure, points: list) -> list:
+    def tem_dots(self, structure: Structure, points: list) -> list:
         """
         Generates all TEM_dot as named tuples that will appear on the 2D diffraction pattern.
         Args:
@@ -433,16 +433,16 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             dots.append(TEM_dot)
         return dots
 
-    def show_plot_2d(self, structure: Structure):
+    def show_plot_2d(self, structure: Structure) -> go.Figure:
         """
         Generates the 2D diffraction pattern of the input structure.
         Args:
             structure (Structure): The input structure.
         Returns:
-            none (shows 2D DP)
+            Figure
         """
         points = self.generate_points(-10, 11)
-        TEM_dots = self.TEM_dots(structure, points)
+        TEM_dots = self.tem_dots(structure, points)
         xs = []
         ys = []
         hkls = []
@@ -518,3 +518,4 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
 
         fig = go.Figure(data=data, layout=layout)
         poff.iplot(fig, filename='stuff')
+        return fig
