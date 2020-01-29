@@ -261,8 +261,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         cell_intensity = dict(zip(plane, cell_intensity_val))
         return cell_intensity
 
-    def get_pattern(self, structure: Structure) \
-            -> pd.DataFrame:
+    def get_pattern_2d(self, structure: Structure) -> pd.DataFrame:
         """
             Returns all relevant TEM DP info in a pandas dataframe.
             Args:
