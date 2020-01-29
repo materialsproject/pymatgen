@@ -1277,6 +1277,7 @@ class MPNonSCFSet(MPRelaxSet):
         prev_incar=None,
         mode="line",
         nedos=2001,
+        dedos=0.005,
         reciprocal_density=100,
         sym_prec=0.1,
         kpoints_line_density=20,
@@ -1292,6 +1293,9 @@ class MPNonSCFSet(MPRelaxSet):
             prev_incar (Incar/string): Incar file from previous run.
             mode (str): Line, Uniform or Boltztrap mode supported.
             nedos (int): nedos parameter. Default to 2001.
+            dedos (float): setting nedos=0 and uniform mode in from_prev_calc,
+                an automatic nedos will be calculated using the total energy range
+                divided by the energy step dedos
             reciprocal_density (int): density of k-mesh by reciprocal
                 volume (defaults to 100)
             sym_prec (float): Symmetry precision (for Uniform mode).
@@ -1313,6 +1317,7 @@ class MPNonSCFSet(MPRelaxSet):
         self.prev_incar = prev_incar
         self.kwargs = kwargs
         self.nedos = nedos
+        self.dedos = dedos
         self.reciprocal_density = reciprocal_density
         self.sym_prec = sym_prec
         self.kpoints_line_density = kpoints_line_density
@@ -1488,6 +1493,13 @@ class MPNonSCFSet(MPRelaxSet):
                 self.kpoints_line_density = (
                     self.kpoints_line_density * self.small_gap_multiply[1]
                 )
+
+        # automatic setting of nedos using the total energy range and the energy step dedos
+        if self.nedos == 0:
+            emax = max([eigs.max() for eigs in vasprun.eigenvalues.values()])
+            emin = min([eigs.min() for eigs in vasprun.eigenvalues.values()])
+            self.nedos = int((emax - emin) / self.dedos) 
+
         return self
 
     @classmethod

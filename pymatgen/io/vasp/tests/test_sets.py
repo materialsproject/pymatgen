@@ -604,6 +604,11 @@ class MPNonSCFSetTest(PymatgenTest):
         self.assertEqual(vis.incar["ISMEAR"], -5)
         self.assertEqual(vis.incar["ISYM"], 2)
 
+        # check uniform mode with automatic nedos
+        vis = MPNonSCFSet.from_prev_calc(prev_calc_dir=prev_run, mode="Uniform",
+                                         nedos=0)
+        self.assertEqual(vis.incar["NEDOS"], 12217)
+
         # test line mode
         vis = MPNonSCFSet.from_prev_calc(
             prev_calc_dir=prev_run,
@@ -657,6 +662,10 @@ class MPNonSCFSetTest(PymatgenTest):
         self.assertEqual(vis.incar["ISMEAR"], -5)
         self.assertEqual(vis.incar["ISYM"], 2)
 
+        vis = MPNonSCFSet(_dummy_structure, mode="Uniform", nedos=0)
+        vis.override_from_prev_calc(prev_calc_dir=prev_run)
+        self.assertEqual(vis.incar["NEDOS"], 12217)
+        
         # test line mode
         vis = MPNonSCFSet(
             _dummy_structure,
